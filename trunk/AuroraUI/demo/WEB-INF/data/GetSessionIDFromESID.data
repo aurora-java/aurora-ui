@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<root>
-	<query ElementName="EXCEL-REPORT-SESSION">
-		select   s.session_id
-		from      excel_report_session s
-		where   s.encoded_session_id = ${@SESSIONIDSTR}
-	</query>
-</root>

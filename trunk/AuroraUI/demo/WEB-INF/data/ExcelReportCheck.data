@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<query ElementName="excel-report-access-check" Dump="true"
-	   Sql="select count(*) as total_count
-			  from excel_report_session s
-			  where s.encoded_session_id = ${@SESSIONIDSTR} and s.report_name = ${@REPORT_NAME}"  />
