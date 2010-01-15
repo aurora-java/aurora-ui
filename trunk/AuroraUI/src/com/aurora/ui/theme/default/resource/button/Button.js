@@ -1,0 +1,57 @@
+Aurora.Button = Ext.extend(Aurora.Component,{
+	disableCss:'item-btn-disabled',
+	overCss:'item-btn-over',
+	pressCss:'item-btn-pressed',
+	constructor: function(config) {
+        Aurora.Button.superclass.constructor.call(this, config);
+    },
+	initComponent : function(config){
+    	Aurora.Button.superclass.initComponent.call(this, config);
+    	this.el = this.wrap.child('button[atype=btn]');
+    	if(this.hidden == true){
+    		this.setVisible(false)
+    	}
+    },
+    initEvents : function(){
+    	Aurora.Button.superclass.initEvents.call(this);
+    	this.addEvents('click');  
+        this.el.on("click", this.onClick,  this);
+        this.el.on("mousedown", this.onMouseDown,  this);
+    },
+    setVisible: function(v){
+		if(v==true)
+			this.wrap.show();
+		else
+			this.wrap.hide();
+	},
+    destroy : function(){
+    	Aurora.Button.superclass.destroy.call(this);
+    	this.el.un("click", this.onClick,  this);
+    	delete this.el;
+    },
+    disable: function(){
+    	this.wrap.addClass(this.disableCss);
+    	this.el.dom.disabled = true;
+    },
+    enable: function(){
+    	this.wrap.removeClass(this.disableCss);
+    	this.el.dom.disabled = false;
+    },
+    onMouseDown: function(e){
+    	this.wrap.addClass(this.pressCss);
+    	Ext.get(document.documentElement).on("mouseup", this.onMouseUp, this);
+    },
+    onMouseUp: function(e){
+    	Ext.get(document.documentElement).un("mouseup", this.onMouseUp, this);
+    	this.wrap.removeClass(this.pressCss);
+    },
+    onClick: function(e){
+    	this.fireEvent("click", this);
+    },
+    onMouseOver: function(e){
+    	this.wrap.addClass(this.overCss);
+    },
+    onMouseOut: function(e){
+    	this.wrap.removeClass(this.overCss);
+    }
+});

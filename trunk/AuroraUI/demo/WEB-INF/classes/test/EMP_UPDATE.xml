@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql-service trace="true">
+	<update>
+	    begin
+			update EMP set
+				ENAME=${@ename}, 
+				JOB=${@job},
+				MGR=${@mgr}, 
+				HIREDATE=to_date(${@hiredate},'yyyy-mm-dd'),
+				SAL=${@sal},
+				DEPTNO=${@deptno}
+			where EMPNO = ${@empno};
+		end;
+	</update>
+</sql-service>

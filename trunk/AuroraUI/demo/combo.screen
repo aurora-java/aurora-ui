@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+    <static-model>
+        <employee name="Johnson" address="someplace" deptid="20"/>
+        <depts>
+            <option name="Sales" value="10"/>
+            <option name="Development" value="20"/>
+            <option name="Finance" value="30"/>
+        </depts>
+    </static-model>
+    <a:view template="default" package="com.aurora.ui">
+		<vBox id="vbox" column="3" labelWidth="75" width="150" className="mytable" title="更新Form" style="border:1px solid #cccccc;margin:10px;">
+			<comboBox name="comboBox" id="comboBox1" width="150" blankOption="true" displayField="name" valueField="value"/>
+			<comboBox name="comboBox" id="comboBox2" width="150" blankOption="true" displayField="name" valueField="value"/>
+			<comboBox name="comboBox" id="comboBox3" width="150" blankOption="true" displayField="name" valueField="value"/>
+		</vBox>
+    </a:view>
+</a:screen>

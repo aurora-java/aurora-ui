@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+    <a:init-procedure>
+		<sql-query service="test.EmpQueryMatrix" rootPath="EMP-LIST"  fetchAll="true" autoCount="true" />
+	</a:init-procedure>
+    <a:view template="default" package="com.aurora.ui">
+		<dataSets>
+			<dataSet id="DEPT">
+				<datas dataSource="/model/EMP-LIST"/>
+			</dataSet>
+		</dataSets>
+		<grid dataSet="DEPT" id="grid" width="700" height="400" style="border:none">
+			<columns>
+				<column dataIndex="JOB" width="150" prompt="岗位"/>
+					<column dataIndex="SAL" width="120" prompt="薪水"/>
+					<column dataIndex="HIREDATE" width="120" prompt="加入日期"/>	
+					<column dataIndex="EMPNO" width="120" prompt="No"/>
+					<column dataIndex="ENAME" width="150" prompt="姓  名"/>
+			</columns>
+		</grid>
+    </a:view>
+</a:screen>

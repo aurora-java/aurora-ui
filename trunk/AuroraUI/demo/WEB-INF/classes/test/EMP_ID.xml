@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql-service trace="true">
+	<parameters>
+		<parameter name="EMPNO"  dataType="java.lang.Long" input="false" output="true" inputPath="@EMPNO" outputPath="/parameter/@EMPNO"/>
+	</parameters>
+	<update>
+	    begin
+			select EMP_S.NEXTVAL into ${@EMPNO} from dual;
+		end;
+	</update>
+</sql-service>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:service trace="true" xmlns:a="http://www.aurora-framework.org/application" xmlns:p="uncertain.proc">
+	<a:init-procedure>
+		<p:echo/>
+		<batch-apply sourcepath="/parameter">
+			<p:switch test="@current_parameter/@_status">
+				<p:case value="new">	
+					<sql-execute service="test.CONTRACT_HEAD_CREATE" trace="true"/>
+					<batch-apply sourcepath="@current_parameter/partner">
+						<sql-execute service="test.CONTRACT_PARTNER_CREATE"/>
+					</batch-apply>
+				</p:case>
+				<p:case value="update">
+					<sql-execute service="test.CONTRACT_HEAD_UPDATE" trace="true"/>
+					<batch-apply sourcepath="@current_parameter/partner">
+						<p:switch test="@current_parameter/@_status">
+						<p:case value="new">
+							<sql-execute service="test.CONTRACT_PARTNER_CREATE"/>
+						</p:case>
+						<p:case value="update">
+							<sql-execute service="test.CONTRACT_PARTNER_UPDATE"/>
+						</p:case> 
+						</p:switch>
+					</batch-apply>					
+				</p:case> 
+			</p:switch>
+		</batch-apply>
+	</a:init-procedure>
+	<a:service-output output="/parameter" />
+</a:service>

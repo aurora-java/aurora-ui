@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query Sql="SELECT  NAME ,t.workflow_id AS VALUE FROM wfl_workflow t"
+ Target="workflow-data" />

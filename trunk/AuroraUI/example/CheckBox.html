@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>CheckBox</title>
+        <link type="text/css" rel="stylesheet" href="css/aurora.css" />
+		<link type="text/css" rel="stylesheet" href="../src/com/aurora/ui/theme/default/resource/core/Aurora.css" />
+        <link type="text/css" rel="stylesheet" href="../src/com/aurora/ui/theme/default/resource/checkbox/CheckBox.css" />
+        <script type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/ext-core.js"></script>
+        <script type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/Aurora.js"></script>
+        <script type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/Component.js"></script>
+        <script type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/checkbox/CheckBox.js"></script>
+		<script type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/DataSet.js"></script>
+    </head>
+    <body>
+    	<script type="text/javascript">
+    		var data = [
+				{data:{name:'张A',age:15, city:1, birth:new Date(),flag:'Y'},field:[{name:'flag',readonly:true}]},
+				{data:{name:'张B',age:16, city:2, birth:new Date(),flag:'N'}},
+				{data:{name:'张C',age:17, city:3, birth:new Date(),flag:'Y'}},
+				{data:{name:'张D',age:18, city:4, birth:new Date(),flag:'N'},field:[{name:'flag',checked:true}]}
+			];				
+			var ds = new Aurora.DataSet(data);
+    	</script>
+        <table>
+            <tr>
+                <td>是否校验 </td>
+                <td>
+                    <DIV class="" id="checkBox">
+                        <DIV class="item-checkbox" atype="checkbox">
+                        </DIV>
+                        <INPUT type="hidden"/>
+                    </DIV>
+                    <script type="text/javascript">                    	              
+                        new Aurora.CheckBox({
+                            id: 'checkBox',
+                            checkValue:'Y',
+							unCheckValue:'N'
+                        });
+						checkBox.bind(ds,'flag');								
+                    </script>
+                </td>
+            </tr>
+        </table>
+		<input type="button" value="第一条" onclick="ds.locate(0)">
+		<input type="button" value="下一条" onclick="ds.next()">
+    </body>
+</html>

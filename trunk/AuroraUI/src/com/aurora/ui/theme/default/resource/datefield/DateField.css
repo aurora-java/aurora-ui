@@ -1,0 +1,66 @@
+.item-dateButton {	
+	BACKGROUND: url(../datefield/datebtn.gif) no-repeat 2px 0px;
+}
+.item-dateField {
+	/*font-family:Verdana;
+	font-size:12px;*/
+	padding:1px;
+	background-color:#fff;
+	float:left;
+	text-align:center;
+	width:100%;
+	line-height:1.5em;
+}
+.item-dateField-head {	
+	FONT-WEIGHT: bold;	
+	FONT-SIZE: 100%;
+	BACKGROUND: url(../datefield/bgCalendarV2.gif) #305ebc repeat-x;
+	COLOR: #fff;	
+	LINE-HEIGHT: 17px;	
+	HEIGHT: 18px;	
+	TEXT-ALIGN: center;
+}
+.item-dateField a{
+	color:#1e5494;
+}
+
+.item-dateField table{
+	width:100%;
+	border:0;
+}
+
+.item-dateField table thead{color:#acacac; height:20px;}
+
+.item-dateField table td {
+	font-size: 11px;
+	padding:1px;
+}
+.item-dateField-pre{
+	BACKGROUND: url(../datefield/prebtn.gif);
+	cursor:pointer;
+	float:left;
+	padding-right:5px;
+	width:17px;
+	height:17px;
+}
+.item-dateField-next{
+	BACKGROUND: url(../datefield/nextbtn.gif);
+	cursor:pointer;
+	float:right;
+	padding-right:5px;
+	width:17px;
+	height:17px;
+}
+.item-dateField td.onToday {
+	background-color:#FDAB00;
+	color:#fff;
+}
+.item-dateField td.dateover {
+	background-color:#039;
+	cursor:pointer;
+	color:#fff;
+}
+.item-dateField td.onSelect {
+	background-color:#6899FF;
+	color:#fff;
+}

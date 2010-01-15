@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query Sql="SELECT s.NAME,s.value FROM wfl_instance_status_tl_v s  "
+ Target="workflow-status" />

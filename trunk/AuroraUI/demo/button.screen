@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+    <static-model>
+    </static-model>
+    <a:view template="default" package="com.aurora.ui">
+    	<script>
+		<![CDATA[
+			
+			function test(){
+				alert(1)
+			}
+		]]>
+		</script>
+		<button text="测试" style="margin:100px;"></button>
+		
+		<button text="大按钮" height="60" style="margin:100px;"></button>
+    </a:view>
+</a:screen>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql-service trace="true">
+	<parameters>
+		<parameter name="CONTRACT_PARTNER_LINE_ID"  dataType="java.lang.Long" input="false" output="true"/>
+	</parameters>
+	<update>
+	    begin
+			insert into con_contract_partner_lines(
+				CONTRACT_HEADER_ID,
+				CONTRACT_PARTNER_LINE_ID,
+				PARTNER_CATEGORY,
+				PARTNER_ID,
+				BANK_BRANCH_CODE,
+				BANK_ACCOUNT_CODE
+			) values(
+				${../../@contract_header_id},
+				con_contract_headers_s.NEXTVAL,
+				${@partner_category},
+				${@partner_id},
+				${@bank_branch_code},
+				${@bank_account_code}
+			) returning CONTRACT_PARTNER_LINE_ID into ${@CONTRACT_PARTNER_LINE_ID};
+		end;
+	</update>
+</sql-service>

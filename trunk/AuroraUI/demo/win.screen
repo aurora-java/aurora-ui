@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+
+    <a:init-procedure>
+		<sql-query service="test.DEPTQuery" rootPath="DEPT-LIST"  fetchAll="true" autoCount="true" />
+	</a:init-procedure>
+    <a:view template="default" package="com.aurora.ui">
+		<dataSets>
+			<dataSet name="QUERY_DS" href="test.EMP"/>
+			<dataSet name="DEPT_DS">
+				<datas dataSource="/model/DEPT-LIST"/>
+			</dataSet>
+			<dataSet name="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+				<fields>
+					<field name="deptno" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+					<field name="hiredate" datatype="date" />					
+				</fields>
+			</dataSet>
+		</dataSets>
+		<vBox id="queryForm" labelWidth="50" width="350" className="mytable" title="查询Form" style="border:1px solid #cccccc;margin:10px;">
+			<textField name="empno" label="empno" bindTarget="QUERY_DS" width="150" />
+			<textField name="ename" label="ename" bindTarget="QUERY_DS" validAlign="bottom" width="150"/>
+		</vBox>
+		
+		<hBox style="margin:10px;">
+			<input type="button" value="查询" onclick="$$('GRID_DS').query()"></input>
+		</hBox>
+		<hBox width="800" style="margin:10px;">
+			<grid dataSet="GRID_DS" id="grid2" width="700" height="300">
+				<columns>
+					<column dataIndex="empno" editor="tf1" width="50" prompt="empno"/>
+					<column dataIndex="ename" editor="tf" width="100" prompt="ename"/>
+					<column prompt="岗位">
+						<column dataIndex="job" editor="tf" width="80" prompt="job"/>
+						<column dataIndex="mgr" editor="tf" width="60" prompt="mgr"/>
+						<column dataIndex="hiredate" renderer="dateFormate" editor="dp" width="130" prompt="hiredate"/>
+					</column>
+					<column dataIndex="deptno" editorfunction="changeEditor" width="150" prompt="deptno"/>
+					<column dataIndex="sal" editor="tf" width="80" prompt="sal"/>
+				</columns>
+				<editors>
+					<textField id="tf"/>
+					<comboBox id="cb"/>
+					<datePicker id="dp"/>
+				</editors>
+			</grid>
+		</hBox>
+		<hBox style="margin:10px;">
+			<input type="button" value="第一条" onclick="$$('GRID_DS').first()"></input>
+			<input type="button" value="上一条" onclick="$$('GRID_DS').pre()"></input>
+			<input type="button" value="下一条" onclick="$$('GRID_DS').next()"></input>
+			<input type="button" value="上一页" onclick="$$('GRID_DS').prePage()"></input>
+			<input type="button" value="下一页" onclick="$$('GRID_DS').nextPage()"></input>
+			<div style='width:250px'></div><input type="button" value="编辑1" onclick="showEditor('hiredate')"></input>
+			<input type="button" value="编辑2" onclick="showEditor('deptno')"></input>
+		</hBox>
+		<script>
+			function showEditor(name){
+				$$('grid2').showEditor(Math.ceil(10*Math.random()),name)
+			}
+			
+			function dateFormate(record,name,value){
+				return Aurora.formateDate(value);
+			}
+			
+			function changeEditor(record){
+				var sal = record.get('sal');
+				if(sal > 1500){
+					return "cb"
+				}else{
+					return "cb"
+				}
+			}
+		</script>
+    </a:view>
+</a:screen>

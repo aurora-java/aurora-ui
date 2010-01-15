@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+    <a:init-procedure>
+	</a:init-procedure>
+    <a:view template="default" package="com.aurora.ui">   	
+		<script>
+		<![CDATA[
+			function submitsuccess(){
+				$$('contract_new_win').close();
+				$$('GRID_DS').query();
+			}
+		]]>
+		</script>
+		<dataSets>
+    		<dataSet id="CONTRACT_HEAD_DS" href="test.CONTRACT_HEAD" submiturl="contract_control.svc">
+    			<fields>
+					<field name="DOCUMENT_NUMBER" required="true"/>
+					<field name="DOCUMENT_DESC" required="true"/>		 				
+				</fields>
+    			<events>
+					<event name="submitsuccess" handler="submitsuccess"/>
+				</events>
+			</dataSet>
+			
+			<dataSet id="CONTRACT_PARTNER_DS" href="test.CONTRACT_PARTNER">
+				<fields>
+					<field name="PARTNER_CATEGORY" required="true"/>
+					<field name="PARTNER_ID" required="true"/>	
+					<field name="BANK_BRANCH_CODE"	/>
+				</fields>				
+			</dataSet>
+			<dataSet id="CONTRACT_OBJECT_DS" href="test.CONTRACT_OBJECT">
+				<fields>
+					<field name="OBJECT_TYPE" required="true"/>
+					<field name="ADDRESS" required="true"/>
+					<field name="DUE_DATE" required="true" datatype="date"/>
+					<field name="ACTUAL_DATE" datatype="date"/>		 			 	 				
+				</fields>				
+			</dataSet>
+		</dataSets>
+		<script>
+		<![CDATA[
+			function validator(record, name, value){
+				if(value == "1"){
+					return true;
+				}else{
+					return '必须为1'
+				}
+			}
+			
+			$$('CONTRACT_HEAD_DS').bind('partner', $$('CONTRACT_PARTNER_DS'));
+			//$$('CONTRACT_HEAD_DS').bind('object', $$('CONTRACT_OBJECT_DS'));
+		]]>
+		</script>
+    	<box column="2" promptWidth="75" width="500" title="合同信息" className="mytable" style="margin:10px;border:1px solid #cccccc;">
+			<textField name="DOCUMENT_NUMBER" bindTarget="CONTRACT_HEAD_DS" prompt="合同号" width="150" />
+			<textField name="DOCUMENT_DESC" bindTarget="CONTRACT_HEAD_DS" prompt="合同名称" validAlign="bottom" width="150"/>
+			<comboBox name="CURRENCY_CODE" options="CURRENCY_DS" bindTarget="CONTRACT_HEAD_DS" prompt="币种" width="150" displayField="currency_name" valueField="currency_code"/>
+			<textField name="AMOUNT" bindTarget="CONTRACT_HEAD_DS" prompt="金额" width="150"/>
+			<datePicker name="DOCUMENT_DATE" bindTarget="CONTRACT_HEAD_DS" prompt="签订日期" width="150"/>
+		</box>
+		<script>
+		<![CDATA[
+			function newrecord(){
+				$$('CONTRACT_HEAD_DS').create()
+			}
+			function save(){
+				$$('CONTRACT_HEAD_DS').submit()
+			}
+			function pre(){
+				$$('CONTRACT_HEAD_DS').pre()
+			}
+			function next(){
+				$$('CONTRACT_HEAD_DS').next()
+			}
+			
+			function createPartnerRecord(){
+				$$('CONTRACT_PARTNER_DS').create({})
+			}
+			function removePartnerRecord(){
+				$$('CONTRACT_PARTNER_DS').remove();
+			}
+			function createObjectRecord(){
+				$$('CONTRACT_OBJECT_DS').create({})
+			}
+			function removeObjectRecord(){
+				$$('CONTRACT_OBJECT_DS').remove();
+			}
+		]]>
+		</script>
+		<hBox style="margin-left:10px;">
+			<button text="新增" click="newrecord"/>
+			<button text="保存" click="save"/>
+			<button text="上一条" click="pre"/>
+			<button text="下一条" click="next"/>
+		</hBox>
+		
+    	<tabPanel id="tab" width="700" height="365" style="margin:10px">
+    		<tab prompt="合同对象">
+    			<hBox style="margin:5px;">
+    				<button text="新增对象" click="createPartnerRecord"/>
+    				<button text="删除对象" click="removePartnerRecord"/>
+				</hBox>	
+    			<grid dataSet="CONTRACT_PARTNER_DS" width="650" height="280" style="margin-left:5px;">
+					<columns>
+						<column dataIndex="PARTNER_CATEGORY" editor="tf" width="100" prompt="对象类型"/>
+						<column dataIndex="PARTNER_ID" editor="tf" width="100" prompt="对象代码"/>
+						<column dataIndex="PARTNER_NAME" width="100" prompt="对象名称"/>
+						<column dataIndex="BANK_BRANCH_CODE" editor="tf" width="130" prompt="开户行"/>
+						<column dataIndex="BANK_ACCOUNT_CODE" editor="tf" width="130" prompt="帐户"/>
+						<column dataIndex="CONTRACT_PARTNER_LINE_ID" width="80" prompt="ID"/>						
+					</columns>
+					<editors>
+						<textField id="tf"/>
+					</editors>
+				</grid>
+    		</tab>
+    		<tab prompt="交付计划 ">
+    			<hBox style="margin:5px;">
+    				<button text="新增对象" click="createObjectRecord"/>
+    				<button text="删除对象" click="removeObjectRecord"/>
+				</hBox>	
+    			<grid dataSet="CONTRACT_OBJECT_DS" width="650" height="280" style="margin-left:5px;">
+					<columns>
+						<column dataIndex="CONTRACT_OBJECT_LINE_ID" width="100" prompt="ID"/>
+						<column dataIndex="OBJECT_TYPE" editor="tf1" width="100" prompt="对象"/>
+						<column dataIndex="AMOUNT" width="100" prompt="数量"/>
+						<column dataIndex="ADDRESS" editor="tf1" width="130" prompt="交付地址"/>
+						<column dataIndex="DUE_DATE" renderer="Aurora.formateDate" editor="dp1" width="130" prompt="交付时间"/>
+						<column dataIndex="ACTUAL_DATE" renderer="Aurora.formateDate" editor="dp1" width="80" prompt="实际时间"/>
+					</columns>
+					<editors>
+						<textField id="tf1"/>
+						<datePicker id="dp1"/>
+					</editors>
+				</grid>
+    		</tab>
+    	</tabPanel>
+    </a:view>
+</a:screen>

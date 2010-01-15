@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+    <a:init-procedure>
+		<sql-query service="test.EmpQueryMatrix" rootPath="EMP-LIST"  fetchAll="true" autoCount="true" />
+	</a:init-procedure>
+    <a:view template="default" package="com.aurora.ui">
+		<dataSets>
+			<dataSet name="DEPT">
+				<datas dataSource="/model/EMP-LIST"/>
+			</dataSet>
+			
+			<dataSet name="STATUS">
+				<datas>
+					<record name="创建" code="1"/>
+					<record name="审批" code="2"/>
+				</datas>
+			</dataSet>
+			
+			<dataSet name="QUERY_FORM">
+				<fields>
+					<field name="empno" required="true" label="empno"/>
+					<field name="name1" required="true" options="DEPT" label="控制策略"/>
+					<field name="name2" options="STATUS" label="状态"/>
+				</fields>
+			</dataSet>
+		</dataSets>
+		
+		<box labelWidth="100" title="测试DataSet" style="margin:10px;border:1px solid #bbb" cellspacing="0">
+			<textField name="empno" bindTarget="QUERY_FORM" width="150" />
+			<comboBox name="name1" bindTarget="QUERY_FORM"  id="comb1" width="150" displayField="ENAME" valueField="EMPNO"/>
+			<comboBox name="name2" bindTarget="QUERY_FORM"  id="comb2" width="150" displayField="name" valueField="code"/>
+		</box>
+		<input type="button" value="test" onclick="QUERY_FORM.submit('')"/>
+		<input type="button" value="test" onclick="QUERY_FORM.validate()"/>
+    </a:view>
+</a:screen>

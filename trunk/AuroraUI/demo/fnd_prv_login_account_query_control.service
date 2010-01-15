@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service >
+	<json-service array="list"/>
+	<action>
+		<echo xmlns="uncertain.proc"/>
+		<sql-query service="prv.login_account_query" fetchall="false" autocount="true" trace="true" rootpath="list"/> 	
+	</action>
+</service>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundle>
+	<!-- 创建在fnd_atm_attachment_multi中的记录 -->
+	<procedure DataType="java.lang.Long" ReturnField="@RECORD_ID" ReturnTarget="/model/MULTI" Name="FND_FILEUPLOAD.get_multi_attachment_id">
+		<param DataType="java.lang.String" InputField="@source"/>
+		<param DataType="java.lang.String" InputField="@pkvalue"/>
+		<param DataType="java.lang.String" InputField="/session/@user_id"/>
+	</procedure>
+	<!-- 获取与源记录对应的attachment_id，如果没有就创建一条新记录 -->
+	<procedure DataType="java.lang.Long" ReturnField="@RESULT" ReturnTarget="/model/FILEUPLOAD" Name="FND_FILEUPLOAD.GET_ATTACHMENT_ID">
+		<param DataType="java.lang.String" Value="fnd_atm_attachment_multi"/>
+		<param DataType="java.lang.String" InputField="/model/MULTI/@RECORD_ID"/>
+		<param DataType="java.lang.String" InputField="/session/@user_id"/>
+	</procedure>
+	<!-- 根据上传的文件名获取文件类型 -->
+	<procedure ReturnTarget="/model/FILEUPLOAD" Name="FND_FILEUPLOAD.SET_ATTACHMENT_FILE">
+		<param DataType="java.lang.Long" InputField="/model/FILEUPLOAD/@RESULT"/>
+		<param DataType="java.lang.String" InputField="@FILE_NAME"/>
+		<param DataType="java.lang.String" ReturnField="@TYPE_CODE"/>
+	</procedure>
+	<!-- 将附件与源记录关联,保存上传文件的信息 -->
+	<update>
+	begin
+		update fnd_atm_attachment_multi
+		set attachment_id = ${/model/FILEUPLOAD/@RESULT}
+		where record_id=${/model/MULTI/@RECORD_ID};
+		update fnd_atm_attachment t
+		   set t.file_size = ${@size},
+		       t.created_by = ${/session/@user_id}
+		 where t.attachment_id = ${/model/FILEUPLOAD/@RESULT};
+	end;
+	</update>
+</bundle>
