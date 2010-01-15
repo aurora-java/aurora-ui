@@ -1151,6 +1151,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     		var datas = [].concat(res.result.record);
     		this.refreshRecord(datas)
     	}
+    	Aurora.showMessage('成功', '操作成功!');
     	this.fireEvent('submitsuccess', this, res)
     },
     refreshRecord : function(datas){
