@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<query Sql="select wfl_core.can_view_instance( ${/session/@user_id}, ${@instance_id} ) as can_access from dual "  
-             ElementName="workflow-access-check" 
-             test-field="workflow-access-check/@CAN_ACCESS" test-value="1"  />
