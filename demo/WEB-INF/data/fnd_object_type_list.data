@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query Sql="select 'data' name,'data' value from dual 
+  union all(select 'lov' name,'lov' value from dual) 
+  union all(select 'selector_page' name,'selector_page' value from dual)
+  union all(select 'view' name,'view' value from dual)
+  union all(select 'procedure' name,'procedure' value from dual)" Target="/model/fnd_object_type_list"/>

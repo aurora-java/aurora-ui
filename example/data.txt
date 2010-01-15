@@ -1,0 +1,1 @@
+{"result":{"list":{"record":[{data:{name:'张A',age:15},field:[{name:'name',type:'string',readonly:true}]},{data:{name:'张B',age:16}},{data:{name:'张C',age:17},field:[{name:'name', type:'string',required:true}]},{data:{name:'张D',age:18}}]}},"success":true}

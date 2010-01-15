@@ -1,0 +1,48 @@
+<model baseTable="EMP" alias="e">
+	<fields>
+		<field name="empno" datatype="java.lang.Long" databaseType="BIGINT" prompt="empno"/>
+		<field name="ename" datatype="java.lang.String" databaseType="VARCHAR" prompt="ename"/>
+		<field name="job" datatype="java.lang.String" databaseType="BIGINT"  prompt="job" />
+		<field name="mgr" datatype="java.lang.Long" databaseType="BIGINT" prompt="mgr"/>
+		<field name="hiredate" datatype="java.sql.Date" databaseType="DATE" prompt="hiredate" />
+		<field name="deptno" datatype="java.lang.Long" databaseType="BIGINT" prompt="deptno" options="DEPT_DS" displayField="dname" valueField="deptno"/>
+		<field name="sal" datatype="java.lang.Long" databaseType="FLOAT" prompt="sal"/>
+		<field name="comm" datatype="java.lang.Long" databaseType="FLOAT" prompt="comm"/>
+		<field name="creation_date" datatype="date" databaseType="DATE" updateExpression="sysdate" prompt="creationDate"/>
+		<field name="NOW_DATE" datatype="date" expression="sysdate" databaseType="DATE" prompt="NOW_DATE"/>
+		<ref-field name="dname" sourceField="dname" sourceModel="test.DEPT" prompt="dname"/>
+		<ref-field name="mgr_name" sourceField="ename" relationName="MGR" prompt="mgrName" title="选择MGR" winWidth="350" valueField="mgr" winHeight="420" ref="search.screen"/>
+	</fields>
+	<primary-key>
+		<field name="empno"/>
+	</primary-key>
+	<relations>
+		<relation joinType="INNER" refModel="test.DEPT">
+			<reference localField="DEPTNO" foreignField="DEPTNO"/>
+		</relation>
+		<relation name="MGR" joinType="LEFT OUTER" refModel="test.EMP" refAlias="M1">
+			<reference localField="MGR" foreignField="EMPNO"/>
+			<reference expression="M1.DEPTNO is not null"/>
+		</relation>
+	</relations>
+	<query-fields>
+		<query-field field="empno" queryOperator="="/>
+		<query-field field="sal" queryOperator=">="/>
+		<query-field field="ename" queryOperator="like" matchMode="full"/>
+		<query-field field="deptno" queryOperator="="/>
+		<query-field field="mgr" queryExpression="exists (select * from emp t1 where t1.mgr=e.mgr)"/>
+		<query-field field="creation_date" queryOperator=">="/>
+
+		<query-field name="hiredate_from" dataType="java.sql.Date" queryExpression="e.hiredate >= ${@hiredate_from}" />
+		<query-field name="hiredate_to" dataType="java.sql.Date" queryExpression="e.hiredate &lt;= ${@hiredate_to}" />		
+		
+	</query-fields>
+	<data-filters>
+		<data-filter name="MustInDepartment" enforceActions="query" expression="e.deptno is not null"/>
+		<data-filter expression="e.creation_date is not null"/>
+	</data-filters>
+	<order-by>
+		<field name="DNAME"/>
+		<field name="hiredate" order="desc"/>
+	</order-by>
+</model>

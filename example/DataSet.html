@@ -1,0 +1,337 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Panel</title>
+ <link type="text/css" rel="stylesheet" href="../src/com/aurora/ui/theme/default/resource/core/Aurora.css" />
+ <link type="text/css" rel="stylesheet" href="../src/com/aurora/ui/theme/default/resource/textfield/TextField.css" /> 
+ <link type="text/css" rel="stylesheet" href="../src/com/aurora/ui/theme/default/resource/checkbox/CheckBox.css" />
+<link type="text/css" rel="stylesheet" href="../src/com/aurora/ui/theme/default/resource/combobox/ComboBox.css" />
+<link type="text/css" rel="stylesheet" href="../src/com/aurora/ui/theme/default/resource/datefield/DateField.css" />
+ <script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/ext-core.js"></script>
+ <script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/Aurora.js"></script>
+ <script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/Component.js"></script>
+ <script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/Field.js"></script>
+ <script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/textfield/TextField.js"></script>
+ <script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/DataSet.js"></script>
+ <script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/TriggerField.js"></script> 
+ <script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/combobox/ComboBox.js"></script>
+ <script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/datefield/DateField.js"></script>
+ <script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/datefield/DatePicker.js"></script>
+ <script type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/checkbox/CheckBox.js"></script>
+    </head>
+    <body >
+	<script>
+		var cdata = [
+			{data:{code:'北京',value:1}},
+			{data:{code:'上海',value:2}},
+			{data:{code:'天津',value:3}},
+			{data:{code:'广州',value:4}},
+			{data:{code:'重庆',value:5}},
+			{data:{code:'沈阳',value:7}},
+			{data:{code:'深圳深圳深圳深圳深圳深圳深圳深圳深圳深圳1',value:8}}
+		]
+		var cds = new Aurora.DataSet({datas:cdata});
+
+		var cdata2 = [
+				{data:{code:'北京',value:1}},
+				{data:{code:'上海',value:2}},
+				{data:{code:'天津',value:3}},
+				{data:{code:'广州',value:4}}
+			]
+		var cds2 = new Aurora.DataSet({datas:cdata2});
+
+		var cdata3 = [
+				{data:{code:'北京',value:1}},
+				{data:{code:'上海',value:2}}
+			]
+		var cds3 = new Aurora.DataSet({datas:cdata3});
+
+		var data = [
+			{data:{name:'张A',age:15, city:1, birth:new Date(),flag:'Y'},field:[{name:'flag',readonly:true},{name:'name',type:'string',readonly:true}]},
+			{data:{name:'张B',age:16, city:2, birth:new Date(),flag:'N'}},
+			{data:{name:'张C',age:17, city:3, birth:new Date(),flag:'N'}},
+			{data:{name:'张D',age:18, city:4, birth:new Date(),flag:'Y'},field:[{name:'city',type:'int',required:true,options:cds2}]}
+		]
+
+		var field = [
+			{name:'name', type:'string',required:true},
+			{name:'birth', type:'date'}
+		]
+		var ds = new Aurora.DataSet({datas:data,fields:field});
+		
+	</script>
+	<br/><br/>
+	<TABLE cellSpacing="0" cellPadding="0">
+	<TBODY>
+	<TR height="25">
+		<TH scope="row" width="75">
+			<SPAN class="item-label" style="float:right">姓名:</SPAN>
+		</TH>
+		<TD width="170">
+
+			<DIV class="item-wrap" id="name">
+				<INPUT class="item-textField" atype="field.input" style="width: 167px;" name="city" autocomplete="off" value="" />
+			</DIV>
+			<script>
+				var name = new Aurora.TextField({
+					id:'name'
+				});	
+				name.bind(ds,'name');
+			</script>
+		</TD>
+	</TR>
+	<TR height="25">
+		<TH scope="row" width="75">
+			<SPAN class="item-label" style="float:right">年龄:</SPAN>
+		</TH>
+		<TD width="170">
+
+			<DIV class="item-wrap" id="age">
+				<INPUT class="item-textField" atype="field.input" style="width: 167px;" name="city" autocomplete="off" value="" />
+			</DIV>
+			<script>
+				var age = new Aurora.TextField({
+					id:'age'
+				});	
+				age.bind(ds,'age');
+			</script>
+		</TD>
+	</TR>
+	
+	<TR height="25">
+		<TH scope="row" width="75">
+			<SPAN class="item-label" style="float:right">城市:</SPAN>
+		</TH>
+		<TD width="170">
+			<DIV class="item-wrap" id="comboBox">
+				<INPUT class="item-textField" atype="field.input" style="width: 146px;" name="city" autocomplete="off" value="" />
+				<DIV class="item-trigger item-comboButton" atype="triggerfield.trigger" hideFocus title="选择城市"></DIV>				
+				<DIV class="item-popup item-comboBox-view" atype="triggerfield.popup" style="display:none;width:170px;"></DIV>
+				<INPUT type="hidden"/>
+			</DIV>
+			<script>
+				var comboBox = new Aurora.ComboBox({
+					id:'comboBox',
+					valueField:'value',
+					displayField:'code',
+					options:cds
+				});
+				comboBox.bind(ds, 'city')
+			</script>
+		</TD>
+	</TR>
+	<TR height="25">
+		<TH scope="row" width="75">
+			<SPAN class="item-label" id="date_label" style="float:right">日历:</SPAN>
+		</TH>
+		<TD width="170">
+			<DIV class="item-wrap item-emptyText" id="datePicker">
+				<INPUT class="item-textField " atype="field.input" style="width: 146px;" name="city" autocomplete="off" value="选择日期" />
+				<DIV class="item-trigger item-dateButton" atype="triggerfield.trigger" hideFocus title="选择日期"></DIV>
+				<DIV class="item-popup item-dateList" atype="triggerfield.popup" style="display:none;width:170px;">
+					<DIV class="item-dateField" style="width:168px">
+						<DIV class="item-dateField-head">
+							<DIV class="item-dateField-pre"></DIV>
+							<DIV class="item-dateField-next"></DIV>
+							<SPAN class="item-dateField-year"></SPAN>年 <SPAN class="item-dateField-month"></SPAN>月
+						</DIV>
+						<TABLE cellspacing="0">
+						<THEAD>
+						  <TR>
+							<TD>日</TD>
+							<TD>一</TD>
+							<TD>二</TD>
+							<TD>三</TD>
+							<TD>四</TD>
+							<TD>五</TD>
+							<TD>六</TD>
+						  </TR>
+						</THEAD>
+						<TBODY>
+						</TBODY>
+						</TABLE>
+					</DIV>				
+				</DIV>
+			</DIV>
+			<script>
+				var datePicker =new Aurora.DatePicker({
+					id:"datePicker",
+					emptyText:'选择日期'
+				});
+				datePicker.bind(ds,'birth');
+			</script>
+		</TD>
+	</TR>
+	<tr>
+		<TH scope="row" width="75">
+			<SPAN class="item-label" id="date_label" style="float:right">是否校验</SPAN>
+		</TH>
+		<td>
+			<DIV class="" id="checkBox">
+				<DIV class="item-checkbox" atype="checkbox">
+				</DIV>
+				<INPUT type="hidden"/>
+			</DIV>
+			<script type="text/javascript">                    	              
+				var checkBox = new Aurora.CheckBox({
+					id: 'checkBox',
+					checkValue:'Y',
+					unCheckValue:'N'					
+				});
+				checkBox.bind(ds,'flag');								
+			</script>
+		</td>
+	</tr>
+	</TBODY>
+	</TABLE>
+	<TABLE cellSpacing="0" cellPadding="0">
+	<TBODY>
+	<TR height="25">
+		<TH scope="row" width="75">
+			
+		</TH>
+		<TD>
+			<input type="button" value="第一条" onclick="ds.locate(1)">
+			<input type="button" value="上一条" onclick="ds.pre()">
+			<input type="button" value="下一条" onclick="ds.next()">
+			<input type="button" value="年龄必输" onclick="setRequired(true)">
+			<input type="button" value="年龄非必输" onclick="setRequired(false)">
+			<input type="button" value="姓名只读" onclick="setReadOnly(true)">
+			<input type="button" value="姓名非只读" onclick="setReadOnly(false)">
+			<input type="button" value="只读" onclick="setRecordReadOnly(true)">
+			<input type="button" value="非只读" onclick="setRecordReadOnly(false)">
+			<input type="button" value="城市" onclick="setOptions1()">
+			<input type="button" value="清除" onclick="ds.getCurrentRecord().getMeta().clear();ds.getCurrentRecord().getMeta().getField('city').clear();">
+			<input type="button" value="提交" onclick="ds.submit('test')">
+		</TD>
+	</TR>
+	</TBODY>
+	</TABLE>
+	
+	<script>
+		function setRequired(required){
+			var r = ds.getCurrentRecord();
+			r.getMeta().getField('age').setRequired(required);			
+			
+		}
+		
+		function setRecordReadOnly(readonly){
+			var r = ds.getCurrentRecord();
+			r.getMeta().setReadOnly(readonly);
+		}
+
+		function setReadOnly(readonly){
+			var r = ds.getCurrentRecord();
+			var field = r.getMeta().getField('name');
+			field.setReadOnly(readonly);
+		}
+		function setOptions1(){
+			var r = ds.getCurrentRecord();
+			var field = r.getMeta().getField('city');
+			field.setOptions(cds3);
+		}
+
+		var ds2 = new Aurora.DataSet();
+		ds2.setQueryUrl('http://localhost:8080/hec/fnd_prv_login_account_query_control.service')
+	</script>
+
+	<br/><br/><br/><br/>
+	<TABLE cellSpacing="0" cellPadding="0">
+	<TBODY>
+	<TR height="25">
+		<TH scope="row" width="75">
+			<SPAN class="item-label" style="float:right">用户名:</SPAN>
+		</TH>
+		<TD width="170">
+
+			<DIV class="item-wrap" id="age2">
+				<INPUT class="item-textField" atype="field.input" style="width: 167px;" name="city" autocomplete="off" value="" />
+			</DIV>
+			<script>
+				var age = new Aurora.TextField({
+					id:'age2'
+				});	
+				age.bind(ds2,'USER_NAME');
+			</script>
+		</TD>
+	</TR>
+	<TR height="25">
+		<TH scope="row" width="75">
+			<SPAN class="item-label" style="float:right">描述:</SPAN>
+		</TH>
+		<TD width="170">
+
+			<DIV class="item-wrap" id="name2">
+				<INPUT class="item-textField" atype="field.input" style="width: 167px;" name="city" autocomplete="off" value="" />
+			</DIV>
+			<script>
+				var name = new Aurora.TextField({
+					id:'name2'
+				});	
+				name.bind(ds2,'DESCRIPTION');
+			</script>
+		</TD>
+	</TR>
+	<TR height="25">
+		<TH scope="row" width="75">
+			<SPAN class="item-label" style="float:right">工号:</SPAN>
+		</TH>
+		<TD width="170">
+
+			<DIV class="item-wrap" id="USER_ID">
+				<INPUT class="item-textField" atype="field.input" style="width: 167px;" name="city" autocomplete="off" value="" />
+			</DIV>
+			<script>
+				var name = new Aurora.TextField({
+					id:'USER_ID'
+				});	
+				name.bind(ds2,'USER_ID');
+			</script>
+		</TD>
+	</TR>
+	<TR height="25">
+		<TH scope="row" width="75">
+			<SPAN class="item-label" style="float:right">姓名:</SPAN>
+		</TH>
+		<TD width="170">
+
+			<DIV class="item-wrap" id="EMPLOYEE_NAME">
+				<INPUT class="item-textField" atype="field.input" style="width: 167px;" name="city" autocomplete="off" value="" />
+			</DIV>
+			<script>
+				var name = new Aurora.TextField({
+					id:'EMPLOYEE_NAME'
+				});	
+				name.bind(ds2,'EMPLOYEE_NAME');
+			</script>
+		</TD>
+	</TR>
+	</TBODY>
+	</TABLE>
+	<TABLE cellSpacing="0" cellPadding="0">
+	<TBODY>
+	<TR height="25">
+		<TH scope="row" width="75">
+			
+		</TH>
+		<TD>
+			<input type="button" value="加载数据" onclick="ds2.query()">
+			<input type="button" value="第一条" onclick="ds2.first()">
+			<input type="button" value="上一条" onclick="ds2.pre()">
+			<input type="button" value="下一条" onclick="ds2.next()">
+			<input type="button" value="指定页" onclick="gopage()">
+			<input type="button" value="上一页" onclick="ds2.prePage()">
+			<input type="button" value="下一页" onclick="ds2.nextPage()">
+		</TD>
+	</TR>
+	</TBODY>
+	</TABLE>
+	<script>
+		function gopage(){
+			page=prompt('输入页数:',1);
+			ds2.goPage(page)
+		}
+	</script>
+</body>
+</html>

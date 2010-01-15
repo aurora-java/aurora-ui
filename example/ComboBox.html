@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+ <HEAD>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <TITLE>ComboBox</TITLE>
+ <link type="text/css" rel="stylesheet" href="../src/com/aurora/ui/theme/default/resource/core/Aurora.css" />
+<link type="text/css" rel="stylesheet" href="../src/com/aurora/ui/theme/default/resource/textfield/TextField.css" />
+<link type="text/css" rel="stylesheet" href="../src/com/aurora/ui/theme/default/resource/combobox/ComboBox.css" />
+<script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/ext-core.js"></script> 
+<script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/Aurora.js"></script>
+<script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/DataSet.js"></script>
+<script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/Component.js"></script>
+<script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/Field.js"></script>
+<script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/textfield/TextField.js"></script>
+<script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/TriggerField.js"></script>
+<script language="javascript" type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/combobox/ComboBox.js"></script>
+</HEAD>
+ <BODY>
+<!--  -->
+<TABLE cellSpacing="0" cellPadding="0" style="margin:15px">
+<TBODY>
+<TR height="25">
+	<TH scope="row" width="75">
+		<SPAN class="item-label" id="city_label" style="float:right">选择框:</SPAN>
+	</TH>
+	<TD width="170">
+		<DIV class="item-wrap" id="comboBox">
+			<INPUT class="item-textField" atype="field.input" style="width: 146px;" name="city" autocomplete="off" value="选择城市名" />
+			<DIV class="item-trigger item-comboButton" atype="triggerfield.trigger" hideFocus title="选择城市"></DIV>
+			
+			<DIV class="item-popup item-comboBox-view" atype="triggerfield.popup" style="display:none;width:170px;">
+				
+			</DIV>
+			<INPUT type="hidden"/>
+		</DIV>
+		<script>
+			var data = [
+				{data:{code:'北京',value:'A'}},
+				{data:{code:'上海',value:'B'}},
+				{data:{code:'天津',value:'C'}},
+				{data:{code:'广州',value:'D'}},
+				{data:{code:'重庆',value:'E'}},
+				{data:{code:'沈阳',value:'F'}},
+				{data:{code:'深圳深圳深圳深圳深圳深圳深圳深圳深圳深圳1',value:'G'}}
+			]
+			var dataset = new Aurora.DataSet({datas:data});
+
+			var data2 = [
+				{data:{code:'北京',value:'A'}},
+				{data:{code:'上海',value:'B'}},
+				{data:{code:'天津',value:'C'}},
+				{data:{code:'广州',value:'D'}}
+			]
+			var dataset2 = new Aurora.DataSet({datas:data2});
+
+			var comboBox = new Aurora.ComboBox({
+				id:'comboBox',
+				valuefield:'value',
+				emptytext:'选择城市',
+				displayfield:'code',
+				options: dataset2
+			});
+		</script>	
+	</TD>	
+</TR>
+</TBODY>
+</TABLE> 
+ <input type="button" value="dataset2" onclick="comboBox.setOptions(dataset2)">
+ <input type="button" value="dataset" onclick="comboBox.setOptions(dataset)">
+ </BODY>
+</HTML>

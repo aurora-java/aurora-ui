@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>Panel</title>
+		<link rel="stylesheet" type="text/css" href="resource/com.aurora.ui/default/core/Aurora.css"/>
+		<link type="text/css" rel="stylesheet" href="resource/com.aurora.ui/default/window/window.css"/>
+		<link type="text/css" rel="stylesheet" href="resource/com.aurora.ui/default/lov/Lov.css"/>
+		<script language="javascript" type="text/javascript" src='resource/com.aurora.ui/default/core/ext-core-min.js'></script>
+		<script language="javascript" type="text/javascript" src='resource/com.aurora.ui/default/core/Aurora-all.js'></script>
+		<script language="javascript" type="text/javascript" src="resource/com.aurora.ui/default/window/Window.js"></script>
+		<script language="javascript" type="text/javascript" src="resource/com.aurora.ui/default/lov/Lov.js"></script>
+    </head>
+    <body >
+		
+		<TABLE cellSpacing="0" cellPadding="0" style="margin:15px">
+			<TBODY>
+			<TR height="25">
+				<TH scope="row" width="75">
+					<SPAN class="item-label" id="city_label" style="float:right">Lov:</SPAN>
+				</TH>
+				<TD width="170">
+					<DIV class="item-wrap" id="lov">
+						<INPUT class="item-textField" atype="field.input" style="width: 146px;" name="city" autocomplete="off"/>
+						<DIV class="item-trigger item-lovButton" atype="triggerfield.trigger" hideFocus title="Lov"></DIV>
+					</DIV>
+					<script>
+						var lov = new Aurora.Lov({
+							id:'lov',
+							title:'选择人员',
+							valuefield:'empno',
+							displayfield:'ename',
+							ref:'search.screen',
+							winwidth:350,
+							winheight:420
+						});
+					</script>	
+				</TD>	
+			</TR>
+		</TBODY>
+		</TABLE>
+    </body>
+</html>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql-service trace="true">
+	<parameters>
+	</parameters>
+	<update>
+	    begin
+			update con_contract_headers set 
+				document_number=${@document_number},
+				document_desc=${@document_desc},
+				currency_code=${@currency_code}, 
+				amount=${@amount},
+				document_date=to_date(${@document_date},'yyyy-mm-dd') 
+			where contract_header_id = ${@contract_header_id};
+		end;
+	</update>
+	<!---->
+</sql-service>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+     <a:init-procedure>
+		<sql-query service="test.DEPTQuery" rootPath="DEPT-LIST"  fetchAll="true" autoCount="true" />
+	</a:init-procedure>
+    <a:view template="default" package="com.aurora.ui">
+    	<dataSets>
+			<dataSet id="DEPT_DS">
+				<datas dataSource="/model/DEPT-LIST"/>
+			</dataSet>
+		</dataSets>
+		<box labelWidth="55" cellspacing="0">
+			<textField  name="test1" label="姓名1" width="150" readOnly="true"/>
+			<textField name="test1" label="年龄"  width="150" emptyText="输入文字"/>
+			<datePicker name="test13" label="日期21" width="150" emptyText="输入日期"/>
+			<datePicker name="test1" label="生日" width="150" emptyText="输入日期"/>
+			<textField name="test2" label="标签1" width="150"/>
+			<datePicker name="test1" label="日期1" width="150" emptyText="输入日期"/>
+			<comboBox name="deptno" readOnly="true" label="日期1" width="150" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+		</box>
+    </a:view>
+</a:screen>

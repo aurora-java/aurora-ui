@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql-service trace="true">
+	<query>
+		SELECT E.EMPLOYEE_ID,
+			   E.EMPLOYEE_CODE,
+			   E.NAME,
+			   E.EMAIL,
+			   E.MOBIL,
+			   E.PHONE,
+			   E.BANK_OF_DEPOSIT,
+			   E.BANK_ACCOUNT,
+			   E.ENABLED_FLAG,
+			   E.EMPLOYEE_TYPE_ID
+		  FROM EXP_EMPLOYEES E
+		#WHERE_CLAUSE# ORDER BY EMPLOYEE_CODE
+	</query>
+	<query-fields>
+		<query-field name="EMPLOYEE_ID" dataType="java.lang.Integer" queryExpression="EMPLOYEE_ID = ${@EMPLOYEE_ID}"/>
+		<query-field name="EMPLOYEE_TYPE_ID_FROM" dataType="java.lang.Integer" queryExpression="EMPLOYEE_TYPE_ID = ${@EMPLOYEE_TYPE_ID_FROM}"/>				
+		<query-field name="EMPLOYEE_CODE" dataType="java.lang.String" queryExpression="upper(EMPLOYEE_CODE) like '%'||upper(${@EMPLOYEE_CODE})||'%'"/>
+		<query-field name="NAME" dataType="java.lang.String" queryExpression="upper(NAME) like '%'||upper(${@NAME})||'%'"/>
+	</query-fields>
+</sql-service>
+
+
+
+
+
+
+
+
+
+
+
+
+

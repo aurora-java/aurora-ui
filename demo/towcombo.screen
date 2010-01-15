@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+    <a:init-procedure>
+		<sql-query service="test.DEPTQuery" fieldNameCase="lower" rootPath="DEPT-LIST"  fetchAll="true" autoCount="true" />
+	</a:init-procedure>
+    <a:view template="default" package="com.aurora.ui">
+    	<script>
+		<![CDATA[
+			function test(ds, record, name, value){
+				if(name == 'deptno'){
+					switch(value){
+						case 9:
+						case 10:
+							var field = record.getMeta().getField('test');
+							//$$('EMP_DS').setQueryParameter('deptno', value);
+							//$$('EMP_DS').query();
+							field.setOptions('TEST1');
+							break;
+						case 20:
+						case 30:
+							var field = record.getMeta().getField('test');
+							//$$('EMP_DS').setQueryParameter('deptno', value);
+							//$$('EMP_DS').query();
+							field.setOptions('TEST2');
+							break;
+					}
+				}
+				if(name=='sal'){
+					record.set('test',value)
+				}
+			}
+			
+			function preload(ds){
+			
+			}
+		]]>
+		</script>
+		<dataSets>
+			<dataSet id="QUERY_DS" href="test.EMP">
+			</dataSet>
+			
+			<dataSet id="DEPT_DS">
+				<fields>
+					<field name="deptno" datatype="int"/>	
+				</fields>
+				<datas dataSource="/model/DEPT-LIST"/>
+			</dataSet>
+			<dataSet id="TEST1">
+				<fields>
+					<field name="deptno" datatype="int"/>	
+				</fields>
+				<datas>
+					<record dname="1" deptno="1"/>
+					<record dname="2" deptno="2"/>
+				</datas>
+			</dataSet>
+			<dataSet id="TEST2">
+				<fields>
+					<field name="deptno" datatype="int"/>	
+				</fields>
+				<datas>
+					<record dname="3" deptno="3"/>
+					<record dname="4" deptno="4"/>
+					<record dname="5" deptno="5"/>
+					<record dname="6" deptno="6"/>
+				</datas>
+			</dataSet>
+			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="5" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+				<fields>
+					<field name="mgr_name" required="true"/>
+					<field name="ename" required="true"/>
+					<field name="hiredate" datatype="date" required="true"/>
+					<field name="deptno" required="true"/>	
+					<field name="job" required="true"/>
+					<field name="test" options="EMP_DS" displayField="dname" valueField="deptno">
+						<!--
+						<dataSet fecthAll="true" autoCount="false" queryUrl="autocrud/test.EMP/query">
+							<fields>
+								<field name="empno"/>
+								<field name="ename"/>
+							</fields>
+							<events>
+								<event name="preload" handler="preload"/>
+							</events>
+						</dataSet>
+						-->
+					</field>		 				
+				</fields>				
+				<events>
+					<event name="update" handler="test"/>
+				</events>
+			</dataSet>
+			<dataSet id="EMP_DS" fecthAll="true" autoCount="false" queryUrl="autocrud/test.EMP/query">
+				<fields>
+					<field name="empno"/>
+					<field name="ename"/>
+				</fields>
+				<!--
+				<events>
+					<event name="preload" handler="preload"/>
+				</events>
+				-->
+			</dataSet>
+		</dataSets>
+		<script>
+		<![CDATA[
+			function test(){
+				alert(2)
+			}
+			function createRecord(){
+				$$('GRID_DS').create();
+				//$$('GRID_DS').create({ename:'znjqolf',mgr_name:'test',mgr:7788,hiredate:new Date(),deptno:20,job:'soft',sal:9000})
+			}
+			function saveRecords(){
+				$$('GRID_DS').submit('')
+			}
+			function removeRecord(){
+				$$('GRID_DS').remove();
+			}
+			function onCommit(lov,v,t,r){
+				var record = $$('GRID_DS').getCurrentRecord();
+				record.set('sal',v);
+			}
+			function onSelect(dp,v){
+				if(v < 20){
+					$$('datagrid').setEditor('job','lov');
+				}else{
+					$$('datagrid').setEditor('job','');
+				}
+			}
+			function validate(){
+				$$('GRID_DS').validate();
+			}
+			
+			function query(){
+				$$('GRID_DS').query()
+			}
+		]]>
+		</script>
+		<hBox>
+			<vBox labelWidth="50" width="350" className="mytable" title="查询Form" style="border:1px solid #cccccc;margin:10px;">
+				<textField name="empno" prompt="empno" bindTarget="QUERY_DS" width="150" />
+				<textField name="ename" prompt="ename" bindTarget="QUERY_DS" validAlign="bottom" width="150"/>
+			</vBox>
+			<div width="300" style="padding:10px;background-color:green;color:#ffffff;margin:7px;border:1px solid #cccccc;display:none" height="100" id="custommsg"></div>
+		</hBox>
+		<hBox style="margin:10px;">
+			<button text="查询" click="query"/>
+		</hBox>
+		<grid id="datagrid" dataSet="GRID_DS" width="900" style="margin:10px;" height="380">
+			<columns>
+				<column dataIndex="empno" width="50" prompt="empno"/>
+				<column dataIndex="ename" editor="tf" width="120" prompt="ename"/>
+				<column dataIndex="mgr_name" editor="lov" width="100" prompt="mgr"/>
+				<column dataIndex="hiredate" renderer="Aurora.formateDate" editor="dp" width="130" prompt="hiredate"/>
+				<column dataIndex="deptno" editor="cb" width="120" prompt="deptno"/>
+				<column dataIndex="test" editor="cb" width="120" prompt="test"/>
+				<column dataIndex="job" editor="tf" width="100" prompt="job"/>
+				<column dataIndex="sal" editor="tf" width="100" prompt="sal"/>
+			</columns>
+			<editors>
+				<textField id="tf"/>
+				<comboBox id="cb"/>
+				<datePicker id="dp"/>
+				<lov id="lov"/>
+			</editors>
+		</grid>
+		
+		<script>
+		<![CDATA[
+			function first(){
+				$$('GRID_DS').first()
+			}
+			function prerow(){
+				$$('GRID_DS').pre()
+			}
+			function nextrow(){
+				$$('GRID_DS').next()
+			}
+			function prepage(){
+				$$('GRID_DS').prePage()
+			}
+			function nextpage(){
+				$$('GRID_DS').nextPage()
+			}
+		]]>
+		</script>
+		<hBox style="margin:10px;">
+			<button text="第一条" click="first"/>
+			<button text="上一条" click="prerow"/>
+			<button text="下一条" click="nextrow"/>
+			<button text="上一页" click="prepage"/>
+			<button text="下一页" click="nextpage"/>
+			<div style='width:50px'></div>
+			<button text="新增" click="createRecord"/>
+			<button text="保存" click="saveRecords"/>
+			<button text="删除" click="removeRecord"/>
+			<button text="校验" click="validate"/>
+		</hBox>	
+		<div id="console"></div>	
+    </a:view>
+</a:screen>

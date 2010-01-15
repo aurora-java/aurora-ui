@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<model>
+	    <query Sql="select i.workflow_id, i.instance_param
+					   from wfl_workflow_instance i 
+					   where i.instance_id= ${@instance_id}" 
+			      ElementName="workflow-instance" />
+			      
+		<query Sql="select form_name from wfl_workflow 
+		                       where workflow_id=${/model/workflow-instance/@WORKFLOW_ID}" 
+				ElementName="workflow" />
+
+		<query Sql="select * from wfl_approve_record_v 
+					   where  instance_id=${@instance_id}
+					   order by creation_date" />		
+	</model>

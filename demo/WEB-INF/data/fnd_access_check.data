@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<procedure Name="sys_session_pkg.check_session" ReturnTarget="/access-check">
+		<param InputField="/cookie/@JSID/@value" DataType="java.lang.String"/>	
+		<param ReturnField="@valid" DataType="java.lang.String"/>		
+		<param ReturnField="@session_id" DataType="java.lang.Long"/>
+	</procedure>
+	<query Target="/session" KeyCase="lower"  FetchOneRecord="true">
+		select s.session_id,
+       s.role_id,
+       s.user_id,
+       s.company_id,
+       l.nls_language as nls_language,
+       l.language_code as locale_id,
+       s.encrypted_session_id encoded_session_id,
+       s.client_ip_address  ip
+  from sys_session s, sys_languages l
+ where s.user_language = l.language_code		and s.session_id=${/access-check/@session_id}
+	</query>
+	<query Target="/access-check" ElementName="result" Dump="false">
+		select sys_function_service_pkg.can_access_form(${/session/@role_id},
+														${/request/@url},
+														'B') as can_access
+		from dual
+	</query>
+</root>

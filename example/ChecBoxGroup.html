@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>CheckBoxGroup</title>
+		<link type="text/css" rel="stylesheet" href="css/aurora.css" />
+		<link type="text/css" rel="stylesheet" href="../src/com/aurora/ui/theme/default/resource/core/Aurora.css" />
+        <link type="text/css" rel="stylesheet" href="../src/com/aurora/ui/theme/default/resource/checkboxgroup/CheckBoxGroup.css" />
+        <script type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/ext-core.js"></script>
+        <script type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/Aurora.js"></script>
+        <script type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/Component.js"></script>
+        <script type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/radio/Radio.js"></script>
+		<script type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/checkboxgroup/CheckBoxGroup.js"></script>
+		<script type="text/javascript" src="../src/com/aurora/ui/theme/default/resource/core/DataSet.js"></script>
+	</head>
+	<body>
+		<script type="text/javascript">	
+			var options=new Aurora.DataSet([{data:{code:'Male',value:'M',readonly:false}},{data:{code:'Female',value:'F'}}]);		
+    		var data = [
+				{data:{name:'张A',age:15, city:1, birth:new Date(),flag:'Y',sex:['F']},field:[{name:'flag',readonly:true}]},
+				{data:{name:'张B',age:16, city:2, birth:new Date(),flag:'N',sex:['M']},field:[{name:'sex',options:options,readonly:true}]},
+				{data:{name:'张C',age:17, city:3, birth:new Date(),flag:'Y',sex:['F']}},
+				{data:{name:'张D',age:18, city:4, birth:new Date(),flag:'N',sex:['M']},field:[{name:'flag',checked:true}]}
+			];				
+			var ds = new Aurora.DataSet(data);
+			var od=[{data:{code:'男',value:'M',readonly:true}},{data:{code:'女',value:'F'}}];
+			var options=new Aurora.DataSet(od);
+    	</script>
+		
+		<table>
+            <tr>
+                <td>性别 </td>
+                <td>                	
+                    <DIV class="" id="checkboxgroup">                    
+                    </DIV>
+                    <script type="text/javascript">                    	              
+                        new Aurora.ChexkBoxGroup({
+                            id: 'checkboxgroup',
+							displayField:'code',
+							valueField:'value',
+                            options:options
+                        });
+						checkboxgroup.bind(ds,'sex');								
+                    </script>
+                </td>
+            </tr>
+        </table>
+		<input type="button" value="第一条" onclick="ds.locate(1)">
+		<input type="button" value="下一条" onclick="ds.next()">
+	</body>
+</html>

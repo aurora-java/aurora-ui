@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application template-path="/hec_templates" default-page-template="blank_page" multi-language="true" date-format="yyyy-MM-dd" datetime-format="yyyy-MM-dd HH:mm:ss" cache-enable="false" performance-record="true" performance-detail="false">
+	<application-initializer>
+		<initializer class="org.lwap.database.oracle.OracleDataSourceCreator"/>		
+	</application-initializer>	
+	<oracle-datasource db-url="jdbc:oracle:thin:@192.168.11.246:1521:masdemo" db-user="hec" db-password="hec" 
+				max-conn="4" min-conn="2"/>
+	<app-path>
+		<doc relative-path="WEB-INF/data"/>
+		<doc relative-path="WEB-INF/lookup"/> 
+	</app-path>
+</application>

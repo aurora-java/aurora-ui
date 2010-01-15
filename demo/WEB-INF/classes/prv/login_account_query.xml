@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql-service trace="true">
+	<query>
+	
+
+        
+    select * from (
+   select SU.USER_NAME,
+          USER_ID,
+          SU.DESCRIPTION,
+          to_char(SU.START_DATE,'yyyy-mm-dd') START_DATE ,
+          to_char(SU.END_DATE,'yyyy-mm-dd') END_DATE,
+          decode(SU.FROZEN_FLAG, 'Y', '已冻结', '未冻结') P_FROZEN_FLAG,
+          SU.FROZEN_FLAG,
+          to_char(SU.FROZEN_DATE,'yyyy-mm-dd') FROZEN_DATE,
+          (SELECT EE.EMPLOYEE_CODE
+			  FROM EXP_EMPLOYEES EE
+			 WHERE EE.EMPLOYEE_ID = SU.EMPLOYEE_ID) EMPLOYEE_CODE,
+		   (SELECT EE.NAME
+			  FROM EXP_EMPLOYEES EE
+			 WHERE EE.EMPLOYEE_ID = SU.EMPLOYEE_ID) EMPLOYEE_NAME
+     from sys_user su	)
+	
+			#WHERE_CLAUSE#
+		
+	
+	</query>
+	
+	<query-fields>
+		<query-field name="LOGIN_NAME" dataType="java.lang.String" queryExpression="upper(USER_NAME) like  upper('%'||${@LOGIN_NAME}||'%')"/>
+		<query-field name="EMPLOYEE_CODE" dataType="java.lang.String" queryExpression="upper(EMPLOYEE_CODE) like  upper('%'||${@EMPLOYEE_CODE}||'%')"/>
+		<query-field name="EMPLOYEE_NAME" dataType="java.lang.String" queryExpression="EMPLOYEE_NAME like  '%'||${@EMPLOYEE_NAME}||'%'"/>
+		<query-field name="STATUS" dataType="java.lang.String" queryExpression="FROZEN_FLAG =  ${@STATUS}"/>
+	</query-fields>
+  
+</sql-service>
