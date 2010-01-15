@@ -80,6 +80,10 @@
 					}
 				}
 			}
+			
+			function onSuccess(){
+				Aurora.showMessage('成功', '操作成功!');
+			}
 		]]>
 		</script>
 		<dataSets>
@@ -102,6 +106,7 @@
 				</fields>
 				<events>
 					<event name="update" handler="onUpdate"/>
+					<event name="submitsuccess" handler="onSuccess"/>
 				</events>
 			</dataSet>
 		</dataSets>
