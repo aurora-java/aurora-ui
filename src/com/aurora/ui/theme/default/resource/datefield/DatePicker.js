@@ -8,11 +8,16 @@ Aurora.DatePicker = Ext.extend(Aurora.TriggerField,{
     		var cfg = {id:this.id+'_df',container:this.popup}
 	    	this.dateField = new Aurora.DateField(cfg);
 	    	this.dateField.on("select", this.onSelect, this);
+	    	this.dateField.on("draw", this.onDraw, this);
     	}
     },
     initEvents : function(){
     	Aurora.DatePicker.superclass.initEvents.call(this);
         this.addEvents('select');
+    },
+    onDraw: function(){
+    	this.shadow.setWidth(this.popup.getWidth());
+    	this.shadow.setHeight(this.popup.getHeight());
     },
     onSelect: function(dateField, date){
     	this.collapse();

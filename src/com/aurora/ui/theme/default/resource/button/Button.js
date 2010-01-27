@@ -12,11 +12,18 @@ Aurora.Button = Ext.extend(Aurora.Component,{
     		this.setVisible(false)
     	}
     },
+    processListener: function(ou){
+    	Aurora.Button.superclass.processListener.call(this,ou);
+    	this.el[ou]("click", this.onClick,  this);
+        this.el[ou]("mousedown", this.onMouseDown,  this);
+    },
     initEvents : function(){
     	Aurora.Button.superclass.initEvents.call(this);
-    	this.addEvents('click');  
-        this.el.on("click", this.onClick,  this);
-        this.el.on("mousedown", this.onMouseDown,  this);
+    	this.addEvents('click');
+    },    
+    destroy : function(){
+		Aurora.Button.superclass.destroy.call(this);
+    	delete this.el;
     },
     setVisible: function(v){
 		if(v==true)
@@ -24,11 +31,11 @@ Aurora.Button = Ext.extend(Aurora.Component,{
 		else
 			this.wrap.hide();
 	},
-    destroy : function(){
-    	Aurora.Button.superclass.destroy.call(this);
-    	this.el.un("click", this.onClick,  this);
-    	delete this.el;
-    },
+//    destroy : function(){
+//    	Aurora.Button.superclass.destroy.call(this);
+//    	this.el.un("click", this.onClick,  this);
+//    	delete this.el;
+//    },
     disable: function(){
     	this.wrap.addClass(this.disableCss);
     	this.el.dom.disabled = true;

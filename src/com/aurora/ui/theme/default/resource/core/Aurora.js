@@ -256,10 +256,8 @@ Aurora.Mask = function(){
 		mask : function(el){
 			var screenWidth = Aurora.getViewportWidth();
     		var screenHeight = Aurora.getViewportHeight();
-//			if(!window._mask) {
 				var p = '<DIV class="aurora-mask" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
 				var mask = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
-//			}
 	    	mask.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
 	    	Aurora.Mask.container[el.id] = mask;
 		},
@@ -404,8 +402,8 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
 	        }
         }        
         var el = document.getElementById(id);
-        if(el){Ext.removeNode(el);}        
-        Ext.fly(dom).setStyle('display', 'block');
+        if(el){Ext.removeNode(el);} 
+	    Ext.fly(dom).setStyle('display', 'block');
     });
     Ext.fly(dom).setStyle('display', 'none');
     dom.innerHTML = html.replace(/(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig, "").replace(/(?:<link.*?>)((\n|\r|.)*?)/ig, "");

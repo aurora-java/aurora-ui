@@ -617,9 +617,10 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     	}else if(records.length == 0){
     		this.currentIndex  = 1
     	}
+    	this.loading = false;
     	this.loadData(datas, total);
     	this.locate(this.currentIndex,true);
-	    this.loading = false;
+	    
     },
     onLoadFailed : function(res){
     	Aurora.showMessage('错误', res.error.message);

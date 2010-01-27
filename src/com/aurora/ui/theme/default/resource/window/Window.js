@@ -68,11 +68,16 @@ Aurora.Window = Ext.extend(Aurora.Component,{
         }
         sf.center();
     },
+    processListener: function(ou){
+    	Aurora.Window.superclass.processListener.call(this,ou);
+    	if(this.closeable) this.closeBtn[ou]("click", this.onClose,  this); 
+    	this.wrap[ou]("click", this.toFront, this);
+    	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
+    	if(this.draggable)this.head.on('mousedown', this.onMouseDown,this);
+    },
     initEvents : function(){
-    	this.addEvents('close','load');
-    	if(this.closeable) this.closeBtn.on("click", this.onClose,  this); 
-    	this.wrap.on("click", this.toFront, this);
-    	this.focusEl.on("keydown", this.handleKeyDown,  this);
+    	Aurora.Window.superclass.initEvents.call(this);
+    	this.addEvents('close','load');    	
     },
     handleKeyDown : function(e){
 		e.stopEvent();
@@ -83,7 +88,7 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     },
     initDraggable: function(){
     	this.head.addClass('item-draggable');
-    	this.head.on('mousedown', this.onMouseDown,this);
+//    	this.head.on('mousedown', this.onMouseDown,this);
     },
     focus: function(){
 		this.focusEl.focus();
@@ -206,7 +211,7 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     			try{
     				cmp.destroy();
     			}catch(e){
-    				alert(e)
+    				alert('销毁window出错: ' + e)
     			}
     		}
     	}
@@ -214,15 +219,12 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
     	if(this.modal) Aurora.Mask.unmask(this.wrap);
-    	this.wrap.un("click", this.toFront, this);
-    	this.head.un('mousedown', this.onMouseDown,this);
-    	this.closeBtn.un("click", this.onClose,  this);
+    	Aurora.Window.superclass.destroy.call(this);
     	delete this.title;
     	delete this.head;
     	delete this.body;
         delete this.closeBtn;
         delete this.proxy;
-    	Aurora.Window.superclass.destroy.call(this);
         wrap.remove();
         this.shadow.remove();
     },

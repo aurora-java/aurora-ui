@@ -1,0 +1,100 @@
+.item-toolbar {	
+	background-image: url(../toolbar/toolbar_bg.gif);	
+	overflow: hidden;	
+	cursor: default;	
+	background-repeat: repeat-x;	
+	white-space: nowrap;	
+	/*position: relative;*/		
+	height: 29px;
+}
+.item-toolbar div.sep {
+	background-position: 50% 50%;
+	font-size: 1px;	
+	background-image: url(../toolbar/toolbar_sep.gif);		
+	margin-left: 0px;	
+	width: 2px;	
+	margin-right: 1px;	
+	background-repeat: no-repeat;	
+	/*position: relative;*/	
+	top: 1px;	
+	height: 29px;	
+	moz-user-select: none
+	width:2px;
+}
+.item-toolbar div.tb-ll {	
+	left: 0px;	
+	width:1px;
+	float:left;
+	border-left: #a4bed4 1px solid;	
+	/*position: absolute;*/		
+	top: 0px;	
+	height: 29px;	
+	moz-user-select: none;
+}
+.item-toolbar div.tb-rr {	
+	width:1px;
+	float:right;
+	border-right: #a4bed4 1px solid;	
+	right: 0px;	
+	/*position: absolute;*/		
+	top: 0px;
+	height: 29px;	
+	moz-user-select: none;
+}
+.item-toolbar div.tb-l {	
+	left: 1px;
+	width:1px;
+	float:left;
+	border-left: #ffffff 1px solid;	
+	/* position: absolute;*/	
+	top: 1px;	
+	height: 25px;	
+	moz-user-select: none;
+}
+.item-toolbar div.tb-r {
+	width:1px;	
+	float:right;
+	border-right: #ffffff 1px solid;	
+	right: 1px;	
+	/* position: absolute;	*/
+	top: 1px;	
+	height: 25px;	
+	moz-user-select: none;
+}
+.item-toolbar .item-btn button {
+	padding-left:1px;
+	padding-right:1px;
+}
+.item-toolbar .item-btn-icon button{
+	padding-left:17px;
+}
+.item-toolbar .item-btn-icon-text button {
+	padding-left:19px;
+}
+.item-toolbar .item-btn-tl,.item-toolbar .item-btn-tr,.item-toolbar .item-btn-tc,.item-toolbar .item-btn-ml,.item-toolbar .item-btn-mr,.item-toolbar .item-btn-mc,.item-toolbar .item-btn-bl,.item-toolbar .item-btn-br,.item-toolbar .item-btn-bc{
+	background-image:none;
+}
+.item-btn-over .item-btn-tl,.item-btn-over .item-btn-tr,.item-btn-over .item-btn-tc,.item-btn-over .item-btn-ml,.item-btn-over .item-btn-mr,.item-btn-over .item-btn-mc,.item-btn-over .item-btn-bl,.item-btn-over .item-btn-br,.item-btn-over .item-btn-bc{
+	background-image:url(../button/btn.gif);
+}
+.item-btn-pressed .item-btn-tl,.item-btn-pressed .item-btn-tr,.item-btn-pressed .item-btn-tc,.item-btn-pressed .item-btn-ml,.item-btn-pressed .item-btn-mr,.item-btn-pressed .item-btn-mc,.item-btn-pressed .item-btn-bl,.item-btn-pressed .item-btn-br,.item-btn-pressed .item-btn-bc{
+	background-image:url(../button/btn.gif);
+}
+.nav-prepage, .nav-prepage, .nav-prerecord, .nav-nextrecord, .nav-nextpage, .nav-refresh {
+	background-image:url(../toolbar/navigation.gif);
+}
+.nav-prepage{
+	background-position:0px 1px;
+}
+.nav-prerecord {
+	background-position:0px -31px;
+}
+.nav-nextrecord {
+	background-position:0px -46px;
+}
+.nav-nextpage {
+	background-position:0px -15px;
+}
+.nav-refresh {
+	background-position:0px -63px;
+}

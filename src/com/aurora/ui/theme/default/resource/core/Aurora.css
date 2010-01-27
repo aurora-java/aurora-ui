@@ -139,14 +139,10 @@ a {color:#0069ca;text-decoration:none;}
 /** 布局 **/
 .layout-table {
 }
+.layout-td-cell, .layout-td-con{
+	vertical-align:top;
+}
 
-.layout-td-cell {
-	vertical-align:top;
-	padding:3px;
-}
-.layout-td-con {
-	vertical-align:top;
-}
 .layout-th {
 	vertical-align:middle;
 }
