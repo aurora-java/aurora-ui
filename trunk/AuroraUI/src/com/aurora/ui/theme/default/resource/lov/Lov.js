@@ -7,10 +7,13 @@ Aurora.Lov = Ext.extend(Aurora.TextField,{
     	Aurora.Lov.superclass.initComponent.call(this,config);
     	this.trigger = this.wrap.child('div[atype=triggerfield.trigger]'); 
     },
+    processListener: function(ou){
+    	Aurora.Lov.superclass.processListener.call(this,ou);
+    	this.trigger[ou]('click',this.showLovWindow, this, {preventDefault:true})
+    },
     initEvents : function(){
-    	Aurora.TriggerField.superclass.initEvents.call(this);
+    	Aurora.Lov.superclass.initEvents.call(this);
     	this.addEvents('commit');
-    	this.trigger.on('click',this.showLovWindow, this, {preventDefault:true})
     },
     destroy : function(){
     	Aurora.Lov.superclass.destroy.call(this);
@@ -21,40 +24,22 @@ Aurora.Lov = Ext.extend(Aurora.TextField,{
 	},
 	onBlur : function(e){
 		if(this.readonly) return;
-		var vf = this.record ? this.record.get(this.valuefield) : null;
+		var vf = this.record ? this.record.get(this.binder.name) : null;
         var r = this.getRawValue();
         var v = this.getValue();
-        var t = this.text;
         var needLookup = true;
         if(r == ''){        
         	needLookup = false;
         }else{
-	        if(!Ext.isEmpty(vf) && r == t){
-	        	needLookup = false;
-	        }
-	        else if(!this.record){
-	        	needLookup = false;
-	        }
-	        
+        	if(r == v){
+        		needLookup = false;
+        	}
         }
         if(needLookup){
         	this.showLovWindow();
         }else{
         	Aurora.Lov.superclass.onBlur.call(this,e); 
-        	if(r == '' && this.record)
-        	this.record.set(this.valuefield,'');
         }
-//        if(r !='' && (v=='' || r != t)){
-////			this.hasFocus = false;
-////			this.wrap.removeClass(this.focusCss);
-////	        this.fireEvent("blur", this);
-////        	if(!this.attachGrid)
-//        	this.showLovWindow();
-//        }else {
-//        	Aurora.Lov.superclass.onBlur.call(this,e); 
-//        	if(r == '' && this.record)
-//        	this.record.set(this.valuefield,'');
-//        }
 	},
 	onKeyDown : function(e){
         if(e.getKey() == 13) {
@@ -66,17 +51,38 @@ Aurora.Lov = Ext.extend(Aurora.TextField,{
     canHide : function(){
     	return this.isWinOpen == false
     },
-	commitValue:function(v, t, r){
+    commit:function(r){
 		this.win.close();
-        this.setValue(t)
-        if(this.record)
-		this.record.set(this.valuefield, v);
-		this.fireEvent('commit', this, v, t, r)
+		this.dataRecord = r;
+		var mapping = this.getMapping();
+		for(var i=0;i<mapping.length;i++){
+			var map = mapping[i];
+			if(this.binder.name == map.to){
+				this.setValue(r.get(map.from));
+				break;
+			}
+		}
+		this.dataRecord = null;
+	},
+	getMapping: function(){
+		var mapping
+		if(this.record){
+			var field = this.record.getMeta().getField(this.binder.name);
+			if(field){
+				mapping = field.get('mapping');
+			}
+		}
+		return mapping ? mapping : [{from:this.binder.name,to:this.binder.name}];
 	},
 	setValue: function(v, silent){
 		Aurora.Lov.superclass.setValue.call(this, v, silent);
-		this.text = v;
-		this.setRawValue(this.text);
+		if(this.record && this.dataRecord && silent !== true){
+			var mapping = this.getMapping();
+			for(var i=0;i<mapping.length;i++){
+				var map = mapping[i];
+				this.record.set(map.to,this.dataRecord.get(map.from));
+			}		
+		}
 	},
 	onWinClose: function(){
 		this.isWinOpen = false;
@@ -88,18 +94,15 @@ Aurora.Lov = Ext.extend(Aurora.TextField,{
 		if(this.readonly == true) return;
 		if(this.ref == "" || Ext.isEmpty(this.ref))return;
 		this.isWinOpen = true;
+		
 		var v = '';
 		var rv = this.getRawValue();
-		var t = this.text;
-		if(rv==t){
-			if(this.record)
-			v = this.record.get(this.valuefield);
-			if(!v) v = '';
-		}else{
+		var t = this.getValue();
+		if(rv!=t){
 			v = rv;
-		}
+		}		
 		this.blur();
-    	this.win = new Aurora.Window({title:this.title||'Lov', url:(this.ref) + "?lovid="+this.id+"&key="+v, height:this.winheight||400,width:this.winwidth||400});
+    	this.win = new Aurora.Window({title:this.title||'Lov', url:(this.ref) + "?lovid="+this.id+"&key="+encodeURIComponent(v), height:this.winheight||400,width:this.winwidth||400});
     	this.win.on('close',this.onWinClose,this);
     }
 });
