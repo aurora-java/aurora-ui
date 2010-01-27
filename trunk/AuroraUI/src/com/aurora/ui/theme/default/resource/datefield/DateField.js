@@ -18,28 +18,26 @@ Aurora.DateField = Ext.extend(Aurora.Component, {
     	this.yearSpan = this.wrap.child("span.item-dateField-year");
     	this.monthSpan = this.wrap.child("span.item-dateField-month");
     },
+    processListener: function(ou){
+    	Aurora.DateField.superclass.processListener.call(this,ou);
+    	this.preMonthBtn[ou]("click", this.preMonth, this);
+    	this.nextMonthBtn[ou]("click", this.nextMonth, this);
+    	this.table[ou]("click", this.onSelect, this);
+    	this.table[ou]("mouseover", this.mouseOver, this);
+    	this.table[ou]("mouseout", this.mouseOut, this)
+    },
     initEvents : function(){
-    	Aurora.DateField.superclass.initEvents.call(this);    
-    	this.preMonthBtn.on("click", this.preMonth, this);
-    	this.nextMonthBtn.on("click", this.nextMonth, this);
-    	this.table.on("click", this.onSelect, this);
-    	this.table.on("mouseover", this.mouseOver, this);
-    	this.table.on("mouseout", this.mouseOut, this)
-    	this.addEvents('select');
+    	Aurora.DateField.superclass.initEvents.call(this);   	
+    	this.addEvents('select','draw');
     },
     destroy : function(){
-    	this.preMonthBtn.un("click", this.preMonth, this);
-    	this.nextMonthBtn.un("click", this.nextMonth, this);
-    	this.table.un("click", this.onSelect, this);
-    	this.table.un("mouseover", this.mouseOver, this);
-    	this.table.un("mouseout", this.mouseOut, this)
+    	Aurora.DateField.superclass.destroy.call(this);
 		delete this.preMonthBtn;
     	delete this.nextMonthBtn;
     	delete this.yearSpan;
     	delete this.monthSpan; 
     	delete this.table;        
         delete this.tbody;
-    	Aurora.DateField.superclass.destroy.call(this);
 	},
     mouseOut: function(e){
     	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
@@ -106,6 +104,7 @@ Aurora.DateField = Ext.extend(Aurora.Component, {
 		this.year = date.getFullYear(); this.month = date.getMonth() + 1;
 		//重新画日历
 		this.draw();
+		this.fireEvent('draw', this);
   	},
   	//画日历
 	draw: function() {

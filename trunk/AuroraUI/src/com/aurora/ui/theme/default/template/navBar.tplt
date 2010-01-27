@@ -1,0 +1,11 @@
+<DIV class="item-toolbar" id="${id}" style="width:${width}px;${style}">
+	<DIV class="tb-ll"></DIV>
+	<DIV class="tb-rr"></DIV>
+	<DIV style="padding-left:4px;padding-right:4px;">${items}</DIV>
+</DIV>
+<SCRIPT LANGUAGE="JavaScript">
+	new Aurora.ToolBar({
+		id:'${id}',
+		width:${width}
+	});
+</SCRIPT>

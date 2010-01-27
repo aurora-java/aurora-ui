@@ -10,10 +10,14 @@ Aurora.Tab = Ext.extend(Aurora.Component,{
 		this.body = this.wrap.child('div[atype=tab.bodys]');
 		this.selectTab(config.select||0)
 	},
+	processListener: function(ou){
+    	Aurora.Tab.superclass.processListener.call(this,ou);
+    	this.head[ou]('click',this.onClick, this);
+    },
 	initEvents:function(){
 		Aurora.Tab.superclass.initEvents.call(this);   
 		this.addEvents('select');
-		this.head.on('click',this.onClick, this);
+		
 	},
 	selectTab:function(index){		
 		if(index <0)index=0;

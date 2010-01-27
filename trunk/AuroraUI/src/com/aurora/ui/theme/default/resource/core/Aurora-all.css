@@ -139,14 +139,10 @@ a {color:#0069ca;text-decoration:none;}
 /** 布局 **/
 .layout-table {
 }
+.layout-td-cell, .layout-td-con{
+	vertical-align:top;
+}
 
-.layout-td-cell {
-	vertical-align:top;
-	padding:3px;
-}
-.layout-td-con {
-	vertical-align:top;
-}
 .layout-th {
 	vertical-align:middle;
 }
@@ -169,13 +165,13 @@ a {color:#0069ca;text-decoration:none;}
 * html .ext-ie .item-btn button {
     width:1px;
 }
-
+/**
 .ext-gecko .item-btn button {
 	padding-top:0;
     padding-left:0;
     padding-right:0;
 }
-
+**/
 .ext-gecko .item-btn button::-moz-focus-inner {
     padding:0;
 }
@@ -193,19 +189,23 @@ a {color:#0069ca;text-decoration:none;}
 	white-space: nowrap;
     padding:0;
 }
-.item-btn button{
+.item-btn button {
     border:0 none;
-    background:transparent;
-    padding-left:3px;
-    padding-right:3px;
+    background-color:transparent;
     cursor:pointer;
     margin:0;
+    vertical-align: middle;
     overflow:visible;
-    width:auto;
+    padding-left:3px;
+    padding-right:3px;
     -moz-outline:0 none;
     outline:0 none;
-    font:12px arial,tahoma,verdana,helvetica;
+    width:auto !important;
+    width:1px;
+    font-size:12px !important;
+    font-size:11px;
     color:#333;
+    white-space: nowrap;
 }
 .item-btn em {
     font-style:normal;
@@ -346,6 +346,16 @@ a {color:#0069ca;text-decoration:none;}
 .item-btn-pressed .item-btn-bc{
 	background-position: 0 -21px;
 }
+.item-btn-icon-text button{
+	background-position: 1px;
+	padding-left:20px;
+	background-repeat: no-repeat;
+}
+.item-btn-icon button {
+	/*background-position: 1px;*/
+	padding-left:16px;
+	background-repeat: no-repeat;
+}
 .item-btn-disabled *{
 	cursor:default !important;
 }
@@ -375,7 +385,7 @@ a {color:#0069ca;text-decoration:none;}
 	background:#FFB9AC;
 }
 .item-comboButton {	
-	BACKGROUND: url(../combo/combobtn.gif) no-repeat 2px 0px;	
+	BACKGROUND: url(../core/itembar.gif) no-repeat 2px 0px;
 }
 .item-comboBox-selected {
 	background-color: #6899ff;
@@ -397,7 +407,7 @@ a {color:#0069ca;text-decoration:none;}
 	background-color: #b391db;
 }
 .item-dateButton {	
-	BACKGROUND: url(../datefield/datebtn.gif) no-repeat 2px 0px;
+	BACKGROUND: url(../core/itembar.gif) no-repeat 2px -20px;	
 }
 .item-dateField {
 	/*font-family:Verdana;
@@ -515,5 +525,5 @@ a {color:#0069ca;text-decoration:none;}
 	position:relative;
 }
 .item-lovButton {	
-	BACKGROUND: url(../lov/lovbtn.gif) no-repeat 2px 0px;	
+	BACKGROUND: url(../core/itembar.gif) no-repeat 2px -42px;	
 }

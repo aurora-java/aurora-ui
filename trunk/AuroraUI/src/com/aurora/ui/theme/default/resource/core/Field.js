@@ -21,30 +21,23 @@ Aurora.Field = Ext.extend(Aurora.Component,{
     		this.setVisible(false)
     	}
     },
-    initEvents : function(){
-    	Aurora.Field.superclass.initEvents.call(this);
-        this.addEvents('keydown','keyup','keypress');
-//    	this.el.on(Ext.isIE || Ext.isSafari3 ? "keydown" : "keypress", this.fireKey,  this);
-    	this.el.on("focus", this.onFocus,  this);
-    	this.el.on("blur", this.onBlur,  this);
-    	this.el.on("change", this.onChange, this);
-    	this.el.on("keyup", this.onKeyUp, this);
-        this.el.on("keydown", this.onKeyDown, this);
-        this.el.on("keypress", this.onKeyPress, this);
+    processListener: function(ou){
+//    	this.el[ou](Ext.isIE || Ext.isSafari3 ? "keydown" : "keypress", this.fireKey,  this);
+    	this.el[ou]("focus", this.onFocus,  this);
+    	this.el[ou]("blur", this.onBlur,  this);
+    	this.el[ou]("change", this.onChange, this);
+    	this.el[ou]("keyup", this.onKeyUp, this);
+        this.el[ou]("keydown", this.onKeyDown, this);
+        this.el[ou]("keypress", this.onKeyPress, this);
 //        this.el.on("mouseover", this.onMouseOver, this);
 //        this.el.on("mouseout", this.onMouseOut, this);
     },
+    initEvents : function(){
+    	Aurora.Field.superclass.initEvents.call(this);
+        this.addEvents('keydown','keyup','keypress');
+    },
     destroy : function(){
     	Aurora.Field.superclass.destroy.call(this);
-//    	this.el.un(Ext.isIE || Ext.isSafari3 ? "keydown" : "keypress", this.fireKey,  this);
-    	this.el.un("focus", this.onFocus,  this);
-    	this.el.un("blur", this.onBlur,  this);
-    	this.el.un("change", this.onChange, this);
-    	this.el.un("keyup", this.onKeyUp, this);
-        this.el.un("keydown", this.onKeyDown, this);
-        this.el.un("keypress", this.onKeyPress, this);
-//        this.el.un("mouseover", this.onMouseOver, this);
-//        this.el.un("mouseout", this.onMouseOut, this);
     	delete this.el;
     },
 	setWidth: function(w){
@@ -113,14 +106,11 @@ Aurora.Field = Ext.extend(Aurora.Component,{
     	if(this.readonly) return;
     	if(this.hasFocus){
 	        this.hasFocus = false;
-	//        this.validate();
 	        var rv = this.getRawValue();
 	        rv = this.processValue(rv);
 	        if(String(rv) !== String(this.startValue)){
 	            this.fireEvent('change', this, rv, this.startValue);
-	        }
-	//        this.applyEmptyText();
-	        
+	        } 
 	        this.setValue(rv);
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
@@ -132,7 +122,6 @@ Aurora.Field = Ext.extend(Aurora.Component,{
             this.wrap.removeClass(this.emptyTextCss);
         }
         this.setRawValue(this.formatValue((v === null || v === undefined ? '' : v)));
-//        this.el.dom.value = this.formatValue((v === null || v === undefined ? '' : v));
         this.applyEmptyText();
     },
     formatValue : function(v){
@@ -229,7 +218,7 @@ Aurora.Field = Ext.extend(Aurora.Component,{
         }
     },
     setRawValue : function(v){
-//    	if(this.id='empno')debugger
+//    	if(this.binder.name=='mgr_name') alert(v)
         return this.el.dom.value = (v === null || v === undefined ? '' : v);
     },
     reset : function(){

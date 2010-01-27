@@ -13,11 +13,15 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
 		config = config || {};
         Ext.apply(this, config);
         this.wrap = Ext.get(this.id);
+    },    
+	//TODO:其他组件也改成如下方式
+    processListener: function(ou){
+    	this.wrap[ou]("mouseover", this.onMouseOver, this);
+        this.wrap[ou]("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
     	this.addEvents('focus','blur','change','invalid','valid','mouseover','mouseout');  
-    	this.wrap.on("mouseover", this.onMouseOver, this);
-        this.wrap.on("mouseout", this.onMouseOut, this);
+    	this.processListener('on');
     },
     isEventFromComponent:function(el){
     	return this.wrap.contains(el)
@@ -77,8 +81,7 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
 		this.record = null;
     },
     destroy : function(){
-    	this.wrap.un("mouseover", this.onMouseOver, this);
-        this.wrap.un("mouseout", this.onMouseOut, this);
+    	this.processListener('un');
     	Aurora.CmpManager.remove(this.id);
     	this.clearBind();
     	delete this.wrap;
@@ -101,7 +104,6 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
 //    	this.fireEvent('valid', this, this.record, this.binder.name)
     },
     onRefresh : function(ds){
-    	
     	if(this.isFireEvent == true || this.isHidden == true) return;
 //    	if(this.isHidden == true) return; 
     	this.clearInvalid();
@@ -110,17 +112,15 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
     rerender : function(record){
     	this.record = record;
     	if(this.record) {
-			var value = this.record.get(this.binder.name);			
+			var value = this.record.get(this.binder.name);
 			var field = this.record.getMeta().getField(this.binder.name);		
 			var config={};
 			Ext.apply(config,this.initConfig);
-			Ext.apply(config, field.snap);		
+			Ext.apply(config, field.snap);
 			this.initComponent(config);
 			if(this.record.valid[this.binder.name]){
 				this.markInvalid();
 			}
-//			Ext.get('console').update(Ext.get('console').dom.innerHTML + ' | ' + this.record.id + ' onRefresh')
-			
 			if(this.value == value) return;
 			this.setValue(value,true);
 		}else{
@@ -139,7 +139,7 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
     	}    	
     },
     onUpdate : function(ds, record, name, value){
-    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase()){
+    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase() && this.getValue() != value){
 	    	this.setValue(value, true);
     	}
     },
@@ -167,6 +167,14 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
 	    		if(v=='') delete this.record.data[this.binder.name];	    		
     		}
     	}
+    },
+    setWidth: function(w){
+    	this.width = w;
+    	this.wrap.setWidth(w);
+    },
+    setHeight: function(h){
+    	this.height = h;
+    	this.wrap.setHeight(h);
     },
     clearInvalid : function(){},
     markInvalid : function(){},

@@ -4,16 +4,13 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 	ocor:'#ffe3a8',
 	cecls:'cell-editor',
 	constructor: function(config){
-//		this.overIndex = -1;
-//		this.selectedIndex = -1;
 		this.overId = null;
 		this.selectedId = null;
 		this.lockWidth = 0;
 		Aurora.Grid.superclass.constructor.call(this,config);
 	},
 	initComponent:function(config){
-		Aurora.Grid.superclass.initComponent.call(this, config);
-		
+		Aurora.Grid.superclass.initComponent.call(this, config);		
 		this.uc = this.wrap.child('div[atype=grid.uc]'); 
 		this.uh = this.wrap.child('div[atype=grid.uh]'); 
     	this.ub = this.wrap.child('div[atype=grid.ub]'); 
@@ -25,6 +22,7 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 		this.lht = this.wrap.child('table[atype=grid.lht]'); 
 
 		this.sp = this.wrap.child('div[atype=grid.spliter]');
+		Ext.getBody().insertFirst(this.sp)
 		this.fs = this.wrap.child('a[atype=grid.focus]');
 		
 		var lock =[],unlock = [],columns=[];
@@ -38,27 +36,28 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 		}
 		this.columns = lock.concat(unlock);
     	this.initTemplate();
-    	//this.onLoad();//test
 	},
-	initEvents:function(){
-		Aurora.Grid.superclass.initEvents.call(this);   
-		this.addEvents('dblclick','rowclick','keydown');
-		this.wrap.on('click',this.focus,this);
-		this.fs.on(Ext.isOpera ? "keypress" : "keydown", this.handleKeyDown,  this);
-		this.ub.on('scroll',this.syncScroll, this);
-		this.ub.on('click',this.onClick, this);
-		this.ub.on('dblclick',this.onDblclick, this);
-//		this.ub.on('mouseover',this.onRowMouseOver, this);
-		this.uht.on('mousemove',this.onUnLockHeadMove, this);
-		this.uh.on('mousedown', this.onHeadMouseDown,this);
+	processListener: function(ou){
+		Aurora.Grid.superclass.initComponent.call(this, ou);
+		this.wrap[ou]('click',this.focus,this);
+		this.fs[ou](Ext.isOpera ? "keypress" : "keydown", this.handleKeyDown,  this);
+		this.ub[ou]('scroll',this.syncScroll, this);
+		this.ub[ou]('click',this.onClick, this);
+		this.ub[ou]('dblclick',this.onDblclick, this);
+		this.uht[ou]('mousemove',this.onUnLockHeadMove, this);
+		this.uh[ou]('mousedown', this.onHeadMouseDown,this);
 
 		if(this.lb){
-//			this.lb.on('mouseover',this.onRowMouseOver, this);
-			this.lb.on('click',this.onClick, this);
+			this.lb[ou]('click',this.onClick, this);
+			this.lb[ou]('dblclick',this.onDblclick, this);
 		}
 		
-		if(this.lht) this.lht.on('mousemove',this.onLockHeadMove, this);
-		if(this.lh) this.lh.on('mousedown', this.onHeadMouseDown,this);
+		if(this.lht) this.lht[ou]('mousemove',this.onLockHeadMove, this);
+		if(this.lh) this.lh[ou]('mousedown', this.onHeadMouseDown,this);
+	},
+	initEvents:function(){
+		Aurora.Grid.superclass.initEvents.call(this);
+//		this.processListener('on');
 	},
 	syncScroll : function(){
 		this.hideEditor();
@@ -88,22 +87,28 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 		}
 		this.fireEvent('keydown', this, e)
 	},
+	processDataSetLiestener: function(ou){
+		var ds = this.dataset;
+		if(ds){
+			ds[ou]('metachange', this.onRefresh, this);
+			ds[ou]('update', this.onUpdate, this);
+	    	ds[ou]('add', this.onAdd, this);
+	    	ds[ou]('load', this.onLoad, this);
+	    	ds[ou]('valid', this.onValid, this);
+	    	ds[ou]('remove', this.onRemove, this);
+	    	ds[ou]('clear', this.onLoad, this);
+	    	ds[ou]('refresh',this.onRefresh,this);
+	    	ds[ou]('fieldchange', this.onFieldChange, this);
+	    	ds[ou]('indexchange', this.onIndexChange, this);
+		}
+	},
 	bind : function(ds){
 		if(typeof(ds)==='string'){
 			ds = $(ds);
 			if(!ds) return;
 		}
 		this.dataset = ds;
-		ds.on('metachange', this.onRefresh, this);
-		ds.on('update', this.onUpdate, this);
-    	ds.on('add', this.onAdd, this);
-    	ds.on('load', this.onLoad, this);
-    	ds.on('valid', this.onValid, this);
-    	ds.on('remove', this.onRemove, this);
-    	ds.on('clear', this.onLoad, this);
-    	ds.on('refresh',this.onRefresh,this);
-    	ds.on('fieldchange', this.onFieldChange, this);
-    	ds.on('indexchange', this.onIndexChange, this);
+		this.processDataSetLiestener('on');
     	this.onLoad();
 		if(this.autoQuery == true)
 		ds.query();
@@ -152,20 +157,6 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 			}
 			value = rder.call(window,value,record, name);
 			return value == null ? '' : value;
-		}
-//		var field = this.dataset.getField(name);
-		var field = record.getMeta().getField(name);
-		if(field){
-//			var options = field.getOptions();
-			var options = field.get('options');
-			if(options){
-				var val = field.get('valuefield');
-				var dis = field.get('displayfield');
-//				var val = field.getPropertity('valuefield');
-//				var dis = field.getPropertity('displayfield');
-				var r = $(options).find(val,value);
-				value = r ? r.get(dis) : '';//value;
-			}
 		}
 		return value == null ? '' : value;
 	},
@@ -255,7 +246,6 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 			this.selectRow(index, false);
 		}
 	},
-	//TODO:增加lock部分
 	onAdd : function(ds,record,index){
 		if(this.lb)
 		var sb = [];var cols = [];
@@ -377,8 +367,9 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 			var record = this.dataset.findById(rid);
 			var row = this.dataset.indexOf(record);
 			var dataindex = Ext.fly(dom).getAttributeNS("","dataindex");
+			this.fireEvent('cellclick', this, row, dataindex, record);
 			this.showEditor(row,dataindex);
-			this.fireEvent('rowclick', this, row, record)
+			this.fireEvent('rowclick', this, row, record);
 		}
 	},
 	setEditor: function(dataindex,editor){
@@ -391,10 +382,7 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 			if(!Ext.fly(div).hasClass(this.cecls))Ext.fly(div).addClass(this.cecls)
 		}
 	},
-	showEditor : function(row, dataindex){
-		
-//		Ext.get('console').update(Ext.get('console').dom.innerHTML + " | removeMousedown" )
-//		Ext.get(document.documentElement).un("mousedown", this.onEditorBlur, this);
+	showEditor : function(row, dataindex){		
 		if(row == -1)return;
 		var col = this.getColByDataIndex(dataindex);
 		if(!col)return;
@@ -402,6 +390,8 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 		if(!record)return;
 		if(record.id != this.selectedId);
 		this.selectRow(row);
+		this.focusColumn(dataindex);
+		
 		if(col.editorfunction) {
 			var ef = window[col.editorfunction];
 			if(ef==null) {
@@ -425,36 +415,19 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 					editor:$(editor)
 				};
 				var ed = sf.currentEditor.editor;
-				ed.setHeight(Ext.fly(dom.parentNode).getHeight()-5)
-				ed.setWidth(Ext.fly(dom.parentNode).getWidth()-7);
-//				ed.attachGrid = sf;
-//				if(ed instanceof Aurora.Lov){
-//					ed.attachGrid = sf;
-//					var value = record.get(ed.valuefield);
-//					var text = v;
-//					ed.setValue(text, text, true);
-////					ed.setValue(value, text,true);
-////					if(ed.attachGridListener != true){
-////						ed.on('commit', sf.onLovCommit, sf)
-////						ed.attachGridListener = true;
-////					}
-//				}else{
-//					ed.setValue(v,true);					
-//				}
-				ed.isFireEvent = true;
-				ed.isHidden = false;
-				ed.move(xy[0],xy[1])
-				ed.bind(sf.dataset, dataindex);
-				ed.rerender(record);
-				ed.focus();
-//				Ext.get('console').update(Ext.get('console').dom.innerHTML + " | addMousedown" )
-				Ext.get(document.documentElement).on("mousedown", sf.onEditorBlur, sf);				
+				if(ed){
+					ed.setHeight(Ext.fly(dom.parentNode).getHeight()-5)
+					ed.setWidth(Ext.fly(dom.parentNode).getWidth()-7);
+					ed.isFireEvent = true;
+					ed.isHidden = false;
+					ed.move(xy[0],xy[1])
+					ed.bind(sf.dataset, dataindex);
+					ed.rerender(record);
+					ed.focus();
+					Ext.get(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
+				}
 			},1)
 		}			
-	},
-	onLovCommit: function(lov, v, t,r){
-		var vf = lov.valuefield
-		this.selectRecord.set(vf, v);
 	},
 	focusRow : function(row){
 		var r = 25;
@@ -467,6 +440,32 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 		}
 		this.focus();
 	},
+	focusColumn: function(dataIndex){
+		var r = 25;
+		var sleft = this.ub.getScroll().left;
+		var ll = lr = lw = tw = 0;
+		for(var i=0,l=this.columns.length;i<l;i++){
+			var c = this.columns[i];
+			if(c.dataindex.toLowerCase() == dataIndex.toLowerCase()) {
+				tw = c.width;
+			}
+			if(c.hidden !== true){
+				if(c.lock === true){
+					lw += c.width;
+				}else{
+					if(tw==0) ll += c.width;
+				}
+			}
+		}
+		lr = ll + tw;
+		if(ll<sleft){
+			this.ub.scrollTo('left',ll)
+		}
+		if((lr-sleft)>(this.width-lw)){
+			this.ub.scrollTo('left',lr  - this.width + lw)
+		}
+		this.focus();
+	},
 	hideEditor : function(){
 		if(this.currentEditor && this.currentEditor.editor){
 			var ed = this.currentEditor.editor;
@@ -474,11 +473,10 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 			if(ed.canHide){
 				needHide = ed.canHide();
 			}
-			if(needHide) { 
-//				Ext.get('console').update(Ext.get('console').dom.innerHTML + " | removeMousedown" )
+			if(needHide) {
+				//TODO:destroy???
 				Ext.get(document.documentElement).un("mousedown", this.onEditorBlur, this);
 				var ed = this.currentEditor.editor;
-//				ed.blur();
 				ed.move(-10000,-10000);
 				ed.isFireEvent = false;
 				ed.isHidden = true;
@@ -498,7 +496,6 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 		}else{
 			this.lh.setStyle('cursor',"default");			
 		}
-		//Ext.get('console').update(this.hmx)
 	},
 	onUnLockHeadMove : function(e){
 //		if(this.draging)return;
@@ -520,7 +517,8 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 		this.dragStart = e.getXY()[0];
 		this.sp.setHeight(this.height);
 		this.sp.setVisible(true);
-		this.sp.setStyle("left", (e.xy[0] - this.wrap.getXY()[0]-1)+"px")
+		this.sp.setStyle("top", this.wrap.getXY()[1]+"px")
+		this.sp.setStyle("left", e.xy[0]+"px")
 		Ext.get(document.documentElement).on("mousemove", this.onHeadMouseMove, this);
     	Ext.get(document.documentElement).on("mouseup", this.onHeadMouseUp, this);
 	},
@@ -535,8 +533,7 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 		
 		if(w > 30 && w < this.width) {
 			this.dragWidth = w;
-			//Ext.get('console').update(w)
-			this.sp.setStyle("left", (e.xy[0] - this.wrap.getXY()[0])+"px")
+			this.sp.setStyle("left", e.xy[0]+"px")
 		}
 	},
 	onHeadMouseUp: function(e){
@@ -660,5 +657,12 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 			}
 			
 		}
+	},
+	//TODO:销毁Editors
+	destroy: function(){
+		Aurora.Grid.superclass.destroy.call(this);
+		this.processDataSetLiestener('un');
+		this.sp.remove();
+		delete this.sp;
 	}
 });

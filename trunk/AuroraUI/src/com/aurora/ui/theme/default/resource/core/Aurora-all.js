@@ -256,10 +256,8 @@ Aurora.Mask = function(){
 		mask : function(el){
 			var screenWidth = Aurora.getViewportWidth();
     		var screenHeight = Aurora.getViewportHeight();
-//			if(!window._mask) {
 				var p = '<DIV class="aurora-mask" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
 				var mask = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
-//			}
 	    	mask.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
 	    	Aurora.Mask.container[el.id] = mask;
 		},
@@ -404,8 +402,8 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
 	        }
         }        
         var el = document.getElementById(id);
-        if(el){Ext.removeNode(el);}        
-        Ext.fly(dom).setStyle('display', 'block');
+        if(el){Ext.removeNode(el);} 
+	    Ext.fly(dom).setStyle('display', 'block');
     });
     Ext.fly(dom).setStyle('display', 'none');
     dom.innerHTML = html.replace(/(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig, "").replace(/(?:<link.*?>)((\n|\r|.)*?)/ig, "");
@@ -1214,9 +1212,10 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     	}else if(records.length == 0){
     		this.currentIndex  = 1
     	}
+    	this.loading = false;
     	this.loadData(datas, total);
     	this.locate(this.currentIndex,true);
-	    this.loading = false;
+	    
     },
     onLoadFailed : function(res){
     	Aurora.showMessage('错误', res.error.message);
@@ -1485,11 +1484,15 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
 		config = config || {};
         Ext.apply(this, config);
         this.wrap = Ext.get(this.id);
+    },    
+	//TODO:其他组件也改成如下方式
+    processListener: function(ou){
+    	this.wrap[ou]("mouseover", this.onMouseOver, this);
+        this.wrap[ou]("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
     	this.addEvents('focus','blur','change','invalid','valid','mouseover','mouseout');  
-    	this.wrap.on("mouseover", this.onMouseOver, this);
-        this.wrap.on("mouseout", this.onMouseOut, this);
+    	this.processListener('on');
     },
     isEventFromComponent:function(el){
     	return this.wrap.contains(el)
@@ -1549,8 +1552,7 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
 		this.record = null;
     },
     destroy : function(){
-    	this.wrap.un("mouseover", this.onMouseOver, this);
-        this.wrap.un("mouseout", this.onMouseOut, this);
+    	this.processListener('un');
     	Aurora.CmpManager.remove(this.id);
     	this.clearBind();
     	delete this.wrap;
@@ -1573,7 +1575,6 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
 //    	this.fireEvent('valid', this, this.record, this.binder.name)
     },
     onRefresh : function(ds){
-    	
     	if(this.isFireEvent == true || this.isHidden == true) return;
 //    	if(this.isHidden == true) return; 
     	this.clearInvalid();
@@ -1582,17 +1583,15 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
     rerender : function(record){
     	this.record = record;
     	if(this.record) {
-			var value = this.record.get(this.binder.name);			
+			var value = this.record.get(this.binder.name);
 			var field = this.record.getMeta().getField(this.binder.name);		
 			var config={};
 			Ext.apply(config,this.initConfig);
-			Ext.apply(config, field.snap);		
+			Ext.apply(config, field.snap);
 			this.initComponent(config);
 			if(this.record.valid[this.binder.name]){
 				this.markInvalid();
 			}
-//			Ext.get('console').update(Ext.get('console').dom.innerHTML + ' | ' + this.record.id + ' onRefresh')
-			
 			if(this.value == value) return;
 			this.setValue(value,true);
 		}else{
@@ -1611,7 +1610,7 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
     	}    	
     },
     onUpdate : function(ds, record, name, value){
-    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase()){
+    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase() && this.getValue() != value){
 	    	this.setValue(value, true);
     	}
     },
@@ -1639,6 +1638,14 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
 	    		if(v=='') delete this.record.data[this.binder.name];	    		
     		}
     	}
+    },
+    setWidth: function(w){
+    	this.width = w;
+    	this.wrap.setWidth(w);
+    },
+    setHeight: function(h){
+    	this.height = h;
+    	this.wrap.setHeight(h);
     },
     clearInvalid : function(){},
     markInvalid : function(){},
@@ -1671,30 +1678,23 @@ Aurora.Field = Ext.extend(Aurora.Component,{
     		this.setVisible(false)
     	}
     },
-    initEvents : function(){
-    	Aurora.Field.superclass.initEvents.call(this);
-        this.addEvents('keydown','keyup','keypress');
-//    	this.el.on(Ext.isIE || Ext.isSafari3 ? "keydown" : "keypress", this.fireKey,  this);
-    	this.el.on("focus", this.onFocus,  this);
-    	this.el.on("blur", this.onBlur,  this);
-    	this.el.on("change", this.onChange, this);
-    	this.el.on("keyup", this.onKeyUp, this);
-        this.el.on("keydown", this.onKeyDown, this);
-        this.el.on("keypress", this.onKeyPress, this);
+    processListener: function(ou){
+//    	this.el[ou](Ext.isIE || Ext.isSafari3 ? "keydown" : "keypress", this.fireKey,  this);
+    	this.el[ou]("focus", this.onFocus,  this);
+    	this.el[ou]("blur", this.onBlur,  this);
+    	this.el[ou]("change", this.onChange, this);
+    	this.el[ou]("keyup", this.onKeyUp, this);
+        this.el[ou]("keydown", this.onKeyDown, this);
+        this.el[ou]("keypress", this.onKeyPress, this);
 //        this.el.on("mouseover", this.onMouseOver, this);
 //        this.el.on("mouseout", this.onMouseOut, this);
     },
+    initEvents : function(){
+    	Aurora.Field.superclass.initEvents.call(this);
+        this.addEvents('keydown','keyup','keypress');
+    },
     destroy : function(){
     	Aurora.Field.superclass.destroy.call(this);
-//    	this.el.un(Ext.isIE || Ext.isSafari3 ? "keydown" : "keypress", this.fireKey,  this);
-    	this.el.un("focus", this.onFocus,  this);
-    	this.el.un("blur", this.onBlur,  this);
-    	this.el.un("change", this.onChange, this);
-    	this.el.un("keyup", this.onKeyUp, this);
-        this.el.un("keydown", this.onKeyDown, this);
-        this.el.un("keypress", this.onKeyPress, this);
-//        this.el.un("mouseover", this.onMouseOver, this);
-//        this.el.un("mouseout", this.onMouseOut, this);
     	delete this.el;
     },
 	setWidth: function(w){
@@ -1763,14 +1763,11 @@ Aurora.Field = Ext.extend(Aurora.Component,{
     	if(this.readonly) return;
     	if(this.hasFocus){
 	        this.hasFocus = false;
-	//        this.validate();
 	        var rv = this.getRawValue();
 	        rv = this.processValue(rv);
 	        if(String(rv) !== String(this.startValue)){
 	            this.fireEvent('change', this, rv, this.startValue);
-	        }
-	//        this.applyEmptyText();
-	        
+	        } 
 	        this.setValue(rv);
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
@@ -1782,7 +1779,6 @@ Aurora.Field = Ext.extend(Aurora.Component,{
             this.wrap.removeClass(this.emptyTextCss);
         }
         this.setRawValue(this.formatValue((v === null || v === undefined ? '' : v)));
-//        this.el.dom.value = this.formatValue((v === null || v === undefined ? '' : v));
         this.applyEmptyText();
     },
     formatValue : function(v){
@@ -1879,7 +1875,7 @@ Aurora.Field = Ext.extend(Aurora.Component,{
         }
     },
     setRawValue : function(v){
-//    	if(this.id='empno')debugger
+//    	if(this.binder.name=='mgr_name') alert(v)
         return this.el.dom.value = (v === null || v === undefined ? '' : v);
     },
     reset : function(){
@@ -1956,11 +1952,18 @@ Aurora.Button = Ext.extend(Aurora.Component,{
     		this.setVisible(false)
     	}
     },
+    processListener: function(ou){
+    	Aurora.Button.superclass.processListener.call(this,ou);
+    	this.el[ou]("click", this.onClick,  this);
+        this.el[ou]("mousedown", this.onMouseDown,  this);
+    },
     initEvents : function(){
     	Aurora.Button.superclass.initEvents.call(this);
-    	this.addEvents('click');  
-        this.el.on("click", this.onClick,  this);
-        this.el.on("mousedown", this.onMouseDown,  this);
+    	this.addEvents('click');
+    },    
+    destroy : function(){
+		Aurora.Button.superclass.destroy.call(this);
+    	delete this.el;
     },
     setVisible: function(v){
 		if(v==true)
@@ -1968,11 +1971,11 @@ Aurora.Button = Ext.extend(Aurora.Component,{
 		else
 			this.wrap.hide();
 	},
-    destroy : function(){
-    	Aurora.Button.superclass.destroy.call(this);
-    	this.el.un("click", this.onClick,  this);
-    	delete this.el;
-    },
+//    destroy : function(){
+//    	Aurora.Button.superclass.destroy.call(this);
+//    	this.el.un("click", this.onClick,  this);
+//    	delete this.el;
+//    },
     disable: function(){
     	this.wrap.addClass(this.disableCss);
     	this.el.dom.disabled = true;
@@ -2128,8 +2131,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 	},
 	initComponent:function(config){
 		Aurora.ComboBox.superclass.initComponent.call(this, config);
-		//if(config.options) 
-		this.setOptions(config.options);		
+		if(config.options) this.setOptions(config.options);		
 	},
 	initEvents:function(){
 		Aurora.ComboBox.superclass.initEvents.call(this);
@@ -2145,8 +2147,8 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 			var raw = this.getRawValue();
 			var record = this.getRecordByDisplay(raw);
 			if(record != null){
-				this.setValue(record.get(this.valuefield));
-			}else {
+				this.setValue(record.get(this.displayfield));				
+			}else{
 				this.setValue('');
 			}
 		}
@@ -2169,14 +2171,15 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 	expand:function(){
 		if(!this.optionDataSet)return;
 		if(this.rendered===false)this.initQuery();
-		this.popup.setStyle('width',this.wrap.getStyle('width'));
+		this.correctViewSize();
 		Aurora.ComboBox.superclass.expand.call(this);
-		var v=this.getValue();
+		var v = this.getValue();
 		this.currentIndex = this.getIndex(v);
 		if(!this.currentIndex) return;
 		if (!Ext.isEmpty(v)) {				
 			if(this.selectedIndex)Ext.fly(this.getNode(this.selectedIndex)).removeClass(this.selectedClass);
-			Ext.fly(this.getNode(this.currentIndex)).addClass(this.currentNodeClass);
+			var node = this.getNode(this.currentIndex);
+			if(node)Ext.fly(node).addClass(this.currentNodeClass);
 			this.selectedIndex = this.currentIndex;
 		}		
 	},
@@ -2192,46 +2195,43 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 		}
 		if(this.currentOptions != ds){
 			this.optionDataSet = ds;
+			this.optionDataSet.un('load', this.onDataSetLoad, this);
+			this.optionDataSet.on('load', this.onDataSetLoad, this);
 			this.rendered = false;
 			this.currentOptions = ds;
+			if(!Ext.isEmpty(this.value)) this.setValue(this.value, true)
 		}
-		if(!Ext.isEmpty(this.value))this.setValue(this.value, true)
 	},
-	onRender:function(){			
+	onDataSetLoad: function(){
+		this.rendered=false
+		this.expand();
+	},
+	onRender:function(){	
         if(!this.view){
         	this.popup.update('<ul></ul>');
 			this.view=this.popup.child('ul');
 			this.view.on('click', this.onViewClick,this);
-//			this.view.on('mouseover',this.onViewOver,this);
 			this.view.on('mousemove',this.onViewMove,this);
         }
         
-        if(this.rendered===false && this.optionDataSet){
+        if(this.optionDataSet){
 			this.initList();
-			var l = this.optionDataSet.getAll().length;
-			var widthArray = [];
-			for(var i=0;i<l;i++){
-				var li=this.view.dom.childNodes[i];
-				var width=Aurora.TextMetrics.measure(li,li.innerHTML).width;
-				widthArray.push(width);
-			}		
-			if(l==0){				
-//				this.popup.setHeight(this.miniHeight);
-//				this.popup.setWidth(this.wrap.getWidth());
-			}else{
-				widthArray=widthArray.sort(function(a,b){return a-b});
-				var maxWdith=widthArray[l-1]+20;			
-				this.popup.setWidth(Math.max(this.wrap.getWidth(),maxWdith));
-				if(this.popup.getHeight()>this.maxHeight){				
-					this.popup.setHeight(this.maxHeight);
-				}
-				var w = this.popup.getWidth();
-		    	var h = this.popup.getHeight();
-		    	this.shadow.setWidth(w);
-		    	this.shadow.setHeight(h);
-			}
 			this.rendered = true;
 		}       
+	},
+	correctViewSize: function(){
+		var widthArray = [];
+		var mw = this.wrap.getWidth();
+		for(var i=0;i<this.view.dom.childNodes.length;i++){
+			var li=this.view.dom.childNodes[i];
+			var width=Aurora.TextMetrics.measure(li,li.innerHTML).width;
+			mw = Math.max(mw,width)||mw;
+		}
+		this.popup.setWidth(mw);
+		var lh = Math.min(this.popup.child('ul').getHeight()+2,this.maxHeight); 
+		this.popup.setHeight(lh<20?20:lh);
+    	this.shadow.setWidth(mw);
+    	this.shadow.setHeight(lh<20?20:lh);
 	},
 	onViewClick:function(e,t){
 		if(t.tagName!='LI'){
@@ -2247,18 +2247,20 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 		if(this.inKeyMode){ // prevent key nav and mouse over conflicts
             return;
         }
-        var index = t.tabIndex;        
+        var index = t.tabIndex;
         this.selectItem(index);        
 	},
 	onSelect:function(target){
-//		var value =target.attributes['itemValue'].value;
-		var index = target.tabIndex
-		var value = this.optionDataSet.getAt(index).get(this.valuefield);
-		this.setValue(value);
-		this.fireEvent('select',this, value);
-//		this.focus()
+		var index = target.tabIndex;
+		if(index==-1)return;
+		var record = this.optionDataSet.getAt(index);
+		var value = record.get(this.valuefield);
+		var display = record.get(this.displayfield);
+//		this.setValue(value);
+		this.setValue(display);
+		this.fireEvent('select',this, value, display, record);
 	},
-	initQuery:function(){//事件定义中调用
+	initQuery: function(){//事件定义中调用
 		this.doQuery(this.getText());
 	},
 	doQuery : function(q,forceAll) {		
@@ -2276,16 +2278,20 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 	},
 	initList: function(){	
 		this.refresh();
-		this.litp=new Ext.Template('<li tabIndex="{index}" itemValue="{'+this.valuefield+'}">{'+this.displayfield+'}&#160;</li>');
-		var datas = this.optionDataSet.getAll();
-		var l=datas.length;
-		var sb = [];
-		for(var i=0;i<l;i++){
-			var d = Ext.apply(datas[i].data, {index:i})
-			sb.add(this.litp.applyTemplate(d));	//等数据源明确以后再修改		
-		}
-		if(l!=0){
-			this.view.update(sb.join(''));			
+		this.litp=new Ext.Template('<li tabIndex="{index}">{'+this.displayfield+'}&#160;</li>');
+		if(this.optionDataSet.loading == true){
+			this.view.update('<li tabIndex="-1">正在加载...</li>');
+		}else{
+			var datas = this.optionDataSet.getAll();
+			var l=datas.length;
+			var sb = [];
+			for(var i=0;i<l;i++){
+				var d = Ext.apply(datas[i].data, {index:i})
+				sb.add(this.litp.applyTemplate(d));	//等数据源明确以后再修改		
+			}
+			if(l!=0){
+				this.view.update(sb.join(''));			
+			}
 		}
 	},
 	refresh:function(){
@@ -2297,7 +2303,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 			return;
 		}	
 		var node = this.getNode(index);			
-		if(node.tabIndex!=this.selectedIndex){
+		if(node && node.tabIndex!=this.selectedIndex){
 			if(!Ext.isEmpty(this.selectedIndex)){							
 				Ext.fly(this.getNode(this.selectedIndex)).removeClass(this.selectedClass);
 			}
@@ -2311,7 +2317,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 	destroy : function(){
 		if(this.view){
 			this.view.un('click', this.onViewClick,this);
-			this.view.un('mouseover',this.onViewOver,this);
+//			this.view.un('mouseover',this.onViewOver,this);
 			this.view.un('mousemove',this.onViewMove,this);
 		}
 		delete this.view;
@@ -2320,33 +2326,48 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 	getText : function() {		
 		return this.text;
 	},
-	processValue : function(rv){
-		var r = this.optionDataSet == null ? null : this.optionDataSet.find(this.displayfield, rv);
-		if(r != null){
-			return r.get(this.valuefield);
-		}else{
-			return this.value;
-		}
-	},
-	formatValue : function(){
-		var v = this.getValue();
-		var r = this.optionDataSet == null ? null : this.optionDataSet.find(this.valuefield, v);
-		this.text = '';
-		if(r != null){
-			this.text = r.get(this.displayfield);
-		}else{
-//			this.text = v;
-		}
-		return this.text;
-	},
-//	setValue:function(v,silent){
-//        Aurora.ComboBox.superclass.setValue.call(this, v, silent);
+//	processValue : function(rv){
+//		var r = this.optionDataSet == null ? null : this.optionDataSet.find(this.displayfield, rv);
+//		if(r != null){
+//			return r.get(this.valuefield);
+//		}else{
+//			return this.value;
+//		}
 //	},
+//	formatValue : function(){
+//		var v = this.getValue();
+//		var r = this.optionDataSet == null ? null : this.optionDataSet.find(this.valuefield, v);
+//		this.text = '';
+//		if(r != null){
+//			this.text = r.get(this.displayfield);
+//		}else{
+////			this.text = v;
+//		}
+//		return this.text;
+//	},
+	setValue: function(v, silent){
+        Aurora.ComboBox.superclass.setValue.call(this, v, silent);
+        //TODO: v是空的时候?
+        if(this.record){
+			var field = this.record.getMeta().getField(this.binder.name);
+			if(field){
+				var mapping = field.get('mapping');
+				var raw = this.getRawValue();
+				var record = this.getRecordByDisplay(raw);
+				if(mapping&&record){
+					for(var i=0;i<mapping.length;i++){
+						var map = mapping[i];
+						this.record.set(map.to,record.get(map.from));
+					}
+				}
+			}
+		}
+	},
 	getIndex:function(v){
 		var datas = this.optionDataSet.getAll();		
 		var l=datas.length;
 		for(var i=0;i<l;i++){
-			if(datas[i].data[this.valuefield]==v){				
+			if(datas[i].data[this.displayfield]==v){				
 				return i;
 			}
 		}
@@ -2372,28 +2393,26 @@ Aurora.DateField = Ext.extend(Aurora.Component, {
     	this.yearSpan = this.wrap.child("span.item-dateField-year");
     	this.monthSpan = this.wrap.child("span.item-dateField-month");
     },
+    processListener: function(ou){
+    	Aurora.DateField.superclass.processListener.call(this,ou);
+    	this.preMonthBtn[ou]("click", this.preMonth, this);
+    	this.nextMonthBtn[ou]("click", this.nextMonth, this);
+    	this.table[ou]("click", this.onSelect, this);
+    	this.table[ou]("mouseover", this.mouseOver, this);
+    	this.table[ou]("mouseout", this.mouseOut, this)
+    },
     initEvents : function(){
-    	Aurora.DateField.superclass.initEvents.call(this);    
-    	this.preMonthBtn.on("click", this.preMonth, this);
-    	this.nextMonthBtn.on("click", this.nextMonth, this);
-    	this.table.on("click", this.onSelect, this);
-    	this.table.on("mouseover", this.mouseOver, this);
-    	this.table.on("mouseout", this.mouseOut, this)
-    	this.addEvents('select');
+    	Aurora.DateField.superclass.initEvents.call(this);   	
+    	this.addEvents('select','draw');
     },
     destroy : function(){
-    	this.preMonthBtn.un("click", this.preMonth, this);
-    	this.nextMonthBtn.un("click", this.nextMonth, this);
-    	this.table.un("click", this.onSelect, this);
-    	this.table.un("mouseover", this.mouseOver, this);
-    	this.table.un("mouseout", this.mouseOut, this)
+    	Aurora.DateField.superclass.destroy.call(this);
 		delete this.preMonthBtn;
     	delete this.nextMonthBtn;
     	delete this.yearSpan;
     	delete this.monthSpan; 
     	delete this.table;        
         delete this.tbody;
-    	Aurora.DateField.superclass.destroy.call(this);
 	},
     mouseOut: function(e){
     	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
@@ -2460,6 +2479,7 @@ Aurora.DateField = Ext.extend(Aurora.Component, {
 		this.year = date.getFullYear(); this.month = date.getMonth() + 1;
 		//重新画日历
 		this.draw();
+		this.fireEvent('draw', this);
   	},
   	//画日历
 	draw: function() {
@@ -2529,11 +2549,16 @@ Aurora.DatePicker = Ext.extend(Aurora.TriggerField,{
     		var cfg = {id:this.id+'_df',container:this.popup}
 	    	this.dateField = new Aurora.DateField(cfg);
 	    	this.dateField.on("select", this.onSelect, this);
+	    	this.dateField.on("draw", this.onDraw, this);
     	}
     },
     initEvents : function(){
     	Aurora.DatePicker.superclass.initEvents.call(this);
         this.addEvents('select');
+    },
+    onDraw: function(){
+    	this.shadow.setWidth(this.popup.getWidth());
+    	this.shadow.setHeight(this.popup.getHeight());
     },
     onSelect: function(dateField, date){
     	this.collapse();
@@ -2651,11 +2676,16 @@ Aurora.Window = Ext.extend(Aurora.Component,{
         }
         sf.center();
     },
+    processListener: function(ou){
+    	Aurora.Window.superclass.processListener.call(this,ou);
+    	if(this.closeable) this.closeBtn[ou]("click", this.onClose,  this); 
+    	this.wrap[ou]("click", this.toFront, this);
+    	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
+    	if(this.draggable)this.head.on('mousedown', this.onMouseDown,this);
+    },
     initEvents : function(){
-    	this.addEvents('close','load');
-    	if(this.closeable) this.closeBtn.on("click", this.onClose,  this); 
-    	this.wrap.on("click", this.toFront, this);
-    	this.focusEl.on("keydown", this.handleKeyDown,  this);
+    	Aurora.Window.superclass.initEvents.call(this);
+    	this.addEvents('close','load');    	
     },
     handleKeyDown : function(e){
 		e.stopEvent();
@@ -2666,7 +2696,7 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     },
     initDraggable: function(){
     	this.head.addClass('item-draggable');
-    	this.head.on('mousedown', this.onMouseDown,this);
+//    	this.head.on('mousedown', this.onMouseDown,this);
     },
     focus: function(){
 		this.focusEl.focus();
@@ -2789,7 +2819,7 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     			try{
     				cmp.destroy();
     			}catch(e){
-    				alert(e)
+    				alert('销毁window出错: ' + e)
     			}
     		}
     	}
@@ -2797,15 +2827,12 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
     	if(this.modal) Aurora.Mask.unmask(this.wrap);
-    	this.wrap.un("click", this.toFront, this);
-    	this.head.un('mousedown', this.onMouseDown,this);
-    	this.closeBtn.un("click", this.onClose,  this);
+    	Aurora.Window.superclass.destroy.call(this);
     	delete this.title;
     	delete this.head;
     	delete this.body;
         delete this.closeBtn;
         delete this.proxy;
-    	Aurora.Window.superclass.destroy.call(this);
         wrap.remove();
         this.shadow.remove();
     },
@@ -2866,10 +2893,13 @@ Aurora.Lov = Ext.extend(Aurora.TextField,{
     	Aurora.Lov.superclass.initComponent.call(this,config);
     	this.trigger = this.wrap.child('div[atype=triggerfield.trigger]'); 
     },
+    processListener: function(ou){
+    	Aurora.Lov.superclass.processListener.call(this,ou);
+    	this.trigger[ou]('click',this.showLovWindow, this, {preventDefault:true})
+    },
     initEvents : function(){
-    	Aurora.TriggerField.superclass.initEvents.call(this);
+    	Aurora.Lov.superclass.initEvents.call(this);
     	this.addEvents('commit');
-    	this.trigger.on('click',this.showLovWindow, this, {preventDefault:true})
     },
     destroy : function(){
     	Aurora.Lov.superclass.destroy.call(this);
@@ -2880,40 +2910,22 @@ Aurora.Lov = Ext.extend(Aurora.TextField,{
 	},
 	onBlur : function(e){
 		if(this.readonly) return;
-		var vf = this.record ? this.record.get(this.valuefield) : null;
+		var vf = this.record ? this.record.get(this.binder.name) : null;
         var r = this.getRawValue();
         var v = this.getValue();
-        var t = this.text;
         var needLookup = true;
         if(r == ''){        
         	needLookup = false;
         }else{
-	        if(!Ext.isEmpty(vf) && r == t){
-	        	needLookup = false;
-	        }
-	        else if(!this.record){
-	        	needLookup = false;
-	        }
-	        
+        	if(r == v){
+        		needLookup = false;
+        	}
         }
         if(needLookup){
         	this.showLovWindow();
         }else{
         	Aurora.Lov.superclass.onBlur.call(this,e); 
-        	if(r == '' && this.record)
-        	this.record.set(this.valuefield,'');
         }
-//        if(r !='' && (v=='' || r != t)){
-////			this.hasFocus = false;
-////			this.wrap.removeClass(this.focusCss);
-////	        this.fireEvent("blur", this);
-////        	if(!this.attachGrid)
-//        	this.showLovWindow();
-//        }else {
-//        	Aurora.Lov.superclass.onBlur.call(this,e); 
-//        	if(r == '' && this.record)
-//        	this.record.set(this.valuefield,'');
-//        }
 	},
 	onKeyDown : function(e){
         if(e.getKey() == 13) {
@@ -2925,17 +2937,38 @@ Aurora.Lov = Ext.extend(Aurora.TextField,{
     canHide : function(){
     	return this.isWinOpen == false
     },
-	commitValue:function(v, t, r){
+    commit:function(r){
 		this.win.close();
-        this.setValue(t)
-        if(this.record)
-		this.record.set(this.valuefield, v);
-		this.fireEvent('commit', this, v, t, r)
+		this.dataRecord = r;
+		var mapping = this.getMapping();
+		for(var i=0;i<mapping.length;i++){
+			var map = mapping[i];
+			if(this.binder.name == map.to){
+				this.setValue(r.get(map.from));
+				break;
+			}
+		}
+		this.dataRecord = null;
+	},
+	getMapping: function(){
+		var mapping
+		if(this.record){
+			var field = this.record.getMeta().getField(this.binder.name);
+			if(field){
+				mapping = field.get('mapping');
+			}
+		}
+		return mapping ? mapping : [{from:this.binder.name,to:this.binder.name}];
 	},
 	setValue: function(v, silent){
 		Aurora.Lov.superclass.setValue.call(this, v, silent);
-		this.text = v;
-		this.setRawValue(this.text);
+		if(this.record && this.dataRecord && silent !== true){
+			var mapping = this.getMapping();
+			for(var i=0;i<mapping.length;i++){
+				var map = mapping[i];
+				this.record.set(map.to,this.dataRecord.get(map.from));
+			}		
+		}
 	},
 	onWinClose: function(){
 		this.isWinOpen = false;
@@ -2947,18 +2980,15 @@ Aurora.Lov = Ext.extend(Aurora.TextField,{
 		if(this.readonly == true) return;
 		if(this.ref == "" || Ext.isEmpty(this.ref))return;
 		this.isWinOpen = true;
+		
 		var v = '';
 		var rv = this.getRawValue();
-		var t = this.text;
-		if(rv==t){
-			if(this.record)
-			v = this.record.get(this.valuefield);
-			if(!v) v = '';
-		}else{
+		var t = this.getValue();
+		if(rv!=t){
 			v = rv;
-		}
+		}		
 		this.blur();
-    	this.win = new Aurora.Window({title:this.title||'Lov', url:(this.ref) + "?lovid="+this.id+"&key="+v, height:this.winheight||400,width:this.winwidth||400});
+    	this.win = new Aurora.Window({title:this.title||'Lov', url:(this.ref) + "?lovid="+this.id+"&key="+encodeURIComponent(v), height:this.winheight||400,width:this.winwidth||400});
     	this.win.on('close',this.onWinClose,this);
     }
 });
