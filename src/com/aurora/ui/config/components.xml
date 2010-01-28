@@ -1,6 +1,9 @@
 <package>
 	<components>
+		<view-component elementName="separator" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="button" builder="aurora.presentation.TemplateBasedView" />
+		<view-component elementName="navBar" builder="aurora.presentation.TemplateBasedView" defaultTemplate="toolBar.tplt"/>
+		<view-component elementName="toolBar" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="comboBox" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="lov" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="textField" builder="aurora.presentation.TemplateBasedView" />
