@@ -14,12 +14,12 @@
 					<sql-execute service="test.CONTRACT_HEAD_UPDATE" trace="true"/>
 					<batch-apply sourcepath="@current_parameter/partner">
 						<p:switch test="@current_parameter/@_status">
-						<p:case value="new">
-							<sql-execute service="test.CONTRACT_PARTNER_CREATE"/>
-						</p:case>
-						<p:case value="update">
-							<sql-execute service="test.CONTRACT_PARTNER_UPDATE"/>
-						</p:case> 
+							<p:case value="new">
+								<sql-execute service="test.CONTRACT_PARTNER_CREATE"/>
+							</p:case>
+							<p:case value="update">
+								<sql-execute service="test.CONTRACT_PARTNER_UPDATE"/>
+							</p:case> 
 						</p:switch>
 					</batch-apply>					
 				</p:case> 

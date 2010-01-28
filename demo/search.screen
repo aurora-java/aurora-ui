@@ -18,12 +18,12 @@
 		
 		<script language="JavaScript">
 			function onRowselect(grid,row,record){
-				$$('${/parameter/@lovid}').commitValue(record.get('empno'),record.get('ename'),record);
+				$$('${/parameter/@lovid}').commit(record);
 			}
 			function onKeyDown(grid, e){
 				if(e.getKey() == 13){
 					var record = $$('SEA_GRID_DS').getCurrentRecord();
-					$$('${/parameter/@lovid}').commitValue(record.get('empno'),record.get('ename'),record);
+					$$('${/parameter/@lovid}').commit(record);
 				}
 			}
 			function query(){

@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
     <a:init-procedure>
+    	<sql-query service="test.DEPTQuery" rootPath="DEPT-LIST"  fetchAll="true" autoCount="true" />
 	</a:init-procedure>
     <a:view template="default" package="com.aurora.ui">
-    	<dataSets>
+		<dataSets>
+			<dataSet id="QUERY_DS" href="test.EMP"/>
+			<dataSet id="DEPT_DS">
+				<datas dataSource="/model/DEPT-LIST"/>
+			</dataSet>
+			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+				<fields>
+					<field name="deptno" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+					<field name="hiredate" datatype="date" />					
+				</fields>
+			</dataSet>
 		</dataSets>
 		<vBox style="margin:10px;">
 	    	<box column="4" promptWidth="75" width="900" title="测试Form" className="mytable" style="margin-top:10px;border:1px solid #cccccc;">

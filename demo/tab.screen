@@ -8,6 +8,16 @@
 			<dataSet id="COMBO_DEPT_DS">
 				<datas dataSource="/model/DEPT-LIST"/>
 			</dataSet>
+			<dataSet id="QUERY_DS" href="test.EMP"/>
+			<dataSet id="DEPT_DS">
+				<datas dataSource="/model/DEPT-LIST"/>
+			</dataSet>
+			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+				<fields>
+					<field name="deptno" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+					<field name="hiredate" datatype="date" />					
+				</fields>
+			</dataSet>
 		</dataSets>
     	<tabPanel id="tab" width="700" height="500" style="margin:2px">
     		<tab  prompt="表单1" width="100">
