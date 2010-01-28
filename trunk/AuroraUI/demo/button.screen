@@ -11,8 +11,8 @@
 			}
 		]]>
 		</script>
-		<button text="测试" style="margin:100px;"></button>
-		
-		<button text="大按钮" height="60" style="margin:100px;"></button>
+		<button text="ABC测试" style="position:absolute;left:10px;top:100px;"></button>
+		<button text="保存按钮" icon="images/save.gif" style="position:absolute;left:80px;top:100px;"/>
+		<button text="保存按钮" icon="images/save.gif" height="100" width="100"  style="position:absolute;left:200px;top:100px;"/>
     </a:view>
 </a:screen>

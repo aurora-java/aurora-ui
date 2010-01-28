@@ -11,6 +11,7 @@
 				 alert(1)
 			})
 			*/
+			
 			/*
 			Aurora.regEvent('ajaxstart',function(){
 				 Aurora.showWindow('提示','正在提交...',200,100)
@@ -19,9 +20,12 @@
 				Aurora.hideWindow()
 			})
 			*/
+			
 			function onDblclick(grid,record,row,index){
-				//new Aurora.Window({id:'win2', url:'grid.screen', title:'测试', height:400,width:702});
+				new Aurora.Window({id:'win2', url:'people.screen', title:'更新', height:250,width:300});
 			}
+			
+			
 			var i = 0;			
 			function showEditor(){
 				var name;
@@ -33,7 +37,8 @@
 				}
 				
 				$$('datagrid').showEditor(Math.ceil(10*Math.random()),name)
-			}			
+			}	
+					
 			function changeEditor(record){
 				var sal = record.get('sal');
 				if(sal > 1500){
@@ -42,20 +47,12 @@
 					return ""
 				}
 			}
-			function createRecord(){
-				$$('GRID_DS').create();
-				//$$('GRID_DS').create({ename:'znjqolf',mgr_name:'test',mgr:7788,hiredate:new Date(),deptno:20,job:'soft',sal:9000})
-			}
-			function saveRecords(){
-				$$('GRID_DS').submit('')
-			}
-			function removeRecord(){
-				$$('GRID_DS').remove();
-			}
+			
 			function onCommit(lov,v,t,r){
 				var record = $$('GRID_DS').getCurrentRecord();
 				record.set('sal',v);
 			}
+			
 			function onSelect(dp,v){
 				if(v < 20){
 					$$('datagrid').setEditor('job','lov');
@@ -63,6 +60,7 @@
 					$$('datagrid').setEditor('job','');
 				}
 			}
+			
 			function validate(){
 				$$('GRID_DS').validate();
 			}
@@ -84,25 +82,31 @@
 			function onSuccess(){
 				Aurora.showMessage('成功', '操作成功!');
 			}
+			
 		]]>
 		</script>
 		<dataSets>
 			<dataSet id="QUERY_DS" href="test.EMP">
-				<!--
-				<fields>
-					<field name="empno" required=""/>			
-				</fields>
-				-->
 			</dataSet>
 			<dataSet id="DEPT_DS">
 				<datas dataSource="/model/DEPT-LIST"/>
 			</dataSet>
-			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="5" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="10" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
 				<fields>
-					<field name="mgr_name" required="true"/>
+					<field name="mgr_name" required="true" title="选择MGR" winWidth="350" winHeight="450" ref="search.screen">
+						<mapping>
+							<map from="empno" to="mgr"/>
+							<map from="ename" to="mgr_name"/>
+						</mapping>
+					</field>
 					<field name="ename" required="true"/>
 					<field name="hiredate" datatype="date" required="true"/>
-					<field name="deptno" required="true"/>				 				
+					<field name="dname" required="true" options="DEPT_DS" displayField="dname" valueField="deptno">
+						<mapping>
+							<map from="deptno" to="deptno"/>
+							<map from="dname" to="dname"/>
+						</mapping>
+					</field>				 				
 				</fields>
 				<events>
 					<event name="update" handler="onUpdate"/>
@@ -110,8 +114,6 @@
 				</events>
 			</dataSet>
 		</dataSets>
-		
-		
 		<hBox>
 			<vBox labelWidth="50" width="350" className="mytable" title="查询Form" style="border:1px solid #cccccc;margin:10px;">
 				<textField name="empno" prompt="empno" bindTarget="QUERY_DS" width="150" />
@@ -119,18 +121,26 @@
 			</vBox>
 			<div width="300" style="padding:10px;background-color:green;color:#ffffff;margin:7px;border:1px solid #cccccc;display:none" height="100" id="custommsg"></div>
 		</hBox>
-		<hBox style="margin:10px;">
+		<hBox style="margin-left:10px;">
 			<button text="查询" click="query"/>
 		</hBox>
 		<hBox width="800" style="margin:10px;">
-			<grid id="datagrid" dataSet="GRID_DS" width="700" height="380">
+			<grid id="datagrid" dataSet="GRID_DS" width="700" height="330" navBar="true">
+				<toolBar>
+					<button type="add"/>
+					<button type="delete"/>
+					<button type="save"/>/>
+					<separator/>
+					<button icon="images/open.gif" text="test" click="onSuccess"/>
+				</toolBar>
 				<columns>
 					<column dataIndex="empno" lock="true" width="50" prompt="empno"/>
 					<column dataIndex="ename" editor="tf" width="100" prompt="ename"/>
 					<column prompt="组合列">
+						<column dataIndex="mgr" width="60" prompt="mgrno"/>
 						<column dataIndex="mgr_name" editor="lov" width="100" prompt="mgr"/>
 						<column dataIndex="hiredate" renderer="Aurora.formateDate" editor="dp" width="130" prompt="hiredate"/>
-						<column dataIndex="deptno" editor="cb" width="100" prompt="deptno"/>
+						<column dataIndex="dname" editor="cb" width="100" prompt="dept"/>
 					</column>
 					<column dataIndex="job" editor="tf" width="180" prompt="job"/>
 					<column dataIndex="sal" editor="tf" width="180" prompt="sal"/>
@@ -145,50 +155,14 @@
 					<event name="dblclick" handler="onDblclick"/>
 				</events>
 			</grid>
-			
-			<vBox labelWidth="75" width="250" className="mytable" title="更新Form" style="border:1px solid #cccccc;margin:3px">
-				<textField id="ename" name="ename" prompt="ename" bindTarget="GRID_DS" validAlign="bottom" width="150"/>
+			<vBox labelWidth="75" width="250" className="mytable" title="更新Form" style="border:1px solid #cccccc;">
+				<textField name="ename" prompt="ename" bindTarget="GRID_DS" validAlign="bottom" width="150"/>
 				<textField name="job" prompt="job" bindTarget="GRID_DS" width="150"/>
 				<lov name="mgr_name" prompt="mgr" bindTarget="GRID_DS" width="150"/>
 				<datePicker name="hiredate" prompt="hiredate" bindTarget="GRID_DS" width="150"/>
-				<comboBox name="deptno" prompt="deptno" bindTarget="GRID_DS" width="150"/>
+				<comboBox name="dname" prompt="dept" bindTarget="GRID_DS" width="150"/>
 				<textField name="sal" prompt="sal" bindTarget="GRID_DS" width="150"/>
 			</vBox>
 		</hBox>
-		<script>
-		<![CDATA[
-			function first(){
-				$$('GRID_DS').first()
-			}
-			function prerow(){
-				$$('GRID_DS').pre()
-			}
-			function nextrow(){
-				$$('GRID_DS').next()
-			}
-			function prepage(){
-				$$('GRID_DS').prePage()
-			}
-			function nextpage(){
-				$$('GRID_DS').nextPage()
-			}
-		]]>
-		</script>
-		<hBox style="margin:10px;">
-			<button text="第一条" click="first"/>
-			<button text="上一条" click="prerow"/>
-			<button text="下一条" click="nextrow"/>
-			<button text="上一页" click="prepage"/>
-			<button text="下一页" click="nextpage"/>
-			<div style='width:50px'></div>
-			<button text="新增" click="createRecord"/>
-			<button text="保存" click="saveRecords"/>
-			<button text="删除" click="removeRecord"/>
-			<!--
-			<button text="编辑" click="showEditor"/>
-			<button text="校验" click="validate"/>
-			-->
-		</hBox>	
-		<div id="console"></div>	
     </a:view>
 </a:screen>

@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
     <a:init-procedure>
+		<sql-query service="test.DEPTQuery" rootPath="DEPT-LIST"  fetchAll="true" autoCount="true" />
 	</a:init-procedure>
     <a:view template="default" package="com.aurora.ui">
-		<script>						
-			function dateFormate(record,name,value){
-				return Aurora.formateDate(value);
-			}
-		</script>
+    	<dataSets>
+			<dataSet id="QUERY_DS" href="test.EMP"/>
+			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+				<fields>
+					<field name="hiredate" datatype="date" />					
+				</fields>
+			</dataSet>
+		</dataSets>
 		<hBox title="查询Form" style="border:1px solid #cccccc;margin:10px;">
 			<vBox labelWidth="50" width="220" className="mytable">
 				<textField name="empno" prompt="empno" bindTarget="QUERY_DS" width="150" />
@@ -22,7 +26,7 @@
 				<column prompt="岗位">
 					<column dataIndex="job" width="80" prompt="job"/>
 					<column dataIndex="mgr" width="60" prompt="mgr"/>
-					<column dataIndex="hiredate" renderer="dateFormate" width="130" prompt="hiredate"/>
+					<column dataIndex="hiredate" renderer="Aurora.formateDate" width="130" prompt="hiredate"/>
 				</column>
 				<column dataIndex="deptno" width="120" prompt="deptno"/>
 				<column dataIndex="sal" width="80" prompt="sal"/>
