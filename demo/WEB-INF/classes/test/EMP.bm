@@ -5,13 +5,13 @@
 		<field name="job" datatype="java.lang.String" databaseType="BIGINT"  prompt="job" />
 		<field name="mgr" datatype="java.lang.Long" databaseType="BIGINT" prompt="mgr"/>
 		<field name="hiredate" datatype="java.sql.Date" databaseType="DATE" prompt="hiredate" />
-		<field name="deptno" datatype="java.lang.Long" databaseType="BIGINT" prompt="deptno" options="DEPT_DS" displayField="dname" valueField="deptno"/>
+		<field name="deptno" datatype="java.lang.Long" databaseType="BIGINT" prompt="deptno"/>
 		<field name="sal" datatype="java.lang.Long" databaseType="FLOAT" prompt="sal"/>
 		<field name="comm" datatype="java.lang.Long" databaseType="FLOAT" prompt="comm"/>
 		<field name="creation_date" datatype="date" databaseType="DATE" updateExpression="sysdate" prompt="creationDate"/>
-		<field name="NOW_DATE" datatype="date" expression="sysdate" databaseType="DATE" prompt="NOW_DATE"/>
+		<field name="now_date" datatype="date" expression="sysdate" databaseType="DATE" prompt="NOW_DATE"/>
 		<ref-field name="dname" sourceField="dname" sourceModel="test.DEPT" prompt="dname"/>
-		<ref-field name="mgr_name" sourceField="ename" relationName="MGR" prompt="mgrName" title="选择MGR" winWidth="350" valueField="mgr" winHeight="420" ref="search.screen"/>
+		<ref-field name="mgr_name" sourceField="ename" relationName="MGR" prompt="mgrName"/>
 	</fields>
 	<primary-key>
 		<field name="empno"/>
