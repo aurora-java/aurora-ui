@@ -1,16 +1,34 @@
-<DIV class="item-grid" id="${id}" style="width:${width}px;height:${height}px;${style}">
-	${lockarea}
-	<DIV class="grid-ua" atype="grid.uc" style="width:${unlockwidth}px;">
-		<DIV class="grid-uh" unselectable="on" onselectstart="return false;" style="width:${unlockwidth}px;-moz-user-select:none;"  atype="grid.uh" style="height:${headHeight}px;">
-			${unlockarea}
-		</DIV>
-		<DIV class="grid-ub"  atype="grid.ub" style="width:${unlockwidth}px;height:${bodyHeight}px">
-		</DIV>
-	</DIV>
-	<DIV style="clear:both"></DIV>
-	<DIV atype="grid.spliter" class="grid-sp" style="display:none;"></DIV>
-	<A atype="grid.focus" href="#" class="grid-fs" tabIndex="-1">&#160;</A>
-</DIV>
+<TABLE class="layout-table" style="${style}" cellSpacing="0" cellPadding="0" border="0">
+<TBODY>
+	<TR>
+		<TD>
+			${toolBar}
+		</TD>
+	</TR>
+	<TR>
+		<TD class="layout-td-cell">
+			<DIV class="item-grid" id="${id}" style="width:${width}px;height:${height}px;${gridstyle}">
+				${lockarea}
+				<DIV class="grid-ua" atype="grid.uc" style="width:${unlockwidth}px;">
+					<DIV class="grid-uh" unselectable="on" onselectstart="return false;" style="width:${unlockwidth}px;-moz-user-select:none;"  atype="grid.uh" style="height:${headHeight}px;">
+						${unlockarea}
+					</DIV>
+					<DIV class="grid-ub"  atype="grid.ub" style="width:${unlockwidth}px;height:${bodyHeight}px">
+					</DIV>
+				</DIV>
+				<DIV style="clear:both"></DIV>
+				<DIV atype="grid.spliter" class="grid-sp" style="display:none;"></DIV>
+				<A atype="grid.focus" href="#" class="grid-fs" tabIndex="-1">&#160;</A>
+			</DIV>
+		</TD>
+	</TR>
+	<TR>
+		<TD>
+			${navbar}
+		</TD>
+	</TR>
+</TBODY>
+</TABLE>
 <SCRIPT LANGUAGE="JavaScript">
 	new Aurora.Grid({
 		id:'${id}',

@@ -98,3 +98,12 @@
 .nav-refresh {
 	background-position:0px -63px;
 }
+.grid-add {
+	background-image:url(../toolbar/add.gif);
+}
+.grid-delete {
+	background-image:url(../toolbar/delete.gif);
+}
+.grid-save {
+	background-image:url(../toolbar/save.gif);
+}

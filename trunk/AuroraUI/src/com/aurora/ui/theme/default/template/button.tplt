@@ -7,7 +7,7 @@
 		</TR>
 		<TR>
 			<TD class="item-btn-ml"><I>&#160;</I></TD>
-			<TD class="item-btn-mc"><EM class="" unselectable="on"><BUTTON atype="btn" style="line-height:${lineheight}px;height:${height}px;${btnstyle}" class="item-btn-text ${btnclass}">${text}</BUTTON></EM></TD>
+			<TD class="item-btn-mc"><EM class="" unselectable="on"><BUTTON atype="btn" title="${title}" style="line-height:${lineheight}px;height:${height}px;${btnstyle}" class="item-btn-text ${btnclass}">${text}</BUTTON></EM></TD>
 			<TD class="item-btn-mr"><I>&#160;</I></TD>
 		</TR>
 		<TR>
