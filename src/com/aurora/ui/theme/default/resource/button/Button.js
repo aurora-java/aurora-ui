@@ -1,28 +1,28 @@
-Aurora.Button = Ext.extend(Aurora.Component,{
+$A.Button = Ext.extend($A.Component,{
 	disableCss:'item-btn-disabled',
 	overCss:'item-btn-over',
 	pressCss:'item-btn-pressed',
 	constructor: function(config) {
-        Aurora.Button.superclass.constructor.call(this, config);
+        $A.Button.superclass.constructor.call(this, config);
     },
 	initComponent : function(config){
-    	Aurora.Button.superclass.initComponent.call(this, config);
+    	$A.Button.superclass.initComponent.call(this, config);
     	this.el = this.wrap.child('button[atype=btn]');
     	if(this.hidden == true){
     		this.setVisible(false)
     	}
     },
     processListener: function(ou){
-    	Aurora.Button.superclass.processListener.call(this,ou);
+    	$A.Button.superclass.processListener.call(this,ou);
     	this.el[ou]("click", this.onClick,  this);
         this.el[ou]("mousedown", this.onMouseDown,  this);
     },
     initEvents : function(){
-    	Aurora.Button.superclass.initEvents.call(this);
+    	$A.Button.superclass.initEvents.call(this);
     	this.addEvents('click');
     },    
     destroy : function(){
-		Aurora.Button.superclass.destroy.call(this);
+		$A.Button.superclass.destroy.call(this);
     	delete this.el;
     },
     setVisible: function(v){
@@ -32,7 +32,7 @@ Aurora.Button = Ext.extend(Aurora.Component,{
 			this.wrap.hide();
 	},
 //    destroy : function(){
-//    	Aurora.Button.superclass.destroy.call(this);
+//    	$A.Button.superclass.destroy.call(this);
 //    	this.el.un("click", this.onClick,  this);
 //    	delete this.el;
 //    },

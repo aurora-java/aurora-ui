@@ -23,12 +23,6 @@
 .item-btn td {
     padding:0 !important;
 }
-
-.item-btn-text {
-    cursor:pointer;
-	white-space: nowrap;
-    padding:0;
-}
 .item-btn button {
     border:0 none;
     background-color:transparent;
@@ -186,13 +180,13 @@
 .item-btn-pressed .item-btn-bc{
 	background-position: 0 -21px;
 }
-.item-btn-icon-text button{
+.item-btn-icon-text button {
 	background-position: 1px;
 	padding-left:20px;
 	background-repeat: no-repeat;
 }
 .item-btn-icon button {
-	/*background-position: 1px;*/
+	background-position: 1px;
 	padding-left:16px;
 	background-repeat: no-repeat;
 }
