@@ -1,7 +1,7 @@
-Aurora.AUTO_ID = 1000;
-Aurora.DataSet = Ext.extend(Ext.util.Observable,{
+$A.AUTO_ID = 1000;
+$A.DataSet = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {//datas,fields, type
-		Aurora.DataSet.superclass.constructor.call(this);
+		$A.DataSet.superclass.constructor.call(this);
 		config = config || {};
 		this.pageid = config.pageid;
     	this.spara = {};
@@ -17,7 +17,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     	this.resetConfig();
     	
 		this.id = config.id || Ext.id();
-        Aurora.CmpManager.put(this.id,this)		
+        $A.CmpManager.put(this.id,this)		
     	this.qds = config.queryDataSet == "" ? null :$(config.queryDataSet);
     	if(this.qds != null && this.qds.getCurrentRecord() == null) this.qds.create();
     	this.initEvents();
@@ -28,8 +28,8 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     destroy : function(){
-    	Aurora.CmpManager.remove(this.id);
-    	delete Aurora.invalidRecords[this.id]
+    	$A.CmpManager.remove(this.id);
+    	delete $A.invalidRecords[this.id]
     },
     reConfig : function(config){
     	this.resetConfig();
@@ -56,7 +56,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 		ds.on('load', this.bindDataSetPrototype, this);
 		ds.on('reject', this.bindDataSetPrototype, this);
     	
-    	var field = new Aurora.Record.Field({
+    	var field = new $A.Record.Field({
     		name:name,
     		type:'dataset',
     		dataset:ds
@@ -123,7 +123,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     },
     initFields : function(fields){
     	for(var i = 0, len = fields.length; i < len; i++){
-    		var field = new Aurora.Record.Field(fields[i]);
+    		var field = new $A.Record.Field(fields[i]);
 	        this.fields[field.name] = field;
         }
     },
@@ -145,14 +145,14 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     			var datatype = field.getPropertity('datatype');
     			switch(datatype){
     				case 'date':
-    					data[key] = Aurora.parseDate(data[key]);
+    					data[key] = $A.parseDate(data[key]);
     					break;
     				case 'int':
     					data[key] = parseInt(data[key]);
     					break;
     			}
     		}
-    		var record = new Aurora.Record(data,datas[i].field);
+    		var record = new $A.Record(data,datas[i].field);
             record.setDataSet(this);
 	        this.data.add(record);
         }
@@ -163,7 +163,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     create : function(data, valid){
     	this.fireEvent("beforecreate", this);
 //    	if(valid !== false) if(!this.validCurrent())return;
-    	var record = new Aurora.Record(data||{});
+    	var record = new $A.Record(data||{});
         this.add(record); 
         var index = (this.currentPage-1)*this.pageSize + this.data.length;
         this.locate(index, true);
@@ -237,7 +237,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     		p[i] = Ext.apply(p[i],this.spara)
     	}
     	if(p.length > 0) {
-	    	Aurora.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this);
+	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this);
     	}
     
     },
@@ -252,7 +252,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     removeLocal: function(record){
-    	Aurora.removeInvalidReocrd(this.id, record)
+    	$A.removeInvalidReocrd(this.id, record)
     	var index = this.data.indexOf(record);    	
     	if(index == -1)return;
         this.data.remove(record);
@@ -348,7 +348,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 	    	this.currentIndex = index;
     	}else{
     		if(this.isModified()){
-    			Aurora.showMessage('提示', '有未保存数据!')
+    			$A.showMessage('提示', '有未保存数据!')
     		}else{
 				this.currentIndex = index;
 				this.currentPage =  Math.ceil(index/this.pageSize);
@@ -403,9 +403,9 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 				if(!record.validateRecord()){
 					this.isValid = false;
 					unvalidRecord = record;
-					Aurora.addInValidReocrd(this.id, record);
+					$A.addInValidReocrd(this.id, record);
 				}else{
-					Aurora.removeInvalidReocrd(this.id, record);
+					$A.removeInvalidReocrd(this.id, record);
 				}
 				if(this.isValid == false) {
 					if(hassub)break;
@@ -430,7 +430,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 			if(r!=-1)this.locate(r+1);
 		}
 		if(fire !== false) {
-			Aurora.manager.fireEvent('valid', Aurora.manager, this, this.isValid);
+			$A.manager.fireEvent('valid', $A.manager, this, this.isValid);
 		}
 		return this.isValid;
     },
@@ -477,7 +477,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     		url = this.queryUrl + '&' + para;
     	}
     	this.loading = true;
-    	Aurora.request(url, q, this.onLoadSuccess, this.onLoadFailed, this);
+    	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this);
     },
     isModified : function(){
     	var modified = false;
@@ -528,7 +528,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     },
     submit : function(url){
     	if(!this.validate()){
-//    		Aurora.showMessage('提示', '验证不通过!');
+//    		$A.showMessage('提示', '验证不通过!');
     		return;
     	}
     	this.submitUrl = url||this.submitUrl;
@@ -538,7 +538,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     		p[i] = Ext.apply(p[i],this.spara)
     	}
     	if(p.length > 0) {
-	    	Aurora.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
+	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
     	}
     },
     
@@ -554,7 +554,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     		var datas = [].concat(res.result.record);
     		this.refreshRecord(datas)
     	}
-//    	Aurora.showMessage('成功', '操作成功!');
+//    	$A.showMessage('成功', '操作成功!');
     	this.fireEvent('submitsuccess', this, res)
     },
     refreshRecord : function(datas){
@@ -585,7 +585,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 					var nv = data[k]
 					if(field == '_id' || field == '_status'||field=='__parameter_parsed__') continue;
 					if(f && f.getPropertity('datatype') == 'date') 
-					nv = Aurora.parseDate(nv)
+					nv = $A.parseDate(nv)
 					if(ov != nv) {
 						r.set(field,nv);
 					}
@@ -597,7 +597,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     },
     onSubmitFailed : function(res){
 //    	alert(res.error.message);
-    	Aurora.showMessage('错误', res.error.message);
+    	$A.showMessage('错误', res.error.message);
 		this.fireEvent('submitfailed', this, res)   
     },
     onLoadSuccess : function(res){
@@ -623,7 +623,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 	    
     },
     onLoadFailed : function(res){
-    	Aurora.showMessage('错误', res.error.message);
+    	$A.showMessage('错误', res.error.message);
 //    	alert(res.error.message)
     	this.loading = false;
     },
@@ -639,8 +639,8 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 });
 
 
-Aurora.Record = function(data, fields){
-    this.id = ++Aurora.AUTO_ID;
+$A.Record = function(data, fields){
+    this.id = ++$A.AUTO_ID;
     this.data = data;
     this.fields = {};
     this.valid = {};
@@ -649,10 +649,10 @@ Aurora.Record = function(data, fields){
 	this.dirty = false;	
 	this.editing = false;
 	this.modified= null;
-    this.meta = new Aurora.Record.Meta(this);
+    this.meta = new $A.Record.Meta(this);
     if(fields)this.initFields(fields);
 };
-Aurora.Record.prototype = {
+$A.Record.prototype = {
 	clear : function() {
 		this.editing = false;
 		this.valid = {};
@@ -663,7 +663,7 @@ Aurora.Record.prototype = {
 	},
 	initFields : function(fields){
 		for(var i=0,l=fields.length;i<l;i++){
-			var f = new Aurora.Record.Field(fields[i]);
+			var f = new $A.Record.Field(fields[i]);
 			f.record = this;
 			this.fields[f.name] = f;
 		}
@@ -785,11 +785,11 @@ Aurora.Record.prototype = {
     	this.ds.onMetaChange(this,meta);
     }
 }
-Aurora.Record.Meta = function(r){
+$A.Record.Meta = function(r){
 	this.record = r;
 	this.pro = {};
 }
-Aurora.Record.Meta.prototype = {
+$A.Record.Meta.prototype = {
 	clear : function(){
 		this.pro = {};
 		this.record.onMetaClear(this);
@@ -800,9 +800,9 @@ Aurora.Record.Meta.prototype = {
 		var rf;
     	if(!f){
     		if(df){
-    			f = new Aurora.Record.Field({name:df.name,type:df.type});
+    			f = new $A.Record.Field({name:df.name,type:df.type});
     		}else{
-    			f = new Aurora.Record.Field({name:name,type:'string'});//
+    			f = new $A.Record.Field({name:name,type:'string'});//
     		}
 			f.record = this.record;
 			this.record.fields[f.name]=f;
@@ -833,13 +833,13 @@ Aurora.Record.Meta.prototype = {
 	}
 }
 
-Aurora.Record.Field = function(c){
+$A.Record.Field = function(c){
     this.name = c.name;
     this.type = c.type;
     this.pro = c||{};
     this.record;
 };
-Aurora.Record.Field.prototype = {
+$A.Record.Field.prototype = {
 	clear : function(){
 		this.pro = {};
 		this.record.onFieldClear(this.name);

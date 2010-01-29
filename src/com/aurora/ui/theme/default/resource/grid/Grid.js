@@ -1,4 +1,4 @@
-Aurora.Grid = Ext.extend(Aurora.Component,{
+$A.Grid = Ext.extend($A.Component,{
 	bgc:'background-color',
 	scor:'#d9e7ed',
 	ocor:'#ffe3a8',
@@ -7,10 +7,10 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 		this.overId = null;
 		this.selectedId = null;
 		this.lockWidth = 0;
-		Aurora.Grid.superclass.constructor.call(this,config);
+		$A.Grid.superclass.constructor.call(this,config);
 	},
 	initComponent:function(config){
-		Aurora.Grid.superclass.initComponent.call(this, config);		
+		$A.Grid.superclass.initComponent.call(this, config);		
 		this.uc = this.wrap.child('div[atype=grid.uc]'); 
 		this.uh = this.wrap.child('div[atype=grid.uh]'); 
     	this.ub = this.wrap.child('div[atype=grid.ub]'); 
@@ -38,7 +38,7 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
     	this.initTemplate();
 	},
 	processListener: function(ou){
-		Aurora.Grid.superclass.initComponent.call(this, ou);
+		$A.Grid.superclass.initComponent.call(this, ou);
 		this.wrap[ou]('click',this.focus,this);
 		this.fs[ou](Ext.isOpera ? "keypress" : "keydown", this.handleKeyDown,  this);
 		this.ub[ou]('scroll',this.syncScroll, this);
@@ -56,7 +56,7 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 		if(this.lh) this.lh[ou]('mousedown', this.onHeadMouseDown,this);
 	},
 	initEvents:function(){
-		Aurora.Grid.superclass.initEvents.call(this);
+		$A.Grid.superclass.initEvents.call(this);
 //		this.processListener('on');
 	},
 	syncScroll : function(){
@@ -146,8 +146,8 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 		var renderer = col.renderer
 		if(renderer){
 			var rder;
-			if(renderer.indexOf('Aurora.') != -1){
-				rder = Aurora[renderer.substr(7,renderer.length)]
+			if(renderer.indexOf('$A.') != -1){
+				rder = $A[renderer.substr(7,renderer.length)]
 			}else{
 				rder = window[renderer];
 			}
@@ -660,7 +660,7 @@ Aurora.Grid = Ext.extend(Aurora.Component,{
 	},
 	//TODO:销毁Editors
 	destroy: function(){
-		Aurora.Grid.superclass.destroy.call(this);
+		$A.Grid.superclass.destroy.call(this);
 		this.processDataSetLiestener('un');
 		this.sp.remove();
 		delete this.sp;

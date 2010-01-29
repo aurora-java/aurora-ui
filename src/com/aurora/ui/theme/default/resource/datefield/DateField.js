@@ -1,10 +1,10 @@
-Aurora.DateField = Ext.extend(Aurora.Component, {
+$A.DateField = Ext.extend($A.Component, {
 	constructor: function(config) {
-        Aurora.DateField.superclass.constructor.call(this,config); 
+        $A.DateField.superclass.constructor.call(this,config); 
 		this.draw();
     },
     initComponent : function(config){
-    	Aurora.DateField.superclass.initComponent.call(this, config);
+    	$A.DateField.superclass.initComponent.call(this, config);
     	this.wrap = typeof(config.container) == "string" ? Ext.get(config.container) : config.container;
         this.table = this.wrap.child("table");        
         this.tbody = this.wrap.child("tbody").dom;
@@ -19,7 +19,7 @@ Aurora.DateField = Ext.extend(Aurora.Component, {
     	this.monthSpan = this.wrap.child("span.item-dateField-month");
     },
     processListener: function(ou){
-    	Aurora.DateField.superclass.processListener.call(this,ou);
+    	$A.DateField.superclass.processListener.call(this,ou);
     	this.preMonthBtn[ou]("click", this.preMonth, this);
     	this.nextMonthBtn[ou]("click", this.nextMonth, this);
     	this.table[ou]("click", this.onSelect, this);
@@ -27,11 +27,11 @@ Aurora.DateField = Ext.extend(Aurora.Component, {
     	this.table[ou]("mouseout", this.mouseOut, this)
     },
     initEvents : function(){
-    	Aurora.DateField.superclass.initEvents.call(this);   	
+    	$A.DateField.superclass.initEvents.call(this);   	
     	this.addEvents('select','draw');
     },
     destroy : function(){
-    	Aurora.DateField.superclass.destroy.call(this);
+    	$A.DateField.superclass.destroy.call(this);
 		delete this.preMonthBtn;
     	delete this.nextMonthBtn;
     	delete this.yearSpan;

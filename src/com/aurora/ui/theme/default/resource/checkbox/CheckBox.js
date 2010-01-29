@@ -1,40 +1,46 @@
-Aurora.CheckBox = Ext.extend(Aurora.Component,{
+$A.CheckBox = Ext.extend($A.Component,{
 	readOnly:false,	
-	checkedCss:'item-checkbox-c',
-	uncheckedCss:'item-checkbox-u',
-	readonyCheckedCss:'item-checkbox-readonly-c',
-	readonlyUncheckedCss:'item-checkbox-readonly-u',
+	checkedCss:'item-ckb-c',
+	uncheckedCss:'item-ckb-u',
+	readonyCheckedCss:'item-ckb-readonly-c',
+	readonlyUncheckedCss:'item-ckb-readonly-u',
 	constructor: function(config){
 		config.checked = config.checked || false;
 		config.readonly = config.readonly || false;
-		Aurora.CheckBox.superclass.constructor.call(this,config);
+		$A.CheckBox.superclass.constructor.call(this,config);
 	},
 	initComponent:function(config){
-		Aurora.CheckBox.superclass.initComponent.call(this, config);
+		$A.CheckBox.superclass.initComponent.call(this, config);
 		this.wrap=Ext.get(this.id);
 		this.el=this.wrap.child('div[atype=checkbox]');
 	},
+	processListener: function(ou){
+    	this.wrap[ou]('click',this.onClick,this);
+    },
 	initEvents:function(){
-		Aurora.CheckBox.superclass.initEvents.call(this);
-		this.el.on('click',function(){
-			if(!this.readonly){
-				this.checked=this.checked?false:true;				
-				this.setValue(this.checked);
-				this.fireEvent('click',this,this.checked);
-			}
-		},this);  	
+		$A.CheckBox.superclass.initEvents.call(this);  	
 		this.addEvents('click');    
+	},
+	destroy : function(){
+    	$A.CheckBox.superclass.destroy.call(this);
+    	delete this.el;
+    },
+	onClick: function(event){
+		if(!this.readonly){
+			this.checked=this.checked?false:true;				
+			this.setValue(this.checked);
+			this.fireEvent('click',this, this.checked);
+		}
 	},
 	setValue:function(v, silent){
 		if(typeof(v)==='boolean'){
 			this.checked=v?true:false;			
 		}else{
-			this.checked= v===this.checkValue ? true: false;
+			this.checked= v===this.checkedvalue ? true: false;
 		}
 		this.initStatus();
-		var value =this.checked==true?this.checkValue:this.unCheckValue;		
-		Aurora.CheckBox.superclass.setValue.call(this,value, silent);
-		this.wrap.child('input[type=hidden]').dom.value=this.value;
+		var value =this.checked==true?this.checkedvalue:this.uncheckedvalue;		
+		$A.CheckBox.superclass.setValue.call(this,value, silent);
 	},
 	setReadOnly:function(b){
 		if(typeof(b)==='boolean'){

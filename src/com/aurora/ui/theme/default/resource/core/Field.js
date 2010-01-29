@@ -1,5 +1,4 @@
-
-Aurora.Field = Ext.extend(Aurora.Component,{	
+$A.Field = Ext.extend($A.Component,{	
 	validators: [],
 	requiredCss:'item-notBlank',
 	focusCss:'item-focus',
@@ -9,10 +8,10 @@ Aurora.Field = Ext.extend(Aurora.Component,{
 	constructor: function(config) {
 		config.required = config.required || false;
 		config.readonly = config.readonly || false;
-        Aurora.Field.superclass.constructor.call(this, config);
+        $A.Field.superclass.constructor.call(this, config);
     },
     initComponent : function(config){
-    	Aurora.Field.superclass.initComponent.call(this, config);
+    	$A.Field.superclass.initComponent.call(this, config);
         this.el = this.wrap.child('input[atype=field.input]'); 
     	this.originalValue = this.getValue();
     	this.applyEmptyText();
@@ -33,11 +32,11 @@ Aurora.Field = Ext.extend(Aurora.Component,{
 //        this.el.on("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
-    	Aurora.Field.superclass.initEvents.call(this);
+    	$A.Field.superclass.initEvents.call(this);
         this.addEvents('keydown','keyup','keypress');
     },
     destroy : function(){
-    	Aurora.Field.superclass.destroy.call(this);
+    	$A.Field.superclass.destroy.call(this);
     	delete this.el;
     },
 	setWidth: function(w){
@@ -60,10 +59,10 @@ Aurora.Field = Ext.extend(Aurora.Component,{
     	this.setReadOnly(this.readonly);
     },
 //    onMouseOver : function(e){
-//    	Aurora.ToolTip.show(this.id, "测试");
+//    	$A.ToolTip.show(this.id, "测试");
 //    },
 //    onMouseOut : function(e){
-//    	Aurora.ToolTip.hide();
+//    	$A.ToolTip.hide();
 //    },
     onChange : function(e){
 //    	this.setValue(this.getValue());    
@@ -117,7 +116,7 @@ Aurora.Field = Ext.extend(Aurora.Component,{
     	}
     },
     setValue : function(v, silent){
-    	Aurora.Field.superclass.setValue.call(this,v, silent);
+    	$A.Field.superclass.setValue.call(this,v, silent);
     	if(this.emptytext && this.el && v !== undefined && v !== null && v !== ''){
             this.wrap.removeClass(this.emptyTextCss);
         }

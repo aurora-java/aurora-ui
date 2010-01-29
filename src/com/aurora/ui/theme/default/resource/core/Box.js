@@ -1,7 +1,7 @@
-Aurora.Box = Ext.extend(Aurora.Component,{
+$A.Box = Ext.extend($A.Component,{
 	constructor: function(config) {
         this.errors = [];
-        Aurora.Box.superclass.constructor.call(this,config);
+        $A.Box.superclass.constructor.call(this,config);
     },
 //    initComponent : function(config){ 
 //		config = config || {};

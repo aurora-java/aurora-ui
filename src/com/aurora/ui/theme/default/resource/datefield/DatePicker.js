@@ -1,18 +1,18 @@
-Aurora.DatePicker = Ext.extend(Aurora.TriggerField,{
+$A.DatePicker = Ext.extend($A.TriggerField,{
 	constructor: function(config) {
-        Aurora.DatePicker.superclass.constructor.call(this, config);        
+        $A.DatePicker.superclass.constructor.call(this, config);        
     },
     initComponent : function(config){
-    	Aurora.DatePicker.superclass.initComponent.call(this,config);
+    	$A.DatePicker.superclass.initComponent.call(this,config);
     	if(!this.dateField){
     		var cfg = {id:this.id+'_df',container:this.popup}
-	    	this.dateField = new Aurora.DateField(cfg);
+	    	this.dateField = new $A.DateField(cfg);
 	    	this.dateField.on("select", this.onSelect, this);
 	    	this.dateField.on("draw", this.onDraw, this);
     	}
     },
     initEvents : function(){
-    	Aurora.DatePicker.superclass.initEvents.call(this);
+    	$A.DatePicker.superclass.initEvents.call(this);
         this.addEvents('select');
     },
     onDraw: function(){
@@ -25,7 +25,7 @@ Aurora.DatePicker = Ext.extend(Aurora.TriggerField,{
     	this.fireEvent('select',this, date);
     },
 	onBlur : function(){
-		Aurora.DatePicker.superclass.onBlur.call(this);
+		$A.DatePicker.superclass.onBlur.call(this);
 		if(!this.isExpanded()) {
 			var raw = this.getRawValue();
 			if(!isNaN(new Date(raw.replace(/-/g,"/")))){
@@ -37,13 +37,13 @@ Aurora.DatePicker = Ext.extend(Aurora.TriggerField,{
     },
     formatValue : function(date){
     	if(date instanceof Date) {
-    		return Aurora.formateDate(date);
+    		return $A.formateDate(date);
     	}else{
     		return date;
     	}
     },
     expand : function(){
-    	Aurora.DatePicker.superclass.expand.call(this);
+    	$A.DatePicker.superclass.expand.call(this);
     	if(this.dateField.selectDay != this.getValue()) {
     		this.dateField.selectDay = this.getValue()
     		this.dateField.predraw(this.dateField.selectDay);
@@ -52,7 +52,7 @@ Aurora.DatePicker = Ext.extend(Aurora.TriggerField,{
 	    	this.shadow.setWidth(w);
 	    	this.shadow.setHeight(h);
     	}
-    	var screenHeight = Aurora.getViewportHeight();
+    	var screenHeight = $A.getViewportHeight();
     	var h = this.popup.getHeight();
     	var y = this.popup.getY();
     	if(y+h > screenHeight) {
@@ -62,6 +62,6 @@ Aurora.DatePicker = Ext.extend(Aurora.TriggerField,{
     	}
     },
     destroy : function(){
-    	Aurora.DatePicker.superclass.destroy.call(this);
+    	$A.DatePicker.superclass.destroy.call(this);
 	}
 });
