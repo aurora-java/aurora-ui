@@ -1,21 +1,21 @@
-Aurora.Tab = Ext.extend(Aurora.Component,{
+$A.Tab = Ext.extend($A.Component,{
 	constructor: function(config){
 		this.selectIndex = 1;
 		this.loaded = {};
-		Aurora.Tab.superclass.constructor.call(this,config);
+		$A.Tab.superclass.constructor.call(this,config);
 	},
 	initComponent:function(config){
-		Aurora.Tab.superclass.initComponent.call(this, config);
+		$A.Tab.superclass.initComponent.call(this, config);
 		this.head = this.wrap.child('td[atype=tab.strips]'); 
 		this.body = this.wrap.child('div[atype=tab.bodys]');
 		this.selectTab(config.select||0)
 	},
 	processListener: function(ou){
-    	Aurora.Tab.superclass.processListener.call(this,ou);
+    	$A.Tab.superclass.processListener.call(this,ou);
     	this.head[ou]('click',this.onClick, this);
     },
 	initEvents:function(){
-		Aurora.Tab.superclass.initEvents.call(this);   
+		$A.Tab.superclass.initEvents.call(this);   
 		this.addEvents('select');
 		
 	},

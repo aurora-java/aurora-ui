@@ -1,8 +1,8 @@
-Aurora.Component = Ext.extend(Ext.util.Observable,{
+$A.Component = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {
-        Aurora.Component.superclass.constructor.call(this);
+        $A.Component.superclass.constructor.call(this);
         this.id = config.id || Ext.id();
-        Aurora.CmpManager.put(this.id,this)
+        $A.CmpManager.put(this.id,this)
 		this.initConfig=config;
 		this.isHidden = false;
 		this.isFireEvent = false;
@@ -82,7 +82,7 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
     },
     destroy : function(){
     	this.processListener('un');
-    	Aurora.CmpManager.remove(this.id);
+    	$A.CmpManager.remove(this.id);
     	this.clearBind();
     	delete this.wrap;
     },

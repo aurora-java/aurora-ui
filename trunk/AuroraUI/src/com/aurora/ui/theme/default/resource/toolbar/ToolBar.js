@@ -1,11 +1,11 @@
-Aurora.ToolBar = Ext.extend(Aurora.Component,{
+$A.ToolBar = Ext.extend($A.Component,{
 	constructor: function(config) {
-        Aurora.ToolBar.superclass.constructor.call(this, config);        
+        $A.ToolBar.superclass.constructor.call(this, config);        
     },
     initComponent : function(config){
-    	Aurora.ToolBar.superclass.initComponent.call(this, config);    	
+    	$A.ToolBar.superclass.initComponent.call(this, config);    	
     },
     initEvents : function(){
-    	Aurora.ToolBar.superclass.initEvents.call(this); 
+    	$A.ToolBar.superclass.initEvents.call(this); 
     }
 })

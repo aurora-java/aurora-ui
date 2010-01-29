@@ -1,22 +1,22 @@
-.item-checkbox {
+.item-ckb {
 	width:13px;
 	height:13px;
 	font-size:0pt;
-    background-image: url('checkbox.gif');
+	float:left;
+    background-image: url(../checkbox/checkbox.gif);
 }
-
-.item-checkbox-u {
+.item-ckb-u {
 	background-position:0px 0px;	
 }
 
-.item-checkbox-c {
+.item-ckb-c {
 	background-position:0px -13px;
 }
 
-.item-checkbox-readonly-u {
+.item-ckb-readonly-u {
 	background-position:-39px 0px;	
 }
 
-.item-checkbox-readonly-c {
+.item-ckb-readonly-c {
 	background-position:-39px -13px;
 }

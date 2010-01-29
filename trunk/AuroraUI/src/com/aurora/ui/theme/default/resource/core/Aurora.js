@@ -1,12 +1,12 @@
-Aurora = {version: '3.0'};
-Aurora.fireWindowResize = function(){
-	Aurora.Mask.resizeMask();
+$A = Aurora = {version: '1.0'};
+$A.fireWindowResize = function(){
+	$A.Mask.resizeMask();
 }
-Ext.fly(window).on("resize", Aurora.fireWindowResize, this);
-Aurora.cache = {};
-Aurora.cmps = {};
+Ext.fly(window).on("resize", $A.fireWindowResize, this);
+$A.cache = {};
+$A.cmps = {};
 
-Aurora.CmpManager = function(){
+$A.CmpManager = function(){
     return {
         put : function(id, cmp){
         	if(!this.cache) this.cache = {};
@@ -15,12 +15,12 @@ Aurora.CmpManager = function(){
 	        	return;
 	        }
         	this.cache[id]=cmp;
-        	cmp.on('mouseover',Aurora.CmpManager.onCmpOver,Aurora.CmpManager);
-        	cmp.on('mouseout',Aurora.CmpManager.onCmpOut,Aurora.CmpManager);
+        	cmp.on('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
+        	cmp.on('mouseout',$A.CmpManager.onCmpOut,$A.CmpManager);
         },
         onCmpOver: function(cmp, e){
-        	if(Aurora.validInfoType != 'tip') return;
-        	if(cmp instanceof Aurora.Grid){
+        	if($A.validInfoType != 'tip') return;
+        	if(cmp instanceof $A.Grid){
         		var ds = cmp.dataset;
         		if(!ds||ds.isValid == true)return;
         		if(Ext.fly(e.target).hasClass('grid-cell')){
@@ -29,7 +29,7 @@ Aurora.CmpManager = function(){
         			var name = Ext.fly(e.target).getAttributeNS("","dataindex");        			
 					var msg = record.valid[name];
 	        		if(msg===true)return;
-	        		Aurora.ToolTip.show(e.target, msg);
+	        		$A.ToolTip.show(e.target, msg);
         		}
         	}else{
 	        	if(cmp.binder){
@@ -39,21 +39,21 @@ Aurora.CmpManager = function(){
 	        		if(!record)return;
 	        		var msg = record.valid[cmp.binder.name];
 	        		if(msg===true)return;
-	        		Aurora.ToolTip.show(cmp.id, msg);
+	        		$A.ToolTip.show(cmp.id, msg);
 	        	}
         	}
         },
         onCmpOut: function(cmp,e){
-        	if(Aurora.validInfoType != 'tip') return;
-        	Aurora.ToolTip.hide();
+        	if($A.validInfoType != 'tip') return;
+        	$A.ToolTip.hide();
         },
         getAll : function(){
         	return this.cache;
         },
         remove : function(id){
         	var cmp = this.cache[id];
-        	cmp.un('mouseover',Aurora.CmpManager.onCmpOver,Aurora.CmpManager);
-        	cmp.un('mouseout',Aurora.CmpManager.onCmpOut,Aurora.CmpManager);
+        	cmp.un('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
+        	cmp.un('mouseout',$A.CmpManager.onCmpOut,$A.CmpManager);
         	delete this.cache[id];
         },
         get : function(id){
@@ -63,26 +63,26 @@ Aurora.CmpManager = function(){
     };
 }();
 Ext.Ajax.on("requestexception", function(conn, response, options) {
-	Aurora.manager.fireEvent('ajaxerror', Aurora.manager, response.status, response);
+	$A.manager.fireEvent('ajaxerror', $A.manager, response.status, response);
 	switch(response.status){
 		case 404:
-			Aurora.showMessage('错误', '状态 404: 未找到"'+ response.statusText+'"');
+			$A.showMessage('错误', '状态 404: 未找到"'+ response.statusText+'"');
 //			alert('状态 404: 未找到"'+ response.statusText+'"');
 			break;
 		default:
-			Aurora.showMessage('错误', '状态 '+ response.status + ' 服务器端错误!');
+			$A.showMessage('错误', '状态 '+ response.status + ' 服务器端错误!');
 //			alert('状态 '+ response.status + ' 服务器端错误!');
 			break;
 	}	
 }, this);
-$ = Aurora.getCmp = function(id){
-	var cmp = Aurora.CmpManager.get(id)
+$ = $A.getCmp = function(id){
+	var cmp = $A.CmpManager.get(id)
 	if(cmp == null) {
 		alert('未找到组件:' + id)
 	}
 	return cmp;
 }
-Aurora.getViewportHeight = function(){
+$A.getViewportHeight = function(){
     if(Ext.isIE){
         return Ext.isStrict ? document.documentElement.clientHeight :
                  document.body.clientHeight;
@@ -90,7 +90,7 @@ Aurora.getViewportHeight = function(){
         return self.innerHeight;
     }
 }
-Aurora.getViewportWidth = function() {
+$A.getViewportWidth = function() {
     if(Ext.isIE){
         return Ext.isStrict ? document.documentElement.clientWidth :
                  document.body.clientWidth;
@@ -98,29 +98,29 @@ Aurora.getViewportWidth = function() {
         return self.innerWidth;
     }
 }
-Aurora.request = function(url, para, success, failed, scope){
-	Aurora.manager.fireEvent('ajaxstart', url, para);
+$A.request = function(url, para, success, failed, scope){
+	$A.manager.fireEvent('ajaxstart', url, para);
 	Ext.Ajax.request({
 			url: url,
 			method: 'POST',
 			params:{_request_data:Ext.util.JSON.encode({parameter:para})},
 			success: function(response){
-				Aurora.manager.fireEvent('ajaxcomplete', url, para,response);
+				$A.manager.fireEvent('ajaxcomplete', url, para,response);
 				if(response && response.responseText){
 					var res = null;
 					try {
 						res = Ext.decode(response.responseText);
 					}catch(e){
-						Aurora.showMessage('错误', '返回格式不正确!');
+						$A.showMessage('错误', '返回格式不正确!');
 //						alert('返回格式不正确!')
 					}
 					if(res && !res.success){
-						Aurora.manager.fireEvent('ajaxfailed', Aurora.manager, url,para,res);
+						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 						if(res.error){//								
 							if(failed)failed.call(scope, res);
 						}								    						    
 					} else {
-						Aurora.manager.fireEvent('ajaxsuccess', Aurora.manager, url,para,res);
+						$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
 						if(success)success.call(scope,res);
 					}
 				}
@@ -140,12 +140,12 @@ Ext.applyIf(Array.prototype, {
 	}
 });
 
-Aurora.TextMetrics = function(){
+$A.TextMetrics = function(){
     var shared;
     return {
         measure : function(el, text, fixedWidth){
             if(!shared){
-                shared = Aurora.TextMetrics.Instance(el, fixedWidth);
+                shared = $A.TextMetrics.Instance(el, fixedWidth);
             }
             shared.bind(el);
             shared.setFixedWidth(fixedWidth || 'auto');
@@ -153,7 +153,7 @@ Aurora.TextMetrics = function(){
         }
     };
 }();
-Aurora.TextMetrics.Instance = function(bindTo, fixedWidth){
+$A.TextMetrics.Instance = function(bindTo, fixedWidth){
     var ml = new Ext.Element(document.createElement('div'));
     document.body.appendChild(ml.dom);
     ml.position('absolute');
@@ -187,7 +187,7 @@ Aurora.TextMetrics.Instance = function(bindTo, fixedWidth){
     instance.bind(bindTo);
     return instance;
 };
-Aurora.ToolTip = function(){
+$A.ToolTip = function(){
 	q = {
 		init: function(){
 			var sf = this;
@@ -217,7 +217,7 @@ Aurora.ToolTip = function(){
 			this.body.update(text)
 			var ele;
 			if(typeof(el)=="string"){
-				var cmp = Aurora.CmpManager.get(el)
+				var cmp = $A.CmpManager.get(el)
 				if(cmp){
 					if(cmp.wrap){
 						ele = cmp.wrap;
@@ -231,7 +231,7 @@ Aurora.ToolTip = function(){
 			this.correctPosition(ele);
 		},
 		correctPosition: function(ele){
-			var screenWidth = Aurora.getViewportWidth();
+			var screenWidth = $A.getViewportWidth();
 			var x = ele.getX()+ele.getWidth() + 5;
 			var sx = ele.getX()+ele.getWidth() + 7;
 			if(x+this.tip.getWidth() > screenWidth){
@@ -250,30 +250,30 @@ Aurora.ToolTip = function(){
 	}
 	return q
 }();
-Aurora.Mask = function(){
+$A.Mask = function(){
 	var m = {
 		container: {},
 		mask : function(el){
-			var screenWidth = Aurora.getViewportWidth();
-    		var screenHeight = Aurora.getViewportHeight();
+			var screenWidth = $A.getViewportWidth();
+    		var screenHeight = $A.getViewportHeight();
 				var p = '<DIV class="aurora-mask" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
 				var mask = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
 	    	mask.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
-	    	Aurora.Mask.container[el.id] = mask;
+	    	$A.Mask.container[el.id] = mask;
 		},
 		unmask : function(el){
-			var mask = Aurora.Mask.container[el.id];
+			var mask = $A.Mask.container[el.id];
 			if(mask) {
 				Ext.fly(mask).remove();
-				Aurora.Mask.container[el.id] = null;
-				delete Aurora.Mask.container[el.id];
+				$A.Mask.container[el.id] = null;
+				delete $A.Mask.container[el.id];
 			}
 		},
 		resizeMask : function(){
-			var screenWidth = Aurora.getViewportWidth();
-    		var screenHeight = Aurora.getViewportHeight();
-			for(key in Aurora.Mask.container){
-				var mask = Aurora.Mask.container[key];
+			var screenWidth = $A.getViewportWidth();
+    		var screenHeight = $A.getViewportHeight();
+			for(key in $A.Mask.container){
+				var mask = $A.Mask.container[key];
 				Ext.fly(mask).setWidth(screenWidth);
 				Ext.fly(mask).setHeight(screenHeight);
 			}		
@@ -409,7 +409,7 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
     dom.innerHTML = html.replace(/(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig, "").replace(/(?:<link.*?>)((\n|\r|.)*?)/ig, "");
     return this;
 }
-Aurora.parseDate = function(str){
+$A.parseDate = function(str){
 	if(typeof str == 'string'){  
 		//TODO:临时, 需要服务端解决
 		if(str.indexOf('.0') !=-1) str = str.substr(0,str.length-2);
@@ -423,7 +423,7 @@ Aurora.parseDate = function(str){
 	}      
   	return null;      
 }
-Aurora.formateDate = function(date){
+$A.formateDate = function(date){
 	if(!date)return '';
 	if(date.getFullYear){
 		return date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate()
@@ -431,7 +431,7 @@ Aurora.formateDate = function(date){
 		return date
 	}
 }
-Aurora.formateDateTime = function(date){
+$A.formateDateTime = function(date){
 	if(!date)return '';
 	if(date.getFullYear){
 		return date.getFullYear() + 
@@ -445,9 +445,9 @@ Aurora.formateDateTime = function(date){
 		return date
 	}
 }
-Aurora.EventManager = Ext.extend(Ext.util.Observable,{
+$A.EventManager = Ext.extend(Ext.util.Observable,{
 	constructor: function() {
-		Aurora.EventManager.superclass.constructor.call(this);
+		$A.EventManager.superclass.constructor.call(this);
 		this.initEvents();
 	},
 	initEvents : function(){
@@ -462,23 +462,23 @@ Aurora.EventManager = Ext.extend(Ext.util.Observable,{
 		);    	
     }
 });
-Aurora.manager = new Aurora.EventManager();
-Aurora.regEvent = function(name, hanlder){
-	Aurora.manager.on(name, hanlder);
+$A.manager = new $A.EventManager();
+$A.regEvent = function(name, hanlder){
+	$A.manager.on(name, hanlder);
 }
 
-Aurora.validInfoType = 'area';
-Aurora.validInfoTypeObj = '';
-Aurora.setValidInfoType = function(type, obj){
-	Aurora.validInfoType = type;
-	Aurora.validInfoTypeObj = obj;
+$A.validInfoType = 'area';
+$A.validInfoTypeObj = '';
+$A.setValidInfoType = function(type, obj){
+	$A.validInfoType = type;
+	$A.validInfoTypeObj = obj;
 }
 
-Aurora.invalidRecords = {};
-Aurora.addInValidReocrd = function(id, record){
-	var rs = Aurora.invalidRecords[id];
+$A.invalidRecords = {};
+$A.addInValidReocrd = function(id, record){
+	var rs = $A.invalidRecords[id];
 	if(!rs){
-		Aurora.invalidRecords[id] = rs = [];
+		$A.invalidRecords[id] = rs = [];
 	}
 	var has = false;
 	for(var i=0;i<rs.length;i++){
@@ -492,8 +492,8 @@ Aurora.addInValidReocrd = function(id, record){
 		rs.add(record)
 	}
 }
-Aurora.removeInvalidReocrd = function(id,record){
-	var rs = Aurora.invalidRecords[id];
+$A.removeInvalidReocrd = function(id,record){
+	var rs = $A.invalidRecords[id];
 	if(!rs) return;
 	for(var i=0;i<rs.length;i++){
 		var r = rs[i];
@@ -503,23 +503,23 @@ Aurora.removeInvalidReocrd = function(id,record){
 		}
 	}
 }
-Aurora.getInvalidRecords = function(pageid){
+$A.getInvalidRecords = function(pageid){
 	var records = [];
-	for(var key in Aurora.invalidRecords){
-		var ds = Aurora.CmpManager.get(key)
+	for(var key in $A.invalidRecords){
+		var ds = $A.CmpManager.get(key)
 		if(ds.pageid == pageid){
-			var rs = Aurora.invalidRecords[key];
+			var rs = $A.invalidRecords[key];
 			records = records.concat(rs);
 		}
 	}
 	return records;
 }
-Aurora.isInValidReocrdEmpty = function(pageid){
+$A.isInValidReocrdEmpty = function(pageid){
 	var isEmpty = true;
-	for(var key in Aurora.invalidRecords){
-		var ds = Aurora.CmpManager.get(key)
+	for(var key in $A.invalidRecords){
+		var ds = $A.CmpManager.get(key)
 		if(ds.pageid == pageid){
-			var rs = Aurora.invalidRecords[key];
+			var rs = $A.invalidRecords[key];
 			if(rs.length != 0){
 				isEmpty = false;
 				break;
@@ -528,29 +528,29 @@ Aurora.isInValidReocrdEmpty = function(pageid){
 	}
 	return isEmpty;
 }
-Aurora.manager.on('valid',function(manager, ds, valid){
-	switch(Aurora.validInfoType){
+$A.manager.on('valid',function(manager, ds, valid){
+	switch($A.validInfoType){
 		case 'area':
-			Aurora.showValidTopMsg(ds);
+			$A.showValidTopMsg(ds);
 			break;
 		case 'message':
-			Aurora.showValidWindowMsg(ds);
+			$A.showValidWindowMsg(ds);
 			break;
 	}
 })
-Aurora.showValidWindowMsg = function(ds) {
-	var empty = Aurora.isInValidReocrdEmpty(ds.pageid);
+$A.showValidWindowMsg = function(ds) {
+	var empty = $A.isInValidReocrdEmpty(ds.pageid);
 	if(empty == true){
-		if(Aurora.validWindow)Aurora.validWindow.close();
+		if($A.validWindow)$A.validWindow.close();
 	}
-	if(!Aurora.validWindow && empty == false){
-		Aurora.validWindow = Aurora.showWindow('校验失败','',400,200);
-		Aurora.validWindow.on('close',function(){
-			Aurora.validWindow = null;			
+	if(!$A.validWindow && empty == false){
+		$A.validWindow = $A.showWindow('校验失败','',400,200);
+		$A.validWindow.on('close',function(){
+			$A.validWindow = null;			
 		})
 	}
 	var sb =[];
-	var rs = Aurora.getInvalidRecords(ds.pageid);
+	var rs = $A.getInvalidRecords(ds.pageid);
 	for(var i=0;i<rs.length;i++){
 		var r = rs[i];
 		var index = r.ds.data.indexOf(r)+1
@@ -561,11 +561,11 @@ Aurora.showValidWindowMsg = function(ds) {
 		}
 		sb[sb.length]='<br/>';
 	}
-	if(Aurora.validWindow)Aurora.validWindow.body.child('div').update(sb.join(''))
+	if($A.validWindow)$A.validWindow.body.child('div').update(sb.join(''))
 }
-Aurora.pageids = [];
-Aurora.showValidTopMsg = function(ds) {
-	var empty = Aurora.isInValidReocrdEmpty(ds.pageid);
+$A.pageids = [];
+$A.showValidTopMsg = function(ds) {
+	var empty = $A.isInValidReocrdEmpty(ds.pageid);
 	if(empty == true){
 		var d = Ext.get(ds.pageid+'_msg');
 		if(d){
@@ -575,7 +575,7 @@ Aurora.showValidTopMsg = function(ds) {
 		}
 		return;
 	}
-	var rs = Aurora.getInvalidRecords(ds.pageid);
+	var rs = $A.getInvalidRecords(ds.pageid);
 	var sb = [];
 	for(var i=0;i<rs.length;i++){
 		var r = rs[i];

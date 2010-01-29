@@ -1,12 +1,12 @@
-Aurora = {version: '3.0'};
-Aurora.fireWindowResize = function(){
-	Aurora.Mask.resizeMask();
+$A = Aurora = {version: '1.0'};
+$A.fireWindowResize = function(){
+	$A.Mask.resizeMask();
 }
-Ext.fly(window).on("resize", Aurora.fireWindowResize, this);
-Aurora.cache = {};
-Aurora.cmps = {};
+Ext.fly(window).on("resize", $A.fireWindowResize, this);
+$A.cache = {};
+$A.cmps = {};
 
-Aurora.CmpManager = function(){
+$A.CmpManager = function(){
     return {
         put : function(id, cmp){
         	if(!this.cache) this.cache = {};
@@ -15,12 +15,12 @@ Aurora.CmpManager = function(){
 	        	return;
 	        }
         	this.cache[id]=cmp;
-        	cmp.on('mouseover',Aurora.CmpManager.onCmpOver,Aurora.CmpManager);
-        	cmp.on('mouseout',Aurora.CmpManager.onCmpOut,Aurora.CmpManager);
+        	cmp.on('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
+        	cmp.on('mouseout',$A.CmpManager.onCmpOut,$A.CmpManager);
         },
         onCmpOver: function(cmp, e){
-        	if(Aurora.validInfoType != 'tip') return;
-        	if(cmp instanceof Aurora.Grid){
+        	if($A.validInfoType != 'tip') return;
+        	if(cmp instanceof $A.Grid){
         		var ds = cmp.dataset;
         		if(!ds||ds.isValid == true)return;
         		if(Ext.fly(e.target).hasClass('grid-cell')){
@@ -29,7 +29,7 @@ Aurora.CmpManager = function(){
         			var name = Ext.fly(e.target).getAttributeNS("","dataindex");        			
 					var msg = record.valid[name];
 	        		if(msg===true)return;
-	        		Aurora.ToolTip.show(e.target, msg);
+	        		$A.ToolTip.show(e.target, msg);
         		}
         	}else{
 	        	if(cmp.binder){
@@ -39,21 +39,21 @@ Aurora.CmpManager = function(){
 	        		if(!record)return;
 	        		var msg = record.valid[cmp.binder.name];
 	        		if(msg===true)return;
-	        		Aurora.ToolTip.show(cmp.id, msg);
+	        		$A.ToolTip.show(cmp.id, msg);
 	        	}
         	}
         },
         onCmpOut: function(cmp,e){
-        	if(Aurora.validInfoType != 'tip') return;
-        	Aurora.ToolTip.hide();
+        	if($A.validInfoType != 'tip') return;
+        	$A.ToolTip.hide();
         },
         getAll : function(){
         	return this.cache;
         },
         remove : function(id){
         	var cmp = this.cache[id];
-        	cmp.un('mouseover',Aurora.CmpManager.onCmpOver,Aurora.CmpManager);
-        	cmp.un('mouseout',Aurora.CmpManager.onCmpOut,Aurora.CmpManager);
+        	cmp.un('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
+        	cmp.un('mouseout',$A.CmpManager.onCmpOut,$A.CmpManager);
         	delete this.cache[id];
         },
         get : function(id){
@@ -63,26 +63,26 @@ Aurora.CmpManager = function(){
     };
 }();
 Ext.Ajax.on("requestexception", function(conn, response, options) {
-	Aurora.manager.fireEvent('ajaxerror', Aurora.manager, response.status, response);
+	$A.manager.fireEvent('ajaxerror', $A.manager, response.status, response);
 	switch(response.status){
 		case 404:
-			Aurora.showMessage('错误', '状态 404: 未找到"'+ response.statusText+'"');
+			$A.showMessage('错误', '状态 404: 未找到"'+ response.statusText+'"');
 //			alert('状态 404: 未找到"'+ response.statusText+'"');
 			break;
 		default:
-			Aurora.showMessage('错误', '状态 '+ response.status + ' 服务器端错误!');
+			$A.showMessage('错误', '状态 '+ response.status + ' 服务器端错误!');
 //			alert('状态 '+ response.status + ' 服务器端错误!');
 			break;
 	}	
 }, this);
-$ = Aurora.getCmp = function(id){
-	var cmp = Aurora.CmpManager.get(id)
+$ = $A.getCmp = function(id){
+	var cmp = $A.CmpManager.get(id)
 	if(cmp == null) {
 		alert('未找到组件:' + id)
 	}
 	return cmp;
 }
-Aurora.getViewportHeight = function(){
+$A.getViewportHeight = function(){
     if(Ext.isIE){
         return Ext.isStrict ? document.documentElement.clientHeight :
                  document.body.clientHeight;
@@ -90,7 +90,7 @@ Aurora.getViewportHeight = function(){
         return self.innerHeight;
     }
 }
-Aurora.getViewportWidth = function() {
+$A.getViewportWidth = function() {
     if(Ext.isIE){
         return Ext.isStrict ? document.documentElement.clientWidth :
                  document.body.clientWidth;
@@ -98,29 +98,29 @@ Aurora.getViewportWidth = function() {
         return self.innerWidth;
     }
 }
-Aurora.request = function(url, para, success, failed, scope){
-	Aurora.manager.fireEvent('ajaxstart', url, para);
+$A.request = function(url, para, success, failed, scope){
+	$A.manager.fireEvent('ajaxstart', url, para);
 	Ext.Ajax.request({
 			url: url,
 			method: 'POST',
 			params:{_request_data:Ext.util.JSON.encode({parameter:para})},
 			success: function(response){
-				Aurora.manager.fireEvent('ajaxcomplete', url, para,response);
+				$A.manager.fireEvent('ajaxcomplete', url, para,response);
 				if(response && response.responseText){
 					var res = null;
 					try {
 						res = Ext.decode(response.responseText);
 					}catch(e){
-						Aurora.showMessage('错误', '返回格式不正确!');
+						$A.showMessage('错误', '返回格式不正确!');
 //						alert('返回格式不正确!')
 					}
 					if(res && !res.success){
-						Aurora.manager.fireEvent('ajaxfailed', Aurora.manager, url,para,res);
+						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 						if(res.error){//								
 							if(failed)failed.call(scope, res);
 						}								    						    
 					} else {
-						Aurora.manager.fireEvent('ajaxsuccess', Aurora.manager, url,para,res);
+						$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
 						if(success)success.call(scope,res);
 					}
 				}
@@ -140,12 +140,12 @@ Ext.applyIf(Array.prototype, {
 	}
 });
 
-Aurora.TextMetrics = function(){
+$A.TextMetrics = function(){
     var shared;
     return {
         measure : function(el, text, fixedWidth){
             if(!shared){
-                shared = Aurora.TextMetrics.Instance(el, fixedWidth);
+                shared = $A.TextMetrics.Instance(el, fixedWidth);
             }
             shared.bind(el);
             shared.setFixedWidth(fixedWidth || 'auto');
@@ -153,7 +153,7 @@ Aurora.TextMetrics = function(){
         }
     };
 }();
-Aurora.TextMetrics.Instance = function(bindTo, fixedWidth){
+$A.TextMetrics.Instance = function(bindTo, fixedWidth){
     var ml = new Ext.Element(document.createElement('div'));
     document.body.appendChild(ml.dom);
     ml.position('absolute');
@@ -187,7 +187,7 @@ Aurora.TextMetrics.Instance = function(bindTo, fixedWidth){
     instance.bind(bindTo);
     return instance;
 };
-Aurora.ToolTip = function(){
+$A.ToolTip = function(){
 	q = {
 		init: function(){
 			var sf = this;
@@ -217,7 +217,7 @@ Aurora.ToolTip = function(){
 			this.body.update(text)
 			var ele;
 			if(typeof(el)=="string"){
-				var cmp = Aurora.CmpManager.get(el)
+				var cmp = $A.CmpManager.get(el)
 				if(cmp){
 					if(cmp.wrap){
 						ele = cmp.wrap;
@@ -231,7 +231,7 @@ Aurora.ToolTip = function(){
 			this.correctPosition(ele);
 		},
 		correctPosition: function(ele){
-			var screenWidth = Aurora.getViewportWidth();
+			var screenWidth = $A.getViewportWidth();
 			var x = ele.getX()+ele.getWidth() + 5;
 			var sx = ele.getX()+ele.getWidth() + 7;
 			if(x+this.tip.getWidth() > screenWidth){
@@ -250,30 +250,30 @@ Aurora.ToolTip = function(){
 	}
 	return q
 }();
-Aurora.Mask = function(){
+$A.Mask = function(){
 	var m = {
 		container: {},
 		mask : function(el){
-			var screenWidth = Aurora.getViewportWidth();
-    		var screenHeight = Aurora.getViewportHeight();
+			var screenWidth = $A.getViewportWidth();
+    		var screenHeight = $A.getViewportHeight();
 				var p = '<DIV class="aurora-mask" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
 				var mask = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
 	    	mask.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
-	    	Aurora.Mask.container[el.id] = mask;
+	    	$A.Mask.container[el.id] = mask;
 		},
 		unmask : function(el){
-			var mask = Aurora.Mask.container[el.id];
+			var mask = $A.Mask.container[el.id];
 			if(mask) {
 				Ext.fly(mask).remove();
-				Aurora.Mask.container[el.id] = null;
-				delete Aurora.Mask.container[el.id];
+				$A.Mask.container[el.id] = null;
+				delete $A.Mask.container[el.id];
 			}
 		},
 		resizeMask : function(){
-			var screenWidth = Aurora.getViewportWidth();
-    		var screenHeight = Aurora.getViewportHeight();
-			for(key in Aurora.Mask.container){
-				var mask = Aurora.Mask.container[key];
+			var screenWidth = $A.getViewportWidth();
+    		var screenHeight = $A.getViewportHeight();
+			for(key in $A.Mask.container){
+				var mask = $A.Mask.container[key];
 				Ext.fly(mask).setWidth(screenWidth);
 				Ext.fly(mask).setHeight(screenHeight);
 			}		
@@ -409,7 +409,7 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
     dom.innerHTML = html.replace(/(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig, "").replace(/(?:<link.*?>)((\n|\r|.)*?)/ig, "");
     return this;
 }
-Aurora.parseDate = function(str){
+$A.parseDate = function(str){
 	if(typeof str == 'string'){  
 		//TODO:临时, 需要服务端解决
 		if(str.indexOf('.0') !=-1) str = str.substr(0,str.length-2);
@@ -423,7 +423,7 @@ Aurora.parseDate = function(str){
 	}      
   	return null;      
 }
-Aurora.formateDate = function(date){
+$A.formateDate = function(date){
 	if(!date)return '';
 	if(date.getFullYear){
 		return date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate()
@@ -431,7 +431,7 @@ Aurora.formateDate = function(date){
 		return date
 	}
 }
-Aurora.formateDateTime = function(date){
+$A.formateDateTime = function(date){
 	if(!date)return '';
 	if(date.getFullYear){
 		return date.getFullYear() + 
@@ -445,9 +445,9 @@ Aurora.formateDateTime = function(date){
 		return date
 	}
 }
-Aurora.EventManager = Ext.extend(Ext.util.Observable,{
+$A.EventManager = Ext.extend(Ext.util.Observable,{
 	constructor: function() {
-		Aurora.EventManager.superclass.constructor.call(this);
+		$A.EventManager.superclass.constructor.call(this);
 		this.initEvents();
 	},
 	initEvents : function(){
@@ -462,23 +462,23 @@ Aurora.EventManager = Ext.extend(Ext.util.Observable,{
 		);    	
     }
 });
-Aurora.manager = new Aurora.EventManager();
-Aurora.regEvent = function(name, hanlder){
-	Aurora.manager.on(name, hanlder);
+$A.manager = new $A.EventManager();
+$A.regEvent = function(name, hanlder){
+	$A.manager.on(name, hanlder);
 }
 
-Aurora.validInfoType = 'area';
-Aurora.validInfoTypeObj = '';
-Aurora.setValidInfoType = function(type, obj){
-	Aurora.validInfoType = type;
-	Aurora.validInfoTypeObj = obj;
+$A.validInfoType = 'area';
+$A.validInfoTypeObj = '';
+$A.setValidInfoType = function(type, obj){
+	$A.validInfoType = type;
+	$A.validInfoTypeObj = obj;
 }
 
-Aurora.invalidRecords = {};
-Aurora.addInValidReocrd = function(id, record){
-	var rs = Aurora.invalidRecords[id];
+$A.invalidRecords = {};
+$A.addInValidReocrd = function(id, record){
+	var rs = $A.invalidRecords[id];
 	if(!rs){
-		Aurora.invalidRecords[id] = rs = [];
+		$A.invalidRecords[id] = rs = [];
 	}
 	var has = false;
 	for(var i=0;i<rs.length;i++){
@@ -492,8 +492,8 @@ Aurora.addInValidReocrd = function(id, record){
 		rs.add(record)
 	}
 }
-Aurora.removeInvalidReocrd = function(id,record){
-	var rs = Aurora.invalidRecords[id];
+$A.removeInvalidReocrd = function(id,record){
+	var rs = $A.invalidRecords[id];
 	if(!rs) return;
 	for(var i=0;i<rs.length;i++){
 		var r = rs[i];
@@ -503,23 +503,23 @@ Aurora.removeInvalidReocrd = function(id,record){
 		}
 	}
 }
-Aurora.getInvalidRecords = function(pageid){
+$A.getInvalidRecords = function(pageid){
 	var records = [];
-	for(var key in Aurora.invalidRecords){
-		var ds = Aurora.CmpManager.get(key)
+	for(var key in $A.invalidRecords){
+		var ds = $A.CmpManager.get(key)
 		if(ds.pageid == pageid){
-			var rs = Aurora.invalidRecords[key];
+			var rs = $A.invalidRecords[key];
 			records = records.concat(rs);
 		}
 	}
 	return records;
 }
-Aurora.isInValidReocrdEmpty = function(pageid){
+$A.isInValidReocrdEmpty = function(pageid){
 	var isEmpty = true;
-	for(var key in Aurora.invalidRecords){
-		var ds = Aurora.CmpManager.get(key)
+	for(var key in $A.invalidRecords){
+		var ds = $A.CmpManager.get(key)
 		if(ds.pageid == pageid){
-			var rs = Aurora.invalidRecords[key];
+			var rs = $A.invalidRecords[key];
 			if(rs.length != 0){
 				isEmpty = false;
 				break;
@@ -528,29 +528,29 @@ Aurora.isInValidReocrdEmpty = function(pageid){
 	}
 	return isEmpty;
 }
-Aurora.manager.on('valid',function(manager, ds, valid){
-	switch(Aurora.validInfoType){
+$A.manager.on('valid',function(manager, ds, valid){
+	switch($A.validInfoType){
 		case 'area':
-			Aurora.showValidTopMsg(ds);
+			$A.showValidTopMsg(ds);
 			break;
 		case 'message':
-			Aurora.showValidWindowMsg(ds);
+			$A.showValidWindowMsg(ds);
 			break;
 	}
 })
-Aurora.showValidWindowMsg = function(ds) {
-	var empty = Aurora.isInValidReocrdEmpty(ds.pageid);
+$A.showValidWindowMsg = function(ds) {
+	var empty = $A.isInValidReocrdEmpty(ds.pageid);
 	if(empty == true){
-		if(Aurora.validWindow)Aurora.validWindow.close();
+		if($A.validWindow)$A.validWindow.close();
 	}
-	if(!Aurora.validWindow && empty == false){
-		Aurora.validWindow = Aurora.showWindow('校验失败','',400,200);
-		Aurora.validWindow.on('close',function(){
-			Aurora.validWindow = null;			
+	if(!$A.validWindow && empty == false){
+		$A.validWindow = $A.showWindow('校验失败','',400,200);
+		$A.validWindow.on('close',function(){
+			$A.validWindow = null;			
 		})
 	}
 	var sb =[];
-	var rs = Aurora.getInvalidRecords(ds.pageid);
+	var rs = $A.getInvalidRecords(ds.pageid);
 	for(var i=0;i<rs.length;i++){
 		var r = rs[i];
 		var index = r.ds.data.indexOf(r)+1
@@ -561,11 +561,11 @@ Aurora.showValidWindowMsg = function(ds) {
 		}
 		sb[sb.length]='<br/>';
 	}
-	if(Aurora.validWindow)Aurora.validWindow.body.child('div').update(sb.join(''))
+	if($A.validWindow)$A.validWindow.body.child('div').update(sb.join(''))
 }
-Aurora.pageids = [];
-Aurora.showValidTopMsg = function(ds) {
-	var empty = Aurora.isInValidReocrdEmpty(ds.pageid);
+$A.pageids = [];
+$A.showValidTopMsg = function(ds) {
+	var empty = $A.isInValidReocrdEmpty(ds.pageid);
 	if(empty == true){
 		var d = Ext.get(ds.pageid+'_msg');
 		if(d){
@@ -575,7 +575,7 @@ Aurora.showValidTopMsg = function(ds) {
 		}
 		return;
 	}
-	var rs = Aurora.getInvalidRecords(ds.pageid);
+	var rs = $A.getInvalidRecords(ds.pageid);
 	var sb = [];
 	for(var i=0;i<rs.length;i++){
 		var r = rs[i];
@@ -593,10 +593,10 @@ Aurora.showValidTopMsg = function(ds) {
 		d.show(true);
 	}					
 }
-Aurora.AUTO_ID = 1000;
-Aurora.DataSet = Ext.extend(Ext.util.Observable,{
+$A.AUTO_ID = 1000;
+$A.DataSet = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {//datas,fields, type
-		Aurora.DataSet.superclass.constructor.call(this);
+		$A.DataSet.superclass.constructor.call(this);
 		config = config || {};
 		this.pageid = config.pageid;
     	this.spara = {};
@@ -612,7 +612,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     	this.resetConfig();
     	
 		this.id = config.id || Ext.id();
-        Aurora.CmpManager.put(this.id,this)		
+        $A.CmpManager.put(this.id,this)		
     	this.qds = config.queryDataSet == "" ? null :$(config.queryDataSet);
     	if(this.qds != null && this.qds.getCurrentRecord() == null) this.qds.create();
     	this.initEvents();
@@ -623,8 +623,8 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     destroy : function(){
-    	Aurora.CmpManager.remove(this.id);
-    	delete Aurora.invalidRecords[this.id]
+    	$A.CmpManager.remove(this.id);
+    	delete $A.invalidRecords[this.id]
     },
     reConfig : function(config){
     	this.resetConfig();
@@ -651,7 +651,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 		ds.on('load', this.bindDataSetPrototype, this);
 		ds.on('reject', this.bindDataSetPrototype, this);
     	
-    	var field = new Aurora.Record.Field({
+    	var field = new $A.Record.Field({
     		name:name,
     		type:'dataset',
     		dataset:ds
@@ -718,7 +718,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     },
     initFields : function(fields){
     	for(var i = 0, len = fields.length; i < len; i++){
-    		var field = new Aurora.Record.Field(fields[i]);
+    		var field = new $A.Record.Field(fields[i]);
 	        this.fields[field.name] = field;
         }
     },
@@ -740,14 +740,14 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     			var datatype = field.getPropertity('datatype');
     			switch(datatype){
     				case 'date':
-    					data[key] = Aurora.parseDate(data[key]);
+    					data[key] = $A.parseDate(data[key]);
     					break;
     				case 'int':
     					data[key] = parseInt(data[key]);
     					break;
     			}
     		}
-    		var record = new Aurora.Record(data,datas[i].field);
+    		var record = new $A.Record(data,datas[i].field);
             record.setDataSet(this);
 	        this.data.add(record);
         }
@@ -758,7 +758,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     create : function(data, valid){
     	this.fireEvent("beforecreate", this);
 //    	if(valid !== false) if(!this.validCurrent())return;
-    	var record = new Aurora.Record(data||{});
+    	var record = new $A.Record(data||{});
         this.add(record); 
         var index = (this.currentPage-1)*this.pageSize + this.data.length;
         this.locate(index, true);
@@ -832,7 +832,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     		p[i] = Ext.apply(p[i],this.spara)
     	}
     	if(p.length > 0) {
-	    	Aurora.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this);
+	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this);
     	}
     
     },
@@ -847,7 +847,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     removeLocal: function(record){
-    	Aurora.removeInvalidReocrd(this.id, record)
+    	$A.removeInvalidReocrd(this.id, record)
     	var index = this.data.indexOf(record);    	
     	if(index == -1)return;
         this.data.remove(record);
@@ -943,7 +943,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 	    	this.currentIndex = index;
     	}else{
     		if(this.isModified()){
-    			Aurora.showMessage('提示', '有未保存数据!')
+    			$A.showMessage('提示', '有未保存数据!')
     		}else{
 				this.currentIndex = index;
 				this.currentPage =  Math.ceil(index/this.pageSize);
@@ -998,9 +998,9 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 				if(!record.validateRecord()){
 					this.isValid = false;
 					unvalidRecord = record;
-					Aurora.addInValidReocrd(this.id, record);
+					$A.addInValidReocrd(this.id, record);
 				}else{
-					Aurora.removeInvalidReocrd(this.id, record);
+					$A.removeInvalidReocrd(this.id, record);
 				}
 				if(this.isValid == false) {
 					if(hassub)break;
@@ -1025,7 +1025,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 			if(r!=-1)this.locate(r+1);
 		}
 		if(fire !== false) {
-			Aurora.manager.fireEvent('valid', Aurora.manager, this, this.isValid);
+			$A.manager.fireEvent('valid', $A.manager, this, this.isValid);
 		}
 		return this.isValid;
     },
@@ -1072,7 +1072,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     		url = this.queryUrl + '&' + para;
     	}
     	this.loading = true;
-    	Aurora.request(url, q, this.onLoadSuccess, this.onLoadFailed, this);
+    	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this);
     },
     isModified : function(){
     	var modified = false;
@@ -1123,7 +1123,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     },
     submit : function(url){
     	if(!this.validate()){
-//    		Aurora.showMessage('提示', '验证不通过!');
+//    		$A.showMessage('提示', '验证不通过!');
     		return;
     	}
     	this.submitUrl = url||this.submitUrl;
@@ -1133,7 +1133,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     		p[i] = Ext.apply(p[i],this.spara)
     	}
     	if(p.length > 0) {
-	    	Aurora.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
+	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
     	}
     },
     
@@ -1149,7 +1149,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     		var datas = [].concat(res.result.record);
     		this.refreshRecord(datas)
     	}
-//    	Aurora.showMessage('成功', '操作成功!');
+//    	$A.showMessage('成功', '操作成功!');
     	this.fireEvent('submitsuccess', this, res)
     },
     refreshRecord : function(datas){
@@ -1180,7 +1180,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 					var nv = data[k]
 					if(field == '_id' || field == '_status'||field=='__parameter_parsed__') continue;
 					if(f && f.getPropertity('datatype') == 'date') 
-					nv = Aurora.parseDate(nv)
+					nv = $A.parseDate(nv)
 					if(ov != nv) {
 						r.set(field,nv);
 					}
@@ -1192,7 +1192,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
     },
     onSubmitFailed : function(res){
 //    	alert(res.error.message);
-    	Aurora.showMessage('错误', res.error.message);
+    	$A.showMessage('错误', res.error.message);
 		this.fireEvent('submitfailed', this, res)   
     },
     onLoadSuccess : function(res){
@@ -1218,7 +1218,7 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 	    
     },
     onLoadFailed : function(res){
-    	Aurora.showMessage('错误', res.error.message);
+    	$A.showMessage('错误', res.error.message);
 //    	alert(res.error.message)
     	this.loading = false;
     },
@@ -1234,8 +1234,8 @@ Aurora.DataSet = Ext.extend(Ext.util.Observable,{
 });
 
 
-Aurora.Record = function(data, fields){
-    this.id = ++Aurora.AUTO_ID;
+$A.Record = function(data, fields){
+    this.id = ++$A.AUTO_ID;
     this.data = data;
     this.fields = {};
     this.valid = {};
@@ -1244,10 +1244,10 @@ Aurora.Record = function(data, fields){
 	this.dirty = false;	
 	this.editing = false;
 	this.modified= null;
-    this.meta = new Aurora.Record.Meta(this);
+    this.meta = new $A.Record.Meta(this);
     if(fields)this.initFields(fields);
 };
-Aurora.Record.prototype = {
+$A.Record.prototype = {
 	clear : function() {
 		this.editing = false;
 		this.valid = {};
@@ -1258,7 +1258,7 @@ Aurora.Record.prototype = {
 	},
 	initFields : function(fields){
 		for(var i=0,l=fields.length;i<l;i++){
-			var f = new Aurora.Record.Field(fields[i]);
+			var f = new $A.Record.Field(fields[i]);
 			f.record = this;
 			this.fields[f.name] = f;
 		}
@@ -1380,11 +1380,11 @@ Aurora.Record.prototype = {
     	this.ds.onMetaChange(this,meta);
     }
 }
-Aurora.Record.Meta = function(r){
+$A.Record.Meta = function(r){
 	this.record = r;
 	this.pro = {};
 }
-Aurora.Record.Meta.prototype = {
+$A.Record.Meta.prototype = {
 	clear : function(){
 		this.pro = {};
 		this.record.onMetaClear(this);
@@ -1395,9 +1395,9 @@ Aurora.Record.Meta.prototype = {
 		var rf;
     	if(!f){
     		if(df){
-    			f = new Aurora.Record.Field({name:df.name,type:df.type});
+    			f = new $A.Record.Field({name:df.name,type:df.type});
     		}else{
-    			f = new Aurora.Record.Field({name:name,type:'string'});//
+    			f = new $A.Record.Field({name:name,type:'string'});//
     		}
 			f.record = this.record;
 			this.record.fields[f.name]=f;
@@ -1428,13 +1428,13 @@ Aurora.Record.Meta.prototype = {
 	}
 }
 
-Aurora.Record.Field = function(c){
+$A.Record.Field = function(c){
     this.name = c.name;
     this.type = c.type;
     this.pro = c||{};
     this.record;
 };
-Aurora.Record.Field.prototype = {
+$A.Record.Field.prototype = {
 	clear : function(){
 		this.pro = {};
 		this.record.onFieldClear(this.name);
@@ -1469,11 +1469,11 @@ Aurora.Record.Field.prototype = {
 		return this.getPropertity('options');
 	}
 }
-Aurora.Component = Ext.extend(Ext.util.Observable,{
+$A.Component = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {
-        Aurora.Component.superclass.constructor.call(this);
+        $A.Component.superclass.constructor.call(this);
         this.id = config.id || Ext.id();
-        Aurora.CmpManager.put(this.id,this)
+        $A.CmpManager.put(this.id,this)
 		this.initConfig=config;
 		this.isHidden = false;
 		this.isFireEvent = false;
@@ -1553,7 +1553,7 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
     },
     destroy : function(){
     	this.processListener('un');
-    	Aurora.CmpManager.remove(this.id);
+    	$A.CmpManager.remove(this.id);
     	this.clearBind();
     	delete this.wrap;
     },
@@ -1655,8 +1655,7 @@ Aurora.Component = Ext.extend(Ext.util.Observable,{
     setRequired : function(){},
     onDataChange : function(){}
 });
-
-Aurora.Field = Ext.extend(Aurora.Component,{	
+$A.Field = Ext.extend($A.Component,{	
 	validators: [],
 	requiredCss:'item-notBlank',
 	focusCss:'item-focus',
@@ -1666,10 +1665,10 @@ Aurora.Field = Ext.extend(Aurora.Component,{
 	constructor: function(config) {
 		config.required = config.required || false;
 		config.readonly = config.readonly || false;
-        Aurora.Field.superclass.constructor.call(this, config);
+        $A.Field.superclass.constructor.call(this, config);
     },
     initComponent : function(config){
-    	Aurora.Field.superclass.initComponent.call(this, config);
+    	$A.Field.superclass.initComponent.call(this, config);
         this.el = this.wrap.child('input[atype=field.input]'); 
     	this.originalValue = this.getValue();
     	this.applyEmptyText();
@@ -1690,11 +1689,11 @@ Aurora.Field = Ext.extend(Aurora.Component,{
 //        this.el.on("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
-    	Aurora.Field.superclass.initEvents.call(this);
+    	$A.Field.superclass.initEvents.call(this);
         this.addEvents('keydown','keyup','keypress');
     },
     destroy : function(){
-    	Aurora.Field.superclass.destroy.call(this);
+    	$A.Field.superclass.destroy.call(this);
     	delete this.el;
     },
 	setWidth: function(w){
@@ -1717,10 +1716,10 @@ Aurora.Field = Ext.extend(Aurora.Component,{
     	this.setReadOnly(this.readonly);
     },
 //    onMouseOver : function(e){
-//    	Aurora.ToolTip.show(this.id, "测试");
+//    	$A.ToolTip.show(this.id, "测试");
 //    },
 //    onMouseOut : function(e){
-//    	Aurora.ToolTip.hide();
+//    	$A.ToolTip.hide();
 //    },
     onChange : function(e){
 //    	this.setValue(this.getValue());    
@@ -1774,7 +1773,7 @@ Aurora.Field = Ext.extend(Aurora.Component,{
     	}
     },
     setValue : function(v, silent){
-    	Aurora.Field.superclass.setValue.call(this,v, silent);
+    	$A.Field.superclass.setValue.call(this,v, silent);
     	if(this.emptytext && this.el && v !== undefined && v !== null && v !== ''){
             this.wrap.removeClass(this.emptyTextCss);
         }
@@ -1897,10 +1896,10 @@ Aurora.Field = Ext.extend(Aurora.Component,{
         this.applyEmptyText();
     }
 })
-Aurora.Box = Ext.extend(Aurora.Component,{
+$A.Box = Ext.extend($A.Component,{
 	constructor: function(config) {
         this.errors = [];
-        Aurora.Box.superclass.constructor.call(this,config);
+        $A.Box.superclass.constructor.call(this,config);
     },
 //    initComponent : function(config){ 
 //		config = config || {};
@@ -1938,31 +1937,31 @@ Aurora.Box = Ext.extend(Aurora.Component,{
     	}
     }
 });
-Aurora.Button = Ext.extend(Aurora.Component,{
+$A.Button = Ext.extend($A.Component,{
 	disableCss:'item-btn-disabled',
 	overCss:'item-btn-over',
 	pressCss:'item-btn-pressed',
 	constructor: function(config) {
-        Aurora.Button.superclass.constructor.call(this, config);
+        $A.Button.superclass.constructor.call(this, config);
     },
 	initComponent : function(config){
-    	Aurora.Button.superclass.initComponent.call(this, config);
+    	$A.Button.superclass.initComponent.call(this, config);
     	this.el = this.wrap.child('button[atype=btn]');
     	if(this.hidden == true){
     		this.setVisible(false)
     	}
     },
     processListener: function(ou){
-    	Aurora.Button.superclass.processListener.call(this,ou);
+    	$A.Button.superclass.processListener.call(this,ou);
     	this.el[ou]("click", this.onClick,  this);
         this.el[ou]("mousedown", this.onMouseDown,  this);
     },
     initEvents : function(){
-    	Aurora.Button.superclass.initEvents.call(this);
+    	$A.Button.superclass.initEvents.call(this);
     	this.addEvents('click');
     },    
     destroy : function(){
-		Aurora.Button.superclass.destroy.call(this);
+		$A.Button.superclass.destroy.call(this);
     	delete this.el;
     },
     setVisible: function(v){
@@ -1972,7 +1971,7 @@ Aurora.Button = Ext.extend(Aurora.Component,{
 			this.wrap.hide();
 	},
 //    destroy : function(){
-//    	Aurora.Button.superclass.destroy.call(this);
+//    	$A.Button.superclass.destroy.call(this);
 //    	this.el.un("click", this.onClick,  this);
 //    	delete this.el;
 //    },
@@ -2002,26 +2001,88 @@ Aurora.Button = Ext.extend(Aurora.Component,{
     	this.wrap.removeClass(this.overCss);
     }
 });
-Aurora.TextField = Ext.extend(Aurora.Field,{
+$A.CheckBox = Ext.extend($A.Component,{
+	readOnly:false,	
+	checkedCss:'item-ckb-c',
+	uncheckedCss:'item-ckb-u',
+	readonyCheckedCss:'item-ckb-readonly-c',
+	readonlyUncheckedCss:'item-ckb-readonly-u',
+	constructor: function(config){
+		config.checked = config.checked || false;
+		config.readonly = config.readonly || false;
+		$A.CheckBox.superclass.constructor.call(this,config);
+	},
+	initComponent:function(config){
+		$A.CheckBox.superclass.initComponent.call(this, config);
+		this.wrap=Ext.get(this.id);
+		this.el=this.wrap.child('div[atype=checkbox]');
+	},
+	processListener: function(ou){
+    	this.wrap[ou]('click',this.onClick,this);
+    },
+	initEvents:function(){
+		$A.CheckBox.superclass.initEvents.call(this);  	
+		this.addEvents('click');    
+	},
+	destroy : function(){
+    	$A.CheckBox.superclass.destroy.call(this);
+    	delete this.el;
+    },
+	onClick: function(event){
+		if(!this.readonly){
+			this.checked=this.checked?false:true;				
+			this.setValue(this.checked);
+			this.fireEvent('click',this, this.checked);
+		}
+	},
+	setValue:function(v, silent){
+		if(typeof(v)==='boolean'){
+			this.checked=v?true:false;			
+		}else{
+			this.checked= v===this.checkedvalue ? true: false;
+		}
+		this.initStatus();
+		var value =this.checked==true?this.checkedvalue:this.uncheckedvalue;		
+		$A.CheckBox.superclass.setValue.call(this,value, silent);
+	},
+	setReadOnly:function(b){
+		if(typeof(b)==='boolean'){
+			this.readonly=b?true:false;	
+			this.initStatus();		
+		}		
+	},
+	initStatus:function(){
+		this.el.removeClass(this.checkedCss);
+		this.el.removeClass(this.uncheckedCss);
+		this.el.removeClass(this.readonyCheckedCss);
+		this.el.removeClass(this.readonlyUncheckedCss);
+		if (this.readonly) {				
+			this.el.addClass(this.checked ? this.readonyCheckedCss : this.readonlyUncheckedCss);			
+		}else{
+			this.el.addClass(this.checked ? this.checkedCss : this.uncheckedCss);
+		}		
+	}			
+});
+$A.TextField = Ext.extend($A.Field,{
 	constructor: function(config) {
-        Aurora.TextField.superclass.constructor.call(this, config);        
+        $A.TextField.superclass.constructor.call(this, config);        
     },
     initComponent : function(config){
-    	Aurora.TextField.superclass.initComponent.call(this, config);    	
+    	$A.TextField.superclass.initComponent.call(this, config);    	
     },
     initEvents : function(){
-    	Aurora.TextField.superclass.initEvents.call(this);    	
+    	$A.TextField.superclass.initEvents.call(this);    	
     }
 //    ,getValue : function(){
 //    	return this.getRawValue();
 //    }
 })
-Aurora.TriggerField = Ext.extend(Aurora.TextField,{
+$A.TriggerField = Ext.extend($A.TextField,{
 	constructor: function(config) {
-        Aurora.TriggerField.superclass.constructor.call(this, config);
+        $A.TriggerField.superclass.constructor.call(this, config);
     },
     initComponent : function(config){
-    	Aurora.TriggerField.superclass.initComponent.call(this, config);
+    	$A.TriggerField.superclass.initComponent.call(this, config);
     	this.trigger = this.wrap.child('div[atype=triggerfield.trigger]'); 
     	this.initPopup();
     },
@@ -2040,7 +2101,7 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
     	this.initpopuped = true
     },
     initEvents : function(){
-    	Aurora.TriggerField.superclass.initEvents.call(this);    
+    	$A.TriggerField.superclass.initEvents.call(this);    
     	this.trigger.on('click',this.onTriggerClick, this, {preventDefault:true})
     },
     isExpanded : function(){ 
@@ -2054,7 +2115,7 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
 	},
     onFocus : function(){
     	if(this.readonly) return;
-        Aurora.TriggerField.superclass.onFocus.call(this);
+        $A.TriggerField.superclass.onFocus.call(this);
         if(!this.isExpanded())this.expand();
     },
     onBlur : function(){
@@ -2065,7 +2126,7 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
 //    	}
     },
     onKeyDown: function(e){
-    	Aurora.TriggerField.superclass.onKeyDown.call(this,e);
+    	$A.TriggerField.superclass.onKeyDown.call(this,e);
     	if(e.browserEvent.keyCode == 9 || e.keyCode == 27) {
         	if(this.isExpanded()){
 	    		this.collapse();
@@ -2073,7 +2134,7 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
         }
     },
     isEventFromComponent:function(el){
-    	var isfrom = Aurora.TriggerField.superclass.isEventFromComponent.call(this,el);
+    	var isfrom = $A.TriggerField.superclass.isEventFromComponent.call(this,el);
     	return isfrom || this.popup.contains(el);
     },
 	destroy : function(){
@@ -2083,7 +2144,7 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
     	this.trigger.un('click',this.onTriggerClick, this)
     	delete this.trigger;
     	delete this.popup;
-    	Aurora.TriggerField.superclass.destroy.call(this);
+    	$A.TriggerField.superclass.destroy.call(this);
 	},
     triggerBlur : function(e){
     	if(!this.popup.contains(e.target) && !this.wrap.contains(e.target)){    		
@@ -2093,7 +2154,7 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
         }
     },
     setVisible : function(v){
-    	Aurora.TriggerField.superclass.setVisible.call(this,v);
+    	$A.TriggerField.superclass.setVisible.call(this,v);
     	if(v == false && this.isExpanded()){
     		this.collapse();
     	}
@@ -2120,29 +2181,29 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
     	}
     }
 });
-Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {	
+$A.ComboBox = Ext.extend($A.TriggerField, {	
 	maxHeight:200,
 	blankOption:true,
 	rendered:false,
 	selectedClass:'item-comboBox-selected',	
 	currentNodeClass:'item-comboBox-current',
 	constructor : function(config) {
-		Aurora.ComboBox.superclass.constructor.call(this, config);		
+		$A.ComboBox.superclass.constructor.call(this, config);		
 	},
 	initComponent:function(config){
-		Aurora.ComboBox.superclass.initComponent.call(this, config);
+		$A.ComboBox.superclass.initComponent.call(this, config);
 		if(config.options) this.setOptions(config.options);		
 	},
 	initEvents:function(){
-		Aurora.ComboBox.superclass.initEvents.call(this);
+		$A.ComboBox.superclass.initEvents.call(this);
 		this.addEvents('select');
 	},
 	onTriggerClick : function() {
 		this.doQuery('',true);
-		Aurora.ComboBox.superclass.onTriggerClick.call(this);		
+		$A.ComboBox.superclass.onTriggerClick.call(this);		
 	},
 	onBlur : function(){
-		Aurora.ComboBox.superclass.onBlur.call(this);
+		$A.ComboBox.superclass.onBlur.call(this);
 		if(!this.isExpanded()) {
 			var raw = this.getRawValue();
 			var record = this.getRecordByDisplay(raw);
@@ -2172,7 +2233,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 		if(!this.optionDataSet)return;
 		if(this.rendered===false)this.initQuery();
 		this.correctViewSize();
-		Aurora.ComboBox.superclass.expand.call(this);
+		$A.ComboBox.superclass.expand.call(this);
 		var v = this.getValue();
 		this.currentIndex = this.getIndex(v);
 		if(!this.currentIndex) return;
@@ -2184,7 +2245,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 		}		
 	},
 	collapse:function(){
-		Aurora.ComboBox.superclass.collapse.call(this);
+		$A.ComboBox.superclass.collapse.call(this);
 		if(this.currentIndex!==undefined)
 		Ext.fly(this.getNode(this.currentIndex)).removeClass(this.currentNodeClass);		
 	},
@@ -2224,7 +2285,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 		var mw = this.wrap.getWidth();
 		for(var i=0;i<this.view.dom.childNodes.length;i++){
 			var li=this.view.dom.childNodes[i];
-			var width=Aurora.TextMetrics.measure(li,li.innerHTML).width;
+			var width=$A.TextMetrics.measure(li,li.innerHTML).width;
 			mw = Math.max(mw,width)||mw;
 		}
 		this.popup.setWidth(mw);
@@ -2321,7 +2382,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 			this.view.un('mousemove',this.onViewMove,this);
 		}
 		delete this.view;
-    	Aurora.ComboBox.superclass.destroy.call(this);
+    	$A.ComboBox.superclass.destroy.call(this);
 	},
 	getText : function() {		
 		return this.text;
@@ -2346,7 +2407,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 //		return this.text;
 //	},
 	setValue: function(v, silent){
-        Aurora.ComboBox.superclass.setValue.call(this, v, silent);
+        $A.ComboBox.superclass.setValue.call(this, v, silent);
         //TODO: v是空的时候?
         if(this.record){
 			var field = this.record.getMeta().getField(this.binder.name);
@@ -2373,13 +2434,13 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 		}
 	}
 });
-Aurora.DateField = Ext.extend(Aurora.Component, {
+$A.DateField = Ext.extend($A.Component, {
 	constructor: function(config) {
-        Aurora.DateField.superclass.constructor.call(this,config); 
+        $A.DateField.superclass.constructor.call(this,config); 
 		this.draw();
     },
     initComponent : function(config){
-    	Aurora.DateField.superclass.initComponent.call(this, config);
+    	$A.DateField.superclass.initComponent.call(this, config);
     	this.wrap = typeof(config.container) == "string" ? Ext.get(config.container) : config.container;
         this.table = this.wrap.child("table");        
         this.tbody = this.wrap.child("tbody").dom;
@@ -2394,7 +2455,7 @@ Aurora.DateField = Ext.extend(Aurora.Component, {
     	this.monthSpan = this.wrap.child("span.item-dateField-month");
     },
     processListener: function(ou){
-    	Aurora.DateField.superclass.processListener.call(this,ou);
+    	$A.DateField.superclass.processListener.call(this,ou);
     	this.preMonthBtn[ou]("click", this.preMonth, this);
     	this.nextMonthBtn[ou]("click", this.nextMonth, this);
     	this.table[ou]("click", this.onSelect, this);
@@ -2402,11 +2463,11 @@ Aurora.DateField = Ext.extend(Aurora.Component, {
     	this.table[ou]("mouseout", this.mouseOut, this)
     },
     initEvents : function(){
-    	Aurora.DateField.superclass.initEvents.call(this);   	
+    	$A.DateField.superclass.initEvents.call(this);   	
     	this.addEvents('select','draw');
     },
     destroy : function(){
-    	Aurora.DateField.superclass.destroy.call(this);
+    	$A.DateField.superclass.destroy.call(this);
 		delete this.preMonthBtn;
     	delete this.nextMonthBtn;
     	delete this.yearSpan;
@@ -2539,21 +2600,21 @@ Aurora.DateField = Ext.extend(Aurora.Component, {
 		return (d1.getFullYear() == d2.getFullYear() && d1.getMonth() == d2.getMonth() && d1.getDate() == d2.getDate());
 	}
 });
-Aurora.DatePicker = Ext.extend(Aurora.TriggerField,{
+$A.DatePicker = Ext.extend($A.TriggerField,{
 	constructor: function(config) {
-        Aurora.DatePicker.superclass.constructor.call(this, config);        
+        $A.DatePicker.superclass.constructor.call(this, config);        
     },
     initComponent : function(config){
-    	Aurora.DatePicker.superclass.initComponent.call(this,config);
+    	$A.DatePicker.superclass.initComponent.call(this,config);
     	if(!this.dateField){
     		var cfg = {id:this.id+'_df',container:this.popup}
-	    	this.dateField = new Aurora.DateField(cfg);
+	    	this.dateField = new $A.DateField(cfg);
 	    	this.dateField.on("select", this.onSelect, this);
 	    	this.dateField.on("draw", this.onDraw, this);
     	}
     },
     initEvents : function(){
-    	Aurora.DatePicker.superclass.initEvents.call(this);
+    	$A.DatePicker.superclass.initEvents.call(this);
         this.addEvents('select');
     },
     onDraw: function(){
@@ -2566,7 +2627,7 @@ Aurora.DatePicker = Ext.extend(Aurora.TriggerField,{
     	this.fireEvent('select',this, date);
     },
 	onBlur : function(){
-		Aurora.DatePicker.superclass.onBlur.call(this);
+		$A.DatePicker.superclass.onBlur.call(this);
 		if(!this.isExpanded()) {
 			var raw = this.getRawValue();
 			if(!isNaN(new Date(raw.replace(/-/g,"/")))){
@@ -2578,13 +2639,13 @@ Aurora.DatePicker = Ext.extend(Aurora.TriggerField,{
     },
     formatValue : function(date){
     	if(date instanceof Date) {
-    		return Aurora.formateDate(date);
+    		return $A.formateDate(date);
     	}else{
     		return date;
     	}
     },
     expand : function(){
-    	Aurora.DatePicker.superclass.expand.call(this);
+    	$A.DatePicker.superclass.expand.call(this);
     	if(this.dateField.selectDay != this.getValue()) {
     		this.dateField.selectDay = this.getValue()
     		this.dateField.predraw(this.dateField.selectDay);
@@ -2593,7 +2654,7 @@ Aurora.DatePicker = Ext.extend(Aurora.TriggerField,{
 	    	this.shadow.setWidth(w);
 	    	this.shadow.setHeight(h);
     	}
-    	var screenHeight = Aurora.getViewportHeight();
+    	var screenHeight = $A.getViewportHeight();
     	var h = this.popup.getHeight();
     	var y = this.popup.getY();
     	if(y+h > screenHeight) {
@@ -2603,10 +2664,10 @@ Aurora.DatePicker = Ext.extend(Aurora.TriggerField,{
     	}
     },
     destroy : function(){
-    	Aurora.DatePicker.superclass.destroy.call(this);
+    	$A.DatePicker.superclass.destroy.call(this);
 	}
 });
-Aurora.WindowManager = function(){
+$A.WindowManager = function(){
     return {
         put : function(win){
         	if(!this.cache) this.cache = [];
@@ -2644,20 +2705,20 @@ Aurora.WindowManager = function(){
     };
 }();
 
-Aurora.Window = Ext.extend(Aurora.Component,{
+$A.Window = Ext.extend($A.Component,{
 	constructor: function(config) { 
-		if(Aurora.WindowManager.get(config.id))return;
+		if($A.WindowManager.get(config.id))return;
         this.draggable = true;
         this.closeable = true;
         this.modal = true;
         this.oldcmps = {};
         this.cmps = {};
-        Aurora.Window.superclass.constructor.call(this,config);
+        $A.Window.superclass.constructor.call(this,config);
     },
     initComponent : function(config){
-    	Aurora.Window.superclass.initComponent.call(this, config);
+    	$A.Window.superclass.initComponent.call(this, config);
     	var sf = this; 
-    	Aurora.WindowManager.put(sf);
+    	$A.WindowManager.put(sf);
     	var windowTpl = new Ext.Template(sf.getTemplate());
     	var shadowTpl = new Ext.Template(sf.getShadowTemplate());
     	sf.width = sf.width||350;sf.height=sf.height||400;
@@ -2677,14 +2738,14 @@ Aurora.Window = Ext.extend(Aurora.Component,{
         sf.center();
     },
     processListener: function(ou){
-    	Aurora.Window.superclass.processListener.call(this,ou);
+    	$A.Window.superclass.processListener.call(this,ou);
     	if(this.closeable) this.closeBtn[ou]("click", this.onClose,  this); 
     	this.wrap[ou]("click", this.toFront, this);
     	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
     	if(this.draggable)this.head.on('mousedown', this.onMouseDown,this);
     },
     initEvents : function(){
-    	Aurora.Window.superclass.initEvents.call(this);
+    	$A.Window.superclass.initEvents.call(this);
     	this.addEvents('close','load');    	
     },
     handleKeyDown : function(e){
@@ -2702,8 +2763,8 @@ Aurora.Window = Ext.extend(Aurora.Component,{
 		this.focusEl.focus();
 	},
     center: function(){
-    	var screenWidth = Aurora.getViewportWidth();
-    	var screenHeight = Aurora.getViewportHeight();
+    	var screenWidth = $A.getViewportWidth();
+    	var screenHeight = $A.getViewportHeight();
     	var x = (screenWidth - this.width)/2;
     	var y = (screenHeight - this.height)/2;
         this.wrap.moveTo(x,y);
@@ -2751,12 +2812,12 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     /**toFront**/
     toFront : function(){ 
     	var myzindex = this.wrap.getStyle('z-index');
-    	var zindex = Aurora.WindowManager.getZindex();
+    	var zindex = $A.WindowManager.getZindex();
     	if(myzindex =='auto') myzindex = 0;
     	if(myzindex < zindex) {
 	    	this.wrap.setStyle('z-index', zindex+5);
 	    	this.shadow.setStyle('z-index', zindex+4);
-	    	if(this.modal) Aurora.Mask.mask(this.wrap);
+	    	if(this.modal) $A.Mask.mask(this.wrap);
     	}
     },
     onMouseDown : function(e){
@@ -2808,7 +2869,7 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     	 this.close(); 	
     },
     close : function(){
-    	Aurora.WindowManager.remove(this);
+    	$A.WindowManager.remove(this);
     	this.destroy(); 
     	this.fireEvent('close', this)
     },
@@ -2826,8 +2887,8 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     	var wrap = this.wrap;
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
-    	if(this.modal) Aurora.Mask.unmask(this.wrap);
-    	Aurora.Window.superclass.destroy.call(this);
+    	if(this.modal) $A.Mask.unmask(this.wrap);
+    	$A.Window.superclass.destroy.call(this);
     	delete this.title;
     	delete this.head;
     	delete this.body;
@@ -2837,7 +2898,7 @@ Aurora.Window = Ext.extend(Aurora.Component,{
         this.shadow.remove();
     },
     load : function(url){
-    	var cmps = Aurora.CmpManager.getAll();
+    	var cmps = $A.CmpManager.getAll();
     	for(var key in cmps){
     		this.oldcmps[key] = cmps[key];
     	}
@@ -2857,7 +2918,7 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     	var html = response.responseText;
     	var sf = this
     	this.body.update(html,true,function(){
-	    	var cmps = Aurora.CmpManager.getAll();
+	    	var cmps = $A.CmpManager.getAll();
 	    	for(var key in cmps){
 	    		if(sf.oldcmps[key]==null){	    			
 	    			sf.cmps[key] = cmps[key];
@@ -2867,42 +2928,41 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     	});
     }
 });
-Aurora.showMessage = function(title, msg){
-	return Aurora.showWindow(title, msg, 300, 100, 'win-alert');
+$A.showMessage = function(title, msg){
+	return $A.showWindow(title, msg, 300, 100, 'win-alert');
 }
-Aurora.hideWindow = function(){
-	var cmp = Aurora.CmpManager.get('aurora-msg')
+$A.hideWindow = function(){
+	var cmp = $A.CmpManager.get('aurora-msg')
 	if(cmp) cmp.close();
 }
-Aurora.showWindow = function(title, msg, width, height, cls){
+$A.showWindow = function(title, msg, width, height, cls){
 	cls = cls ||'';
-	var cmp = Aurora.CmpManager.get('aurora-msg')
+	var cmp = $A.CmpManager.get('aurora-msg')
 	if(cmp == null) {
-		cmp = new Aurora.Window({id:'aurora-msg',title:title, height:height,width:width});
-//		cmp.body.update('<div style="width:100%;height:100%;text-align:center;line-height:'+(height)+'px">'+msg+'</div>');
+		cmp = new $A.Window({id:'aurora-msg',title:title, height:height,width:width});	
 		cmp.body.update('<div class="'+cls+'">'+msg+'</div>');
 	}
 	return cmp;
 }
-Aurora.Lov = Ext.extend(Aurora.TextField,{
+$A.Lov = Ext.extend($A.TextField,{
 	constructor: function(config) {
 		this.isWinOpen = false
-        Aurora.Lov.superclass.constructor.call(this, config);        
+        $A.Lov.superclass.constructor.call(this, config);        
     },
     initComponent : function(config){
-    	Aurora.Lov.superclass.initComponent.call(this,config);
+    	$A.Lov.superclass.initComponent.call(this,config);
     	this.trigger = this.wrap.child('div[atype=triggerfield.trigger]'); 
     },
     processListener: function(ou){
-    	Aurora.Lov.superclass.processListener.call(this,ou);
+    	$A.Lov.superclass.processListener.call(this,ou);
     	this.trigger[ou]('click',this.showLovWindow, this, {preventDefault:true})
     },
     initEvents : function(){
-    	Aurora.Lov.superclass.initEvents.call(this);
+    	$A.Lov.superclass.initEvents.call(this);
     	this.addEvents('commit');
     },
     destroy : function(){
-    	Aurora.Lov.superclass.destroy.call(this);
+    	$A.Lov.superclass.destroy.call(this);
 	},
 	setWidth: function(w){
 		this.wrap.setStyle("width",(w+3)+"px");
@@ -2924,14 +2984,14 @@ Aurora.Lov = Ext.extend(Aurora.TextField,{
         if(needLookup){
         	this.showLovWindow();
         }else{
-        	Aurora.Lov.superclass.onBlur.call(this,e); 
+        	$A.Lov.superclass.onBlur.call(this,e); 
         }
 	},
 	onKeyDown : function(e){
         if(e.getKey() == 13) {
         	this.showLovWindow();
         }else {
-        	Aurora.TriggerField.superclass.onKeyDown.call(this,e);
+        	$A.TriggerField.superclass.onKeyDown.call(this,e);
         }
     },
     canHide : function(){
@@ -2961,7 +3021,7 @@ Aurora.Lov = Ext.extend(Aurora.TextField,{
 		return mapping ? mapping : [{from:this.binder.name,to:this.binder.name}];
 	},
 	setValue: function(v, silent){
-		Aurora.Lov.superclass.setValue.call(this, v, silent);
+		$A.Lov.superclass.setValue.call(this, v, silent);
 		if(this.record && this.dataRecord && silent !== true){
 			var mapping = this.getMapping();
 			for(var i=0;i<mapping.length;i++){
@@ -2988,7 +3048,7 @@ Aurora.Lov = Ext.extend(Aurora.TextField,{
 			v = rv;
 		}		
 		this.blur();
-    	this.win = new Aurora.Window({title:this.title||'Lov', url:(this.ref) + "?lovid="+this.id+"&key="+encodeURIComponent(v), height:this.winheight||400,width:this.winwidth||400});
+    	this.win = new $A.Window({title:this.title||'Lov', url:(this.ref) + "?lovid="+this.id+"&key="+encodeURIComponent(v), height:this.winheight||400,width:this.winwidth||400});
     	this.win.on('close',this.onWinClose,this);
     }
 });

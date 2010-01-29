@@ -4,7 +4,6 @@
 	cursor: default;	
 	background-repeat: repeat-x;	
 	white-space: nowrap;	
-	/*position: relative;*/		
 	height: 29px;
 }
 .item-toolbar div.sep {
@@ -15,7 +14,6 @@
 	width: 2px;	
 	margin-right: 1px;	
 	background-repeat: no-repeat;	
-	/*position: relative;*/	
 	top: 1px;	
 	height: 29px;	
 	moz-user-select: none
@@ -26,7 +24,6 @@
 	width:1px;
 	float:left;
 	border-left: #a4bed4 1px solid;	
-	/*position: absolute;*/		
 	top: 0px;	
 	height: 29px;	
 	moz-user-select: none;
@@ -35,8 +32,7 @@
 	width:1px;
 	float:right;
 	border-right: #a4bed4 1px solid;	
-	right: 0px;	
-	/*position: absolute;*/		
+	right: 0px;			
 	top: 0px;
 	height: 29px;	
 	moz-user-select: none;
@@ -45,8 +41,7 @@
 	left: 1px;
 	width:1px;
 	float:left;
-	border-left: #ffffff 1px solid;	
-	/* position: absolute;*/	
+	border-left: #ffffff 1px solid;		
 	top: 1px;	
 	height: 25px;	
 	moz-user-select: none;
@@ -56,7 +51,6 @@
 	float:right;
 	border-right: #ffffff 1px solid;	
 	right: 1px;	
-	/* position: absolute;	*/
 	top: 1px;	
 	height: 25px;	
 	moz-user-select: none;
@@ -69,6 +63,7 @@
 	padding-left:17px;
 }
 .item-toolbar .item-btn-icon-text button {
+	padding-left:16px !important;
 	padding-left:19px;
 }
 .item-toolbar .item-btn-tl,.item-toolbar .item-btn-tr,.item-toolbar .item-btn-tc,.item-toolbar .item-btn-ml,.item-toolbar .item-btn-mr,.item-toolbar .item-btn-mc,.item-toolbar .item-btn-bl,.item-toolbar .item-btn-br,.item-toolbar .item-btn-bc{
@@ -83,27 +78,6 @@
 .nav-prepage, .nav-prepage, .nav-prerecord, .nav-nextrecord, .nav-nextpage, .nav-refresh {
 	background-image:url(../toolbar/navigation.gif);
 }
-.nav-prepage{
-	background-position:0px 1px;
-}
-.nav-prerecord {
-	background-position:0px -31px;
-}
-.nav-nextrecord {
-	background-position:0px -46px;
-}
-.nav-nextpage {
-	background-position:0px -15px;
-}
-.nav-refresh {
-	background-position:0px -63px;
-}
-.grid-add {
-	background-image:url(../toolbar/add.gif);
-}
-.grid-delete {
-	background-image:url(../toolbar/delete.gif);
-}
-.grid-save {
-	background-image:url(../toolbar/save.gif);
+.grid-add,.grid-delete,.grid-save {
+	background-image:url(../toolbar/toolbar_btn.gif);
 }

@@ -1,4 +1,4 @@
-Aurora.WindowManager = function(){
+$A.WindowManager = function(){
     return {
         put : function(win){
         	if(!this.cache) this.cache = [];
@@ -36,20 +36,20 @@ Aurora.WindowManager = function(){
     };
 }();
 
-Aurora.Window = Ext.extend(Aurora.Component,{
+$A.Window = Ext.extend($A.Component,{
 	constructor: function(config) { 
-		if(Aurora.WindowManager.get(config.id))return;
+		if($A.WindowManager.get(config.id))return;
         this.draggable = true;
         this.closeable = true;
         this.modal = true;
         this.oldcmps = {};
         this.cmps = {};
-        Aurora.Window.superclass.constructor.call(this,config);
+        $A.Window.superclass.constructor.call(this,config);
     },
     initComponent : function(config){
-    	Aurora.Window.superclass.initComponent.call(this, config);
+    	$A.Window.superclass.initComponent.call(this, config);
     	var sf = this; 
-    	Aurora.WindowManager.put(sf);
+    	$A.WindowManager.put(sf);
     	var windowTpl = new Ext.Template(sf.getTemplate());
     	var shadowTpl = new Ext.Template(sf.getShadowTemplate());
     	sf.width = sf.width||350;sf.height=sf.height||400;
@@ -69,14 +69,14 @@ Aurora.Window = Ext.extend(Aurora.Component,{
         sf.center();
     },
     processListener: function(ou){
-    	Aurora.Window.superclass.processListener.call(this,ou);
+    	$A.Window.superclass.processListener.call(this,ou);
     	if(this.closeable) this.closeBtn[ou]("click", this.onClose,  this); 
     	this.wrap[ou]("click", this.toFront, this);
     	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
     	if(this.draggable)this.head.on('mousedown', this.onMouseDown,this);
     },
     initEvents : function(){
-    	Aurora.Window.superclass.initEvents.call(this);
+    	$A.Window.superclass.initEvents.call(this);
     	this.addEvents('close','load');    	
     },
     handleKeyDown : function(e){
@@ -94,8 +94,8 @@ Aurora.Window = Ext.extend(Aurora.Component,{
 		this.focusEl.focus();
 	},
     center: function(){
-    	var screenWidth = Aurora.getViewportWidth();
-    	var screenHeight = Aurora.getViewportHeight();
+    	var screenWidth = $A.getViewportWidth();
+    	var screenHeight = $A.getViewportHeight();
     	var x = (screenWidth - this.width)/2;
     	var y = (screenHeight - this.height)/2;
         this.wrap.moveTo(x,y);
@@ -143,12 +143,12 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     /**toFront**/
     toFront : function(){ 
     	var myzindex = this.wrap.getStyle('z-index');
-    	var zindex = Aurora.WindowManager.getZindex();
+    	var zindex = $A.WindowManager.getZindex();
     	if(myzindex =='auto') myzindex = 0;
     	if(myzindex < zindex) {
 	    	this.wrap.setStyle('z-index', zindex+5);
 	    	this.shadow.setStyle('z-index', zindex+4);
-	    	if(this.modal) Aurora.Mask.mask(this.wrap);
+	    	if(this.modal) $A.Mask.mask(this.wrap);
     	}
     },
     onMouseDown : function(e){
@@ -200,7 +200,7 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     	 this.close(); 	
     },
     close : function(){
-    	Aurora.WindowManager.remove(this);
+    	$A.WindowManager.remove(this);
     	this.destroy(); 
     	this.fireEvent('close', this)
     },
@@ -218,8 +218,8 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     	var wrap = this.wrap;
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
-    	if(this.modal) Aurora.Mask.unmask(this.wrap);
-    	Aurora.Window.superclass.destroy.call(this);
+    	if(this.modal) $A.Mask.unmask(this.wrap);
+    	$A.Window.superclass.destroy.call(this);
     	delete this.title;
     	delete this.head;
     	delete this.body;
@@ -229,7 +229,7 @@ Aurora.Window = Ext.extend(Aurora.Component,{
         this.shadow.remove();
     },
     load : function(url){
-    	var cmps = Aurora.CmpManager.getAll();
+    	var cmps = $A.CmpManager.getAll();
     	for(var key in cmps){
     		this.oldcmps[key] = cmps[key];
     	}
@@ -249,7 +249,7 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     	var html = response.responseText;
     	var sf = this
     	this.body.update(html,true,function(){
-	    	var cmps = Aurora.CmpManager.getAll();
+	    	var cmps = $A.CmpManager.getAll();
 	    	for(var key in cmps){
 	    		if(sf.oldcmps[key]==null){	    			
 	    			sf.cmps[key] = cmps[key];
@@ -259,19 +259,18 @@ Aurora.Window = Ext.extend(Aurora.Component,{
     	});
     }
 });
-Aurora.showMessage = function(title, msg){
-	return Aurora.showWindow(title, msg, 300, 100, 'win-alert');
+$A.showMessage = function(title, msg){
+	return $A.showWindow(title, msg, 300, 100, 'win-alert');
 }
-Aurora.hideWindow = function(){
-	var cmp = Aurora.CmpManager.get('aurora-msg')
+$A.hideWindow = function(){
+	var cmp = $A.CmpManager.get('aurora-msg')
 	if(cmp) cmp.close();
 }
-Aurora.showWindow = function(title, msg, width, height, cls){
+$A.showWindow = function(title, msg, width, height, cls){
 	cls = cls ||'';
-	var cmp = Aurora.CmpManager.get('aurora-msg')
+	var cmp = $A.CmpManager.get('aurora-msg')
 	if(cmp == null) {
-		cmp = new Aurora.Window({id:'aurora-msg',title:title, height:height,width:width});
-//		cmp.body.update('<div style="width:100%;height:100%;text-align:center;line-height:'+(height)+'px">'+msg+'</div>');
+		cmp = new $A.Window({id:'aurora-msg',title:title, height:height,width:width});	
 		cmp.body.update('<div class="'+cls+'">'+msg+'</div>');
 	}
 	return cmp;

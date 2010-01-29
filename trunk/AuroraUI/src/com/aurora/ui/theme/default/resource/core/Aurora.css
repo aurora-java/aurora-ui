@@ -116,15 +116,6 @@ a {color:#0069ca;text-decoration:none;}
 	background-color:#fff;
 	padding:3px;
 }
-/*
-.tip-arrow {
-	FILTER: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../src/com/aurora/ui/theme/default/resource/core/arrow.png', sizingMethod='scale'); 
-	FLOAT: none; 
-	MARGIN: 0px auto; 
-	WIDTH: 15px; 
-	HEIGHT: 12px
-}
-*/
 .item-shadow {
 	position:absolute;
 	FILTER: alpha(opacity=40);

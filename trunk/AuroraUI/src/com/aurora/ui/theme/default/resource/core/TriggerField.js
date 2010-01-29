@@ -1,9 +1,9 @@
-Aurora.TriggerField = Ext.extend(Aurora.TextField,{
+$A.TriggerField = Ext.extend($A.TextField,{
 	constructor: function(config) {
-        Aurora.TriggerField.superclass.constructor.call(this, config);
+        $A.TriggerField.superclass.constructor.call(this, config);
     },
     initComponent : function(config){
-    	Aurora.TriggerField.superclass.initComponent.call(this, config);
+    	$A.TriggerField.superclass.initComponent.call(this, config);
     	this.trigger = this.wrap.child('div[atype=triggerfield.trigger]'); 
     	this.initPopup();
     },
@@ -22,7 +22,7 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
     	this.initpopuped = true
     },
     initEvents : function(){
-    	Aurora.TriggerField.superclass.initEvents.call(this);    
+    	$A.TriggerField.superclass.initEvents.call(this);    
     	this.trigger.on('click',this.onTriggerClick, this, {preventDefault:true})
     },
     isExpanded : function(){ 
@@ -36,7 +36,7 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
 	},
     onFocus : function(){
     	if(this.readonly) return;
-        Aurora.TriggerField.superclass.onFocus.call(this);
+        $A.TriggerField.superclass.onFocus.call(this);
         if(!this.isExpanded())this.expand();
     },
     onBlur : function(){
@@ -47,7 +47,7 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
 //    	}
     },
     onKeyDown: function(e){
-    	Aurora.TriggerField.superclass.onKeyDown.call(this,e);
+    	$A.TriggerField.superclass.onKeyDown.call(this,e);
     	if(e.browserEvent.keyCode == 9 || e.keyCode == 27) {
         	if(this.isExpanded()){
 	    		this.collapse();
@@ -55,7 +55,7 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
         }
     },
     isEventFromComponent:function(el){
-    	var isfrom = Aurora.TriggerField.superclass.isEventFromComponent.call(this,el);
+    	var isfrom = $A.TriggerField.superclass.isEventFromComponent.call(this,el);
     	return isfrom || this.popup.contains(el);
     },
 	destroy : function(){
@@ -65,7 +65,7 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
     	this.trigger.un('click',this.onTriggerClick, this)
     	delete this.trigger;
     	delete this.popup;
-    	Aurora.TriggerField.superclass.destroy.call(this);
+    	$A.TriggerField.superclass.destroy.call(this);
 	},
     triggerBlur : function(e){
     	if(!this.popup.contains(e.target) && !this.wrap.contains(e.target)){    		
@@ -75,7 +75,7 @@ Aurora.TriggerField = Ext.extend(Aurora.TextField,{
         }
     },
     setVisible : function(v){
-    	Aurora.TriggerField.superclass.setVisible.call(this,v);
+    	$A.TriggerField.superclass.setVisible.call(this,v);
     	if(v == false && this.isExpanded()){
     		this.collapse();
     	}
