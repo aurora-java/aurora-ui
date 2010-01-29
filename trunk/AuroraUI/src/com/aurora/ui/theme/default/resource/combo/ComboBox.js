@@ -1,26 +1,26 @@
-Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {	
+$A.ComboBox = Ext.extend($A.TriggerField, {	
 	maxHeight:200,
 	blankOption:true,
 	rendered:false,
 	selectedClass:'item-comboBox-selected',	
 	currentNodeClass:'item-comboBox-current',
 	constructor : function(config) {
-		Aurora.ComboBox.superclass.constructor.call(this, config);		
+		$A.ComboBox.superclass.constructor.call(this, config);		
 	},
 	initComponent:function(config){
-		Aurora.ComboBox.superclass.initComponent.call(this, config);
+		$A.ComboBox.superclass.initComponent.call(this, config);
 		if(config.options) this.setOptions(config.options);		
 	},
 	initEvents:function(){
-		Aurora.ComboBox.superclass.initEvents.call(this);
+		$A.ComboBox.superclass.initEvents.call(this);
 		this.addEvents('select');
 	},
 	onTriggerClick : function() {
 		this.doQuery('',true);
-		Aurora.ComboBox.superclass.onTriggerClick.call(this);		
+		$A.ComboBox.superclass.onTriggerClick.call(this);		
 	},
 	onBlur : function(){
-		Aurora.ComboBox.superclass.onBlur.call(this);
+		$A.ComboBox.superclass.onBlur.call(this);
 		if(!this.isExpanded()) {
 			var raw = this.getRawValue();
 			var record = this.getRecordByDisplay(raw);
@@ -50,7 +50,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 		if(!this.optionDataSet)return;
 		if(this.rendered===false)this.initQuery();
 		this.correctViewSize();
-		Aurora.ComboBox.superclass.expand.call(this);
+		$A.ComboBox.superclass.expand.call(this);
 		var v = this.getValue();
 		this.currentIndex = this.getIndex(v);
 		if(!this.currentIndex) return;
@@ -62,7 +62,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 		}		
 	},
 	collapse:function(){
-		Aurora.ComboBox.superclass.collapse.call(this);
+		$A.ComboBox.superclass.collapse.call(this);
 		if(this.currentIndex!==undefined)
 		Ext.fly(this.getNode(this.currentIndex)).removeClass(this.currentNodeClass);		
 	},
@@ -102,7 +102,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 		var mw = this.wrap.getWidth();
 		for(var i=0;i<this.view.dom.childNodes.length;i++){
 			var li=this.view.dom.childNodes[i];
-			var width=Aurora.TextMetrics.measure(li,li.innerHTML).width;
+			var width=$A.TextMetrics.measure(li,li.innerHTML).width;
 			mw = Math.max(mw,width)||mw;
 		}
 		this.popup.setWidth(mw);
@@ -199,7 +199,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 			this.view.un('mousemove',this.onViewMove,this);
 		}
 		delete this.view;
-    	Aurora.ComboBox.superclass.destroy.call(this);
+    	$A.ComboBox.superclass.destroy.call(this);
 	},
 	getText : function() {		
 		return this.text;
@@ -224,7 +224,7 @@ Aurora.ComboBox = Ext.extend(Aurora.TriggerField, {
 //		return this.text;
 //	},
 	setValue: function(v, silent){
-        Aurora.ComboBox.superclass.setValue.call(this, v, silent);
+        $A.ComboBox.superclass.setValue.call(this, v, silent);
         //TODO: v是空的时候?
         if(this.record){
 			var field = this.record.getMeta().getField(this.binder.name);
