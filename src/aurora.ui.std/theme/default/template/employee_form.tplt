@@ -1,0 +1,14 @@
+<TABLE cellSpacing="0" cellPadding="0" >
+<TBODY>
+<TR height="25">
+	<TH scope="row" width="75">
+		<SPAN class="item-label" style="float:right">姓名:</SPAN>
+	</TH>
+	<TD width="150">${name}</TD>
+	<TH scope="row" width="75">
+		<SPAN class="item-label" style="float:right">年龄:</SPAN>
+	</TH>
+	<TD width="150">${age}</TD>
+</TR>
+</TBODY>
+</TABLE>

@@ -1,0 +1,6 @@
+<DIV class="${wrapClass}" style="width:${width}px;${style}" id="${id}">${options}</DIV>
+<script>
+    	new Aurora.Radio(${config});
+    	${events}
+		${binding}
+</script>
