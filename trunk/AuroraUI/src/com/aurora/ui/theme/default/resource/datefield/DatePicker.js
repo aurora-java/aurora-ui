@@ -37,7 +37,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     formatValue : function(date){
     	if(date instanceof Date) {
-    		return $A.formateDate(date);
+    		return Aurora.formateDate(date);
     	}else{
     		return date;
     	}

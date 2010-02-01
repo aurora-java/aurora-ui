@@ -423,7 +423,7 @@ $A.parseDate = function(str){
 	}      
   	return null;      
 }
-$A.formateDate = function(date){
+Aurora.formateDate = function(date){
 	if(!date)return '';
 	if(date.getFullYear){
 		return date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate()
@@ -431,7 +431,7 @@ $A.formateDate = function(date){
 		return date
 	}
 }
-$A.formateDateTime = function(date){
+Aurora.formateDateTime = function(date){
 	if(!date)return '';
 	if(date.getFullYear){
 		return date.getFullYear() + 
@@ -1655,6 +1655,10 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     setRequired : function(){},
     onDataChange : function(){}
 });
+/*
+ * TODO:Field不应该包含Input类型的特性,转移到InputField中去!
+ * CheckBox Radio应该集成此类,对于CheckBox,Radio不应该包含readonly,emptytext,invalid属性
+ */
 $A.Field = Ext.extend($A.Component,{	
 	validators: [],
 	requiredCss:'item-notBlank',
@@ -2002,7 +2006,6 @@ $A.Button = Ext.extend($A.Component,{
     }
 });
 $A.CheckBox = Ext.extend($A.Component,{
-	readOnly:false,	
 	checkedCss:'item-ckb-c',
 	uncheckedCss:'item-ckb-u',
 	readonyCheckedCss:'item-ckb-readonly-c',
@@ -2030,21 +2033,26 @@ $A.CheckBox = Ext.extend($A.Component,{
     },
 	onClick: function(event){
 		if(!this.readonly){
-			this.checked=this.checked?false:true;				
+			this.checked = this.checked ? false : true;				
 			this.setValue(this.checked);
-			this.fireEvent('click',this, this.checked);
+			this.fireEvent('click', this, this.checked);
 		}
 	},
 	setValue:function(v, silent){
 		if(typeof(v)==='boolean'){
 			this.checked=v?true:false;			
 		}else{
-			this.checked= v===this.checkedvalue ? true: false;
+			this.checked = v === this.checkedvalue ? true : false;
 		}
 		this.initStatus();
-		var value =this.checked==true?this.checkedvalue:this.uncheckedvalue;		
+		var value = this.checked==true ? this.checkedvalue : this.uncheckedvalue;		
 		$A.CheckBox.superclass.setValue.call(this,value, silent);
 	},
+	getValue : function(){
+    	var v= this.value;
+		v=(v === null || v === undefined ? '' : v);
+		return v;
+    },
 	setReadOnly:function(b){
 		if(typeof(b)==='boolean'){
 			this.readonly=b?true:false;	
@@ -2062,6 +2070,78 @@ $A.CheckBox = Ext.extend($A.Component,{
 			this.el.addClass(this.checked ? this.checkedCss : this.uncheckedCss);
 		}		
 	}			
+});
+$A.Radio = Ext.extend($A.Component, {
+	checkedCss:'item-radio-img-c',
+	uncheckedCss:'item-radio-img-u',
+	readonyCheckedCss:'item-radio-img-readonly-c',
+	readonlyUncheckedCss:'item-radio-img-readonly-u',
+//	optionCss:'item-radio-option',
+	imgCss:'item-radio-img',
+	constructor: function(config){
+		config.checked = config.checked || false;
+		config.readonly = config.readonly || false;
+		$A.Radio.superclass.constructor.call(this,config);		
+	},
+	initComponent:function(config){
+		$A.Radio.superclass.initComponent.call(this, config);
+		this.wrap=Ext.get(this.id);	
+		this.nodes = Ext.DomQuery.select('.item-radio-option',this.wrap.dom);
+	},	
+	processListener: function(ou){
+    	this.wrap[ou]('click',this.onClick,this);
+    },
+	initEvents:function(){
+		$A.Radio.superclass.initEvents.call(this); 	
+		this.addEvents('click');    
+	},
+	setValue:function(value,silent){
+		this.value = value;
+		this.initStatus();
+		$A.Radio.superclass.setValue.call(this,value, silent);
+	},
+	getValue : function(){
+    	var v= this.value;
+		v=(v === null || v === undefined ? '' : v);
+		return v;
+    },
+	setReadOnly:function(b){
+		if(typeof(b)==='boolean'){
+			this.readonly=b?true:false;	
+			this.initStatus();		
+		}
+	},
+	initStatus:function(){
+		var l=this.nodes.length;
+		for (var i = 0; i < l; i++) {
+			var node=Ext.fly(this.nodes[i]).child('.'+this.imgCss);		
+			node.removeClass(this.checkedCss);
+			node.removeClass(this.uncheckedCss);
+			node.removeClass(this.readonyCheckedCss);
+			node.removeClass(this.readonlyUncheckedCss);
+			var value = Ext.fly(this.nodes[i]).getAttributeNS("","itemvalue");
+			if((i==0 && this.value=='') || value === this.value){
+				this.readonly?node.addClass(this.readonyCheckedCss):node.addClass(this.checkedCss);				
+			}else{
+				this.readonly?node.addClass(this.readonlyUncheckedCss):node.addClass(this.uncheckedCss);		
+			}
+		}
+	},
+	onClick:function(e) {
+		if(!this.readonly){
+			var l=this.nodes.length;
+			for (var i = 0; i < l; i++) {
+				var node = Ext.fly(this.nodes[i]);
+				if(node.contains(e.target)){
+					var v = node.getAttributeNS("","itemvalue");
+					this.setValue(v);
+					this.fireEvent('click',this,v);
+					break;
+				}
+			}
+			
+		}		
+	}	
 });
 $A.TextField = Ext.extend($A.Field,{
 	constructor: function(config) {
@@ -2639,7 +2719,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     formatValue : function(date){
     	if(date instanceof Date) {
-    		return $A.formateDate(date);
+    		return Aurora.formateDate(date);
     	}else{
     		return date;
     	}

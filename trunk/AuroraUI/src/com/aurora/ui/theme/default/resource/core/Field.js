@@ -1,3 +1,7 @@
+/*
+ * TODO:Field不应该包含Input类型的特性,转移到InputField中去!
+ * CheckBox Radio应该集成此类,对于CheckBox,Radio不应该包含readonly,emptytext,invalid属性
+ */
 $A.Field = Ext.extend($A.Component,{	
 	validators: [],
 	requiredCss:'item-notBlank',

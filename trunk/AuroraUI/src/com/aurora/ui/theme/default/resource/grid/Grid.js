@@ -146,7 +146,7 @@ $A.Grid = Ext.extend($A.Component,{
 		var renderer = col.renderer
 		if(renderer){
 			var rder;
-			if(renderer.indexOf('$A.') != -1){
+			if(renderer.indexOf('Aurora.') != -1){
 				rder = $A[renderer.substr(7,renderer.length)]
 			}else{
 				rder = window[renderer];
