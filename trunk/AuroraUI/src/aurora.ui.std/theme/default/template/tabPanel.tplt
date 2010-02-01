@@ -1,0 +1,26 @@
+<TABLE cellSpacing="0" id="${id}" cellPadding="0" border="0" class="item-tab" style="width:${width}px;height:${height}px;${style}">
+	<TBODY>
+		<TR>
+			<TD align="center" atype="tab.strips">
+				${strips}
+			</TD>
+		</TR>
+		<TR>
+			<TD>
+				<div class="item-tab-body" atype="tab.bodys" style="width:${bodywidth}px;height:${bodyheight}px;">
+					${bodys}
+				</div>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<SCRIPT LANGUAGE="JavaScript">
+	new Aurora.Tab({
+		id:'${id}',
+		width:${width},
+		height:${height},
+		items:${items},
+		select:${selected}
+	});
+	${events}
+</SCRIPT>

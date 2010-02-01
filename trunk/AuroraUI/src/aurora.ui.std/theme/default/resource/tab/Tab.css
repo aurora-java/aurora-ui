@@ -1,0 +1,61 @@
+.item-tab {
+	/**z-index:20;**/
+}
+.item-tab .strip{
+	height:23px;
+	float:left;
+	white-space: nowrap;
+	overflow:hidden;
+	vertical-align:middle;
+	line-height:29px;
+	cursor:default;
+	-moz-user-select:none;
+}
+.item-tab .tab{
+	position:absolute;
+	left:-10000px;
+	top:-10000px;
+}
+.item-tab-body {
+	border:1px solid #cccccc;
+	position:relative;
+	overflow:auto;
+}
+.active{
+	position:relative;
+	top:1px;
+	z-index:1;
+	/****/
+}
+.strip .strip-left, .strip .strip-right{
+	float:left;
+	height:100%;
+	width:3px;
+	background-color:#ffffff;
+	
+}
+.strip .strip-center{
+	float:left;
+	height:100%;
+}
+
+.strip-left {
+	background:url(strip-over-both.png) left top;
+}
+.strip-right {
+	background:url(strip-over-both.png) right top;
+}
+.strip-center {
+	background:url(strip-over-center.png) repeat-x left top;
+	
+}
+.active .strip-left {
+	background:url(strip-active-both.png) left top;
+}
+.active .strip-right {
+	background:url(strip-active-both.png) right top;
+}
+.active .strip-center {
+	background:url(strip-active-center.png) repeat-x left top;
+	line-height:27px;
+}

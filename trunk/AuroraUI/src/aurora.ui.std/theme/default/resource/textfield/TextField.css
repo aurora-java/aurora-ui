@@ -1,0 +1,22 @@
+.item-textField {
+	float:left;  
+	border:0;  
+	height:19px; 
+	line-height:16px;
+	padding-top:1px;
+	padding-left:3px;
+	font-family:Tahoma,Geneva,sans-serif; 
+	font-size:12px;
+}
+.item-notBlank, .item-notBlank .item-textField{
+	background:#fff9c2;
+}
+.item-emptyText .item-textField{
+	color:#bbb !important;
+}
+.item-readOnly, .item-readOnly .item-textField {
+	background:#DBDBDB;
+}
+.item-invalid, .item-invalid .item-textField{
+	background:#FFB9AC;
+}
