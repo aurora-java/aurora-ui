@@ -423,7 +423,7 @@ $A.parseDate = function(str){
 	}      
   	return null;      
 }
-$A.formateDate = function(date){
+Aurora.formateDate = function(date){
 	if(!date)return '';
 	if(date.getFullYear){
 		return date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate()
@@ -431,7 +431,7 @@ $A.formateDate = function(date){
 		return date
 	}
 }
-$A.formateDateTime = function(date){
+Aurora.formateDateTime = function(date){
 	if(!date)return '';
 	if(date.getFullYear){
 		return date.getFullYear() + 
