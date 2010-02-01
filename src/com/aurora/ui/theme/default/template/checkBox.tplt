@@ -1,9 +1,0 @@
-<DIV class="${wrapClass}" style="${style}" id="${id}">
-	<DIV class="item-checkbox" atype="checkbox">
-    </DIV>
-</DIV>
-<script>
-    	new Aurora.CheckBox(${config});
-    	${events}
-		${binding}
-</script>
