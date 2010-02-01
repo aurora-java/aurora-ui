@@ -1,13 +1,13 @@
-.item-radio-img{
+.item-radio-img {
 	width:13px;
 	height:13px;
 	float:left;
 	font-size:0pt;
-    background-image: url('radio.gif');	
+    background-image: url(../radio/radio.gif);	
 	border:0;
 	vertical-align:	bottom;
 	margin-bottom:1px;	
-	margin-right:2px;
+	
 }
 .item-radio-img-u {
 	background-position:0px 0px;	
@@ -23,8 +23,7 @@
 }
 .item-radio-lb{	
 	text-align:left;
-	font-size:12px;	
 }
 .item-radio-option{	
-	margin-right:20px;
+	padding:3px;
 }
