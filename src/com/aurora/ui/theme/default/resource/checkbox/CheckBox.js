@@ -1,5 +1,4 @@
 $A.CheckBox = Ext.extend($A.Component,{
-	readOnly:false,	
 	checkedCss:'item-ckb-c',
 	uncheckedCss:'item-ckb-u',
 	readonyCheckedCss:'item-ckb-readonly-c',
@@ -27,21 +26,26 @@ $A.CheckBox = Ext.extend($A.Component,{
     },
 	onClick: function(event){
 		if(!this.readonly){
-			this.checked=this.checked?false:true;				
+			this.checked = this.checked ? false : true;				
 			this.setValue(this.checked);
-			this.fireEvent('click',this, this.checked);
+			this.fireEvent('click', this, this.checked);
 		}
 	},
 	setValue:function(v, silent){
 		if(typeof(v)==='boolean'){
 			this.checked=v?true:false;			
 		}else{
-			this.checked= v===this.checkedvalue ? true: false;
+			this.checked = v === this.checkedvalue ? true : false;
 		}
 		this.initStatus();
-		var value =this.checked==true?this.checkedvalue:this.uncheckedvalue;		
+		var value = this.checked==true ? this.checkedvalue : this.uncheckedvalue;		
 		$A.CheckBox.superclass.setValue.call(this,value, silent);
 	},
+	getValue : function(){
+    	var v= this.value;
+		v=(v === null || v === undefined ? '' : v);
+		return v;
+    },
 	setReadOnly:function(b){
 		if(typeof(b)==='boolean'){
 			this.readonly=b?true:false;	
