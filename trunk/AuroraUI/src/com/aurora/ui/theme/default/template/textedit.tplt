@@ -1,2 +1,0 @@
-<input type="${html.textedit.type}" id="${name}" name="${name}" size="${html.textedit.size}" class="${class}" value="${value}" ${attributes} ${html.event.handles}>
-<script>init_textedit('${name}');</script>
