@@ -1,6 +1,7 @@
 <class-registry>
 	<feature-attach elementName="separator" featureClass="aurora.presentation.component.std.Component" />
 	<feature-attach elementName="checkBox" featureClass="aurora.presentation.component.std.CheckBox" />
+	<feature-attach elementName="radio" featureClass="aurora.presentation.component.std.Radio" />
 	<feature-attach elementName="button" featureClass="aurora.presentation.component.std.Button" />
 	<feature-attach elementName="toolBar" featureClass="aurora.presentation.component.std.ToolBar" />
 	<feature-attach elementName="navBar" featureClass="aurora.presentation.component.std.NavBar" />
