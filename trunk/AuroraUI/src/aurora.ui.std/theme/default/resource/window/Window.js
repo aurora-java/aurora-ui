@@ -41,7 +41,7 @@ $A.Window = Ext.extend($A.Component,{
 		if($A.WindowManager.get(config.id))return;
         this.draggable = true;
         this.closeable = true;
-        this.modal = true;
+        this.modal = config.modal||true;
         this.oldcmps = {};
         this.cmps = {};
         $A.Window.superclass.constructor.call(this,config);
