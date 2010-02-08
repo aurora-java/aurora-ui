@@ -1,7 +1,0 @@
-<DIV class="${wrapClass}" style="${style}" id="${id}">	
-</DIV>
-<script>
-    	new Aurora.RadioGroup(${config});
-    	${events}
-		${binding}
-</script>

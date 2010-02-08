@@ -1,10 +1,6 @@
-<TABLE class="layout-table" style="${style}" cellSpacing="0" cellPadding="0" border="0">
+<TABLE class="${wrapClass}" style="${style}" cellSpacing="0" cellPadding="0" border="0">
 <TBODY>
-	<TR>
-		<TD>
-			${toolBar}
-		</TD>
-	</TR>
+	${toolBar}	
 	<TR>
 		<TD class="layout-td-cell">
 			<DIV class="item-grid" id="${id}" style="width:${width}px;height:${height}px;${gridstyle}">
@@ -22,11 +18,7 @@
 			</DIV>
 		</TD>
 	</TR>
-	<TR>
-		<TD>
-			${navbar}
-		</TD>
-	</TR>
+	${navbar}
 </TBODY>
 </TABLE>
 <SCRIPT LANGUAGE="JavaScript">
@@ -34,7 +26,6 @@
 		id:'${id}',
 		width:${width},
 		height:${height},
-		autoQuery:${autoquery},
 		columns:${columns}
 	});
 	$$('${id}').bind('${dataset}');
