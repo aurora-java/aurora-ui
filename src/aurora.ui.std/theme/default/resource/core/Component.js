@@ -105,7 +105,6 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     },
     onRefresh : function(ds){
     	if(this.isFireEvent == true || this.isHidden == true) return;
-//    	if(this.isHidden == true) return; 
     	this.clearInvalid();
 		this.rerender(ds.getCurrentRecord());
     },

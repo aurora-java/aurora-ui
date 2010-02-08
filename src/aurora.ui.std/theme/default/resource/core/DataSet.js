@@ -26,6 +26,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		this.loadData(config.datas);
     		//this.locate(this.currentIndex); //不确定有没有影响
     	}
+    	if(config.autoQuery === true) this.query();
     },
     destroy : function(){
     	$A.CmpManager.remove(this.id);
@@ -163,7 +164,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     create : function(data, valid){
     	this.fireEvent("beforecreate", this);
 //    	if(valid !== false) if(!this.validCurrent())return;
-    	var record = new $A.Record(data||{});
+    	var dd = {};
+    	for(var k in this.fields){
+    		var field = this.fields[k];
+    		var dv = field.getPropertity('defaultvalue');
+    		if(dv){
+    			dd[field.name] = dv;
+    		}
+    	}
+    	var data = Ext.apply(data||{},dd);
+    	var record = new $A.Record(data);
         this.add(record); 
         var index = (this.currentPage-1)*this.pageSize + this.data.length;
         this.locate(index, true);
@@ -375,11 +385,17 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     next : function(){
     	this.locate(this.currentIndex+1);
     },
+    firstPage : function(){
+    	this.goPage(1);
+    },
     prePage : function(){
     	this.goPage(this.currentPage -1);
     },
     nextPage : function(){
     	this.goPage(this.currentPage +1);
+    },
+    lastPage : function(){
+    	this.goPage(this.totalPage);
     },
     validate : function(fire){
     	this.isValid = true;

@@ -64,14 +64,18 @@ $A.CmpManager = function(){
 }();
 Ext.Ajax.on("requestexception", function(conn, response, options) {
 	$A.manager.fireEvent('ajaxerror', $A.manager, response.status, response);
+	if($A.logWindow){
+		$('HTTPWATCH_DATASET').getCurrentRecord().update('status',response.status);
+		$('HTTPWATCH_DATASET').getCurrentRecord().update('response',response.statusText);
+//		$A.logWindow.body.child('div[atype=sta]').update(response.status + ' ' + response.statusText);
+//		$A.logWindow.body.child('textarea[atype=res]').update(response.statusText);
+	}
 	switch(response.status){
 		case 404:
 			$A.showMessage('错误', '状态 404: 未找到"'+ response.statusText+'"');
-//			alert('状态 404: 未找到"'+ response.statusText+'"');
 			break;
 		default:
 			$A.showMessage('错误', '状态 '+ response.status + ' 服务器端错误!');
-//			alert('状态 '+ response.status + ' 服务器端错误!');
 			break;
 	}	
 }, this);
@@ -100,11 +104,23 @@ $A.getViewportWidth = function() {
 }
 $A.request = function(url, para, success, failed, scope){
 	$A.manager.fireEvent('ajaxstart', url, para);
+	if($A.logWindow){
+		$('HTTPWATCH_DATASET').create({url:url,request:Ext.util.JSON.encode({parameter:para})})
+//		$A.logWindow.body.child('div[atype=url]').update(url);
+//		$A.logWindow.body.child('textarea[atype=req]').update(Ext.util.JSON.encode({parameter:para}));
+	}
 	Ext.Ajax.request({
 			url: url,
 			method: 'POST',
 			params:{_request_data:Ext.util.JSON.encode({parameter:para})},
 			success: function(response){
+				if($A.logWindow){
+					$('HTTPWATCH_DATASET').getCurrentRecord().update(status,response.status);
+					$('HTTPWATCH_DATASET').getCurrentRecord().update(response,response.responseText);
+//					$A.logWindow.body.child('div[atype=sta]').update(response.status + ' ' + response.statusText);
+//					$A.logWindow.body.child('textarea[atype=res]').update(response.responseText);
+				}
+				
 				$A.manager.fireEvent('ajaxcomplete', url, para,response);
 				if(response && response.responseText){
 					var res = null;
@@ -592,4 +608,13 @@ $A.showValidTopMsg = function(ds) {
 		d.update(sb.join(''));
 		d.show(true);
 	}					
+}
+$A.showLog = function(){
+	if(!$A.logWindow) {
+		$A.logWindow = new $A.Window({modal:false, url:'log.screen',title:'Log', height:550,width:530});	
+		$A.logWindow.on('close',function(){
+			delete 	$A.logWindow;		
+		})
+	}
+	
 }

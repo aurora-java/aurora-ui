@@ -64,14 +64,16 @@ $A.CmpManager = function(){
 }();
 Ext.Ajax.on("requestexception", function(conn, response, options) {
 	$A.manager.fireEvent('ajaxerror', $A.manager, response.status, response);
+	if($A.logWindow){
+		$A.logWindow.body.child('div[atype=sta]').update(response.status + ' ' + response.statusText);
+		$A.logWindow.body.child('textarea[atype=res]').update(response.statusText);
+	}
 	switch(response.status){
 		case 404:
 			$A.showMessage('错误', '状态 404: 未找到"'+ response.statusText+'"');
-//			alert('状态 404: 未找到"'+ response.statusText+'"');
 			break;
 		default:
 			$A.showMessage('错误', '状态 '+ response.status + ' 服务器端错误!');
-//			alert('状态 '+ response.status + ' 服务器端错误!');
 			break;
 	}	
 }, this);
@@ -100,11 +102,20 @@ $A.getViewportWidth = function() {
 }
 $A.request = function(url, para, success, failed, scope){
 	$A.manager.fireEvent('ajaxstart', url, para);
+	if($A.logWindow){
+		$A.logWindow.body.child('div[atype=url]').update(url);
+		$A.logWindow.body.child('textarea[atype=req]').update(Ext.util.JSON.encode({parameter:para}));
+	}
 	Ext.Ajax.request({
 			url: url,
 			method: 'POST',
 			params:{_request_data:Ext.util.JSON.encode({parameter:para})},
 			success: function(response){
+				if($A.logWindow){
+					$A.logWindow.body.child('div[atype=sta]').update(response.status + ' ' + response.statusText);
+					$A.logWindow.body.child('textarea[atype=res]').update(response.responseText);
+				}
+				
 				$A.manager.fireEvent('ajaxcomplete', url, para,response);
 				if(response && response.responseText){
 					var res = null;
@@ -593,6 +604,15 @@ $A.showValidTopMsg = function(ds) {
 		d.show(true);
 	}					
 }
+$A.showLog = function(){
+	if(!$A.logWindow) {
+		$A.logWindow = new $A.Window({modal:false, url:'log.screen',title:'Log', height:550,width:530});	
+		$A.logWindow.on('close',function(){
+			delete 	$A.logWindow;		
+		})
+	}
+	
+}
 $A.AUTO_ID = 1000;
 $A.DataSet = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {//datas,fields, type
@@ -621,6 +641,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		this.loadData(config.datas);
     		//this.locate(this.currentIndex); //不确定有没有影响
     	}
+    	if(config.autoQuery === true) this.query();
     },
     destroy : function(){
     	$A.CmpManager.remove(this.id);
@@ -758,7 +779,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     create : function(data, valid){
     	this.fireEvent("beforecreate", this);
 //    	if(valid !== false) if(!this.validCurrent())return;
-    	var record = new $A.Record(data||{});
+    	var dd = {};
+    	for(var k in this.fields){
+    		var field = this.fields[k];
+    		var dv = field.getPropertity('defaultvalue');
+    		if(dv){
+    			dd[field.name] = dv;
+    		}
+    	}
+    	var data = Ext.apply(data||{},dd);
+    	var record = new $A.Record(data);
         this.add(record); 
         var index = (this.currentPage-1)*this.pageSize + this.data.length;
         this.locate(index, true);
@@ -970,11 +1000,17 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     next : function(){
     	this.locate(this.currentIndex+1);
     },
+    firstPage : function(){
+    	this.goPage(1);
+    },
     prePage : function(){
     	this.goPage(this.currentPage -1);
     },
     nextPage : function(){
     	this.goPage(this.currentPage +1);
+    },
+    lastPage : function(){
+    	this.goPage(this.totalPage);
     },
     validate : function(fire){
     	this.isValid = true;
@@ -1576,7 +1612,6 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     },
     onRefresh : function(ds){
     	if(this.isFireEvent == true || this.isHidden == true) return;
-//    	if(this.isHidden == true) return; 
     	this.clearInvalid();
 		this.rerender(ds.getCurrentRecord());
     },
@@ -1878,7 +1913,6 @@ $A.Field = Ext.extend($A.Component,{
         }
     },
     setRawValue : function(v){
-//    	if(this.binder.name=='mgr_name') alert(v)
         return this.el.dom.value = (v === null || v === undefined ? '' : v);
     },
     reset : function(){
@@ -1941,6 +1975,29 @@ $A.Box = Ext.extend($A.Component,{
     	}
     }
 });
+$A.Label = Ext.extend($A.Component,{
+    onUpdate : function(ds, record, name, value){
+    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase()){
+	    	this.update(record,name,value);
+    	}
+    },
+    rerender : function(record){
+    	this.record = record;
+    	if(this.record) {
+			var value = this.record.get(this.binder.name);
+			this.update(this.record,this.binder.name,value);
+    	}
+    },
+    update: function(record,name,value){
+    	if(value){
+	    	if(this.renderer){
+	    		var rder = window[this.renderer]
+	    		value = rder.call(window,value,record, name);
+	    	}
+	    	this.wrap.update(value);
+    	}
+    }
+});
 $A.Button = Ext.extend($A.Component,{
 	disableCss:'item-btn-disabled',
 	overCss:'item-btn-over',
@@ -1957,8 +2014,8 @@ $A.Button = Ext.extend($A.Component,{
     },
     processListener: function(ou){
     	$A.Button.superclass.processListener.call(this,ou);
-    	this.el[ou]("click", this.onClick,  this);
-        this.el[ou]("mousedown", this.onMouseDown,  this);
+    	this.wrap[ou]("click", this.onClick,  this);
+        this.wrap[ou]("mousedown", this.onMouseDown,  this);
     },
     initEvents : function(){
     	$A.Button.superclass.initEvents.call(this);
@@ -2120,7 +2177,7 @@ $A.Radio = Ext.extend($A.Component, {
 			node.removeClass(this.readonyCheckedCss);
 			node.removeClass(this.readonlyUncheckedCss);
 			var value = Ext.fly(this.nodes[i]).getAttributeNS("","itemvalue");
-			if((i==0 && this.value=='') || value === this.value){
+			if((i==0 && this.value == '') || value === this.value){
 				this.readonly?node.addClass(this.readonyCheckedCss):node.addClass(this.checkedCss);				
 			}else{
 				this.readonly?node.addClass(this.readonlyUncheckedCss):node.addClass(this.uncheckedCss);		
@@ -2747,6 +2804,65 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	$A.DatePicker.superclass.destroy.call(this);
 	}
 });
+$A.ToolBar = Ext.extend($A.Component,{
+	constructor: function(config) {
+        $A.ToolBar.superclass.constructor.call(this, config);        
+    },
+    initComponent : function(config){
+    	$A.ToolBar.superclass.initComponent.call(this, config);    	
+    },
+    initEvents : function(){
+    	$A.ToolBar.superclass.initEvents.call(this); 
+    }
+})
+//TODO:多语言
+$A.NavBar = Ext.extend($A.ToolBar,{
+	constructor: function(config) {
+        $A.NavBar.superclass.constructor.call(this, config);        
+    },
+    initComponent : function(config){
+    	$A.NavBar.superclass.initComponent.call(this, config);
+    	this.dataSet = $(this.dataSet);
+    	this.pageInput = $(this.inputId);
+    	this.pageInfo = Ext.get(this.pageId);
+    	this.navInfo = Ext.get(this.infoId);
+    	this.pageInput.setValue(1)
+    },
+    processListener: function(ou){
+    	$A.NavBar.superclass.processListener.call(this,ou);
+    	this.dataSet[ou]('load', this.onLoad,this);
+    	this.pageInput[ou]('keydown', this.onInputKeyPress, this);
+    },
+    initEvents : function(){
+    	$A.NavBar.superclass.initEvents.call(this);    	
+    },
+    onLoad : function(){
+    	this.pageInput.setValue(this.dataSet.currentPage);
+    	this.pageInfo.update('共' + this.dataSet.totalPage + '页');
+    	this.navInfo.update(this.creatNavInfo());
+    },
+    creatNavInfo : function(){
+    	var from = ((this.dataSet.currentPage-1)*this.dataSet.pageSize+1);
+    	var to = this.dataSet.currentPage*this.dataSet.pageSize;
+    	if(to>this.dataSet.totalCount) to = this.dataSet.totalCount;
+    	if(to==0) from =0;
+    	return '显示 ' + from + ' - ' + to + ',共 ' + this.dataSet.totalCount + ' 条';
+    },
+    onInputKeyPress : function(input, e){
+    	if(e.keyCode == 13){
+    		var page = parseInt(input.getRawValue());
+    		if(isNaN(page)){
+    			input.setValue(this.dataSet.currentPage);
+    		}else{
+    			if(page>0 && page<=this.dataSet.totalPage) {
+    				this.dataSet.goPage(page);
+    			}else{
+    				input.setValue(this.dataSet.currentPage);
+    			}
+    		}
+    	}    	
+    }
+})
 $A.WindowManager = function(){
     return {
         put : function(win){
@@ -2790,7 +2906,7 @@ $A.Window = Ext.extend($A.Component,{
 		if($A.WindowManager.get(config.id))return;
         this.draggable = true;
         this.closeable = true;
-        this.modal = true;
+        this.modal = config.modal||true;
         this.oldcmps = {};
         this.cmps = {};
         $A.Window.superclass.constructor.call(this,config);
