@@ -14,8 +14,8 @@ $A.Button = Ext.extend($A.Component,{
     },
     processListener: function(ou){
     	$A.Button.superclass.processListener.call(this,ou);
-    	this.el[ou]("click", this.onClick,  this);
-        this.el[ou]("mousedown", this.onMouseDown,  this);
+    	this.wrap[ou]("click", this.onClick,  this);
+        this.wrap[ou]("mousedown", this.onMouseDown,  this);
     },
     initEvents : function(){
     	$A.Button.superclass.initEvents.call(this);

@@ -34,6 +34,11 @@ a {color:#0069ca;text-decoration:none;}
 	HEIGHT: 20px;
 	
 }
+.item-label {
+	HEIGHT: 20px;
+	line-height:20px;
+	vertical-align:middle;
+}
 .item-focus {
 	border:1px solid blue;
 	background-color:#e2f7ff;
@@ -129,7 +134,10 @@ a {color:#0069ca;text-decoration:none;}
 /** 布局 **/
 .layout-table {
 }
-.layout-td-cell, .layout-td-con{
+.layout-title {
+	border:1px solid #cccccc;
+}
+.layout-td-con { /*.layout-td-cell,*/
 	vertical-align:top;
 }
 
