@@ -1,4 +1,4 @@
-<TABLE cellSpacing="0" id="${id}" cellPadding="0" border="0" class="item-tab" style="width:${width}px;height:${height}px;${style}">
+<TABLE cellSpacing="0" id="${id}" cellPadding="0" border="0" class="${wrapClass}" style="width:${width}px;height:${height}px;${style}">
 	<TBODY>
 		<TR>
 			<TD align="center" atype="tab.strips">

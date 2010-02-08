@@ -9,6 +9,7 @@ new Aurora.DataSet({
 	fetchAll:${fecthall},
 	pageSize:${pagesize},
 	autoCount:${autocount},
+	autoQuery:${autoquery},
 	pageid:'${pageid}'
 });
 ${events}
