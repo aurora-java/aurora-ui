@@ -46,18 +46,15 @@ $A.Grid = Ext.extend($A.Component,{
 		this.ub[ou]('dblclick',this.onDblclick, this);
 		this.uht[ou]('mousemove',this.onUnLockHeadMove, this);
 		this.uh[ou]('mousedown', this.onHeadMouseDown,this);
-
 		if(this.lb){
 			this.lb[ou]('click',this.onClick, this);
 			this.lb[ou]('dblclick',this.onDblclick, this);
 		}
-		
 		if(this.lht) this.lht[ou]('mousemove',this.onLockHeadMove, this);
 		if(this.lh) this.lh[ou]('mousedown', this.onHeadMouseDown,this);
 	},
 	initEvents:function(){
 		$A.Grid.superclass.initEvents.call(this);
-//		this.processListener('on');
 	},
 	syncScroll : function(){
 		this.hideEditor();
@@ -110,8 +107,6 @@ $A.Grid = Ext.extend($A.Component,{
 		this.dataset = ds;
 		this.processDataSetLiestener('on');
     	this.onLoad();
-		if(this.autoQuery == true)
-		ds.query();
 	},
 	initTemplate : function(){
 		this.cellTpl = new Ext.Template('<TD style="visibility:{visibility};text-align:{align}" dataindex="{dataindex}"><div class="grid-cell {cellcls}" id="'+this.id+'_{dataindex}_{recordid}" dataindex="{dataindex}" recordid="{recordid}">{text}</div></TD>');		

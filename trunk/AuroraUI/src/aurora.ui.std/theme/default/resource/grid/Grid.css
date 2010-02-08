@@ -1,6 +1,8 @@
-.item-grid {		
+.item-grid-wrap {
 	background-color: #ffffff;
 	border:1px solid #cccccc;/*a4bed4*/
+}
+.item-grid {		
 	/*position:relative;*/
 }
 .grid-lh, .grid-uh {

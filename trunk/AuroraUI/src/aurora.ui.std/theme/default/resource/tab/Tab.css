@@ -40,22 +40,22 @@
 }
 
 .strip-left {
-	background:url(strip-over-both.png) left top;
+	background:url(../tab/strip-over-both.png) left top;
 }
 .strip-right {
-	background:url(strip-over-both.png) right top;
+	background:url(../tab/strip-over-both.png) right top;
 }
 .strip-center {
-	background:url(strip-over-center.png) repeat-x left top;
+	background:url(../tab/strip-over-center.png) repeat-x left top;
 	
 }
 .active .strip-left {
-	background:url(strip-active-both.png) left top;
+	background:url(../tab/strip-active-both.png) left top;
 }
 .active .strip-right {
-	background:url(strip-active-both.png) right top;
+	background:url(../tab/strip-active-both.png) right top;
 }
 .active .strip-center {
-	background:url(strip-active-center.png) repeat-x left top;
+	background:url(../tab/strip-active-center.png) repeat-x left top;
 	line-height:27px;
 }
