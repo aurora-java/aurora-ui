@@ -1,5 +1,6 @@
 .item-toolbar {	
 	background-image: url(../toolbar/toolbar_bg.gif);	
+	border:1px solid #cccccc;
 	overflow: hidden;	
 	cursor: default;	
 	background-repeat: repeat-x;	
@@ -18,42 +19,6 @@
 	height: 29px;	
 	moz-user-select: none
 	width:2px;
-}
-.item-toolbar div.tb-ll {	
-	left: 0px;	
-	width:1px;
-	float:left;
-	border-left: #a4bed4 1px solid;	
-	top: 0px;	
-	height: 29px;	
-	moz-user-select: none;
-}
-.item-toolbar div.tb-rr {	
-	width:1px;
-	float:right;
-	border-right: #a4bed4 1px solid;	
-	right: 0px;			
-	top: 0px;
-	height: 29px;	
-	moz-user-select: none;
-}
-.item-toolbar div.tb-l {	
-	left: 1px;
-	width:1px;
-	float:left;
-	border-left: #ffffff 1px solid;		
-	top: 1px;	
-	height: 25px;	
-	moz-user-select: none;
-}
-.item-toolbar div.tb-r {
-	width:1px;	
-	float:right;
-	border-right: #ffffff 1px solid;	
-	right: 1px;	
-	top: 1px;	
-	height: 25px;	
-	moz-user-select: none;
 }
 .item-toolbar .item-btn button {
 	padding-left:1px;
@@ -75,7 +40,12 @@
 .item-btn-pressed .item-btn-tl,.item-btn-pressed .item-btn-tr,.item-btn-pressed .item-btn-tc,.item-btn-pressed .item-btn-ml,.item-btn-pressed .item-btn-mr,.item-btn-pressed .item-btn-mc,.item-btn-pressed .item-btn-bl,.item-btn-pressed .item-btn-br,.item-btn-pressed .item-btn-bc{
 	background-image:url(../button/btn.gif);
 }
-.nav-prepage, .nav-prepage, .nav-prerecord, .nav-nextrecord, .nav-nextpage, .nav-refresh {
+.nav-label {
+	height:20px;
+	line-height:20px;
+	text-align:center;
+}
+.nav-prepage, .nav-prepage, .nav-firstpage, .nav-lastpage, .nav-nextpage, .nav-refresh {
 	background-image:url(../toolbar/navigation.gif);
 }
 .grid-add,.grid-delete,.grid-save {
