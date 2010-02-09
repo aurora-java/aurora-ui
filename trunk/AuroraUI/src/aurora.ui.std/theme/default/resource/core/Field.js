@@ -14,9 +14,12 @@ $A.Field = Ext.extend($A.Component,{
 		config.readonly = config.readonly || false;
         $A.Field.superclass.constructor.call(this, config);
     },
+    initElements : function(){
+    	this.el = this.wrap.child('input[atype=field.input]'); 
+    },
     initComponent : function(config){
     	$A.Field.superclass.initComponent.call(this, config);
-        this.el = this.wrap.child('input[atype=field.input]'); 
+    	this.initElements();
     	this.originalValue = this.getValue();
     	this.applyEmptyText();
     	this.initStatus();
@@ -87,6 +90,7 @@ $A.Field = Ext.extend($A.Component,{
 //      this.fireEvent("keydown", this, e);
 //    },
     onFocus : function(e){
+        (Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
     	if(this.readonly) return;
         if(!this.hasFocus){
             this.hasFocus = true;
@@ -98,7 +102,6 @@ $A.Field = Ext.extend($A.Component,{
 	            this.wrap.removeClass(this.emptyTextCss);
 	        }
 	        this.wrap.addClass(this.focusCss);
-            this.select();
             this.fireEvent("focus", this);
         }
     },

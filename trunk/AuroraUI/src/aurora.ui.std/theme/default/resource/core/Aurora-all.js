@@ -65,8 +65,13 @@ $A.CmpManager = function(){
 Ext.Ajax.on("requestexception", function(conn, response, options) {
 	$A.manager.fireEvent('ajaxerror', $A.manager, response.status, response);
 	if($A.logWindow){
-		$A.logWindow.body.child('div[atype=sta]').update(response.status + ' ' + response.statusText);
-		$A.logWindow.body.child('textarea[atype=res]').update(response.statusText);
+		var record = $('HTTPWATCH_DATASET').getCurrentRecord();
+		var st = $A['_startTime'];
+		var ed = new Date();					
+		record.set('spend',ed-st);
+		record.set('status',response.status);
+		record.set('result',response.statusText);
+		record.set('response',response.statusText);
 	}
 	switch(response.status){
 		case 404:
@@ -103,8 +108,8 @@ $A.getViewportWidth = function() {
 $A.request = function(url, para, success, failed, scope){
 	$A.manager.fireEvent('ajaxstart', url, para);
 	if($A.logWindow){
-		$A.logWindow.body.child('div[atype=url]').update(url);
-		$A.logWindow.body.child('textarea[atype=req]').update(Ext.util.JSON.encode({parameter:para}));
+		$A['_startTime'] = new Date();
+		$('HTTPWATCH_DATASET').create({'url':url,'request':Ext.util.JSON.encode({parameter:para})})
 	}
 	Ext.Ajax.request({
 			url: url,
@@ -112,8 +117,13 @@ $A.request = function(url, para, success, failed, scope){
 			params:{_request_data:Ext.util.JSON.encode({parameter:para})},
 			success: function(response){
 				if($A.logWindow){
-					$A.logWindow.body.child('div[atype=sta]').update(response.status + ' ' + response.statusText);
-					$A.logWindow.body.child('textarea[atype=res]').update(response.responseText);
+					var st = $A['_startTime'];
+					var ed = new Date();					
+					var record = $('HTTPWATCH_DATASET').getCurrentRecord();
+					record.set('spend',ed-st);
+					record.set('result',response.statusText);
+					record.set('status',response.status);
+					record.set('response',response.responseText);
 				}
 				
 				$A.manager.fireEvent('ajaxcomplete', url, para,response);
@@ -604,15 +614,16 @@ $A.showValidTopMsg = function(ds) {
 		d.show(true);
 	}					
 }
-$A.showLog = function(){
-	if(!$A.logWindow) {
-		$A.logWindow = new $A.Window({modal:false, url:'log.screen',title:'Log', height:550,width:530});	
-		$A.logWindow.on('close',function(){
-			delete 	$A.logWindow;		
-		})
+Ext.get(document.documentElement).on('keydown',function(e){
+	if(e.shiftKey&&e.keyCode == 76){
+		if(!$A.logWindow) {
+			$A.logWindow = new $A.Window({modal:false, url:'log.screen',title:'AjaxWatch', height:550,width:530});	
+			$A.logWindow.on('close',function(){
+				delete 	$A.logWindow;		
+			})
+		}
 	}
-	
-}
+})
 $A.AUTO_ID = 1000;
 $A.DataSet = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {//datas,fields, type
@@ -1706,9 +1717,12 @@ $A.Field = Ext.extend($A.Component,{
 		config.readonly = config.readonly || false;
         $A.Field.superclass.constructor.call(this, config);
     },
+    initElements : function(){
+    	this.el = this.wrap.child('input[atype=field.input]'); 
+    },
     initComponent : function(config){
     	$A.Field.superclass.initComponent.call(this, config);
-        this.el = this.wrap.child('input[atype=field.input]'); 
+    	this.initElements();
     	this.originalValue = this.getValue();
     	this.applyEmptyText();
     	this.initStatus();
@@ -1779,6 +1793,7 @@ $A.Field = Ext.extend($A.Component,{
 //      this.fireEvent("keydown", this, e);
 //    },
     onFocus : function(e){
+        (Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
     	if(this.readonly) return;
         if(!this.hasFocus){
             this.hasFocus = true;
@@ -1790,7 +1805,6 @@ $A.Field = Ext.extend($A.Component,{
 	            this.wrap.removeClass(this.emptyTextCss);
 	        }
 	        this.wrap.addClass(this.focusCss);
-            this.select();
             this.fireEvent("focus", this);
         }
     },
@@ -3248,3 +3262,27 @@ $A.Lov = Ext.extend($A.TextField,{
     	this.win.on('close',this.onWinClose,this);
     }
 });
+$A.TextArea = Ext.extend($A.Field,{
+	constructor: function(config) {
+        $A.TextArea.superclass.constructor.call(this, config);        
+    },
+    initComponent : function(config){
+    	$A.TextArea.superclass.initComponent.call(this, config); 		
+    },
+    initEvents : function(){
+    	$A.TextArea.superclass.initEvents.call(this);    	
+    },
+    initElements : function(){
+    	this.el= this.wrap;
+    },
+    setRawValue : function(v){
+        this.el.update(v === null || v === undefined ? '' : v);
+    },
+    getRawValue : function(){
+        var v = this.el.dom.innerHTML;
+        if(v === this.emptytext || v === undefined){
+            v = '';
+        }
+        return v;
+    }
+})
