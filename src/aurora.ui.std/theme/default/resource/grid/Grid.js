@@ -139,7 +139,7 @@ $A.Grid = Ext.extend($A.Component,{
 	renderText : function(record,name,value){
 		var col = this.getColByDataIndex(name);
 		var renderer = col.renderer
-		if(renderer){
+		if(renderer&&!Ext.isEmpty(value)){
 			var rder;
 			if(renderer.indexOf('Aurora.') != -1){
 				rder = $A[renderer.substr(7,renderer.length)]

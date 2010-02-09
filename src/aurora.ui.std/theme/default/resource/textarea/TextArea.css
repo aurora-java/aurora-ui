@@ -1,0 +1,13 @@
+.item-textarea {
+	border:1px solid #cccccc;
+	resize: none;
+	
+	/*
+	font-size:11px;
+	font-family: sans-serif !important;
+	font-family: tahoma, arial, sans-serif,helvetica;
+	*/
+}
+.ext-gecko .item-textarea,.ext-safari .item-textarea,.ext-gecko3 .item-textarea{
+	font-size:12px;
+}
