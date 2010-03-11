@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view template="default" package="com.aurora.ui">
+    	<dataSet id="HTTPWATCH_DATASET">
+    		<fields>
+    			<field name="request" readOnly="true"/>
+    			<field name="response" readOnly="true"/>
+    			<field name="url" readOnly="true"/>
+    		</fields>
+		</dataSet>
+		<script>
+		<![CDATA[
+			//Safari下不这样写,从window中找不到
+			//window._spendRenderer = function(value,record, name){
+			//	return value+'ms';
+			//}
+			function _spendRenderer(value,record, name){
+				return value+'ms';
+			}
+		]]>
+		</script>
+    	<vBox>
+    		<grid dataSet="HTTPWATCH_DATASET" style="margin:10px" width="470" height="200">
+				<columns>
+					<column dataIndex="status" width="60" prompt="status"/>
+					<column dataIndex="result" width="60" prompt="result"/>
+					<column dataIndex="spend" width="60" prompt="spend"  renderer="_spendRenderer"/>
+					<column dataIndex="url" width="250" prompt="url"/>
+				</columns>
+			</grid>
+			<textArea name="url" style="margin-left:10px;" width="470" height="40" bindTarget="HTTPWATCH_DATASET"/>
+			<tabPanel width="470" height="250" style="margin-left:10px">
+	    		<tab selected="true" prompt="Request" width="100">
+	    			<textArea name="request" style="margin:5px;" width="450" height="200" bindTarget="HTTPWATCH_DATASET"/>
+	    		</tab>
+	    		<tab prompt="Response" width="100">
+	    			<textArea name="response" style="margin:5px;" width="450" height="200" bindTarget="HTTPWATCH_DATASET"/>
+	    		</tab>
+	    	</tabPanel>
+    	</vBox>
+    </a:view>
+</a:screen>
