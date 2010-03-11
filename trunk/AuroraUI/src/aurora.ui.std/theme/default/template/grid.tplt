@@ -25,6 +25,8 @@
 	new Aurora.Grid({
 		id:'${id}',
 		width:${width},
+		selectable:${selectable},
+		selectionmodel:'${selectionmodel}',
 		height:${height},
 		columns:${columns}
 	});

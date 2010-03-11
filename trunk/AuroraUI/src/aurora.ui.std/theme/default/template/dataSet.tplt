@@ -10,6 +10,8 @@ new Aurora.DataSet({
 	pageSize:${pagesize},
 	autoCount:${autocount},
 	autoQuery:${autoquery},
+	selectable:${selectable},
+	selectionmodel:'${selectionmodel}',
 	pageid:'${pageid}'
 });
 ${events}
