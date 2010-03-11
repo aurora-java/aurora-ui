@@ -18,6 +18,9 @@ $A.Radio = Ext.extend($A.Component, {
 	processListener: function(ou){
     	this.wrap[ou]('click',this.onClick,this);
     },
+    focus : function(){
+    	
+    },
 	initEvents:function(){
 		$A.Radio.superclass.initEvents.call(this); 	
 		this.addEvents('click');    
