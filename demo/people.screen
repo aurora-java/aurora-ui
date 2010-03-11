@@ -20,6 +20,16 @@
 			<datePicker name="hiredate" prompt="hiredate" bindTarget="GRID_DS" width="150"/>
 			<comboBox name="dname" prompt="dept" bindTarget="GRID_DS" width="150"/>
 			<textField name="sal" prompt="sal" bindTarget="GRID_DS" width="150"/>
+			<radio prompt="性别" name="gender" bindTarget="GRID_DS">
+				<items>
+					<item label="男" value="M"/>
+					<item label="女" value="F"/>
+				</items>
+			</radio>
+			<hBox prompt="test">
+				<checkBox name="test1" label="TEST1" bindTarget="GRID_DS"/>
+				<checkBox name="test2" label="TEST2" bindTarget="GRID_DS"/>
+			</hBox>
 		</vBox>
 		<hBox style="margin:10px;" width="250">
 			<button text="上一条" click="prerow" style="float:right"/>

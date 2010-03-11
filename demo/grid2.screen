@@ -6,81 +6,18 @@
     <a:view template="default" package="com.aurora.ui">
     	<script>
 		<![CDATA[
-			Aurora.setValidInfoType('tip'); 
-			/*Aurora.regEvent('valid',function(manager, ds, valid){
-				 alert(1)
-			})
-			*/
-			
-			/*
-			Aurora.regEvent('ajaxstart',function(){
-				 Aurora.showWindow('提示','正在提交...',200,100)
-			})
-			Aurora.regEvent('ajaxcomplete',function(){
-				Aurora.hideWindow()
-			})
-			*/
-			
-			function onDblclick(grid,record,row,index){
-				new Aurora.Window({id:'win2', url:'people.screen', title:'更新', height:250,width:300});
-			}
-			
-			
-			var i = 0;			
-			function showEditor(){
-				var name;
-				i++;
-				if(i%2 == 0){
-					name = 'hiredate'
-				}else{
-					name = 'deptno'
-				}
-				
-				$$('datagrid').showEditor(Math.ceil(10*Math.random()),name)
-			}	
-					
-			function changeEditor(record){
-				var sal = record.get('sal');
-				if(sal > 1500){
-					return "tf"
-				}else{
-					return ""
-				}
-			}
-			
-			function onCommit(lov,v,t,r){
-				var record = $$('GRID_DS').getCurrentRecord();
-				record.set('sal',v);
-			}
-			
-			function onSelect(dp,v){
-				if(v < 20){
-					$$('datagrid').setEditor('job','lov');
-				}else{
-					$$('datagrid').setEditor('job','');
-				}
-			}
-			
-			function validate(){
-				$$('GRID_DS').validate();
-			}
 			
 			function query(){
 				$$('GRID_DS').query()
 			}
 			
-			function onUpdate(ds,record,name,value){
-				if(name=='deptno'){
-					if(value == 9 || value==10){
-						record.getMeta().getField('job').setRequired(true);	
-					}else{
-						record.getMeta().getField('job').setRequired(false);
-					}
-				}
-			}
 			
 			function onSuccess(){
 				Aurora.showMessage('成功', '操作成功!');
+			}
+			
+			function renderer(value,record, name){
+				return '<font color="red">'+value+'</font>';
 			}
 			
 		]]>
@@ -91,14 +28,17 @@
 			<dataSet id="DEPT_DS">
 				<datas dataSource="/model/DEPT-LIST"/>
 			</dataSet>
-			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="10" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
 				<fields>
-					<field name="mgr_name" required="true" title="选择MGR" winWidth="350" winHeight="450" ref="search.screen">
+					<field name="mgr_name" required="true" title="选择MGR" winWidth="360" winHeight="460" ref="search.screen">
 						<mapping>
 							<map from="empno" to="mgr"/>
 							<map from="ename" to="mgr_name"/>
 						</mapping>
 					</field>
+					<field name="gender" defaultValue="M"/>
+					<field name="test1" defaultValue="N" checkedValue="Y" uncheckedValue="N"/>
+					<field name="test2" defaultValue="N" checkedValue="Y" uncheckedValue="N"/>
 					<field name="ename" required="true"/>
 					<field name="hiredate" datatype="date" required="true"/>
 					<field name="dname" required="true" options="DEPT_DS" displayField="dname" valueField="deptno">
@@ -109,13 +49,12 @@
 					</field>				 				
 				</fields>
 				<events>
-					<event name="update" handler="onUpdate"/>
 					<event name="submitsuccess" handler="onSuccess"/>
 				</events>
 			</dataSet>
 		</dataSets>
 		<hBox>
-			<vBox labelWidth="50" width="350" className="mytable" title="查询Form" style="border:1px solid #cccccc;margin:10px;">
+			<vBox labelWidth="50" width="350" className="mytable" title="查询Form" style="margin:10px;">
 				<textField name="empno" prompt="empno" bindTarget="QUERY_DS" width="150" />
 				<textField name="ename" prompt="ename" bindTarget="QUERY_DS" validAlign="bottom" width="150"/>
 			</vBox>
@@ -125,23 +64,26 @@
 			<button text="查询" click="query"/>
 		</hBox>
 		<hBox width="800" style="margin:10px;">
-			<grid id="datagrid" dataSet="GRID_DS" width="700" height="330" navBar="true">
+			<grid id="datagrid" dataSet="GRID_DS" width="700" height="330" navBar="true"  selectable="true">
 				<toolBar>
 					<button type="add"/>
 					<button type="delete"/>
-					<button type="save"/>/>
+					<button type="save"/>
 					<separator/>
-					<button icon="images/open.gif" text="test" click="onSuccess"/>
+					<button icon="images/add16.gif" text="test" click="onSuccess"/>
 				</toolBar>
 				<columns>
-					<column dataIndex="empno" lock="true" width="50" prompt="empno"/>
-					<column dataIndex="ename" editor="tf" width="100" prompt="ename"/>
+					<column dataIndex="empno"  width="50" prompt="empno"/>
+					<column dataIndex="ename" editor="tf" width="90" prompt="ename"/>
 					<column prompt="组合列">
 						<column dataIndex="mgr" width="60" prompt="mgrno"/>
 						<column dataIndex="mgr_name" editor="lov" width="100" prompt="mgr"/>
-						<column dataIndex="hiredate" renderer="Aurora.formateDate" editor="dp" width="130" prompt="hiredate"/>
+						<column dataIndex="hiredate" renderer="Aurora.formateDate" editor="dp" width="100" prompt="hiredate"/>
 						<column dataIndex="dname" editor="cb" width="100" prompt="dept"/>
 					</column>
+					<column dataIndex="gender" editor="radio" width="90" prompt="gender"/>
+					<column dataIndex="test1" editor="chb" width="50" prompt="test1"/>
+					<column dataIndex="test2" editor="chb" width="50" prompt="test2"/>
 					<column dataIndex="job" editor="tf" width="180" prompt="job"/>
 					<column dataIndex="sal" editor="tf" width="180" prompt="sal"/>
 				</columns>
@@ -150,19 +92,35 @@
 					<comboBox id="cb"/>
 					<datePicker id="dp"/>
 					<lov id="lov"/>
+					<checkBox id="chb"/>
+					<radio id="radio">
+						<items>
+							<item label="男" value="M"/>
+							<item label="女" value="F"/>
+						</items>
+					</radio>
 				</editors>
-				<events>
-					<event name="dblclick" handler="onDblclick"/>
-				</events>
 			</grid>
 			<vBox labelWidth="75" width="250" className="mytable" title="更新Form" style="border:1px solid #cccccc;">
-				<textField name="ename" prompt="ename" bindTarget="GRID_DS" validAlign="bottom" width="150"/>
-				<textField name="job" prompt="job" bindTarget="GRID_DS" width="150"/>
-				<lov name="mgr_name" prompt="mgr" bindTarget="GRID_DS" width="150"/>
-				<datePicker name="hiredate" prompt="hiredate" bindTarget="GRID_DS" width="150"/>
-				<comboBox name="dname" prompt="dept" bindTarget="GRID_DS" width="150"/>
-				<textField name="sal" prompt="sal" bindTarget="GRID_DS" width="150"/>
-			</vBox>
+				<textField name="ename" bindTarget="GRID_DS" validAlign="bottom" width="150"/>
+				<textField name="job" bindTarget="GRID_DS" width="150"/>
+				<lov name="mgr_name"  bindTarget="GRID_DS" width="150"/>
+				<datePicker name="hiredate"  bindTarget="GRID_DS" width="150"/>
+				<comboBox name="dname" bindTarget="GRID_DS" width="150"/>
+				<textField name="sal" bindTarget="GRID_DS" width="150"/>
+				<radio prompt="性别" name="gender" bindTarget="GRID_DS">
+					<items>
+						<item label="男" value="M"/>
+						<item label="女" value="F"/>
+					</items>
+				</radio>
+				<hBox prompt="test">
+					<checkBox name="test1" label="TEST1" bindTarget="GRID_DS"/>
+					<checkBox name="test2" label="TEST2" bindTarget="GRID_DS"/>
+				</hBox>
+				<label name="ename" prompt="测试" bindTarget="GRID_DS" renderer="renderer"/>
+				<textArea name="ename" prompt="测试" bindTarget="GRID_DS"/>
+			</vBox>			
 		</hBox>
     </a:view>
 </a:screen>

@@ -9,7 +9,7 @@
 				<datas dataSource="/model/DEPT-LIST"/>
 			</dataSet>
 		</dataSets>
-		<box labelWidth="55" cellspacing="0">
+		<box labelWidth="55" cellspacing="0" title="test" style="border:1px solid #cccccc;margin:10px;">
 			<textField  name="test1" label="姓名1" width="150" readOnly="true"/>
 			<textField name="test1" label="年龄"  width="150" emptyText="输入文字"/>
 			<datePicker name="test13" label="日期21" width="150" emptyText="输入日期"/>
