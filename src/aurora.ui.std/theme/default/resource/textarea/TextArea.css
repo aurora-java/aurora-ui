@@ -1,6 +1,7 @@
 .item-textarea {
 	border:1px solid #cccccc;
 	resize: none;
+	padding:2px;
 	
 	/*
 	font-size:11px;
