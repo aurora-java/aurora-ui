@@ -1,6 +1,6 @@
 .item-tree {
-	white-space: nowrap;
-	overflow:auto;
+	/*white-space: nowrap;*/
+	cursor:default;
 }
 .item-tree img {
 	border-right: 0px; 
@@ -15,14 +15,23 @@
 	float:left;
 }
 .node-text {
-	float:left;
-	height:18px;
-	cursor:pointer;
-	line-height:18px;
+	cursor:default;
 	white-space: nowrap;
 }
 .item-child,.item-node {
 	clear:left;
+}
+.node-text span{
+	line-height:18px;
+	padding:2px;
+	white-space: nowrap;
+}
+.item-node table {
+	padding:0px;
+	table-layout:fixed;
+	overflow:visible;
+}
+.item-node td {
 	white-space: nowrap;
 }
 .checkbox0 {
@@ -54,22 +63,25 @@
 	background:url(../tree/plus.gif) no-repeat;
 }
 .clip-plusBottom {
-	background:url(../tree/plusBottom.gif) no-repeat;
+	background:url(../tree/plusbottom.gif) no-repeat;
 }
-.clip-nlMinus {
-	background:url(../tree/nolines_minus.gif) no-repeat;
-}
-.clip-nlPlus{
-	background:url(../tree/nolines_plus.gif) no-repeat;
+.clip-plusTop {
+	background:url(../tree/plustop.gif) no-repeat;
 }
 .clip-join {
 	background:url(../tree/join.gif) no-repeat;
 }
+.clip-joinTop {
+	background:url(../tree/jointop.gif) no-repeat;
+}
 .clip-joinBottom {
-	background:url(../tree/joinBottom.gif) no-repeat;
+	background:url(../tree/joinbottom.gif) no-repeat;
 }
 .clip-minus {
 	background:url(../tree/minus.gif) no-repeat;
+}
+.clip-minusTop {
+	background:url(../tree/minustop.gif) no-repeat;
 }
 .clip-minusBottom {
 	background:url(../tree/minusbottom.gif) no-repeat;
@@ -80,6 +92,7 @@
 .node-line {
 	background: url(../tree/line.gif) no-repeat;
 }
+/*
 .item-tree a {
 	color: #333; 
 	text-decoration: none
@@ -109,3 +122,4 @@
 .item-tree a.nodesel {
 	background-color: #c0d2ec
 }
+*/
