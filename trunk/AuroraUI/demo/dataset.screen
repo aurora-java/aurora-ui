@@ -5,18 +5,18 @@
 	</a:init-procedure>
     <a:view template="default" package="com.aurora.ui">
 		<dataSets>
-			<dataSet name="DEPT">
+			<dataSet id="DEPT">
 				<datas dataSource="/model/EMP-LIST"/>
 			</dataSet>
 			
-			<dataSet name="STATUS">
+			<dataSet id="STATUS">
 				<datas>
 					<record name="创建" code="1"/>
 					<record name="审批" code="2"/>
 				</datas>
 			</dataSet>
 			
-			<dataSet name="QUERY_FORM">
+			<dataSet id="QUERY_FORM">
 				<fields>
 					<field name="empno" required="true" label="empno"/>
 					<field name="name1" required="true" options="DEPT" label="控制策略"/>
