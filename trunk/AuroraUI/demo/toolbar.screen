@@ -39,6 +39,7 @@
 			</dataSets>
 			<br/>
 			<button text="保存按钮" icon="images/save.gif" style="margin:20px;"/>
+			<button icon="images/save.gif" style="margin:20px;" width="30"/>
 			<button text="保存按钮" icon="images/save.gif" height="100" width="100" click="changeSize" style="margin:20px;"/>
 			<toolBar width="710" style="margin:20px;">
 					<button text="ABC弹出" click="test"/>

@@ -4,32 +4,13 @@
 		<sql-query service="test.DEPTQuery" rootPath="DEPT-LIST" fieldNameCase="lower" fetchAll="true" autoCount="true" />
 	</a:init-procedure>
     <a:view template="default" package="com.aurora.ui">
-    	<script>
-		<![CDATA[
-			Aurora.setValidInfoType('tip'); 
-			
-			function onDblclick(grid,record,row,index){
-				new Aurora.Window({id:'win2', url:'people.screen', title:'更新', height:250,width:300});
-			}
-			
-			function query(){
-				$$('GRID_DS').query()
-			}
-			
-			
-			function onSuccess(){
-				Aurora.showMessage('成功', '操作成功!');
-			}
-			
-		]]>
-		</script>
 		<dataSets>
 			<dataSet id="QUERY_DS" href="test.EMP">
 			</dataSet>
 			<dataSet id="DEPT_DS">
 				<datas dataSource="/model/DEPT-LIST"/>
 			</dataSet>
-			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="10" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+			<dataSet id="GRID_DS" autoQuery="true"  href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="8" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
 				<fields>
 					<field name="mgr_name" required="true" title="选择MGR" winWidth="350" winHeight="450" ref="search.screen">
 						<mapping>
@@ -46,47 +27,64 @@
 						</mapping>
 					</field>				 				
 				</fields>
-				<events>
-					<event name="submitsuccess" handler="onSuccess"/>
-				</events>
 			</dataSet>
 		</dataSets>
-		<vBox labelWidth="50" width="350" className="mytable" title="查询Form" style="border:1px solid #cccccc;margin:10px;">
-			<textField name="empno" prompt="empno" bindTarget="QUERY_DS" width="150" />
-			<textField name="ename" prompt="ename" bindTarget="QUERY_DS" validAlign="bottom" width="150"/>
-		</vBox>
-		<hBox style="margin-left:10px;">
-			<button text="查询" click="query"/>
-		</hBox>
-		<grid id="datagrid" dataSet="GRID_DS" style="margin:10px" width="700" height="330" navBar="true">
-			<toolBar>
-				<button type="add" icon="images/new.gif"/>
-				<button type="delete"/>
-				<button type="save"/>
-				<separator/>
-				<button icon="images/open.gif"/>
-			</toolBar>
-			<columns>
-				<column dataIndex="empno" lock="true" width="50" prompt="empno"/>
-				<column dataIndex="ename" editor="tf" width="100" prompt="ename"/>
-				<column prompt="组合列">
-					<column dataIndex="mgr" width="60" prompt="mgrno"/>
-					<column dataIndex="mgr_name" editor="lov" width="100" prompt="mgr"/>
-					<column dataIndex="hiredate" renderer="Aurora.formateDate" editor="dp" width="130" prompt="hiredate"/>
-					<column dataIndex="dname" editor="cb" width="100" prompt="dept"/>
-				</column>
-				<column dataIndex="job" editor="tf" width="180" prompt="job"/>
-				<column dataIndex="sal" editor="tf" width="180" prompt="sal"/>
-			</columns>
-			<editors>
-				<textField id="tf"/>
-				<comboBox id="cb"/>
-				<datePicker id="dp"/>
-				<lov id="lov"/>
-			</editors>
-			<events>
-				<event name="dblclick" handler="onDblclick"/>
-			</events>
-		</grid>
+		<box row="2" padding="0" style="margin:10px;">
+			<box padding="0" title="&lt;img src='images/add16.gif'&gt;&lt;b&gt;测试1&lt;b/&gt;" style="border:1px solid #cccccc;margin:10px;">		
+				<grid dataSet="GRID_DS" style="border:none;" width="940" height="250">
+					<columns>
+						<column dataIndex="empno" width="50" prompt="empno"/>
+						<column dataIndex="ename" width="100" prompt="ename"/>
+						<column prompt="组合列">
+							<column dataIndex="mgr" width="100" prompt="mgrno"/>
+							<column dataIndex="mgr_name" width="100" prompt="mgr"/>
+							<column dataIndex="hiredate" renderer="Aurora.formateDate" width="100" prompt="hiredate"/>
+							<column dataIndex="dname" width="100" prompt="dept"/>
+						</column>
+						<column dataIndex="gender" width="60" prompt="gender"/>
+						<column dataIndex="test1" width="60" prompt="test1"/>
+						<column dataIndex="test2" width="60" prompt="test2"/>
+						<column dataIndex="job" width="90" prompt="job"/>
+						<column dataIndex="sal" width="90" prompt="sal"/>
+					</columns>
+				</grid>
+			</box>
+			<hBox padding="0">
+				<box padding="0" title="流量" style="border:1px solid #cccccc;margin:10px;">		
+					<grid dataSet="GRID_DS" style="border:none;" width="300" height="250">
+						<columns>
+							<column dataIndex="empno" width="50" prompt="empno"/>
+							<column dataIndex="ename" width="90" prompt="ename"/>
+							<column dataIndex="mgr_name" width="90" prompt="mgr"/>
+							<column dataIndex="hiredate" renderer="Aurora.formateDate" width="90" prompt="hiredate"/>
+							<column dataIndex="dname" width="100" prompt="dept"/>
+						</columns>
+					</grid>
+				</box>
+				<box padding="0" title="电量" style="border:1px solid #cccccc;margin:10px;">		
+					<grid dataSet="GRID_DS" style="border:none;" width="300" height="250">
+						<columns>
+							<column dataIndex="empno" width="50" prompt="empno"/>
+							<column dataIndex="ename" width="90" prompt="ename"/>
+							<column dataIndex="mgr_name" width="90" prompt="mgr"/>
+							<column dataIndex="hiredate" renderer="Aurora.formateDate" width="90" prompt="hiredate"/>
+							<column dataIndex="dname" width="100" prompt="dept"/>
+						</columns>
+					</grid>
+				</box>
+				<box padding="0" title="水量" style="border:1px solid #cccccc;margin:10px;">		
+					<grid dataSet="GRID_DS" style="border:none;" width="300" height="250">
+						<columns>
+							<column dataIndex="empno" width="50" prompt="empno"/>
+							<column dataIndex="ename" width="90" prompt="ename"/>
+							<column dataIndex="mgr_name" width="90" prompt="mgr"/>
+							<column dataIndex="hiredate" renderer="Aurora.formateDate" width="90" prompt="hiredate"/>
+							<column dataIndex="dname" width="100" prompt="dept"/>
+						</columns>
+					</grid>
+				</box>
+			</hBox>
+		</box>
+		
     </a:view>
 </a:screen>
