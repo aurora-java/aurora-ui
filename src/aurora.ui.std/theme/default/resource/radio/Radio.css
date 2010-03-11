@@ -1,13 +1,10 @@
-.item-radio-img {
+.item-radio-img,.grid-radio{
 	width:13px;
 	height:13px;
+    background-image: url(../radio/radio.gif);
+}
+.item-radio-img {
 	float:left;
-	font-size:0pt;
-    background-image: url(../radio/radio.gif);	
-	border:0;
-	vertical-align:	bottom;
-	margin-bottom:1px;	
-	
 }
 .item-radio-img-u {
 	background-position:0px 0px;	

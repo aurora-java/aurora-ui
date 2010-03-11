@@ -14,6 +14,14 @@
 	border-bottom:none !important;
 	border-bottom:1px solid #cccccc;/*a4bed4*/
 }
+.grid-rowbox {
+	border-right:1px solid #cccccc;
+	background: url(../grid/row-box.gif) repeat-y;
+}
+.grid-rowbox center {
+	height:17px;
+	padding-top:5px;
+}
 .grid-lb table, .grid-lh table,  .grid-uh table, .grid-ub table{
 	table-layout:fixed;
 }
@@ -32,10 +40,10 @@
 	moz-user-select: text;	
 	khtml-user-select: text;	
 	webkit-user-select: ignore;	
-	moz-outline: 0 none;	
+	moz-outline: 0 none;
 	outline: 0 none
 }
-.ext-ie .grid-hl {
+.ext-ie6 .grid-hl {
 	display:none;
 }
 .item-grid td div {
@@ -50,7 +58,7 @@
 }
 .grid-la {
 	float:left;
-	border-right:1px solid #808080;
+	border-right:1px solid #d0d0d0;
 }
 .grid-ua {
 	float:right;
@@ -75,12 +83,12 @@
 	padding-left:2px;
 	padding-right:2px;
 	line-height:20px;
-	HEIGHT:100%;
-	margin:1px;
+	height:22px;
 }
 .cell-editor {
 	border:1px solid #a9bfd3;
 	margin:0px;
+	height:20px;
 }
 .grid-ub table {
 	border-right:1px solid #ededed;
@@ -89,8 +97,8 @@
 	/*border-right:1px solid #bbbbbb;*/
 	border-bottom:1px solid #ededed;
 	padding:1px;
-	/**color: #808080;**/	
-	height: 20px;
+	/**color: #808080;**/
+	height:22px;
 }
 .grid-sp {
 	position:absolute;
@@ -99,4 +107,7 @@
 	left:0px;
 	top:0px;
 	z-index:100000;
+}
+.row-selected {
+	background-color:#dfeaf5;
 }
