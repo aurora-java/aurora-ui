@@ -1,9 +1,11 @@
-.item-ckb {
+.item-ckb,.grid-ckb{
 	width:13px;
 	height:13px;
 	font-size:0pt;
-	float:left;
     background-image: url(../checkbox/checkbox.gif);
+}
+.item-ckb {
+	float:left;
 }
 .item-ckb-u {
 	background-position:0px 0px;	

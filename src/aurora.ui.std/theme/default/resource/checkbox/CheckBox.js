@@ -9,6 +9,8 @@ $A.CheckBox = Ext.extend($A.Component,{
 		$A.CheckBox.superclass.constructor.call(this,config);
 	},
 	initComponent:function(config){
+		this.checkedvalue = 'Y';
+		this.uncheckedvalue = 'N';
 		$A.CheckBox.superclass.initComponent.call(this, config);
 		this.wrap=Ext.get(this.id);
 		this.el=this.wrap.child('div[atype=checkbox]');
