@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a:screen xmlns:a="http://www.aurora-framework.org/application">
-    <a:view template="default" package="com.aurora.ui">
+    <a:view template="default" package="aurora.ui.std">
     	<div></div>
 		<dataSets>
 			<dataSet id="QUERY_DS">
@@ -39,9 +39,9 @@
 			</dataSet>
 			<dataSet id="GRID_DS" fecthAll="false" pageSize="50" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMPLOYEE/query"/>
 		</dataSets>
-		<box title="员工信息" width="950" style="margin:10px;">
-			<hBox >
-				<vBox height="121" labelWidth="60" style="border:1px solid #cccccc;">
+		<box title="员工信息" padding="0" width="950" style="margin:10px;">
+			<hBox>
+				<vBox height="135" labelWidth="60" style="border:1px solid #cccccc;">
 					<textField name="gonghao" prompt="工号" bindTarget="GRID_DS" width="120"/>
 					<textField name="xingming" prompt="姓名" bindTarget="GRID_DS" width="120"/>
 					<textField name="yingwenming" prompt="英文名" bindTarget="GRID_DS" width="120"/>
@@ -54,7 +54,7 @@
 						<comboBox name="minzu" prompt="民族" options="MINZU_DS" displayField="name" valueField="code" bindTarget="GRID_DS" width="120"/>
 					</hBox>
 					<hBox padding="0">
-						<box column="2" labelWidth="80" style="margin-top:5px;border:1px solid #cccccc;">
+						<box height="100" column="2" labelWidth="80" style="margin-top:5px;border:1px solid #cccccc;">
 							<textField name="chushengri" prompt="出生日期" bindTarget="GRID_DS" width="120"/>
 							<textField name="xingbie" prompt="性别" bindTarget="GRID_DS" width="120"/>
 							<textField name="hukou" prompt="户口所在地" bindTarget="GRID_DS" width="120"/>
@@ -62,18 +62,18 @@
 							<comboBox name="hunyin" prompt="婚姻状况" options="HUNYIN_DS" displayField="name" valueField="code" bindTarget="GRID_DS" width="120"/>
 							<textField name="xueli" prompt="最高学历" bindTarget="GRID_DS" width="120"/>
 						</box>
-						<vBox height="86" style="margin-top:5px;margin-left:3px;border:1px solid #cccccc;">
+						<vBox height="100" style="margin-top:5px;margin-left:3px;border:1px solid #cccccc;">
 							<comboBox name="leixing" prompt="员工类型" options="LEIXING_DS" displayField="name" valueField="code" bindTarget="GRID_DS" width="120"/>
 							<comboBox name="zhuangtai" prompt="当前状态" options="STATUS_DS" displayField="name" valueField="code" bindTarget="GRID_DS" width="120"/>
 						</vBox>
 					</hBox>
 				</vBox>
-				<box width="100" height="121" style="border:1px solid #cccccc;">
-					<div style="width:100px;height:121px;BACKGROUND: url(images/001.jpg)"></div>
+				<box width="100" height="127" style="border:1px solid #cccccc;">
+					<div style="width:100px;height:127px;BACKGROUND: url(images/001.jpg)"></div>
 				</box>
 			</hBox>
 		</box>
-		<tabPanel id="tab" width="950" height="400" style="margin:10px">
+		<tabPanel id="tab" width="950" height="360" style="margin-left:10px">
     		<tab prompt="个人信息">
     			<hBox style="margin-top:20px;">
     				<vBox padding="0">

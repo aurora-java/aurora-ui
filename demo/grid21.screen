@@ -3,7 +3,7 @@
     <a:init-procedure>
 		<sql-query service="test.DEPTQuery" rootPath="DEPT-LIST" fieldNameCase="lower" fetchAll="true" autoCount="true" />
 	</a:init-procedure>
-    <a:view template="default" package="com.aurora.ui">
+    <a:view template="default" package="aurora.ui.std">
     	<script>
 		<![CDATA[
 			Aurora.setValidInfoType('tip'); 
@@ -30,7 +30,7 @@
 				if(sal > 1500){
 					return "tf"
 				}else{
-					return ""
+					return "dp"
 				}
 			}
 			
@@ -134,15 +134,15 @@
 					<column dataIndex="empno"  width="50" prompt="empno"/>
 					<column dataIndex="ename" editor="tf" width="90" prompt="ename"/>
 					<column prompt="组合列">
-						<column dataIndex="mgr" width="60" prompt="mgrno"/>
+						<!--column dataIndex="mgr" width="60" prompt="mgrno"/-->
 						<column dataIndex="mgr_name" editor="lov" width="100" prompt="mgr"/>
 						<column dataIndex="hiredate" renderer="Aurora.formateDate" editor="dp" width="100" prompt="hiredate"/>
 						<column dataIndex="dname" editor="cb" width="100" prompt="dept"/>
 					</column>
-					<column dataIndex="gender" editor="radio" width="90" prompt="gender"/>
+					<column dataIndex="job" editor="tf" width="120" prompt="job" editorFunction="changeEditor"/>
+					<column dataIndex="gender" width="90" prompt="gender"/>
 					<column dataIndex="test1" editor="chb" width="50" prompt="test1"/>
 					<column dataIndex="test2" editor="chb" width="50" prompt="test2"/>
-					<column dataIndex="job" editor="tf" width="180" prompt="job"/>
 					<column dataIndex="sal" editor="tf" width="180" prompt="sal"/>
 				</columns>
 				<editors>

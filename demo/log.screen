@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a:screen xmlns:a="http://www.aurora-framework.org/application">
-    <a:view template="default" package="com.aurora.ui">
+    <a:view template="default" package="aurora.ui.std">
     	<dataSet id="HTTPWATCH_DATASET">
     		<fields>
     			<field name="request" readOnly="true"/>

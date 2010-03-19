@@ -8,7 +8,7 @@
             <option name="Finance" value="30"/>
         </depts>
     </static-model>
-    <a:view template="default" package="com.aurora.ui">
+    <a:view template="default" package="aurora.ui.std">
 		<vBox id="vbox" column="3" labelWidth="75" width="150" className="mytable" title="更新Form" style="border:1px solid #cccccc;margin:10px;">
 			<comboBox name="comboBox" id="comboBox1" width="150" blankOption="true" displayField="name" valueField="value"/>
 			<comboBox name="comboBox" id="comboBox2" width="150" blankOption="true" displayField="name" valueField="value"/>

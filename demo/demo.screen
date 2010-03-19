@@ -1,45 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
-    <static-model>
-    </static-model>
-    <a:view template="default" package="com.aurora.ui">
-		<style>
-			.mytable {
-				
+    <a:init-procedure></a:init-procedure>
+    <a:view template="default" package="aurora.ui.std">
+    	<script>
+		<![CDATA[
+			function query(){
+				$$('GRID_DS').query()
 			}
-		</style>
-		
+		]]>
+		</script>
 		<dataSets>
-			<dataSet name="QUERY_DS" href="test.EMP"/>
-			<dataSet name="FORM_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="5" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query"/>
+			<dataSet id="QUERY_DS" href="test.EMP">
+			</dataSet>
+			<dataSet id="GRID_DS" href="test.EMP" selectable="true" selectionModel="multiple" submiturl="manage_control.svc" fecthAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query"/>
 		</dataSets>
-
-		<vBox id="vbox" labelWidth="50" width="350" className="mytable" title="查询Form" style="border:1px solid #cccccc;margin:10px;">
-			<textField name="empno" label="empno" bindTarget="QUERY_DS" width="150" />
-			<textField name="ename" label="ename" bindTarget="QUERY_DS" validAlign="bottom" width="150"/>
-		</vBox>
+		<hBox>
+			<vBox labelWidth="50" width="350" className="mytable" title="查询Form" style="margin:10px;">
+				<textField name="empno" prompt="empno" bindTarget="QUERY_DS" width="150" />
+				<textField name="ename" prompt="ename" bindTarget="QUERY_DS" validAlign="bottom" width="150"/>
+			</vBox>
+			<div width="300" style="padding:10px;background-color:green;color:#ffffff;margin:7px;border:1px solid #cccccc;display:none" height="100" id="custommsg"></div>
+		</hBox>
+		<hBox style="margin-left:10px;">
+			<button text="查询" click="query"/>
+		</hBox>
+		<grid id="datagrid" dataSet="GRID_DS" style="margin:10px;" width="800" height="400" navBar="true">
+			<toolBar>
+				<button type="add"/>
+				<button type="delete"/>
+				<button type="save"/>
+			</toolBar>
+			<columns>
+				<column dataIndex="test1" width="100" prompt="test1"/>
+				<column dataIndex="test2" width="100" prompt="test2"/>
+				<column dataIndex="test3" idth="100" prompt="test3"/>
+				<column dataIndex="test4"  width="100" prompt="test4"/>
+			</columns>
+		</grid>
 		
-		<hBox style="margin:10px;">
-			<input type="button" value="查询" onclick="$$('FORM_DS').query()"></input>
-		</hBox>
-		<br></br><br></br>
-		<box id="vbox" column="3" labelWidth="75" width="650" className="mytable" title="更新Form" style="border:1px solid #cccccc;margin:10px;">
-			<textField name="empno" bindTarget="FORM_DS" width="150" />
-			<textField name="ename" bindTarget="FORM_DS" validAlign="bottom" width="150"/>
-			<textField name="job" bindTarget="FORM_DS" width="150"/>
-			<textField name="mgr" bindTarget="FORM_DS" width="150"/>
-			<textField name="hiredate" bindTarget="FORM_DS" width="150"/>
-			<textField name="deptno" bindTarget="FORM_DS" width="150"/>
-			<textField name="sal" bindTarget="FORM_DS" width="150"/>
-		</box>
-		<hBox style="margin:10px;">
-			<input type="button" value="新增" onclick="$$('FORM_DS').create()"></input>
-			<input type="button" value="保存" onclick="$$('FORM_DS').submit()"></input>
-			<input type="button" value="第一条" onclick="$$('FORM_DS').first()"></input>
-			<input type="button" value="上一条" onclick="$$('FORM_DS').pre()"></input>
-			<input type="button" value="下一条" onclick="$$('FORM_DS').next()"></input>
-			<input type="button" value="上一页" onclick="$$('FORM_DS').prePage()"></input>
-			<input type="button" value="下一页" onclick="$$('FORM_DS').nextPage()"></input>
-		</hBox>
     </a:view>
 </a:screen>
