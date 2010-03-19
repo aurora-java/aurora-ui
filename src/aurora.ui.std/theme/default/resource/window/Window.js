@@ -115,7 +115,7 @@ $A.Window = Ext.extend($A.Component,{
         return [
             '<TABLE class="window-wrap" style="width:{width}px;height:{height}px;" cellSpacing="0" cellPadding="0" border="0">',
 			'<TBODY>',
-			'<TR style="height:21px;" >',
+			'<TR style="height:25px;" >',
 				'<TD class="window-caption">',
 					'<TABLE cellSpacing="0" unselectable="on"  onselectstart="return false;" style="-moz-user-select:none;"  cellPadding="1" width="100%" height="100%" border="0" unselectable="on">',
 						'<TBODY>',
