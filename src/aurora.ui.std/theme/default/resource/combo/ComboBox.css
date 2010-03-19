@@ -2,8 +2,7 @@
 	BACKGROUND: url(../core/itembar.gif) no-repeat 2px 0px;
 }
 .item-comboBox-selected {
-	background-color: #6899ff;
-	color:#ffffff;
+	background-color: #dfeaf5;
 }
 .item-comboBox-view{	
 	overflow-x:hidden;	
@@ -18,5 +17,6 @@
 	line-height:18px;
 }
 .item-comboBox-current{
-	background-color: #b391db;
+	background-color: #6899ff;
+	color:#fff;
 }

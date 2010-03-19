@@ -5,10 +5,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		config = config || {};
 		this.pageid = config.pageid;
     	this.spara = {};
+    	this.selected = [];
     	this.pageSize = config.pageSize || 10;
     	this.submitUrl = config.submitUrl || '';
     	this.queryUrl = config.queryUrl || '';
     	this.fetchAll = config.fetchAll;
+    	this.selectable = config.selectable;
+    	this.selectionmodel = config.selectionmodel;
     	this.autoCount = config.autoCount;
 		this.loading = false;
     	this.qpara = {};
@@ -84,6 +87,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     resetConfig : function(){
     	this.data = [];
+    	this.selected = [];
     	this.gotoPage = 1;
     	this.currentPage = 1;
     	this.currentIndex = 1;
@@ -96,6 +100,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	c.id = this.id;
     	c.xtype = 'dataset';
     	c.data = this.data;
+    	c.selected = this.selected;
     	c.isValid = this.isValid;
     	c.gotoPage = this.gotoPage;
     	c.currentPage = this.currentPage;
@@ -117,6 +122,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	        'refresh',
 	        'valid',
 	        'indexchange',
+	        'select',
+	        'unselect',
 	        'reject',
 	        'submitsuccess',
 	        'submitfailed'
@@ -133,6 +140,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     loadData : function(datas, num){
         this.data = [];
+        this.selected = [];
         if(num) {
         	this.totalCount = num;
         }else{
@@ -157,18 +165,22 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             record.setDataSet(this);
 	        this.data.add(record);
         }
+        if(this.sortInfo) this.sort();
         this.fireEvent("load", this);
     },
-    
+    sort : function(f, direction){
+    	//TODO:排序
+    },
     /** ------------------数据操作------------------ **/ 
     create : function(data, valid){
     	this.fireEvent("beforecreate", this);
+    	data = data||{}
 //    	if(valid !== false) if(!this.validCurrent())return;
     	var dd = {};
     	for(var k in this.fields){
     		var field = this.fields[k];
     		var dv = field.getPropertity('defaultvalue');
-    		if(dv){
+    		if(dv && !data[field.name]){
     			dd[field.name] = dv;
     		}
     	}
@@ -266,6 +278,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var index = this.data.indexOf(record);    	
     	if(index == -1)return;
         this.data.remove(record);
+        this.selected.remove(record);
         if(this.data.length == 0){
         	this.removeAll();
         	return;
@@ -315,6 +328,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     removeAll : function(){
     	this.currentIndex = 1;
         this.data = [];
+        this.selected = [];
         this.fireEvent("clear", this);
     },
     indexOf : function(record){
@@ -347,6 +361,47 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		}
     	}
     	if(r) this.fireEvent("indexchange", this, r);
+    },
+    /** ------------------选择函数------------------ **/
+    getSelected : function(){
+    	return this.selected;
+    },
+    selectAll : function(){
+    	for(var i=0,l=this.data.length;i<l;i++){
+    		this.select(this.data[i]);
+    	}
+    },
+    unSelectAll : function(){
+    	for(var i=0,l=this.data.length;i<l;i++){
+    		this.unSelect(this.data[i]);
+    	}
+    },
+    select : function(r){
+    	if(typeof(r) == 'string') r = this.findById(r);
+    	if(this.selectable && this.selectionmodel == 'multiple'){
+    		if(this.selected.indexOf(r) == -1) {
+    			this.selected.add(r);
+    			this.fireEvent('select', this, r);
+    		}
+       	}else{
+       		
+       		if(this.selected.indexOf(r) == -1) {
+	       		var or = this.selected[0];
+	       		this.unSelect(or);
+	       		this.selected = []
+	       		this.selected.add(r);
+	       		this.fireEvent('select', this, r);
+       		}
+       	}
+    },
+    unSelect : function(r){
+    	if(typeof(r) == 'string') r = this.findById(r);
+    	if(this.selectable){
+    		if(this.selected.indexOf(r) != -1) {
+    			this.selected.remove(r);
+    			this.fireEvent('unselect', this, r);
+    		}
+    	}
     },
     /** ------------------导航函数------------------ **/
     locate : function(index, force){

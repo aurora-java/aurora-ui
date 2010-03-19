@@ -5,7 +5,14 @@ $A.fireWindowResize = function(){
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
 $A.cache = {};
 $A.cmps = {};
-
+$A.setTheme = function(theme){
+	if(theme) {
+		var exp  = new Date();   
+	    exp.setTime(exp.getTime() + 24*3600*1000);
+	    document.cookie = "app_theme="+ escape (theme) + ";expires=" + exp.toGMTString(); 
+	    window.location.reload();
+	}
+}
 $A.CmpManager = function(){
     return {
         put : function(id, cmp){
@@ -275,10 +282,12 @@ $A.Mask = function(){
 	var m = {
 		container: {},
 		mask : function(el){
-			var screenWidth = $A.getViewportWidth();
-    		var screenHeight = $A.getViewportHeight();
-				var p = '<DIV class="aurora-mask" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
-				var mask = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
+    		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
+    		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
+    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
+			var p = '<DIV class="aurora-mask" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
+			var mask = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
 	    	mask.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
 	    	$A.Mask.container[el.id] = mask;
 		},
@@ -291,8 +300,10 @@ $A.Mask = function(){
 			}
 		},
 		resizeMask : function(){
-			var screenWidth = $A.getViewportWidth();
-    		var screenHeight = $A.getViewportHeight();
+			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
+    		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
+    		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
+    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
 			for(key in $A.Mask.container){
 				var mask = $A.Mask.container[key];
 				Ext.fly(mask).setWidth(screenWidth);
@@ -631,10 +642,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		config = config || {};
 		this.pageid = config.pageid;
     	this.spara = {};
+    	this.selected = [];
     	this.pageSize = config.pageSize || 10;
     	this.submitUrl = config.submitUrl || '';
     	this.queryUrl = config.queryUrl || '';
     	this.fetchAll = config.fetchAll;
+    	this.selectable = config.selectable;
+    	this.selectionmodel = config.selectionmodel;
     	this.autoCount = config.autoCount;
 		this.loading = false;
     	this.qpara = {};
@@ -710,6 +724,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     resetConfig : function(){
     	this.data = [];
+    	this.selected = [];
     	this.gotoPage = 1;
     	this.currentPage = 1;
     	this.currentIndex = 1;
@@ -722,6 +737,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	c.id = this.id;
     	c.xtype = 'dataset';
     	c.data = this.data;
+    	c.selected = this.selected;
     	c.isValid = this.isValid;
     	c.gotoPage = this.gotoPage;
     	c.currentPage = this.currentPage;
@@ -743,6 +759,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	        'refresh',
 	        'valid',
 	        'indexchange',
+	        'select',
+	        'unselect',
 	        'reject',
 	        'submitsuccess',
 	        'submitfailed'
@@ -759,6 +777,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     loadData : function(datas, num){
         this.data = [];
+        this.selected = [];
         if(num) {
         	this.totalCount = num;
         }else{
@@ -783,18 +802,22 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             record.setDataSet(this);
 	        this.data.add(record);
         }
+        if(this.sortInfo) this.sort();
         this.fireEvent("load", this);
     },
-    
+    sort : function(f, direction){
+    	//TODO:排序
+    },
     /** ------------------数据操作------------------ **/ 
     create : function(data, valid){
     	this.fireEvent("beforecreate", this);
+    	data = data||{}
 //    	if(valid !== false) if(!this.validCurrent())return;
     	var dd = {};
     	for(var k in this.fields){
     		var field = this.fields[k];
     		var dv = field.getPropertity('defaultvalue');
-    		if(dv){
+    		if(dv && !data[field.name]){
     			dd[field.name] = dv;
     		}
     	}
@@ -892,6 +915,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var index = this.data.indexOf(record);    	
     	if(index == -1)return;
         this.data.remove(record);
+        this.selected.remove(record);
         if(this.data.length == 0){
         	this.removeAll();
         	return;
@@ -941,6 +965,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     removeAll : function(){
     	this.currentIndex = 1;
         this.data = [];
+        this.selected = [];
         this.fireEvent("clear", this);
     },
     indexOf : function(record){
@@ -973,6 +998,47 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		}
     	}
     	if(r) this.fireEvent("indexchange", this, r);
+    },
+    /** ------------------选择函数------------------ **/
+    getSelected : function(){
+    	return this.selected;
+    },
+    selectAll : function(){
+    	for(var i=0,l=this.data.length;i<l;i++){
+    		this.select(this.data[i]);
+    	}
+    },
+    unSelectAll : function(){
+    	for(var i=0,l=this.data.length;i<l;i++){
+    		this.unSelect(this.data[i]);
+    	}
+    },
+    select : function(r){
+    	if(typeof(r) == 'string') r = this.findById(r);
+    	if(this.selectable && this.selectionmodel == 'multiple'){
+    		if(this.selected.indexOf(r) == -1) {
+    			this.selected.add(r);
+    			this.fireEvent('select', this, r);
+    		}
+       	}else{
+       		
+       		if(this.selected.indexOf(r) == -1) {
+	       		var or = this.selected[0];
+	       		this.unSelect(or);
+	       		this.selected = []
+	       		this.selected.add(r);
+	       		this.fireEvent('select', this, r);
+       		}
+       	}
+    },
+    unSelect : function(r){
+    	if(typeof(r) == 'string') r = this.findById(r);
+    	if(this.selectable){
+    		if(this.selected.indexOf(r) != -1) {
+    			this.selected.remove(r);
+    			this.fireEvent('unselect', this, r);
+    		}
+    	}
     },
     /** ------------------导航函数------------------ **/
     locate : function(index, force){
@@ -1699,7 +1765,13 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     initMeta : function(){},
     setDefault : function(){},
     setRequired : function(){},
-    onDataChange : function(){}
+    onDataChange : function(){},
+    setWidth : function(w){
+    	this.wrap.setStyle('width',w+'px');
+    },
+    setHeight : function(h){
+    	this.wrap.setStyle('height',h+'px');
+    }
 });
 /*
  * TODO:Field不应该包含Input类型的特性,转移到InputField中去!
@@ -2087,6 +2159,8 @@ $A.CheckBox = Ext.extend($A.Component,{
 		$A.CheckBox.superclass.constructor.call(this,config);
 	},
 	initComponent:function(config){
+		this.checkedvalue = 'Y';
+		this.uncheckedvalue = 'N';
 		$A.CheckBox.superclass.initComponent.call(this, config);
 		this.wrap=Ext.get(this.id);
 		this.el=this.wrap.child('div[atype=checkbox]');
@@ -2161,6 +2235,9 @@ $A.Radio = Ext.extend($A.Component, {
 	},	
 	processListener: function(ou){
     	this.wrap[ou]('click',this.onClick,this);
+    },
+    focus : function(){
+    	
     },
 	initEvents:function(){
 		$A.Radio.superclass.initEvents.call(this); 	
@@ -2713,10 +2790,12 @@ $A.DateField = Ext.extend($A.Component, {
 		}
 		
 		//插入日期
-//		if(!this.tbody) this.tbody = document.createElement("TBODY");
+		var k=0;
 		while(arr.length){
 			//每个星期插入一个tr
 			var row = document.createElement("tr");
+			if(k%2!=0)row.className='week-alt';
+			k++;
 			//每个星期有7天
 			for(var i = 1; i <= 7; i++){
 				var cell = document.createElement("td"); 
@@ -2994,7 +3073,7 @@ $A.Window = Ext.extend($A.Component,{
         return [
             '<TABLE class="window-wrap" style="width:{width}px;height:{height}px;" cellSpacing="0" cellPadding="0" border="0">',
 			'<TBODY>',
-			'<TR style="height:21px;" >',
+			'<TR style="height:25px;" >',
 				'<TD class="window-caption">',
 					'<TABLE cellSpacing="0" unselectable="on"  onselectstart="return false;" style="-moz-user-select:none;"  cellPadding="1" width="100%" height="100%" border="0" unselectable="on">',
 						'<TBODY>',

@@ -181,5 +181,11 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     initMeta : function(){},
     setDefault : function(){},
     setRequired : function(){},
-    onDataChange : function(){}
+    onDataChange : function(){},
+    setWidth : function(w){
+    	this.wrap.setStyle('width',w+'px');
+    },
+    setHeight : function(h){
+    	this.wrap.setStyle('height',h+'px');
+    }
 });
