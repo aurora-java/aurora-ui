@@ -81,5 +81,15 @@ $A.Tab = Ext.extend($A.Component,{
 		    	Ext.fly(dom).update(html,true);
 		    }
 		});		
+    },
+    setWidth : function(w){
+    	w = Math.max(w,2);
+    	$A.Tab.superclass.setWidth.call(this, w);
+    	Ext.fly(this.body.dom).setStyle('width',(w-2)+'px');
+    },
+    setHeight : function(h){
+    	h = Math.max(h,25);
+    	$A.Tab.superclass.setHeight.call(this, h);
+    	Ext.fly(this.body.dom).setStyle('height',(h-25)+'px');
     }
 });
