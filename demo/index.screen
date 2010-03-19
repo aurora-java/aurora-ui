@@ -69,8 +69,8 @@
 				<record name="Aurora UI框架演示" id="0" parent="-1" num="1"/>
 				<record name="Form组件" id="1" parent="0" num="1" icon="images/form.gif"/>
 				<record name="Button" id="11" parent="1" num="1" model="button" icon="images/button.gif"/>
-				<record name="TextField" id="12" parent="1" num="2" icon="images/textfield.gif"/>
-				<record name="ComboBox" id="13" parent="1" num="3"/>
+				<record name="TextField" id="12" parent="1" num="2" model="textfield" icon="images/textfield.gif"/>
+				<record name="ComboBox" id="13" parent="1" num="3" model="combobox"/>
 				<record name="DatePicker" id="14" parent="1" num="4" icon="images/datepicker.gif"/>
 				<record name="NumberField" id="15" parent="1" num="5"  icon="images/textfield.gif"/>
 				<record name="Lov" id="16" parent="1" num="6" icon="images/lov.gif"/>
@@ -112,7 +112,7 @@
 			</datas>
 		</dataSet>
 		<hBox padding="1" id="nav" style="display:none;position:absolute;right:5px;top:7px;">
-			<div >切换皮肤:</div>
+			<div style="color:#fff">切换皮肤:</div>
 			<comboBox id="themeCombo" width="120" options="THEME_DS" displayField="name" valueField="value">
 				<events>
 					<event name="select" handler="function(cb, value){Aurora.setTheme(value)}"/>
@@ -122,7 +122,9 @@
 		<TABLE style="width:100%;height:100%;display:none" id="main" cellSpacing="0" cellPadding="0" border="0">
 			<TBODY>
 				<TR>
-					<TD colspan="3" class="topAreaClass" style="height:35px;padding-left:5px;background-color:#e0e0e0;"><div style="margin-left:10px;width:113px;height:35px;background-image:url('images/logo.gif')"></div></TD>
+					<TD colspan="3" class="topAreaClass" style="height:35px;background-color:#e0e0e0;background-image:url('images/banner_bg.gif')">
+						<div style="float:left;width:443px;height:35px;background-image:url('images/banner.gif')"></div>
+					</TD>
 				</TR>
 				<TR>
 					<TD colspan="3" style="HEIGHT: 2px;"></TD>
