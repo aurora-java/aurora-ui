@@ -1,0 +1,26 @@
+.item-radio-img,.grid-radio{
+	width:13px;
+	height:13px;
+    background-image: url(../radio/radio.gif);
+}
+.item-radio-img {
+	float:left;
+}
+.item-radio-img-u {
+	background-position:0px 0px;	
+}
+.item-radio-img-c {
+	background-position:0px -13px;	
+}
+.item-radio-img-readonly-u {
+	background-position:-39px 0px;	
+}
+.item-radio-img-readonly-c {
+	background-position:-39px -13px;	
+}
+.item-radio-lb{	
+	text-align:left;
+}
+.item-radio-option{	
+	padding:3px;
+}
