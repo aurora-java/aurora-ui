@@ -2,24 +2,13 @@
 	cursor:pointer;
 	white-space: nowrap;
 }
-* html .ext-ie .item-btn button {
-    width:1px;
-}
-/**
-.ext-gecko .item-btn button {
-	padding-top:0;
-    padding-left:0;
-    padding-right:0;
-}
-**/
-.ext-gecko .item-btn button::-moz-focus-inner {
-    padding:0;
-}
-
 .ext-ie .item-btn button {
+    width:1px;
     padding-top:2px;
 }
-
+.ext-gecko .item-btn button{
+    padding-top:0;
+}
 .item-btn td {
     padding:0 !important;
 }
@@ -27,11 +16,11 @@
     border:0 none;
     background-color:transparent;
     cursor:pointer;
-    margin:0;
+    margin:0px;
     vertical-align: middle;
     overflow:visible;
-    padding-left:3px;
-    padding-right:3px;
+    /*padding-left:3px;
+    padding-right:3px;*/
     -moz-outline:0 none;
     outline:0 none;
     width:auto !important;

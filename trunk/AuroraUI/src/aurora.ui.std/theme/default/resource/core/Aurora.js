@@ -5,7 +5,14 @@ $A.fireWindowResize = function(){
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
 $A.cache = {};
 $A.cmps = {};
-
+$A.setTheme = function(theme){
+	if(theme) {
+		var exp  = new Date();   
+	    exp.setTime(exp.getTime() + 24*3600*1000);
+	    document.cookie = "app_theme="+ escape (theme) + ";expires=" + exp.toGMTString(); 
+	    window.location.reload();
+	}
+}
 $A.CmpManager = function(){
     return {
         put : function(id, cmp){
@@ -275,10 +282,12 @@ $A.Mask = function(){
 	var m = {
 		container: {},
 		mask : function(el){
-			var screenWidth = $A.getViewportWidth();
-    		var screenHeight = $A.getViewportHeight();
-				var p = '<DIV class="aurora-mask" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
-				var mask = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
+    		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
+    		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
+    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
+			var p = '<DIV class="aurora-mask" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
+			var mask = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
 	    	mask.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
 	    	$A.Mask.container[el.id] = mask;
 		},
@@ -291,8 +300,10 @@ $A.Mask = function(){
 			}
 		},
 		resizeMask : function(){
-			var screenWidth = $A.getViewportWidth();
-    		var screenHeight = $A.getViewportHeight();
+			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
+    		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
+    		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
+    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
 			for(key in $A.Mask.container){
 				var mask = $A.Mask.container[key];
 				Ext.fly(mask).setWidth(screenWidth);

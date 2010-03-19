@@ -37,8 +37,8 @@ a {color:#0069ca;text-decoration:none;}
 	
 }
 .item-label {
-	HEIGHT: 20px;
-	line-height:20px;
+	HEIGHT: 22px;
+	line-height:22px;
 	vertical-align:middle;
 }
 .item-focus {
@@ -153,17 +153,19 @@ a {color:#0069ca;text-decoration:none;}
 }
 .layout-head {
 	border-bottom:1px solid #bbbbbb;
-	height:20px;
+	height:25px;
 	COLOR: #055a78;	
-	background:url(../window/window-header.gif) repeat-x;
+	background:url(../toolbar/toolbar_bg.gif) repeat-x;
 	padding-left:5px;
 }
-.item-ckb {
+.item-ckb,.grid-ckb{
 	width:13px;
 	height:13px;
 	font-size:0pt;
-	float:left;
     background-image: url(../checkbox/checkbox.gif);
+}
+.item-ckb {
+	float:left;
 }
 .item-ckb-u {
 	background-position:0px 0px;	
@@ -180,16 +182,13 @@ a {color:#0069ca;text-decoration:none;}
 .item-ckb-readonly-c {
 	background-position:-39px -13px;
 }
-.item-radio-img {
+.item-radio-img,.grid-radio{
 	width:13px;
 	height:13px;
+    background-image: url(../radio/radio.gif);
+}
+.item-radio-img {
 	float:left;
-	font-size:0pt;
-    background-image: url(../radio/radio.gif);	
-	border:0;
-	vertical-align:	bottom;
-	margin-bottom:1px;	
-	
 }
 .item-radio-img-u {
 	background-position:0px 0px;	
@@ -213,24 +212,13 @@ a {color:#0069ca;text-decoration:none;}
 	cursor:pointer;
 	white-space: nowrap;
 }
-* html .ext-ie .item-btn button {
-    width:1px;
-}
-/**
-.ext-gecko .item-btn button {
-	padding-top:0;
-    padding-left:0;
-    padding-right:0;
-}
-**/
-.ext-gecko .item-btn button::-moz-focus-inner {
-    padding:0;
-}
-
 .ext-ie .item-btn button {
+    width:1px;
     padding-top:2px;
 }
-
+.ext-gecko .item-btn button{
+    padding-top:0;
+}
 .item-btn td {
     padding:0 !important;
 }
@@ -238,11 +226,11 @@ a {color:#0069ca;text-decoration:none;}
     border:0 none;
     background-color:transparent;
     cursor:pointer;
-    margin:0;
+    margin:0px;
     vertical-align: middle;
     overflow:visible;
-    padding-left:3px;
-    padding-right:3px;
+    /*padding-left:3px;
+    padding-right:3px;*/
     -moz-outline:0 none;
     outline:0 none;
     width:auto !important;
@@ -433,8 +421,7 @@ a {color:#0069ca;text-decoration:none;}
 	BACKGROUND: url(../core/itembar.gif) no-repeat 2px 0px;
 }
 .item-comboBox-selected {
-	background-color: #6899ff;
-	color:#ffffff;
+	background-color: #dfeaf5;
 }
 .item-comboBox-view{	
 	overflow-x:hidden;	
@@ -449,7 +436,8 @@ a {color:#0069ca;text-decoration:none;}
 	line-height:18px;
 }
 .item-comboBox-current{
-	background-color: #b391db;
+	background-color: #6899ff;
+	color:#fff;
 }
 .item-dateButton {	
 	BACKGROUND: url(../core/itembar.gif) no-repeat 2px -20px;	
@@ -467,8 +455,11 @@ a {color:#0069ca;text-decoration:none;}
 .item-dateField-head {	
 	FONT-WEIGHT: bold;	
 	FONT-SIZE: 100%;
-	BACKGROUND: url(../datefield/bgCalendarV2.gif) #305ebc repeat-x;
-	COLOR: #fff;	
+	/*BACKGROUND: url(../datefield/bgCalendarV2.gif) #305ebc repeat-x;*/
+	border-bottom:1px solid #bababa;
+	background-image: url(../toolbar/toolbar_bg.gif);
+	background-repeat:repeat-x;
+	COLOR: #055a78;	
 	LINE-HEIGHT: 17px;	
 	HEIGHT: 18px;	
 	TEXT-ALIGN: center;
@@ -488,30 +479,30 @@ a {color:#0069ca;text-decoration:none;}
 	font-size: 11px;
 	padding:1px;
 }
-.item-dateField-pre{
-	BACKGROUND: url(../datefield/prebtn.gif);
+.item-dateField-pre,.item-dateField-next{
+	background-image:url(../toolbar/navigation.gif);
 	cursor:pointer;
+	width:16px;
+	height:16px;
+}
+.week-alt {
+	background-color:#f3f3ed;
+}
+.item-dateField-pre {
+	background-position: 0 -31px;
 	float:left;
-	padding-right:5px;
-	width:17px;
-	height:17px;
 }
 .item-dateField-next{
-	BACKGROUND: url(../datefield/nextbtn.gif);
-	cursor:pointer;
+	background-position: 0 -46px;
 	float:right;
-	padding-right:5px;
-	width:17px;
-	height:17px;
 }
 .item-dateField td.onToday {
 	background-color:#FDAB00;
 	color:#fff;
 }
 .item-dateField td.dateover {
-	background-color:#039;
+	background-color:#dfeaf5;
 	cursor:pointer;
-	color:#fff;
 }
 .item-dateField td.onSelect {
 	background-color:#6899FF;
@@ -524,7 +515,7 @@ a {color:#0069ca;text-decoration:none;}
 	cursor: default;	
 	background-repeat: repeat-x;	
 	white-space: nowrap;	
-	height: 29px;
+	height: 25px;
 }
 .item-toolbar div.sep {
 	background-position: 50% 50%;
@@ -535,7 +526,7 @@ a {color:#0069ca;text-decoration:none;}
 	margin-right: 1px;	
 	background-repeat: no-repeat;	
 	top: 1px;	
-	height: 29px;	
+	height: 25px;	
 	moz-user-select: none
 	width:2px;
 }
@@ -592,7 +583,8 @@ a {color:#0069ca;text-decoration:none;}
 }
 .window-caption {
 	height: 21px;
-	background:url(../window/window-header.gif) repeat-x;
+	border-bottom:1px solid #808080;
+	background:url(../toolbar/toolbar_bg.gif) repeat-x;
 }
 .window-caption-label div {
 	width:100%;
@@ -628,6 +620,7 @@ a {color:#0069ca;text-decoration:none;}
 .item-textarea {
 	border:1px solid #cccccc;
 	resize: none;
+	padding:2px;
 	
 	/*
 	font-size:11px;

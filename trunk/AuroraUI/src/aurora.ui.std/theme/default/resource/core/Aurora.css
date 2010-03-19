@@ -37,8 +37,8 @@ a {color:#0069ca;text-decoration:none;}
 	
 }
 .item-label {
-	HEIGHT: 20px;
-	line-height:20px;
+	HEIGHT: 22px;
+	line-height:22px;
 	vertical-align:middle;
 }
 .item-focus {
@@ -153,8 +153,8 @@ a {color:#0069ca;text-decoration:none;}
 }
 .layout-head {
 	border-bottom:1px solid #bbbbbb;
-	height:20px;
+	height:25px;
 	COLOR: #055a78;	
-	background:url(../window/window-header.gif) repeat-x;
+	background:url(../toolbar/toolbar_bg.gif) repeat-x;
 	padding-left:5px;
 }
