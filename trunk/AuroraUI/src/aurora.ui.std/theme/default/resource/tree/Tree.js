@@ -1,4 +1,3 @@
-//某年某月某人在某棵树上写下了: Oh,shit!
 $A.Tree = Ext.extend($A.Component,{
 	constructor: function(config){
 		$A.Tree.superclass.constructor.call(this,config);
@@ -6,6 +5,7 @@ $A.Tree = Ext.extend($A.Component,{
 	initComponent:function(config){
 		this.nodeHash = {};
 		$A.Tree.superclass.initComponent.call(this, config);
+		this.body = this.wrap.child('div[atype=tree.body]');
 	},
 	processListener: function(ou){
     	$A.Tree.superclass.processListener.call(this,ou);
@@ -15,11 +15,14 @@ $A.Tree = Ext.extend($A.Component,{
 		$A.Tree.superclass.initEvents.call(this);
 		this.addEvents('click');
 	},
+	destroy : function(){
+		$A.Tree.superclass.destroy.call(this);
+    },
 	processDataSetLiestener: function(ou){
 		var ds = this.dataset;
 		if(ds){
 //			ds[ou]('metachange', this.onRefresh, this);
-//			ds[ou]('update', this.onUpdate, this);
+			ds[ou]('update', this.onUpdate, this);
 //	    	ds[ou]('add', this.onAdd, this);
 	    	ds[ou]('load', this.onLoad, this);
 //	    	ds[ou]('valid', this.onValid, this);
@@ -27,7 +30,7 @@ $A.Tree = Ext.extend($A.Component,{
 //	    	ds[ou]('clear', this.onLoad, this);
 //	    	ds[ou]('refresh',this.onRefresh,this);
 //	    	ds[ou]('fieldchange', this.onFieldChange, this);
-//	    	ds[ou]('indexchange', this.onIndexChange, this);
+	    	ds[ou]('indexchange', this.onIndexChange, this);
 		}
 	},
 	bind: function(ds){
@@ -38,29 +41,40 @@ $A.Tree = Ext.extend($A.Component,{
 		this.dataset = ds;
 		this.processDataSetLiestener('on');
     	this.onLoad();
-//		if(this.autoQuery == true)
-//		ds.query();
+	},
+	onUpdate : function(ds, record, name, value){
+		if(this.parentfield == name || name == 'num'){
+			this.onLoad();
+		}else{
+			var node = this.nodeHash[record.id];
+			node.paintText();
+		}
+	},
+	onIndexChange:function(ds, record){
+		var node = this.nodeHash[record.id];
+		if(node)this.setFocusNode(node);
 	},
 	onClick : function(event){
-		var elem = event.target;
+		var elem = Ext.fly(event.target).findParent('td');
+		if(!elem)return;
 		var _type = elem['_type_'];
 		if(typeof(_type) === undefined){
 			return;
 		}
-		elem = elem.parentNode || elem.parentElement;
+		elem = Ext.fly(event.target).findParent('div.item-node');
 		if(_type == 'clip'){
 			if(elem.indexId!=null){
-				var node = this.nodeHash[ elem.indexId ];
+				var node = this.nodeHash[elem.indexId ];
 				if(node.isExpand){
 					node.collapse();
 				}else{
 					node.expand();
 				}
 			}
-			//TODO:找到祖宗中_type == iocn or text
 		}else if(_type == 'icon' || _type == 'text'){
 			var node = this.nodeHash[elem.indexId];
 			this.setFocusNode(node);
+			this.dataset.locate.defer(5, this.dataset,[this.dataset.indexOf(node.record)+1,false]);
 			this.fireEvent('click', this, node.record, node);
 		}else if(_type == 'checked'){
 			var node = this.nodeHash[elem.indexId];
@@ -131,10 +145,11 @@ $A.Tree = Ext.extend($A.Component,{
 			array.add(node);
 		}
 		if(array.length == 1){
+			this.showRoot = true;
 			return array[0];
 		}else{
 			var data = {};
-			data[this.displayfield] = ' ';
+			data[this.displayfield] = '_root';
 			var root = { 
 				'record': new Aurora.Record(data), 
 			    'children':[]
@@ -142,18 +157,18 @@ $A.Tree = Ext.extend($A.Component,{
 			for(var i=0;i<array.length;i++){
 				root['children'].add(array[i]);
 			}
+			this.showRoot = false;
 			return root;
 		}
 	},
 	onLoad : function(){
 		var root = this.buildTree();
 		if(!root) {
-			//alert("数据结果不正确!")
 			return;
 		}
 		var node = new $A.Tree.TreeNode(root);
 		this.setRootNode(node);		
-		this.wrap.update('');
+		this.body.update('');
 		this.root.render();
 	},
 	getIconByType : function(type){
@@ -172,14 +187,12 @@ $A.Tree.TreeNode = function(data) {
 	this.firstChild = null;
 	this.previousSibling = null;
 	this.nextSibling = null;
-	this.childrenRendered = false
+	this.childrenRendered = false;
 	this.isExpand = false;
 	
-	//TODO:根据某个field来判断
-//	this.checked = this['attributes']['checked'];
-	this.checked = this.checked==null ? false : this.checked;
+	this.checked = this.record.get('checked') == "true";
+	this.expanded = this.record.get('expaned') == "true";
 
-//	this.leaf = this.attributes.leaf;
 	var children = data.children || [];
 	for(var i=0,j=children.length;i<j;i++){
 		var node = new $A.Tree.TreeNode(children[i]);
@@ -191,45 +204,73 @@ $A.Tree.TreeNode.prototype={
 		this.els = {};
 		this.els['element'] = document.createElement('div');
 		this.els['element'].className = 'item-node';
-		this.els['line']= document.createElement('span');
-		this.els['clip']= document.createElement('div');
-		this.els['icon']= document.createElement('div');
-		this.els['text']= document.createElement('div');
- 		this.els['checkbox'] = document.createElement('div');
-		this.els['child'] = document.createElement('div');
-		this.els['element'].appendChild(this.els['line']);
-		this.els['element'].appendChild(this.els['clip']);
-		this.els['element'].appendChild(this.els['icon']);
-		this.els['element'].appendChild(this.els['checkbox']);	
-		this.els['element'].appendChild(this.els['text']);
-		this.els['element'].appendChild(this.els['child']);
-		this.els['text'].className='node-text'
+		
+		this.els['itemNodeTable'] = document.createElement('table');
+		this.els['itemNodeTable'].border=0;
+		this.els['itemNodeTable'].cellSpacing=0;
+		this.els['itemNodeTable'].cellPadding=0;
+		this.els['itemNodeTbody'] = document.createElement('tbody');
+		this.els['itemNodeTr'] = document.createElement('tr');
+		this.els['line']= document.createElement('td');
+		this.els['clip']= document.createElement('td');
+		this.els['icon']= (this.icon) ? document.createElement('img') : document.createElement('div');
+		this.els['iconTd']= document.createElement('td');
+		Ext.fly(this.els['iconTd']).setWidth(18);
+		this.els['iconTd'].appendChild(this.els['icon']);
+		this.els['textTd']= document.createElement('td');
+		this.els['text']= document.createElement('span');
+		this.els['textTd'].appendChild(this.els['text']);
+		this.els['textTd'].className='node-text'
+ 		this.els['checkbox'] = document.createElement('td');
+		
+		this.els['itemNodeTr'].appendChild(this.els['line']);
+		this.els['itemNodeTr'].appendChild(this.els['clip']);
+		this.els['itemNodeTr'].appendChild(this.els['iconTd']);
+		this.els['itemNodeTr'].appendChild(this.els['checkbox']);	
+		this.els['itemNodeTr'].appendChild(this.els['textTd']);
+		this.els['itemNodeTbody'].appendChild(this.els['itemNodeTr']);
+		this.els['itemNodeTable'].appendChild(this.els['itemNodeTbody']);
+		this.els['element'].appendChild(this.els['itemNodeTable']);
+		
 		this.els['element'].noWrap='true';
 		this.els['line']['_type_'] ='line';
 		this.els['clip']['_type_'] ='clip';
-		this.els['icon']['_type_'] ='icon';
-		this.els['text']['_type_'] ='text';
+		this.els['iconTd']['_type_'] ='icon';
+		this.els['textTd']['_type_'] ='text';
 		this.els['checkbox']['_type_'] ='checked';
-		this.els['child'].className= 'item-child';
-		this.els['child'].style.display='none';
-		if(this.checked===false){
+		if(this.getOwnerTree().showcheckbox === false) {
 			this.els['checkbox'].style.display='none';
 		}
+		
+		var text = this.record.get(this.ownerTree.displayfield)
+		if(this.isRoot() && text=='_root'){
+			this.els['itemNodeTable'].style.display='none';
+		}
+		this.els['child'] = document.createElement('div');
+		this.els['element'].appendChild(this.els['child']);
+		this.els['child'].className= 'item-child';
+		this.els['child'].style.display='none';
+		
 	},
 	render : function(){
+		this.icon = this.record.get('icon');
 		if(!this.els){
 			this.initEl();
 		}
 		if(this.isRoot()){
-			this.ownerTree.wrap.appendChild(this.els['element']);
+			this.getOwnerTree().body.appendChild(this.els['element']);
+			if(this.getOwnerTree().showRoot == false)
+			this.els['icon'].style.display=this.els['checkbox'].style.display=this.els['text'].style.display='none';
 			this.expand();
 		}else{
 			this.parentNode.els['child'].appendChild(this.els['element']);
-//			this.expand();
+			if(this.expanded)
+			this.expand();
 		}
 		this.paintPrefix();
 		this.els['element'].indexId = this.id;
-		
+		if(this.checked == true)
+		this.setCheck(true);
 	},
 	paintPrefix : function(){
 		this.paintLine();
@@ -242,18 +283,24 @@ $A.Tree.TreeNode.prototype={
 		var ownerTree = this.getOwnerTree();
 		this.els['line'].innerHTML = '';
 		var pathNodes = this.getPathNodes();
+		var w = (pathNodes.length-2)*18;
+		Ext.fly(this.els['line']).setWidth(w);
+		if(w==0){
+			this.els['line'].style.display='none';
+		}
+		var c = document.createElement('div');
+		Ext.fly(c).setWidth((pathNodes.length-2)*18);
 		for(var i = 1 ,count = pathNodes.length-1 ; i < count ; i++){
 				var node = pathNodes[i];
 				var ld = document.createElement('div');
-				if( node.parentNode==null  ){
-					ld.className = 'node-empty'
-//					img.src = ownerTree.getIcon('empty');
+				if( node.isLast()){
+					ld.className = 'node-empty';
 				}else{
-					ld.className = 'node-line'
-//					img.src = ownerTree.getIcon('line');
+					ld.className = 'node-line';
 				}
-				this.els['line'].appendChild(ld);
+				c.appendChild(ld);
 		}
+		this.els['line'].appendChild(c);
 	},
 	paintClipIcoImg : function(){
 		if(this.isRoot()){
@@ -262,12 +309,14 @@ $A.Tree.TreeNode.prototype={
 		}
 		var ownerTree = this.getOwnerTree();
 		var icon = 'empty';
-		if(this.isRoot()){
-			icon = this.isExpand ? 'nlMinus':'nlPlus';
-		}else{
+		if(!this.isRoot()){
+//			icon = this.isExpand ? 'nlMinus':'nlPlus';
+//		}else{
 			if(this.isLeaf()){
 				if(this.isLast()){
 					icon = 'joinBottom';
+				} else if(this.isFirst()){
+					icon = 'joinTop';
 				}else{
 					icon = 'join';
 				}
@@ -275,12 +324,16 @@ $A.Tree.TreeNode.prototype={
 				if(this.isExpand){
 					if(this.isLast()){
 						icon = 'minusBottom';
+					} else if(this.isFirst()){
+						icon = 'minusTop';
 					}else{
 						icon = 'minus';
 					}
 				}else{
 					if(this.isLast()){
 						icon = 'plusBottom';
+					} else if(this.isFirst()){
+						icon = 'plusTop';
 					}else{
 						icon = 'plus';
 					}
@@ -310,32 +363,42 @@ $A.Tree.TreeNode.prototype={
 				}
 			}
 		}
-//		this.els['icon'].src = ownerTree.getIcon(icon);
-		this.els['icon'].className = 'node-icon icon-' + icon;//ownerTree.getIcon(icon);
+		if(this.icon) {
+			this.els['icon'].className = 'node-icon';
+			this.els['icon'].src = this.icon;
+		}else{
+			this.els['icon'].className = 'node-icon icon-' + icon;//ownerTree.getIcon(icon);
+		}
 	},
 	paintCheckboxImg : function(){
-		var ownerTree = this.getOwnerTree();
+		var ownerTree = this.getOwnerTree();		
 		var checked = this.checked;
 		if(this.els){
-//			this.els['checkbox'].src = ownerTree.getIcon(((checked==2)?'checkbox2':(checked==1)?'checkbox1':'checkbox0'));
 			this.els['checkbox'].className = ((checked==2)?'checkbox2':(checked==1)?'checkbox1':'checkbox0');
 		}
 	},	
 	paintText : function(){
-		var text;
-		if(!Ext.isEmpty(this.ownerTree.renderer)){
-			text = window[this.ownerTree.renderer].call(this, this.record);
-		}else{
-			text = this.record.get(this.ownerTree.displayfield);
+		if(!this.els) return;
+		var ownerTree = this.getOwnerTree();
+		var text = this.record.get(ownerTree.displayfield)
+		if(!Ext.isEmpty(ownerTree.renderer)){
+			var renderer = window[ownerTree.renderer];
+			if(renderer)
+			text = renderer.call(this, text, this.record, this);
 		}
-		this.els['text'].style.cursor='hand'
-		this.els['text'].innerHTML=text;
+		this.els['text'].innerHTML=text
 	},
 	paintChildren : function(){
 		if(!this.childrenRendered){
 			this.els['child'].innerHTML = '';
-			this.childrenRendered = true;
+			this.childrenRendered = true;			
+			this.childNodes.sort(function(a, b){
+	        	var n1 = a.record.get('num')||0;
+				var n2 = b.record.get('num')||0;
+	            return n1-n2;
+	        });
 			var childNodes = this.childNodes;
+	        
 			for(var i=0;i < childNodes.length;i++){
 				childNodes[i].render();
 			}
@@ -367,7 +430,7 @@ $A.Tree.TreeNode.prototype={
 	getEl :  function(){
 		return this.els;
 	},
-	setCheck : function(checked){
+	setCheckStatus : function(checked){
 		if(checked==2||checked==3){
 			var childNodes = this.childNodes;
 			var count = childNodes.length;
@@ -377,7 +440,7 @@ $A.Tree.TreeNode.prototype={
 				var checked1 = 0;
 				var checked2 = 0;
 				for(var i=0;i<count;i++){
-				var checked = childNodes[i].checked;
+					var checked = childNodes[i].checked;
 					if(checked==1){
 						checked1++;
 					}else if(checked==2){
@@ -391,26 +454,31 @@ $A.Tree.TreeNode.prototype={
 		}
 		this.paintCheckboxImg();
 	},
-	onCheck : function(){
-		if(this.checked!==false){
-			if(this.checked==1){
-				this.cascade((function(checked){
-					this.setCheck(checked);
-				}),null,0);
-				this.bubble((function(checked){
-					this.setCheck(checked);
-				}),null,2);
-			}else{
-				this.cascade((function(checked){
-					this.setCheck(checked);
-				}),null,1);
-				this.bubble((function(checked){
-					this.setCheck(checked);
-				}),null,3);
-			}
+	setCheck : function(cked){
+		if(cked == true){
+			this.cascade(function(node){
+				node.setCheckStatus(1);
+			});
+			this.bubble(function(node){
+				node.setCheckStatus(3);
+			});
+		}else{
+			this.cascade(function(node){
+				node.setCheckStatus(0);
+			});
+			this.bubble(function(node){
+				node.setCheckStatus(2);
+			});
 		}
 	},
-
+	onCheck : function(){
+		if(this.checked == 0) {
+			this.setCheck(true)
+		}else{
+			this.setCheck(false)
+		}
+	},
+	
 	isRoot : function(){
 		return (this.ownerTree!=null) && (this.ownerTree.root === this);
 	},
@@ -419,10 +487,13 @@ $A.Tree.TreeNode.prototype={
 		//return this.leaf === true;
   	},
 	isLast : function(){
-		return (!this.parentNode ? true : this.parentNode.lastChild == this);
+		return (!this.parentNode ? true : this.parentNode.childNodes[this.parentNode.childNodes.length-1] == this);
+//		return (!this.parentNode ? true : this.parentNode.lastChild == this);
 	},
 	isFirst : function(){
-		return (!this.parentNode ? true : this.parentNode.firstChild == this);
+		var tree = this.getOwnerTree();
+		return (this.parentNode== tree.getRootNode()&&!tree.showRoot&&(this.parentNode.childNodes[0] == this));
+//		return (!this.parentNode ? true : this.parentNode.firstChild == this);
 	},
 	hasChildNodes : function(){
 		return !this.isLeaf() && this.childNodes.length > 0;
@@ -615,7 +686,7 @@ $A.Tree.TreeNode.prototype={
 		while(p){
 			b.unshift(p.attributes[attr]);
 			p = p.parentNode;
-    }
+    	}
 		var sep = this.getOwnerTree().pathSeparator;
 		return sep + b.join(sep);
 	},
@@ -624,9 +695,9 @@ $A.Tree.TreeNode.prototype={
   		var p = this;
 		while(p){
 			if(fn.call(scope || p, args || p) === false){
-	    	break;
+	    		break;
 			}
-	    p = p.parentNode;
+	    	p = p.parentNode;
 		}
 	},
 	//瀑布(遍历所有子节点)
@@ -669,7 +740,7 @@ $A.Tree.TreeNode.prototype={
 		        n.nextSibling = cs[i+1];
 		        if(i == 0){
 		        	this.setFirstChild(n);
-		         }
+		        }
 		        if(i == len-1){
          			this.setLastChild(n);
 				}

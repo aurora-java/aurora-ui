@@ -1,18 +1,18 @@
 <TABLE class="${wrapClass}" style="${style};width:${width}px;" id="${id}" cellSpacing="0">
 	<TBODY>
 		<TR>
-			<TD class="item-btn-tl"><I>&#160;</I></TD>
+			<TD class="item-btn-tl"><I></I></TD>
 			<TD class="item-btn-tc"></TD>
-			<TD class="item-btn-tr"><I>&#160;</I></TD>
+			<TD class="item-btn-tr"><I></I></TD>
 		</TR>
 		<TR>
-			<TD class="item-btn-ml"><I>&#160;</I></TD>
-			<TD class="item-btn-mc"><EM class="" unselectable="on"><BUTTON atype="btn" title="${title}" style="line-height:${lineheight}px;height:${height}px;${btnstyle}" class="${btnclass}">${text}</BUTTON></EM></TD>
-			<TD class="item-btn-mr"><I>&#160;</I></TD>
+			<TD class="item-btn-ml"><I></I></TD>
+			<TD class="item-btn-mc"><BUTTON atype="btn" title="${title}" style="height:${height}px;${btnstyle}" class="${btnclass}">${text}</BUTTON></TD>
+			<TD class="item-btn-mr"><I></I></TD>
 		</TR>
 		<TR>
-			<TD class="item-btn-bl"><I>&#160;</I></TD>
-			<TD class="item-btn-bc"></TD><TD class="item-btn-br"><I>&#160;</I></TD>
+			<TD class="item-btn-bl"><I></I></TD>
+			<TD class="item-btn-bc"></TD><TD class="item-btn-br"><I></I></TD>
 		</TR>
 	</TBODY>
 </TABLE>

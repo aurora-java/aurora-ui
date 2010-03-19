@@ -20,7 +20,8 @@
 }
 .window-caption {
 	height: 21px;
-	background:url(../window/window-header.gif) repeat-x;
+	border-bottom:1px solid #808080;
+	background:url(../toolbar/toolbar_bg.gif) repeat-x;
 }
 .window-caption-label div {
 	width:100%;
