@@ -4,7 +4,7 @@
     	<sql-query service="test.CONTRACT_HEAD_QUERY" rootPath="CONTRACT_HEAD" fieldNameCase="lower"/>
     	<sql-query service="test.CONTRACT_PARTNER_QUERY" rootPath="CONTRACT_PARTNERS" fieldNameCase="lower"/>
 	</a:init-procedure>
-    <a:view template="default" package="com.aurora.ui">   	
+    <a:view template="default" package="aurora.ui.std">   	
 		<script>
 		<![CDATA[
 			function submitsuccess(){

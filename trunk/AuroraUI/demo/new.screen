@@ -8,7 +8,7 @@
             <option name="Finance" value="30"/>
         </depts>
     </static-model>
-    <page template="default" package="com.aurora.ui">	
+    <page template="default" package="aurora.ui.std">	
 		<TABLE>
 		<TR>
 			<TD style="vertical-align:top">

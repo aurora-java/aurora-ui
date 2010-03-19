@@ -3,7 +3,7 @@
     <a:init-procedure>
 		<sql-query service="test.EmpQueryMatrix" rootPath="EMP-LIST"  fetchAll="true" autoCount="true" />
 	</a:init-procedure>
-    <a:view template="default" package="com.aurora.ui">
+    <a:view template="default" package="aurora.ui.std">
 		<dataSets>
 			<dataSet id="DEPT">
 				<datas dataSource="/model/EMP-LIST"/>

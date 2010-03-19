@@ -2,7 +2,7 @@
 <a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
     <a:init-procedure>
 	</a:init-procedure>
-    <a:view template="default" package="com.aurora.ui">
+    <a:view template="default" package="aurora.ui.std">
 		<script>						
 			function dateFormate(record,name,value){
 				return Aurora.formateDate(value);
@@ -15,7 +15,7 @@
 			</vBox>
 			<button width="50" height="50" click="function(){$('GRID_DS').query()}" text="查 询"/>
 		</hBox>
-		<grid dataSet="GRID_DS" style="margin:10px" width="650" height="280">
+		<grid dataSet="GRID_DS" style="margin-left:10px" width="650" height="200">
 			<columns>
 				<column dataIndex="empno" width="50" prompt="empno"/>
 				<column dataIndex="ename" width="100" prompt="ename"/>
