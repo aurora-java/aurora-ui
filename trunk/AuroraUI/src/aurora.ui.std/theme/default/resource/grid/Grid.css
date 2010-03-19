@@ -10,7 +10,7 @@
 	-moz-user-select:none;
 	width:100%;
 	overflow: hidden;
-	background: url(../grid/sky_blue_grid.gif) repeat-x; /*../grid/sky_blue_grid.gif*/
+	background: url(../grid/grid_bg.gif) repeat-x; /*../grid/sky_blue_grid.gif*/
 	border-bottom:none !important;
 	border-bottom:1px solid #cccccc;/*a4bed4*/
 }
@@ -66,7 +66,7 @@
 .grid-hc {
 	border-right:1px solid #cccccc;/*a4bed4*/
 	border-bottom:1px solid #cccccc;/*a4bed4*/
-	background: url(../grid/sky_blue_grid.gif) repeat-x;
+	background: url(../grid/grid_bg.gif) repeat-x;
 	color: #055a78;	
 	padding:0px;
 	text-align:center;
@@ -99,6 +99,14 @@
 	padding:1px;
 	/**color: #808080;**/
 	height:22px;
+}
+.grid-toolbar {
+	border:none;
+	border-bottom:1px solid #cccccc;
+}
+.grid-navbar {
+	border:none;
+	border-top:1px solid #cccccc;
 }
 .grid-sp {
 	position:absolute;

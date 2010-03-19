@@ -126,10 +126,12 @@ $A.DateField = Ext.extend($A.Component, {
 		}
 		
 		//插入日期
-//		if(!this.tbody) this.tbody = document.createElement("TBODY");
+		var k=0;
 		while(arr.length){
 			//每个星期插入一个tr
 			var row = document.createElement("tr");
+			if(k%2!=0)row.className='week-alt';
+			k++;
 			//每个星期有7天
 			for(var i = 1; i <= 7; i++){
 				var cell = document.createElement("td"); 

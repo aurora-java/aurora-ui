@@ -5,7 +5,7 @@
 	cursor: default;	
 	background-repeat: repeat-x;	
 	white-space: nowrap;	
-	height: 29px;
+	height: 25px;
 }
 .item-toolbar div.sep {
 	background-position: 50% 50%;
@@ -16,7 +16,7 @@
 	margin-right: 1px;	
 	background-repeat: no-repeat;	
 	top: 1px;	
-	height: 29px;	
+	height: 25px;	
 	moz-user-select: none
 	width:2px;
 }
