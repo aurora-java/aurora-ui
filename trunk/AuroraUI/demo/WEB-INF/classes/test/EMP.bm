@@ -10,6 +10,9 @@
 		<field name="comm" datatype="java.lang.Long" databaseType="FLOAT" prompt="comm"/>
 		<field name="creation_date" datatype="date" databaseType="DATE" updateExpression="sysdate" prompt="creationDate"/>
 		<field name="now_date" datatype="date" expression="sysdate" databaseType="DATE" prompt="NOW_DATE"/>
+		<field name="test1" datatype="java.lang.String" databaseType="VARCHAR"/>
+		<field name="test2" datatype="java.lang.String" databaseType="VARCHAR"/>
+		<field name="gender" datatype="java.lang.String" databaseType="VARCHAR"/>
 		<ref-field name="dname" sourceField="dname" sourceModel="test.DEPT" prompt="dname"/>
 		<ref-field name="mgr_name" sourceField="ename" relationName="MGR" prompt="mgrName"/>
 	</fields>
