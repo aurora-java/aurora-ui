@@ -1,187 +1,26 @@
-<PRE><CODE class=html>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<table class="code_table"><tr><td>
+	<PRE><CODE class=html>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 <SPAN class=tag>&lt;<SPAN class=keyword>a</SPAN>:screen<SPAN class=attribute> xmlns:a=<SPAN class=value>"http://www.aurora-framework.org/application"</SPAN></SPAN><SPAN class=attribute> trace=<SPAN class=value>"true"</SPAN></SPAN>&gt;</SPAN>
-    <SPAN class=tag>&lt;<SPAN class=keyword>a</SPAN>:init-procedure&gt;</SPAN>
-        <SPAN class=tag>&lt;sql-query<SPAN class=attribute> service=<SPAN class=value>"test.DEPTQuery"</SPAN></SPAN><SPAN class=attribute> rootPath=<SPAN class=value>"DEPT-LIST"</SPAN></SPAN><SPAN class=attribute> fieldNameCase=<SPAN class=value>"lower"</SPAN></SPAN><SPAN class=attribute> fetchAll=<SPAN class=value>"true"</SPAN></SPAN><SPAN class=attribute> autoCount=<SPAN class=value>"true"</SPAN></SPAN> /&gt;</SPAN>
-    <SPAN class=tag>&lt;/<SPAN class=keyword>a</SPAN>:init-procedure&gt;</SPAN>
+    <SPAN class=tag>&lt;<SPAN class=keyword>a</SPAN>:init-procedure&gt;</SPAN><SPAN class=tag>&lt;/<SPAN class=keyword>a</SPAN>:init-procedure&gt;</SPAN>
     <SPAN class=tag>&lt;<SPAN class=keyword>a</SPAN>:view<SPAN class=attribute> template=<SPAN class=value>"default"</SPAN></SPAN><SPAN class=attribute> package=<SPAN class=value>"aurora.ui.std"</SPAN></SPAN>&gt;</SPAN>
+        <SPAN class=tag>&lt;dataSet<SPAN class=attribute> id=<SPAN class=value>"UNIT_DS"</SPAN></SPAN><SPAN class=attribute> autoQuery=<SPAN class=value>"true"</SPAN></SPAN><SPAN class=attribute> href=<SPAN class=value>"test.UNIT"</SPAN></SPAN> <SPAN class=attribute> fecthAll=<SPAN class=value>"false"</SPAN></SPAN><SPAN class=attribute> pageSize=<SPAN class=value>"200"</SPAN></SPAN><SPAN class=attribute> autoCount=<SPAN class=value>"true"</SPAN></SPAN><SPAN class=attribute> queryUrl=<SPAN class=value>"autocrud/test.UNIT/query"</SPAN></SPAN>&gt;</SPAN>
+        <SPAN class=tag>&lt;/dataSet&gt;</SPAN>
         <SPAN class=tag>&lt;<SPAN class=keyword>script</SPAN>&gt;</SPAN><SPAN class=javascript>
         &lt;![CDATA[
-            Aurora.setValidInfoType(<SPAN class=string>'tip'</SPAN>); 
-            <SPAN class=comment>/*Aurora.regEvent('valid',function(manager, ds, valid){
-                 alert(1)
-            })
-            */</SPAN>
-            
-            <SPAN class=comment>/*
-            Aurora.regEvent('ajaxstart',function(){
-                 Aurora.showWindow('提示','正在提交...',200,100)
-            })
-            Aurora.regEvent('ajaxcomplete',function(){
-                Aurora.hideWindow()
-            })
-            */</SPAN>
-            
-            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>onDblclick</SPAN><SPAN class=params>(grid,record,row,index)</SPAN>{</SPAN>
-                <SPAN class=keyword>new</SPAN> Aurora.Window({id:<SPAN class=string>'win2'</SPAN>, url:<SPAN class=string>'people.screen'</SPAN>, title:<SPAN class=string>'更新'</SPAN>, height:<SPAN class=number>300</SPAN>,width:<SPAN class=number>300</SPAN>});
-            }    
-                    
-            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>changeEditor</SPAN><SPAN class=params>(record)</SPAN>{</SPAN>
-                <SPAN class=keyword>var</SPAN> sal = record.get(<SPAN class=string>'sal'</SPAN>);
-                <SPAN class=keyword>if</SPAN>(sal &gt; <SPAN class=number>1500</SPAN>){
-                    <SPAN class=keyword>return</SPAN> <SPAN class=string>"tf"</SPAN>
-                }<SPAN class=keyword>else</SPAN>{
-                    <SPAN class=keyword>return</SPAN> <SPAN class=string>""</SPAN>
-                }
+            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>test</SPAN><SPAN class=params>(tree,record,node)</SPAN>{</SPAN>
+                Aurora.showWindow(<SPAN class=string>'提示'</SPAN>,<SPAN class=string>'&lt;div style="margin:5px;"&gt;选择了"'</SPAN>+record.get(<SPAN class=string>'NAME'</SPAN>)+<SPAN class=string>'&lt;/div&gt;'</SPAN>,<SPAN class=number>200</SPAN>,<SPAN class=number>100</SPAN>)
             }
-            
-            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>onCommit</SPAN><SPAN class=params>(lov,v,t,r)</SPAN>{</SPAN>
-                <SPAN class=keyword>var</SPAN> record = $$(<SPAN class=string>'GRID_DS'</SPAN>).getCurrentRecord();
-                record.set(<SPAN class=string>'sal'</SPAN>,v);
-            }
-            
-            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>onSelect</SPAN><SPAN class=params>(dp,v)</SPAN>{</SPAN>
-                <SPAN class=keyword>if</SPAN>(v &lt; <SPAN class=number>20</SPAN>){
-                    $$(<SPAN class=string>'datagrid'</SPAN>).setEditor(<SPAN class=string>'job'</SPAN>,<SPAN class=string>'lov'</SPAN>);
-                }<SPAN class=keyword>else</SPAN>{
-                    $$(<SPAN class=string>'datagrid'</SPAN>).setEditor(<SPAN class=string>'job'</SPAN>,<SPAN class=string>''</SPAN>);
-                }
-            }
-            
-            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>validate</SPAN><SPAN class=params>()</SPAN>{</SPAN>
-                $$(<SPAN class=string>'GRID_DS'</SPAN>).validate();
-            }
-            
-            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>query</SPAN><SPAN class=params>()</SPAN>{</SPAN>
-                $$(<SPAN class=string>'GRID_DS'</SPAN>).query()
-            }
-            
-            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>onUpdate</SPAN><SPAN class=params>(ds,record,name,value)</SPAN>{</SPAN>
-                <SPAN class=keyword>if</SPAN>(name==<SPAN class=string>'deptno'</SPAN>){
-                    <SPAN class=keyword>if</SPAN>(value == <SPAN class=number>9</SPAN> || value==<SPAN class=number>10</SPAN>){
-                        record.getMeta().getField(<SPAN class=string>'job'</SPAN>).setRequired(<SPAN class=literal>true</SPAN>);    
-                    }<SPAN class=keyword>else</SPAN>{
-                        record.getMeta().getField(<SPAN class=string>'job'</SPAN>).setRequired(<SPAN class=literal>false</SPAN>);
-                    }
-                }
-            }
-            
-            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>onSuccess</SPAN><SPAN class=params>()</SPAN>{</SPAN>
-                Aurora.showMessage(<SPAN class=string>'成功'</SPAN>, <SPAN class=string>'操作成功!'</SPAN>);
-            }
-            
-            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>test</SPAN><SPAN class=params>(ckb,v)</SPAN>{</SPAN>
-                alert(v)
-            }
-            
-            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>renderer</SPAN><SPAN class=params>(value,record, name)</SPAN>{</SPAN>
-                <SPAN class=keyword>return</SPAN> <SPAN class=string>'&lt;font color="red"&gt;'</SPAN>+value+<SPAN class=string>'&lt;/font&gt;'</SPAN>;
-            }
-            
         ]]&gt;
-        </SPAN><SPAN class=tag>&lt;/<SPAN class=keyword>script</SPAN>&gt;</SPAN>
-        <SPAN class=tag>&lt;dataSets&gt;</SPAN>
-            <SPAN class=tag>&lt;dataSet<SPAN class=attribute> id=<SPAN class=value>"QUERY_DS"</SPAN></SPAN><SPAN class=attribute> href=<SPAN class=value>"test.EMP"</SPAN></SPAN>&gt;</SPAN>
-            <SPAN class=tag>&lt;/dataSet&gt;</SPAN>
-            <SPAN class=tag>&lt;dataSet<SPAN class=attribute> id=<SPAN class=value>"DEPT_DS"</SPAN></SPAN>&gt;</SPAN>
-                <SPAN class=tag>&lt;datas<SPAN class=attribute> dataSource=<SPAN class=value>"/model/DEPT-LIST"</SPAN></SPAN>/&gt;</SPAN>
-            <SPAN class=tag>&lt;/dataSet&gt;</SPAN>
-            <SPAN class=tag>&lt;dataSet<SPAN class=attribute> id=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> href=<SPAN class=value>"test.EMP"</SPAN></SPAN><SPAN class=attribute> selectable=<SPAN class=value>"true"</SPAN></SPAN><SPAN class=attribute> selectionModel=<SPAN class=value>"multiple"</SPAN></SPAN><SPAN class=attribute> submiturl=<SPAN class=value>"manage_control.svc"</SPAN></SPAN><SPAN class=attribute> fecthAll=<SPAN class=value>"false"</SPAN></SPAN><SPAN class=attribute> pageSize=<SPAN class=value>"20"</SPAN></SPAN><SPAN class=attribute> autoCount=<SPAN class=value>"true"</SPAN></SPAN><SPAN class=attribute> queryDataSet=<SPAN class=value>"QUERY_DS"</SPAN></SPAN><SPAN class=attribute> queryUrl=<SPAN class=value>"autocrud/test.EMP/query"</SPAN></SPAN>&gt;</SPAN>
-                <SPAN class=tag>&lt;fields&gt;</SPAN>
-                    <SPAN class=tag>&lt;field<SPAN class=attribute> name=<SPAN class=value>"mgr_name"</SPAN></SPAN><SPAN class=attribute> required=<SPAN class=value>"true"</SPAN></SPAN><SPAN class=attribute> title=<SPAN class=value>"选择MGR"</SPAN></SPAN><SPAN class=attribute> winWidth=<SPAN class=value>"360"</SPAN></SPAN><SPAN class=attribute> winHeight=<SPAN class=value>"460"</SPAN></SPAN><SPAN class=attribute> ref=<SPAN class=value>"search.screen"</SPAN></SPAN>&gt;</SPAN>
-                        <SPAN class=tag>&lt;mapping&gt;</SPAN>
-                            <SPAN class=tag>&lt;<SPAN class=keyword>map</SPAN><SPAN class=attribute> from=<SPAN class=value>"empno"</SPAN></SPAN><SPAN class=attribute> to=<SPAN class=value>"mgr"</SPAN></SPAN>/&gt;</SPAN>
-                            <SPAN class=tag>&lt;<SPAN class=keyword>map</SPAN><SPAN class=attribute> from=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> to=<SPAN class=value>"mgr_name"</SPAN></SPAN>/&gt;</SPAN>
-                        <SPAN class=tag>&lt;/mapping&gt;</SPAN>
-                    <SPAN class=tag>&lt;/field&gt;</SPAN>
-                    <SPAN class=tag>&lt;field<SPAN class=attribute> name=<SPAN class=value>"gender"</SPAN></SPAN><SPAN class=attribute> defaultValue=<SPAN class=value>"M"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;field<SPAN class=attribute> name=<SPAN class=value>"test1"</SPAN></SPAN><SPAN class=attribute> defaultValue=<SPAN class=value>"N"</SPAN></SPAN><SPAN class=attribute> checkedValue=<SPAN class=value>"Y"</SPAN></SPAN><SPAN class=attribute> uncheckedValue=<SPAN class=value>"N"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;field<SPAN class=attribute> name=<SPAN class=value>"test2"</SPAN></SPAN><SPAN class=attribute> defaultValue=<SPAN class=value>"N"</SPAN></SPAN><SPAN class=attribute> checkedValue=<SPAN class=value>"Y"</SPAN></SPAN><SPAN class=attribute> uncheckedValue=<SPAN class=value>"N"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;field<SPAN class=attribute> name=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> required=<SPAN class=value>"true"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;field<SPAN class=attribute> name=<SPAN class=value>"hiredate"</SPAN></SPAN><SPAN class=attribute> datatype=<SPAN class=value>"date"</SPAN></SPAN><SPAN class=attribute> required=<SPAN class=value>"true"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;field<SPAN class=attribute> name=<SPAN class=value>"dname"</SPAN></SPAN><SPAN class=attribute> required=<SPAN class=value>"true"</SPAN></SPAN><SPAN class=attribute> options=<SPAN class=value>"DEPT_DS"</SPAN></SPAN><SPAN class=attribute> displayField=<SPAN class=value>"dname"</SPAN></SPAN><SPAN class=attribute> valueField=<SPAN class=value>"deptno"</SPAN></SPAN>&gt;</SPAN>
-                        <SPAN class=tag>&lt;mapping&gt;</SPAN>
-                            <SPAN class=tag>&lt;<SPAN class=keyword>map</SPAN><SPAN class=attribute> from=<SPAN class=value>"deptno"</SPAN></SPAN><SPAN class=attribute> to=<SPAN class=value>"deptno"</SPAN></SPAN>/&gt;</SPAN>
-                            <SPAN class=tag>&lt;<SPAN class=keyword>map</SPAN><SPAN class=attribute> from=<SPAN class=value>"dname"</SPAN></SPAN><SPAN class=attribute> to=<SPAN class=value>"dname"</SPAN></SPAN>/&gt;</SPAN>
-                        <SPAN class=tag>&lt;/mapping&gt;</SPAN>
-                    <SPAN class=tag>&lt;/field&gt;</SPAN>                                 
-                <SPAN class=tag>&lt;/fields&gt;</SPAN>
-                <SPAN class=tag>&lt;events&gt;</SPAN>
-                    <SPAN class=tag>&lt;event<SPAN class=attribute> name=<SPAN class=value>"update"</SPAN></SPAN><SPAN class=attribute> handler=<SPAN class=value>"onUpdate"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;event<SPAN class=attribute> name=<SPAN class=value>"submitsuccess"</SPAN></SPAN><SPAN class=attribute> handler=<SPAN class=value>"onSuccess"</SPAN></SPAN>/&gt;</SPAN>
-                <SPAN class=tag>&lt;/events&gt;</SPAN>
-            <SPAN class=tag>&lt;/dataSet&gt;</SPAN>
-        <SPAN class=tag>&lt;/dataSets&gt;</SPAN>
+        </SPAN><SPAN class=tag>&lt;/<SPAN class=keyword>script</SPAN>&gt;</SPAN>    
         <SPAN class=tag>&lt;hBox&gt;</SPAN>
-            <SPAN class=tag>&lt;vBox<SPAN class=attribute> labelWidth=<SPAN class=value>"50"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"350"</SPAN></SPAN><SPAN class=attribute> className=<SPAN class=value>"mytable"</SPAN></SPAN><SPAN class=attribute> title=<SPAN class=value>"查询Form"</SPAN></SPAN><SPAN class=attribute> style=<SPAN class=value>"margin:5px;"</SPAN></SPAN>&gt;</SPAN>
-                <SPAN class=tag>&lt;textField<SPAN class=attribute> name=<SPAN class=value>"empno"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"empno"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"QUERY_DS"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN> /&gt;</SPAN>
-                <SPAN class=tag>&lt;textField<SPAN class=attribute> name=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"QUERY_DS"</SPAN></SPAN><SPAN class=attribute> validAlign=<SPAN class=value>"bottom"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN>/&gt;</SPAN>
-            <SPAN class=tag>&lt;/vBox&gt;</SPAN>
-            <SPAN class=tag>&lt;<SPAN class=keyword>div</SPAN><SPAN class=attribute> width=<SPAN class=value>"300"</SPAN></SPAN><SPAN class=attribute> style=<SPAN class=value>"padding:10px;background-color:green;color:#ffffff;margin:7px;border:1px solid #cccccc;display:none"</SPAN></SPAN><SPAN class=attribute> height=<SPAN class=value>"100"</SPAN></SPAN><SPAN class=attribute> id=<SPAN class=value>"custommsg"</SPAN></SPAN>&gt;</SPAN><SPAN class=tag>&lt;/<SPAN class=keyword>div</SPAN>&gt;</SPAN>
-        <SPAN class=tag>&lt;/hBox&gt;</SPAN>
-        <SPAN class=tag>&lt;hBox<SPAN class=attribute> style=<SPAN class=value>"margin-left:5px;"</SPAN></SPAN>&gt;</SPAN>
-            <SPAN class=tag>&lt;<SPAN class=keyword>button</SPAN><SPAN class=attribute> text=<SPAN class=value>"查询"</SPAN></SPAN><SPAN class=attribute> click=<SPAN class=value>"query"</SPAN></SPAN>/&gt;</SPAN>
-        <SPAN class=tag>&lt;/hBox&gt;</SPAN>
-        <SPAN class=tag>&lt;hBox<SPAN class=attribute> width=<SPAN class=value>"800"</SPAN></SPAN><SPAN class=attribute> style=<SPAN class=value>"margin:5px;"</SPAN></SPAN>&gt;</SPAN>
-            <SPAN class=tag>&lt;grid<SPAN class=attribute> id=<SPAN class=value>"datagrid"</SPAN></SPAN><SPAN class=attribute> dataSet=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"720"</SPAN></SPAN><SPAN class=attribute> height=<SPAN class=value>"300"</SPAN></SPAN><SPAN class=attribute> navBar=<SPAN class=value>"true"</SPAN></SPAN>&gt;</SPAN>
-                <SPAN class=tag>&lt;toolBar&gt;</SPAN>
-                    <SPAN class=tag>&lt;<SPAN class=keyword>button</SPAN><SPAN class=attribute> type=<SPAN class=value>"add"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;<SPAN class=keyword>button</SPAN><SPAN class=attribute> type=<SPAN class=value>"delete"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;<SPAN class=keyword>button</SPAN><SPAN class=attribute> type=<SPAN class=value>"save"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;separator/&gt;</SPAN>
-                    <SPAN class=tag>&lt;<SPAN class=keyword>button</SPAN><SPAN class=attribute> icon=<SPAN class=value>"images/add16.gif"</SPAN></SPAN><SPAN class=attribute> text=<SPAN class=value>"test"</SPAN></SPAN><SPAN class=attribute> click=<SPAN class=value>"onSuccess"</SPAN></SPAN>/&gt;</SPAN>
-                <SPAN class=tag>&lt;/toolBar&gt;</SPAN>
-                <SPAN class=tag>&lt;columns&gt;</SPAN>
-                    <SPAN class=tag>&lt;column<SPAN class=attribute> dataIndex=<SPAN class=value>"empno"</SPAN></SPAN> <SPAN class=attribute> width=<SPAN class=value>"50"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"empno"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;column<SPAN class=attribute> dataIndex=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> editor=<SPAN class=value>"tf"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"90"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"ename"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;column<SPAN class=attribute> prompt=<SPAN class=value>"组合列"</SPAN></SPAN>&gt;</SPAN>
-                        <SPAN class=tag>&lt;column<SPAN class=attribute> dataIndex=<SPAN class=value>"mgr"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"60"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"mgrno"</SPAN></SPAN>/&gt;</SPAN>
-                        <SPAN class=tag>&lt;column<SPAN class=attribute> dataIndex=<SPAN class=value>"mgr_name"</SPAN></SPAN><SPAN class=attribute> editor=<SPAN class=value>"lov"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"100"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"mgr"</SPAN></SPAN>/&gt;</SPAN>
-                        <SPAN class=tag>&lt;column<SPAN class=attribute> dataIndex=<SPAN class=value>"hiredate"</SPAN></SPAN><SPAN class=attribute> renderer=<SPAN class=value>"Aurora.formateDate"</SPAN></SPAN><SPAN class=attribute> editor=<SPAN class=value>"dp"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"100"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"hiredate"</SPAN></SPAN>/&gt;</SPAN>
-                        <SPAN class=tag>&lt;column<SPAN class=attribute> dataIndex=<SPAN class=value>"dname"</SPAN></SPAN><SPAN class=attribute> editor=<SPAN class=value>"cb"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"100"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"dept"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;/column&gt;</SPAN>
-                    <SPAN class=tag>&lt;column<SPAN class=attribute> dataIndex=<SPAN class=value>"gender"</SPAN></SPAN><SPAN class=attribute> editor=<SPAN class=value>"radio"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"90"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"gender"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;column<SPAN class=attribute> dataIndex=<SPAN class=value>"test1"</SPAN></SPAN><SPAN class=attribute> editor=<SPAN class=value>"chb"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"50"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"test1"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;column<SPAN class=attribute> dataIndex=<SPAN class=value>"test2"</SPAN></SPAN><SPAN class=attribute> editor=<SPAN class=value>"chb"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"50"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"test2"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;column<SPAN class=attribute> dataIndex=<SPAN class=value>"job"</SPAN></SPAN><SPAN class=attribute> editor=<SPAN class=value>"tf"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"180"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"job"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;column<SPAN class=attribute> dataIndex=<SPAN class=value>"sal"</SPAN></SPAN><SPAN class=attribute> editor=<SPAN class=value>"tf"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"180"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"sal"</SPAN></SPAN>/&gt;</SPAN>
-                <SPAN class=tag>&lt;/columns&gt;</SPAN>
-                <SPAN class=tag>&lt;editors&gt;</SPAN>
-                    <SPAN class=tag>&lt;textField<SPAN class=attribute> id=<SPAN class=value>"tf"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;comboBox<SPAN class=attribute> id=<SPAN class=value>"cb"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;datePicker<SPAN class=attribute> id=<SPAN class=value>"dp"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;lov<SPAN class=attribute> id=<SPAN class=value>"lov"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;checkBox<SPAN class=attribute> id=<SPAN class=value>"chb"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;radio<SPAN class=attribute> id=<SPAN class=value>"radio"</SPAN></SPAN>&gt;</SPAN>
-                        <SPAN class=tag>&lt;items&gt;</SPAN>
-                            <SPAN class=tag>&lt;item<SPAN class=attribute> label=<SPAN class=value>"男"</SPAN></SPAN><SPAN class=attribute> value=<SPAN class=value>"M"</SPAN></SPAN>/&gt;</SPAN>
-                            <SPAN class=tag>&lt;item<SPAN class=attribute> label=<SPAN class=value>"女"</SPAN></SPAN><SPAN class=attribute> value=<SPAN class=value>"F"</SPAN></SPAN>/&gt;</SPAN>
-                        <SPAN class=tag>&lt;/items&gt;</SPAN>
-                    <SPAN class=tag>&lt;/radio&gt;</SPAN>
-                <SPAN class=tag>&lt;/editors&gt;</SPAN>
-                <SPAN class=tag>&lt;events&gt;</SPAN>
-                    <SPAN class=tag>&lt;event<SPAN class=attribute> name=<SPAN class=value>"dblclick"</SPAN></SPAN><SPAN class=attribute> handler=<SPAN class=value>"onDblclick"</SPAN></SPAN>/&gt;</SPAN>
-                <SPAN class=tag>&lt;/events&gt;</SPAN>
-            <SPAN class=tag>&lt;/grid&gt;</SPAN>
-            <SPAN class=tag>&lt;vBox<SPAN class=attribute> labelWidth=<SPAN class=value>"75"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"250"</SPAN></SPAN><SPAN class=attribute> title=<SPAN class=value>"更新Form"</SPAN></SPAN>&gt;</SPAN>
-                <SPAN class=tag>&lt;textField<SPAN class=attribute> name=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> validAlign=<SPAN class=value>"bottom"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN>/&gt;</SPAN>
-                <SPAN class=tag>&lt;textField<SPAN class=attribute> name=<SPAN class=value>"job"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN>/&gt;</SPAN>
-                <SPAN class=tag>&lt;lov<SPAN class=attribute> name=<SPAN class=value>"mgr_name"</SPAN></SPAN> <SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN>/&gt;</SPAN>
-                <SPAN class=tag>&lt;datePicker<SPAN class=attribute> name=<SPAN class=value>"hiredate"</SPAN></SPAN> <SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN>/&gt;</SPAN>
-                <SPAN class=tag>&lt;comboBox<SPAN class=attribute> name=<SPAN class=value>"dname"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN>/&gt;</SPAN>
-                <SPAN class=tag>&lt;textField<SPAN class=attribute> name=<SPAN class=value>"sal"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN>/&gt;</SPAN>
-                <SPAN class=tag>&lt;radio<SPAN class=attribute> prompt=<SPAN class=value>"性别"</SPAN></SPAN><SPAN class=attribute> name=<SPAN class=value>"gender"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN>&gt;</SPAN>
-                    <SPAN class=tag>&lt;items&gt;</SPAN>
-                        <SPAN class=tag>&lt;item<SPAN class=attribute> label=<SPAN class=value>"男"</SPAN></SPAN><SPAN class=attribute> value=<SPAN class=value>"M"</SPAN></SPAN>/&gt;</SPAN>
-                        <SPAN class=tag>&lt;item<SPAN class=attribute> label=<SPAN class=value>"女"</SPAN></SPAN><SPAN class=attribute> value=<SPAN class=value>"F"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;/items&gt;</SPAN>
-                <SPAN class=tag>&lt;/radio&gt;</SPAN>
-                <SPAN class=tag>&lt;hBox<SPAN class=attribute> prompt=<SPAN class=value>"test"</SPAN></SPAN>&gt;</SPAN>
-                    <SPAN class=tag>&lt;checkBox<SPAN class=attribute> name=<SPAN class=value>"test1"</SPAN></SPAN><SPAN class=attribute> label=<SPAN class=value>"TEST1"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN>/&gt;</SPAN>
-                    <SPAN class=tag>&lt;checkBox<SPAN class=attribute> name=<SPAN class=value>"test2"</SPAN></SPAN><SPAN class=attribute> label=<SPAN class=value>"TEST2"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN>/&gt;</SPAN>
-                <SPAN class=tag>&lt;/hBox&gt;</SPAN>
-                <SPAN class=tag>&lt;<SPAN class=keyword>label</SPAN><SPAN class=attribute> name=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"测试"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> renderer=<SPAN class=value>"renderer"</SPAN></SPAN>/&gt;</SPAN>
-                <SPAN class=tag>&lt;<SPAN class=keyword>textArea</SPAN><SPAN class=attribute> name=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"测试"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN>/&gt;</SPAN>
-            <SPAN class=tag>&lt;/vBox&gt;</SPAN>            
+            <SPAN class=tag>&lt;<SPAN class=keyword>form</SPAN><SPAN class=attribute> padding=<SPAN class=value>"0"</SPAN></SPAN><SPAN class=attribute> title=<SPAN class=value>"组织结构"</SPAN></SPAN><SPAN class=attribute> style=<SPAN class=value>"margin:10px;"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"200"</SPAN></SPAN>&gt;</SPAN>
+                <SPAN class=tag>&lt;tree<SPAN class=attribute> id=<SPAN class=value>"tree"</SPAN></SPAN><SPAN class=attribute> showCheckBox=<SPAN class=value>"false"</SPAN></SPAN><SPAN class=attribute> dataSet=<SPAN class=value>"UNIT_DS"</SPAN></SPAN><SPAN class=attribute> displayField=<SPAN class=value>"NAME"</SPAN></SPAN><SPAN class=attribute> idField=<SPAN class=value>"UNIT_ID"</SPAN></SPAN><SPAN class=attribute> parentField=<SPAN class=value>"PARENT_ID"</SPAN></SPAN>&gt;</SPAN>
+                    <SPAN class=tag>&lt;events&gt;</SPAN>
+                        <SPAN class=tag>&lt;event<SPAN class=attribute> name=<SPAN class=value>"click"</SPAN></SPAN><SPAN class=attribute> handler=<SPAN class=value>"test"</SPAN></SPAN>/&gt;</SPAN>
+                    <SPAN class=tag>&lt;/events&gt;</SPAN>
+                <SPAN class=tag>&lt;/tree&gt;</SPAN>
+            <SPAN class=tag>&lt;/<SPAN class=keyword>form</SPAN>&gt;</SPAN>
         <SPAN class=tag>&lt;/hBox&gt;</SPAN>
     <SPAN class=tag>&lt;/<SPAN class=keyword>a</SPAN>:view&gt;</SPAN>
 <SPAN class=tag>&lt;/<SPAN class=keyword>a</SPAN>:screen&gt;</SPAN></CODE></PRE>
+</td></tr></table>

@@ -1,3 +1,4 @@
+<table class="code_table"><tr><td>
 <PRE><CODE class=html>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 <SPAN class=tag>&lt;<SPAN class=keyword>a</SPAN>:screen<SPAN class=attribute> xmlns:a=<SPAN class=value>"http://www.aurora-framework.org/application"</SPAN></SPAN><SPAN class=attribute> trace=<SPAN class=value>"true"</SPAN></SPAN>&gt;</SPAN>
     <SPAN class=tag>&lt;<SPAN class=keyword>a</SPAN>:init-procedure&gt;</SPAN>
@@ -112,17 +113,17 @@
             <SPAN class=tag>&lt;/dataSet&gt;</SPAN>
         <SPAN class=tag>&lt;/dataSets&gt;</SPAN>
         <SPAN class=tag>&lt;hBox&gt;</SPAN>
-            <SPAN class=tag>&lt;vBox<SPAN class=attribute> labelWidth=<SPAN class=value>"50"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"350"</SPAN></SPAN><SPAN class=attribute> className=<SPAN class=value>"mytable"</SPAN></SPAN><SPAN class=attribute> title=<SPAN class=value>"查询Form"</SPAN></SPAN><SPAN class=attribute> style=<SPAN class=value>"margin:5px;"</SPAN></SPAN>&gt;</SPAN>
+            <SPAN class=tag>&lt;<SPAN class=keyword>form</SPAN><SPAN class=attribute> labelWidth=<SPAN class=value>"50"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"350"</SPAN></SPAN><SPAN class=attribute> className=<SPAN class=value>"mytable"</SPAN></SPAN><SPAN class=attribute> title=<SPAN class=value>"查询Form"</SPAN></SPAN><SPAN class=attribute> style=<SPAN class=value>"margin:5px;"</SPAN></SPAN>&gt;</SPAN>
                 <SPAN class=tag>&lt;textField<SPAN class=attribute> name=<SPAN class=value>"empno"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"empno"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"QUERY_DS"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN> /&gt;</SPAN>
                 <SPAN class=tag>&lt;textField<SPAN class=attribute> name=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"QUERY_DS"</SPAN></SPAN><SPAN class=attribute> validAlign=<SPAN class=value>"bottom"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN>/&gt;</SPAN>
-            <SPAN class=tag>&lt;/vBox&gt;</SPAN>
+            <SPAN class=tag>&lt;/<SPAN class=keyword>form</SPAN>&gt;</SPAN>
             <SPAN class=tag>&lt;<SPAN class=keyword>div</SPAN><SPAN class=attribute> width=<SPAN class=value>"300"</SPAN></SPAN><SPAN class=attribute> style=<SPAN class=value>"padding:10px;background-color:green;color:#ffffff;margin:7px;border:1px solid #cccccc;display:none"</SPAN></SPAN><SPAN class=attribute> height=<SPAN class=value>"100"</SPAN></SPAN><SPAN class=attribute> id=<SPAN class=value>"custommsg"</SPAN></SPAN>&gt;</SPAN><SPAN class=tag>&lt;/<SPAN class=keyword>div</SPAN>&gt;</SPAN>
         <SPAN class=tag>&lt;/hBox&gt;</SPAN>
         <SPAN class=tag>&lt;hBox<SPAN class=attribute> style=<SPAN class=value>"margin-left:5px;"</SPAN></SPAN>&gt;</SPAN>
             <SPAN class=tag>&lt;<SPAN class=keyword>button</SPAN><SPAN class=attribute> text=<SPAN class=value>"查询"</SPAN></SPAN><SPAN class=attribute> click=<SPAN class=value>"query"</SPAN></SPAN>/&gt;</SPAN>
         <SPAN class=tag>&lt;/hBox&gt;</SPAN>
         <SPAN class=tag>&lt;hBox<SPAN class=attribute> width=<SPAN class=value>"800"</SPAN></SPAN><SPAN class=attribute> style=<SPAN class=value>"margin:5px;"</SPAN></SPAN>&gt;</SPAN>
-            <SPAN class=tag>&lt;grid<SPAN class=attribute> id=<SPAN class=value>"datagrid"</SPAN></SPAN><SPAN class=attribute> dataSet=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"720"</SPAN></SPAN><SPAN class=attribute> height=<SPAN class=value>"300"</SPAN></SPAN><SPAN class=attribute> navBar=<SPAN class=value>"true"</SPAN></SPAN>&gt;</SPAN>
+            <SPAN class=tag>&lt;grid<SPAN class=attribute> id=<SPAN class=value>"datagrid"</SPAN></SPAN><SPAN class=attribute> dataSet=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"530"</SPAN></SPAN><SPAN class=attribute> height=<SPAN class=value>"300"</SPAN></SPAN><SPAN class=attribute> navBar=<SPAN class=value>"true"</SPAN></SPAN>&gt;</SPAN>
                 <SPAN class=tag>&lt;toolBar&gt;</SPAN>
                     <SPAN class=tag>&lt;<SPAN class=keyword>button</SPAN><SPAN class=attribute> type=<SPAN class=value>"add"</SPAN></SPAN>/&gt;</SPAN>
                     <SPAN class=tag>&lt;<SPAN class=keyword>button</SPAN><SPAN class=attribute> type=<SPAN class=value>"delete"</SPAN></SPAN>/&gt;</SPAN>
@@ -162,7 +163,7 @@
                     <SPAN class=tag>&lt;event<SPAN class=attribute> name=<SPAN class=value>"dblclick"</SPAN></SPAN><SPAN class=attribute> handler=<SPAN class=value>"onDblclick"</SPAN></SPAN>/&gt;</SPAN>
                 <SPAN class=tag>&lt;/events&gt;</SPAN>
             <SPAN class=tag>&lt;/grid&gt;</SPAN>
-            <SPAN class=tag>&lt;vBox<SPAN class=attribute> labelWidth=<SPAN class=value>"75"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"250"</SPAN></SPAN><SPAN class=attribute> title=<SPAN class=value>"更新Form"</SPAN></SPAN>&gt;</SPAN>
+            <SPAN class=tag>&lt;<SPAN class=keyword>form</SPAN><SPAN class=attribute> labelWidth=<SPAN class=value>"75"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"250"</SPAN></SPAN><SPAN class=attribute> title=<SPAN class=value>"更新Form"</SPAN></SPAN>&gt;</SPAN>
                 <SPAN class=tag>&lt;textField<SPAN class=attribute> name=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> validAlign=<SPAN class=value>"bottom"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN>/&gt;</SPAN>
                 <SPAN class=tag>&lt;textField<SPAN class=attribute> name=<SPAN class=value>"job"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN>/&gt;</SPAN>
                 <SPAN class=tag>&lt;lov<SPAN class=attribute> name=<SPAN class=value>"mgr_name"</SPAN></SPAN> <SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN>/&gt;</SPAN>
@@ -181,7 +182,8 @@
                 <SPAN class=tag>&lt;/hBox&gt;</SPAN>
                 <SPAN class=tag>&lt;<SPAN class=keyword>label</SPAN><SPAN class=attribute> name=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"测试"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN><SPAN class=attribute> renderer=<SPAN class=value>"renderer"</SPAN></SPAN>/&gt;</SPAN>
                 <SPAN class=tag>&lt;<SPAN class=keyword>textArea</SPAN><SPAN class=attribute> name=<SPAN class=value>"ename"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"测试"</SPAN></SPAN><SPAN class=attribute> bindTarget=<SPAN class=value>"GRID_DS"</SPAN></SPAN>/&gt;</SPAN>
-            <SPAN class=tag>&lt;/vBox&gt;</SPAN>            
+            <SPAN class=tag>&lt;/<SPAN class=keyword>form</SPAN>&gt;</SPAN>            
         <SPAN class=tag>&lt;/hBox&gt;</SPAN>
     <SPAN class=tag>&lt;/<SPAN class=keyword>a</SPAN>:view&gt;</SPAN>
 <SPAN class=tag>&lt;/<SPAN class=keyword>a</SPAN>:screen&gt;</SPAN></CODE></PRE>
+</td></tr></table>

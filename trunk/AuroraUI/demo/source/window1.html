@@ -1,21 +1,23 @@
-<PRE style="margin:5px;"><CODE class=html>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<table class="code_table"><tr><td>
+<PRE><CODE class=html>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 <SPAN class=tag>&lt;<SPAN class=keyword>a</SPAN>:screen<SPAN class=attribute> xmlns:a=<SPAN class=value>"http://www.aurora-framework.org/application"</SPAN></SPAN><SPAN class=attribute> trace=<SPAN class=value>"true"</SPAN></SPAN>&gt;</SPAN>
-    <SPAN class=tag>&lt;<SPAN class=keyword>a</SPAN>:init-procedure&gt;</SPAN>
-        <SPAN class=tag>&lt;sql-query<SPAN class=attribute> service=<SPAN class=value>"test.DEPTQuery"</SPAN></SPAN><SPAN class=attribute> rootPath=<SPAN class=value>"DEPT-LIST"</SPAN></SPAN> <SPAN class=attribute> fetchAll=<SPAN class=value>"true"</SPAN></SPAN><SPAN class=attribute> autoCount=<SPAN class=value>"true"</SPAN></SPAN> /&gt;</SPAN>
-    <SPAN class=tag>&lt;/<SPAN class=keyword>a</SPAN>:init-procedure&gt;</SPAN>
+    <SPAN class=tag>&lt;<SPAN class=keyword>a</SPAN>:init-procedure&gt;</SPAN><SPAN class=tag>&lt;/<SPAN class=keyword>a</SPAN>:init-procedure&gt;</SPAN>
     <SPAN class=tag>&lt;<SPAN class=keyword>a</SPAN>:view<SPAN class=attribute> template=<SPAN class=value>"default"</SPAN></SPAN><SPAN class=attribute> package=<SPAN class=value>"aurora.ui.std"</SPAN></SPAN>&gt;</SPAN>
-        <SPAN class=tag>&lt;dataSets&gt;</SPAN>
-            <SPAN class=tag>&lt;dataSet<SPAN class=attribute> id=<SPAN class=value>"DEPT_DS"</SPAN></SPAN>&gt;</SPAN>
-                <SPAN class=tag>&lt;datas<SPAN class=attribute> dataSource=<SPAN class=value>"/model/DEPT-LIST"</SPAN></SPAN>/&gt;</SPAN>
-            <SPAN class=tag>&lt;/dataSet&gt;</SPAN>
-        <SPAN class=tag>&lt;/dataSets&gt;</SPAN>
-        <SPAN class=tag>&lt;box<SPAN class=attribute> labelWidth=<SPAN class=value>"55"</SPAN></SPAN><SPAN class=attribute> cellspacing=<SPAN class=value>"0"</SPAN></SPAN><SPAN class=attribute> title=<SPAN class=value>"一个简单的表单"</SPAN></SPAN><SPAN class=attribute> style=<SPAN class=value>"border:1px solid #cccccc;margin:10px;"</SPAN></SPAN>&gt;</SPAN>
-            <SPAN class=tag>&lt;textField <SPAN class=attribute> name=<SPAN class=value>"test1"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"只读"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN><SPAN class=attribute> readOnly=<SPAN class=value>"true"</SPAN></SPAN>/&gt;</SPAN>
-            <SPAN class=tag>&lt;textField<SPAN class=attribute> name=<SPAN class=value>"test1"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"可输入"</SPAN></SPAN> <SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN><SPAN class=attribute> emptyText=<SPAN class=value>"输入文字"</SPAN></SPAN>/&gt;</SPAN>
-            <SPAN class=tag>&lt;datePicker<SPAN class=attribute> name=<SPAN class=value>"test13"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"日期"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN><SPAN class=attribute> emptyText=<SPAN class=value>"输入日期"</SPAN></SPAN>/&gt;</SPAN>
-            <SPAN class=tag>&lt;textField<SPAN class=attribute> name=<SPAN class=value>"test2"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"标签1"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN>/&gt;</SPAN>
-            <SPAN class=tag>&lt;datePicker<SPAN class=attribute> name=<SPAN class=value>"test1"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"日期1"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN><SPAN class=attribute> emptyText=<SPAN class=value>"输入日期"</SPAN></SPAN>/&gt;</SPAN>
-            <SPAN class=tag>&lt;comboBox<SPAN class=attribute> name=<SPAN class=value>"deptno"</SPAN></SPAN><SPAN class=attribute> readOnly=<SPAN class=value>"true"</SPAN></SPAN><SPAN class=attribute> prompt=<SPAN class=value>"日期1"</SPAN></SPAN><SPAN class=attribute> width=<SPAN class=value>"150"</SPAN></SPAN><SPAN class=attribute> options=<SPAN class=value>"DEPT_DS"</SPAN></SPAN><SPAN class=attribute> displayField=<SPAN class=value>"DNAME"</SPAN></SPAN><SPAN class=attribute> valueField=<SPAN class=value>"DEPTNO"</SPAN></SPAN>/&gt;</SPAN>
-        <SPAN class=tag>&lt;/box&gt;</SPAN>
+        <SPAN class=tag>&lt;<SPAN class=keyword>script</SPAN><SPAN class=attribute> language=<SPAN class=value>"javascript"</SPAN></SPAN>&gt;</SPAN><SPAN class=javascript>
+        &lt;![CDATA[
+            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>openModalWindow</SPAN><SPAN class=params>()</SPAN>{</SPAN>
+                <SPAN class=keyword>var</SPAN> win = <SPAN class=keyword>new</SPAN> Aurora.Window({id:<SPAN class=string>'win2'</SPAN>, title:<SPAN class=string>'模式窗口'</SPAN>, height:<SPAN class=number>300</SPAN>,width:<SPAN class=number>300</SPAN>});
+            }
+            <SPAN class=function><SPAN class=keyword>function</SPAN> <SPAN class=title>openTipWindow</SPAN><SPAN class=params>()</SPAN>{</SPAN>
+                Aurora.showWindow(<SPAN class=string>'提示'</SPAN>,<SPAN class=string>'&lt;div style="margin:10px;"&gt;正在提交...&lt;/div&gt;'</SPAN>,<SPAN class=number>200</SPAN>,<SPAN class=number>100</SPAN>)
+            }
+        ]]&gt;
+        </SPAN><SPAN class=tag>&lt;/<SPAN class=keyword>script</SPAN>&gt;</SPAN>
+        <SPAN class=tag>&lt;hBox<SPAN class=attribute> style=<SPAN class=value>"margin:10px;"</SPAN></SPAN>&gt;</SPAN>
+            <SPAN class=tag>&lt;<SPAN class=keyword>button</SPAN><SPAN class=attribute> text=<SPAN class=value>"打开模式窗口"</SPAN></SPAN><SPAN class=attribute> click=<SPAN class=value>"openModalWindow"</SPAN></SPAN>/&gt;</SPAN>
+            <SPAN class=tag>&lt;<SPAN class=keyword>button</SPAN><SPAN class=attribute> text=<SPAN class=value>"提示信息窗口"</SPAN></SPAN><SPAN class=attribute> click=<SPAN class=value>"openTipWindow"</SPAN></SPAN>/&gt;</SPAN>
+        <SPAN class=tag>&lt;/hBox&gt;</SPAN>
+        
     <SPAN class=tag>&lt;/<SPAN class=keyword>a</SPAN>:view&gt;</SPAN>
 <SPAN class=tag>&lt;/<SPAN class=keyword>a</SPAN>:screen&gt;</SPAN></CODE></PRE>
+</td></tr></table>
