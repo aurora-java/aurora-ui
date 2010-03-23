@@ -21,13 +21,13 @@
     		.theme_mac .topAreaClass,.theme_mac .menuAreaClass,.theme_mac .mainAreaClass{
     			border:1px solid #ccc;
     		}
-    		.theme_default #menuBox .layout-head {
+    		.theme_default #menuBox .form_head {
     			border-top:1px solid #ccc;
     		}
-    		.theme_black #menuBox .layout-head {
+    		.theme_black #menuBox .form_head {
     			border-top:1px solid #2a2d32;
     		}
-    		.theme_mac #menuBox .layout-head {
+    		.theme_mac #menuBox .form_head {
     			border-top:1px solid #ccc;
     		}
     	</style>
@@ -71,11 +71,11 @@
 				<record name="Button" id="11" parent="1" num="1" model="button" icon="images/button.gif"/>
 				<record name="TextField" id="12" parent="1" num="2" model="textfield" icon="images/textfield.gif"/>
 				<record name="ComboBox" id="13" parent="1" num="3" model="combobox"/>
-				<record name="DatePicker" id="14" parent="1" num="4" icon="images/datepicker.gif"/>
+				<record name="DatePicker" id="14" parent="1" num="4" model="datepicker" icon="images/datepicker.gif"/>
 				<record name="NumberField" id="15" parent="1" num="5"  icon="images/textfield.gif"/>
-				<record name="Lov" id="16" parent="1" num="6" icon="images/lov.gif"/>
-				<record name="CheckBox" id="17" parent="1" num="7" icon="images/checkbox.gif"/>
-				<record name="Radio" id="18" parent="1" num="8" icon="images/radio.gif"/>
+				<record name="Lov" id="16" parent="1" num="6" model="lov" icon="images/lov.gif"/>
+				<record name="CheckBox" id="17" parent="1" num="7" model="checkbox" icon="images/checkbox.gif"/>
+				<record name="Radio" id="18" parent="1" num="8" model="radio" icon="images/radio.gif"/>
 				<record name="Tab" id="3" parent="0" num="3" icon="images/tab.gif"/>
 				<record name="普通Tab" id="31" parent="3" num="1" model="tab1" icon="images/tab.gif"/>
 				<record name="动态加载Tab" id="32" parent="3" num="2" model="tab2" icon="images/tab.gif"/>
@@ -131,14 +131,14 @@
 				</TR>
 				<TR>
 					<TD id="menuArea" class="menuAreaClass" style="border-top:none;vertical-align:top;width:180px;">
-						<box id="menuBox" showMargin="false" padding="0" title="演示" style="border:none;" width="180">
+						<form id="menuBox" showMargin="false" padding="0" title="演示" style="border:none;" width="180">
 							<tree id="menuTree" showCheckBox="false" renderer="linkrenderer" dataSet="MENU_DS" displayField="name" idField="id" parentField="parent"/>
-						</box>
+						</form>
 					</TD>
 					<TD style="width: 5px;">
 						<IMG id="ImgArrow" onclick="shMenu()" alt="展开/关闭菜单" src="images/mini-left.gif" style="cursor:pointer" width="5" border="0" name="ImgArrow" />
 					</TD>
-					<TD id="mainArea">
+					<TD id="mainArea" style="width:100%">
 						<iframe id="main" src="wellcome.screen" name="main" border="0" frameborder="0" width="100%" height="100%"> </iframe>
 					</TD>
 				</TR>
@@ -151,7 +151,7 @@
 				var bottomHeight = screenHeight - 41;
 				Ext.get('menuArea').setHeight(bottomHeight);
 				Ext.get('mainArea').setHeight(bottomHeight);
-				$$('menuTree').setHeight(bottomHeight-27);
+				$$('menuTree').setHeight(bottomHeight-28);
 				Ext.get('nav').show();
 				Ext.get('main').show();
 			}
