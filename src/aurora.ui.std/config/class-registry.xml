@@ -14,6 +14,7 @@
 	<feature-attach elementName="datePicker" featureClass="aurora.presentation.component.std.DatePicker" />
 	<feature-attach elementName="grid" featureClass="aurora.presentation.component.std.Grid" />
 	<feature-attach elementName="dataSet" featureClass="aurora.presentation.component.std.DataSet" />
+	<feature-attach elementName="form" featureClass="aurora.presentation.component.std.Form" />
 	<feature-attach elementName="box" featureClass="aurora.presentation.component.std.Box" />
 	<feature-attach elementName="vBox" featureClass="aurora.presentation.component.std.VBox" />
 	<feature-attach elementName="dataSets" featureClass="aurora.application.features.DataSetInit" />

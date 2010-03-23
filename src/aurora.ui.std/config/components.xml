@@ -16,6 +16,7 @@
 		<view-component elementName="template" builder="aurora.presentation.component.TemplateRenderer" />
 		<view-component elementName="html-page" builder="aurora.presentation.component.HtmlPage" />
 		<view-component elementName="box" builder="aurora.presentation.component.std.Box" />
+		<view-component elementName="form" builder="aurora.presentation.component.std.Form" />
 		<view-component elementName="vBox" builder="aurora.presentation.component.std.VBox" />
 		<view-component elementName="hBox" builder="aurora.presentation.component.std.HBox" />
 		<view-component elementName="dataSet" builder="aurora.presentation.TemplateBasedView" />
