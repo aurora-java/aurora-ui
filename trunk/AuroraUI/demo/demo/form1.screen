@@ -9,13 +9,13 @@
 				<datas dataSource="/model/DEPT-LIST"/>
 			</dataSet>
 		</dataSets>
-		<box labelWidth="55" cellspacing="0" title="一个简单的表单" style="border:1px solid #cccccc;margin:10px;">
+		<form labelWidth="55" cellspacing="0" title="一个简单的表单" style="border:1px solid #cccccc;margin:10px;">
 			<textField  name="test1" prompt="只读" width="150" readOnly="true"/>
 			<textField name="test1" prompt="可输入"  width="150" emptyText="输入文字"/>
 			<datePicker name="test13" prompt="日期" width="150" emptyText="输入日期"/>
 			<textField name="test2" prompt="标签1" width="150"/>
 			<datePicker name="test1" prompt="日期1" width="150" emptyText="输入日期"/>
 			<comboBox name="deptno" readOnly="true" prompt="日期1" width="150" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
-		</box>
+		</form>
     </a:view>
 </a:screen>

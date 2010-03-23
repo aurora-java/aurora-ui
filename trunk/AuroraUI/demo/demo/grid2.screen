@@ -112,10 +112,10 @@
 			</dataSet>
 		</dataSets>
 		<hBox>
-			<vBox labelWidth="50" width="350" className="mytable" title="查询Form" style="margin:5px;">
+			<form labelWidth="50" width="350" className="mytable" title="查询Form" style="margin:5px;">
 				<textField name="empno" prompt="empno" bindTarget="QUERY_DS" width="150" />
 				<textField name="ename" prompt="ename" bindTarget="QUERY_DS" validAlign="bottom" width="150"/>
-			</vBox>
+			</form>
 			<div width="300" style="padding:10px;background-color:green;color:#ffffff;margin:7px;border:1px solid #cccccc;display:none" height="100" id="custommsg"></div>
 		</hBox>
 		<hBox style="margin-left:5px;">
@@ -162,7 +162,7 @@
 					<event name="dblclick" handler="onDblclick"/>
 				</events>
 			</grid>
-			<vBox labelWidth="75" width="250" title="更新Form">
+			<form labelWidth="75" width="250" title="更新Form">
 				<textField name="ename" bindTarget="GRID_DS" validAlign="bottom" width="150"/>
 				<textField name="job" bindTarget="GRID_DS" width="150"/>
 				<lov name="mgr_name"  bindTarget="GRID_DS" width="150"/>
@@ -181,7 +181,7 @@
 				</hBox>
 				<label name="ename" prompt="测试" bindTarget="GRID_DS" renderer="renderer"/>
 				<textArea name="ename" prompt="测试" bindTarget="GRID_DS"/>
-			</vBox>			
+			</form>			
 		</hBox>
     </a:view>
 </a:screen>

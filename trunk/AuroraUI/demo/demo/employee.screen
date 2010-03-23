@@ -39,7 +39,7 @@
 			</dataSet>
 			<dataSet id="GRID_DS" fecthAll="false" pageSize="50" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMPLOYEE/query"/>
 		</dataSets>
-		<box title="员工信息" padding="0" width="950" style="margin:10px;">
+		<form title="员工信息" padding="0" width="950" style="margin:10px;">
 			<hBox>
 				<vBox height="135" labelWidth="60" style="border:1px solid #cccccc;">
 					<textField name="gonghao" prompt="工号" bindTarget="GRID_DS" width="120"/>
@@ -72,7 +72,7 @@
 					<div style="width:100px;height:127px;BACKGROUND: url(images/001.jpg)"></div>
 				</box>
 			</hBox>
-		</box>
+		</form>
 		<tabPanel id="tab" width="950" height="330" style="margin-left:10px">
     		<tab prompt="个人信息">
     			<hBox style="margin-top:20px;">

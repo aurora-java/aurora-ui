@@ -17,16 +17,16 @@
 			</dataSet>
 		</dataSets>
 		<hBox>
-			<box labelWidth="100" width="300" title="绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
+			<form labelWidth="100" width="300" title="绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
 				<comboBox name="test1" bindTarget="TEST_DS" width="150"/>
 				<comboBox name="test2" bindTarget="TEST_DS" width="150" emptyText="请选择..."/>
 				<comboBox name="test3" bindTarget="TEST_DS" width="150"/>
-			</box>
-			<box labelWidth="100" width="300" title="非绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
+			</form>
+			<form labelWidth="100" width="300" title="非绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
 				<comboBox name="test1" readonly="true" prompt="test1" width="150" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
 				<comboBox name="test2" prompt="test2" width="150" emptyText="请选择..." options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
 				<comboBox name="test3" required="true" prompt="test3" width="150" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
-			</box>
+			</form>
 		</hBox>
     	
     </a:view>

@@ -34,11 +34,9 @@
 				<record name="已删除邮件" id="15" parent="13" num="2" icon="images/delete.gif"/>
 				<record name="搜索文件夹" id="16" parent="13" num="3" icon="images/search.gif"/>
 			</datas>
-		</dataSet>		
-		<hBox>
-			<box padding="0" title="邮件文件夹" style="margin:10px;">
-				<tree id="outlook" showCheckBox="true" width="250" renderer="mailrenderer" dataSet="OUTLOOK_DS" displayField="name" idField="id" parentField="parent"/>
-			</box>
-		</hBox>
+		</dataSet>	
+		<form padding="0" title="邮件文件夹" style="margin:10px;">
+			<tree id="outlook" showCheckBox="true" width="250" renderer="mailrenderer" dataSet="OUTLOOK_DS" displayField="name" idField="id" parentField="parent"/>
+		</form>
     </a:view>
 </a:screen>

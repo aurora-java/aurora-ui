@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+    <a:init-procedure>
+	</a:init-procedure>
+    <a:view template="default" package="aurora.ui.std">
+    	<dataSets>
+			<dataSet id="TEST_DS">
+				<fields>
+					<field name="test1" datatype="date" readonly="true" prompt="test1"/>
+					<field name="test2" datatype="date" prompt="test2"/>
+					<field name="test3" datatype="date" required="true" prompt="test2"/>
+				</fields>
+			</dataSet>
+		</dataSets>
+		<hBox>
+			<form labelWidth="100" width="300" title="绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
+				<datePicker name="test1"  bindTarget="TEST_DS" width="150" />
+				<datePicker name="test2"  bindTarget="TEST_DS" width="150"/>
+				<datePicker name="test3"  bindTarget="TEST_DS" width="150"/>
+			</form>
+			<form labelWidth="100" width="300" title="非绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
+				<datePicker name="test1"  width="150" prompt="test1" readonly="true"/>
+				<datePicker name="test2"  width="150" prompt="test2"/>
+				<datePicker name="test3"  width="150" prompt="test3" required="true"/>
+			</form>
+		</hBox>
+    </a:view>
+</a:screen>
