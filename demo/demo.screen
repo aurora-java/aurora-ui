@@ -1,42 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
-    <a:init-procedure></a:init-procedure>
+    <a:init-procedure>
+	</a:init-procedure>
     <a:view template="default" package="aurora.ui.std">
-    	<script>
-		<![CDATA[
-			function query(){
-				$$('GRID_DS').query()
-			}
-		]]>
-		</script>
-		<dataSets>
+    	<style>
+    		.form_body{
+    			background-color:#fff;
+    		}
+    	</style>
+    	<div></div>
+    	<dataSets>
 			<dataSet id="QUERY_DS" href="test.EMP">
 			</dataSet>
-			<dataSet id="GRID_DS" href="test.EMP" selectable="true" selectionModel="multiple" submiturl="manage_control.svc" fecthAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query"/>
+			<dataSet id="GRID_DS" href="test.EMP" autoQuery="true" selectable="false" selectionModel="multiple" submiturl="manage_control.svc" fecthAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+				<fields>
+					<field name="mgr_name"/>
+					<field name="gender"/>
+					<field name="test1" defaultValue="N" checkedValue="Y" uncheckedValue="N"/>
+					<field name="test2" defaultValue="N" checkedValue="Y" uncheckedValue="N"/>
+					<field name="ename" required="true"/>
+					<field name="hiredate" datatype="date" required="true"/>
+					<field name="dname" required="true"/>				 				
+				</fields>
+			</dataSet>
 		</dataSets>
-		<hBox>
-			<vBox labelWidth="50" width="350" className="mytable" title="查询Form" style="margin:10px;">
-				<textField name="empno" prompt="empno" bindTarget="QUERY_DS" width="150" />
-				<textField name="ename" prompt="ename" bindTarget="QUERY_DS" validAlign="bottom" width="150"/>
-			</vBox>
-			<div width="300" style="padding:10px;background-color:green;color:#ffffff;margin:7px;border:1px solid #cccccc;display:none" height="100" id="custommsg"></div>
+		<form padding="0" showMargin="false" title="人员信息列表" style="margin:10px;" >
+			<grid id="datagrid" dataSet="GRID_DS" style="margin:5px;" width="900" height="400" >
+				<columns>
+					<column dataIndex="empno"  width="50" prompt="empno"/>
+					<column dataIndex="ename" width="100" prompt="ename"/>
+					<column prompt="组合列">
+						<column dataIndex="mgr" width="100" prompt="mgrno"/>
+						<column dataIndex="mgr_name" width="100" prompt="mgr"/>
+						<column dataIndex="hiredate" renderer="Aurora.formateDate" width="100" prompt="hiredate"/>
+						<column dataIndex="dname" width="100" prompt="dept"/>
+					</column>
+					<column dataIndex="gender" width="100" prompt="gender"/>
+					<column dataIndex="job" width="100" prompt="job"/>
+					<column dataIndex="sal" width="100" prompt="sal"/>
+				</columns>
+			</grid>
+		</form>
+		<script language="javascript">
+    	<![CDATA[
+    		function openModalWindow(){
+    			var win = new Aurora.Window({id:'win2', modal:true,url:'mail.screen', title:'窗口', height:330,width:230});
+    		}
+		]]>
+		</script>
+		<hBox style="margin:10px;">
+			<button text="打开模式窗口" click="openModalWindow"/>
 		</hBox>
-		<hBox style="margin-left:10px;">
-			<button text="查询" click="query"/>
-		</hBox>
-		<grid id="datagrid" dataSet="GRID_DS" style="margin:10px;" width="800" height="400" navBar="true">
-			<toolBar>
-				<button type="add"/>
-				<button type="delete"/>
-				<button type="save"/>
-			</toolBar>
-			<columns>
-				<column dataIndex="test1" width="100" prompt="test1"/>
-				<column dataIndex="test2" width="100" prompt="test2"/>
-				<column dataIndex="test3" idth="100" prompt="test3"/>
-				<column dataIndex="test4"  width="100" prompt="test4"/>
-			</columns>
-		</grid>
-		
     </a:view>
 </a:screen>
