@@ -12,13 +12,13 @@
 		]]>
 		</script>	
 		<hBox>
-			<box padding="0" title="组织结构" style="margin:10px;" width="200">
+			<form padding="0" title="组织结构" style="margin:10px;" width="200">
 				<tree id="tree" showCheckBox="false" dataSet="UNIT_DS" displayField="NAME" idField="UNIT_ID" parentField="PARENT_ID">
 					<events>
 						<event name="click" handler="test"/>
 					</events>
 				</tree>
-			</box>
+			</form>
 		</hBox>
     </a:view>
 </a:screen>

@@ -14,18 +14,18 @@
 			</dataSet>
 		</dataSets>
 		<hBox>
-			<box labelWidth="100" width="300" title="绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
+			<form labelWidth="100" width="300" title="绑定DataSet" style="margin:10px;">
 				<textField name="text1" bindTarget="TEST_DS" width="150" />
 				<textField name="text2" bindTarget="TEST_DS" width="150"/>
 				<textField name="text3" bindTarget="TEST_DS" width="150"/>
 				<textField name="text4" bindTarget="TEST_DS" width="150" />
-			</box>
-			<box labelWidth="100" width="300" title="非绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
+			</form>
+			<form labelWidth="100" width="300" title="非绑定DataSet" style="margin:10px;">
 				<textField id="text1" readonly="true" prompt="只读" width="150" />
 				<textField id="text2" prompt="正常输入" width="150"/>
 				<textField id="text3" prompt="带提示输入" width="150" emptyText="请输入文字"/>
 				<textField id="text4" required="true" prompt="必须输入" emptyText="必须输入" width="150" />
-			</box>
+			</form>
 		</hBox>
     	
     </a:view>
