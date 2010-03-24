@@ -1,4 +1,9 @@
-﻿.code_table {
+﻿html,body {
+	padding:0px;
+	margin:0px;
+	font-size:11px;
+}
+.code_table {
   background-color:#f0f0f0;
   border:1px dashed #3c78b5;
   margin:5px;
