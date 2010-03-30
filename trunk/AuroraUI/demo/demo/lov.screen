@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
     <a:init-procedure>
-	</a:init-procedure>
+    </a:init-procedure>
     <a:view template="default" package="aurora.ui.std">
-    	<dataSets>
-			<dataSet id="TEST_DS">
-				<fields>
-					<field name="test1" prompt="test1" readonly="true" title="选择MGR" winWidth="355" winHeight="465" ref="search.screen">
-						<mapping>
-							<map from="empno" to="mgr"/>
-							<map from="ename" to="test1"/>
-						</mapping>
-					</field>
-					<field name="test2" prompt="test2" title="选择MGR" winWidth="355" winHeight="465" ref="search.screen">
-						<mapping>
-							<map from="empno" to="mgr"/>
-							<map from="ename" to="test2"/>
-						</mapping>
-					</field>
-					<field name="test3" prompt="test3" required="true" title="选择MGR" winWidth="355" winHeight="465" ref="search.screen">
-						<mapping>
-							<map from="empno" to="mgr"/>
-							<map from="ename" to="test3"/>
-						</mapping>
-					</field>
-				</fields>
-			</dataSet>
-		</dataSets>
-		<form labelWidth="100" width="300" title="绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
-			<lov name="test1"  bindTarget="TEST_DS" width="150"/>
-			<lov name="test2"  bindTarget="TEST_DS" width="150"/>
-			<lov name="test3"  bindTarget="TEST_DS" width="150"/>
-		</form>
+        <dataSets>
+            <dataSet id="TEST_DS">
+                <fields>
+                    <field name="test1" prompt="test1" readonly="true" title="选择MGR" winWidth="355" winHeight="465" ref="search.screen">
+                        <mapping>
+                            <map from="empno" to="mgr"/>
+                            <map from="ename" to="test1"/>
+                        </mapping>
+                    </field>
+                    <field name="test2" prompt="test2" title="选择MGR" winWidth="355" winHeight="465" ref="search.screen">
+                        <mapping>
+                            <map from="empno" to="mgr"/>
+                            <map from="ename" to="test2"/>
+                        </mapping>
+                    </field>
+                    <field name="test3" prompt="test3" required="true" title="选择MGR" winWidth="355" winHeight="465" ref="search.screen">
+                        <mapping>
+                            <map from="empno" to="mgr"/>
+                            <map from="ename" to="test3"/>
+                        </mapping>
+                    </field>
+                </fields>
+            </dataSet>
+        </dataSets>
+        <form labelWidth="100" width="300" title="绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
+            <lov name="test1"  bindTarget="TEST_DS" width="150"/>
+            <lov name="test2"  bindTarget="TEST_DS" width="150"/>
+            <lov name="test3"  bindTarget="TEST_DS" width="150"/>
+        </form>
     </a:view>
 </a:screen>

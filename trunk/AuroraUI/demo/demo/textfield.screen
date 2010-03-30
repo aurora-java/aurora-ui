@@ -3,30 +3,30 @@
     <static-model>
     </static-model>
     <a:view template="default" package="aurora.ui.std">
-    	<dataSets>
-			<dataSet id="TEST_DS">
-				<fields>
-					<field name="text1" readonly="true" prompt="只读"/>
-					<field name="text2" prompt="正常输入"/>	
-					<field name="text3" prompt="带提示输入"  emptyText="请输入文字"/>	
-					<field name="text4" required="true" prompt="必须输入" emptyText="必须输入"/>	
-				</fields>
-			</dataSet>
-		</dataSets>
-		<hBox>
-			<form labelWidth="100" width="300" title="绑定DataSet" style="margin:10px;">
-				<textField name="text1" bindTarget="TEST_DS" width="150" />
-				<textField name="text2" bindTarget="TEST_DS" width="150"/>
-				<textField name="text3" bindTarget="TEST_DS" width="150"/>
-				<textField name="text4" bindTarget="TEST_DS" width="150" />
-			</form>
-			<form labelWidth="100" width="300" title="非绑定DataSet" style="margin:10px;">
-				<textField id="text1" readonly="true" prompt="只读" width="150" />
-				<textField id="text2" prompt="正常输入" width="150"/>
-				<textField id="text3" prompt="带提示输入" width="150" emptyText="请输入文字"/>
-				<textField id="text4" required="true" prompt="必须输入" emptyText="必须输入" width="150" />
-			</form>
-		</hBox>
-    	
+        <dataSets>
+            <dataSet id="TEST_DS">
+                <fields>
+                    <field name="text1" readonly="true" prompt="只读"/>
+                    <field name="text2" prompt="正常输入"/>    
+                    <field name="text3" prompt="带提示输入"  emptyText="请输入文字"/>    
+                    <field name="text4" required="true" prompt="必须输入" emptyText="必须输入"/>    
+                </fields>
+            </dataSet>
+        </dataSets>
+        <hBox>
+            <form labelWidth="100" width="300" title="绑定DataSet" style="margin:10px;">
+                <textField name="text1" bindTarget="TEST_DS" width="150" />
+                <textField name="text2" bindTarget="TEST_DS" width="150"/>
+                <textField name="text3" bindTarget="TEST_DS" width="150"/>
+                <textField name="text4" bindTarget="TEST_DS" width="150" />
+            </form>
+            <form labelWidth="100" width="300" title="非绑定DataSet" style="margin:10px;">
+                <textField id="text1" readonly="true" prompt="只读" width="150" />
+                <textField id="text2" prompt="正常输入" width="150"/>
+                <textField id="text3" prompt="带提示输入" width="150" emptyText="请输入文字"/>
+                <textField id="text4" required="true" prompt="必须输入" emptyText="必须输入" width="150" />
+            </form>
+        </hBox>
+        
     </a:view>
 </a:screen>
