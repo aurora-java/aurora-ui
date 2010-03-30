@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
     <a:init-procedure>
-		<sql-query service="test.DEPTQuery" rootPath="DEPT-LIST"  fetchAll="true" autoCount="true" />
-	</a:init-procedure>
+        <sql-query service="test.DEPTQuery" rootPath="DEPT-LIST"  fetchAll="true" autoCount="true" />
+    </a:init-procedure>
     <a:view template="default" package="aurora.ui.std">
-    	<dataSets>
-			<dataSet id="DEPT_DS">
-				<datas dataSource="/model/DEPT-LIST"/>
-			</dataSet>
-			<dataSet id="TEST_DS">
-				<fields>
-					<field name="test1" readonly="true" prompt="test1" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
-					<field name="test2" prompt="test2" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
-					<field name="test3" prompt="test3" required="true" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
-				</fields>
-			</dataSet>
-		</dataSets>
-		<hBox>
-			<form labelWidth="100" width="300" title="绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
-				<comboBox name="test1" bindTarget="TEST_DS" width="150"/>
-				<comboBox name="test2" bindTarget="TEST_DS" width="150" emptyText="请选择..."/>
-				<comboBox name="test3" bindTarget="TEST_DS" width="150"/>
-			</form>
-			<form labelWidth="100" width="300" title="非绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
-				<comboBox name="test1" readonly="true" prompt="test1" width="150" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
-				<comboBox name="test2" prompt="test2" width="150" emptyText="请选择..." options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
-				<comboBox name="test3" required="true" prompt="test3" width="150" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
-			</form>
-		</hBox>
-    	
+        <dataSets>
+            <dataSet id="DEPT_DS">
+                <datas dataSource="/model/DEPT-LIST"/>
+            </dataSet>
+            <dataSet id="TEST_DS">
+                <fields>
+                    <field name="test1" readonly="true" prompt="test1" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+                    <field name="test2" prompt="test2" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+                    <field name="test3" prompt="test3" required="true" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+                </fields>
+            </dataSet>
+        </dataSets>
+        <hBox>
+            <form labelWidth="100" width="300" title="绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
+                <comboBox name="test1" bindTarget="TEST_DS" width="150"/>
+                <comboBox name="test2" bindTarget="TEST_DS" width="150" emptyText="请选择..."/>
+                <comboBox name="test3" bindTarget="TEST_DS" width="150"/>
+            </form>
+            <form labelWidth="100" width="300" title="非绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
+                <comboBox name="test1" readonly="true" prompt="test1" width="150" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+                <comboBox name="test2" prompt="test2" width="150" emptyText="请选择..." options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+                <comboBox name="test3" required="true" prompt="test3" width="150" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+            </form>
+        </hBox>
+        
     </a:view>
 </a:screen>

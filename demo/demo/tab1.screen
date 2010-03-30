@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
      <a:init-procedure>
-		<sql-query service="test.DEPTQuery" rootPath="DEPT-LIST"  fetchAll="true" autoCount="true" />
-	</a:init-procedure>
+        <sql-query service="test.DEPTQuery" rootPath="DEPT-LIST"  fetchAll="true" autoCount="true" />
+    </a:init-procedure>
     <a:view template="default" package="aurora.ui.std">
-    	<div></div>
-    	<dataSets>
-			<dataSet id="COMBO_DEPT_DS">
-				<datas dataSource="/model/DEPT-LIST"/>
-			</dataSet>
-			<dataSet id="QUERY_DS" href="test.EMP"/>
-			<dataSet id="DEPT_DS">
-				<datas dataSource="/model/DEPT-LIST"/>
-			</dataSet>
-			<dataSet id="GRID_DS" autoQuery="true"  href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="8" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
-				<fields>
-					<field name="mgr_name"/>
-					<field name="ename"/>
-					<field name="hiredate" datatype="date"/>
-					<field name="dname"/>				 				
-				</fields>
-			</dataSet>
-		</dataSets>
-    	<tabPanel id="tab" width="800" height="530" style="margin:5px">
-    		<tab  prompt="表单1" width="100">
-    			<vBox promptWidth="75" width="200" className="mytable" style="margin:3px">
-					<textField name="empno" prompt="empno" width="150" />
-					<textField name="ename" prompt="ename" validAlign="bottom" width="150"/>
-					<textField name="job" prompt="job" width="150"/>
-					<textField name="mgr" prompt="mgr" width="150"/>
-					<datePicker name="hiredate" prompt="hiredate" width="150"/>
-					<comboBox name="deptno" prompt="deptno" width="150" options="COMBO_DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
-					<textField name="sal" prompt="sal" width="150"/>
-				</vBox>
-    		</tab>
-    		<tab prompt="表单2" width="100">
-    			<box column="2" promptWidth="75" width="200" className="mytable" style="margin:3px">
-					<textField name="empno" prompt="empno" width="150" />
-					<textField name="job" prompt="job" width="150"/>
-					<textField name="mgr" prompt="mgr" width="150"/>
-					<datePicker name="hiredate" prompt="hiredate" width="150"/>
-					<comboBox name="deptno" prompt="deptno" width="150" options="COMBO_DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
-					<textField name="sal" prompt="sal" width="150"/>
-				</box>
-    		</tab>
-    		<tab selected="true" prompt="表单3" width="100">
-    			<form column="2" promptWidth="75" width="200" title="测试Form" className="mytable" style="border:1px solid #cccccc;margin:5px">
-					<textField name="empno" prompt="empno" width="150" />
-					<textField name="ename" prompt="ename" validAlign="bottom" width="150"/>
-					<textField name="job" prompt="job" width="150"/>
-					<textField name="mgr" prompt="mgr" width="150"/>
-					<datePicker name="hiredate"  prompt="hiredate" width="150"/>
-					<comboBox name="deptno" prompt="deptno" width="150" options="COMBO_DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
-					<lov name="lov" valueField="DEPTNO" title="选择人员" prompt="lov" width="150" winWidth="350" winHeight="460" ref="search.screen"/>
-					<lov name="lov" valueField="DEPTNO" title="选择人员" prompt="人员" width="150" winWidth="350" winHeight="460" ref="search.screen"/>
-				</form>
-    		</tab>
-    	</tabPanel>
+        <div></div>
+        <dataSets>
+            <dataSet id="COMBO_DEPT_DS">
+                <datas dataSource="/model/DEPT-LIST"/>
+            </dataSet>
+            <dataSet id="QUERY_DS" href="test.EMP"/>
+            <dataSet id="DEPT_DS">
+                <datas dataSource="/model/DEPT-LIST"/>
+            </dataSet>
+            <dataSet id="GRID_DS" autoQuery="true"  href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="8" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+                <fields>
+                    <field name="mgr_name"/>
+                    <field name="ename"/>
+                    <field name="hiredate" datatype="date"/>
+                    <field name="dname"/>                                 
+                </fields>
+            </dataSet>
+        </dataSets>
+        <tabPanel id="tab" width="800" height="530" style="margin:5px">
+            <tab  prompt="表单1" width="100">
+                <vBox promptWidth="75" width="200" className="mytable" style="margin:3px">
+                    <textField name="empno" prompt="empno" width="150" />
+                    <textField name="ename" prompt="ename" validAlign="bottom" width="150"/>
+                    <textField name="job" prompt="job" width="150"/>
+                    <textField name="mgr" prompt="mgr" width="150"/>
+                    <datePicker name="hiredate" prompt="hiredate" width="150"/>
+                    <comboBox name="deptno" prompt="deptno" width="150" options="COMBO_DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+                    <textField name="sal" prompt="sal" width="150"/>
+                </vBox>
+            </tab>
+            <tab prompt="表单2" width="100">
+                <box column="2" promptWidth="75" width="200" className="mytable" style="margin:3px">
+                    <textField name="empno" prompt="empno" width="150" />
+                    <textField name="job" prompt="job" width="150"/>
+                    <textField name="mgr" prompt="mgr" width="150"/>
+                    <datePicker name="hiredate" prompt="hiredate" width="150"/>
+                    <comboBox name="deptno" prompt="deptno" width="150" options="COMBO_DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+                    <textField name="sal" prompt="sal" width="150"/>
+                </box>
+            </tab>
+            <tab selected="true" prompt="表单3" width="100">
+                <form column="2" promptWidth="75" width="200" title="测试Form" className="mytable" style="border:1px solid #cccccc;margin:5px">
+                    <textField name="empno" prompt="empno" width="150" />
+                    <textField name="ename" prompt="ename" validAlign="bottom" width="150"/>
+                    <textField name="job" prompt="job" width="150"/>
+                    <textField name="mgr" prompt="mgr" width="150"/>
+                    <datePicker name="hiredate"  prompt="hiredate" width="150"/>
+                    <comboBox name="deptno" prompt="deptno" width="150" options="COMBO_DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
+                    <lov name="lov" valueField="DEPTNO" title="选择人员" prompt="lov" width="150" winWidth="350" winHeight="460" ref="search.screen"/>
+                    <lov name="lov" valueField="DEPTNO" title="选择人员" prompt="人员" width="150" winWidth="350" winHeight="460" ref="search.screen"/>
+                </form>
+            </tab>
+        </tabPanel>
     </a:view>
 </a:screen>

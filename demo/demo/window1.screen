@@ -2,20 +2,19 @@
 <a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
     <a:init-procedure></a:init-procedure>
     <a:view template="default" package="aurora.ui.std">
-    	<script language="javascript">
-    	<![CDATA[
-    		function openModalWindow(){
-    			var win = new Aurora.Window({id:'win2', title:'模式窗口', height:300,width:300});
-    		}
-    		function openTipWindow(){
-    			Aurora.showWindow('提示','<div style="margin:10px;">正在提交...</div>',200,100)
-    		}
-		]]>
-		</script>
-		<hBox style="margin:10px;">
-			<button text="打开模式窗口" click="openModalWindow"/>
-			<button text="提示信息窗口" click="openTipWindow"/>
-		</hBox>
-		
+        <script language="javascript">
+        <![CDATA[
+            function openModalWindow(){
+                var win = new Aurora.Window({id:'win2', title:'模式窗口', height:300,width:300});
+            }
+            function openTipWindow(){
+                Aurora.showWindow('提示','<div style="margin:10px;">正在提交...</div>',200,100)
+            }
+        ]]>
+        </script>
+        <hBox style="margin:10px;">
+            <button text="打开模式窗口" click="openModalWindow"/>
+            <button text="提示信息窗口" click="openTipWindow"/>
+        </hBox>
     </a:view>
 </a:screen>
