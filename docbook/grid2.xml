@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article version="5.0" xml:lang="zh-CN" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:ns5="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns4="http://www.w3.org/1999/xhtml"
+         xmlns:ns3="http://www.w3.org/2000/svg"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <info>
+    <title>Grid - 演示</title>
+
+    <author>
+      <personname>牛佳庆</personname>
+
+      <email>njq.niu@hand-china.com</email>
+    </author>
+  </info>
+
+  <para>值列表控件</para>
+
+  <example>
+    <title>代码示例</title>
+
+    <programlisting role="xml">&lt;grid id="datagrid" dataSet="GRID_DS" width="530" height="300" navBar="true"&gt;
+    &lt;toolBar&gt;
+        &lt;button type="add"/&gt;
+        &lt;button type="delete"/&gt;
+        &lt;button type="save"/&gt;
+        &lt;separator/&gt;
+        &lt;button icon="images/add16.gif" text="test" click="onSuccess"/&gt;
+    &lt;/toolBar&gt;
+    &lt;columns&gt;
+        &lt;column dataIndex="empno"  width="50" prompt="empno"/&gt;
+        &lt;column dataIndex="ename" editor="tf" width="90" prompt="ename"/&gt;
+        &lt;column prompt="组合列"&gt;
+        &lt;column dataIndex="mgr" width="60" prompt="mgrno"/&gt;
+        &lt;column dataIndex="mgr_name" editor="lov" width="100" prompt="mgr"/&gt;
+        &lt;column dataIndex="hiredate" renderer="Aurora.formateDate" editor="dp" width="100" prompt="hiredate"/&gt;
+        &lt;column dataIndex="dname" editor="cb" width="100" prompt="dept"/&gt;
+        &lt;/column&gt;
+        &lt;column dataIndex="gender" editor="radio" width="90" prompt="gender"/&gt;
+        &lt;column dataIndex="test1" editor="chb" width="50" prompt="test1"/&gt;
+        &lt;column dataIndex="test2" editor="chb" width="50" prompt="test2"/&gt;
+        &lt;column dataIndex="job" editor="tf" width="180" prompt="job"/&gt;
+        &lt;column dataIndex="sal" editor="tf" width="180" prompt="sal"/&gt;
+    &lt;/columns&gt;
+    &lt;editors&gt;
+        &lt;textField id="tf"/&gt;
+        &lt;comboBox id="cb"/&gt;
+        &lt;datePicker id="dp"/&gt;
+        &lt;lov id="lov"/&gt;
+        &lt;checkBox id="chb"/&gt;
+        &lt;radio id="radio"&gt;
+        &lt;items&gt;
+            &lt;item label="男" value="M"/&gt;
+            &lt;item label="女" value="F"/&gt;
+        &lt;/items&gt;
+        &lt;/radio&gt;
+    &lt;/editors&gt;
+    &lt;events&gt;
+        &lt;event name="dblclick" handler="onDblclick"/&gt;
+    &lt;/events&gt;
+&lt;/grid&gt;
+</programlisting>
+  </example>
+
+  <table class="pro_table">
+    <caption>属性说明</caption>
+
+    <thead>
+      <tr>
+        <td>属性名</td>
+
+        <td>说明</td>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td>id</td>
+
+        <td>组件id</td>
+      </tr>
+
+      <tr>
+        <td>dataSet</td>
+
+        <td>绑定的dataset的id</td>
+      </tr>
+      <tr>
+        <td>width</td>
+
+        <td>宽度</td>
+      </tr>
+    </tbody>
+  </table>
+</article>
