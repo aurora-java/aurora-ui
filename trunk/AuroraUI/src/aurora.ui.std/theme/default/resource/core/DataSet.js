@@ -249,8 +249,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     removeRemote: function(r){
-    	if(this.submitUrl == '') return;
-    	
+    	if(this.submitUrl == '') return;    	
     	var d = Ext.apply({}, r.data);
 		d['_id'] = r.id;
 		d['_status'] = 'delete';
@@ -381,10 +380,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	if(this.selectable && this.selectionmodel == 'multiple'){
     		if(this.selected.indexOf(r) == -1) {
     			this.selected.add(r);
+    			
     			this.fireEvent('select', this, r);
     		}
        	}else{
-       		
        		if(this.selected.indexOf(r) == -1) {
 	       		var or = this.selected[0];
 	       		this.unSelect(or);
