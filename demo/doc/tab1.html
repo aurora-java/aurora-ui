@@ -1,11 +1,47 @@
-<div class="mainDoc">
-<H2>Tab </H2>
-<H3>$Id$</H3>
-<hr></hr>
-<p>.
-</p>
-<p>
-</p>
-<H1>例子:</H1>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Tab</title><meta name="generator" content="DocBook XSL-NS Stylesheets V1.75.2"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div lang="zh-CN" class="article" title="Tab"><div class="titlepage"><div><div><h1 class="title"><a name="id4357"></a>Tab </h1></div><div><div class="author"><h3 class="author">牛佳庆</h3><code class="email">&lt;<a class="email" href="mailto:njq.niu@hand-china.com">njq.niu@hand-china.com</a>&gt;</code></div></div></div><hr></div><p>Tab控件</p><div class="example"><a name="id361596"></a><p class="title"><b>例 1. 代码示例</b></p><div class="example-contents"><pre class="programlisting">&lt;tabPanel id="tab" width="800" height="530" style="margin:5px"&gt;
+    &lt;tab  prompt="表单1" width="100"&gt;
+    &lt;vBox promptWidth="75" width="200" className="mytable" style="margin:3px"&gt;
+        &lt;textField name="empno" prompt="empno" width="150" /&gt;
+        &lt;textField name="ename" prompt="ename" validAlign="bottom" width="150"/&gt;
+        &lt;textField name="job" prompt="job" width="150"/&gt;
+        &lt;textField name="mgr" prompt="mgr" width="150"/&gt;
+        &lt;datePicker name="hiredate" prompt="hiredate" width="150"/&gt;
+        &lt;comboBox name="deptno" prompt="deptno" width="150" options="COMBO_DEPT_DS" displayField="DNAME" valueField="DEPTNO"/&gt;
+        &lt;textField name="sal" prompt="sal" width="150"/&gt;
+    &lt;/vBox&gt;
+    &lt;/tab&gt;
+    &lt;tab prompt="表单2" width="100"&gt;
+    &lt;box column="2" promptWidth="75" width="200" className="mytable" style="margin:3px"&gt;
+        &lt;textField name="empno" prompt="empno" width="150" /&gt;
+        &lt;textField name="job" prompt="job" width="150"/&gt;
+        &lt;textField name="mgr" prompt="mgr" width="150"/&gt;
+        &lt;datePicker name="hiredate" prompt="hiredate" width="150"/&gt;
+        &lt;comboBox name="deptno" prompt="deptno" width="150" options="COMBO_DEPT_DS" displayField="DNAME" valueField="DEPTNO"/&gt;
+        &lt;textField name="sal" prompt="sal" width="150"/&gt;
+    &lt;/box&gt;
+    &lt;/tab&gt;
+    &lt;tab selected="true" prompt="表单3" width="100"&gt;
+    &lt;form column="2" promptWidth="75" width="200" title="测试Form" className="mytable" style="border:1px solid #cccccc;margin:5px"&gt;
+        &lt;textField name="empno" prompt="empno" width="150" /&gt;
+        &lt;textField name="ename" prompt="ename" validAlign="bottom" width="150"/&gt;
+        &lt;textField name="job" prompt="job" width="150"/&gt;
+        &lt;textField name="mgr" prompt="mgr" width="150"/&gt;
+        &lt;datePicker name="hiredate"  prompt="hiredate" width="150"/&gt;
+        &lt;comboBox name="deptno" prompt="deptno" width="150" options="COMBO_DEPT_DS" displayField="DNAME" valueField="DEPTNO"/&gt;
+        &lt;lov name="lov" valueField="DEPTNO" title="选择人员" prompt="lov" width="150" winWidth="350" winHeight="460" ref="search.screen"/&gt;
+        &lt;lov name="lov" valueField="DEPTNO" title="选择人员" prompt="人员" width="150" winWidth="350" winHeight="460" ref="search.screen"/&gt;
+    &lt;/form&gt;
+    &lt;/tab&gt;
+&lt;/tabPanel&gt;</pre></div></div><br class="example-break"><table class="pro_table" id="id361571"><caption>表 1. 属性说明</caption><thead><tr>
+        <td>属性名</td>
 
-</div>
+        <td>说明</td>
+      </tr></thead><tbody><tr>
+        <td>id</td>
+
+        <td>组件id</td>
+      </tr><tr>
+        <td>width</td>
+
+        <td>宽度</td>
+      </tr></tbody></table></div></body></html>
