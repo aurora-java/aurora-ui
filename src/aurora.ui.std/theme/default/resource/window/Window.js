@@ -64,7 +64,7 @@ $A.Window = Ext.extend($A.Component,{
         if(!sf.closeable)sf.closeBtn.hide();
         if(sf.url){
         	sf.showLoading();       
-        	sf.load(sf.url)
+        	sf.load(sf.url,sf.params)
         }
         sf.center();
     },
@@ -228,13 +228,14 @@ $A.Window = Ext.extend($A.Component,{
         wrap.remove();
         this.shadow.remove();
     },
-    load : function(url){
+    load : function(url,params){
     	var cmps = $A.CmpManager.getAll();
     	for(var key in cmps){
     		this.oldcmps[key] = cmps[key];
     	}
     	Ext.Ajax.request({
 			url: url,
+			params:params||{},
 		   	success: this.onLoad.createDelegate(this)
 		});		
     },
@@ -262,6 +263,15 @@ $A.Window = Ext.extend($A.Component,{
 $A.showMessage = function(title, msg){
 	return $A.showWindow(title, msg, 300, 100, 'win-alert');
 }
+$A.showComfirm = function(msg, callback){
+	var params = {
+		win:'aurora-confirm',
+		msg:msg||'确认操作?',
+		callback:callback||''
+	}
+	var url = 'confirm.screen';
+	var win = new Aurora.Window({id:'aurora-confirm',url: url, params:params, title:'确认', height:130,width:250});
+}
 $A.hideWindow = function(){
 	var cmp = $A.CmpManager.get('aurora-msg')
 	if(cmp) cmp.close();
@@ -271,7 +281,7 @@ $A.showWindow = function(title, msg, width, height, cls){
 	var cmp = $A.CmpManager.get('aurora-msg')
 	if(cmp == null) {
 		cmp = new $A.Window({id:'aurora-msg',title:title, height:height,width:width});	
-		cmp.body.update('<div class="'+cls+'">'+msg+'</div>');
+		if(msg)cmp.body.update('<div class="'+cls+'">'+msg+'</div>');
 	}
 	return cmp;
 }

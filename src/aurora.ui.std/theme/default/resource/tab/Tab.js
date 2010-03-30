@@ -85,11 +85,23 @@ $A.Tab = Ext.extend($A.Component,{
     setWidth : function(w){
     	w = Math.max(w,2);
     	$A.Tab.superclass.setWidth.call(this, w);
-    	Ext.fly(this.body.dom).setStyle('width',(w-2)+'px');
+    	var wd = (w-2)+'px'
+    	Ext.fly(this.body.dom).setStyle('width',wd);
+    	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
+    	for(var i=0;i<bodys.length;i++){
+    		var body = bodys[i];
+    		Ext.fly(body).setStyle('width',wd);
+    	}
     },
     setHeight : function(h){
     	h = Math.max(h,25);
     	$A.Tab.superclass.setHeight.call(this, h);
-    	Ext.fly(this.body.dom).setStyle('height',(h-25)+'px');
+    	var hp = (h-25)+'px';
+    	Ext.fly(this.body.dom).setStyle('height',hp);
+    	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
+    	for(var i=0;i<bodys.length;i++){
+    		var body = bodys[i];
+    		Ext.fly(body).setStyle('height',hp);
+    	}
     }
 });

@@ -331,12 +331,17 @@ $A.Grid = Ext.extend($A.Component,{
 				var col = columns[i];
 				if(col.lock == true){
 					var td = document.createElement("TD");
-					td.style.visibility=col.hidden == true ? 'hidden' : 'visible';
-					td.style.textAlign=col.align||'left';
-					if(!this.isFunctionCol(col))td.dataindex=col.dataindex;
-					td.recordid=record.id;
-					td.atype='grid-cell';
-					var cell = this.createCell(col,record, false);					
+					td.recordid=''+record.id;
+					if(col.type == 'rowcheck') {
+						td.atype = 'grid.rowcheck';
+						td.className = 'grid-rowbox';
+					}else{
+						td.style.visibility=col.hidden == true ? 'hidden' : 'visible';
+						td.style.textAlign=col.align||'left';
+						if(!this.isFunctionCol(col)) td.dataindex=col.dataindex;
+						td.atype='grid-cell';					
+					}
+					var cell = this.createCell(col,record, false);
 					td.innerHTML = cell;
 					ltr.appendChild(td);
 				}
@@ -808,6 +813,20 @@ $A.Grid = Ext.extend($A.Component,{
 				col.hidden = true;
 			}
 		}		
+	},
+	deleteRow: function(win){
+		var selected = this.dataset.getSelected();
+		if(selected.length >0){
+			for(var i=0;i<selected.length;i++){
+				var r = selected[i];
+				this.dataset.remove(r);
+			}
+		}
+		$(win).close();
+	},
+	remove: function(){
+		var selected = this.dataset.getSelected();
+		if(selected.length >0) $A.showComfirm('确认删除选择记录?',"$('"+this.id+"').deleteRow");		
 	},
 	destroy: function(){
 		$A.Grid.superclass.destroy.call(this);
