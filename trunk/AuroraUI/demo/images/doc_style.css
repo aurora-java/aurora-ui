@@ -1,18 +1,60 @@
-﻿div .mainDoc {
-	margin:10px;
+﻿html, body {
+    margin:0; 
+    padding:0;
+    font-family: sans-serif !important;
+    font-family: tahoma, arial, sans-serif,helvetica;
+    font-size:11px;
 }
-.mainDoc p {
-	font-size:12px;
+HTML {BORDER: none;}
+div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, button, p, blockquote, th, td { margin:0; padding:0; }
+fieldset, img { border:0; }
+ol, ul { list-style:none; }
+address, caption, cite, code, dfn, em, th, var { font-style:normal; font-weight:400; }
+strong { font-style:normal; font-weight:700; }
+caption, th { text-align:left; }
+h1, h2, h3, h4, h5, h6 { font-size:100%; font-weight:400; }
+q:before, q:after { content:""; }
+abbr, acronym { border:0; }
+a {color:#0069ca;text-decoration:none;}
+
+p {
 	margin-bottom:12px;
 }
-.src_table {
+.article {
+    margin:10px;
+}
+.titlepage .title{    
+    FONT-WEIGHT: 600;    
+    FONT-SIZE: 18px;    
+    COLOR: #1a5c9a;    
+    LINE-HEIGHT: 18px;
+}
+.titlepage .author{
+    FONT-SIZE: 12px;    
+    COLOR: #666666;
+}
+.author h3 {
+	float:left;
+}
+hr {
+    border:1px solid #8080C0;
+}
+.example .title{
+	margin-bottom:5px;
+}
+.programlisting {
+  padding:5px;
   background-color:#f0f0f0;
   border:1px dashed #3c78b5;
-  margin-bottom:12px;
 }
 .pro_table {	
+	font-size:11px;
 	BORDER-COLLAPSE: collapse;
-	 margin-bottom:12px;
+	margin-bottom:12px;
+}
+.pro_table caption{	
+	FONT-WEIGHT: 600;
+	padding-bottom:5px;
 }
 .pro_table td {
 	BORDER: #ccc 1px solid;	
@@ -22,27 +64,6 @@
 	VERTICAL-ALIGN: top;
 	PADDING-TOP: 3px;
 }
-.mainDoc pre {
-	TEXT-ALIGN: justify;
-	white-space:pre;
-}
-.mainDoc hr {
-	border:1px solid #8080C0;
-}
-.mainDoc H2{	
-	FONT-WEIGHT: 600;	
-	FONT-SIZE: 18px;	
-	COLOR: #1a5c9a;	
-	LINE-HEIGHT: 18px;
-}
-.mainDoc H3{
-	FONT-SIZE: 12px;	
-	COLOR: #666666;
-}
-.mainDoc H1{	
-	FONT-WEIGHT: 600;	
-	FONT-SIZE: 12px;	
-	COLOR: #000;	
-	LINE-HEIGHT: 14px;
-	margin-bottom:5px;
+.pro_table thead td {
+	background-color:#f0f0f0;
 }
