@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+     <a:init-procedure></a:init-procedure>
+    <a:view template="default" package="aurora.ui.std">
+    	<div></div>
+    	
+    	<form cellspacing="0" title="嵌入表单的FieldSet" style="border:1px solid #cccccc;margin:10px;">
+    		<fieldSet labelWidth="65" column="2" width="500" title="FiedSet" style="margin:5px;">
+	            <textField  name="test1" prompt="只读" width="150" readOnly="true"/>
+	            <textField name="test1" prompt="可输入"  width="150" emptyText="输入文字"/>
+	            <datePicker name="test13" prompt="日期" width="150" emptyText="输入日期"/>
+	        </fieldSet>
+	        <fieldSet labelWidth="65" column="2" width="500" title="FiedSet" style="margin:5px;">
+	            <textField name="test2" prompt="标签1" width="150"/>
+	            <datePicker name="test1" prompt="日期1" width="150" emptyText="输入日期"/>
+	            <datePicker name="test1" prompt="日期1" width="150" emptyText="输入日期"/>
+	            <datePicker name="test1" prompt="日期1" width="150" emptyText="输入日期"/>
+	        </fieldSet>
+        </form>
+    	<fieldSet labelWidth="65" column="2" width="500" title="FiedSet" style="margin:10px;">
+            <textField  name="test1" prompt="只读" width="150" readOnly="true"/>
+            <textField name="test1" prompt="可输入"  width="150" emptyText="输入文字"/>
+            <datePicker name="test13" prompt="日期" width="150" emptyText="输入日期"/>
+            <textField name="test2" prompt="标签1" width="150"/>
+            <datePicker name="test1" prompt="日期1" width="150" emptyText="输入日期"/>
+        </fieldSet>
+        <fieldSet column="2" width="500" title="FiedSet" style="margin:10px;">
+            <form labelWidth="65" cellspacing="0" title="嵌入FieldSet" style="border:1px solid #cccccc;margin-left:5px;">    		
+	            <textField  name="test1" prompt="只读" width="150" readOnly="true"/>
+	            <textField name="test1" prompt="可输入"  width="150" emptyText="输入文字"/>
+	            <datePicker name="test13" prompt="日期" width="150" emptyText="输入日期"/>
+	            <textField name="test2" prompt="标签1" width="150"/>
+        	</form>
+        	<form labelWidth="65" cellspacing="0" title="嵌入FieldSet" style="border:1px solid #cccccc;margin-left:5px;">    		
+	            <textField  name="test1" prompt="只读" width="150" readOnly="true"/>
+	            <datePicker name="test1" prompt="日期1" width="150" emptyText="输入日期"/>
+	            <datePicker name="test1" prompt="日期1" width="150" emptyText="输入日期"/>
+	            <datePicker name="test1" prompt="日期1" width="150" emptyText="输入日期"/>
+        	</form>
+        </fieldSet>
+    </a:view>
+</a:screen>
