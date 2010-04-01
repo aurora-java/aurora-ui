@@ -44,21 +44,22 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		alert('重复绑定 ' + name);
     		return;
     	}
+    	var bdp = this.bindDataSetPrototype
     	ds.un('beforecreate', this.beforeCreate, this);
-    	ds.un('add', this.bindDataSetPrototype, this);
-    	ds.un('remove', this.bindDataSetPrototype, this);
-    	ds.un('update', this.bindDataSetPrototype, this);
-		ds.un('clear', this.bindDataSetPrototype, this);
-		ds.un('load', this.bindDataSetPrototype, this);
-		ds.un('reject', this.bindDataSetPrototype, this);
+    	ds.un('add', bdp, this);
+    	ds.un('remove', bdp, this);
+    	ds.un('update', bdp, this);
+		ds.un('clear', bdp, this);
+		ds.un('load', bdp, this);
+		ds.un('reject', bdp, this);
     	
     	ds.on('beforecreate', this.beforeCreate, this);
-    	ds.on('add', this.bindDataSetPrototype, this);
-    	ds.on('remove', this.bindDataSetPrototype, this);
-    	ds.on('update', this.bindDataSetPrototype, this);
-		ds.on('clear', this.bindDataSetPrototype, this);
-		ds.on('load', this.bindDataSetPrototype, this);
-		ds.on('reject', this.bindDataSetPrototype, this);
+    	ds.on('add', bdp, this);
+    	ds.on('remove', bdp, this);
+    	ds.on('update', bdp, this);
+		ds.on('clear', bdp, this);
+		ds.on('load', bdp, this);
+		ds.on('reject', bdp, this);
     	
     	var field = new $A.Record.Field({
     		name:name,
