@@ -89,12 +89,12 @@
 				<record name="Window" id="5" parent="0" num="5" icon="images/window.gif"/>
 				<record name="模式窗口" id="51" parent="5" num="1" model="window1"/>
 				<record name="容器布局" id="6" parent="0" num="6" icon="images/layout.gif"/>
-				<record name="Box" id="61" parent="6" num="1" model="form1" icon="images/box.gif"/>
-				<record name="VBox" id="62" parent="6" num="2" model="form1" icon="images/vbox.gif"/>
-				<record name="HBox" id="63" parent="6" num="3" model="form1" icon="images/hbox.gif"/>
-				<record name="Form" id="64" parent="6" num="4" model="form1"/>
-				<record name="FieldSet" id="64" parent="6" num="4" model="form1"/>
-				<record name="复杂布局示例" id="65" parent="6" num="5" model="employee"/>
+				<record name="Box" id="61" parent="6" num="1" model="box" icon="images/box.gif"/>
+				<record name="VBox" id="62" parent="6" num="2" model="vbox" icon="images/vbox.gif"/>
+				<record name="HBox" id="63" parent="6" num="3" model="hbox" icon="images/hbox.gif"/>
+				<record name="Form" id="64" parent="6" num="4" model="form"/>
+				<record name="FieldSet" id="65" parent="6" num="4" model="fieldset"/>
+				<record name="复杂布局示例" id="66" parent="6" num="5" model="employee"/>
 				<record name="DataSet" id="7" parent="0" num="7" icon="images/dataset.gif"/>
 				<record name="Record" id="71" parent="7" num="1"/>
 				<record name="Field" id="72" parent="7" num="2"/>
