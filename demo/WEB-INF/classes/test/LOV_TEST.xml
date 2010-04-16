@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql-service>
+	<fields>
+		<field name="EMPNO" datatype="java.lang.Long" databaseType="BIGINT" prompt="员工工号" gridWidth="120"/>
+		<field name="ENAME" datatype="java.lang.String" databaseType="VARCHAR" prompt="员工名" gridWidth="120"/>
+		<field name="CREATION_DATE" datatype="java.lang.String" databaseType="VARCHAR" prompt="工作时间" gridWidth="120"/>
+	</fields>
+	<query>
+		SELECT E.EMPNO,
+			   E.ENAME,
+			   E.CREATION_DATE
+		  FROM EMP E
+		#WHERE_CLAUSE# ORDER BY EMPNO
+	</query>
+	<query-fields>
+		<query-field name="EMPNO" dataType="java.lang.Integer" queryExpression="EMPNO = ${@EMPNO}"/>
+	</query-fields>
+</sql-service>
+
+
+
+
+
+
+
+
+
+
+
+
+
