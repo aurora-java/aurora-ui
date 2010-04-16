@@ -92,7 +92,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	showLovWindow : function(){
 		if(this.isWinOpen == true) return;
 		if(this.readonly == true) return;
-		if(this.ref == "" || Ext.isEmpty(this.ref))return;
+//		if(this.ref == "" || Ext.isEmpty(this.ref))return;
 		this.isWinOpen = true;
 		
 		var v = '';
@@ -102,7 +102,8 @@ $A.Lov = Ext.extend($A.TextField,{
 			v = rv;
 		}		
 		this.blur();
-    	this.win = new $A.Window({title:this.title||'Lov', url:(this.ref) + "?lovid="+this.id+"&key="+encodeURIComponent(v), height:this.winheight||400,width:this.winwidth||400});
+		var lovurl = (this.lovmodel !='') ? 'sys_lov.screen' : this.ref;
+    	this.win = new $A.Window({title:this.title||'Lov', url:lovurl + "?service="+this.lovmodel+"&lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
     	this.win.on('close',this.onWinClose,this);
     }
 });
