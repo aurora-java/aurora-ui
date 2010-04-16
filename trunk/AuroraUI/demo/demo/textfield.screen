@@ -9,7 +9,7 @@
                     <field name="text1" readonly="true" prompt="只读"/>
                     <field name="text2" prompt="正常输入"/>    
                     <field name="text3" prompt="带提示输入"  emptyText="请输入文字"/>    
-                    <field name="text4" required="true" prompt="必须输入" emptyText="必须输入"/>    
+                    <field name="text4" required="true" prompt="必须输入" emptyText="必须输入"/>   
                 </fields>
             </dataSet>
         </dataSets>
