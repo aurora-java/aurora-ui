@@ -563,7 +563,8 @@ $A.Grid = Ext.extend($A.Component,{
 		var ll = lr = lw = tw = 0;
 		for(var i=0,l=this.columns.length;i<l;i++){
 			var c = this.columns[i];
-			if(c.dataindex && c.dataindex.toLowerCase() == dataIndex.toLowerCase()) {
+			if(c.dataindex && c.dataindex == dataIndex) {
+//			if(c.dataindex && c.dataindex.toLowerCase() == dataIndex.toLowerCase()) {
 				tw = c.width;
 			}
 			if(c.hidden !== true){
@@ -698,7 +699,8 @@ $A.Grid = Ext.extend($A.Component,{
 		var col;
 		for(var i=0,l=this.columns.length;i<l;i++){
 			var c = this.columns[i];
-			if(c.dataindex && c.dataindex.toLowerCase() === dataindex.toLowerCase()){
+			if(c.dataindex && c.dataindex == dataindex){
+//			if(c.dataindex && c.dataindex.toLowerCase() === dataindex.toLowerCase()){
 				col = c;
 				break;
 			}
