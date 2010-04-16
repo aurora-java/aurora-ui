@@ -1,6 +1,7 @@
 $A.Label = Ext.extend($A.Component,{
     onUpdate : function(ds, record, name, value){
-    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase()){
+    	if(this.binder.ds == ds && this.binder.name == name){
+//    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase()){
 	    	this.update(record,name,value);
     	}
     },

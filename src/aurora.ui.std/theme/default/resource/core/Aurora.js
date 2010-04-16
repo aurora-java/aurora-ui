@@ -441,6 +441,15 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
     dom.innerHTML = html.replace(/(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig, "").replace(/(?:<link.*?>)((\n|\r|.)*?)/ig, "");
     return this;
 }
+
+Ext.EventObjectImpl.prototype['isSpecialKey'] = function(){
+    var k = this.keyCode;
+    return (this.type == 'keypress' && this.ctrlKey) || k==8 || k== 46 || k == 9 || k == 13  || k == 40 || k == 27 || k == 44 ||
+    (k == 16) || (k == 17) ||
+    (k >= 18 && k <= 20) ||
+    (k >= 33 && k <= 35) ||
+    (k >= 36 && k <= 39);
+}
 $A.parseDate = function(str){
 	if(typeof str == 'string'){  
 		//TODO:临时, 需要服务端解决
