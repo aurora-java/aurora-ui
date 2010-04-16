@@ -539,8 +539,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var para = 'pagesize='+this.pageSize + 
     				  '&pagenum='+this.currentPage+
     				  '&_fetchall='+this.fetchAll+
-    				  '&_autocount='+this.autoCount+
-    				  '&_rootpath=list'
+    				  '&_autocount='+this.autoCount
+//    				  + '&_rootpath=list'
     	var url = '';
     	if(this.queryUrl.indexOf('?') == -1){
     		url = this.queryUrl + '?' + para;
@@ -674,10 +674,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     onLoadSuccess : function(res){
     	if(res == null) return;
-//    	if(!res.result.list.record) return;
-    	if(!res.result.list.record) res.result.list.record = [];
-    	var records = [].concat(res.result.list.record);
-    	var total = res.result.list.totalCount;
+//    	if(!res.result.record) return;
+    	if(!res.result.record) res.result.record = [];
+    	var records = [].concat(res.result.record);
+    	var total = res.result.record.totalCount;
     	var datas = [];
     	if(records.length > 0){
     		for(var i=0,l=records.length;i<l;i++){
