@@ -18,9 +18,9 @@
 				<dataSet id="DEPT_DS">
 					<datas dataSource="/model/DEPT-LIST"/>
 				</dataSet>
-				<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="5" autoCount="true" queryUrl="autocrud/test.EMP/query">
+				<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fetchAll="false" pageSize="5" autoCount="true" queryUrl="autocrud/test.EMP/query">
 					<fields>
-						<field name="mgr_name" title="选择MGR" winWidth="370" winHeight="450" ref="search.screen">
+						<field name="mgr_name" title="选择MGR" lovWidth="370" lovHeight="450" ref="search.screen">
 							<mapping>
 								<map from="empno" to="mgr"/>
 								<map from="ename" to="mgr_name"/>

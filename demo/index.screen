@@ -70,12 +70,13 @@
 				<record name="Form组件" id="1" parent="0" num="1" icon="images/form.gif"/>
 				<record name="Button" id="11" parent="1" num="1" model="button" icon="images/button.gif"/>
 				<record name="TextField" id="12" parent="1" num="2" model="textfield" icon="images/textfield.gif"/>
-				<record name="ComboBox" id="13" parent="1" num="3" model="combobox"/>
-				<record name="DatePicker" id="14" parent="1" num="4" model="datepicker" icon="images/datepicker.gif"/>
-				<record name="NumberField" id="15" parent="1" num="5"  icon="images/textfield.gif"/>
-				<record name="Lov" id="16" parent="1" num="6" model="lov" icon="images/lov.gif"/>
-				<record name="CheckBox" id="17" parent="1" num="7" model="checkbox" icon="images/checkbox.gif"/>
-				<record name="Radio" id="18" parent="1" num="8" model="radio" icon="images/radio.gif"/>
+				<record name="PassWord" id="19" parent="1" num="3" model="password" icon="images/textfield.gif"/>
+				<record name="ComboBox" id="13" parent="1" num="4" model="combobox"/>
+				<record name="DatePicker" id="14" parent="1" num="5" model="datepicker" icon="images/datepicker.gif"/>
+				<record name="NumberField" id="15" parent="1" num="6" model="numberfield" icon="images/textfield.gif"/>
+				<record name="Lov" id="16" parent="1" num="7" model="lov" icon="images/lov.gif"/>
+				<record name="CheckBox" id="17" parent="1" num="8" model="checkbox" icon="images/checkbox.gif"/>
+				<record name="Radio" id="18" parent="1" num="9" model="radio" icon="images/radio.gif"/>
 				<record name="Tab" id="3" parent="0" num="3" icon="images/tab.gif"/>
 				<record name="普通Tab" id="31" parent="3" num="1" model="tab1" icon="images/tab.gif"/>
 				<record name="动态加载Tab" id="32" parent="3" num="2" model="tab2" icon="images/tab.gif"/>

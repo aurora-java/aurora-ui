@@ -12,8 +12,8 @@
 		]]>
 		</script>
 		<hBox style="margin:10px;">
-			<button id="op" text="打开模式窗口" click="openModalWindow"/>
-			<button id="btn" text="提示信息窗口"  click="function(){alert($('op'))}"/>
+			<numberField prompt="ename" width="150" emptyText="请数据金额" allowNegative="true" allowDecimals="true"/>
+			<textField prompt="ename1" width="150"/>
 		</hBox>
 		
     </a:view>

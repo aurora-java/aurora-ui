@@ -20,7 +20,7 @@
 		]]>
 		</script>
     	<vBox>
-    		<grid dataSet="HTTPWATCH_DATASET" style="margin:10px" width="470" height="200">
+    		<grid bindTarget="HTTPWATCH_DATASET" style="margin:10px" width="470" height="200">
 				<columns>
 					<column dataIndex="status" width="60" prompt="status"/>
 					<column dataIndex="result" width="60" prompt="result"/>

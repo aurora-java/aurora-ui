@@ -4,6 +4,7 @@
         <sql-query service="test.DEPTQuery" rootPath="DEPT-LIST" fieldNameCase="lower" fetchAll="true" autoCount="true" />
     </a:init-procedure>
     <a:view template="default" package="aurora.ui.std">
+    	<div></div>
         <script>
         <![CDATA[
             Aurora.setValidInfoType('tip'); 
@@ -87,7 +88,7 @@
             </dataSet>
             <dataSet id="GRID_DS" href="test.EMP" selectable="true" selectionModel="multiple" submiturl="manage_control.svc" fetchAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
                 <fields>
-                    <field name="mgr_name" required="true" title="选择MGR" lovWidth="400" lovGridHeight="300" lovHeight="460" lovModel="test.LOV_TEST">
+                    <field name="mgr_name" required="true" title="选择MGR" lovWidth="360" lovHeight="460" ref="search.screen">
                         <mapping>
                             <map from="empno" to="mgr"/>
                             <map from="ename" to="mgr_name"/>
@@ -111,8 +112,8 @@
                 </events>
             </dataSet>
         </dataSets>
-        <hBox>
-            <form labelWidth="50" width="350" className="mytable" title="查询Form" style="margin:5px;">
+        <hBox style="margin:10px;" padding="0">
+            <form labelWidth="50" width="350" className="mytable" title="查询Form">
                 <textField name="empno" prompt="empno" bindTarget="QUERY_DS" width="150" />
                 <textField name="ename" prompt="ename" bindTarget="QUERY_DS" validAlign="bottom" width="150"/>
             </form>
@@ -121,67 +122,45 @@
         <hBox style="margin-left:5px;">
             <button text="查询" click="query"/>
         </hBox>
-        <hBox width="800" style="margin:5px;">
-            <grid id="datagrid" bindTarget="GRID_DS" width="530" height="300" navBar="true">
-                <toolBar>
-                    <button type="add"/>
-                    <button type="delete"/>
-                    <button type="save"/>
-                    <separator/>
-                    <button icon="images/add16.gif" text="test" click="onSuccess"/>
-                </toolBar>
-                <columns>
-                    <column dataIndex="empno"  width="50" prompt="empno" lock="true"/>
-                    <column dataIndex="ename" editor="tf" width="90" prompt="ename"/>
-                    <column prompt="组合列1">
-                        <column dataIndex="mgr" width="60" prompt="mgrno"/>
-                    	<column dataIndex="mgr_name" editor="lov" width="100" prompt="mgr" />
-                    	<column dataIndex="dname" editor="cb" width="100" prompt="dept"/>
-                    	<column dataIndex="hiredate" renderer="Aurora.formateDate" editor="dp" width="100" prompt="hiredate"/>
-                    </column>                        
-                    <column dataIndex="gender" editor="radio" width="90" prompt="gender" />
-                    <column dataIndex="test1" editor="chb" width="50" prompt="test1"/>
-                    <column dataIndex="test2" editor="chb" width="50" prompt="test2"/>                    
-                    <column dataIndex="job" editor="tf" width="180" prompt="job"/>
-                    <column dataIndex="sal" editor="tf" width="180" prompt="sal"/>
-                </columns>
-                <editors>
-                    <textField id="tf"/>
-                    <comboBox id="cb"/>
-                    <datePicker id="dp"/>
-                    <lov id="lov"/>
-                    <checkBox id="chb"/>
-                    <radio id="radio">
-                        <items>
-                            <item label="男" value="M"/>
-                            <item label="女" value="F"/>
-                        </items>
-                    </radio>
-                </editors>
-                <events>
-                    <event name="dblclick" handler="onDblclick"/>
-                </events>
-            </grid>
-            <form labelWidth="75" width="250" title="更新Form">
-                <textField name="ename" bindTarget="GRID_DS" validAlign="bottom" width="150"/>
-                <textField name="job" bindTarget="GRID_DS" width="150"/>
-                <lov name="mgr_name"  bindTarget="GRID_DS" width="150"/>
-                <datePicker name="hiredate"  bindTarget="GRID_DS" width="150"/>
-                <comboBox name="dname" bindTarget="GRID_DS" width="150"/>
-                <textField name="sal" bindTarget="GRID_DS" width="150"/>
-                <radio prompt="性别" name="gender" bindTarget="GRID_DS">
+        <grid id="datagrid" style="margin:10px;" bindTarget="GRID_DS" width="900" height="400" navBar="true">
+            <toolBar>
+                <button type="add"/>
+                <button type="delete"/>
+                <button type="save"/>
+                <separator/>
+                <button icon="images/add16.gif" text="test" click="onSuccess"/>
+            </toolBar>
+            <columns>
+                <column dataIndex="empno"  width="50" prompt="empno"/>
+                <column dataIndex="ename" editor="tf" width="90" prompt="ename"/>
+                <column prompt="组合列1">
+                    <column dataIndex="mgr" width="60" prompt="mgrno"/>
+                	<column dataIndex="mgr_name" editor="lov" width="100" prompt="mgr" />
+                	<column dataIndex="dname" editor="cb" width="100" prompt="dept"/>
+                	<column dataIndex="hiredate" renderer="Aurora.formateDate" editor="dp" width="100" prompt="hiredate"/>
+                </column>                        
+                <column dataIndex="gender" editor="radio" width="90" prompt="gender" />
+                <column dataIndex="test1" editor="chb" width="50" prompt="test1"/>
+                <column dataIndex="test2" editor="chb" width="50" prompt="test2"/>                    
+                <column dataIndex="job" editor="tf" width="180" prompt="job"/>
+                <column dataIndex="sal" editor="tf" width="180" prompt="sal"/>
+            </columns>
+            <editors>
+                <textField id="tf"/>
+                <comboBox id="cb"/>
+                <datePicker id="dp"/>
+                <lov id="lov"/>
+                <checkBox id="chb"/>
+                <radio id="radio">
                     <items>
                         <item label="男" value="M"/>
                         <item label="女" value="F"/>
                     </items>
                 </radio>
-                <hBox prompt="test">
-                    <checkBox name="test1" label="TEST1" bindTarget="GRID_DS"/>
-                    <checkBox name="test2" label="TEST2" bindTarget="GRID_DS"/>
-                </hBox>
-                <label name="ename" prompt="测试" bindTarget="GRID_DS" renderer="renderer"/>
-                <textArea name="ename" prompt="测试" bindTarget="GRID_DS"/>
-            </form>            
-        </hBox>
+            </editors>
+            <events>
+                <event name="dblclick" handler="onDblclick"/>
+            </events>
+        </grid>
     </a:view>
 </a:screen>

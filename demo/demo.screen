@@ -12,7 +12,7 @@
     	<dataSets>
 			<dataSet id="QUERY_DS" href="test.EMP">
 			</dataSet>
-			<dataSet id="GRID_DS" href="test.EMP" autoQuery="true" selectable="false" selectionModel="multiple" submiturl="manage_control.svc" fecthAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+			<dataSet id="GRID_DS" href="test.EMP" autoQuery="true" selectable="false" selectionModel="multiple" submiturl="manage_control.svc" fetchAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
 				<fields>
 					<field name="mgr_name"/>
 					<field name="gender"/>
@@ -25,7 +25,7 @@
 			</dataSet>
 		</dataSets>
 		<form padding="0" showMargin="false" title="人员信息列表" style="margin:10px;" >
-			<grid id="datagrid" dataSet="GRID_DS" style="margin:5px;" width="900" height="400" >
+			<grid id="datagrid" bindTarget="GRID_DS" style="margin:5px;" width="900" height="400" >
 				<columns>
 					<column dataIndex="empno"  width="50" prompt="empno"/>
 					<column dataIndex="ename" width="100" prompt="ename"/>

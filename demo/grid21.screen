@@ -85,9 +85,9 @@
 			<dataSet id="DEPT_DS">
 				<datas dataSource="/model/DEPT-LIST"/>
 			</dataSet>
-			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fetchAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
 				<fields>
-					<field name="mgr_name" required="true" title="选择MGR" winWidth="360" winHeight="460" ref="search.screen">
+					<field name="mgr_name" required="true" title="选择MGR" lovWidth="360" lovHeight="460" ref="search.screen">
 						<mapping>
 							<map from="empno" to="mgr"/>
 							<map from="ename" to="mgr_name"/>
@@ -122,7 +122,7 @@
 			<button text="查询" click="query"/>
 		</hBox>
 		<hBox width="800" style="margin:10px;">
-			<grid id="datagrid" dataSet="GRID_DS" width="700" height="330" navBar="true"  selectable="true">
+			<grid id="datagrid" bindTarget="GRID_DS" width="700" height="330" navBar="true"  selectable="true">
 				<toolBar>
 					<button type="add"/>
 					<button type="delete"/>
