@@ -10,7 +10,7 @@
 			</dataSet>
 		</dataSets>
 		
-		<grid id="datagrid" dataSet="TEST_DS" width="800" style="margin:10px;" height="330">
+		<grid id="datagrid" bindTarget="TEST_DS" width="800" style="margin:10px;" height="330">
 			<toolBar>
 				<button type="add"/>
 				<button type="delete"/>
