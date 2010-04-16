@@ -9,9 +9,11 @@
 		<package-mapping packageName="aurora.service.exception"/>
 		<package-mapping packageName="aurora.plugin.c3p0"/>
 		<feature-attach elementName="dataSets" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.application.features.DataSetInit"/>
+		<feature-attach elementName="autoForm" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.application.features.AutoForm"/>
+		<feature-attach elementName="autoGrid" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.application.features.AutoGrid"/>
 		<feature-attach elementName="view" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.application.features.ScreenRenderer"/>
 		<feature-attach elementName="init-procedure" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.application.features.InitProcedureInvoker"/>
-		
+
 		<!--<feature-attach elementName="service" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.service.json.JSONDispatcher"/>-->
 	</class-registry>
 </uncertain-engine>
