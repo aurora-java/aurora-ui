@@ -11,6 +11,8 @@
 	<feature-attach elementName="comboBox" featureClass="aurora.presentation.component.std.ComboBox" />
 	<feature-attach elementName="lov" featureClass="aurora.presentation.component.std.Lov" />
 	<feature-attach elementName="textField" featureClass="aurora.presentation.component.std.TextField" />
+	<feature-attach elementName="passWord" featureClass="aurora.presentation.component.std.PassWord" />
+	<feature-attach elementName="numberField" featureClass="aurora.presentation.component.std.NumberField" />
 	<feature-attach elementName="datePicker" featureClass="aurora.presentation.component.std.DatePicker" />
 	<feature-attach elementName="grid" featureClass="aurora.presentation.component.std.Grid" />
 	<feature-attach elementName="dataSet" featureClass="aurora.presentation.component.std.DataSet" />
@@ -19,5 +21,7 @@
 	<feature-attach elementName="box" featureClass="aurora.presentation.component.std.Box" />
 	<feature-attach elementName="vBox" featureClass="aurora.presentation.component.std.VBox" />
 	<feature-attach elementName="dataSets" featureClass="aurora.application.features.DataSetInit" />
+	<feature-attach elementName="autoForm" featureClass="aurora.application.features.AutoForm" />
+	<feature-attach elementName="autoGrid" featureClass="aurora.application.features.AutoGrid" />
 	<feature-attach elementName="tabPanel" featureClass="aurora.presentation.component.std.Tab" />
 </class-registry>

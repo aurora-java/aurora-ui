@@ -12,6 +12,8 @@
 		<view-component elementName="comboBox" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="lov" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="textField" builder="aurora.presentation.TemplateBasedView" />
+		<view-component elementName="passWord" builder="aurora.presentation.TemplateBasedView" defaultTemplate="textField.tplt"/>
+		<view-component elementName="numberField" builder="aurora.presentation.TemplateBasedView"/>
 		<view-component elementName="datePicker" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="template" builder="aurora.presentation.component.TemplateRenderer" />
 		<view-component elementName="html-page" builder="aurora.presentation.component.HtmlPage" />
