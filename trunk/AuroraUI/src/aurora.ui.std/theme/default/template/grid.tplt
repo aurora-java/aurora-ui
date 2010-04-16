@@ -30,7 +30,7 @@
 		height:${height},
 		columns:${columns}
 	});
-	$$('${id}').bind('${dataset}');
+	$$('${id}').bind('${bindtarget}');
 	${events}
 </SCRIPT>
 ${editors}
