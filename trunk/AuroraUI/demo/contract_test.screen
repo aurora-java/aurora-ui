@@ -9,7 +9,7 @@
 			<dataSet id="DEPT_DS">
 				<datas dataSource="/model/DEPT-LIST"/>
 			</dataSet>
-			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fetchAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
 				<fields>
 					<field name="deptno" options="DEPT_DS" displayField="DNAME" valueField="DEPTNO"/>
 					<field name="hiredate" datatype="date" />					

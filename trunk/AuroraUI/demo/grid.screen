@@ -10,9 +10,9 @@
 			<dataSet id="DEPT_DS">
 				<datas dataSource="/model/DEPT-LIST"/>
 			</dataSet>
-			<dataSet id="GRID_DS" autoQuery="true"  href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="8" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+			<dataSet id="GRID_DS" autoQuery="true"  href="test.EMP" submiturl="manage_control.svc" fetchAll="false" pageSize="8" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
 				<fields>
-					<field name="mgr_name" required="true" title="选择MGR" winWidth="350" winHeight="450" ref="search.screen">
+					<field name="mgr_name" required="true" title="选择MGR" lovWidth="350" lovHeight="450" ref="search.screen">
 						<mapping>
 							<map from="empno" to="mgr"/>
 							<map from="ename" to="mgr_name"/>
@@ -31,7 +31,7 @@
 		</dataSets>
 		<box row="2" padding="0" style="margin:10px;">
 			<box padding="0" title="&lt;img src='images/add16.gif'&gt;&lt;b&gt;测试1&lt;b/&gt;" style="border:1px solid #cccccc;margin:10px;">		
-				<grid dataSet="GRID_DS" style="border:none;" width="940" height="250">
+				<grid bindTarget="GRID_DS" style="border:none;" width="940" height="250">
 					<columns>
 						<column dataIndex="empno" width="50" prompt="empno"/>
 						<column dataIndex="ename" width="100" prompt="ename"/>
@@ -51,7 +51,7 @@
 			</box>
 			<hBox padding="0">
 				<box padding="0" title="流量" style="border:1px solid #cccccc;margin:10px;">		
-					<grid dataSet="GRID_DS" style="border:none;" width="300" height="250">
+					<grid bindTarget="GRID_DS" style="border:none;" width="300" height="250">
 						<columns>
 							<column dataIndex="empno" width="50" prompt="empno"/>
 							<column dataIndex="ename" width="90" prompt="ename"/>
@@ -62,7 +62,7 @@
 					</grid>
 				</box>
 				<box padding="0" title="电量" style="border:1px solid #cccccc;margin:10px;">		
-					<grid dataSet="GRID_DS" style="border:none;" width="300" height="250">
+					<grid bindTarget="GRID_DS" style="border:none;" width="300" height="250">
 						<columns>
 							<column dataIndex="empno" width="50" prompt="empno"/>
 							<column dataIndex="ename" width="90" prompt="ename"/>
@@ -73,7 +73,7 @@
 					</grid>
 				</box>
 				<box padding="0" title="水量" style="border:1px solid #cccccc;margin:10px;">		
-					<grid dataSet="GRID_DS" style="border:none;" width="300" height="250">
+					<grid bindTarget="GRID_DS" style="border:none;" width="300" height="250">
 						<columns>
 							<column dataIndex="empno" width="50" prompt="empno"/>
 							<column dataIndex="ename" width="90" prompt="ename"/>

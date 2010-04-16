@@ -37,7 +37,7 @@
 					<record name="离职" code="N"/>
 				</datas>
 			</dataSet>
-			<dataSet id="GRID_DS" fecthAll="false" pageSize="50" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMPLOYEE/query"/>
+			<dataSet id="GRID_DS" fetchAll="false" pageSize="50" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMPLOYEE/query"/>
 		</dataSets>
 		<form title="员工信息" padding="0" width="950" style="margin:10px;">
 			<hBox>

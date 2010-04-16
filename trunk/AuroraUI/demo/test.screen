@@ -15,7 +15,7 @@
 			</vBox>
 			<button width="50" height="50" click="function(){$('GRID_DS').query()}" text="查 询"/>
 		</hBox>
-		<grid dataSet="GRID_DS" style="margin-left:10px" width="650" height="200">
+		<grid bindTarget="GRID_DS" style="margin-left:10px" width="650" height="200">
 			<columns>
 				<column dataIndex="empno" width="50" prompt="empno"/>
 				<column dataIndex="ename" width="100" prompt="ename"/>

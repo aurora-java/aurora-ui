@@ -18,7 +18,7 @@
 					<field name="CONTRACT_NUMBER"/>
 				</fields>
 			</dataSet>
-			<dataSet id="GRID_DS" href="test.CONTRACT_HEAD" submiturl="manage_control.svc" fecthAll="false" pageSize="50" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.CONTRACT_HEAD/query">
+			<dataSet id="GRID_DS" href="test.CONTRACT_HEAD" submiturl="manage_control.svc" fetchAll="false" pageSize="50" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.CONTRACT_HEAD/query">
 				<fields>
 					<field name="DOCUMENT_DATE"/>	
 					<field name="CURRENCY_CODE" options="CURRENCY_DS" displayField="currency_name" valueField="currency_code"/>
@@ -51,7 +51,7 @@
 		<hBox style="margin:10px;">
 			<button text="查询" click="query"/>
 		</hBox>
-		<grid id="datagrid" dataSet="GRID_DS" width="900" height="300" style="margin:10px;">
+		<grid id="datagrid" bindTarget="GRID_DS" width="900" height="300" style="margin:10px;">
 			<columns>
 				<column dataIndex="CONTRACT_HEADER_ID" width="120" prompt="合同编号"/>
 				<column dataIndex="DOCUMENT_NUMBER" width="100" prompt="合同号"/>

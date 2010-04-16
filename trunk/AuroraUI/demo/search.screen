@@ -9,7 +9,7 @@
 					<record empno="${/parameter/@key}"/>
 				</datas>
 			</dataSet>
-			<dataSet id="SEA_GRID_DS" autoQuery="true" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="5" queryDataSet="SEA_QUERY_DS" queryUrl="autocrud/test.EMP/query">
+			<dataSet id="SEA_GRID_DS" autoQuery="true" href="test.EMP" submiturl="manage_control.svc" fetchAll="false" pageSize="5" queryDataSet="SEA_QUERY_DS" queryUrl="autocrud/test.EMP/query">
 				<fields>
 					<field name="hiredate" datatype="date" />					
 				</fields>
@@ -39,7 +39,7 @@
 				<button text="查询" height="40" width="40" click="query"></button>
 			</hBox>
 		</hBox>
-		<grid dataSet="SEA_GRID_DS" id="grid2" style="margin:10px;" width="320" height="300" navBar="true">
+		<grid bindTarget="SEA_GRID_DS" id="grid2" style="margin:10px;" width="320" height="300" navBar="true">
 			<columns>
 				<column dataIndex="empno" width="50" prompt="empno"/>
 				<column dataIndex="ename" width="80" prompt="ename"/>

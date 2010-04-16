@@ -67,7 +67,7 @@
     				<button text="新增对象" click="createPartnerRecord"/>
     				<button text="删除对象" click="removePartnerRecord"/>
 				</hBox>	
-    			<grid dataSet="CONTRACT_PARTNER_DS" width="650" height="280" style="margin-left:5px;">
+    			<grid bindTarget="CONTRACT_PARTNER_DS" width="650" height="280" style="margin-left:5px;">
 					<columns>
 						<column dataIndex="PARTNER_CATEGORY" editor="tf" width="100" prompt="对象类型"/>
 						<column dataIndex="PARTNER_ID" editor="tf" width="100" prompt="对象代码"/>
@@ -86,7 +86,7 @@
     				<button text="新增对象" click="createObjectRecord"/>
     				<button text="删除对象" click="removeObjectRecord"/>
 				</hBox>	
-    			<grid dataSet="CONTRACT_OBJECT_DS" width="650" height="280" style="margin-left:5px;">
+    			<grid bindTarget="CONTRACT_OBJECT_DS" width="650" height="280" style="margin-left:5px;">
 					<columns>
 						<column dataIndex="CONTRACT_OBJECT_LINE_ID" width="100" prompt="ID"/>
 						<column dataIndex="OBJECT_TYPE" editor="tf1" width="100" prompt="对象"/>

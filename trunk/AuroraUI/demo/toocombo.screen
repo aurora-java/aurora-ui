@@ -23,7 +23,7 @@
 				</fields>
 				<datas dataSource="/model/DEPT-LIST"/>
 			</dataSet>
-			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fecthAll="false" pageSize="5" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
+			<dataSet id="GRID_DS" href="test.EMP" submiturl="manage_control.svc" fetchAll="false" pageSize="5" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
 				<fields>
 					<!--<field name="mgr_name" required="true"/>-->
 					<field name="ename" required="true"/>
@@ -46,7 +46,7 @@
 					<event name="update" handler="onUpdate"/>
 				</events>
 			</dataSet>
-			<dataSet id="EMP_DS" fecthAll="true" autoCount="false" queryUrl="autocrud/test.EMP/query">
+			<dataSet id="EMP_DS" fetchAll="true" autoCount="false" queryUrl="autocrud/test.EMP/query">
 				<fields>
 					<field name="empno"/>
 					<field name="ename"/>
@@ -91,7 +91,7 @@
 		<hBox style="margin:10px;">
 			<button text="查询" click="query"/>
 		</hBox>
-		<grid id="datagrid" dataSet="GRID_DS" width="900" style="margin:10px;" height="380">
+		<grid id="datagrid" bindTarget="GRID_DS" width="900" style="margin:10px;" height="380">
 			<columns>
 				<column dataIndex="empno" width="50" prompt="empno"/>
 				<column dataIndex="ename" editor="tf" width="120" prompt="ename"/>
