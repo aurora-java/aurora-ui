@@ -1,5 +1,6 @@
 package aurora.tools;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,8 +14,10 @@ import com.yahoo.platform.yui.compressor.YUICompressor;
 
 public class PatchAll {
 	
-	private static final String RES_DIR= "src/aurora.ui.std/theme/default/resource/";
-//	private static final String DIR= "D:/WorkDevSpace/eclipse3.3/workspace/AuroraUI/src/aurora.ui.std/theme/default/resource/";
+	
+	private static final String RES_DIR = "src/aurora.ui.std/theme/default/resource/";
+	private static final String THEME_DIR= "src/aurora.ui.std/theme/";
+	private static final String DEPLOY_DIR= "resource/aurora.ui.std/";
 	private static final String AURORA_ALL= "core/Aurora-all.js";
 	private static final String CSS_ALL= "core/Aurora-all.css";
 	
@@ -31,6 +34,7 @@ public class PatchAll {
 		list.add("checkbox/CheckBox.js");
 		list.add("radio/Radio.js");
 		list.add("textfield/TextField.js");
+		list.add("numberfield/NumberField.js");
 		list.add("core/TriggerField.js");
 		list.add("combo/ComboBox.js");
 		list.add("datefield/DateField.js");
@@ -46,6 +50,7 @@ public class PatchAll {
 		csslist.add("radio/Radio.css");
 		csslist.add("button/Button.css");
 		csslist.add("textfield/TextField.css");
+		csslist.add("numberfield/NumberField.css");
 		csslist.add("combo/ComboBox.css");
 		csslist.add("datefield/DateField.css");
 		csslist.add("toolbar/ToolBar.css");
@@ -67,6 +72,8 @@ public class PatchAll {
 		pa.patchAllFile(csslist,RES_DIR,CSS_ALL);
 		pa.compressAllFiles(compressJs,"js");
 		pa.compressAllFiles(compressCss,"css");
+		
+//		pa.deployAllFiles();
 	}
 	
 	public void compressAllFiles(List files, String type) throws Exception{
@@ -103,7 +110,42 @@ public class PatchAll {
 				}
 			}			
 		}
-		
 		FileUtils.writeLines(new File(current, dir+dest), "UTF-8", lines);
 	}
+	
+	
+	public void deployAllFiles() throws IOException{
+		File current = new File(".");
+		File file = new File(current, DEPLOY_DIR);
+		File themefile = new File(current, THEME_DIR);
+		String[] files = themefile.list();
+		for(int i=0;i<files.length;i++){
+			String name = files[i];
+			if(".svn".equals(name) || "cvs".equals(name)) continue;
+			File themeDir = new File(file, name);
+			if(themeDir.exists()){
+				FileUtils.forceDelete(themeDir);
+				FileUtils.forceMkdir(themeDir);
+			}else{
+				themeDir.mkdir();
+			}
+		}
+		//copy default resource
+		File resource = new File(themefile, "default/resource/");
+		for(int i=0;i<files.length;i++){
+			String name = files[i];
+			if(".svn".equals(name) || "cvs".equals(name)) continue;
+			File themeDir = new File(file, name);
+			FileUtils.copyDirectory(resource, themeDir);
+		}
+		
+		for(int i=0;i<files.length;i++){
+			String name = files[i];
+			if(".svn".equals(name) || "cvs".equals(name) || "default".equals(name)) continue;
+			File themeDir = new File(file, name);
+			File srcDir = new File(themefile, name+ "/resource/");
+			FileUtils.copyDirectory(srcDir, themeDir);
+		}
+	}
+	
 }
