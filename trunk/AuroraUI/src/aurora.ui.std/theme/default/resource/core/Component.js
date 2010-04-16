@@ -1,3 +1,9 @@
+/**
+ * @class Aurora.Component
+ * @extends Ext.util.Observable
+ * @constructor
+ * @param {Object} config The configuration options. 
+ */
 $A.Component = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {
         $A.Component.superclass.constructor.call(this);
@@ -127,7 +133,8 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 		}
     },
     onValid : function(ds, record, name, valid){
-    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase() && this.record == record){
+    	if(this.binder.ds == ds && this.binder.name == name && this.record == record){
+//    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase() && this.record == record){
 	    	if(valid){
 	    		this.fireEvent('valid', this, this.record, this.binder.name)
     			this.clearInvalid();
@@ -138,7 +145,8 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	}    	
     },
     onUpdate : function(ds, record, name, value){
-    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase() && this.getValue() != value){
+    	if(this.binder.ds == ds && this.binder.name == name && this.getValue() != value){
+//    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase() && this.getValue() != value){
 	    	this.setValue(value, true);
     	}
     },

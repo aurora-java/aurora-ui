@@ -538,7 +538,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	Ext.apply(q, this.qpara);
     	var para = 'pagesize='+this.pageSize + 
     				  '&pagenum='+this.currentPage+
-    				  '&_fecthall='+this.fetchAll+
+    				  '&_fetchall='+this.fetchAll+
     				  '&_autocount='+this.autoCount+
     				  '&_rootpath=list'
     	var url = '';
@@ -638,7 +638,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    		var field = k;
 	    		if(!this.fields[k]){
 	    			for(var kf in this.fields){
-	    				if(k.toLowerCase() == kf.toLowerCase()){
+	    				if(k == kf){
+//	    				if(k.toLowerCase() == kf.toLowerCase()){
 	    					field = kf;
 	    				}
 	    			}
@@ -746,12 +747,17 @@ $A.Record.prototype = {
 		var rf = this.fields;
 		var names = [];
 		for(var k in df){
-			names.add(k.toLowerCase());
+			names.add(k);
+//			names.add(k.toLowerCase());
 		}
 		for(var k in rf){
-			if(names.indexOf(k.toLowerCase()) == -1){
-				names.add(k.toLowerCase());
+			if(names.indexOf(k) == -1){
+				names.add(k);
 			}
+		
+//			if(names.indexOf(k.toLowerCase()) == -1){
+//				names.add(k.toLowerCase());
+//			}
 		}
 		for(var i=0,l=names.length;i<l;i++){
 			if(this.isValid == true) {

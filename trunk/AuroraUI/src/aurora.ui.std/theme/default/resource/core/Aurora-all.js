@@ -441,6 +441,15 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
     dom.innerHTML = html.replace(/(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig, "").replace(/(?:<link.*?>)((\n|\r|.)*?)/ig, "");
     return this;
 }
+
+Ext.EventObjectImpl.prototype['isSpecialKey'] = function(){
+    var k = this.keyCode;
+    return (this.type == 'keypress' && this.ctrlKey) || k==8 || k== 46 || k == 9 || k == 13  || k == 40 || k == 27 || k == 44 ||
+    (k == 16) || (k == 17) ||
+    (k >= 18 && k <= 20) ||
+    (k >= 33 && k <= 35) ||
+    (k >= 36 && k <= 39);
+}
 $A.parseDate = function(str){
 	if(typeof str == 'string'){  
 		//TODO:临时, 需要服务端解决
@@ -681,21 +690,22 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		alert('重复绑定 ' + name);
     		return;
     	}
+    	var bdp = this.bindDataSetPrototype
     	ds.un('beforecreate', this.beforeCreate, this);
-    	ds.un('add', this.bindDataSetPrototype, this);
-    	ds.un('remove', this.bindDataSetPrototype, this);
-    	ds.un('update', this.bindDataSetPrototype, this);
-		ds.un('clear', this.bindDataSetPrototype, this);
-		ds.un('load', this.bindDataSetPrototype, this);
-		ds.un('reject', this.bindDataSetPrototype, this);
+    	ds.un('add', bdp, this);
+    	ds.un('remove', bdp, this);
+    	ds.un('update', bdp, this);
+		ds.un('clear', bdp, this);
+		ds.un('load', bdp, this);
+		ds.un('reject', bdp, this);
     	
     	ds.on('beforecreate', this.beforeCreate, this);
-    	ds.on('add', this.bindDataSetPrototype, this);
-    	ds.on('remove', this.bindDataSetPrototype, this);
-    	ds.on('update', this.bindDataSetPrototype, this);
-		ds.on('clear', this.bindDataSetPrototype, this);
-		ds.on('load', this.bindDataSetPrototype, this);
-		ds.on('reject', this.bindDataSetPrototype, this);
+    	ds.on('add', bdp, this);
+    	ds.on('remove', bdp, this);
+    	ds.on('update', bdp, this);
+		ds.on('clear', bdp, this);
+		ds.on('load', bdp, this);
+		ds.on('reject', bdp, this);
     	
     	var field = new $A.Record.Field({
     		name:name,
@@ -1174,7 +1184,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	Ext.apply(q, this.qpara);
     	var para = 'pagesize='+this.pageSize + 
     				  '&pagenum='+this.currentPage+
-    				  '&_fecthall='+this.fetchAll+
+    				  '&_fetchall='+this.fetchAll+
     				  '&_autocount='+this.autoCount+
     				  '&_rootpath=list'
     	var url = '';
@@ -1274,7 +1284,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    		var field = k;
 	    		if(!this.fields[k]){
 	    			for(var kf in this.fields){
-	    				if(k.toLowerCase() == kf.toLowerCase()){
+	    				if(k == kf){
+//	    				if(k.toLowerCase() == kf.toLowerCase()){
 	    					field = kf;
 	    				}
 	    			}
@@ -1382,12 +1393,17 @@ $A.Record.prototype = {
 		var rf = this.fields;
 		var names = [];
 		for(var k in df){
-			names.add(k.toLowerCase());
+			names.add(k);
+//			names.add(k.toLowerCase());
 		}
 		for(var k in rf){
-			if(names.indexOf(k.toLowerCase()) == -1){
-				names.add(k.toLowerCase());
+			if(names.indexOf(k) == -1){
+				names.add(k);
 			}
+		
+//			if(names.indexOf(k.toLowerCase()) == -1){
+//				names.add(k.toLowerCase());
+//			}
 		}
 		for(var i=0,l=names.length;i<l;i++){
 			if(this.isValid == true) {
@@ -1581,6 +1597,12 @@ $A.Record.Field.prototype = {
 		return this.getPropertity('options');
 	}
 }
+/**
+ * @class Aurora.Component
+ * @extends Ext.util.Observable
+ * @constructor
+ * @param {Object} config The configuration options. 
+ */
 $A.Component = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {
         $A.Component.superclass.constructor.call(this);
@@ -1710,7 +1732,8 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 		}
     },
     onValid : function(ds, record, name, valid){
-    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase() && this.record == record){
+    	if(this.binder.ds == ds && this.binder.name == name && this.record == record){
+//    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase() && this.record == record){
 	    	if(valid){
 	    		this.fireEvent('valid', this, this.record, this.binder.name)
     			this.clearInvalid();
@@ -1721,7 +1744,8 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	}    	
     },
     onUpdate : function(ds, record, name, value){
-    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase() && this.getValue() != value){
+    	if(this.binder.ds == ds && this.binder.name == name && this.getValue() != value){
+//    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase() && this.getValue() != value){
 	    	this.setValue(value, true);
     	}
     },
@@ -2062,7 +2086,8 @@ $A.Box = Ext.extend($A.Component,{
 });
 $A.Label = Ext.extend($A.Component,{
     onUpdate : function(ds, record, name, value){
-    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase()){
+    	if(this.binder.ds == ds && this.binder.name == name){
+//    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase()){
 	    	this.update(record,name,value);
     	}
     },
@@ -2303,6 +2328,59 @@ $A.TextField = Ext.extend($A.Field,{
 //    ,getValue : function(){
 //    	return this.getRawValue();
 //    }
+})
+$A.NumberField = Ext.extend($A.TextField,{
+	allowdecimals : true,
+	baseChars : "0123456789",
+    decimalSeparator : ".",
+    decimalprecision : 2,
+    allownegative : true,
+	constructor: function(config) {
+        $A.NumberField.superclass.constructor.call(this, config);
+    },
+    initComponent : function(config){
+    	$A.NumberField.superclass.initComponent.call(this, config); 
+    	this.allowed = this.baseChars+'';
+        if(this.allowdecimals){
+            this.allowed += this.decimalSeparator;
+        }
+        if(this.allownegative){
+            this.allowed += "-";
+        }
+    },
+    initEvents : function(){
+    	$A.NumberField.superclass.initEvents.call(this);    	
+    },
+    onKeyPress : function(e){
+        var k = e.getKey();
+        //!Ext.isIE && (e.isSpecialKey() ||
+        if(e.isSpecialKey()){
+            return;
+        }
+        var c = e.getCharCode();
+        if(this.allowed.indexOf(String.fromCharCode(c)) === -1){
+            e.stopEvent();
+            return;
+        }
+        $A.NumberField.superclass.onKeyPress.call(this, e); 
+    },
+    onBlur : function(e){
+    	this.setRawValue(this.fixPrecision(this.parseValue(this.getRawValue())));
+    	$A.NumberField.superclass.onBlur.call(this,e);    	
+    },
+    parseValue : function(value){
+    	if(!this.allownegative)value = String(value).replace('-','');
+    	if(!this.allowdecimals)value = value.substring(0,value.indexOf("."))
+        value = parseFloat(String(value).replace(this.decimalSeparator, "."));
+        return isNaN(value) ? '' : value;
+    },
+    fixPrecision : function(value){
+        var nan = isNaN(value);
+        if(!this.allowdecimals || this.decimalprecision == -1 || nan || !value){
+           return nan ? '' : value;
+        }
+        return parseFloat(parseFloat(value).toFixed(this.decimalprecision));
+    }
 })
 $A.TriggerField = Ext.extend($A.TextField,{
 	constructor: function(config) {
@@ -3336,7 +3414,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	showLovWindow : function(){
 		if(this.isWinOpen == true) return;
 		if(this.readonly == true) return;
-		if(this.ref == "" || Ext.isEmpty(this.ref))return;
+//		if(this.ref == "" || Ext.isEmpty(this.ref))return;
 		this.isWinOpen = true;
 		
 		var v = '';
@@ -3346,7 +3424,8 @@ $A.Lov = Ext.extend($A.TextField,{
 			v = rv;
 		}		
 		this.blur();
-    	this.win = new $A.Window({title:this.title||'Lov', url:(this.ref) + "?lovid="+this.id+"&key="+encodeURIComponent(v), height:this.winheight||400,width:this.winwidth||400});
+		var lovurl = (this.lovmodel !='') ? 'sys_lov.screen' : this.ref;
+    	this.win = new $A.Window({title:this.title||'Lov', url:lovurl + "?service="+this.lovmodel+"&lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
     	this.win.on('close',this.onWinClose,this);
     }
 });

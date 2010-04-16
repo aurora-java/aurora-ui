@@ -434,6 +434,11 @@ a {color:#0069ca;text-decoration:none;}
 .item-invalid, .item-invalid .item-textField{
 	background:#FFB9AC;
 }
+.item-numberField {
+	padding-right:3px;
+	padding-left:0px;
+	text-align:right;
+}
 .item-comboButton {	
 	BACKGROUND: url(../core/itembar.gif) no-repeat 2px 0px;
 }
