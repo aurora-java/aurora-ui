@@ -6,7 +6,7 @@ new Aurora.DataSet({
 	queryDataSet:'${querydataset}', 
 	queryUrl:'${queryurl}', 
 	submitUrl:'${submiturl}',
-	fetchAll:${fecthall},
+	fetchAll:${fetchall},
 	pageSize:${pagesize},
 	autoCount:${autocount},
 	autoQuery:${autoquery},
