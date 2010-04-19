@@ -15,12 +15,12 @@
 				}
 			}
 			function _lovquery(){
-				$$('RESULT_DS').query()
+				$$('SYS_LOV_RESULT_DS').query()
 			}
 		</script>
     	<dataSets>
     		<dataSet href="${/parameter/@service}" id="SYS_LOV_QUERY_DS"/>
-    		<dataSet href="${/parameter/@service}" autoQuery="true" queryUrl="sys_lov.svc?service=${/parameter/@service" id="SYS_LOV_RESULT_DS" queryDataSet="SYS_LOV_QUERY_DS"/>
+    		<dataSet href="${/parameter/@service}" autoQuery="true" queryUrl="${/parameter/@url}" id="SYS_LOV_RESULT_DS" queryDataSet="SYS_LOV_QUERY_DS"/>
 		</dataSets>
 		<autoForm href="${/parameter/@service" column="2" style="margin:10px;" title="查询条件" bindTarget="SYS_LOV_QUERY_DS" width="${/parameter/@innerwidth}"/>
 		<button text="查询" click="_lovquery" style="margin-left:10px;" ></button>

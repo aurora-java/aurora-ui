@@ -87,7 +87,7 @@
             </dataSet>
             <dataSet id="GRID_DS" href="test.EMP" selectable="true" selectionModel="multiple" submiturl="manage_control.svc" fetchAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
                 <fields>
-                    <field name="mgr_name" required="true" title="选择MGR" lovWidth="400" lovGridHeight="300" lovHeight="460" lovModel="test.LOV_TEST">
+                    <field name="mgr_name" required="true" title="选择MGR" lovWidth="360" lovGridHeight="300" lovHeight="460" lovService="test.LOV_TEST" ><!--lovUrl="search.screen" lovService="test.LOV_TEST"  lovModel="test.EMP"-->
                         <mapping>
                             <map from="empno" to="mgr"/>
                             <map from="ename" to="mgr_name"/>
