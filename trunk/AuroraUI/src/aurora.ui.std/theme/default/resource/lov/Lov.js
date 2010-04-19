@@ -36,7 +36,8 @@ $A.Lov = Ext.extend($A.TextField,{
         	}
         }
         if(needLookup){
-        	this.showLovWindow();
+        	e.stopEvent();
+        	this.fetchRecord();
         }else{
         	$A.Lov.superclass.onBlur.call(this,e); 
         }
@@ -52,7 +53,7 @@ $A.Lov = Ext.extend($A.TextField,{
     	return this.isWinOpen == false
     },
     commit:function(r){
-		this.win.close();
+		if(this.win)this.win.close();
 		this.dataRecord = r;
 		var mapping = this.getMapping();
 		for(var i=0;i<mapping.length;i++){
@@ -89,6 +90,49 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.win = null;
 		this.focus();
 	},
+	fetchRecord : function(){
+		if(this.readonly == true) return;
+		if(!Ext.isEmpty(this.lovurl)){
+			this.showLovWindow();
+			return;
+		}
+		var v = '';
+		var rv = this.getRawValue();
+		var t = this.getValue();
+		if(rv!=t){
+			v = rv;
+		}
+		if(!Ext.isEmpty(this.lovservice)){
+			url = 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=true';
+		}else if(!Ext.isEmpty(this.lovmodel)){
+			url = 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=true';
+		}
+		var p = {};
+		var mapping = this.getMapping();
+		for(var i=0;i<mapping.length;i++){
+			var map = mapping[i];
+			if(this.binder.name == map.to){
+				p[map.from]=v;
+				break;
+			}
+		}
+		
+		$A.request(url, p, this.onFetchSuccess, this.onFetchFailed, this);
+	},
+	onFetchSuccess: function(res){
+		var record = new $A.Record({});
+		if(res.result.record){
+    		var datas = [].concat(res.result.record);
+    		if(datas.length>0){
+    			var data = datas[0];
+    			record = new $A.Record(data);
+    		}
+    	}
+		this.commit(record);
+	},
+	onFetchFailed: function(res){
+		$A.showMessage('错误', res.error.message);
+	},
 	showLovWindow : function(){
 		if(this.isWinOpen == true) return;
 		if(this.readonly == true) return;
@@ -102,8 +146,16 @@ $A.Lov = Ext.extend($A.TextField,{
 			v = rv;
 		}		
 		this.blur();
-		var lovurl = (this.lovmodel !='') ? 'sys_lov.screen' : this.ref;
-    	this.win = new $A.Window({title:this.title||'Lov', url:lovurl + "?service="+this.lovmodel+"&lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
+		var url;
+		if(!Ext.isEmpty(this.lovurl)){
+			url = this.lovurl+'?';
+		}else if(!Ext.isEmpty(this.lovservice)){
+			url = 'sys_lov.screen?url='+encodeURIComponent('sys_lov.svc?svc='+this.lovservice)+'&service='+this.lovservice+'&';			
+		}else {
+			url = 'sys_lov.screen?url='+encodeURIComponent('autocrud/'+this.lovmodel+'/query')+'&service='+this.lovmodel+'&';
+		}
+//		var lovurl = (this.lovmodel !='') ? 'sys_lov.screen' : this.ref;
+    	this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
     	this.win.on('close',this.onWinClose,this);
     }
 });
