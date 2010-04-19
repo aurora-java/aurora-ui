@@ -56,6 +56,12 @@
 			
 			function linkrenderer(text, record, node){
 				var model = record.get('model');
+				/*if(model=="grid2"){
+					return  '<a target="main" href="grid2.screen">'+text+'</a>';
+				}
+				if(model=="employee"){
+					return  '<a target="main" href="employee.screen">'+text+'</a>';
+				}*/
 				if(model){
 					return  '<a target="main" href="show.screen?m='+model+'">'+text+'</a>';
 				}else{
