@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sql-service>
 	<fields>
-		<field name="EMPNO" datatype="java.lang.Long" databaseType="BIGINT" prompt="员工工号" gridWidth="120"/>
-		<field name="ENAME" datatype="java.lang.String" databaseType="VARCHAR" prompt="员工名" gridWidth="120"/>
-		<field name="CREATION_DATE" datatype="java.lang.String" databaseType="VARCHAR" prompt="工作时间" gridWidth="120"/>
+		<field name="empno" datatype="java.lang.Long" databaseType="BIGINT" prompt="员工工号" queryWidth="150" forquery="true" fordisplay="true" displayWidth="100"/>
+		<field name="ename" datatype="java.lang.String" databaseType="VARCHAR" prompt="员工名" fordisplay="true" displayWidth="100"/>
+		<field name="CREATION_DATE" datatype="java.lang.String" databaseType="VARCHAR" prompt="工作时间" fordisplay="true" displayWidth="100"/>
 	</fields>
 	<query>
 		SELECT E.EMPNO,
@@ -13,7 +13,8 @@
 		#WHERE_CLAUSE# ORDER BY EMPNO
 	</query>
 	<query-fields>
-		<query-field name="EMPNO" dataType="java.lang.Integer" queryExpression="EMPNO = ${@EMPNO}"/>
+		<query-field name="empno" dataType="java.lang.Integer" queryExpression="empno = ${@empno}"/>
+		<query-field name="ename" dataType="java.lang.String" queryExpression="ename = ${@ename}"/>
 	</query-fields>
 </sql-service>
 

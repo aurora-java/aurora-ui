@@ -1,9 +1,9 @@
 <model baseTable="EMP" alias="e">
 	<fields>
-		<field name="empno" datatype="java.lang.Long" databaseType="BIGINT" prompt="empno"/>
-		<field name="ename" datatype="java.lang.String" databaseType="VARCHAR" prompt="ename"/>
-		<field name="job" datatype="java.lang.String" databaseType="BIGINT"  prompt="job" />
-		<field name="mgr" datatype="java.lang.Long" databaseType="BIGINT" prompt="mgr"/>
+		<field name="empno" datatype="java.lang.Long" databaseType="BIGINT" prompt="empno" fordisplay="true" displayWidth="100"/>
+		<field name="ename" datatype="java.lang.String" databaseType="VARCHAR" prompt="ename" queryWidth="150" forquery="true" fordisplay="true" displayWidth="100"/>
+		<field name="job" datatype="java.lang.String" databaseType="BIGINT"  prompt="job" fordisplay="true" displayWidth="100"/>
+		<field name="mgr" datatype="java.lang.Long" databaseType="BIGINT" prompt="mgr" />
 		<field name="hiredate" datatype="java.sql.Date" databaseType="DATE" prompt="hiredate" />
 		<field name="deptno" datatype="java.lang.Long" databaseType="BIGINT" prompt="deptno"/>
 		<field name="sal" datatype="java.lang.Long" databaseType="FLOAT" prompt="sal"/>
