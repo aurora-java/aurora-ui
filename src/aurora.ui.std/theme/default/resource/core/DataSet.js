@@ -677,7 +677,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    	if(!res.result.record) return;
     	if(!res.result.record) res.result.record = [];
     	var records = [].concat(res.result.record);
-    	var total = res.result.record.totalCount;
+//    	var total = res.result.record.totalCount;
+    	var total = res.result.totalCount;
     	var datas = [];
     	if(records.length > 0){
     		for(var i=0,l=records.length;i<l;i++){
