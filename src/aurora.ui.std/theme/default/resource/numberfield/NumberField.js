@@ -39,7 +39,7 @@ $A.NumberField = Ext.extend($A.TextField,{
     },
     parseValue : function(value){
     	if(!this.allownegative)value = String(value).replace('-','');
-    	if(!this.allowdecimals)value = value.substring(0,value.indexOf("."))
+    	if(!this.allowdecimals)value = value.indexOf(".")==-1?value:value.substring(0,value.indexOf("."));
         value = parseFloat(String(value).replace(this.decimalSeparator, "."));
         return isNaN(value) ? '' : value;
     },
