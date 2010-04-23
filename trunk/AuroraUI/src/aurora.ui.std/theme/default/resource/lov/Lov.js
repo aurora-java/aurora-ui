@@ -22,48 +22,29 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.wrap.setStyle("width",(w+3)+"px");
 		this.el.setStyle("width",(w-20)+"px");
 	},
-	onBlur : function(e){
-		if(this.readonly) return;
-		var vf = this.record ? this.record.get(this.binder.name) : null;
-        var r = this.getRawValue();
-        var v = this.getValue();
-        var needLookup = true;
-        if(r == ''){        
-        	needLookup = false;
-        }else{
-        	if(r == v){
-        		needLookup = false;
-        	}
-        }
-        if(needLookup){
-        	e.stopEvent();
-        	this.fetchRecord();
-        }else{
-        	$A.Lov.superclass.onBlur.call(this,e); 
-        }
+	onChange : function(e){
+        this.fetchRecord();
 	},
-	onKeyDown : function(e){
-        if(e.getKey() == 13) {
-        	this.showLovWindow();
-        }else {
-        	$A.TriggerField.superclass.onKeyDown.call(this,e);
-        }
-    },
+//	onKeyDown : function(e){
+//        if(e.getKey() == 13) {
+//        	this.showLovWindow();
+//        }else {
+//        	$A.TriggerField.superclass.onKeyDown.call(this,e);
+//        }
+//    },
     canHide : function(){
     	return this.isWinOpen == false
     },
-    commit:function(r){
+    commit:function(r,lr){
 		if(this.win)this.win.close();
-		this.dataRecord = r;
-		var mapping = this.getMapping();
-		for(var i=0;i<mapping.length;i++){
-			var map = mapping[i];
-			if(this.binder.name == map.to){
-				this.setValue(r.get(map.from));
-				break;
+		var record = lr ? lr : this.record;
+		if(record){
+			var mapping = this.getMapping();
+			for(var i=0;i<mapping.length;i++){
+				var map = mapping[i];
+				record.set(map.to,r.get(map.from));
 			}
 		}
-		this.dataRecord = null;
 	},
 	getMapping: function(){
 		var mapping
@@ -75,16 +56,16 @@ $A.Lov = Ext.extend($A.TextField,{
 		}
 		return mapping ? mapping : [{from:this.binder.name,to:this.binder.name}];
 	},
-	setValue: function(v, silent){
-		$A.Lov.superclass.setValue.call(this, v, silent);
-		if(this.record && this.dataRecord && silent !== true){
-			var mapping = this.getMapping();
-			for(var i=0;i<mapping.length;i++){
-				var map = mapping[i];
-				this.record.set(map.to,this.dataRecord.get(map.from));
-			}		
-		}
-	},
+//	setValue: function(v, silent){
+//		$A.Lov.superclass.setValue.call(this, v, silent);
+//		if(this.record && this.dataRecord && silent !== true){
+//			var mapping = this.getMapping();
+//			for(var i=0;i<mapping.length;i++){
+//				var map = mapping[i];
+//				this.record.set(map.to,this.dataRecord.get(map.from));
+//			}		
+//		}
+//	},
 	onWinClose: function(){
 		this.isWinOpen = false;
 		this.win = null;
@@ -96,16 +77,11 @@ $A.Lov = Ext.extend($A.TextField,{
 			this.showLovWindow();
 			return;
 		}
-		var v = '';
-		var rv = this.getRawValue();
-		var t = this.getValue();
-		if(rv!=t){
-			v = rv;
-		}
+		var v = this.getRawValue();
 		if(!Ext.isEmpty(this.lovservice)){
-			url = 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=true';
+			url = 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
 		}else if(!Ext.isEmpty(this.lovmodel)){
-			url = 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=true';
+			url = 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
 		}
 		var p = {};
 		var mapping = this.getMapping();
@@ -116,19 +92,18 @@ $A.Lov = Ext.extend($A.TextField,{
 				break;
 			}
 		}
-		
-		$A.request(url, p, this.onFetchSuccess, this.onFetchFailed, this);
-	},
-	onFetchSuccess: function(res){
-		var record = new $A.Record({});
-		if(res.result.record){
-    		var datas = [].concat(res.result.record);
-    		if(datas.length>0){
-    			var data = datas[0];
-    			record = new $A.Record(data);
-    		}
-    	}
-		this.commit(record);
+		var record = this.record;
+		$A.request(url, p, function(res){
+			var r = new $A.Record({});
+			if(res.result.record){
+	    		var datas = [].concat(res.result.record);
+	    		if(datas.length>0){
+	    			var data = datas[0];
+	    			r = new $A.Record(data);
+	    		}
+	    	}
+			this.commit(r,record);
+		}, this.onFetchFailed, this);
 	},
 	onFetchFailed: function(res){
 		$A.showMessage('错误', res.error.message);
@@ -136,15 +111,9 @@ $A.Lov = Ext.extend($A.TextField,{
 	showLovWindow : function(){
 		if(this.isWinOpen == true) return;
 		if(this.readonly == true) return;
-//		if(this.ref == "" || Ext.isEmpty(this.ref))return;
 		this.isWinOpen = true;
 		
-		var v = '';
-		var rv = this.getRawValue();
-		var t = this.getValue();
-		if(rv!=t){
-			v = rv;
-		}		
+		var v = this.getRawValue();
 		this.blur();
 		var url;
 		if(!Ext.isEmpty(this.lovurl)){
@@ -154,7 +123,6 @@ $A.Lov = Ext.extend($A.TextField,{
 		}else {
 			url = 'sys_lov.screen?url='+encodeURIComponent('autocrud/'+this.lovmodel+'/query')+'&service='+this.lovmodel+'&';
 		}
-//		var lovurl = (this.lovmodel !='') ? 'sys_lov.screen' : this.ref;
     	this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
     	this.win.on('close',this.onWinClose,this);
     }
