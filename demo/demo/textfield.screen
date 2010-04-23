@@ -27,6 +27,5 @@
                 <textField id="text4" required="true" prompt="必须输入" emptyText="必须输入" width="150" />
             </form>
         </hBox>
-        
     </a:view>
 </a:screen>
