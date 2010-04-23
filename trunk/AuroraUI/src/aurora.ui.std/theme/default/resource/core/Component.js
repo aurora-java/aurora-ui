@@ -134,7 +134,6 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     },
     onValid : function(ds, record, name, valid){
     	if(this.binder.ds == ds && this.binder.name == name && this.record == record){
-//    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase() && this.record == record){
 	    	if(valid){
 	    		this.fireEvent('valid', this, this.record, this.binder.name)
     			this.clearInvalid();
@@ -145,13 +144,12 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	}    	
     },
     onUpdate : function(ds, record, name, value){
-    	if(this.binder.ds == ds && this.binder.name == name && this.getValue() != value){
-//    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase() && this.getValue() != value){
+    	if(this.binder.ds == ds && this.record == record && this.binder.name == name && this.getValue() != value){
 	    	this.setValue(value, true);
     	}
     },
     onFieldChange : function(ds, record, field){
-    	if(this.binder.ds == ds && this.binder.name == field.name){
+    	if(this.binder.ds == ds && this.record == record && this.binder.name == field.name){
 	    	this.onRefresh(ds);   	
     	}
     },
