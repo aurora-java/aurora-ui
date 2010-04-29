@@ -99,7 +99,7 @@ $A.DateField = Ext.extend($A.Component, {
 	},
   	//根据日期画日历
   	predraw: function(date) {
-  		if(date=='') date = new Date();
+  		if(date=='' || !date.getFullYear) date = new Date();
 		//再设置属性
 		this.year = date.getFullYear(); this.month = date.getMonth() + 1;
 		//重新画日历
@@ -163,6 +163,7 @@ $A.DateField = Ext.extend($A.Component, {
 	},
 	//判断是否同一日
 	isSame: function(d1, d2) {
+		if(!d2.getFullYear||!d1.getFullYear)return false;
 		return (d1.getFullYear() == d2.getFullYear() && d1.getMonth() == d2.getMonth() && d1.getDate() == d2.getDate());
 	}
 });

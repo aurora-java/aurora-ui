@@ -3,10 +3,11 @@ html, body {
 	padding:0;
 	font-family: sans-serif !important;
 	font-family: tahoma, arial, sans-serif,helvetica;
+	font-size:12px !important;
 	font-size:11px;
 }
 HTML {BORDER: none;}
-.ext-gecko,.ext-gecko3,.ext-safari {
+.ext-gecko,.ext-gecko3{
 	font-size:12px;
 }
 div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, button, p, blockquote, th, td { margin:0; padding:0; }

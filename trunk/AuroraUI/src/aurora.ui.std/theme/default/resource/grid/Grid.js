@@ -138,7 +138,7 @@ $A.Grid = Ext.extend($A.Component,{
 	initTemplate : function(){
 		this.rowTdTpl = new Ext.Template('<TD atype="{atype}" class="grid-rowbox" recordid="{recordid}">');
 		this.tdTpl = new Ext.Template('<TD style="visibility:{visibility};text-align:{align}" dataindex="{dataindex}" atype="grid-cell" recordid="{recordid}">');
-		this.cellTpl = new Ext.Template('<div class="grid-cell {cellcls}" id="'+this.id+'_{dataindex}_{recordid}">{text}</div>');		
+		this.cellTpl = new Ext.Template('<div class="grid-cell {cellcls}" style="width:{width}px" id="'+this.id+'_{dataindex}_{recordid}">{text}</div>');		
 		this.cbTpl = new Ext.Template('<center><div class="{cellcls}" id="'+this.id+'_{dataindex}_{recordid}"></div></center>');
 	},
 	getCheckBoxStatus: function(record, dataIndex) {
@@ -146,7 +146,8 @@ $A.Grid = Ext.extend($A.Component,{
 		var cv = field.getPropertity('checkedvalue');
 		var uv = field.getPropertity('uncheckedvalue');
 		var value = record.data[dataIndex];
-		return (value && value.trim() == cv.trim()) ? 'item-ckb-c' : 'item-ckb-u';
+//		return (value && value.trim() == cv.trim()) ? 'item-ckb-c' : 'item-ckb-u';
+		return (value && value == cv) ? 'item-ckb-c' : 'item-ckb-u';
 	},
 	createCell : function(col,record,includTd){
 		var field = record.getMeta().getField(col.dataindex);
@@ -188,6 +189,7 @@ $A.Grid = Ext.extend($A.Component,{
 			data = Ext.apply(data,{
 				align:col.align||'left',
 				cellcls: cls,
+				width:col.width-8,
 				text:this.renderText(record,col,record.data[col.dataindex])
 			})
 			cellTpl =  this.cellTpl;
@@ -699,8 +701,8 @@ $A.Grid = Ext.extend($A.Component,{
 		var col;
 		for(var i=0,l=this.columns.length;i<l;i++){
 			var c = this.columns[i];
-			if(c.dataindex && c.dataindex == dataindex){
-//			if(c.dataindex && c.dataindex.toLowerCase() === dataindex.toLowerCase()){
+//			if(c.dataindex && c.dataindex == dataindex){
+			if(c.dataindex && c.dataindex.toLowerCase() === dataindex.toLowerCase()){
 				col = c;
 				break;
 			}
@@ -748,6 +750,14 @@ $A.Grid = Ext.extend($A.Component,{
 			}
 			c.lock != true ? (uw += c.width) : (lw += c.width);
 		}
+		var tds = Ext.DomQuery.select('TD[dataindex='+dataindex+']',this.wrap.dom);
+		for(var i=0,l=tds.length;i<l;i++){
+			var td = tds[i];
+			var ce = Ext.fly(td).child('DIV.grid-cell');
+			if(ce)Ext.fly(ce).setStyle("width", (size-8)+"px");
+		}
+		
+		
 		this.lockWidth = lw;
 		if(hth) hth.setStyle("width", size+"px");
 		if(bth) bth.setStyle("width", size+"px");
