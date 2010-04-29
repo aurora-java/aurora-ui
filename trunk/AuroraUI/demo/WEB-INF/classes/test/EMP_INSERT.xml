@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sql-service trace="true">
 	<parameters>
-		<parameter name="EMPNO"  dataType="java.lang.Long" input="false" output="true" inputPath="@EMPNO" outputPath="@EMPNO"/>
+		<parameter name="empno"  dataType="java.lang.Long" input="false" output="true" inputPath="@empno" outputPath="@empno"/>
 	</parameters>
 	<update>
 	    begin
 			insert into EMP(EMPNO, ENAME, HIREDATE,JOB, MGR, SAL,DEPTNO,CREATION_DATE) values(
-				${/parameter/@EMPNO},
+				${/parameter/@empno},
 				${@ename},
 				to_date(${@hiredate},'yyyy-mm-dd'),
 				${@job},
@@ -14,7 +14,7 @@
 				${@sal},
 				${@deptno},
 				sysdate
-			) returning EMPNO into ${@EMPNO};
+			) returning EMPNO into ${@empno};
 		end;
 	</update>
 </sql-service>

@@ -1,0 +1,18 @@
+<model baseTable="SYS_SERVICE" alias="e">
+	<fields>
+		<field name="SERVICE_NAME" datatype="java.lang.String" databaseType="VARCHAR" prompt="页面名称" editorType="textfield" queryWidth="150" forquery="true" forDisplay="true" displayWidth="300"/>
+		<field name="TITLE" datatype="java.lang.String" databaseType="VARCHAR" prompt="页面标题" queryWidth="150" forquery="true" forDisplay="true" displayWidth="150"/>
+		<field name="IS_ACCESS_CHECKED" datatype="java.lang.Long" databaseType="BIGINT" prompt="权限控制" forDisplay="true" displayWidth="100" editorType="checkbox" defaultValue="0" checkedValue="1" uncheckedValue="0"/>
+		<field name="IS_LOGIN_REQUIRED" datatype="java.lang.Long" databaseType="BIGINT" prompt="需要登陆" forDisplay="true" displayWidth="100" editorType="checkbox" defaultValue="0" checkedValue="1" uncheckedValue="0"/>
+		<field name="IS_ENTRY_PAGE" datatype="java.lang.Long" databaseType="BIGINT" prompt="入口页面" forDisplay="true" displayWidth="100" editorType="checkbox" defaultValue="0" checkedValue="1" uncheckedValue="0"/>
+	</fields>
+	<query-fields>
+		<query-field field="SERVICE_NAME"  queryOperator="like" matchMode="full"/>
+		<query-field field="TITLE"  queryOperator="like" matchMode="full"/>
+	</query-fields>
+	<data-filters>
+	</data-filters>
+	<order-by>
+		<field name="SERVICE_NAME"/>
+	</order-by>
+</model>
