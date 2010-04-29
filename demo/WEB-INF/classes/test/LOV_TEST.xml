@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sql-service>
 	<fields>
-		<field name="empno" datatype="java.lang.Long" databaseType="BIGINT" prompt="员工工号" queryWidth="150" forquery="true" fordisplay="true" displayWidth="100"/>
+		<field name="empno" datatype="java.lang.Long" databaseType="BIGINT" prompt="员工工号" queryWidth="150" forQuery="true" fordisplay="true" displayWidth="100"/>
 		<field name="ename" datatype="java.lang.String" databaseType="VARCHAR" prompt="员工名" fordisplay="true" displayWidth="100"/>
 		<field name="CREATION_DATE" datatype="java.lang.String" databaseType="VARCHAR" prompt="工作时间" fordisplay="true" displayWidth="100"/>
 	</fields>
