@@ -246,6 +246,7 @@ $A.Window = Ext.extend($A.Component,{
     	}
     },
     onLoad : function(response, options){
+    	if(!this.body) return;
     	this.clearLoading();
     	var html = response.responseText;
     	var sf = this
