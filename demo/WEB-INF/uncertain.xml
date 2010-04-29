@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<uncertain-engine  logPath="d:/logs" defaultLogLevel="FINE" name="aurora-demo">
+<uncertain-engine  logPath="e:/temp" defaultLogLevel="FINE" name="aurora-demo">
 	<class-registry>
 		<package-mapping packageName="aurora.application.features"/>
 		<package-mapping packageName="aurora.service"/>
