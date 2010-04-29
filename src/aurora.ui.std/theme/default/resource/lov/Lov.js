@@ -1,6 +1,7 @@
 $A.Lov = Ext.extend($A.TextField,{
 	constructor: function(config) {
-		this.isWinOpen = false
+		this.isWinOpen = false;
+		this.fetching = false;
         $A.Lov.superclass.constructor.call(this, config);        
     },
     initComponent : function(config){
@@ -36,7 +37,7 @@ $A.Lov = Ext.extend($A.TextField,{
     	return this.isWinOpen == false
     },
     commit:function(r,lr){
-		if(this.win)this.win.close();
+		if(this.win) this.win.close();
 		var record = lr ? lr : this.record;
 		if(record){
 			var mapping = this.getMapping();
@@ -77,6 +78,7 @@ $A.Lov = Ext.extend($A.TextField,{
 			this.showLovWindow();
 			return;
 		}
+		this.fetching = true;
 		var v = this.getRawValue();
 		if(!Ext.isEmpty(this.lovservice)){
 			url = 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
@@ -102,6 +104,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	    			r = new $A.Record(data);
 	    		}
 	    	}
+	    	this.fetching = false;
 			this.commit(r,record);
 		}, this.onFetchFailed, this);
 	},
@@ -109,8 +112,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		$A.showMessage('错误', res.error.message);
 	},
 	showLovWindow : function(){
-		if(this.isWinOpen == true) return;
-		if(this.readonly == true) return;
+		if(this.fetching||this.isWinOpen||this.readonly) return;
 		this.isWinOpen = true;
 		
 		var v = this.getRawValue();

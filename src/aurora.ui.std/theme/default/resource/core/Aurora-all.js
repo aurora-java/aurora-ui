@@ -798,9 +798,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		var data = datas[i].data||datas[i];
     		for(var key in this.fields){
     			var field = this.fields[key];
-    			var datatype = field.getPropertity('datatype');
-    			switch(datatype){
+    			var dt = field.getPropertity('datatype');
+    			dt = dt ? dt.toLowerCase() : '';
+    			switch(dt){
     				case 'date':
+    					data[key] = $A.parseDate(data[key]);
+    					break;
+    				case 'java.util.date':
+    					data[key] = $A.parseDate(data[key]);
+    					break;
+    				case 'java.sql.date':
     					data[key] = $A.parseDate(data[key]);
     					break;
     				case 'int':
@@ -2369,7 +2376,7 @@ $A.NumberField = Ext.extend($A.TextField,{
     },
     parseValue : function(value){
     	if(!this.allownegative)value = String(value).replace('-','');
-    	if(!this.allowdecimals)value = value.substring(0,value.indexOf("."))
+    	if(!this.allowdecimals)value = value.indexOf(".")==-1?value:value.substring(0,value.indexOf("."));
         value = parseFloat(String(value).replace(this.decimalSeparator, "."));
         return isNaN(value) ? '' : value;
     },
@@ -2839,7 +2846,7 @@ $A.DateField = Ext.extend($A.Component, {
 	},
   	//根据日期画日历
   	predraw: function(date) {
-  		if(date=='') date = new Date();
+  		if(date=='' || !date.getFullYear) date = new Date();
 		//再设置属性
 		this.year = date.getFullYear(); this.month = date.getMonth() + 1;
 		//重新画日历
@@ -2903,6 +2910,7 @@ $A.DateField = Ext.extend($A.Component, {
 	},
 	//判断是否同一日
 	isSame: function(d1, d2) {
+		if(!d2.getFullYear||!d1.getFullYear)return false;
 		return (d1.getFullYear() == d2.getFullYear() && d1.getMonth() == d2.getMonth() && d1.getDate() == d2.getDate());
 	}
 });
@@ -3280,6 +3288,7 @@ $A.Window = Ext.extend($A.Component,{
     	}
     },
     onLoad : function(response, options){
+    	if(!this.body) return;
     	this.clearLoading();
     	var html = response.responseText;
     	var sf = this
@@ -3321,7 +3330,8 @@ $A.showWindow = function(title, msg, width, height, cls){
 }
 $A.Lov = Ext.extend($A.TextField,{
 	constructor: function(config) {
-		this.isWinOpen = false
+		this.isWinOpen = false;
+		this.fetching = false;
         $A.Lov.superclass.constructor.call(this, config);        
     },
     initComponent : function(config){
@@ -3357,7 +3367,7 @@ $A.Lov = Ext.extend($A.TextField,{
     	return this.isWinOpen == false
     },
     commit:function(r,lr){
-		if(this.win)this.win.close();
+		if(this.win) this.win.close();
 		var record = lr ? lr : this.record;
 		if(record){
 			var mapping = this.getMapping();
@@ -3398,6 +3408,7 @@ $A.Lov = Ext.extend($A.TextField,{
 			this.showLovWindow();
 			return;
 		}
+		this.fetching = true;
 		var v = this.getRawValue();
 		if(!Ext.isEmpty(this.lovservice)){
 			url = 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
@@ -3423,6 +3434,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	    			r = new $A.Record(data);
 	    		}
 	    	}
+	    	this.fetching = false;
 			this.commit(r,record);
 		}, this.onFetchFailed, this);
 	},
@@ -3430,8 +3442,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		$A.showMessage('错误', res.error.message);
 	},
 	showLovWindow : function(){
-		if(this.isWinOpen == true) return;
-		if(this.readonly == true) return;
+		if(this.fetching||this.isWinOpen||this.readonly) return;
 		this.isWinOpen = true;
 		
 		var v = this.getRawValue();

@@ -152,9 +152,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		var data = datas[i].data||datas[i];
     		for(var key in this.fields){
     			var field = this.fields[key];
-    			var datatype = field.getPropertity('datatype');
-    			switch(datatype){
+    			var dt = field.getPropertity('datatype');
+    			dt = dt ? dt.toLowerCase() : '';
+    			switch(dt){
     				case 'date':
+    					data[key] = $A.parseDate(data[key]);
+    					break;
+    				case 'java.util.date':
+    					data[key] = $A.parseDate(data[key]);
+    					break;
+    				case 'java.sql.date':
     					data[key] = $A.parseDate(data[key]);
     					break;
     				case 'int':

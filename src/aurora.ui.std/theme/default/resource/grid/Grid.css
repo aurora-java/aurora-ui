@@ -84,6 +84,7 @@
 	padding-right:2px;
 	line-height:20px;
 	height:22px;
+	text-overflow:ellipsis
 }
 .cell-editor {
 	border:1px solid #a9bfd3;
