@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+	<parameter></parameter>
+    <a:init-procedure></a:init-procedure>
+    <a:view template="default" package="aurora.ui.std">
+    	<div></div>
+    	<script language="JavaScript">
+			function query(){
+				$$('SYS_CURD_RESULT_DS').query()
+			}
+		</script>
+    	<dataSets>
+    		<dataSet id="SYS_CURD_QUERY_DS"/>
+    		<dataSet href="test.EMP_TEST" selectable="true" selectionModel="multiple" autoQuery="true" submitUrl="sys_curd.svc?service=test.EMP_TEST" queryUrl="autocrud/test.EMP_TEST/query" id="SYS_CURD_RESULT_DS" queryDataSet="SYS_CURD_QUERY_DS"/>
+		</dataSets>
+		<hBox>
+            <autoForm labelWidth="50" column="1" href="test.EMP_TEST" style="margin:5px;" title="查询Form" bindTarget="SYS_CURD_QUERY_DS" width="350"/>
+        </hBox>
+        <hBox style="margin-left:5px;">
+            <button text="查询" click="query"/>
+        </hBox>
+		<hBox width="800" style="margin:5px;">
+			<autoGrid href="test.EMP_TEST" width="530" navBar="true" bindTarget="SYS_CURD_RESULT_DS" height="300">
+				<toolBar>
+	                <button type="add"/>
+	                <button type="delete"/>
+	                <button type="save"/>
+	            </toolBar>
+			</autoGrid>
+		</hBox>
+    </a:view>
+</a:screen>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:service trace="true" xmlns:a="http://www.aurora-framework.org/application" xmlns:p="uncertain.proc">
+	<a:init-procedure>
+		<batch-apply sourcepath="/parameter">
+			<p:switch test="@current_parameter/@_status">
+				<p:case value="update">
+					<model-update model="${/parameter/@service}" />
+				</p:case>
+				<p:case value="delete">
+					<model-delete model="${/parameter/@service}" />
+				</p:case>
+                <p:case value="new">
+                	<model-insert model="${/parameter/@service}" />
+				</p:case>
+			</p:switch>
+		</batch-apply>
+	</a:init-procedure>
+	<a:service-output output="/parameter" />
+</a:service>
