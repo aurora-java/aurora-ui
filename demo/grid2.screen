@@ -87,7 +87,7 @@
             </dataSet>
             <dataSet id="GRID_DS" href="test.EMP" selectable="true" selectionModel="multiple" submiturl="manage_control.svc" fetchAll="false" pageSize="20" autoCount="true" queryDataSet="QUERY_DS" queryUrl="autocrud/test.EMP/query">
                 <fields>
-                    <field name="mgr_name" required="true" title="选择MGR" lovWidth="360" lovGridHeight="300" lovHeight="460" lovModel="test.EMP"><!--lovUrl="search.screen" lovService="test.LOV_TEST"  lovModel="test.EMP"-->
+                    <field name="mgr_name" required="true" title="选择MGR" lovWidth="360" lovGridHeight="300" lovHeight="460" lovService="test.LOV_TEST"><!--lovUrl="search.screen" lovService="test.LOV_TEST"  lovModel="test.EMP"-->
                         <mapping>
                             <map from="empno" to="mgr"/>
                             <map from="ename" to="mgr_name"/>
@@ -143,7 +143,7 @@
                     <column dataIndex="test1" editor="chb" width="50" prompt="test1"/>
                     <column dataIndex="test2" editor="chb" width="50" prompt="test2"/>                    
                     <column dataIndex="job" editor="tf" width="180" prompt="job"/>
-                    <column dataIndex="sal" editor="tf" width="180" prompt="sal"/>
+                    <column dataIndex="sal" editor="nf" width="180" prompt="sal"/>
                 </columns>
                 <editors>
                     <textField id="tf"/>
@@ -151,6 +151,7 @@
                     <datePicker id="dp"/>
                     <lov id="lov"/>
                     <checkBox id="chb"/>
+                    <numberField id="nf"/>
                     <radio id="radio">
                         <items>
                             <item label="男" value="M"/>
@@ -168,7 +169,7 @@
                 <lov name="mgr_name"  bindTarget="GRID_DS" width="150"/>
                 <datePicker name="hiredate"  bindTarget="GRID_DS" width="150"/>
                 <comboBox name="dname" bindTarget="GRID_DS" width="150"/>
-                <textField name="sal" bindTarget="GRID_DS" width="150"/>
+                <numberField name="sal" bindTarget="GRID_DS" width="150"/>
                 <radio prompt="性别" name="gender" bindTarget="GRID_DS">
                     <items>
                         <item label="男" value="M"/>
