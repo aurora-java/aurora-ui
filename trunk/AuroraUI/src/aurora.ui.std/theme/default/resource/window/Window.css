@@ -50,4 +50,29 @@
 	height:100%;
 	overflow:auto;
 	position:relative;
+	overflow:hidden; 
+}
+.window-alert {
+	padding:10px;
+	padding-left:140px;
+}
+.window-type {
+	margin-left:40px;
+	overflow-y:auto; 
+}
+.window-icon {
+    margin:10px;
+    background-repeat: no-repeat;
+}
+.window-warning {
+	background-image: url(../window/icon-warning.gif); 
+}
+.window-error { 
+	background-image: url(../window/icon-error.gif); 
+}
+.window-info {
+	background-image: url(../window/icon-info.gif); 
+}
+.window-question {
+    background-image: url(../window/icon-question.gif); 
 }

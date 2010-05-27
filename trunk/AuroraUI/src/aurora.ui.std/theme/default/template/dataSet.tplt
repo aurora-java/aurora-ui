@@ -12,7 +12,9 @@ new Aurora.DataSet({
 	autoQuery:${autoquery},
 	selectable:${selectable},
 	selectionmodel:'${selectionmodel}',
-	pageid:'${pageid}'
+	pageid:'${pageid}',
+	bindtarget:'${bindtarget}',
+	bindname:'${bindname}'
 });
 ${events}
 </script>

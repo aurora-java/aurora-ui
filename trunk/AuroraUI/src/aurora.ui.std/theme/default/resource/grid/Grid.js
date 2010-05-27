@@ -3,6 +3,7 @@ $A.Grid = Ext.extend($A.Component,{
 	scor:'#dfeaf5',//'#d9e7ed',
 	ocor:'#ffe3a8',
 	cecls:'cell-editor',
+	nbcls:'item-notBlank',
 	constructor: function(config){
 		this.overId = null;
 		this.selectedId = null;
@@ -38,7 +39,9 @@ $A.Grid = Ext.extend($A.Component,{
     	this.initTemplate();
 	},
 	processListener: function(ou){
-		$A.Grid.superclass.initComponent.call(this, ou);
+//		$A.Grid.superclass.initComponent.call(this, ou);//???
+		this.wrap[ou]("mouseover", this.onMouseOver, this);
+        this.wrap[ou]("mouseout", this.onMouseOut, this);
 		this.wrap[ou]('click',this.focus,this);
 		this.fs[ou](Ext.isOpera ? "keypress" : "keydown", this.handleKeyDown,  this);
 		this.ub[ou]('scroll',this.syncScroll, this);
@@ -64,7 +67,6 @@ $A.Grid = Ext.extend($A.Component,{
 		if(this.lb) this.lb.dom.scrollTop = this.ub.dom.scrollTop;
 	},
 	handleKeyDown : function(e){
-		e.stopEvent();
 		var key = e.getKey();
 		if(e.ctrlKey&&e.keyCode == 86){
 			var text = window.clipboardData.getData('text');
@@ -114,6 +116,7 @@ $A.Grid = Ext.extend($A.Component,{
 		if(ds){
 			ds[ou]('metachange', this.onRefresh, this);
 			ds[ou]('update', this.onUpdate, this);
+			ds[ou]('reject', this.onUpdate, this);
 	    	ds[ou]('add', this.onAdd, this);
 	    	ds[ou]('load', this.onLoad, this);
 	    	ds[ou]('valid', this.onValid, this);
@@ -150,7 +153,7 @@ $A.Grid = Ext.extend($A.Component,{
 		return (value && value == cv) ? 'item-ckb-c' : 'item-ckb-u';
 	},
 	createCell : function(col,record,includTd){
-		var field = record.getMeta().getField(col.dataindex);
+
 		var data = {
 			width:col.width,
 			recordid:record.id,
@@ -183,13 +186,20 @@ $A.Grid = Ext.extend($A.Component,{
 			cellTpl =  this.cbTpl;
 		}else{
 			var cls = col.editor ? this.cecls : '';
-			if(Ext.isEmpty(record.data[col.dataindex]) && record.isNew == true && field.get('required') == true){
-				cls = cls + ' item-notBlank'
+			if(col.editorfunction) {
+                var ef = window[col.editorfunction];
+                if(ef) {
+                    cls = ef.call(window,record)!='' ? this.cecls : '';
+                }
+            }
+            var field = record.getMeta().getField(col.dataindex);
+			if(field && Ext.isEmpty(record.data[col.dataindex]) && record.isNew == true && field.get('required') == true){
+				cls = cls + ' ' + this.nbcls
 			}
 			data = Ext.apply(data,{
 				align:col.align||'left',
 				cellcls: cls,
-				width:col.width-8,
+				width:col.width-10,
 				text:this.renderText(record,col,record.data[col.dataindex])
 			})
 			cellTpl =  this.cellTpl;
@@ -211,7 +221,7 @@ $A.Grid = Ext.extend($A.Component,{
 		return sb.join('');
 	},
 	renderText : function(record,col,value){
-		var renderer = col.renderer
+		var renderer = col.renderer;
 		if(renderer&&!Ext.isEmpty(value)){
 			var rder;
 			if(renderer.indexOf('Aurora.') != -1){
@@ -387,14 +397,15 @@ $A.Grid = Ext.extend($A.Component,{
 	},
 	onValid : function(ds, record, name, valid){
 		var c = this.findColByDataIndex(name);
-		if(c&&c.editor){
+//		if(c&&c.editor){
+		if(c){
 			var div = Ext.get(this.id+'_'+name+'_'+record.id);
 			if(div) {
 				if(valid == false){
 					div.addClass('item-invalid');
 				}else{
 					div.removeClass('item-invalid');
-					div.removeClass('item-notBlank');
+					div.removeClass(this.nbcls);
 				}
 			}
 		}
@@ -409,9 +420,18 @@ $A.Grid = Ext.extend($A.Component,{
 	onClear : function(){
 		
 	},
-	onFieldChange : function(){
-		
-	},
+    onFieldChange : function(ds, record, field, type, value){
+    	switch(type){
+    	   case 'required':
+    	       var div = Ext.get(this.id+'_'+field.name+'_'+record.id);
+    	       if(value==true) {
+    	       	   div.addClass(this.nbcls);
+    	       }else{
+    	           div.removeClass(this.nbcls);
+    	       }
+    	       break;
+    	}
+    },
 //	onRowMouseOver : function(e){
 //		if(Ext.fly(e.target).hasClass('grid-cell')){
 //			var rid = Ext.fly(e.target).getAttributeNS("","recordid");
@@ -701,15 +721,14 @@ $A.Grid = Ext.extend($A.Component,{
 		var col;
 		for(var i=0,l=this.columns.length;i<l;i++){
 			var c = this.columns[i];
-//			if(c.dataindex && c.dataindex == dataindex){
 			if(c.dataindex && c.dataindex.toLowerCase() === dataindex.toLowerCase()){
 				col = c;
 				break;
 			}
 		}
 		return col;
-	},
-	/** API ���� **/
+	}, 
+	/** API **/
 	selectRow : function(row, locate){
 		var record = this.dataset.getAt(row) 
 		this.selectedId = record.id;
@@ -754,7 +773,7 @@ $A.Grid = Ext.extend($A.Component,{
 		for(var i=0,l=tds.length;i<l;i++){
 			var td = tds[i];
 			var ce = Ext.fly(td).child('DIV.grid-cell');
-			if(ce)Ext.fly(ce).setStyle("width", (size-8)+"px");
+			if(ce)Ext.fly(ce).setStyle("width", (size-10)+"px");
 		}
 		
 		
@@ -826,19 +845,20 @@ $A.Grid = Ext.extend($A.Component,{
 			}
 		}		
 	},
-	deleteRow: function(win){
-		var selected = this.dataset.getSelected();
+	deleteSelectRows: function(win){
+		var selected = [].concat(this.dataset.getSelected());
 		if(selected.length >0){
-			for(var i=0;i<selected.length;i++){
-				var r = selected[i];
-				this.dataset.remove(r);
-			}
+			this.dataset.remove(selected);
+//			for(var i=0;i<selected.length;i++){
+//				var r = selected[i];
+//				this.dataset.remove(r);
+//			}
 		}
-		$(win).close();
+		win.close();
 	},
 	remove: function(){
 		var selected = this.dataset.getSelected();
-		if(selected.length >0) $A.showComfirm('确认删除选择记录?',"$('"+this.id+"').deleteRow");		
+		if(selected.length >0) $A.showComfirm('确认','确认删除选择记录?',this.deleteSelectRows.createDelegate(this));		
 	},
 	destroy: function(){
 		$A.Grid.superclass.destroy.call(this);
