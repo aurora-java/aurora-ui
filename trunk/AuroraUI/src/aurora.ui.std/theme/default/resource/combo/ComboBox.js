@@ -9,7 +9,11 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
 	initComponent:function(config){
 		$A.ComboBox.superclass.initComponent.call(this, config);
-		if(config.options) this.setOptions(config.options);		
+		if(config.options) {
+            this.setOptions(config.options);
+		}else{
+            this.clearOptions();
+		}
 	},
 	initEvents:function(){
 		$A.ComboBox.superclass.initEvents.call(this);
@@ -66,20 +70,33 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		if(this.currentIndex!==undefined)
 		Ext.fly(this.getNode(this.currentIndex)).removeClass(this.currentNodeClass);		
 	},
+	clearOptions : function(){
+	   this.processDataSet('un');
+	   this.optionDataSet = null;
+	},
 	setOptions : function(name){
 		var ds = name
 		if(typeof(name)==='string'){
 			ds = $(name);
 		}
-		if(this.currentOptions != ds){
+		if(this.optionDataSet != ds){
 			this.optionDataSet = ds;
-			this.optionDataSet.un('load', this.onDataSetLoad, this);
-			this.optionDataSet.on('load', this.onDataSetLoad, this);
+			this.processDataSet('un');
+			this.processDataSet('on');
 			this.rendered = false;
-			this.currentOptions = ds;
 			if(!Ext.isEmpty(this.value)) this.setValue(this.value, true)
 		}
 	},
+	processDataSet: function(ou){
+		if(this.optionDataSet){
+            this.optionDataSet[ou]('load', this.onDataSetLoad, this);
+            this.optionDataSet[ou]('add', this.onDataSetLoad, this);
+            this.optionDataSet[ou]('update', this.onDataSetLoad, this);
+            this.optionDataSet[ou]('remove', this.onDataSetLoad, this);
+            this.optionDataSet[ou]('clear', this.onDataSetLoad, this);
+            this.optionDataSet[ou]('reject', this.onDataSetLoad, this);
+		}
+	},	
 	onDataSetLoad: function(){
 		this.rendered=false
 		this.expand();

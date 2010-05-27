@@ -1,10 +1,33 @@
 $A = Aurora = {version: '1.0'};
 $A.fireWindowResize = function(){
-	$A.Mask.resizeMask();
+	$A.Cover.resizeCover();
 }
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
 $A.cache = {};
 $A.cmps = {};
+$A.onReady = Ext.onReady;
+$A.get = Ext.get;
+$A.center = function(el){
+	var ele;
+	if(typeof(el)=="string"){
+        var cmp = $A.CmpManager.get(el)
+        if(cmp){
+            if(cmp.wrap){
+                ele = cmp.wrap;
+            }
+        }else{
+             ele = Ext.get(el);
+        }             
+    }else{
+        ele = Ext.get(el);
+    }
+    var screenWidth = $A.getViewportWidth();
+    var screenHeight = $A.getViewportHeight();
+    var x = Math.max(0,(screenWidth - ele.getWidth())/2);
+    var y = Math.max(0,(screenHeight - ele.getHeight())/2);
+    ele.setStyle('position','absolute');
+    ele.moveTo(x,y);
+}
 $A.setTheme = function(theme){
 	if(theme) {
 		var exp  = new Date();   
@@ -27,16 +50,20 @@ $A.CmpManager = function(){
         },
         onCmpOver: function(cmp, e){
         	if($A.validInfoType != 'tip') return;
-        	if(cmp instanceof $A.Grid){
+        	if($A.Grid && cmp instanceof $A.Grid){
         		var ds = cmp.dataset;
         		if(!ds||ds.isValid == true)return;
-        		if(Ext.fly(e.target).hasClass('grid-cell')){
-        			var rid = Ext.fly(e.target).getAttributeNS("","recordid");
-        			var record = ds.findById(rid);
-        			var name = Ext.fly(e.target).getAttributeNS("","dataindex");        			
-					var msg = record.valid[name];
-	        		if(msg===true)return;
-	        		$A.ToolTip.show(e.target, msg);
+        		var target = Ext.fly(e.target).findParent('td');
+                if(target){
+                    var atype = Ext.fly(target).getAttributeNS("","atype");
+            		if(atype == 'grid-cell'){
+            			var rid = Ext.fly(target).getAttributeNS("","recordid");
+            			var record = ds.findById(rid);
+            			var name = Ext.fly(target).getAttributeNS("","dataindex");        			
+    					var msg = record.valid[name];
+    	        		if(Ext.isEmpty(msg))return;
+    	        		$A.ToolTip.show(target, msg);
+                    }
         		}
         	}else{
 	        	if(cmp.binder){
@@ -45,7 +72,7 @@ $A.CmpManager = function(){
 	        		var record = cmp.record;
 	        		if(!record)return;
 	        		var msg = record.valid[cmp.binder.name];
-	        		if(msg===true)return;
+	        		if(Ext.isEmpty(msg))return;
 	        		$A.ToolTip.show(cmp.id, msg);
 	        	}
         	}
@@ -82,10 +109,10 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 	}
 	switch(response.status){
 		case 404:
-			$A.showMessage('错误', '状态 404: 未找到"'+ response.statusText+'"');
+			$A.showErrorMessage('错误', '状态 404: 未找到"'+ response.statusText+'"');
 			break;
 		default:
-			$A.showMessage('错误', '状态 '+ response.status + ' 服务器端错误!');
+			$A.showErrorMessage('错误', '状态 '+ response.status + ' 服务器端错误!');
 			break;
 	}	
 }, this);
@@ -139,13 +166,16 @@ $A.request = function(url, para, success, failed, scope){
 					try {
 						res = Ext.decode(response.responseText);
 					}catch(e){
-						$A.showMessage('错误', '返回格式不正确!');
+						$A.showErrorMessage('错误', '返回格式不正确!');
 //						alert('返回格式不正确!')
 					}
 					if(res && !res.success){
 						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 						if(res.error){//								
-							if(failed)failed.call(scope, res);
+							if(failed) 
+								failed.call(scope, res);
+							else
+								$A.showWarningMessage('警告', res.error.message);
 						}								    						    
 					} else {
 						$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
@@ -245,6 +275,8 @@ $A.ToolTip = function(){
 			this.body.update(text)
 			var ele;
 			if(typeof(el)=="string"){
+				if(this.sid==el) return;
+				this.sid = el;
 				var cmp = $A.CmpManager.get(el)
 				if(cmp){
 					if(cmp.wrap){
@@ -272,42 +304,43 @@ $A.ToolTip = function(){
 			this.shadow.setY(this.tip.getY()+ 2)
 		},
 		hide: function(){
+			this.sid = null;
 			if(this.tip != null) this.tip.hide();
 			if(this.shadow != null) this.shadow.hide();
 		}
 	}
 	return q
 }();
-$A.Mask = function(){
+$A.Cover = function(){
 	var m = {
 		container: {},
-		mask : function(el){
+		cover : function(el){
 			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
-			var p = '<DIV class="aurora-mask" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
-			var mask = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
-	    	mask.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
-	    	$A.Mask.container[el.id] = mask;
+			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
+			var cover = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
+	    	$A.Cover.container[el.id] = cover;
 		},
-		unmask : function(el){
-			var mask = $A.Mask.container[el.id];
-			if(mask) {
-				Ext.fly(mask).remove();
-				$A.Mask.container[el.id] = null;
-				delete $A.Mask.container[el.id];
+		uncover : function(el){
+			var cover = $A.Cover.container[el.id];
+			if(cover) {
+				Ext.fly(cover).remove();
+				$A.Cover.container[el.id] = null;
+				delete $A.Cover.container[el.id];
 			}
 		},
-		resizeMask : function(){
+		resizeCover : function(){
 			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
-			for(key in $A.Mask.container){
-				var mask = $A.Mask.container[key];
-				Ext.fly(mask).setWidth(screenWidth);
-				Ext.fly(mask).setHeight(screenHeight);
+			for(key in $A.Cover.container){
+				var cover = $A.Cover.container[key];
+				Ext.fly(cover).setWidth(screenWidth);
+				Ext.fly(cover).setHeight(screenHeight);
 			}		
 		}
 	}
@@ -412,9 +445,9 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
 		                    	window.eval(jst);
 		                    }
 		                }
-		                if(typeof callback == "function"){
-				            callback();
-				        }
+//		                if(typeof callback == "function"){
+//				            callback();
+//				        }
 	            	}
             	}
             };
@@ -429,13 +462,16 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
                    window.eval(jst);
                 }
             }
-            if(typeof callback == "function"){
-	            callback();
-	        }
+//            if(typeof callback == "function"){
+//	            callback();
+//	        }
         }        
         var el = document.getElementById(id);
         if(el){Ext.removeNode(el);} 
 	    Ext.fly(dom).setStyle('display', 'block');
+	    if(typeof callback == "function"){
+                callback();
+        }
     });
     Ext.fly(dom).setStyle('display', 'none');
     dom.innerHTML = html.replace(/(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig, "").replace(/(?:<link.*?>)((\n|\r|.)*?)/ig, "");
@@ -585,7 +621,7 @@ $A.showValidWindowMsg = function(ds) {
 		if($A.validWindow)$A.validWindow.close();
 	}
 	if(!$A.validWindow && empty == false){
-		$A.validWindow = $A.showWindow('校验失败','',400,200);
+		$A.validWindow = $A.showWarningMessage('校验失败','',400,200);
 		$A.validWindow.on('close',function(){
 			$A.validWindow = null;			
 		})
@@ -644,6 +680,7 @@ Ext.get(document.documentElement).on('keydown',function(e){
 		}
 	}
 })
+$A.setValidInfoType('tip'); 
 $A.AUTO_ID = 1000;
 $A.DataSet = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {//datas,fields, type
@@ -659,15 +696,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.selectable = config.selectable;
     	this.selectionmodel = config.selectionmodel;
     	this.autoCount = config.autoCount;
+    	this.bindtarget = config.bindtarget;
+    	this.bindname = config.bindname;
 		this.loading = false;
     	this.qpara = {};
     	this.fields = {};
-		
     	this.resetConfig();
-    	
 		this.id = config.id || Ext.id();
-        $A.CmpManager.put(this.id,this)		
-    	this.qds = config.queryDataSet == "" ? null :$(config.queryDataSet);
+        $A.CmpManager.put(this.id,this)	
+        if(this.bindtarget&&this.bindname) $(this.bindtarget).bind(this.bindname,this);
+    	this.qds = Ext.isEmpty(config.queryDataSet) ? null :$(config.queryDataSet);
     	if(this.qds != null && this.qds.getCurrentRecord() == null) this.qds.create();
     	this.initEvents();
     	if(config.fields)this.initFields(config.fields)
@@ -678,6 +716,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	if(config.autoQuery === true) this.query();
     },
     destroy : function(){
+    	if(this.bindtarget&&this.bindname){
+    	   var bd = $A.CmpManager.get(this.bindtarget)
+    	   if(bd)bd.unbind(this.bindname);
+    	}
     	$A.CmpManager.remove(this.id);
     	delete $A.invalidRecords[this.id]
     },
@@ -685,34 +727,36 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.resetConfig();
     	Ext.apply(this, config);
     },
+    unbind : function(name){
+        var ds = this.fields[name].pro['dataset'];
+        if(ds)
+        this.processBindDataSet(ds,'un');
+        delete this.fields[name];
+    },
+    processBindDataSet : function(ds,ou){
+        var bdp = this.bindDataSetPrototype
+        ds[ou]('beforecreate', this.beforeCreate, this);
+        ds[ou]('add', bdp, this);
+        ds[ou]('remove', bdp, this);
+        ds[ou]('update', bdp, this);
+        ds[ou]('clear', bdp, this);
+//        ds[ou]('load', bdp, this);
+        ds[ou]('reject', bdp, this);
+    },
     bind : function(name, ds){
     	if(this.fields[name]) {
     		alert('重复绑定 ' + name);
     		return;
     	}
-    	var bdp = this.bindDataSetPrototype
-    	ds.un('beforecreate', this.beforeCreate, this);
-    	ds.un('add', bdp, this);
-    	ds.un('remove', bdp, this);
-    	ds.un('update', bdp, this);
-		ds.un('clear', bdp, this);
-		ds.un('load', bdp, this);
-		ds.un('reject', bdp, this);
-    	
-    	ds.on('beforecreate', this.beforeCreate, this);
-    	ds.on('add', bdp, this);
-    	ds.on('remove', bdp, this);
-    	ds.on('update', bdp, this);
-		ds.on('clear', bdp, this);
-		ds.on('load', bdp, this);
-		ds.on('reject', bdp, this);
-    	
+    	this.processBindDataSet(ds,'un');
+    	this.processBindDataSet(ds,'on');
     	var field = new $A.Record.Field({
     		name:name,
     		type:'dataset',
     		dataset:ds
     	});    	
-	    this.fields[field.name] = field;
+	    this.fields[name] = field;
+//	    this.processCurrentRow();
     },
    	bindDataSetPrototype: function(clear){
     	var record = this.getCurrentRecord();
@@ -722,14 +766,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		if(field.type == 'dataset'){    			
     			var ds = field.pro['dataset'];
     			if(clear===true)ds.resetConfig()
-    			record.data[field.name] = ds.getConfig();    			
+    			record.set(field.name,ds.getConfig())
     		}
     	}
     },
     beforeCreate: function(ds, record, index){
     	if(this.data.length == 0){
     		this.create({},false)
-	    	this.bindDataSetPrototype(true);
+//	    	this.bindDataSetPrototype(true);
     	}
     },
     resetConfig : function(){
@@ -741,14 +785,18 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.totalCount = 0;
     	this.totalPage = 0;
     	this.isValid = true;
+//    	this.bindtarget = null;
+//        this.bindname = null;
     },
     getConfig : function(){
     	var c = {};
-    	c.id = this.id;
+//    	c.id = this.id;
     	c.xtype = 'dataset';
     	c.data = this.data;
     	c.selected = this.selected;
     	c.isValid = this.isValid;
+//    	c.bindtarget = this.bindtarget;
+//        c.bindname = this.bindname;
     	c.gotoPage = this.gotoPage;
     	c.currentPage = this.currentPage;
     	c.currentIndex = this.currentIndex;
@@ -841,8 +889,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var data = Ext.apply(data||{},dd);
     	var record = new $A.Record(data);
         this.add(record); 
-        var index = (this.currentPage-1)*this.pageSize + this.data.length;
-        this.locate(index, true);
+//        var index = (this.currentPage-1)*this.pageSize + this.data.length;
+//        this.locate(index, true);
         return record;
     },
     getNewRecrods: function(){
@@ -874,6 +922,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    			ds.resetConfig()   			
 //    		}
 //    	}
+        var index = (this.currentPage-1)*this.pageSize + this.data.length;
+        this.locate(index, true);
         this.fireEvent("add", this, record, index);
     },
 
@@ -896,21 +946,32 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		record = this.getCurrentRecord();
     	}
     	if(!record)return;
-    	if(record.isNew){
-    		this.removeLocal(record);
-    	}else{
-    		this.removeRemote(record);
+    	var rs = [].concat(record);
+    	var rrs = [];
+    	for(var i=0;i<rs.length;i++){
+    		var r = rs[i]
+    		if(r.isNew){
+                this.removeLocal(r);
+    		}else{    		
+                rrs[rrs.length] = r;
+    		}
     	}
+    	this.removeRemote(rrs);    	
     },
-    removeRemote: function(r){
-    	if(this.submitUrl == '') return;    	
-    	var d = Ext.apply({}, r.data);
-		d['_id'] = r.id;
-		d['_status'] = 'delete';
-    	var p = [d];
-    	for(var i=0;i<p.length;i++){
-    		p[i] = Ext.apply(p[i],this.spara)
+    removeRemote: function(rs){
+    	if(this.submitUrl == '') return;
+    	var p = [];
+    	for(var k=0;k<rs.length;k++){
+    		var r = rs[k]
+        	var d = Ext.apply({}, r.data);
+    		d['_id'] = r.id;
+    		d['_status'] = 'delete';
+            p[k] = Ext.apply(d,this.spara)
     	}
+//    	var p = [d];
+//    	for(var i=0;i<p.length;i++){
+//    		p[i] = Ext.apply(p[i],this.spara)
+//    	}
     	if(p.length > 0) {
 	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this);
     	}
@@ -1066,7 +1127,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    	this.currentIndex = index;
     	}else{
     		if(this.isModified()){
-    			$A.showMessage('提示', '有未保存数据!')
+    			$A.showInfoMessage('提示', '有未保存数据!')
     		}else{
 				this.currentIndex = index;
 				this.currentPage =  Math.ceil(index/this.pageSize);
@@ -1107,7 +1168,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     validate : function(fire){
     	this.isValid = true;
-    	var current = this.getCurrentRecord();
+//    	var current = this.getCurrentRecord();
     	var records = this.getAll();
 		var dmap = {};
 		var hassub = false;
@@ -1142,6 +1203,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 							unvalidRecord = record;
 						}
 					}
+					
 					if(this.isValid == false) {
 						break;
 					}
@@ -1156,6 +1218,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		if(fire !== false) {
 			$A.manager.fireEvent('valid', $A.manager, this, this.isValid);
 		}
+		if(!this.isValid) $A.showInfoMessage('提示', '验证不通过!');
 		return this.isValid;
     },
     /** ------------------ajax函数------------------ **/
@@ -1211,21 +1274,21 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 			if(record.dirty == true || record.isNew == true) {
 				modified = true;
 				break;
-			}       			
+			}
 		}
 		return modified;
     },
-    isDataModified : function(){
-    	var modified = false;
-    	for(var i=0,l=this.data.length;i<l;i++){
-    		var r = this.data[i];    		
-    		if(r.dirty || r.isNew){
-    			modified = true;
-    			break;
-    		}
-    	}
-    	return modified;
-    },
+//    isDataModified : function(){
+//    	var modified = false;
+//    	for(var i=0,l=this.data.length;i<l;i++){
+//    		var r = this.data[i];    		
+//    		if(r.dirty || r.isNew){
+//    			modified = true;
+//    			break;
+//    		}
+//    	}
+//    	return modified;
+//    },
     getJsonData : function(){
     	var datas = [];
     	for(var i=0,l=this.data.length;i<l;i++){
@@ -1233,13 +1296,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		var isAdd = r.dirty || r.isNew
 			var d = Ext.apply({}, r.data);
 			d['_id'] = r.id;
-			d['_status'] = r.isNew ? 'new' : 'update';
+			d['_status'] = r.isNew ? 'insert' : 'update';
 			for(var k in r.data){
 				var item = d[k]; 
 				if(item && item.xtype == 'dataset'){
-					var ds =$(item.id);
+					var ds = new $A.DataSet({});//$(item.id);
 					ds.reConfig(item)
-					isAdd = isAdd == false ? ds.isDataModified() :isAdd;
+					isAdd = isAdd == false ? ds.isModified() :isAdd;
 					d[k] = ds.getJsonData();
 				}
 			}
@@ -1251,8 +1314,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	return datas;
     },
     submit : function(url){
-    	if(!this.validate()){
-//    		$A.showMessage('提示', '验证不通过!');
+    	if(!this.validate()){    		
     		return;
     	}
     	this.submitUrl = url||this.submitUrl;
@@ -1261,6 +1323,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	for(var i=0;i<p.length;i++){
     		p[i] = Ext.apply(p[i],this.spara)
     	}
+    	
     	if(p.length > 0) {
 	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
     	}
@@ -1270,16 +1333,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     afterEdit : function(record, name, value) {
         this.fireEvent("update", this, record, name, value);
     },
-    afterReject : function(record){
-    	this.fireEvent("reject", this, record);
+    afterReject : function(record, name, value){
+    	this.fireEvent("reject", this, record, name, value);
     },
     onSubmitSuccess : function(res){
+    	var datas = []
     	if(res.result.record){
-    		var datas = [].concat(res.result.record);
+    		datas = [].concat(res.result.record);
     		this.refreshRecord(datas)
     	}
-//    	$A.showMessage('成功', '操作成功!');
-    	this.fireEvent('submitsuccess', this, res)
+    	this.fireEvent('submitsuccess', this, datas, res)
     },
     refreshRecord : function(datas){
     	//this.resetConfig();
@@ -1321,8 +1384,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    	this.fireEvent("indexchange", this, this.getCurrentRecord());
     },
     onSubmitFailed : function(res){
-//    	alert(res.error.message);
-    	$A.showMessage('错误', res.error.message);
+    	$A.showWarningMessage('错误', res.error.message,350,150);
 		this.fireEvent('submitfailed', this, res)   
     },
     onLoadSuccess : function(res){
@@ -1349,7 +1411,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    
     },
     onLoadFailed : function(res){
-    	$A.showMessage('错误', res.error.message);
+    	$A.showWarningMessage('错误', res.error.message);
 //    	alert(res.error.message)
     	this.loading = false;
     },
@@ -1401,11 +1463,14 @@ $A.Record.prototype = {
 		var rf = this.fields;
 		var names = [];
 		for(var k in df){
+			if(df[k].type !='dataset')
 			names.add(k);
 //			names.add(k.toLowerCase());
 		}
+		
 		for(var k in rf){
 			if(names.indexOf(k) == -1){
+				if(rf[k].type !='dataset')
 				names.add(k);
 			}
 		
@@ -1449,9 +1514,23 @@ $A.Record.prototype = {
     setDataSet : function(ds){
         this.ds = ds;
     },
+    getField : function(name){
+    	return this.getMeta().getField(name);
+    },
     getMeta : function(){
     	return this.meta;
-    },    
+    },
+    copy : function(record){
+    	if(record == this){
+    		alert('不能copy自身!');
+    		return;
+    	}
+    	if(record.dirty){
+        	for(var n in record.modified){
+        		this.set(n,record.get(n))
+            }
+    	}
+    },
 	set : function(name, value){
         if(this.data[name] == value){
             return;
@@ -1465,7 +1544,7 @@ $A.Record.prototype = {
         }
         this.data[name] = value;
         if(!this.editing && this.ds){
-           this.ds.afterEdit(this, name, value);
+            this.ds.afterEdit(this, name, value);
         }        
         this.validate(name)
     },
@@ -1477,13 +1556,11 @@ $A.Record.prototype = {
         for(var n in m){
             if(typeof m[n] != "function"){
                 this.data[n] = m[n];
+                this.ds.afterReject(this,n,m[n]);
             }
         }
         delete this.modified;
         this.editing = false;
-        if(this.dirty && this.ds){
-            this.ds.afterReject(this);
-        }
         this.dirty = false;
     },
 //    beginEdit : function(){
@@ -1526,12 +1603,13 @@ $A.Record.Meta.prototype = {
 		this.record.onMetaClear(this);
 	},
 	getField : function(name){
+		if(!name)return null;
     	var f = this.record.fields[name];
 		var df = this.record.ds.fields[name];
 		var rf;
     	if(!f){
     		if(df){
-    			f = new $A.Record.Field({name:df.name,type:df.type});
+    			f = new $A.Record.Field({name:df.name,type:df.type||'string'});
     		}else{
     			f = new $A.Record.Field({name:name,type:'string'});//
     		}
@@ -1575,7 +1653,7 @@ $A.Record.Field.prototype = {
 		this.pro = {};
 		this.record.onFieldClear(this.name);
 	},
-	setPropertity : function(value,type) {
+	setPropertity : function(type,value) {
 		var op = this.pro[type];
 		if(op !== value){
 			this.pro[type] = value;
@@ -1593,17 +1671,45 @@ $A.Record.Field.prototype = {
 		return this.pro[name]
 	},
 	setRequired : function(r){
-		this.setPropertity(r, 'required');
+		this.setPropertity('required',r);
 	},
 	setReadOnly : function(r){	
-		this.setPropertity(r, 'readonly');
+		this.setPropertity('readonly',r);
 	},
 	setOptions : function(r){
-		this.setPropertity(r, 'options');
+		this.setPropertity('options',r);
 	},
 	getOptions : function(){
 		return this.getPropertity('options');
-	}
+	},
+	setMapping : function(m){
+		this.setPropertity('mapping',m);
+	},
+	getMapping : function(){
+        return this.getPropertity('mapping');
+	},
+	setTitle : function(t){
+		this.setPropertity('title',t);
+	},
+	setLovWidth : function(w){
+        this.setPropertity('lovwidth',w);
+	},
+	setLovHeight : function(h){
+		this.setPropertity('lovheight',h);
+	},
+	setLovGridHeight : function(gh){
+        this.setPropertity("lovgridheight",gh)
+	},
+	setLovModel : function(m){
+        this.setPropertity("lovmodel",m) 
+	},
+	setLovService : function(m){
+        this.setPropertity("lovservice",m) 
+    },
+    setLovUrl : function(m){
+    	this.setPropertity("lovurl",m) 
+    }
+	
 }
 /**
  * @class Aurora.Component
@@ -1633,7 +1739,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         this.wrap[ou]("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
-    	this.addEvents('focus','blur','change','invalid','valid','mouseover','mouseout');  
+    	this.addEvents('focus','blur','invalid','change','valid','mouseover','mouseout');
     	this.processListener('on');
     },
     isEventFromComponent:function(el){
@@ -1675,6 +1781,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	ds.on('remove', this.onRemove, this);
     	ds.on('clear', this.onClear, this);
     	ds.on('update', this.onUpdate, this);
+    	ds.on('reject', this.onUpdate, this);
     	ds.on('fieldchange', this.onFieldChange, this);
     	ds.on('indexchange', this.onRefresh, this);
     	this.onRefresh(ds)
@@ -1687,6 +1794,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 	    	bds.un('remove', this.onRemove, this);
 	    	bds.un('clear', this.onClear, this);
 	    	bds.un('update', this.onUpdate, this);
+	    	bds.un('reject', this.onUpdate, this);
 	    	bds.un('fieldchange', this.onFieldChange, this);
 	    	bds.un('indexchange', this.onRefresh, this);
     	} 
@@ -1764,6 +1872,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.clearValue();    
     },    
     setValue : function(v, silent){
+    	var ov = this.value;
     	this.value = v;
     	if(silent === true)return;
     	if(this.binder){
@@ -1778,6 +1887,9 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     			this.record.set(this.binder.name,v);
 	    		if(v=='') delete this.record.data[this.binder.name];	    		
     		}
+    	}
+    	if(ov!=v){
+            this.fireEvent('change', this, v, ov);
     	}
     },
     setWidth: function(w){
@@ -1839,12 +1951,12 @@ $A.Field = Ext.extend($A.Component,{
     	this.el[ou]("keyup", this.onKeyUp, this);
         this.el[ou]("keydown", this.onKeyDown, this);
         this.el[ou]("keypress", this.onKeyPress, this);
-//        this.el.on("mouseover", this.onMouseOver, this);
-//        this.el.on("mouseout", this.onMouseOut, this);
+        this.el[ou]("mouseover", this.onMouseOver, this);
+        this.el[ou]("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
     	$A.Field.superclass.initEvents.call(this);
-        this.addEvents('keydown','keyup','keypress');
+        this.addEvents('keydown','keyup','keypress','enterdown');
     },
     destroy : function(){
     	$A.Field.superclass.destroy.call(this);
@@ -1875,16 +1987,21 @@ $A.Field = Ext.extend($A.Component,{
 //    onMouseOut : function(e){
 //    	$A.ToolTip.hide();
 //    },
-    onChange : function(e){
-//    	this.setValue(this.getValue());    
-    },
+    onChange : function(e){},
     onKeyUp : function(e){
         this.fireEvent('keyup', this, e);
     },
     onKeyDown : function(e){
         this.fireEvent('keydown', this, e);
-        if(e.keyCode == 13 || e.keyCode == 27) {
+        var keyCode = e.keyCode;
+        if(keyCode == 13 || keyCode == 27) {
         	this.blur();
+        	if(keyCode == 13)  {
+        		var sf = this;
+        		setTimeout(function(){
+        			sf.fireEvent('enterdown', sf, e)
+        		},5);
+        	}
         }
     },
     onKeyPress : function(e){
@@ -1918,9 +2035,9 @@ $A.Field = Ext.extend($A.Component,{
 	        this.hasFocus = false;
 	        var rv = this.getRawValue();
 	        rv = this.processValue(rv);
-	        if(String(rv) !== String(this.startValue)){
-	            this.fireEvent('change', this, rv, this.startValue);
-	        } 
+//	        if(String(rv) !== String(this.startValue)){
+//	            this.fireEvent('change', this, rv, this.startValue);
+//	        } 
 	        this.setValue(rv);
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
@@ -2118,6 +2235,7 @@ $A.Button = Ext.extend($A.Component,{
 	disableCss:'item-btn-disabled',
 	overCss:'item-btn-over',
 	pressCss:'item-btn-pressed',
+	disabled:false,
 	constructor: function(config) {
         $A.Button.superclass.constructor.call(this, config);
     },
@@ -2152,11 +2270,21 @@ $A.Button = Ext.extend($A.Component,{
 //    	this.el.un("click", this.onClick,  this);
 //    	delete this.el;
 //    },
+	focus: function(){
+		if(this.disabled)return;
+		this.el.dom.focus();
+	},
+	blur : function(){
+    	if(this.disabled) return;
+    	this.el.dom.blur();
+    },
     disable: function(){
+    	this.disabled = true;
     	this.wrap.addClass(this.disableCss);
     	this.el.dom.disabled = true;
     },
     enable: function(){
+    	this.disabled = false;
     	this.wrap.removeClass(this.disableCss);
     	this.el.dom.disabled = false;
     },
@@ -2169,6 +2297,7 @@ $A.Button = Ext.extend($A.Component,{
     	this.wrap.removeClass(this.pressCss);
     },
     onClick: function(e){
+    	e.stopEvent();
     	this.fireEvent("click", this);
     },
     onMouseOver: function(e){
@@ -2178,6 +2307,9 @@ $A.Button = Ext.extend($A.Component,{
     	this.wrap.removeClass(this.overCss);
     }
 });
+$A.Button.getTemplate = function(id,text,width){
+    return '<TABLE class="item-btn " id="'+id+'" style="WIDTH: '+(width||60)+'px" cellSpacing="0"><TBODY><TR><TD class="item-btn-tl"><I></I></TD><TD class="item-btn-tc"></TD><TD class="item-btn-tr"><I></I></TD></TR><TR><TD class="item-btn-ml"><I></I></TD><TD class="item-btn-mc"><BUTTON hideFocus style="HEIGHT: 17px" atype="btn">'+text+'</BUTTON></TD><TD class="item-btn-mr"><I></I></TD></TR><TR><TD class="item-btn-bl"><I></I></TD><TD class="item-btn-bc"></TD><TD class="item-btn-br"><I></I></TD></TR></TBODY></TABLE><script>new Aurora.Button({"id":"'+id+'"});</script>';
+}
 $A.CheckBox = Ext.extend($A.Component,{
 	checkedCss:'item-ckb-c',
 	uncheckedCss:'item-ckb-u',
@@ -2217,7 +2349,8 @@ $A.CheckBox = Ext.extend($A.Component,{
 		if(typeof(v)==='boolean'){
 			this.checked=v?true:false;			
 		}else{
-			this.checked = v === this.checkedvalue ? true : false;
+			this.checked = (''+v == ''+this.checkedvalue)
+//			this.checked = v === this.checkedvalue ? true : false;
 		}
 		this.initStatus();
 		var value = this.checked==true ? this.checkedvalue : this.uncheckedvalue;		
@@ -2265,21 +2398,67 @@ $A.Radio = Ext.extend($A.Component, {
 	},	
 	processListener: function(ou){
     	this.wrap[ou]('click',this.onClick,this);
+    	this.wrap[ou]("keydown", this.onKeyDown, this);
     },
     focus : function(){
-    	
+    	this.wrap.focus();
+    },
+    onKeyDown:function(e){
+        this.fireEvent('keydown', this, e);
+        var keyCode = e.keyCode;
+        if(keyCode == 13)  {
+            var sf = this;
+            setTimeout(function(){
+                sf.fireEvent('enterdown', sf, e)
+            },5);
+        }else if(keyCode==40){
+            var vi = this.getValueItem();
+            var i = this.options.indexOf(vi);
+            if(i+1 < this.options.length){
+                var v = this.options[i+1]['value'];
+                this.setValue(v)
+            }
+        }else if(keyCode==38){
+            var vi = this.getValueItem();
+            var i = this.options.indexOf(vi);
+            if(i-1 >=0){
+                var v = this.options[i-1]['value'];
+                this.setValue(v)
+            }
+        }
     },
 	initEvents:function(){
 		$A.Radio.superclass.initEvents.call(this); 	
-		this.addEvents('click');    
+		this.addEvents('click','keydown','enterdown');    
 	},
 	setValue:function(value,silent){
 		this.value = value;
 		this.initStatus();
 		$A.Radio.superclass.setValue.call(this,value, silent);
+		this.focus();
+	},
+	getItem: function(){
+		var item = this.getValueItem();
+		if(item!=null){
+            item = new $A.Record(item);
+		}
+		return item;
+	},
+	getValueItem: function(){
+	   var v = this.getValue();
+	   var l = this.options.length;
+	   var r = null;
+	   for(var i=0;i<l;i++){
+	       var o = this.options[i];
+	       if(o['value']==v){
+	           r = o;
+	           break;
+	       }
+	   }	   
+	   return r;
 	},
 	getValue : function(){
-    	var v= this.value;
+    	var v = this.value;
 		v=(v === null || v === undefined ? '' : v);
 		return v;
     },
@@ -2305,6 +2484,12 @@ $A.Radio = Ext.extend($A.Component, {
 			}
 		}
 	},
+	getItemValue:function(i){
+	   var node = Ext.fly(this.nodes[i]);
+	   if(!node)return null;
+	   var v = node.getAttributeNS("","itemvalue");
+	   return v;
+	},
 	onClick:function(e) {
 		if(!this.readonly){
 			var l=this.nodes.length;
@@ -2329,11 +2514,66 @@ $A.TextField = Ext.extend($A.Field,{
     	$A.TextField.superclass.initComponent.call(this, config);    	
     },
     initEvents : function(){
-    	$A.TextField.superclass.initEvents.call(this);    	
+    	$A.TextField.superclass.initEvents.call(this);   
+    	if(this.typecase){
+    		this.el.on("paste", this.onPaste, this);
+    	}
+    },
+    onPaste : function(e){	
+    	if(window.clipboardData){
+            var t = window.clipboardData.getData('text');
+            if(this.typecase == 'upper'){
+                window.clipboardData.setData('text',t.toUpperCase());
+            }else if(this.typecase == 'lower') {
+            	window.clipboardData.setData('text',t.toLowerCase());
+            }
+    	}else{
+            e.stopEvent();
+    	}
+    },
+    destroy : function(){
+    	if(this.typecase){
+            this.el.un("paste", this.onPaste, this);
+        }
+        $A.TextField.superclass.destroy.call(this);
+    },
+    isCapsLock: function(e){
+        var keyCode  =  e.getKey();
+        var isShift  =  e.shiftKey;
+        if (((keyCode >= 65&&keyCode<=90)&&!isShift)||((keyCode>=97&&keyCode<=122)&&isShift)){
+        	if(this.dcl!=true)
+            $A.showWarningMessage('警告', '大些锁定打开!');
+        	this.dcl = true;
+        }else{
+            this.dcl = false;
+        }
+    }, 
+    onKeyPress : function(e){
+    	$A.TextField.superclass.onKeyPress.call(this,e);
+    	if(this.detectCapsLock) this.isCapsLock(e);
+		var keyCode = e.getKey();
+		if(this.typecase){
+        	if(this.typecase == 'upper'){
+                if(keyCode>=97 && keyCode<=122) keyCode = keyCode - 32;
+            }else if(this.typecase == 'lower') {
+            	if(keyCode>=65 && keyCode<=90) keyCode = keyCode + 32;
+            }
+            if(Ext.isIE) {
+                e.browserEvent.keyCode = keyCode;
+            }else{
+                var v = String.fromCharCode(keyCode);
+                e.stopEvent();
+                var d = this.el.dom
+                var rv = this.getRawValue();
+                var s = d.selectionStart;
+                var e = d.selectionEnd
+                rv = rv.substring(0,s) + v + rv.substring(e,rv.length);
+                this.setRawValue(rv)
+                d.selectionStart=s+1;
+                d.selectionEnd=d.selectionStart;
+            }
+    	}
     }
-//    ,getValue : function(){
-//    	return this.getRawValue();
-//    }
 })
 $A.NumberField = Ext.extend($A.TextField,{
 	allowdecimals : true,
@@ -2503,7 +2743,11 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
 	initComponent:function(config){
 		$A.ComboBox.superclass.initComponent.call(this, config);
-		if(config.options) this.setOptions(config.options);		
+		if(config.options) {
+            this.setOptions(config.options);
+		}else{
+            this.clearOptions();
+		}
 	},
 	initEvents:function(){
 		$A.ComboBox.superclass.initEvents.call(this);
@@ -2560,20 +2804,33 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		if(this.currentIndex!==undefined)
 		Ext.fly(this.getNode(this.currentIndex)).removeClass(this.currentNodeClass);		
 	},
+	clearOptions : function(){
+	   this.processDataSet('un');
+	   this.optionDataSet = null;
+	},
 	setOptions : function(name){
 		var ds = name
 		if(typeof(name)==='string'){
 			ds = $(name);
 		}
-		if(this.currentOptions != ds){
+		if(this.optionDataSet != ds){
 			this.optionDataSet = ds;
-			this.optionDataSet.un('load', this.onDataSetLoad, this);
-			this.optionDataSet.on('load', this.onDataSetLoad, this);
+			this.processDataSet('un');
+			this.processDataSet('on');
 			this.rendered = false;
-			this.currentOptions = ds;
 			if(!Ext.isEmpty(this.value)) this.setValue(this.value, true)
 		}
 	},
+	processDataSet: function(ou){
+		if(this.optionDataSet){
+            this.optionDataSet[ou]('load', this.onDataSetLoad, this);
+            this.optionDataSet[ou]('add', this.onDataSetLoad, this);
+            this.optionDataSet[ou]('update', this.onDataSetLoad, this);
+            this.optionDataSet[ou]('remove', this.onDataSetLoad, this);
+            this.optionDataSet[ou]('clear', this.onDataSetLoad, this);
+            this.optionDataSet[ou]('reject', this.onDataSetLoad, this);
+		}
+	},	
 	onDataSetLoad: function(){
 		this.rendered=false
 		this.expand();
@@ -3144,6 +3401,7 @@ $A.Window = Ext.extend($A.Component,{
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
         this.shadow.moveTo(x+3,y+3)
+        if(!this.proxy) this.initProxy();
         this.toFront();
         var sf = this;
         setTimeout(function(){
@@ -3190,7 +3448,7 @@ $A.Window = Ext.extend($A.Component,{
     	if(myzindex < zindex) {
 	    	this.wrap.setStyle('z-index', zindex+5);
 	    	this.shadow.setStyle('z-index', zindex+4);
-	    	if(this.modal) $A.Mask.mask(this.wrap);
+	    	if(this.modal) $A.Cover.cover(this.wrap);
     	}
     },
     onMouseDown : function(e){
@@ -3215,7 +3473,6 @@ $A.Window = Ext.extend($A.Component,{
     },
     onMouseMove : function(e){
     	e.stopEvent();
-    	if(!this.proxy) this.initProxy();
     	this.proxy.show();
     	this.proxy.moveTo(e.getPageX()+this.relativeX,e.getPageY()+this.relativeY);
     },
@@ -3233,13 +3490,15 @@ $A.Window = Ext.extend($A.Component,{
     	var sf = this; 
     	var p = '<DIV style="border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
     	sf.proxy = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+    	sf.proxy.hide();
     	var xy = sf.wrap.getXY();
     	sf.proxy.setWidth(sf.wrap.getWidth());
     	sf.proxy.setHeight(sf.wrap.getHeight());
     	sf.proxy.setLocation(xy[0], xy[1]);
     },
     onClose : function(e){
-    	 this.close(); 	
+        e.stopEvent();
+    	this.close(); 	
     },
     close : function(){
     	$A.WindowManager.remove(this);
@@ -3247,20 +3506,10 @@ $A.Window = Ext.extend($A.Component,{
     	this.fireEvent('close', this)
     },
     destroy : function(){
-    	for(var key in this.cmps){
-    		var cmp = this.cmps[key];
-    		if(cmp.destroy){
-    			try{
-    				cmp.destroy();
-    			}catch(e){
-    				alert('销毁window出错: ' + e)
-    			}
-    		}
-    	}
     	var wrap = this.wrap;
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
-    	if(this.modal) $A.Mask.unmask(this.wrap);
+    	if(this.modal) $A.Cover.uncover(this.wrap);
     	$A.Window.superclass.destroy.call(this);
     	delete this.title;
     	delete this.head;
@@ -3269,6 +3518,19 @@ $A.Window = Ext.extend($A.Component,{
         delete this.proxy;
         wrap.remove();
         this.shadow.remove();
+        var sf = this;
+        setTimeout(function(){
+        	for(var key in sf.cmps){
+        		var cmp = sf.cmps[key];
+        		if(cmp.destroy){
+        			try{
+        				cmp.destroy();
+        			}catch(e){
+        				alert('销毁window出错: ' + e)
+        			}
+        		}
+        	}
+        },10)
     },
     load : function(url,params){
     	var cmps = $A.CmpManager.getAll();
@@ -3303,28 +3565,82 @@ $A.Window = Ext.extend($A.Component,{
     	});
     }
 });
-$A.showMessage = function(title, msg){
-	return $A.showWindow(title, msg, 300, 100, 'win-alert');
+$A.showMessage = function(title, msg,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info');
 }
-$A.showComfirm = function(msg, callback){
-	var params = {
-		win:'aurora-confirm',
-		msg:msg||'确认操作?',
-		callback:callback||''
-	}
-	var url = 'confirm.screen';
-	var win = new Aurora.Window({id:'aurora-confirm',url: url, params:params, title:'确认', height:130,width:250});
+$A.showWarningMessage = function(title, msg,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-warning');
 }
-$A.hideWindow = function(){
-	var cmp = $A.CmpManager.get('aurora-msg')
-	if(cmp) cmp.close();
+$A.showInfoMessage = function(title, msg,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info');
 }
-$A.showWindow = function(title, msg, width, height, cls){
+$A.showErrorMessage = function(title,msg,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-error');
+}
+$A.showTypeMessage = function(title, msg,width,height,css){
+	var msg = '<div class="window-icon '+css+'"><div class="window-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
+	return $A.showOkWindow(title, msg, width, height);	
+} 
+$A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
+	width = width||300;
+	height = height||100;
+    var msg = '<div class="window-icon window-question"><div class="window-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
+    return $A.showOkCancelWindow(title, msg, okfun,cancelfun, width, height);  	
+}
+//$A.hideWindow = function(){
+//	var cmp = $A.CmpManager.get('aurora-msg')
+//	if(cmp) cmp.close();
+//}
+//$A.showWindow = function(title, msg, width, height, cls){
+//	cls = cls ||'';
+//	var cmp = $A.CmpManager.get('aurora-msg')
+//	if(cmp == null) {
+//		cmp = new $A.Window({id:'aurora-msg',title:title, height:height,width:width});
+//		if(msg){
+//			cmp.body.update('<div class="'+cls+'" style="height:'+(height-68)+'px;">'+msg+'</div>');
+//		}
+//	}
+//	return cmp;
+//}
+
+$A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
+    var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
+    if(cmp == null) {
+        var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok','确定');
+        var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel','取消');
+        cmp = new $A.Window({id:'aurora-msg-ok-cancel',title:title, height:height,width:width});
+        if(msg){
+            cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
+                var okbtn = $("aurora-msg-ok");
+                var cancelbtn = $("aurora-msg-cancel");
+                cmp.cmps['aurora-msg-ok'] = okbtn;
+                cmp.cmps['aurora-msg-cancel'] = cancelbtn;
+                okbtn.on('click',function(){
+                	if(okfun)okfun.call(this,cmp);
+                });
+                cancelbtn.on('click',function(){
+                    cmp.close()
+                	if(cancelfun)cancelfun.call(this,cmp)
+                });
+            });
+        }
+    }
+    return cmp;
+}
+$A.showOkWindow = function(title, msg, width, height, cls){
 	cls = cls ||'';
-	var cmp = $A.CmpManager.get('aurora-msg')
+	var cmp = $A.CmpManager.get('aurora-msg-ok')
 	if(cmp == null) {
-		cmp = new $A.Window({id:'aurora-msg',title:title, height:height,width:width});	
-		if(msg)cmp.body.update('<div class="'+cls+'">'+msg+'</div>');
+		var btnhtml = $A.Button.getTemplate('aurora-msg-yes','确定');
+		cmp = new $A.Window({id:'aurora-msg-ok',title:title, height:height,width:width});
+		if(msg){
+			cmp.body.update(msg+ '<center>'+btnhtml+'</center>',true,function(){
+    			var btn = $("aurora-msg-yes");
+                cmp.cmps['aurora-msg-yes'] = btn;
+                btn.on('click',function(){cmp.close()});
+                btn.focus();
+			});
+		}
 	}
 	return cmp;
 }
@@ -3439,7 +3755,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		}, this.onFetchFailed, this);
 	},
 	onFetchFailed: function(res){
-		$A.showMessage('错误', res.error.message);
+		$A.showErrorMessage('错误', res.error.message);
 	},
 	showLovWindow : function(){
 		if(this.fetching||this.isWinOpen||this.readonly) return;
