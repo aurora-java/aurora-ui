@@ -37,7 +37,8 @@ $A.CheckBox = Ext.extend($A.Component,{
 		if(typeof(v)==='boolean'){
 			this.checked=v?true:false;			
 		}else{
-			this.checked = v === this.checkedvalue ? true : false;
+			this.checked = (''+v == ''+this.checkedvalue)
+//			this.checked = v === this.checkedvalue ? true : false;
 		}
 		this.initStatus();
 		var value = this.checked==true ? this.checkedvalue : this.uncheckedvalue;		

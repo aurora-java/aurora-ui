@@ -13,15 +13,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.selectable = config.selectable;
     	this.selectionmodel = config.selectionmodel;
     	this.autoCount = config.autoCount;
+    	this.bindtarget = config.bindtarget;
+    	this.bindname = config.bindname;
 		this.loading = false;
     	this.qpara = {};
     	this.fields = {};
-		
     	this.resetConfig();
-    	
 		this.id = config.id || Ext.id();
-        $A.CmpManager.put(this.id,this)		
-    	this.qds = config.queryDataSet == "" ? null :$(config.queryDataSet);
+        $A.CmpManager.put(this.id,this)	
+        if(this.bindtarget&&this.bindname) $(this.bindtarget).bind(this.bindname,this);
+    	this.qds = Ext.isEmpty(config.queryDataSet) ? null :$(config.queryDataSet);
     	if(this.qds != null && this.qds.getCurrentRecord() == null) this.qds.create();
     	this.initEvents();
     	if(config.fields)this.initFields(config.fields)
@@ -32,6 +33,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	if(config.autoQuery === true) this.query();
     },
     destroy : function(){
+    	if(this.bindtarget&&this.bindname){
+    	   var bd = $A.CmpManager.get(this.bindtarget)
+    	   if(bd)bd.unbind(this.bindname);
+    	}
     	$A.CmpManager.remove(this.id);
     	delete $A.invalidRecords[this.id]
     },
@@ -39,34 +44,36 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.resetConfig();
     	Ext.apply(this, config);
     },
+    unbind : function(name){
+        var ds = this.fields[name].pro['dataset'];
+        if(ds)
+        this.processBindDataSet(ds,'un');
+        delete this.fields[name];
+    },
+    processBindDataSet : function(ds,ou){
+        var bdp = this.bindDataSetPrototype
+        ds[ou]('beforecreate', this.beforeCreate, this);
+        ds[ou]('add', bdp, this);
+        ds[ou]('remove', bdp, this);
+        ds[ou]('update', bdp, this);
+        ds[ou]('clear', bdp, this);
+//        ds[ou]('load', bdp, this);
+        ds[ou]('reject', bdp, this);
+    },
     bind : function(name, ds){
     	if(this.fields[name]) {
     		alert('重复绑定 ' + name);
     		return;
     	}
-    	var bdp = this.bindDataSetPrototype
-    	ds.un('beforecreate', this.beforeCreate, this);
-    	ds.un('add', bdp, this);
-    	ds.un('remove', bdp, this);
-    	ds.un('update', bdp, this);
-		ds.un('clear', bdp, this);
-		ds.un('load', bdp, this);
-		ds.un('reject', bdp, this);
-    	
-    	ds.on('beforecreate', this.beforeCreate, this);
-    	ds.on('add', bdp, this);
-    	ds.on('remove', bdp, this);
-    	ds.on('update', bdp, this);
-		ds.on('clear', bdp, this);
-		ds.on('load', bdp, this);
-		ds.on('reject', bdp, this);
-    	
+    	this.processBindDataSet(ds,'un');
+    	this.processBindDataSet(ds,'on');
     	var field = new $A.Record.Field({
     		name:name,
     		type:'dataset',
     		dataset:ds
     	});    	
-	    this.fields[field.name] = field;
+	    this.fields[name] = field;
+//	    this.processCurrentRow();
     },
    	bindDataSetPrototype: function(clear){
     	var record = this.getCurrentRecord();
@@ -76,14 +83,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		if(field.type == 'dataset'){    			
     			var ds = field.pro['dataset'];
     			if(clear===true)ds.resetConfig()
-    			record.data[field.name] = ds.getConfig();    			
+    			record.set(field.name,ds.getConfig())
     		}
     	}
     },
     beforeCreate: function(ds, record, index){
     	if(this.data.length == 0){
     		this.create({},false)
-	    	this.bindDataSetPrototype(true);
+//	    	this.bindDataSetPrototype(true);
     	}
     },
     resetConfig : function(){
@@ -95,14 +102,18 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.totalCount = 0;
     	this.totalPage = 0;
     	this.isValid = true;
+//    	this.bindtarget = null;
+//        this.bindname = null;
     },
     getConfig : function(){
     	var c = {};
-    	c.id = this.id;
+//    	c.id = this.id;
     	c.xtype = 'dataset';
     	c.data = this.data;
     	c.selected = this.selected;
     	c.isValid = this.isValid;
+//    	c.bindtarget = this.bindtarget;
+//        c.bindname = this.bindname;
     	c.gotoPage = this.gotoPage;
     	c.currentPage = this.currentPage;
     	c.currentIndex = this.currentIndex;
@@ -195,8 +206,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var data = Ext.apply(data||{},dd);
     	var record = new $A.Record(data);
         this.add(record); 
-        var index = (this.currentPage-1)*this.pageSize + this.data.length;
-        this.locate(index, true);
+//        var index = (this.currentPage-1)*this.pageSize + this.data.length;
+//        this.locate(index, true);
         return record;
     },
     getNewRecrods: function(){
@@ -228,6 +239,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    			ds.resetConfig()   			
 //    		}
 //    	}
+        var index = (this.currentPage-1)*this.pageSize + this.data.length;
+        this.locate(index, true);
         this.fireEvent("add", this, record, index);
     },
 
@@ -250,21 +263,32 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		record = this.getCurrentRecord();
     	}
     	if(!record)return;
-    	if(record.isNew){
-    		this.removeLocal(record);
-    	}else{
-    		this.removeRemote(record);
+    	var rs = [].concat(record);
+    	var rrs = [];
+    	for(var i=0;i<rs.length;i++){
+    		var r = rs[i]
+    		if(r.isNew){
+                this.removeLocal(r);
+    		}else{    		
+                rrs[rrs.length] = r;
+    		}
     	}
+    	this.removeRemote(rrs);    	
     },
-    removeRemote: function(r){
-    	if(this.submitUrl == '') return;    	
-    	var d = Ext.apply({}, r.data);
-		d['_id'] = r.id;
-		d['_status'] = 'delete';
-    	var p = [d];
-    	for(var i=0;i<p.length;i++){
-    		p[i] = Ext.apply(p[i],this.spara)
+    removeRemote: function(rs){
+    	if(this.submitUrl == '') return;
+    	var p = [];
+    	for(var k=0;k<rs.length;k++){
+    		var r = rs[k]
+        	var d = Ext.apply({}, r.data);
+    		d['_id'] = r.id;
+    		d['_status'] = 'delete';
+            p[k] = Ext.apply(d,this.spara)
     	}
+//    	var p = [d];
+//    	for(var i=0;i<p.length;i++){
+//    		p[i] = Ext.apply(p[i],this.spara)
+//    	}
     	if(p.length > 0) {
 	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this);
     	}
@@ -420,7 +444,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    	this.currentIndex = index;
     	}else{
     		if(this.isModified()){
-    			$A.showMessage('提示', '有未保存数据!')
+    			$A.showInfoMessage('提示', '有未保存数据!')
     		}else{
 				this.currentIndex = index;
 				this.currentPage =  Math.ceil(index/this.pageSize);
@@ -461,7 +485,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     validate : function(fire){
     	this.isValid = true;
-    	var current = this.getCurrentRecord();
+//    	var current = this.getCurrentRecord();
     	var records = this.getAll();
 		var dmap = {};
 		var hassub = false;
@@ -496,6 +520,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 							unvalidRecord = record;
 						}
 					}
+					
 					if(this.isValid == false) {
 						break;
 					}
@@ -510,6 +535,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		if(fire !== false) {
 			$A.manager.fireEvent('valid', $A.manager, this, this.isValid);
 		}
+		if(!this.isValid) $A.showInfoMessage('提示', '验证不通过!');
 		return this.isValid;
     },
     /** ------------------ajax函数------------------ **/
@@ -565,21 +591,21 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 			if(record.dirty == true || record.isNew == true) {
 				modified = true;
 				break;
-			}       			
+			}
 		}
 		return modified;
     },
-    isDataModified : function(){
-    	var modified = false;
-    	for(var i=0,l=this.data.length;i<l;i++){
-    		var r = this.data[i];    		
-    		if(r.dirty || r.isNew){
-    			modified = true;
-    			break;
-    		}
-    	}
-    	return modified;
-    },
+//    isDataModified : function(){
+//    	var modified = false;
+//    	for(var i=0,l=this.data.length;i<l;i++){
+//    		var r = this.data[i];    		
+//    		if(r.dirty || r.isNew){
+//    			modified = true;
+//    			break;
+//    		}
+//    	}
+//    	return modified;
+//    },
     getJsonData : function(){
     	var datas = [];
     	for(var i=0,l=this.data.length;i<l;i++){
@@ -587,13 +613,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		var isAdd = r.dirty || r.isNew
 			var d = Ext.apply({}, r.data);
 			d['_id'] = r.id;
-			d['_status'] = r.isNew ? 'new' : 'update';
+			d['_status'] = r.isNew ? 'insert' : 'update';
 			for(var k in r.data){
 				var item = d[k]; 
 				if(item && item.xtype == 'dataset'){
-					var ds =$(item.id);
+					var ds = new $A.DataSet({});//$(item.id);
 					ds.reConfig(item)
-					isAdd = isAdd == false ? ds.isDataModified() :isAdd;
+					isAdd = isAdd == false ? ds.isModified() :isAdd;
 					d[k] = ds.getJsonData();
 				}
 			}
@@ -605,8 +631,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	return datas;
     },
     submit : function(url){
-    	if(!this.validate()){
-//    		$A.showMessage('提示', '验证不通过!');
+    	if(!this.validate()){    		
     		return;
     	}
     	this.submitUrl = url||this.submitUrl;
@@ -615,6 +640,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	for(var i=0;i<p.length;i++){
     		p[i] = Ext.apply(p[i],this.spara)
     	}
+    	
     	if(p.length > 0) {
 	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
     	}
@@ -624,16 +650,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     afterEdit : function(record, name, value) {
         this.fireEvent("update", this, record, name, value);
     },
-    afterReject : function(record){
-    	this.fireEvent("reject", this, record);
+    afterReject : function(record, name, value){
+    	this.fireEvent("reject", this, record, name, value);
     },
     onSubmitSuccess : function(res){
+    	var datas = []
     	if(res.result.record){
-    		var datas = [].concat(res.result.record);
+    		datas = [].concat(res.result.record);
     		this.refreshRecord(datas)
     	}
-//    	$A.showMessage('成功', '操作成功!');
-    	this.fireEvent('submitsuccess', this, res)
+    	this.fireEvent('submitsuccess', this, datas, res)
     },
     refreshRecord : function(datas){
     	//this.resetConfig();
@@ -675,8 +701,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    	this.fireEvent("indexchange", this, this.getCurrentRecord());
     },
     onSubmitFailed : function(res){
-//    	alert(res.error.message);
-    	$A.showMessage('错误', res.error.message);
+    	$A.showWarningMessage('错误', res.error.message,350,150);
 		this.fireEvent('submitfailed', this, res)   
     },
     onLoadSuccess : function(res){
@@ -703,7 +728,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    
     },
     onLoadFailed : function(res){
-    	$A.showMessage('错误', res.error.message);
+    	$A.showWarningMessage('错误', res.error.message);
 //    	alert(res.error.message)
     	this.loading = false;
     },
@@ -755,11 +780,14 @@ $A.Record.prototype = {
 		var rf = this.fields;
 		var names = [];
 		for(var k in df){
+			if(df[k].type !='dataset')
 			names.add(k);
 //			names.add(k.toLowerCase());
 		}
+		
 		for(var k in rf){
 			if(names.indexOf(k) == -1){
+				if(rf[k].type !='dataset')
 				names.add(k);
 			}
 		
@@ -803,9 +831,23 @@ $A.Record.prototype = {
     setDataSet : function(ds){
         this.ds = ds;
     },
+    getField : function(name){
+    	return this.getMeta().getField(name);
+    },
     getMeta : function(){
     	return this.meta;
-    },    
+    },
+    copy : function(record){
+    	if(record == this){
+    		alert('不能copy自身!');
+    		return;
+    	}
+    	if(record.dirty){
+        	for(var n in record.modified){
+        		this.set(n,record.get(n))
+            }
+    	}
+    },
 	set : function(name, value){
         if(this.data[name] == value){
             return;
@@ -819,7 +861,7 @@ $A.Record.prototype = {
         }
         this.data[name] = value;
         if(!this.editing && this.ds){
-           this.ds.afterEdit(this, name, value);
+            this.ds.afterEdit(this, name, value);
         }        
         this.validate(name)
     },
@@ -831,13 +873,11 @@ $A.Record.prototype = {
         for(var n in m){
             if(typeof m[n] != "function"){
                 this.data[n] = m[n];
+                this.ds.afterReject(this,n,m[n]);
             }
         }
         delete this.modified;
         this.editing = false;
-        if(this.dirty && this.ds){
-            this.ds.afterReject(this);
-        }
         this.dirty = false;
     },
 //    beginEdit : function(){
@@ -880,12 +920,13 @@ $A.Record.Meta.prototype = {
 		this.record.onMetaClear(this);
 	},
 	getField : function(name){
+		if(!name)return null;
     	var f = this.record.fields[name];
 		var df = this.record.ds.fields[name];
 		var rf;
     	if(!f){
     		if(df){
-    			f = new $A.Record.Field({name:df.name,type:df.type});
+    			f = new $A.Record.Field({name:df.name,type:df.type||'string'});
     		}else{
     			f = new $A.Record.Field({name:name,type:'string'});//
     		}
@@ -929,7 +970,7 @@ $A.Record.Field.prototype = {
 		this.pro = {};
 		this.record.onFieldClear(this.name);
 	},
-	setPropertity : function(value,type) {
+	setPropertity : function(type,value) {
 		var op = this.pro[type];
 		if(op !== value){
 			this.pro[type] = value;
@@ -947,15 +988,43 @@ $A.Record.Field.prototype = {
 		return this.pro[name]
 	},
 	setRequired : function(r){
-		this.setPropertity(r, 'required');
+		this.setPropertity('required',r);
 	},
 	setReadOnly : function(r){	
-		this.setPropertity(r, 'readonly');
+		this.setPropertity('readonly',r);
 	},
 	setOptions : function(r){
-		this.setPropertity(r, 'options');
+		this.setPropertity('options',r);
 	},
 	getOptions : function(){
 		return this.getPropertity('options');
-	}
+	},
+	setMapping : function(m){
+		this.setPropertity('mapping',m);
+	},
+	getMapping : function(){
+        return this.getPropertity('mapping');
+	},
+	setTitle : function(t){
+		this.setPropertity('title',t);
+	},
+	setLovWidth : function(w){
+        this.setPropertity('lovwidth',w);
+	},
+	setLovHeight : function(h){
+		this.setPropertity('lovheight',h);
+	},
+	setLovGridHeight : function(gh){
+        this.setPropertity("lovgridheight",gh)
+	},
+	setLovModel : function(m){
+        this.setPropertity("lovmodel",m) 
+	},
+	setLovService : function(m){
+        this.setPropertity("lovservice",m) 
+    },
+    setLovUrl : function(m){
+    	this.setPropertity("lovurl",m) 
+    }
+	
 }

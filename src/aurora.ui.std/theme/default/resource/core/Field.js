@@ -35,12 +35,12 @@ $A.Field = Ext.extend($A.Component,{
     	this.el[ou]("keyup", this.onKeyUp, this);
         this.el[ou]("keydown", this.onKeyDown, this);
         this.el[ou]("keypress", this.onKeyPress, this);
-//        this.el.on("mouseover", this.onMouseOver, this);
-//        this.el.on("mouseout", this.onMouseOut, this);
+        this.el[ou]("mouseover", this.onMouseOver, this);
+        this.el[ou]("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
     	$A.Field.superclass.initEvents.call(this);
-        this.addEvents('keydown','keyup','keypress');
+        this.addEvents('keydown','keyup','keypress','enterdown');
     },
     destroy : function(){
     	$A.Field.superclass.destroy.call(this);
@@ -71,16 +71,21 @@ $A.Field = Ext.extend($A.Component,{
 //    onMouseOut : function(e){
 //    	$A.ToolTip.hide();
 //    },
-    onChange : function(e){
-//    	this.setValue(this.getValue());    
-    },
+    onChange : function(e){},
     onKeyUp : function(e){
         this.fireEvent('keyup', this, e);
     },
     onKeyDown : function(e){
         this.fireEvent('keydown', this, e);
-        if(e.keyCode == 13 || e.keyCode == 27) {
+        var keyCode = e.keyCode;
+        if(keyCode == 13 || keyCode == 27) {
         	this.blur();
+        	if(keyCode == 13)  {
+        		var sf = this;
+        		setTimeout(function(){
+        			sf.fireEvent('enterdown', sf, e)
+        		},5);
+        	}
         }
     },
     onKeyPress : function(e){
@@ -114,9 +119,9 @@ $A.Field = Ext.extend($A.Component,{
 	        this.hasFocus = false;
 	        var rv = this.getRawValue();
 	        rv = this.processValue(rv);
-	        if(String(rv) !== String(this.startValue)){
-	            this.fireEvent('change', this, rv, this.startValue);
-	        } 
+//	        if(String(rv) !== String(this.startValue)){
+//	            this.fireEvent('change', this, rv, this.startValue);
+//	        } 
 	        this.setValue(rv);
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);

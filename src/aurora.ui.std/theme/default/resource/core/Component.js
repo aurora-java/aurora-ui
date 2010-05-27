@@ -26,7 +26,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         this.wrap[ou]("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
-    	this.addEvents('focus','blur','change','invalid','valid','mouseover','mouseout');  
+    	this.addEvents('focus','blur','invalid','change','valid','mouseover','mouseout');
     	this.processListener('on');
     },
     isEventFromComponent:function(el){
@@ -68,6 +68,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	ds.on('remove', this.onRemove, this);
     	ds.on('clear', this.onClear, this);
     	ds.on('update', this.onUpdate, this);
+    	ds.on('reject', this.onUpdate, this);
     	ds.on('fieldchange', this.onFieldChange, this);
     	ds.on('indexchange', this.onRefresh, this);
     	this.onRefresh(ds)
@@ -80,6 +81,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 	    	bds.un('remove', this.onRemove, this);
 	    	bds.un('clear', this.onClear, this);
 	    	bds.un('update', this.onUpdate, this);
+	    	bds.un('reject', this.onUpdate, this);
 	    	bds.un('fieldchange', this.onFieldChange, this);
 	    	bds.un('indexchange', this.onRefresh, this);
     	} 
@@ -157,6 +159,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.clearValue();    
     },    
     setValue : function(v, silent){
+    	var ov = this.value;
     	this.value = v;
     	if(silent === true)return;
     	if(this.binder){
@@ -171,6 +174,9 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     			this.record.set(this.binder.name,v);
 	    		if(v=='') delete this.record.data[this.binder.name];	    		
     		}
+    	}
+    	if(ov!=v){
+            this.fireEvent('change', this, v, ov);
     	}
     },
     setWidth: function(w){

@@ -1,10 +1,33 @@
 $A = Aurora = {version: '1.0'};
 $A.fireWindowResize = function(){
-	$A.Mask.resizeMask();
+	$A.Cover.resizeCover();
 }
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
 $A.cache = {};
 $A.cmps = {};
+$A.onReady = Ext.onReady;
+$A.get = Ext.get;
+$A.center = function(el){
+	var ele;
+	if(typeof(el)=="string"){
+        var cmp = $A.CmpManager.get(el)
+        if(cmp){
+            if(cmp.wrap){
+                ele = cmp.wrap;
+            }
+        }else{
+             ele = Ext.get(el);
+        }             
+    }else{
+        ele = Ext.get(el);
+    }
+    var screenWidth = $A.getViewportWidth();
+    var screenHeight = $A.getViewportHeight();
+    var x = Math.max(0,(screenWidth - ele.getWidth())/2);
+    var y = Math.max(0,(screenHeight - ele.getHeight())/2);
+    ele.setStyle('position','absolute');
+    ele.moveTo(x,y);
+}
 $A.setTheme = function(theme){
 	if(theme) {
 		var exp  = new Date();   
@@ -27,16 +50,20 @@ $A.CmpManager = function(){
         },
         onCmpOver: function(cmp, e){
         	if($A.validInfoType != 'tip') return;
-        	if(cmp instanceof $A.Grid){
+        	if($A.Grid && cmp instanceof $A.Grid){
         		var ds = cmp.dataset;
         		if(!ds||ds.isValid == true)return;
-        		if(Ext.fly(e.target).hasClass('grid-cell')){
-        			var rid = Ext.fly(e.target).getAttributeNS("","recordid");
-        			var record = ds.findById(rid);
-        			var name = Ext.fly(e.target).getAttributeNS("","dataindex");        			
-					var msg = record.valid[name];
-	        		if(msg===true)return;
-	        		$A.ToolTip.show(e.target, msg);
+        		var target = Ext.fly(e.target).findParent('td');
+                if(target){
+                    var atype = Ext.fly(target).getAttributeNS("","atype");
+            		if(atype == 'grid-cell'){
+            			var rid = Ext.fly(target).getAttributeNS("","recordid");
+            			var record = ds.findById(rid);
+            			var name = Ext.fly(target).getAttributeNS("","dataindex");        			
+    					var msg = record.valid[name];
+    	        		if(Ext.isEmpty(msg))return;
+    	        		$A.ToolTip.show(target, msg);
+                    }
         		}
         	}else{
 	        	if(cmp.binder){
@@ -45,7 +72,7 @@ $A.CmpManager = function(){
 	        		var record = cmp.record;
 	        		if(!record)return;
 	        		var msg = record.valid[cmp.binder.name];
-	        		if(msg===true)return;
+	        		if(Ext.isEmpty(msg))return;
 	        		$A.ToolTip.show(cmp.id, msg);
 	        	}
         	}
@@ -82,10 +109,10 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 	}
 	switch(response.status){
 		case 404:
-			$A.showMessage('错误', '状态 404: 未找到"'+ response.statusText+'"');
+			$A.showErrorMessage('错误', '状态 404: 未找到"'+ response.statusText+'"');
 			break;
 		default:
-			$A.showMessage('错误', '状态 '+ response.status + ' 服务器端错误!');
+			$A.showErrorMessage('错误', '状态 '+ response.status + ' 服务器端错误!');
 			break;
 	}	
 }, this);
@@ -139,13 +166,16 @@ $A.request = function(url, para, success, failed, scope){
 					try {
 						res = Ext.decode(response.responseText);
 					}catch(e){
-						$A.showMessage('错误', '返回格式不正确!');
+						$A.showErrorMessage('错误', '返回格式不正确!');
 //						alert('返回格式不正确!')
 					}
 					if(res && !res.success){
 						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 						if(res.error){//								
-							if(failed)failed.call(scope, res);
+							if(failed) 
+								failed.call(scope, res);
+							else
+								$A.showWarningMessage('警告', res.error.message);
 						}								    						    
 					} else {
 						$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
@@ -245,6 +275,8 @@ $A.ToolTip = function(){
 			this.body.update(text)
 			var ele;
 			if(typeof(el)=="string"){
+				if(this.sid==el) return;
+				this.sid = el;
 				var cmp = $A.CmpManager.get(el)
 				if(cmp){
 					if(cmp.wrap){
@@ -272,42 +304,43 @@ $A.ToolTip = function(){
 			this.shadow.setY(this.tip.getY()+ 2)
 		},
 		hide: function(){
+			this.sid = null;
 			if(this.tip != null) this.tip.hide();
 			if(this.shadow != null) this.shadow.hide();
 		}
 	}
 	return q
 }();
-$A.Mask = function(){
+$A.Cover = function(){
 	var m = {
 		container: {},
-		mask : function(el){
+		cover : function(el){
 			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
-			var p = '<DIV class="aurora-mask" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
-			var mask = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
-	    	mask.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
-	    	$A.Mask.container[el.id] = mask;
+			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
+			var cover = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
+	    	$A.Cover.container[el.id] = cover;
 		},
-		unmask : function(el){
-			var mask = $A.Mask.container[el.id];
-			if(mask) {
-				Ext.fly(mask).remove();
-				$A.Mask.container[el.id] = null;
-				delete $A.Mask.container[el.id];
+		uncover : function(el){
+			var cover = $A.Cover.container[el.id];
+			if(cover) {
+				Ext.fly(cover).remove();
+				$A.Cover.container[el.id] = null;
+				delete $A.Cover.container[el.id];
 			}
 		},
-		resizeMask : function(){
+		resizeCover : function(){
 			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
-			for(key in $A.Mask.container){
-				var mask = $A.Mask.container[key];
-				Ext.fly(mask).setWidth(screenWidth);
-				Ext.fly(mask).setHeight(screenHeight);
+			for(key in $A.Cover.container){
+				var cover = $A.Cover.container[key];
+				Ext.fly(cover).setWidth(screenWidth);
+				Ext.fly(cover).setHeight(screenHeight);
 			}		
 		}
 	}
@@ -412,9 +445,9 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
 		                    	window.eval(jst);
 		                    }
 		                }
-		                if(typeof callback == "function"){
-				            callback();
-				        }
+//		                if(typeof callback == "function"){
+//				            callback();
+//				        }
 	            	}
             	}
             };
@@ -429,13 +462,16 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
                    window.eval(jst);
                 }
             }
-            if(typeof callback == "function"){
-	            callback();
-	        }
+//            if(typeof callback == "function"){
+//	            callback();
+//	        }
         }        
         var el = document.getElementById(id);
         if(el){Ext.removeNode(el);} 
 	    Ext.fly(dom).setStyle('display', 'block');
+	    if(typeof callback == "function"){
+                callback();
+        }
     });
     Ext.fly(dom).setStyle('display', 'none');
     dom.innerHTML = html.replace(/(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig, "").replace(/(?:<link.*?>)((\n|\r|.)*?)/ig, "");
@@ -585,7 +621,7 @@ $A.showValidWindowMsg = function(ds) {
 		if($A.validWindow)$A.validWindow.close();
 	}
 	if(!$A.validWindow && empty == false){
-		$A.validWindow = $A.showWindow('校验失败','',400,200);
+		$A.validWindow = $A.showWarningMessage('校验失败','',400,200);
 		$A.validWindow.on('close',function(){
 			$A.validWindow = null;			
 		})
@@ -644,3 +680,4 @@ Ext.get(document.documentElement).on('keydown',function(e){
 		}
 	}
 })
+$A.setValidInfoType('tip'); 
