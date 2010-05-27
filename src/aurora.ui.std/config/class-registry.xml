@@ -16,7 +16,7 @@
 	<feature-attach elementName="datePicker" featureClass="aurora.presentation.component.std.DatePicker" />
 	<feature-attach elementName="grid" featureClass="aurora.presentation.component.std.Grid" />
 	<feature-attach elementName="dataSet" featureClass="aurora.presentation.component.std.DataSet" />
-	<feature-attach elementName="form" featureClass="aurora.presentation.component.std.Form" />
+	<feature-attach elementName="formPanel" featureClass="aurora.presentation.component.std.Form" />
 	<feature-attach elementName="fieldSet" featureClass="aurora.presentation.component.std.FieldSet" />
 	<feature-attach elementName="box" featureClass="aurora.presentation.component.std.Box" />
 	<feature-attach elementName="vBox" featureClass="aurora.presentation.component.std.VBox" />
@@ -24,4 +24,6 @@
 	<feature-attach elementName="autoForm" featureClass="aurora.application.features.AutoForm" />
 	<feature-attach elementName="autoGrid" featureClass="aurora.application.features.AutoGrid" />
 	<feature-attach elementName="tabPanel" featureClass="aurora.presentation.component.std.Tab" />
+	<feature-attach elementName="switch" featureClass="aurora.presentation.component.std.Switch"/>
+	<feature-attach elementName="repeater" featureClass="aurora.presentation.component.std.Repeater"/>
 </class-registry>
