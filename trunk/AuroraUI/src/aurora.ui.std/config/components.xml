@@ -1,5 +1,7 @@
 <package>
 	<components>
+		<view-component elementName="template" builder="aurora.presentation.component.TemplateRenderer" />
+		<view-component elementName="html-page" builder="aurora.presentation.component.HtmlPage" />
 		<view-component elementName="separator" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="textArea" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="tree" builder="aurora.presentation.TemplateBasedView" />
@@ -15,10 +17,8 @@
 		<view-component elementName="passWord" builder="aurora.presentation.TemplateBasedView" defaultTemplate="textField.tplt"/>
 		<view-component elementName="numberField" builder="aurora.presentation.TemplateBasedView"/>
 		<view-component elementName="datePicker" builder="aurora.presentation.TemplateBasedView" />
-		<view-component elementName="template" builder="aurora.presentation.component.TemplateRenderer" />
-		<view-component elementName="html-page" builder="aurora.presentation.component.HtmlPage" />
 		<view-component elementName="box" builder="aurora.presentation.component.std.Box" />
-		<view-component elementName="form" builder="aurora.presentation.component.std.Form" />
+		<view-component elementName="formPanel" builder="aurora.presentation.component.std.Form" />
 		<view-component elementName="fieldSet" builder="aurora.presentation.component.std.FieldSet" />
 		<view-component elementName="vBox" builder="aurora.presentation.component.std.VBox" />
 		<view-component elementName="hBox" builder="aurora.presentation.component.std.HBox" />
@@ -26,5 +26,7 @@
 		<view-component elementName="grid" builder="aurora.presentation.TemplateBasedView"/>
 		<view-component elementName="dataSets" builder="aurora.application.features.DataSetInit" />
 		<view-component elementName="tabPanel" builder="aurora.presentation.TemplateBasedView" />
+		<view-component elementName="switch" builder="aurora.presentation.component.std.Switch" />
+		<view-component elementName="repeater" builder="aurora.presentation.component.std.Repeater" />
 	</components>
 </package>
