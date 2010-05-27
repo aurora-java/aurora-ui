@@ -109,7 +109,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		}, this.onFetchFailed, this);
 	},
 	onFetchFailed: function(res){
-		$A.showMessage('错误', res.error.message);
+		$A.showErrorMessage('错误', res.error.message);
 	},
 	showLovWindow : function(){
 		if(this.fetching||this.isWinOpen||this.readonly) return;

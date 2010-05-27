@@ -136,6 +136,7 @@ a {color:#0069ca;text-decoration:none;}
 
 /** 布局 **/
 .layout-table {
+	background-color:#fff;
 }
 .layout-title {
 	border:1px solid #2a2d32;

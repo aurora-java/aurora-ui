@@ -102,6 +102,7 @@ $A.Window = Ext.extend($A.Component,{
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
         this.shadow.moveTo(x+3,y+3)
+        if(!this.proxy) this.initProxy();
         this.toFront();
         var sf = this;
         setTimeout(function(){
@@ -148,7 +149,7 @@ $A.Window = Ext.extend($A.Component,{
     	if(myzindex < zindex) {
 	    	this.wrap.setStyle('z-index', zindex+5);
 	    	this.shadow.setStyle('z-index', zindex+4);
-	    	if(this.modal) $A.Mask.mask(this.wrap);
+	    	if(this.modal) $A.Cover.cover(this.wrap);
     	}
     },
     onMouseDown : function(e){
@@ -173,7 +174,6 @@ $A.Window = Ext.extend($A.Component,{
     },
     onMouseMove : function(e){
     	e.stopEvent();
-    	if(!this.proxy) this.initProxy();
     	this.proxy.show();
     	this.proxy.moveTo(e.getPageX()+this.relativeX,e.getPageY()+this.relativeY);
     },
@@ -191,13 +191,15 @@ $A.Window = Ext.extend($A.Component,{
     	var sf = this; 
     	var p = '<DIV style="border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
     	sf.proxy = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+    	sf.proxy.hide();
     	var xy = sf.wrap.getXY();
     	sf.proxy.setWidth(sf.wrap.getWidth());
     	sf.proxy.setHeight(sf.wrap.getHeight());
     	sf.proxy.setLocation(xy[0], xy[1]);
     },
     onClose : function(e){
-    	 this.close(); 	
+        e.stopEvent();
+    	this.close(); 	
     },
     close : function(){
     	$A.WindowManager.remove(this);
@@ -205,20 +207,10 @@ $A.Window = Ext.extend($A.Component,{
     	this.fireEvent('close', this)
     },
     destroy : function(){
-    	for(var key in this.cmps){
-    		var cmp = this.cmps[key];
-    		if(cmp.destroy){
-    			try{
-    				cmp.destroy();
-    			}catch(e){
-    				alert('销毁window出错: ' + e)
-    			}
-    		}
-    	}
     	var wrap = this.wrap;
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
-    	if(this.modal) $A.Mask.unmask(this.wrap);
+    	if(this.modal) $A.Cover.uncover(this.wrap);
     	$A.Window.superclass.destroy.call(this);
     	delete this.title;
     	delete this.head;
@@ -227,6 +219,19 @@ $A.Window = Ext.extend($A.Component,{
         delete this.proxy;
         wrap.remove();
         this.shadow.remove();
+        var sf = this;
+        setTimeout(function(){
+        	for(var key in sf.cmps){
+        		var cmp = sf.cmps[key];
+        		if(cmp.destroy){
+        			try{
+        				cmp.destroy();
+        			}catch(e){
+        				alert('销毁window出错: ' + e)
+        			}
+        		}
+        	}
+        },10)
     },
     load : function(url,params){
     	var cmps = $A.CmpManager.getAll();
@@ -261,28 +266,82 @@ $A.Window = Ext.extend($A.Component,{
     	});
     }
 });
-$A.showMessage = function(title, msg){
-	return $A.showWindow(title, msg, 300, 100, 'win-alert');
+$A.showMessage = function(title, msg,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info');
 }
-$A.showComfirm = function(msg, callback){
-	var params = {
-		win:'aurora-confirm',
-		msg:msg||'确认操作?',
-		callback:callback||''
-	}
-	var url = 'confirm.screen';
-	var win = new Aurora.Window({id:'aurora-confirm',url: url, params:params, title:'确认', height:130,width:250});
+$A.showWarningMessage = function(title, msg,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-warning');
 }
-$A.hideWindow = function(){
-	var cmp = $A.CmpManager.get('aurora-msg')
-	if(cmp) cmp.close();
+$A.showInfoMessage = function(title, msg,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info');
 }
-$A.showWindow = function(title, msg, width, height, cls){
+$A.showErrorMessage = function(title,msg,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-error');
+}
+$A.showTypeMessage = function(title, msg,width,height,css){
+	var msg = '<div class="window-icon '+css+'"><div class="window-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
+	return $A.showOkWindow(title, msg, width, height);	
+} 
+$A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
+	width = width||300;
+	height = height||100;
+    var msg = '<div class="window-icon window-question"><div class="window-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
+    return $A.showOkCancelWindow(title, msg, okfun,cancelfun, width, height);  	
+}
+//$A.hideWindow = function(){
+//	var cmp = $A.CmpManager.get('aurora-msg')
+//	if(cmp) cmp.close();
+//}
+//$A.showWindow = function(title, msg, width, height, cls){
+//	cls = cls ||'';
+//	var cmp = $A.CmpManager.get('aurora-msg')
+//	if(cmp == null) {
+//		cmp = new $A.Window({id:'aurora-msg',title:title, height:height,width:width});
+//		if(msg){
+//			cmp.body.update('<div class="'+cls+'" style="height:'+(height-68)+'px;">'+msg+'</div>');
+//		}
+//	}
+//	return cmp;
+//}
+
+$A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
+    var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
+    if(cmp == null) {
+        var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok','确定');
+        var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel','取消');
+        cmp = new $A.Window({id:'aurora-msg-ok-cancel',title:title, height:height,width:width});
+        if(msg){
+            cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
+                var okbtn = $("aurora-msg-ok");
+                var cancelbtn = $("aurora-msg-cancel");
+                cmp.cmps['aurora-msg-ok'] = okbtn;
+                cmp.cmps['aurora-msg-cancel'] = cancelbtn;
+                okbtn.on('click',function(){
+                	if(okfun)okfun.call(this,cmp);
+                });
+                cancelbtn.on('click',function(){
+                    cmp.close()
+                	if(cancelfun)cancelfun.call(this,cmp)
+                });
+            });
+        }
+    }
+    return cmp;
+}
+$A.showOkWindow = function(title, msg, width, height, cls){
 	cls = cls ||'';
-	var cmp = $A.CmpManager.get('aurora-msg')
+	var cmp = $A.CmpManager.get('aurora-msg-ok')
 	if(cmp == null) {
-		cmp = new $A.Window({id:'aurora-msg',title:title, height:height,width:width});	
-		if(msg)cmp.body.update('<div class="'+cls+'">'+msg+'</div>');
+		var btnhtml = $A.Button.getTemplate('aurora-msg-yes','确定');
+		cmp = new $A.Window({id:'aurora-msg-ok',title:title, height:height,width:width});
+		if(msg){
+			cmp.body.update(msg+ '<center>'+btnhtml+'</center>',true,function(){
+    			var btn = $("aurora-msg-yes");
+                cmp.cmps['aurora-msg-yes'] = btn;
+                btn.on('click',function(){cmp.close()});
+                btn.focus();
+			});
+		}
 	}
 	return cmp;
 }
