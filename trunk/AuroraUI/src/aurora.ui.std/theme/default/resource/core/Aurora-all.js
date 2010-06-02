@@ -1,12 +1,28 @@
+/*
+ * Aurora UI Library.
+ * Copyright(c) 2010, Hand China Co.,Ltd.
+ * 
+ * http://www.hand-china.com
+ */
+
+/**
+ * @class Aurora
+ * Aurora UI 核心工具类.
+ * @author 牛佳庆
+ * @singleton
+ */
 $A = Aurora = {version: '1.0'};
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
 }
+
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
 $A.cache = {};
 $A.cmps = {};
 $A.onReady = Ext.onReady;
 $A.get = Ext.get;
+$A.focusWindow;
+
 $A.center = function(el){
 	var ele;
 	if(typeof(el)=="string"){
@@ -28,6 +44,15 @@ $A.center = function(el){
     ele.setStyle('position','absolute');
     ele.moveTo(x,y);
 }
+
+/**
+ * Copies all the properties of config to obj.
+ * @param {Object} obj The receiver of the properties
+ * @param {Object} config The source of the properties
+ * @param {Object} defaults A different object that will also be applied for default values
+ * @return {Object} returns obj
+ * @member Ext apply
+ */
 $A.setTheme = function(theme){
 	if(theme) {
 		var exp  = new Date();   
@@ -39,6 +64,7 @@ $A.setTheme = function(theme){
 $A.CmpManager = function(){
     return {
         put : function(id, cmp){
+        	if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
         	if(!this.cache) this.cache = {};
         	if(this.cache[id] != null) {
 	        	alert("错误: ID为' " + id +" '的组件已经存在!");
@@ -109,10 +135,13 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 	}
 	switch(response.status){
 		case 404:
-			$A.showErrorMessage('错误', '状态 404: 未找到"'+ response.statusText+'"');
+			$A.showErrorMessage('404错误', '未找到"'+ response.statusText+'"');
 			break;
+		case 500:
+            $A.showErrorMessage(response.status + '错误', response.responseText,null,400,250);
+            break;
 		default:
-			$A.showErrorMessage('错误', '状态 '+ response.status + ' 服务器端错误!');
+			$A.showErrorMessage('错误', response.statusText);
 			break;
 	}	
 }, this);
@@ -681,6 +710,14 @@ Ext.get(document.documentElement).on('keydown',function(e){
 	}
 })
 $A.setValidInfoType('tip'); 
+/**
+ * @class Aurora.DataSet
+ * @extends Ext.util.Observable
+ * <p>DataSet是一个数据源，也是一个数据集合，它封装了所有数据的操作，校验，提交等操作.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.AUTO_ID = 1000;
 $A.DataSet = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {//datas,fields, type
@@ -718,7 +755,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     destroy : function(){
     	if(this.bindtarget&&this.bindname){
     	   var bd = $A.CmpManager.get(this.bindtarget)
-    	   if(bd)bd.unbind(this.bindname);
+    	   if(bd)bd.clearBind();
     	}
     	$A.CmpManager.remove(this.id);
     	delete $A.invalidRecords[this.id]
@@ -727,7 +764,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.resetConfig();
     	Ext.apply(this, config);
     },
-    unbind : function(name){
+    /**
+     * 取消绑定.
+     */
+    clearBind : function(){
+    	var name = this.bindname;
         var ds = this.fields[name].pro['dataset'];
         if(ds)
         this.processBindDataSet(ds,'un');
@@ -743,6 +784,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //        ds[ou]('load', bdp, this);
         ds[ou]('reject', bdp, this);
     },
+    /**
+     * 将组件绑定到某个DataSet的某个Field上.
+     * @param {String} name Field的name. 
+     * @param {Aurora.DataSet} dataSet 绑定的DataSet.
+     */
     bind : function(name, ds){
     	if(this.fields[name]) {
     		alert('重复绑定 ' + name);
@@ -805,22 +851,132 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	return c;
     },
     initEvents : function(){
-    	this.addEvents(
+    	this.addEvents(  
+    	    /**
+             * @event beforecreate
+             * 数据创建前事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
     		'beforecreate',
+    		/**
+             * @event metachange
+             * meta配置改变事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 当前的record.
+             * @param {Aurora.Record.Meta} meta meta配置对象.
+             * @param {String} type 类型.
+             * @param {Object} value 值.
+             */
 	        'metachange',
+	        /**
+             * @event fieldchange
+             * field配置改变事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 当前的record.
+             * @param {Aurora.Record.Field} field Field配置对象.
+             * @param {String} type 类型.
+             * @param {Object} value 值.
+             */
 	        'fieldchange',
+	        /**
+             * @event add
+             * 数据增加事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 增加的record.
+             * @param {Number} index 指针.
+             */
 	        'add',
+	        /**
+             * @event remove
+             * 数据删除事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 删除的record.
+             * @param {Number} index 指针.
+             */
 	        'remove',
+	        /**
+             * @event update
+             * 数据更新事件.
+             * "update", this, record, name, value
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 更新的record.
+             * @param {String} name 更新的field.
+             * @param {Object} value 更新的值.
+             */
 	        'update',
+	        /**
+             * @event clear
+             * 清除数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
 	        'clear',
+            /**
+             * @event load
+             * 加载数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
 	        'load',
+	        /**
+             * @event refresh
+             * 刷新事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
 	        'refresh',
+	        /**
+             * @event valid
+             * DataSet校验事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 校验的record.
+             * @param {String} name 校验的field.
+             * @param {Boolean} valid 校验结果. true 校验成功  false 校验失败
+             */ 
 	        'valid',
+	        /**
+             * @event indexchange
+             * DataSet当前指针改变事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 当前record.
+             */ 
 	        'indexchange',
+	        /**
+             * @event select
+             * 选择数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 选择的record.
+             */ 
 	        'select',
+	        /**
+             * @event select
+             * 取消选择数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 取消选择的record.
+             */
 	        'unselect',
+	        /**
+             * @event reject
+             * 数据重置事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 取消选择的record.
+             * @param {String} name 重置的field.
+             * @param {Object} value 重置的值.
+             */
 	        'reject',
+	        /**
+             * @event submitsuccess
+             * 数据提交成功事件.
+             * this, datas, res
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Array} datas 提交的数据.
+             * @param {Object} res 返回的json对象.
+             */
 	        'submitsuccess',
+	        /**
+             * @event submitfailed
+             * 数据提交失败事件.
+             * this, datas, res
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Object} res 返回的json对象.
+             */
 	        'submitfailed'
 		);    	
     },
@@ -830,6 +986,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	        this.fields[field.name] = field;
         }
     },
+    /**
+     * 获取Field配置.
+     * @param {String} name Field的name. 
+     * @return {Aurora.Record.Field} field配置对象
+     */
     getField : function(name){
     	return this.fields[name];
     },
@@ -873,7 +1034,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     sort : function(f, direction){
     	//TODO:排序
     },
-    /** ------------------数据操作------------------ **/ 
     create : function(data, valid){
     	this.fireEvent("beforecreate", this);
     	data = data||{}
@@ -893,6 +1053,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //        this.locate(index, true);
         return record;
     },
+    /**
+     * 获取所有新创建的数据. 
+     * @return {Array} 所有新创建的records
+     */
     getNewRecrods: function(){
         var records = this.getAll();
         var news = [];
@@ -909,6 +1073,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    	if(c==null)return true;
 //    	return c.validateRecord();
 //    },
+    /**
+     * 新增数据. 
+     * @param {Aurora.Record} record 需要新增的Record对象. 
+     */
     add : function(record){
     	record.isNew = true;
     	record.isNewRecord = true;
@@ -926,11 +1094,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.locate(index, true);
         this.fireEvent("add", this, record, index);
     },
-
+    /**
+     * 获取当前指针的Record. 
+     * @return {Aurora.Record} 当前指针所处的Record
+     */
     getCurrentRecord : function(){
     	if(this.data.length ==0) return null;
     	return this.data[this.currentIndex - (this.currentPage-1)*this.pageSize -1];
     },
+    /**
+     * 插入数据. 
+     * @param {Number} index  指定位置. 
+     * @param {Array} records 需要新增的Record对象集合.
+     */
     insert : function(index, records){
         records = [].concat(records);
         var splice = this.data.splice(index,this.data.length);
@@ -941,6 +1117,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.data = this.data.concat(splice);
         this.fireEvent("add", this, records, index);
     },
+    /**
+     * 移除数据.  
+     * @param {Aurora.Record} record 需要移除的Record.
+     */
     remove : function(record){  
     	if(!record){
     		record = this.getCurrentRecord();
@@ -1015,9 +1195,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //        }
         this.fireEvent("remove", this, record, index);    	
     },
+    /**
+     * 获取当前数据集下的所有数据.  
+     * @return {Array} records 当前数据集的所有Record.
+     */
     getAll : function(){
     	return this.data;    	
     },
+    /**
+     * 查找数据.  
+     * @param {String} property 查找的属性.
+     * @param {Object} value 查找的属性的值.
+     * @return {Aurora.Record} 符合查找条件的第一个record
+     */
     find : function(property, value){
     	var r = null;
     	this.each(function(record){
@@ -1029,6 +1219,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}, this)
     	return r;
     },
+    /**
+     * 根据id查找数据.  
+     * @param {String} id id.
+     * @return {Aurora.Record} 查找的record
+     */
     findById : function(id){
     	var find = null;
     	for(var i = 0,len = this.data.length; i < len; i++){
@@ -1039,15 +1234,26 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         return find;
     },
+    /**
+     * 删除所有数据.
+     */
     removeAll : function(){
     	this.currentIndex = 1;
         this.data = [];
         this.selected = [];
         this.fireEvent("clear", this);
     },
+    /**
+     * 返回指定record的位置
+     * @return {Number} record所在的位置
+     */
     indexOf : function(record){
         return this.data.indexOf(record);
     },
+    /**
+     * 获取指定位置的record
+     * @param {Number} 位置
+     */
     getAt : function(index){
         return this.data[index];
     },
@@ -1076,26 +1282,38 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	if(r) this.fireEvent("indexchange", this, r);
     },
-    /** ------------------选择函数------------------ **/
+    /**
+     * 获取所有选择的数据.
+     * @return {Array} 所有选择数据.
+     */
     getSelected : function(){
     	return this.selected;
     },
+    /**
+     * 选择所有数据.
+     */
     selectAll : function(){
     	for(var i=0,l=this.data.length;i<l;i++){
     		this.select(this.data[i]);
     	}
     },
+    /**
+     * 取消所有选择.
+     */
     unSelectAll : function(){
     	for(var i=0,l=this.data.length;i<l;i++){
     		this.unSelect(this.data[i]);
     	}
     },
+    /**
+     * 选择某个record.
+     * @param {Aurora.Record} record 需要选择的record.
+     */
     select : function(r){
     	if(typeof(r) == 'string') r = this.findById(r);
     	if(this.selectable && this.selectionmodel == 'multiple'){
     		if(this.selected.indexOf(r) == -1) {
     			this.selected.add(r);
-    			
     			this.fireEvent('select', this, r);
     		}
        	}else{
@@ -1108,6 +1326,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
        		}
        	}
     },
+    /**
+     * 取消选择某个record.
+     * @param {Aurora.Record} record 需要取消选择的record.
+     */
     unSelect : function(r){
     	if(typeof(r) == 'string') r = this.findById(r);
     	if(this.selectable){
@@ -1117,7 +1339,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		}
     	}
     },
-    /** ------------------导航函数------------------ **/
+    /**
+     * 定位到某个指针位置.
+     * @param {Number} index 指针位置.
+     */
     locate : function(index, force){
     	if(this.currentIndex == index && force !== true) return;
 //    	if(valid !== false) if(!this.validCurrent())return;
@@ -1136,7 +1361,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		}
     	}
     	this.processCurrentRow();
-    },    
+    },
+    /**
+     * 定位到某页.
+     * @param {Number} page 页数.
+     */
     goPage : function(page){
     	if(page >0) {
     		this.gotoPage = page;
@@ -1145,27 +1374,52 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    	this.locate(go);
     	}
     },
+    /**
+     * 定位到所有数据的第一条位置.
+     */
     first : function(){
     	this.locate(1);
     },
+    /**
+     * 向前移动一个指针位置.
+     */
     pre : function(){
     	this.locate(this.currentIndex-1);    	
     },
+    /**
+     * 向后移动一个指针位置.
+     */
     next : function(){
     	this.locate(this.currentIndex+1);
     },
+    /**
+     * 定位到第一页.
+     */
     firstPage : function(){
     	this.goPage(1);
     },
+    /**
+     * 向前移动一页.
+     */
     prePage : function(){
     	this.goPage(this.currentPage -1);
     },
+    /**
+     * 向后移动一页.
+     */
     nextPage : function(){
     	this.goPage(this.currentPage +1);
     },
+    /**
+     * 定位到最后一页.
+     */
     lastPage : function(){
     	this.goPage(this.totalPage);
     },
+    /**
+     * 对当前数据集进行校验.
+     * @return {Boolean} valid 校验结果.
+     */
     validate : function(fire){
     	this.isValid = true;
 //    	var current = this.getCurrentRecord();
@@ -1221,23 +1475,48 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		if(!this.isValid) $A.showInfoMessage('提示', '验证不通过!');
 		return this.isValid;
     },
-    /** ------------------ajax函数------------------ **/
+    /**
+     * 设置查询的Url.
+     * @param {String} url 查询的Url.
+     */
     setQueryUrl : function(url){
     	this.queryUrl = url;
     },
+    /**
+     * 设置查询的参数.
+     * @param {String} para 参数名.
+     * @param {Object} value 参数值.
+     */
     setQueryParameter : function(para, value){
         this.qpara[para] = value;
     },
+    /**
+     * 设置查询的DataSet.
+     * @param {Aurora.DataSet} ds DataSet.
+     */
     setQueryDataSet : function(ds){ 
     	this.qds = ds;
     	if(this.qds.getCurrentRecord() == null) this.qds.create();
     },
+    /**
+     * 设置提交的Url.
+     * @param {String} url 提交的Url.
+     */
     setSubmitUrl : function(url){
     	this.submitUrl = url;
     },
+    /**
+     * 设置提交的参数.
+     * @param {String} para 参数名.
+     * @param {Object} value 参数值.
+     */
     setSubmitParameter : function(para, value){
         this.spara[para] = value;
     },
+    /**
+     * 查询数据.
+     * @param {Number} page(可选) 查询的页数.
+     */
     query : function(page){
     	var r;
     	if(this.qds) {
@@ -1266,6 +1545,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.loading = true;
     	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this);
     },
+    /**
+     * 判断当前数据集是否发生改变.
+     * @return {Boolean} modified 是否发生改变.
+     */
     isModified : function(){
     	var modified = false;
     	var records = this.getAll();
@@ -1289,6 +1572,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    	}
 //    	return modified;
 //    },
+    /**
+     * 以json格式返回当前数据集.
+     * @return {Object} json 返回的json对象.
+     */
     getJsonData : function(){
     	var datas = [];
     	for(var i=0,l=this.data.length;i<l;i++){
@@ -1313,6 +1600,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	
     	return datas;
     },
+    /**
+     * 提交操作.
+     * @return {String} url(可选) 提交的url.
+     */
     submit : function(url){
     	if(!this.validate()){    		
     		return;
@@ -1329,7 +1620,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     
-    /** ------------------事件函数------------------ **/
     afterEdit : function(record, name, value) {
         this.fireEvent("update", this, record, name, value);
     },
@@ -1384,7 +1674,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    	this.fireEvent("indexchange", this, this.getCurrentRecord());
     },
     onSubmitFailed : function(res){
-    	$A.showWarningMessage('错误', res.error.message,350,150);
+    	$A.showWarningMessage('错误', res.error.message,null,350,150);
 		this.fireEvent('submitfailed', this, res)   
     },
     onLoadSuccess : function(res){
@@ -1426,16 +1716,67 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     }
 });
 
-
+/**
+ * @class Aurora.Record
+ * <p>Record是一个数据对象.
+ * @constructor
+ * @param {Object} data 数据对象. 
+ * @param {Array} fields 配置对象. 
+ */
 $A.Record = function(data, fields){
+	/**
+     * Record的id. (只读).
+     * @type Number
+     * @property
+     */
     this.id = ++$A.AUTO_ID;
+    /**
+     * Record的数据 (只读).
+     * @type Object
+     * @property
+     */
     this.data = data;
+    /**
+     * Record的Fields (只读).
+     * @type Object
+     * @property
+     */
     this.fields = {};
+    /**
+     * Record的验证信息 (只读).
+     * @type Object
+     * @property
+     */
     this.valid = {};
-    this.isValid = true;
+    /**
+     * Record的验证结果 (只读).
+     * @type Boolean
+     * @property
+     */
+    this.isValid = true; 
+    /**
+     * 是否是新数据 (只读).
+     * @type Boolean
+     * @property
+     */
     this.isNew = false;
+    /**
+     * 是否发生改变 (只读).
+     * @type Boolean
+     * @property
+     */
 	this.dirty = false;	
+	/**
+     * 编辑状态 (只读).
+     * @type Boolean
+     * @property
+     */
 	this.editing = false;
+	/**
+     * 编辑信息对象 (只读).
+     * @type Object
+     * @property
+     */
 	this.modified= null;
     this.meta = new $A.Record.Meta(this);
     if(fields)this.initFields(fields);
@@ -1531,6 +1872,11 @@ $A.Record.prototype = {
             }
     	}
     },
+    /**
+     * 设置值.
+     * @param {String} name 设定值的名字.
+     * @param {Object} value 设定的值.
+     */
 	set : function(name, value){
         if(this.data[name] == value){
             return;
@@ -1548,6 +1894,11 @@ $A.Record.prototype = {
         }        
         this.validate(name)
     },
+    /**
+     * 设置值.
+     * @param {String} name 名字.
+     * @return {Object} value 值.
+     */
     get : function(name){
         return this.data[name];
     },
@@ -1641,7 +1992,12 @@ $A.Record.Meta.prototype = {
 		}
 	}
 }
-
+/**
+ * @class Aurora.Record.Field
+ * <p>Field是一个配置对象，主要配置指定列的一些附加属性，例如非空，只读，值列表等信息.
+ * @constructor
+ * @param {Object} data 数据对象. 
+ */
 $A.Record.Field = function(c){
     this.name = c.name;
     this.type = c.type;
@@ -1649,6 +2005,9 @@ $A.Record.Field = function(c){
     this.record;
 };
 $A.Record.Field.prototype = {
+	/**
+	 * 清除所有配置信息.
+	 */
 	clear : function(){
 		this.pro = {};
 		this.record.onFieldClear(this.name);
@@ -1660,6 +2019,11 @@ $A.Record.Field.prototype = {
 			this.record.onFieldChange(this.name, type, value);
 		}
 	},
+	/**
+	 * 获取配置信息
+	 * @param {String} name 配置名
+	 * @return {Object} value 配置值
+	 */
 	get : function(name){
 		var v = null;
 		if(this.snap){
@@ -1670,42 +2034,117 @@ $A.Record.Field.prototype = {
 	getPropertity : function(name){
 		return this.pro[name]
 	},
+	/**
+	 * 设置当前Field是否必输
+	 * @param {Boolean} required  是否必输.
+	 */
 	setRequired : function(r){
 		this.setPropertity('required',r);
 	},
+	/**
+	 * 当前Field是否必输.
+	 * @return {Boolean} required  是否必输.
+	 */
+    isRequired : function(){
+        return this.getPropertity('required');
+    },
+	/**
+	 * 设置当前Field是否只读.
+	 * @param {Boolean} readonly 是否只读
+	 */
 	setReadOnly : function(r){	
 		this.setPropertity('readonly',r);
 	},
+	/**
+	 * 当前Field是否只读.
+	 * @param {Boolean} readonly 是否只读
+	 */
+	isReadOnly : function(){
+	   return this.getPropertity('readonly');
+	},
+	/**
+	 * 设置当前Field的数据集.
+	 * @param {Object} r 数据集
+	 */
 	setOptions : function(r){
 		this.setPropertity('options',r);
 	},
+	/**
+     * 获取当前的数据集.
+     * @return {Object} r 数据集
+     */
 	getOptions : function(){
 		return this.getPropertity('options');
 	},
+	/**
+     * 设置当前Field的映射.
+     * 例如：<p>
+       var mapping = [{from:'name', to: 'code'},{from:'service', to: 'name'}];</p>
+       field.setMapping(mapping);
+     * @return {Array} mapping 映射列表.
+     * 
+     */
 	setMapping : function(m){
 		this.setPropertity('mapping',m);
 	},
+	/**
+     * 获取当前的映射.
+     * @return {Array} array 映射集合
+     */
 	getMapping : function(){
         return this.getPropertity('mapping');
 	},
+	/**
+     * 设置Lov弹出窗口的Title.
+     * @param {String} title lov弹出窗口的Tile
+     */
 	setTitle : function(t){
 		this.setPropertity('title',t);
 	},
+	/**
+     * 设置Lov弹出窗口的宽度.
+     * @param {Number} width lov弹出窗口的Width
+     */
 	setLovWidth : function(w){
         this.setPropertity('lovwidth',w);
 	},
+	/**
+     * 设置Lov弹出窗口的高度.
+     * @param {Number} height lov弹出窗口的Height
+     */
 	setLovHeight : function(h){
 		this.setPropertity('lovheight',h);
 	},
+	/**
+     * 设置Lov弹出窗口中grid的高度.
+     * 配置这个主要是由于查询条件可能存在多个，导致查询的form过高.
+     * @param {Number} height lov弹出窗口的grid组件的Height
+     */
 	setLovGridHeight : function(gh){
         this.setPropertity("lovgridheight",gh)
 	},
+	/**
+     * 设置Lov的Model对象.
+     * Lov的配置可以通过三种方式.(1)model (2)service (3)url.
+     * @param {String} model lov配置的model.
+     */
 	setLovModel : function(m){
         this.setPropertity("lovmodel",m) 
 	},
+	/**
+     * 设置Lov的Service对象.
+     * Lov的配置可以通过三种方式.(1)model (2)service (3)url.
+     * @param {String} service lov配置的service.
+     */
 	setLovService : function(m){
         this.setPropertity("lovservice",m) 
     },
+    /**
+     * 设置Lov的Url地址.
+     * Lov的配置可以通过三种方式.(1)model (2)service (3)url.
+     * 通过url打开的lov，可以不用调用setLovGridHeight
+     * @param {String} url lov打开的url.
+     */
     setLovUrl : function(m){
     	this.setPropertity("lovurl",m) 
     }
@@ -1714,8 +2153,11 @@ $A.Record.Field.prototype = {
 /**
  * @class Aurora.Component
  * @extends Ext.util.Observable
+ * <p>所有组件对象的父类.
+ * <p>所有的子类将自动继承Component的所有属性和方法.
+ * @author njq.niu@hand-china.com
  * @constructor
- * @param {Object} config The configuration options. 
+ * @param {Object} config 配置对象. 
  */
 $A.Component = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {
@@ -1732,14 +2174,46 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 		config = config || {};
         Ext.apply(this, config);
         this.wrap = Ext.get(this.id);
-    },    
-	//TODO:其他组件也改成如下方式
+    },
     processListener: function(ou){
     	this.wrap[ou]("mouseover", this.onMouseOver, this);
         this.wrap[ou]("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
-    	this.addEvents('focus','blur','invalid','change','valid','mouseover','mouseout');
+    	this.addEvents(
+    	'focus',
+    	'blur',
+    	/**
+         * @event change
+         * 组件值改变事件.
+         * @param {Component} this 当前组件.
+         * @param {Object} value 新的值.
+         * @param {Object} oldValue 旧的值.
+         */
+    	'change',
+    	/**
+         * @event valid
+         * 组件验证事件.
+         * @param {Component} this 当前组件.
+         * @param {Aurora.Record} record record对象.
+         * @param {String} name 对象绑定的Name.
+         * @param {Boolean} isValid 验证是否通过.
+         */
+    	'valid',
+    	/**
+         * @event mouseover
+         * 鼠标经过组件事件.
+         * @param {Component} this 当前组件.
+         * @param {EventObject} e 鼠标事件对象.
+         */
+    	'mouseover',
+    	/**
+         * @event mouseout
+         * 鼠标离开组件事件.
+         * @param {Component} this 当前组件.
+         * @param {EventObject} e 鼠标事件对象.
+         */
+    	'mouseout');
     	this.processListener('on');
     },
     isEventFromComponent:function(el){
@@ -1755,6 +2229,11 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 	getBindDataSet: function(){
 		return this.binder ? this.binder.ds : null;
 	},
+	/**
+     * 将组件绑定到某个DataSet的某个Field上.
+     * @param {String/Aurora.DataSet} dataSet 绑定的DataSet. 可以是具体某个DataSet对象，也可以是某个DataSet的id.
+     * @param {String} name Field的name. 
+     */
     bind : function(ds, name){
     	this.clearBind();
     	if(typeof(ds) == 'string'){
@@ -1786,6 +2265,10 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	ds.on('indexchange', this.onRefresh, this);
     	this.onRefresh(ds)
     },
+    /**
+     * 清除组件的绑定信息.
+     * <p>删除所有绑定的事件信息.
+     */
     clearBind : function(){
     	if(this.binder) {
     		var bds = this.binder.ds;
@@ -1801,6 +2284,12 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 		this.binder = null; 
 		this.record = null;
     },
+    /**
+     * <p>销毁组件对象.</p>
+     * <p>1.删除所有绑定的事件.</p>
+     * <p>2.从对象管理器中删除注册信息.</p>
+     * <p>3.删除dom节点.</p>
+     */
     destroy : function(){
     	this.processListener('un');
     	$A.CmpManager.remove(this.id);
@@ -1822,7 +2311,6 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.clearInvalid();
     	this.record = ds.getCurrentRecord();
 		this.setValue('',true);	
-//    	this.fireEvent('valid', this, this.record, this.binder.name)
     },
     onRefresh : function(ds){
     	if(this.isFireEvent == true || this.isHidden == true) return;
@@ -1850,10 +2338,10 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     onValid : function(ds, record, name, valid){
     	if(this.binder.ds == ds && this.binder.name == name && this.record == record){
 	    	if(valid){
-	    		this.fireEvent('valid', this, this.record, this.binder.name)
+	    		this.fireEvent('valid', this, this.record, this.binder.name, true)
     			this.clearInvalid();
 	    	}else{
-	    		this.fireEvent('invalid', this, this.record, this.binder.name);
+	    		this.fireEvent('valid', this, this.record, this.binder.name, false);
 	    		this.markInvalid();
 	    	}
     	}    	
@@ -1870,7 +2358,12 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     },
     onClear : function(ds){
     	this.clearValue();    
-    },    
+    },
+    /**
+     * 设置当前的值.
+     * @param {Object} value 值对象
+     * @param {Boolean} silent 是否更新到dataSet中
+     */
     setValue : function(v, silent){
     	var ov = this.value;
     	this.value = v;
@@ -1891,6 +2384,15 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	if(ov!=v){
             this.fireEvent('change', this, v, ov);
     	}
+    },
+    /**
+     * 返回当前值
+     * @return {Object} value 返回值.
+     */
+    getValue : function(){
+        var v= this.value;
+        v=(v === null || v === undefined ? '' : v);
+        return v;
     },
     setWidth: function(w){
     	this.width = w;
@@ -1914,9 +2416,13 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.wrap.setStyle('height',h+'px');
     }
 });
-/*
- * TODO:Field不应该包含Input类型的特性,转移到InputField中去!
- * CheckBox Radio应该集成此类,对于CheckBox,Radio不应该包含readonly,emptytext,invalid属性
+/**
+ * @class Aurora.Field
+ * @extends Aurora.Component
+ * <p>带有input标记的输入类的组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
  */
 $A.Field = Ext.extend($A.Component,{	
 	validators: [],
@@ -1956,7 +2462,35 @@ $A.Field = Ext.extend($A.Component,{
     },
     initEvents : function(){
     	$A.Field.superclass.initEvents.call(this);
-        this.addEvents('keydown','keyup','keypress','enterdown');
+        this.addEvents(
+        /**
+         * @event keydown
+         * 键盘按下事件.
+         * @param {Aurora.Field} field field对象.
+         * @param {EventObject} e 键盘事件对象.
+         */
+        'keydown',
+        /**
+         * @event keyup
+         * 键盘抬起事件.
+         * @param {Aurora.Field} field field对象.
+         * @param {EventObject} e 键盘事件对象.
+         */
+        'keyup',
+        /**
+         * @event keypress
+         * 键盘敲击事件.
+         * @param {Aurora.Field} field field对象.
+         * @param {EventObject} e 键盘事件对象.
+         */
+        'keypress',
+        /**
+         * @event enterdown
+         * 回车键事件.
+         * @param {Aurora.Field} field field对象.
+         * @param {EventObject} e 键盘事件对象.
+         */
+        'enterdown');
     },
     destroy : function(){
     	$A.Field.superclass.destroy.call(this);
@@ -2060,12 +2594,12 @@ $A.Field = Ext.extend($A.Component,{
             v = '';
         }
         return v;
-    },
-    getValue : function(){
-    	var v= this.value;
-		v=(v === null || v === undefined ? '' : v);
-		return v;
-    },
+    },   
+//    getValue : function(){
+//    	var v= this.value;
+//		v=(v === null || v === undefined ? '' : v);
+//		return v;
+//    },
     setRequired : function(required){
     	if(this.crrentRequired == required)return;
 		this.clearInvalid();    	
@@ -2107,7 +2641,6 @@ $A.Field = Ext.extend($A.Component,{
     markInvalid : function(msg){
     	this.invalidMsg = msg;
     	this.wrap.addClass(this.invalidCss);
-//    	this.fireEvent('invalid', this, msg);
     },
 //    validateValue : function(value){    
 //    	if(value.length < 1 || value === this.emptyText){ // if it's blank
@@ -2166,6 +2699,14 @@ $A.Field = Ext.extend($A.Component,{
         this.applyEmptyText();
     }
 })
+/**
+ * @class Aurora.Box
+ * @extends Aurora.Component
+ * <p>Box组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Box = Ext.extend($A.Component,{
 	constructor: function(config) {
         this.errors = [];
@@ -2186,13 +2727,14 @@ $A.Box = Ext.extend($A.Component,{
     initEvents : function(){
 //    	this.addEvents('focus','blur','change','invalid','valid');    	
     },
-    onValid : function(cmp, record, name){
-    	this.clearError(cmp.id);
-    },
-    onInvalid : function(cmp, record, name){
-    	var error = record.errors[name];
-    	if(error){
-    		this.showError(cmp.id,error.message)
+    onValid : function(cmp, record, name, isvalid){
+    	if(isvalid){
+    	   this.clearError(cmp.id);
+    	}else{
+            var error = record.errors[name];
+            if(error){
+                this.showError(cmp.id,error.message)
+            }    		
     	}
     },
     showError : function(id, msg){
@@ -2207,21 +2749,32 @@ $A.Box = Ext.extend($A.Component,{
     	}
     }
 });
+/**
+ * @class Aurora.Label
+ * @extends Aurora.Component
+ * <p>Label组件.
+ * @author njq.niu@hand-china.com
+ * @constructor 
+ */
 $A.Label = Ext.extend($A.Component,{
     onUpdate : function(ds, record, name, value){
     	if(this.binder.ds == ds && this.binder.name == name){
 //    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase()){
-	    	this.update(record,name,value);
+	    	this.updateLabel(record,name,value);
     	}
     },
+    /**
+     * 绘制Label
+     * @param {Aurora.Record} record record对象
+     */
     rerender : function(record){
     	this.record = record;
     	if(this.record) {
 			var value = this.record.get(this.binder.name);
-			this.update(this.record,this.binder.name,value);
+			this.updateLabel(this.record,this.binder.name,value);
     	}
     },
-    update: function(record,name,value){
+    updateLabel: function(record,name,value){
     	if(value){
 	    	if(this.renderer){
 	    		var rder = window[this.renderer]
@@ -2231,6 +2784,14 @@ $A.Label = Ext.extend($A.Component,{
     	}
     }
 });
+/**
+ * @class Aurora.Button
+ * @extends Aurora.Component
+ * <p>按钮组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Button = Ext.extend($A.Component,{
 	disableCss:'item-btn-disabled',
 	overCss:'item-btn-over',
@@ -2253,12 +2814,23 @@ $A.Button = Ext.extend($A.Component,{
     },
     initEvents : function(){
     	$A.Button.superclass.initEvents.call(this);
-    	this.addEvents('click');
+    	this.addEvents(
+    	/**
+         * @event click
+         * 鼠标点击事件.
+         * @param {Aurora.Button} button 按钮对象.
+         * @param {EventObject} e 键盘事件对象.
+         */
+    	'click');
     },    
     destroy : function(){
 		$A.Button.superclass.destroy.call(this);
     	delete this.el;
     },
+    /**
+     * 设置按钮是否可见.
+     * @param {Boolean} visiable  是否可见.
+     */
     setVisible: function(v){
 		if(v==true)
 			this.wrap.show();
@@ -2270,19 +2842,31 @@ $A.Button = Ext.extend($A.Component,{
 //    	this.el.un("click", this.onClick,  this);
 //    	delete this.el;
 //    },
+	/**
+	 * 获取焦点
+	 */
 	focus: function(){
 		if(this.disabled)return;
 		this.el.dom.focus();
 	},
+	/**
+	 * 失去焦点
+	 */	
 	blur : function(){
     	if(this.disabled) return;
     	this.el.dom.blur();
     },
+    /**
+     * 设置不可用状态
+     */
     disable: function(){
     	this.disabled = true;
     	this.wrap.addClass(this.disableCss);
     	this.el.dom.disabled = true;
     },
+    /**
+     * 设置可用状态
+     */
     enable: function(){
     	this.disabled = false;
     	this.wrap.removeClass(this.disableCss);
@@ -2298,7 +2882,7 @@ $A.Button = Ext.extend($A.Component,{
     },
     onClick: function(e){
     	e.stopEvent();
-    	this.fireEvent("click", this);
+    	this.fireEvent("click", this, e);
     },
     onMouseOver: function(e){
     	this.wrap.addClass(this.overCss);
@@ -2310,6 +2894,14 @@ $A.Button = Ext.extend($A.Component,{
 $A.Button.getTemplate = function(id,text,width){
     return '<TABLE class="item-btn " id="'+id+'" style="WIDTH: '+(width||60)+'px" cellSpacing="0"><TBODY><TR><TD class="item-btn-tl"><I></I></TD><TD class="item-btn-tc"></TD><TD class="item-btn-tr"><I></I></TD></TR><TR><TD class="item-btn-ml"><I></I></TD><TD class="item-btn-mc"><BUTTON hideFocus style="HEIGHT: 17px" atype="btn">'+text+'</BUTTON></TD><TD class="item-btn-mr"><I></I></TD></TR><TR><TD class="item-btn-bl"><I></I></TD><TD class="item-btn-bc"></TD><TD class="item-btn-br"><I></I></TD></TR></TBODY></TABLE><script>new Aurora.Button({"id":"'+id+'"});</script>';
 }
+/**
+ * @class Aurora.CheckBox
+ * @extends Aurora.Component
+ * <p>可选组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.CheckBox = Ext.extend($A.Component,{
 	checkedCss:'item-ckb-c',
 	uncheckedCss:'item-ckb-u',
@@ -2332,7 +2924,14 @@ $A.CheckBox = Ext.extend($A.Component,{
     },
 	initEvents:function(){
 		$A.CheckBox.superclass.initEvents.call(this);  	
-		this.addEvents('click');    
+		this.addEvents(
+		/**
+         * @event click
+         * 鼠标点击事件.
+         * @param {Aurora.CheckBox} checkBox 可选组件.
+         * @param {Boolean} checked 选择状态.
+         */
+		'click');    
 	},
 	destroy : function(){
     	$A.CheckBox.superclass.destroy.call(this);
@@ -2379,6 +2978,14 @@ $A.CheckBox = Ext.extend($A.Component,{
 		}		
 	}			
 });
+/**
+ * @class Aurora.Radio
+ * @extends Aurora.Component
+ * <p>单选框组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Radio = Ext.extend($A.Component, {
 	checkedCss:'item-radio-img-c',
 	uncheckedCss:'item-radio-img-u',
@@ -2506,6 +3113,14 @@ $A.Radio = Ext.extend($A.Component, {
 		}		
 	}	
 });
+/**
+ * @class Aurora.TextField
+ * @extends Aurora.Field
+ * <p>文本输入组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.TextField = Ext.extend($A.Field,{
 	constructor: function(config) {
         $A.TextField.superclass.constructor.call(this, config);        
@@ -2575,6 +3190,14 @@ $A.TextField = Ext.extend($A.Field,{
     	}
     }
 })
+/**
+ * @class Aurora.NumberField
+ * @extends Aurora.TextField
+ * <p>数字输入组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.NumberField = Ext.extend($A.TextField,{
 	allowdecimals : true,
 	baseChars : "0123456789",
@@ -2628,6 +3251,14 @@ $A.NumberField = Ext.extend($A.TextField,{
         return parseFloat(parseFloat(value).toFixed(this.decimalprecision));
     }
 })
+/**
+ * @class Aurora.TriggerField
+ * @extends Aurora.TextField
+ * <p>触发类组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.TriggerField = Ext.extend($A.TextField,{
 	constructor: function(config) {
         $A.TriggerField.superclass.constructor.call(this, config);
@@ -2655,6 +3286,10 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	$A.TriggerField.superclass.initEvents.call(this);    
     	this.trigger.on('click',this.onTriggerClick, this, {preventDefault:true})
     },
+    /**
+     * 判断当时弹出面板是否展开
+     * @return {Boolean} isexpanded 是否展开
+     */
     isExpanded : function(){ 
     	var xy = this.popup.getXY();
     	return !(xy[0]==-1000||xy[1]==-1000)
@@ -2710,11 +3345,17 @@ $A.TriggerField = Ext.extend($A.TextField,{
     		this.collapse();
     	}
     },
+    /**
+     * 折叠弹出面板
+     */
     collapse : function(){
     	Ext.get(document.documentElement).un("mousedown", this.triggerBlur, this);
     	this.popup.moveTo(-1000,-1000);
     	this.shadow.moveTo(-1000,-1000);
     },
+    /**
+     * 展开弹出面板
+     */
     expand : function(){
 //    	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this, {delay: 10});
     	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this);
@@ -2732,6 +3373,14 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	}
     }
 });
+/**
+ * @class Aurora.ComboBox
+ * @extends Aurora.TriggerField
+ * <p>Combo组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.ComboBox = Ext.extend($A.TriggerField, {	
 	maxHeight:200,
 	blankOption:true,
@@ -2751,7 +3400,16 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
 	initEvents:function(){
 		$A.ComboBox.superclass.initEvents.call(this);
-		this.addEvents('select');
+		this.addEvents(
+		/**
+         * @event select
+         * 选择事件.
+         * @param {Aurora.Combobox} combo combo对象.
+         * @param {Object} value valueField的值.
+         * @param {String} display displayField的值.
+         * @param {Aurora.Record} record 选中的Record对象
+         */
+		'select');
 	},
 	onTriggerClick : function() {
 		this.doQuery('',true);
@@ -3002,6 +3660,14 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		}
 	}
 });
+/**
+ * @class Aurora.DateField
+ * @extends Aurora.Component
+ * <p>日期组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.DateField = Ext.extend($A.Component, {
 	constructor: function(config) {
         $A.DateField.superclass.constructor.call(this,config); 
@@ -3032,7 +3698,20 @@ $A.DateField = Ext.extend($A.Component, {
     },
     initEvents : function(){
     	$A.DateField.superclass.initEvents.call(this);   	
-    	this.addEvents('select','draw');
+    	this.addEvents(
+    	/**
+         * @event select
+         * 选择事件.
+         * @param {Aurora.DateField} dateField 日期组件.
+         * @param {Date} date 选择的日期.
+         */
+    	'select',
+    	/**
+         * @event draw
+         * 绘制事件.
+         * @param {Aurora.DateField} dateField 日期组件.
+         */
+    	'draw');
     },
     destroy : function(){
     	$A.DateField.superclass.destroy.call(this);
@@ -3069,10 +3748,9 @@ $A.DateField = Ext.extend($A.Component, {
 	onSelectDay: function(o){
 		if(!Ext.fly(o).hasClass('onSelect'))Ext.fly(o).addClass('onSelect');
 	},
-	//在选择日期触发
 	onToday: function(o){
 		o.className = "onToday";
-	},//在当天日期触发
+	},
 	afterFinish: function(){
 		for(var i=0;i<this.selectDays.length;i++){
 			var d = this.selectDays[i];
@@ -3081,36 +3759,49 @@ $A.DateField = Ext.extend($A.Component, {
 			}
 		}		
 	},
-    //当前月
+    /**
+     * 当前月
+     */
 	nowMonth: function() {
 		this.predraw(new Date());
 	},
-	//上一月
+	/**
+	 * 上一月
+	 */
 	preMonth: function() {
 		this.predraw(new Date(this.year, this.month - 2, 1));
 	},
-	//下一月
+	/**
+	 * 下一月
+	 */
 	nextMonth: function() {
 		this.predraw(new Date(this.year, this.month, 1));
 	},
-	//上一年
+	/**
+	 * 上一年
+	 */
 	preYear: function() {
 		this.predraw(new Date(this.year - 1, this.month - 1, 1));
 	},
-	//下一年
+	/**
+	 * 下一年
+	 */
 	nextYear: function() {
 		this.predraw(new Date(this.year + 1, this.month - 1, 1));
 	},
-  	//根据日期画日历
+  	/**
+  	 * 根据日期画日历
+  	 * @param {Date} date 当前日期
+  	 */
   	predraw: function(date) {
   		if(date=='' || !date.getFullYear) date = new Date();
-		//再设置属性
 		this.year = date.getFullYear(); this.month = date.getMonth() + 1;
-		//重新画日历
 		this.draw();
 		this.fireEvent('draw', this);
   	},
-  	//画日历
+  	/**
+  	 * 渲染日历
+  	 */
 	draw: function() {
 		//用来保存日期列表
 		var arr = [];
@@ -3165,12 +3856,25 @@ $A.DateField = Ext.extend($A.Component, {
 		this.monthSpan.dom.innerHTML = this.month;
 		this.afterFinish();
 	},
-	//判断是否同一日
+	/**
+	 * 判断是否同一日
+	 * @param {Date} d1 日期1
+	 * @param {Date} d2 日期2
+	 * @return {Boolean} 是否同一天
+	 */
 	isSame: function(d1, d2) {
 		if(!d2.getFullYear||!d1.getFullYear)return false;
 		return (d1.getFullYear() == d2.getFullYear() && d1.getMonth() == d2.getMonth() && d1.getDate() == d2.getDate());
 	}
 });
+/**
+ * @class Aurora.DatePicker
+ * @extends Aurora.TriggerField
+ * <p>DatePicker组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.DatePicker = Ext.extend($A.TriggerField,{
 	constructor: function(config) {
         $A.DatePicker.superclass.constructor.call(this, config);        
@@ -3186,7 +3890,14 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     initEvents : function(){
     	$A.DatePicker.superclass.initEvents.call(this);
-        this.addEvents('select');
+        this.addEvents(
+        /**
+         * @event select
+         * 选择事件.
+         * @param {Aurora.DatePicker} datePicker 日期选择组件.
+         * @param {Date} date 选择的日期.
+         */
+        'select');
     },
     onDraw: function(){
     	this.shadow.setWidth(this.popup.getWidth());
@@ -3249,7 +3960,6 @@ $A.ToolBar = Ext.extend($A.Component,{
     	$A.ToolBar.superclass.initEvents.call(this); 
     }
 })
-//TODO:多语言
 $A.NavBar = Ext.extend($A.ToolBar,{
 	constructor: function(config) {
         $A.NavBar.superclass.constructor.call(this, config);        
@@ -3341,7 +4051,7 @@ $A.Window = Ext.extend($A.Component,{
         this.draggable = true;
         this.closeable = true;
         this.modal = config.modal||true;
-        this.oldcmps = {};
+//        this.oldcmps = {};
         this.cmps = {};
         $A.Window.superclass.constructor.call(this,config);
     },
@@ -3361,11 +4071,11 @@ $A.Window = Ext.extend($A.Component,{
         sf.closeBtn = sf.wrap.child('div[atype=window.close]');
         if(sf.draggable) sf.initDraggable();
         if(!sf.closeable)sf.closeBtn.hide();
+        sf.center();
         if(sf.url){
         	sf.showLoading();       
         	sf.load(sf.url,sf.params)
         }
-        sf.center();
     },
     processListener: function(ou){
     	$A.Window.superclass.processListener.call(this,ou);
@@ -3450,6 +4160,7 @@ $A.Window = Ext.extend($A.Component,{
 	    	this.shadow.setStyle('z-index', zindex+4);
 	    	if(this.modal) $A.Cover.cover(this.wrap);
     	}
+    	$A.focusWindow = this;
     },
     onMouseDown : function(e){
     	var sf = this; 
@@ -3506,6 +4217,7 @@ $A.Window = Ext.extend($A.Component,{
     	this.fireEvent('close', this)
     },
     destroy : function(){
+    	$A.focusWindow = null;
     	var wrap = this.wrap;
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
@@ -3533,10 +4245,10 @@ $A.Window = Ext.extend($A.Component,{
         },10)
     },
     load : function(url,params){
-    	var cmps = $A.CmpManager.getAll();
-    	for(var key in cmps){
-    		this.oldcmps[key] = cmps[key];
-    	}
+//    	var cmps = $A.CmpManager.getAll();
+//    	for(var key in cmps){
+//    		this.oldcmps[key] = cmps[key];
+//    	}
     	Ext.Ajax.request({
 			url: url,
 			params:params||{},
@@ -3555,31 +4267,31 @@ $A.Window = Ext.extend($A.Component,{
     	var html = response.responseText;
     	var sf = this
     	this.body.update(html,true,function(){
-	    	var cmps = $A.CmpManager.getAll();
-	    	for(var key in cmps){
-	    		if(sf.oldcmps[key]==null){	    			
-	    			sf.cmps[key] = cmps[key];
-	    		}
-	    	}
+//	    	var cmps = $A.CmpManager.getAll();
+//	    	for(var key in cmps){
+//	    		if(sf.oldcmps[key]==null){	    			
+//	    			sf.cmps[key] = cmps[key];
+//	    		}
+//	    	}
 	    	sf.fireEvent('load',sf)
     	});
     }
 });
-$A.showMessage = function(title, msg,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info');
+$A.showMessage = function(title, msg,callback,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info',callback);
 }
-$A.showWarningMessage = function(title, msg,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-warning');
+$A.showWarningMessage = function(title, msg,callback,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-warning',callback);
 }
-$A.showInfoMessage = function(title, msg,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info');
+$A.showInfoMessage = function(title, msg,callback,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info',callback);
 }
-$A.showErrorMessage = function(title,msg,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-error');
+$A.showErrorMessage = function(title,msg,callback,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-error',callback);
 }
-$A.showTypeMessage = function(title, msg,width,height,css){
+$A.showTypeMessage = function(title, msg,width,height,css,callback){
 	var msg = '<div class="window-icon '+css+'"><div class="window-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
-	return $A.showOkWindow(title, msg, width, height);	
+	return $A.showOkWindow(title, msg, width, height,callback);	
 } 
 $A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
 	width = width||300;
@@ -3627,8 +4339,7 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     }
     return cmp;
 }
-$A.showOkWindow = function(title, msg, width, height, cls){
-	cls = cls ||'';
+$A.showOkWindow = function(title, msg, width, height,callback){
 	var cmp = $A.CmpManager.get('aurora-msg-ok')
 	if(cmp == null) {
 		var btnhtml = $A.Button.getTemplate('aurora-msg-yes','确定');
@@ -3637,13 +4348,23 @@ $A.showOkWindow = function(title, msg, width, height, cls){
 			cmp.body.update(msg+ '<center>'+btnhtml+'</center>',true,function(){
     			var btn = $("aurora-msg-yes");
                 cmp.cmps['aurora-msg-yes'] = btn;
-                btn.on('click',function(){cmp.close()});
+                btn.on('click',function(){
+                if(callback)callback.call(this,cmp)
+                cmp.close()});
                 btn.focus();
 			});
 		}
 	}
 	return cmp;
 }
+/**
+ * @class Aurora.Lov
+ * @extends Aurora.TextField
+ * <p>Lov 值列表组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Lov = Ext.extend($A.TextField,{
 	constructor: function(config) {
 		this.isWinOpen = false;
@@ -3660,7 +4381,15 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     initEvents : function(){
     	$A.Lov.superclass.initEvents.call(this);
-    	this.addEvents('commit');
+    	this.addEvents(
+    	/**
+         * @event commit
+         * commit事件.
+         * @param {Aurora.Lov} lov 当前Lov组件.
+         * @param {Aurora.Record} r1 当前lov绑定的Record
+         * @param {Aurora.Record} r2 选中的Record. 
+         */
+    	'commit');
     },
     destroy : function(){
     	$A.Lov.superclass.destroy.call(this);
@@ -3692,6 +4421,7 @@ $A.Lov = Ext.extend($A.TextField,{
 				record.set(map.to,r.get(map.from));
 			}
 		}
+		this.fireEvent('commit', this, record, r)
 	},
 	getMapping: function(){
 		var mapping
@@ -3757,7 +4487,8 @@ $A.Lov = Ext.extend($A.TextField,{
 	onFetchFailed: function(res){
 		$A.showErrorMessage('错误', res.error.message);
 	},
-	showLovWindow : function(){
+	showLovWindow : function(e){
+		e.stopEvent();
 		if(this.fetching||this.isWinOpen||this.readonly) return;
 		this.isWinOpen = true;
 		
@@ -3775,6 +4506,14 @@ $A.Lov = Ext.extend($A.TextField,{
     	this.win.on('close',this.onWinClose,this);
     }
 });
+/**
+ * @class Aurora.TextArea
+ * @extends Aurora.Field
+ * <p>TextArea组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.TextArea = Ext.extend($A.Field,{
 	constructor: function(config) {
         $A.TextArea.superclass.constructor.call(this, config);        

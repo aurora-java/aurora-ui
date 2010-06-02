@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.TriggerField
+ * @extends Aurora.TextField
+ * <p>触发类组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.TriggerField = Ext.extend($A.TextField,{
 	constructor: function(config) {
         $A.TriggerField.superclass.constructor.call(this, config);
@@ -25,6 +33,10 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	$A.TriggerField.superclass.initEvents.call(this);    
     	this.trigger.on('click',this.onTriggerClick, this, {preventDefault:true})
     },
+    /**
+     * 判断当时弹出面板是否展开
+     * @return {Boolean} isexpanded 是否展开
+     */
     isExpanded : function(){ 
     	var xy = this.popup.getXY();
     	return !(xy[0]==-1000||xy[1]==-1000)
@@ -80,11 +92,17 @@ $A.TriggerField = Ext.extend($A.TextField,{
     		this.collapse();
     	}
     },
+    /**
+     * 折叠弹出面板
+     */
     collapse : function(){
     	Ext.get(document.documentElement).un("mousedown", this.triggerBlur, this);
     	this.popup.moveTo(-1000,-1000);
     	this.shadow.moveTo(-1000,-1000);
     },
+    /**
+     * 展开弹出面板
+     */
     expand : function(){
 //    	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this, {delay: 10});
     	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this);

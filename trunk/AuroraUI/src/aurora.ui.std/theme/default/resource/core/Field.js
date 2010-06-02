@@ -1,6 +1,10 @@
-/*
- * TODO:Field不应该包含Input类型的特性,转移到InputField中去!
- * CheckBox Radio应该集成此类,对于CheckBox,Radio不应该包含readonly,emptytext,invalid属性
+/**
+ * @class Aurora.Field
+ * @extends Aurora.Component
+ * <p>带有input标记的输入类的组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
  */
 $A.Field = Ext.extend($A.Component,{	
 	validators: [],
@@ -40,7 +44,35 @@ $A.Field = Ext.extend($A.Component,{
     },
     initEvents : function(){
     	$A.Field.superclass.initEvents.call(this);
-        this.addEvents('keydown','keyup','keypress','enterdown');
+        this.addEvents(
+        /**
+         * @event keydown
+         * 键盘按下事件.
+         * @param {Aurora.Field} field field对象.
+         * @param {EventObject} e 键盘事件对象.
+         */
+        'keydown',
+        /**
+         * @event keyup
+         * 键盘抬起事件.
+         * @param {Aurora.Field} field field对象.
+         * @param {EventObject} e 键盘事件对象.
+         */
+        'keyup',
+        /**
+         * @event keypress
+         * 键盘敲击事件.
+         * @param {Aurora.Field} field field对象.
+         * @param {EventObject} e 键盘事件对象.
+         */
+        'keypress',
+        /**
+         * @event enterdown
+         * 回车键事件.
+         * @param {Aurora.Field} field field对象.
+         * @param {EventObject} e 键盘事件对象.
+         */
+        'enterdown');
     },
     destroy : function(){
     	$A.Field.superclass.destroy.call(this);
@@ -144,12 +176,12 @@ $A.Field = Ext.extend($A.Component,{
             v = '';
         }
         return v;
-    },
-    getValue : function(){
-    	var v= this.value;
-		v=(v === null || v === undefined ? '' : v);
-		return v;
-    },
+    },   
+//    getValue : function(){
+//    	var v= this.value;
+//		v=(v === null || v === undefined ? '' : v);
+//		return v;
+//    },
     setRequired : function(required){
     	if(this.crrentRequired == required)return;
 		this.clearInvalid();    	
@@ -191,7 +223,6 @@ $A.Field = Ext.extend($A.Component,{
     markInvalid : function(msg){
     	this.invalidMsg = msg;
     	this.wrap.addClass(this.invalidCss);
-//    	this.fireEvent('invalid', this, msg);
     },
 //    validateValue : function(value){    
 //    	if(value.length < 1 || value === this.emptyText){ // if it's blank
