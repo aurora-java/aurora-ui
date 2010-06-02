@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.Button
+ * @extends Aurora.Component
+ * <p>按钮组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Button = Ext.extend($A.Component,{
 	disableCss:'item-btn-disabled',
 	overCss:'item-btn-over',
@@ -20,12 +28,23 @@ $A.Button = Ext.extend($A.Component,{
     },
     initEvents : function(){
     	$A.Button.superclass.initEvents.call(this);
-    	this.addEvents('click');
+    	this.addEvents(
+    	/**
+         * @event click
+         * 鼠标点击事件.
+         * @param {Aurora.Button} button 按钮对象.
+         * @param {EventObject} e 键盘事件对象.
+         */
+    	'click');
     },    
     destroy : function(){
 		$A.Button.superclass.destroy.call(this);
     	delete this.el;
     },
+    /**
+     * 设置按钮是否可见.
+     * @param {Boolean} visiable  是否可见.
+     */
     setVisible: function(v){
 		if(v==true)
 			this.wrap.show();
@@ -37,19 +56,31 @@ $A.Button = Ext.extend($A.Component,{
 //    	this.el.un("click", this.onClick,  this);
 //    	delete this.el;
 //    },
+	/**
+	 * 获取焦点
+	 */
 	focus: function(){
 		if(this.disabled)return;
 		this.el.dom.focus();
 	},
+	/**
+	 * 失去焦点
+	 */	
 	blur : function(){
     	if(this.disabled) return;
     	this.el.dom.blur();
     },
+    /**
+     * 设置不可用状态
+     */
     disable: function(){
     	this.disabled = true;
     	this.wrap.addClass(this.disableCss);
     	this.el.dom.disabled = true;
     },
+    /**
+     * 设置可用状态
+     */
     enable: function(){
     	this.disabled = false;
     	this.wrap.removeClass(this.disableCss);
@@ -65,7 +96,7 @@ $A.Button = Ext.extend($A.Component,{
     },
     onClick: function(e){
     	e.stopEvent();
-    	this.fireEvent("click", this);
+    	this.fireEvent("click", this, e);
     },
     onMouseOver: function(e){
     	this.wrap.addClass(this.overCss);

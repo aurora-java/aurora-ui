@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.ComboBox
+ * @extends Aurora.TriggerField
+ * <p>Combo组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.ComboBox = Ext.extend($A.TriggerField, {	
 	maxHeight:200,
 	blankOption:true,
@@ -17,7 +25,16 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
 	initEvents:function(){
 		$A.ComboBox.superclass.initEvents.call(this);
-		this.addEvents('select');
+		this.addEvents(
+		/**
+         * @event select
+         * 选择事件.
+         * @param {Aurora.Combobox} combo combo对象.
+         * @param {Object} value valueField的值.
+         * @param {String} display displayField的值.
+         * @param {Aurora.Record} record 选中的Record对象
+         */
+		'select');
 	},
 	onTriggerClick : function() {
 		this.doQuery('',true);
