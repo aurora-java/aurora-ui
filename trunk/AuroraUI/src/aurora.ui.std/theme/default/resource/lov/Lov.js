@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.Lov
+ * @extends Aurora.TextField
+ * <p>Lov 值列表组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Lov = Ext.extend($A.TextField,{
 	constructor: function(config) {
 		this.isWinOpen = false;
@@ -14,7 +22,15 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     initEvents : function(){
     	$A.Lov.superclass.initEvents.call(this);
-    	this.addEvents('commit');
+    	this.addEvents(
+    	/**
+         * @event commit
+         * commit事件.
+         * @param {Aurora.Lov} lov 当前Lov组件.
+         * @param {Aurora.Record} r1 当前lov绑定的Record
+         * @param {Aurora.Record} r2 选中的Record. 
+         */
+    	'commit');
     },
     destroy : function(){
     	$A.Lov.superclass.destroy.call(this);
@@ -46,6 +62,7 @@ $A.Lov = Ext.extend($A.TextField,{
 				record.set(map.to,r.get(map.from));
 			}
 		}
+		this.fireEvent('commit', this, record, r)
 	},
 	getMapping: function(){
 		var mapping
@@ -111,7 +128,8 @@ $A.Lov = Ext.extend($A.TextField,{
 	onFetchFailed: function(res){
 		$A.showErrorMessage('错误', res.error.message);
 	},
-	showLovWindow : function(){
+	showLovWindow : function(e){
+		e.stopEvent();
 		if(this.fetching||this.isWinOpen||this.readonly) return;
 		this.isWinOpen = true;
 		
