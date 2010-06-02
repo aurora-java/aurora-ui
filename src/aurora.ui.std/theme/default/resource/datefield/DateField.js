@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.DateField
+ * @extends Aurora.Component
+ * <p>日期组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.DateField = Ext.extend($A.Component, {
 	constructor: function(config) {
         $A.DateField.superclass.constructor.call(this,config); 
@@ -28,7 +36,20 @@ $A.DateField = Ext.extend($A.Component, {
     },
     initEvents : function(){
     	$A.DateField.superclass.initEvents.call(this);   	
-    	this.addEvents('select','draw');
+    	this.addEvents(
+    	/**
+         * @event select
+         * 选择事件.
+         * @param {Aurora.DateField} dateField 日期组件.
+         * @param {Date} date 选择的日期.
+         */
+    	'select',
+    	/**
+         * @event draw
+         * 绘制事件.
+         * @param {Aurora.DateField} dateField 日期组件.
+         */
+    	'draw');
     },
     destroy : function(){
     	$A.DateField.superclass.destroy.call(this);
@@ -65,10 +86,9 @@ $A.DateField = Ext.extend($A.Component, {
 	onSelectDay: function(o){
 		if(!Ext.fly(o).hasClass('onSelect'))Ext.fly(o).addClass('onSelect');
 	},
-	//在选择日期触发
 	onToday: function(o){
 		o.className = "onToday";
-	},//在当天日期触发
+	},
 	afterFinish: function(){
 		for(var i=0;i<this.selectDays.length;i++){
 			var d = this.selectDays[i];
@@ -77,36 +97,49 @@ $A.DateField = Ext.extend($A.Component, {
 			}
 		}		
 	},
-    //当前月
+    /**
+     * 当前月
+     */
 	nowMonth: function() {
 		this.predraw(new Date());
 	},
-	//上一月
+	/**
+	 * 上一月
+	 */
 	preMonth: function() {
 		this.predraw(new Date(this.year, this.month - 2, 1));
 	},
-	//下一月
+	/**
+	 * 下一月
+	 */
 	nextMonth: function() {
 		this.predraw(new Date(this.year, this.month, 1));
 	},
-	//上一年
+	/**
+	 * 上一年
+	 */
 	preYear: function() {
 		this.predraw(new Date(this.year - 1, this.month - 1, 1));
 	},
-	//下一年
+	/**
+	 * 下一年
+	 */
 	nextYear: function() {
 		this.predraw(new Date(this.year + 1, this.month - 1, 1));
 	},
-  	//根据日期画日历
+  	/**
+  	 * 根据日期画日历
+  	 * @param {Date} date 当前日期
+  	 */
   	predraw: function(date) {
   		if(date=='' || !date.getFullYear) date = new Date();
-		//再设置属性
 		this.year = date.getFullYear(); this.month = date.getMonth() + 1;
-		//重新画日历
 		this.draw();
 		this.fireEvent('draw', this);
   	},
-  	//画日历
+  	/**
+  	 * 渲染日历
+  	 */
 	draw: function() {
 		//用来保存日期列表
 		var arr = [];
@@ -161,7 +194,12 @@ $A.DateField = Ext.extend($A.Component, {
 		this.monthSpan.dom.innerHTML = this.month;
 		this.afterFinish();
 	},
-	//判断是否同一日
+	/**
+	 * 判断是否同一日
+	 * @param {Date} d1 日期1
+	 * @param {Date} d2 日期2
+	 * @return {Boolean} 是否同一天
+	 */
 	isSame: function(d1, d2) {
 		if(!d2.getFullYear||!d1.getFullYear)return false;
 		return (d1.getFullYear() == d2.getFullYear() && d1.getMonth() == d2.getMonth() && d1.getDate() == d2.getDate());

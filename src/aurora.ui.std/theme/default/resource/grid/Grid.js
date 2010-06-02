@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.Grid
+ * @extends Aurora.Component
+ * <p>Grid 数据表格组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Grid = Ext.extend($A.Component,{
 	bgc:'background-color',
 	scor:'#dfeaf5',//'#d9e7ed',
@@ -60,6 +68,40 @@ $A.Grid = Ext.extend($A.Component,{
 	},
 	initEvents:function(){
 		$A.Grid.superclass.initEvents.call(this);
+		this.addEvents(
+        /**
+         * @event keydown
+         * 键盘按下事件.
+         * @param {Aurora.Grid} grid 当前Grid组件.
+         * @param {EventObject} e 鼠标事件对象.
+         */
+        'keydown',
+        /**
+         * @event dblclick
+         * 鼠标双击事件.
+         * @param {Aurora.Grid} grid 当前Grid组件.
+         * @param {Aurora.Record} record 鼠标双击所在行的Record对象.
+         * @param {Number} row 行号.
+         * @param {String} 当前dataIndex.
+         */
+        'dblclick',
+        /**
+         * @event cellclick
+         * 单元格点击事件.
+         * @param {Aurora.Grid} grid 当前Grid组件.
+         * @param {Number} row 行号.
+         * @param {String} 当前dataIndex.
+         * @param {Aurora.Record} record 鼠标点击所在单元格的Record对象.
+         */
+        'cellclick',
+        /**
+         * @event rowclick
+         * 行点击事件.
+         * @param {Aurora.Grid} grid 当前Grid组件.
+         * @param {Number} row 行号.
+         * @param {Aurora.Record} record 鼠标点击所在行的Record对象.
+         */
+        'rowclick');
 	},
 	syncScroll : function(){
 		this.hideEditor();
@@ -189,7 +231,7 @@ $A.Grid = Ext.extend($A.Component,{
 			if(col.editorfunction) {
                 var ef = window[col.editorfunction];
                 if(ef) {
-                    cls = ef.call(window,record)!='' ? this.cecls : '';
+                    cls = ef.call(window,record,col.dataindex)!='' ? this.cecls : '';
                 }
             }
             var field = record.getMeta().getField(col.dataindex);
@@ -393,7 +435,21 @@ $A.Grid = Ext.extend($A.Component,{
 				var text =  this.renderText(record,c, value);
 				div.update(text);
 			}
-		}		
+		}
+		var cls = this.columns;
+		for(var i=0,l=cls.length;i<l;i++){
+            var c = cls[i];
+            if(c.dataindex != name && c.editorfunction){
+                var ef = window[c.editorfunction];
+                if(ef) {
+                    var editor = ef.call(window,record,c.dataindex);
+                    var ediv = Ext.get(this.id+'_'+c.dataindex+'_'+record.id);
+                    if(ediv){
+                        (editor == '') ? ediv.removeClass(this.cecls) : ediv.addClass(this.cecls);
+                    }
+                }
+            }
+        }
 	},
 	onValid : function(ds, record, name, valid){
 		var c = this.findColByDataIndex(name);
@@ -424,10 +480,8 @@ $A.Grid = Ext.extend($A.Component,{
     	switch(type){
     	   case 'required':
     	       var div = Ext.get(this.id+'_'+field.name+'_'+record.id);
-    	       if(value==true) {
-    	       	   div.addClass(this.nbcls);
-    	       }else{
-    	           div.removeClass(this.nbcls);
+    	       if(div) {
+        	       (value==true) ? div.addClass(this.nbcls) : div.removeClass(this.nbcls);
     	       }
     	       break;
     	}
@@ -505,16 +559,25 @@ $A.Grid = Ext.extend($A.Component,{
 			}
 		}
 	},
+	/**
+	 * 设置当前行的编辑器.
+	 * 
+	 * @param {String} name 当前列的name.
+	 * @param {String} editor 编辑器的id. ''空表示没有编辑器.
+	 */
 	setEditor: function(dataindex,editor){
 		var col = this.findColByDataIndex(dataindex);
 		col.editor = editor;
 		var div = Ext.get(this.id+'_'+dataindex+'_'+this.selectRecord.id)
-		if(editor == ''){
-			div.removeClass(this.cecls)
-		}else{
-			if(!div.hasClass(this.cecls))Ext.fly(div).addClass(this.cecls)
-		}
+		if(div){
+    		(editor == '') ? div.removeClass(this.cecls) : div.addClass(this.cecls)
+    	}
 	},
+	/**
+	 * 显示编辑器.
+	 * @param {Number} row 行号
+	 * @param {String} name 当前列的name.
+	 */
 	showEditor : function(row, dataindex){		
 		if(row == -1)return;
 		var col = this.findColByDataIndex(dataindex);
@@ -531,7 +594,7 @@ $A.Grid = Ext.extend($A.Component,{
 				alert("未找到"+col.editorfunction+"方法!") ;
 				return;
 			}
-			var editor = ef.call(window,record)
+			var editor = ef.call(window,record,dataindex)
 			this.setEditor(dataindex, editor);
 		}
 		var editor = col.editor;
@@ -568,6 +631,10 @@ $A.Grid = Ext.extend($A.Component,{
 			},1)
 		}			
 	},
+	/**
+	 * 指定行获取焦点.
+	 * @param {Number} row
+	 */
 	focusRow : function(row){
 		var r = 25;
 		var stop = this.ub.getScroll().top;
@@ -606,6 +673,9 @@ $A.Grid = Ext.extend($A.Component,{
 		}
 		this.focus();
 	},
+	/**
+	 * 隐藏当前编辑器
+	 */
 	hideEditor : function(){
 		if(this.currentEditor && this.currentEditor.editor){
 			var ed = this.currentEditor.editor;
@@ -717,6 +787,12 @@ $A.Grid = Ext.extend($A.Component,{
 		this.setColumnSize(this.columns[this.dragIndex].dataindex, this.dragWidth);
 		
 	},
+	/**
+	 * 根据列的name获取列配置.
+	 * 
+	 * @param {String} name 列的name
+	 * @return {Object} col 列配置对象.
+	 */
 	findColByDataIndex : function(dataindex){
 		var col;
 		for(var i=0,l=this.columns.length;i<l;i++){
@@ -728,7 +804,10 @@ $A.Grid = Ext.extend($A.Component,{
 		}
 		return col;
 	}, 
-	/** API **/
+	/**
+	 * 选中高亮某行.
+	 * @param {Number} row 行号
+	 */
 	selectRow : function(row, locate){
 		var record = this.dataset.getAt(row) 
 		this.selectedId = record.id;
@@ -750,6 +829,11 @@ $A.Grid = Ext.extend($A.Component,{
 			this.dataset.locate.defer(5, this.dataset,[r,false]);
 		}
 	},
+	/**
+	 * 设置某列的宽度.
+	 * @param {String} name 列的name
+	 * @param {Number} size 列的宽度
+	 */
 	setColumnSize : function(dataindex, size){
 		var columns = this.columns;
 		var hth,bth,lw=0,uw=0;
@@ -811,6 +895,11 @@ $A.Grid = Ext.extend($A.Component,{
 			this.ub.setWidth(us);
 		}
 	},
+	/**
+	 * 显示某列.
+	 * 
+	 * @param {String} name 列的name
+	 */
 	showColumn : function(dataindex){
 		var col = this.findColByDataIndex(dataindex);
 		if(col){
@@ -828,6 +917,11 @@ $A.Grid = Ext.extend($A.Component,{
 			}
 		}	
 	},
+	/**
+	 * 隐藏某列.
+	 * 
+	 * @param {String} name 列的name;
+	 */
 	hideColumn : function(dataindex){
 		var col = this.findColByDataIndex(dataindex);
 		if(col){

@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.DatePicker
+ * @extends Aurora.TriggerField
+ * <p>DatePicker组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.DatePicker = Ext.extend($A.TriggerField,{
 	constructor: function(config) {
         $A.DatePicker.superclass.constructor.call(this, config);        
@@ -13,7 +21,14 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     initEvents : function(){
     	$A.DatePicker.superclass.initEvents.call(this);
-        this.addEvents('select');
+        this.addEvents(
+        /**
+         * @event select
+         * 选择事件.
+         * @param {Aurora.DatePicker} datePicker 日期选择组件.
+         * @param {Date} date 选择的日期.
+         */
+        'select');
     },
     onDraw: function(){
     	this.shadow.setWidth(this.popup.getWidth());
