@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.Tree
+ * @extends Aurora.Component
+ * <p>树形组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Tree = Ext.extend($A.Component,{
 	constructor: function(config){
 		$A.Tree.superclass.constructor.call(this,config);
@@ -13,7 +21,14 @@ $A.Tree = Ext.extend($A.Component,{
     },
 	initEvents:function(){
 		$A.Tree.superclass.initEvents.call(this);
-		this.addEvents('click');
+		this.addEvents(
+		/**
+         * @event click
+         * 点击事件.
+         * @param {Aurora.Record} record 选中的Record对象
+         * @param {Aurora.Tree.TreeNode} node 节点对象
+         */
+		'click');
 	},
 	destroy : function(){
 		$A.Tree.superclass.destroy.call(this);
@@ -92,6 +107,11 @@ $A.Tree = Ext.extend($A.Component,{
 			this.registerNode(node);
 		}),this);
 	},
+	/**
+	 * 根据id获取节点对象
+	 * @param {Number} id 节点id
+	 * @return {Aurora.Tree.TreeNode} node 节点对象
+	 */
 	getNodeById : function(id){
 		return this.nodeHash[id];
 	},
@@ -101,6 +121,10 @@ $A.Tree = Ext.extend($A.Component,{
 	unregisterNode : function(node){
 		delete this.nodeHash[node.id];
 	},
+	/**
+	 * 设置节点焦点
+	 * @param {Aurora.Tree.TreeNode} node 节点对象.
+	 */
 	setFocusNode : function(node){
 		if(this.focusNode){
 			this.focusNode.unselect();
@@ -175,7 +199,13 @@ $A.Tree = Ext.extend($A.Component,{
 		return type;
 	}
 })
-
+/**
+ * @class Aurora.Tree.TreeNode
+ * @extends Aurora.Component
+ * <p>树节点对象.
+ * @author njq.niu@hand-china.com
+ * @constructor 
+ */
 $A.Tree.TreeNode = function(data) {
 	this.data = data;
 	this.record = data.record;
@@ -404,12 +434,18 @@ $A.Tree.TreeNode.prototype={
 			}
 		};
 	},
+	/**
+	 * 折叠收起
+	 */
 	collapse : function(){
 		this.isExpand=false;
 		this.els['child'].style.display='none';
 		this.paintIconImg();
 		this.paintClipIcoImg();
 	},
+	/**
+	 * 展开
+	 */
 	expand : function(){
 		if(!this.isLeaf()&&this.childNodes.length>0){
 			this.isExpand=true;
@@ -419,10 +455,16 @@ $A.Tree.TreeNode.prototype={
 		this.paintIconImg();
 		this.paintClipIcoImg();
 	},
+	/**
+	 * 选中节点
+	 */
 	select : function(){
 		this.isSelect = true;
 		this.els['text'].style.backgroundColor='#CCCCFF';
 	},
+	/**
+	 * 取消选择
+	 */
 	unselect : function(){
 		this.isSelect = false;
 		this.els['text'].style.backgroundColor='';
@@ -478,18 +520,33 @@ $A.Tree.TreeNode.prototype={
 			this.setCheck(false)
 		}
 	},
-	
+	/**
+	 * 是否是根节点
+	 * @return {Boolean} isroot 是否根节点.
+	 */
 	isRoot : function(){
 		return (this.ownerTree!=null) && (this.ownerTree.root === this);
 	},
+	/**
+	 * 是否叶子节点
+	 * @return {Boolean} isleaf 是否叶子节点.
+	 */
 	isLeaf : function(){
 		return this.childNodes.length===0;
 		//return this.leaf === true;
   	},
+  	/**
+  	 * 是否是最后一个节点.
+  	 * @return {Boolean} islast 是否是最后.
+  	 */
 	isLast : function(){
 		return (!this.parentNode ? true : this.parentNode.childNodes[this.parentNode.childNodes.length-1] == this);
 //		return (!this.parentNode ? true : this.parentNode.lastChild == this);
 	},
+	/**
+	 * 是否是第一个
+	 * @return {Boolean} isfirst 是否是第一个.
+	 */
 	isFirst : function(){
 		var tree = this.getOwnerTree();
 		return (this.parentNode== tree.getRootNode()&&!tree.showRoot&&(this.parentNode.childNodes[0] == this));
@@ -649,7 +706,6 @@ $A.Tree.TreeNode.prototype={
 		}
 		return this.ownerTree;
 	},
-	//获得节点深度
 	getDepth : function(){
   		var depth = 0;
 		var p = this;
@@ -690,7 +746,6 @@ $A.Tree.TreeNode.prototype={
 		var sep = this.getOwnerTree().pathSeparator;
 		return sep + b.join(sep);
 	},
-	//冒泡(遍历所有父节点)
 	bubble : function(fn, scope, args){
   		var p = this;
 		while(p){
@@ -700,7 +755,6 @@ $A.Tree.TreeNode.prototype={
 	    	p = p.parentNode;
 		}
 	},
-	//瀑布(遍历所有子节点)
 	cascade : function(fn, scope, args){
 		if(fn.call(scope || this, args || this) !== false){
 			var cs = this.childNodes;
@@ -709,7 +763,6 @@ $A.Tree.TreeNode.prototype={
 			}
     	}
 	},
-	//查找
 	findChild : function(attribute, value){
 		var cs = this.childNodes;
     	for(var i = 0, len = cs.length; i < len; i++) {

@@ -9,7 +9,6 @@ $A.ToolBar = Ext.extend($A.Component,{
     	$A.ToolBar.superclass.initEvents.call(this); 
     }
 })
-//TODO:多语言
 $A.NavBar = Ext.extend($A.ToolBar,{
 	constructor: function(config) {
         $A.NavBar.superclass.constructor.call(this, config);        

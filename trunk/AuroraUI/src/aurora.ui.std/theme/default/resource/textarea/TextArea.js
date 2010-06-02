@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.TextArea
+ * @extends Aurora.Field
+ * <p>TextArea组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.TextArea = Ext.extend($A.Field,{
 	constructor: function(config) {
         $A.TextArea.superclass.constructor.call(this, config);        

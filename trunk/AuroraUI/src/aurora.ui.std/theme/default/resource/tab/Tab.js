@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.Tab
+ * @extends Aurora.Component
+ * <p>Tab组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Tab = Ext.extend($A.Component,{
 	constructor: function(config){
 		this.selectIndex = 1;
@@ -16,9 +24,20 @@ $A.Tab = Ext.extend($A.Component,{
     },
 	initEvents:function(){
 		$A.Tab.superclass.initEvents.call(this);   
-		this.addEvents('select');
+		this.addEvents(
+		/**
+         * @event select
+         * 选择事件.
+         * @param {Aurora.Tab} tab Tab对象.
+         * @param {Number} index 序号.
+         */
+		'select');
 		
 	},
+	/**
+	 * 选中某个Tab页
+	 * @param {Number} index TabItem序号
+	 */
 	selectTab:function(index){		
 		if(index <0)index=0;
 		var strips = Ext.DomQuery.select('div.strip',this.head.dom);
@@ -43,8 +62,10 @@ $A.Tab = Ext.extend($A.Component,{
 			Ext.fly(activeBody).setTop('0px');//setDisplayed('block');
 		}
 		if(this.items[index].ref && this.loaded['tab_'+index]!= true){
-			this.load(this.items[index].ref,activeBody);
+			this.load(this.items[index].ref,activeBody,index);
 			this.loaded['tab_'+index] = true;
+		}else{
+            this.fireEvent('select', this, index)
 		}
 	},
 	onClick:function(e){
@@ -70,7 +91,7 @@ $A.Tab = Ext.extend($A.Component,{
     	Ext.fly(dom).setStyle('text-align','');
     	Ext.fly(dom).setStyle('line-height','');
     },
-	load : function(url,dom){
+	load : function(url,dom,index){
 		this.showLoading(dom);
 		var sf = this;
     	Ext.Ajax.request({
@@ -78,7 +99,9 @@ $A.Tab = Ext.extend($A.Component,{
 		   	success: function(response, options){
 		    	sf.clearLoading(dom);
 		    	var html = response.responseText;		    	
-		    	Ext.fly(dom).update(html,true);
+		    	Ext.fly(dom).update(html,true,function(){
+                    sf.fireEvent('select', sf, index)
+		    	});
 		    }
 		});		
     },

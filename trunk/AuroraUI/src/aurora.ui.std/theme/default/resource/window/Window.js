@@ -42,7 +42,7 @@ $A.Window = Ext.extend($A.Component,{
         this.draggable = true;
         this.closeable = true;
         this.modal = config.modal||true;
-        this.oldcmps = {};
+//        this.oldcmps = {};
         this.cmps = {};
         $A.Window.superclass.constructor.call(this,config);
     },
@@ -62,11 +62,11 @@ $A.Window = Ext.extend($A.Component,{
         sf.closeBtn = sf.wrap.child('div[atype=window.close]');
         if(sf.draggable) sf.initDraggable();
         if(!sf.closeable)sf.closeBtn.hide();
+        sf.center();
         if(sf.url){
         	sf.showLoading();       
         	sf.load(sf.url,sf.params)
         }
-        sf.center();
     },
     processListener: function(ou){
     	$A.Window.superclass.processListener.call(this,ou);
@@ -151,6 +151,7 @@ $A.Window = Ext.extend($A.Component,{
 	    	this.shadow.setStyle('z-index', zindex+4);
 	    	if(this.modal) $A.Cover.cover(this.wrap);
     	}
+    	$A.focusWindow = this;
     },
     onMouseDown : function(e){
     	var sf = this; 
@@ -207,6 +208,7 @@ $A.Window = Ext.extend($A.Component,{
     	this.fireEvent('close', this)
     },
     destroy : function(){
+    	$A.focusWindow = null;
     	var wrap = this.wrap;
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
@@ -234,10 +236,10 @@ $A.Window = Ext.extend($A.Component,{
         },10)
     },
     load : function(url,params){
-    	var cmps = $A.CmpManager.getAll();
-    	for(var key in cmps){
-    		this.oldcmps[key] = cmps[key];
-    	}
+//    	var cmps = $A.CmpManager.getAll();
+//    	for(var key in cmps){
+//    		this.oldcmps[key] = cmps[key];
+//    	}
     	Ext.Ajax.request({
 			url: url,
 			params:params||{},
@@ -256,31 +258,31 @@ $A.Window = Ext.extend($A.Component,{
     	var html = response.responseText;
     	var sf = this
     	this.body.update(html,true,function(){
-	    	var cmps = $A.CmpManager.getAll();
-	    	for(var key in cmps){
-	    		if(sf.oldcmps[key]==null){	    			
-	    			sf.cmps[key] = cmps[key];
-	    		}
-	    	}
+//	    	var cmps = $A.CmpManager.getAll();
+//	    	for(var key in cmps){
+//	    		if(sf.oldcmps[key]==null){	    			
+//	    			sf.cmps[key] = cmps[key];
+//	    		}
+//	    	}
 	    	sf.fireEvent('load',sf)
     	});
     }
 });
-$A.showMessage = function(title, msg,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info');
+$A.showMessage = function(title, msg,callback,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info',callback);
 }
-$A.showWarningMessage = function(title, msg,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-warning');
+$A.showWarningMessage = function(title, msg,callback,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-warning',callback);
 }
-$A.showInfoMessage = function(title, msg,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info');
+$A.showInfoMessage = function(title, msg,callback,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info',callback);
 }
-$A.showErrorMessage = function(title,msg,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-error');
+$A.showErrorMessage = function(title,msg,callback,width,height){
+	return $A.showTypeMessage(title, msg, width||300, height||100,'window-error',callback);
 }
-$A.showTypeMessage = function(title, msg,width,height,css){
+$A.showTypeMessage = function(title, msg,width,height,css,callback){
 	var msg = '<div class="window-icon '+css+'"><div class="window-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
-	return $A.showOkWindow(title, msg, width, height);	
+	return $A.showOkWindow(title, msg, width, height,callback);	
 } 
 $A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
 	width = width||300;
@@ -328,8 +330,7 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     }
     return cmp;
 }
-$A.showOkWindow = function(title, msg, width, height, cls){
-	cls = cls ||'';
+$A.showOkWindow = function(title, msg, width, height,callback){
 	var cmp = $A.CmpManager.get('aurora-msg-ok')
 	if(cmp == null) {
 		var btnhtml = $A.Button.getTemplate('aurora-msg-yes','确定');
@@ -338,7 +339,9 @@ $A.showOkWindow = function(title, msg, width, height, cls){
 			cmp.body.update(msg+ '<center>'+btnhtml+'</center>',true,function(){
     			var btn = $("aurora-msg-yes");
                 cmp.cmps['aurora-msg-yes'] = btn;
-                btn.on('click',function(){cmp.close()});
+                btn.on('click',function(){
+                if(callback)callback.call(this,cmp)
+                cmp.close()});
                 btn.focus();
 			});
 		}
