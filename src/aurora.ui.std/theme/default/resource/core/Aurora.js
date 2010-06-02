@@ -1,12 +1,28 @@
+/*
+ * Aurora UI Library.
+ * Copyright(c) 2010, Hand China Co.,Ltd.
+ * 
+ * http://www.hand-china.com
+ */
+
+/**
+ * @class Aurora
+ * Aurora UI 核心工具类.
+ * @author 牛佳庆
+ * @singleton
+ */
 $A = Aurora = {version: '1.0'};
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
 }
+
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
 $A.cache = {};
 $A.cmps = {};
 $A.onReady = Ext.onReady;
 $A.get = Ext.get;
+$A.focusWindow;
+
 $A.center = function(el){
 	var ele;
 	if(typeof(el)=="string"){
@@ -28,6 +44,15 @@ $A.center = function(el){
     ele.setStyle('position','absolute');
     ele.moveTo(x,y);
 }
+
+/**
+ * Copies all the properties of config to obj.
+ * @param {Object} obj The receiver of the properties
+ * @param {Object} config The source of the properties
+ * @param {Object} defaults A different object that will also be applied for default values
+ * @return {Object} returns obj
+ * @member Ext apply
+ */
 $A.setTheme = function(theme){
 	if(theme) {
 		var exp  = new Date();   
@@ -39,6 +64,7 @@ $A.setTheme = function(theme){
 $A.CmpManager = function(){
     return {
         put : function(id, cmp){
+        	if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
         	if(!this.cache) this.cache = {};
         	if(this.cache[id] != null) {
 	        	alert("错误: ID为' " + id +" '的组件已经存在!");
@@ -109,10 +135,13 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 	}
 	switch(response.status){
 		case 404:
-			$A.showErrorMessage('错误', '状态 404: 未找到"'+ response.statusText+'"');
+			$A.showErrorMessage('404错误', '未找到"'+ response.statusText+'"');
 			break;
+		case 500:
+            $A.showErrorMessage(response.status + '错误', response.responseText,null,400,250);
+            break;
 		default:
-			$A.showErrorMessage('错误', '状态 '+ response.status + ' 服务器端错误!');
+			$A.showErrorMessage('错误', response.statusText);
 			break;
 	}	
 }, this);

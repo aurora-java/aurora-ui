@@ -1,8 +1,11 @@
 /**
  * @class Aurora.Component
  * @extends Ext.util.Observable
+ * <p>所有组件对象的父类.
+ * <p>所有的子类将自动继承Component的所有属性和方法.
+ * @author njq.niu@hand-china.com
  * @constructor
- * @param {Object} config The configuration options. 
+ * @param {Object} config 配置对象. 
  */
 $A.Component = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {
@@ -19,14 +22,46 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 		config = config || {};
         Ext.apply(this, config);
         this.wrap = Ext.get(this.id);
-    },    
-	//TODO:其他组件也改成如下方式
+    },
     processListener: function(ou){
     	this.wrap[ou]("mouseover", this.onMouseOver, this);
         this.wrap[ou]("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
-    	this.addEvents('focus','blur','invalid','change','valid','mouseover','mouseout');
+    	this.addEvents(
+    	'focus',
+    	'blur',
+    	/**
+         * @event change
+         * 组件值改变事件.
+         * @param {Component} this 当前组件.
+         * @param {Object} value 新的值.
+         * @param {Object} oldValue 旧的值.
+         */
+    	'change',
+    	/**
+         * @event valid
+         * 组件验证事件.
+         * @param {Component} this 当前组件.
+         * @param {Aurora.Record} record record对象.
+         * @param {String} name 对象绑定的Name.
+         * @param {Boolean} isValid 验证是否通过.
+         */
+    	'valid',
+    	/**
+         * @event mouseover
+         * 鼠标经过组件事件.
+         * @param {Component} this 当前组件.
+         * @param {EventObject} e 鼠标事件对象.
+         */
+    	'mouseover',
+    	/**
+         * @event mouseout
+         * 鼠标离开组件事件.
+         * @param {Component} this 当前组件.
+         * @param {EventObject} e 鼠标事件对象.
+         */
+    	'mouseout');
     	this.processListener('on');
     },
     isEventFromComponent:function(el){
@@ -42,6 +77,11 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 	getBindDataSet: function(){
 		return this.binder ? this.binder.ds : null;
 	},
+	/**
+     * 将组件绑定到某个DataSet的某个Field上.
+     * @param {String/Aurora.DataSet} dataSet 绑定的DataSet. 可以是具体某个DataSet对象，也可以是某个DataSet的id.
+     * @param {String} name Field的name. 
+     */
     bind : function(ds, name){
     	this.clearBind();
     	if(typeof(ds) == 'string'){
@@ -73,6 +113,10 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	ds.on('indexchange', this.onRefresh, this);
     	this.onRefresh(ds)
     },
+    /**
+     * 清除组件的绑定信息.
+     * <p>删除所有绑定的事件信息.
+     */
     clearBind : function(){
     	if(this.binder) {
     		var bds = this.binder.ds;
@@ -88,6 +132,12 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 		this.binder = null; 
 		this.record = null;
     },
+    /**
+     * <p>销毁组件对象.</p>
+     * <p>1.删除所有绑定的事件.</p>
+     * <p>2.从对象管理器中删除注册信息.</p>
+     * <p>3.删除dom节点.</p>
+     */
     destroy : function(){
     	this.processListener('un');
     	$A.CmpManager.remove(this.id);
@@ -109,7 +159,6 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.clearInvalid();
     	this.record = ds.getCurrentRecord();
 		this.setValue('',true);	
-//    	this.fireEvent('valid', this, this.record, this.binder.name)
     },
     onRefresh : function(ds){
     	if(this.isFireEvent == true || this.isHidden == true) return;
@@ -137,10 +186,10 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     onValid : function(ds, record, name, valid){
     	if(this.binder.ds == ds && this.binder.name == name && this.record == record){
 	    	if(valid){
-	    		this.fireEvent('valid', this, this.record, this.binder.name)
+	    		this.fireEvent('valid', this, this.record, this.binder.name, true)
     			this.clearInvalid();
 	    	}else{
-	    		this.fireEvent('invalid', this, this.record, this.binder.name);
+	    		this.fireEvent('valid', this, this.record, this.binder.name, false);
 	    		this.markInvalid();
 	    	}
     	}    	
@@ -157,7 +206,12 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     },
     onClear : function(ds){
     	this.clearValue();    
-    },    
+    },
+    /**
+     * 设置当前的值.
+     * @param {Object} value 值对象
+     * @param {Boolean} silent 是否更新到dataSet中
+     */
     setValue : function(v, silent){
     	var ov = this.value;
     	this.value = v;
@@ -178,6 +232,15 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	if(ov!=v){
             this.fireEvent('change', this, v, ov);
     	}
+    },
+    /**
+     * 返回当前值
+     * @return {Object} value 返回值.
+     */
+    getValue : function(){
+        var v= this.value;
+        v=(v === null || v === undefined ? '' : v);
+        return v;
     },
     setWidth: function(w){
     	this.width = w;

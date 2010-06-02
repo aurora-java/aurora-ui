@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.DataSet
+ * @extends Ext.util.Observable
+ * <p>DataSet是一个数据源，也是一个数据集合，它封装了所有数据的操作，校验，提交等操作.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.AUTO_ID = 1000;
 $A.DataSet = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {//datas,fields, type
@@ -35,7 +43,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     destroy : function(){
     	if(this.bindtarget&&this.bindname){
     	   var bd = $A.CmpManager.get(this.bindtarget)
-    	   if(bd)bd.unbind(this.bindname);
+    	   if(bd)bd.clearBind();
     	}
     	$A.CmpManager.remove(this.id);
     	delete $A.invalidRecords[this.id]
@@ -44,7 +52,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.resetConfig();
     	Ext.apply(this, config);
     },
-    unbind : function(name){
+    /**
+     * 取消绑定.
+     */
+    clearBind : function(){
+    	var name = this.bindname;
         var ds = this.fields[name].pro['dataset'];
         if(ds)
         this.processBindDataSet(ds,'un');
@@ -60,6 +72,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //        ds[ou]('load', bdp, this);
         ds[ou]('reject', bdp, this);
     },
+    /**
+     * 将组件绑定到某个DataSet的某个Field上.
+     * @param {String} name Field的name. 
+     * @param {Aurora.DataSet} dataSet 绑定的DataSet.
+     */
     bind : function(name, ds){
     	if(this.fields[name]) {
     		alert('重复绑定 ' + name);
@@ -122,22 +139,132 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	return c;
     },
     initEvents : function(){
-    	this.addEvents(
+    	this.addEvents(  
+    	    /**
+             * @event beforecreate
+             * 数据创建前事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
     		'beforecreate',
+    		/**
+             * @event metachange
+             * meta配置改变事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 当前的record.
+             * @param {Aurora.Record.Meta} meta meta配置对象.
+             * @param {String} type 类型.
+             * @param {Object} value 值.
+             */
 	        'metachange',
+	        /**
+             * @event fieldchange
+             * field配置改变事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 当前的record.
+             * @param {Aurora.Record.Field} field Field配置对象.
+             * @param {String} type 类型.
+             * @param {Object} value 值.
+             */
 	        'fieldchange',
+	        /**
+             * @event add
+             * 数据增加事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 增加的record.
+             * @param {Number} index 指针.
+             */
 	        'add',
+	        /**
+             * @event remove
+             * 数据删除事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 删除的record.
+             * @param {Number} index 指针.
+             */
 	        'remove',
+	        /**
+             * @event update
+             * 数据更新事件.
+             * "update", this, record, name, value
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 更新的record.
+             * @param {String} name 更新的field.
+             * @param {Object} value 更新的值.
+             */
 	        'update',
+	        /**
+             * @event clear
+             * 清除数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
 	        'clear',
+            /**
+             * @event load
+             * 加载数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
 	        'load',
+	        /**
+             * @event refresh
+             * 刷新事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
 	        'refresh',
+	        /**
+             * @event valid
+             * DataSet校验事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 校验的record.
+             * @param {String} name 校验的field.
+             * @param {Boolean} valid 校验结果. true 校验成功  false 校验失败
+             */ 
 	        'valid',
+	        /**
+             * @event indexchange
+             * DataSet当前指针改变事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 当前record.
+             */ 
 	        'indexchange',
+	        /**
+             * @event select
+             * 选择数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 选择的record.
+             */ 
 	        'select',
+	        /**
+             * @event select
+             * 取消选择数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 取消选择的record.
+             */
 	        'unselect',
+	        /**
+             * @event reject
+             * 数据重置事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 取消选择的record.
+             * @param {String} name 重置的field.
+             * @param {Object} value 重置的值.
+             */
 	        'reject',
+	        /**
+             * @event submitsuccess
+             * 数据提交成功事件.
+             * this, datas, res
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Array} datas 提交的数据.
+             * @param {Object} res 返回的json对象.
+             */
 	        'submitsuccess',
+	        /**
+             * @event submitfailed
+             * 数据提交失败事件.
+             * this, datas, res
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Object} res 返回的json对象.
+             */
 	        'submitfailed'
 		);    	
     },
@@ -147,6 +274,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	        this.fields[field.name] = field;
         }
     },
+    /**
+     * 获取Field配置.
+     * @param {String} name Field的name. 
+     * @return {Aurora.Record.Field} field配置对象
+     */
     getField : function(name){
     	return this.fields[name];
     },
@@ -190,7 +322,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     sort : function(f, direction){
     	//TODO:排序
     },
-    /** ------------------数据操作------------------ **/ 
     create : function(data, valid){
     	this.fireEvent("beforecreate", this);
     	data = data||{}
@@ -210,6 +341,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //        this.locate(index, true);
         return record;
     },
+    /**
+     * 获取所有新创建的数据. 
+     * @return {Array} 所有新创建的records
+     */
     getNewRecrods: function(){
         var records = this.getAll();
         var news = [];
@@ -226,6 +361,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    	if(c==null)return true;
 //    	return c.validateRecord();
 //    },
+    /**
+     * 新增数据. 
+     * @param {Aurora.Record} record 需要新增的Record对象. 
+     */
     add : function(record){
     	record.isNew = true;
     	record.isNewRecord = true;
@@ -243,11 +382,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.locate(index, true);
         this.fireEvent("add", this, record, index);
     },
-
+    /**
+     * 获取当前指针的Record. 
+     * @return {Aurora.Record} 当前指针所处的Record
+     */
     getCurrentRecord : function(){
     	if(this.data.length ==0) return null;
     	return this.data[this.currentIndex - (this.currentPage-1)*this.pageSize -1];
     },
+    /**
+     * 插入数据. 
+     * @param {Number} index  指定位置. 
+     * @param {Array} records 需要新增的Record对象集合.
+     */
     insert : function(index, records){
         records = [].concat(records);
         var splice = this.data.splice(index,this.data.length);
@@ -258,6 +405,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.data = this.data.concat(splice);
         this.fireEvent("add", this, records, index);
     },
+    /**
+     * 移除数据.  
+     * @param {Aurora.Record} record 需要移除的Record.
+     */
     remove : function(record){  
     	if(!record){
     		record = this.getCurrentRecord();
@@ -332,9 +483,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //        }
         this.fireEvent("remove", this, record, index);    	
     },
+    /**
+     * 获取当前数据集下的所有数据.  
+     * @return {Array} records 当前数据集的所有Record.
+     */
     getAll : function(){
     	return this.data;    	
     },
+    /**
+     * 查找数据.  
+     * @param {String} property 查找的属性.
+     * @param {Object} value 查找的属性的值.
+     * @return {Aurora.Record} 符合查找条件的第一个record
+     */
     find : function(property, value){
     	var r = null;
     	this.each(function(record){
@@ -346,6 +507,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}, this)
     	return r;
     },
+    /**
+     * 根据id查找数据.  
+     * @param {String} id id.
+     * @return {Aurora.Record} 查找的record
+     */
     findById : function(id){
     	var find = null;
     	for(var i = 0,len = this.data.length; i < len; i++){
@@ -356,15 +522,26 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         return find;
     },
+    /**
+     * 删除所有数据.
+     */
     removeAll : function(){
     	this.currentIndex = 1;
         this.data = [];
         this.selected = [];
         this.fireEvent("clear", this);
     },
+    /**
+     * 返回指定record的位置
+     * @return {Number} record所在的位置
+     */
     indexOf : function(record){
         return this.data.indexOf(record);
     },
+    /**
+     * 获取指定位置的record
+     * @param {Number} 位置
+     */
     getAt : function(index){
         return this.data[index];
     },
@@ -393,26 +570,38 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	if(r) this.fireEvent("indexchange", this, r);
     },
-    /** ------------------选择函数------------------ **/
+    /**
+     * 获取所有选择的数据.
+     * @return {Array} 所有选择数据.
+     */
     getSelected : function(){
     	return this.selected;
     },
+    /**
+     * 选择所有数据.
+     */
     selectAll : function(){
     	for(var i=0,l=this.data.length;i<l;i++){
     		this.select(this.data[i]);
     	}
     },
+    /**
+     * 取消所有选择.
+     */
     unSelectAll : function(){
     	for(var i=0,l=this.data.length;i<l;i++){
     		this.unSelect(this.data[i]);
     	}
     },
+    /**
+     * 选择某个record.
+     * @param {Aurora.Record} record 需要选择的record.
+     */
     select : function(r){
     	if(typeof(r) == 'string') r = this.findById(r);
     	if(this.selectable && this.selectionmodel == 'multiple'){
     		if(this.selected.indexOf(r) == -1) {
     			this.selected.add(r);
-    			
     			this.fireEvent('select', this, r);
     		}
        	}else{
@@ -425,6 +614,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
        		}
        	}
     },
+    /**
+     * 取消选择某个record.
+     * @param {Aurora.Record} record 需要取消选择的record.
+     */
     unSelect : function(r){
     	if(typeof(r) == 'string') r = this.findById(r);
     	if(this.selectable){
@@ -434,7 +627,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		}
     	}
     },
-    /** ------------------导航函数------------------ **/
+    /**
+     * 定位到某个指针位置.
+     * @param {Number} index 指针位置.
+     */
     locate : function(index, force){
     	if(this.currentIndex == index && force !== true) return;
 //    	if(valid !== false) if(!this.validCurrent())return;
@@ -453,7 +649,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		}
     	}
     	this.processCurrentRow();
-    },    
+    },
+    /**
+     * 定位到某页.
+     * @param {Number} page 页数.
+     */
     goPage : function(page){
     	if(page >0) {
     		this.gotoPage = page;
@@ -462,27 +662,52 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    	this.locate(go);
     	}
     },
+    /**
+     * 定位到所有数据的第一条位置.
+     */
     first : function(){
     	this.locate(1);
     },
+    /**
+     * 向前移动一个指针位置.
+     */
     pre : function(){
     	this.locate(this.currentIndex-1);    	
     },
+    /**
+     * 向后移动一个指针位置.
+     */
     next : function(){
     	this.locate(this.currentIndex+1);
     },
+    /**
+     * 定位到第一页.
+     */
     firstPage : function(){
     	this.goPage(1);
     },
+    /**
+     * 向前移动一页.
+     */
     prePage : function(){
     	this.goPage(this.currentPage -1);
     },
+    /**
+     * 向后移动一页.
+     */
     nextPage : function(){
     	this.goPage(this.currentPage +1);
     },
+    /**
+     * 定位到最后一页.
+     */
     lastPage : function(){
     	this.goPage(this.totalPage);
     },
+    /**
+     * 对当前数据集进行校验.
+     * @return {Boolean} valid 校验结果.
+     */
     validate : function(fire){
     	this.isValid = true;
 //    	var current = this.getCurrentRecord();
@@ -538,23 +763,48 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		if(!this.isValid) $A.showInfoMessage('提示', '验证不通过!');
 		return this.isValid;
     },
-    /** ------------------ajax函数------------------ **/
+    /**
+     * 设置查询的Url.
+     * @param {String} url 查询的Url.
+     */
     setQueryUrl : function(url){
     	this.queryUrl = url;
     },
+    /**
+     * 设置查询的参数.
+     * @param {String} para 参数名.
+     * @param {Object} value 参数值.
+     */
     setQueryParameter : function(para, value){
         this.qpara[para] = value;
     },
+    /**
+     * 设置查询的DataSet.
+     * @param {Aurora.DataSet} ds DataSet.
+     */
     setQueryDataSet : function(ds){ 
     	this.qds = ds;
     	if(this.qds.getCurrentRecord() == null) this.qds.create();
     },
+    /**
+     * 设置提交的Url.
+     * @param {String} url 提交的Url.
+     */
     setSubmitUrl : function(url){
     	this.submitUrl = url;
     },
+    /**
+     * 设置提交的参数.
+     * @param {String} para 参数名.
+     * @param {Object} value 参数值.
+     */
     setSubmitParameter : function(para, value){
         this.spara[para] = value;
     },
+    /**
+     * 查询数据.
+     * @param {Number} page(可选) 查询的页数.
+     */
     query : function(page){
     	var r;
     	if(this.qds) {
@@ -583,6 +833,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.loading = true;
     	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this);
     },
+    /**
+     * 判断当前数据集是否发生改变.
+     * @return {Boolean} modified 是否发生改变.
+     */
     isModified : function(){
     	var modified = false;
     	var records = this.getAll();
@@ -606,6 +860,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    	}
 //    	return modified;
 //    },
+    /**
+     * 以json格式返回当前数据集.
+     * @return {Object} json 返回的json对象.
+     */
     getJsonData : function(){
     	var datas = [];
     	for(var i=0,l=this.data.length;i<l;i++){
@@ -630,6 +888,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	
     	return datas;
     },
+    /**
+     * 提交操作.
+     * @return {String} url(可选) 提交的url.
+     */
     submit : function(url){
     	if(!this.validate()){    		
     		return;
@@ -646,7 +908,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     
-    /** ------------------事件函数------------------ **/
     afterEdit : function(record, name, value) {
         this.fireEvent("update", this, record, name, value);
     },
@@ -701,7 +962,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    	this.fireEvent("indexchange", this, this.getCurrentRecord());
     },
     onSubmitFailed : function(res){
-    	$A.showWarningMessage('错误', res.error.message,350,150);
+    	$A.showWarningMessage('错误', res.error.message,null,350,150);
 		this.fireEvent('submitfailed', this, res)   
     },
     onLoadSuccess : function(res){
@@ -743,16 +1004,67 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     }
 });
 
-
+/**
+ * @class Aurora.Record
+ * <p>Record是一个数据对象.
+ * @constructor
+ * @param {Object} data 数据对象. 
+ * @param {Array} fields 配置对象. 
+ */
 $A.Record = function(data, fields){
+	/**
+     * Record的id. (只读).
+     * @type Number
+     * @property
+     */
     this.id = ++$A.AUTO_ID;
+    /**
+     * Record的数据 (只读).
+     * @type Object
+     * @property
+     */
     this.data = data;
+    /**
+     * Record的Fields (只读).
+     * @type Object
+     * @property
+     */
     this.fields = {};
+    /**
+     * Record的验证信息 (只读).
+     * @type Object
+     * @property
+     */
     this.valid = {};
-    this.isValid = true;
+    /**
+     * Record的验证结果 (只读).
+     * @type Boolean
+     * @property
+     */
+    this.isValid = true; 
+    /**
+     * 是否是新数据 (只读).
+     * @type Boolean
+     * @property
+     */
     this.isNew = false;
+    /**
+     * 是否发生改变 (只读).
+     * @type Boolean
+     * @property
+     */
 	this.dirty = false;	
+	/**
+     * 编辑状态 (只读).
+     * @type Boolean
+     * @property
+     */
 	this.editing = false;
+	/**
+     * 编辑信息对象 (只读).
+     * @type Object
+     * @property
+     */
 	this.modified= null;
     this.meta = new $A.Record.Meta(this);
     if(fields)this.initFields(fields);
@@ -848,6 +1160,11 @@ $A.Record.prototype = {
             }
     	}
     },
+    /**
+     * 设置值.
+     * @param {String} name 设定值的名字.
+     * @param {Object} value 设定的值.
+     */
 	set : function(name, value){
         if(this.data[name] == value){
             return;
@@ -865,6 +1182,11 @@ $A.Record.prototype = {
         }        
         this.validate(name)
     },
+    /**
+     * 设置值.
+     * @param {String} name 名字.
+     * @return {Object} value 值.
+     */
     get : function(name){
         return this.data[name];
     },
@@ -958,7 +1280,12 @@ $A.Record.Meta.prototype = {
 		}
 	}
 }
-
+/**
+ * @class Aurora.Record.Field
+ * <p>Field是一个配置对象，主要配置指定列的一些附加属性，例如非空，只读，值列表等信息.
+ * @constructor
+ * @param {Object} data 数据对象. 
+ */
 $A.Record.Field = function(c){
     this.name = c.name;
     this.type = c.type;
@@ -966,6 +1293,9 @@ $A.Record.Field = function(c){
     this.record;
 };
 $A.Record.Field.prototype = {
+	/**
+	 * 清除所有配置信息.
+	 */
 	clear : function(){
 		this.pro = {};
 		this.record.onFieldClear(this.name);
@@ -977,6 +1307,11 @@ $A.Record.Field.prototype = {
 			this.record.onFieldChange(this.name, type, value);
 		}
 	},
+	/**
+	 * 获取配置信息
+	 * @param {String} name 配置名
+	 * @return {Object} value 配置值
+	 */
 	get : function(name){
 		var v = null;
 		if(this.snap){
@@ -987,42 +1322,117 @@ $A.Record.Field.prototype = {
 	getPropertity : function(name){
 		return this.pro[name]
 	},
+	/**
+	 * 设置当前Field是否必输
+	 * @param {Boolean} required  是否必输.
+	 */
 	setRequired : function(r){
 		this.setPropertity('required',r);
 	},
+	/**
+	 * 当前Field是否必输.
+	 * @return {Boolean} required  是否必输.
+	 */
+    isRequired : function(){
+        return this.getPropertity('required');
+    },
+	/**
+	 * 设置当前Field是否只读.
+	 * @param {Boolean} readonly 是否只读
+	 */
 	setReadOnly : function(r){	
 		this.setPropertity('readonly',r);
 	},
+	/**
+	 * 当前Field是否只读.
+	 * @param {Boolean} readonly 是否只读
+	 */
+	isReadOnly : function(){
+	   return this.getPropertity('readonly');
+	},
+	/**
+	 * 设置当前Field的数据集.
+	 * @param {Object} r 数据集
+	 */
 	setOptions : function(r){
 		this.setPropertity('options',r);
 	},
+	/**
+     * 获取当前的数据集.
+     * @return {Object} r 数据集
+     */
 	getOptions : function(){
 		return this.getPropertity('options');
 	},
+	/**
+     * 设置当前Field的映射.
+     * 例如：<p>
+       var mapping = [{from:'name', to: 'code'},{from:'service', to: 'name'}];</p>
+       field.setMapping(mapping);
+     * @return {Array} mapping 映射列表.
+     * 
+     */
 	setMapping : function(m){
 		this.setPropertity('mapping',m);
 	},
+	/**
+     * 获取当前的映射.
+     * @return {Array} array 映射集合
+     */
 	getMapping : function(){
         return this.getPropertity('mapping');
 	},
+	/**
+     * 设置Lov弹出窗口的Title.
+     * @param {String} title lov弹出窗口的Tile
+     */
 	setTitle : function(t){
 		this.setPropertity('title',t);
 	},
+	/**
+     * 设置Lov弹出窗口的宽度.
+     * @param {Number} width lov弹出窗口的Width
+     */
 	setLovWidth : function(w){
         this.setPropertity('lovwidth',w);
 	},
+	/**
+     * 设置Lov弹出窗口的高度.
+     * @param {Number} height lov弹出窗口的Height
+     */
 	setLovHeight : function(h){
 		this.setPropertity('lovheight',h);
 	},
+	/**
+     * 设置Lov弹出窗口中grid的高度.
+     * 配置这个主要是由于查询条件可能存在多个，导致查询的form过高.
+     * @param {Number} height lov弹出窗口的grid组件的Height
+     */
 	setLovGridHeight : function(gh){
         this.setPropertity("lovgridheight",gh)
 	},
+	/**
+     * 设置Lov的Model对象.
+     * Lov的配置可以通过三种方式.(1)model (2)service (3)url.
+     * @param {String} model lov配置的model.
+     */
 	setLovModel : function(m){
         this.setPropertity("lovmodel",m) 
 	},
+	/**
+     * 设置Lov的Service对象.
+     * Lov的配置可以通过三种方式.(1)model (2)service (3)url.
+     * @param {String} service lov配置的service.
+     */
 	setLovService : function(m){
         this.setPropertity("lovservice",m) 
     },
+    /**
+     * 设置Lov的Url地址.
+     * Lov的配置可以通过三种方式.(1)model (2)service (3)url.
+     * 通过url打开的lov，可以不用调用setLovGridHeight
+     * @param {String} url lov打开的url.
+     */
     setLovUrl : function(m){
     	this.setPropertity("lovurl",m) 
     }
