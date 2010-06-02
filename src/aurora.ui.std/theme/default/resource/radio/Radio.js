@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.Radio
+ * @extends Aurora.Component
+ * <p>单选框组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Radio = Ext.extend($A.Component, {
 	checkedCss:'item-radio-img-c',
 	uncheckedCss:'item-radio-img-u',

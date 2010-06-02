@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.NumberField
+ * @extends Aurora.TextField
+ * <p>数字输入组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.NumberField = Ext.extend($A.TextField,{
 	allowdecimals : true,
 	baseChars : "0123456789",
