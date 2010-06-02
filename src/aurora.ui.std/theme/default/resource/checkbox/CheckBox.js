@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.CheckBox
+ * @extends Aurora.Component
+ * <p>可选组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.CheckBox = Ext.extend($A.Component,{
 	checkedCss:'item-ckb-c',
 	uncheckedCss:'item-ckb-u',
@@ -20,7 +28,14 @@ $A.CheckBox = Ext.extend($A.Component,{
     },
 	initEvents:function(){
 		$A.CheckBox.superclass.initEvents.call(this);  	
-		this.addEvents('click');    
+		this.addEvents(
+		/**
+         * @event click
+         * 鼠标点击事件.
+         * @param {Aurora.CheckBox} checkBox 可选组件.
+         * @param {Boolean} checked 选择状态.
+         */
+		'click');    
 	},
 	destroy : function(){
     	$A.CheckBox.superclass.destroy.call(this);
