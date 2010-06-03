@@ -11,7 +11,7 @@
  * @author 牛佳庆
  * @singleton
  */
-$A = Aurora = {version: '1.0',revision:'$Revision'};
+$A = Aurora = {version: '1.0',revision:'$Rev$'};
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
 }
