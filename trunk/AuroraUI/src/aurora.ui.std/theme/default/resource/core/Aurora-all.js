@@ -125,6 +125,7 @@ $A.CmpManager = function(){
     };
 }();
 Ext.Ajax.on("requestexception", function(conn, response, options) {
+	$A.SideBar.enable = $A.slideBarEnable;
 	$A.manager.fireEvent('ajaxerror', $A.manager, response.status, response);
 	if($A.logWindow){
 		var record = $('HTTPWATCH_DATASET').getCurrentRecord();
@@ -1581,7 +1582,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Number} page(可选) 查询的页数.
      */
     query : function(page){
-    	this.slideBarEnable = $A.SideBar.enable;
+    	$A.slideBarEnable = $A.SideBar.enable;
     	$A.SideBar.enable = false;
     	var r;
     	if(this.qds) {
@@ -1763,14 +1764,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.loading = false;
     	this.loadData(datas, total);
     	this.locate(this.currentIndex,true);
-        $A.SideBar.enable = this.slideBarEnable;
+        $A.SideBar.enable = $A.slideBarEnable;
 	    
     },
     onLoadFailed : function(res){
     	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
 //    	alert(res.error.message)
     	this.loading = false;
-    	$A.SideBar.enable = this.slideBarEnable;
+    	$A.SideBar.enable = $A.slideBarEnable;
     },
     onFieldChange : function(record,field,type,value) {
     	this.fireEvent('fieldchange', this, record, field, type, value)
@@ -4538,6 +4539,8 @@ $A.Lov = Ext.extend($A.TextField,{
 			}
 		}
 		var record = this.record;
+		$A.slideBarEnable = $A.SideBar.enable;
+        $A.SideBar.enable = false;
 		$A.request(url, p, function(res){
 			var r = new $A.Record({});
 			if(res.result.record){
@@ -4549,9 +4552,11 @@ $A.Lov = Ext.extend($A.TextField,{
 	    	}
 	    	this.fetching = false;
 			this.commit(r,record);
+			$A.SideBar.enable = $A.slideBarEnable;
 		}, this.onFetchFailed, this);
 	},
 	onFetchFailed: function(res){
+		$A.SideBar.enable = $A.slideBarEnable;
 		$A.showErrorMessage('错误', res.error.message);
 	},
 	showLovWindow : function(e){
