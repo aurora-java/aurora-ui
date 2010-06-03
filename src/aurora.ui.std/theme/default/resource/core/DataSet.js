@@ -806,6 +806,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Number} page(可选) 查询的页数.
      */
     query : function(page){
+    	this.slideBarEnable = $A.SideBar.enable;
+    	$A.SideBar.enable = false;
     	var r;
     	if(this.qds) {
     		if(this.qds.getCurrentRecord() == null) this.qds.create();
@@ -903,9 +905,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		p[i] = Ext.apply(p[i],this.spara)
     	}
     	
-    	if(p.length > 0) {
+    	//if(p.length > 0) {
 	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
-    	}
+    	//}
     },
     
     afterEdit : function(record, name, value) {
@@ -962,8 +964,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    	this.fireEvent("indexchange", this, this.getCurrentRecord());
     },
     onSubmitFailed : function(res){
-    	$A.showWarningMessage('错误', res.error.message,null,350,150);
-		this.fireEvent('submitfailed', this, res)   
+    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
+		this.fireEvent('submitfailed', this, res);		
     },
     onLoadSuccess : function(res){
     	if(res == null) return;
@@ -986,12 +988,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.loading = false;
     	this.loadData(datas, total);
     	this.locate(this.currentIndex,true);
+        $A.SideBar.enable = this.slideBarEnable;
 	    
     },
     onLoadFailed : function(res){
-    	$A.showWarningMessage('错误', res.error.message);
+    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
 //    	alert(res.error.message)
     	this.loading = false;
+    	$A.SideBar.enable = this.slideBarEnable;
     },
     onFieldChange : function(record,field,type,value) {
     	this.fireEvent('fieldchange', this, record, field, type, value)

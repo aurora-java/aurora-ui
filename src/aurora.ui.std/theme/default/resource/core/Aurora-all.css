@@ -69,7 +69,28 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .item-draggable {
 	cursor:move;
 }
-
+.item-slideBar {
+	right:0px;
+    bottom:20px;
+    width:150px;
+    padding-top:40px;
+    background:url(../grid/grid_bg.gif) repeat-x left top;
+    text-align:center;
+    border:1px solid #808080;
+    font-color:#808080;
+    position: absolute;
+}
+.item-statusBar {
+    right:0px;
+    bottom:0px;
+    height:18px;
+    width:120px;
+    padding:2px 15px 0px 15px;
+    POSITION: absolute;
+    border:1px solid #808080;
+    font-color:#808080;
+    BACKGROUND-COLOR: #d3d6d8;
+}
 /** TriggerField **/
 .item-trigger {
 	BORDER-TOP-WIDTH: 0px;	
