@@ -125,6 +125,7 @@ $A.CmpManager = function(){
     };
 }();
 Ext.Ajax.on("requestexception", function(conn, response, options) {
+	if($A.slideBarEnable)$A.SideBar.enable = $A.slideBarEnable;
 	$A.manager.fireEvent('ajaxerror', $A.manager, response.status, response);
 	if($A.logWindow){
 		var record = $('HTTPWATCH_DATASET').getCurrentRecord();
