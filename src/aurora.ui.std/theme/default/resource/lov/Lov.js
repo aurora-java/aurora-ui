@@ -112,6 +112,8 @@ $A.Lov = Ext.extend($A.TextField,{
 			}
 		}
 		var record = this.record;
+		$A.slideBarEnable = $A.SideBar.enable;
+        $A.SideBar.enable = false;
 		$A.request(url, p, function(res){
 			var r = new $A.Record({});
 			if(res.result.record){
@@ -123,9 +125,11 @@ $A.Lov = Ext.extend($A.TextField,{
 	    	}
 	    	this.fetching = false;
 			this.commit(r,record);
+			$A.SideBar.enable = $A.slideBarEnable;
 		}, this.onFetchFailed, this);
 	},
 	onFetchFailed: function(res){
+		$A.SideBar.enable = $A.slideBarEnable;
 		$A.showErrorMessage('错误', res.error.message);
 	},
 	showLovWindow : function(e){
