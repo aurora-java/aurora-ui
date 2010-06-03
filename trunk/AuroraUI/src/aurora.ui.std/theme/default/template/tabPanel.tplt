@@ -23,4 +23,5 @@
 		select:${selected}
 	});
 	${events}
+	${validscript}
 </SCRIPT>

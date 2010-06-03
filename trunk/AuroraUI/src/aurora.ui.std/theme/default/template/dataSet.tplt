@@ -17,4 +17,5 @@ new Aurora.DataSet({
 	bindname:'${bindname}'
 });
 ${events}
+${validscript}
 </script>
