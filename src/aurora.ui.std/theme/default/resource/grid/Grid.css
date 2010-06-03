@@ -63,6 +63,12 @@
 .grid-ua {
 	float:right;
 }
+.grid-asc {
+    background: url(../grid/sort_asc.gif) no-repeat right;
+}
+.grid-desc {
+    background: url(../grid/sort_desc.gif) no-repeat right;
+}
 .grid-hc {
 	border-right:1px solid #cccccc;/*a4bed4*/
 	border-bottom:1px solid #cccccc;/*a4bed4*/

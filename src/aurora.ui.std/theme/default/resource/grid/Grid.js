@@ -37,7 +37,7 @@ $A.Grid = Ext.extend($A.Component,{
 		var lock =[],unlock = [],columns=[];
 		for(var i=0,l=this.columns.length;i<l;i++){
 			var c = this.columns[i];
-			if(c.lock == true){
+			if(c.lock === true){
 				lock.add(c);
 			}else{
 				unlock.add(c);
@@ -123,7 +123,7 @@ $A.Grid = Ext.extend($A.Component,{
 					for(var j=0,v=0,k=this.columns.length;j<k;j++){
 						var c = this.columns[j];
 						if(this.isFunctionCol(c)) continue;
-						if(c.hidden != true) {
+						if(c.hidden !== true) {
 							data[c.dataindex] = values[v];
 							v++
 						}
@@ -199,7 +199,7 @@ $A.Grid = Ext.extend($A.Component,{
 		var data = {
 			width:col.width,
 			recordid:record.id,
-			visibility: col.hidden == true ? 'hidden' : 'visible',
+			visibility: col.hidden === true ? 'hidden' : 'visible',
 			dataindex:col.dataindex
 		}
 		var cellTpl;
@@ -285,7 +285,7 @@ $A.Grid = Ext.extend($A.Component,{
 		sb.add('<TR class="grid-hl">');
 		for(var i=0,l=cols.length;i<l;i++){
 			var w = cols[i].width;
-			if(cols[i].hidden == true) w = 0;
+			if(cols[i].hidden === true) w = 0;
 			sb.add('<TH dataindex="'+cols[i].dataindex+'" style="height:0px;width:'+w+'px"></TH>');
 		}
 		sb.add('</TR>');
@@ -350,7 +350,7 @@ $A.Grid = Ext.extend($A.Component,{
 		for(var i=0,l=columns.length;i<l;i++){
 			var c = columns[i];
 			if(c.hidden !== true) v += c.width;
-			if(x < v+3 && x > v-3 && c.resizable == true){
+			if(x < v+3 && x > v-3 && c.resizable != false){
 				isOver = true;
 				this.overColIndex = i;
 				break;
@@ -383,14 +383,14 @@ $A.Grid = Ext.extend($A.Component,{
 			ltr.className=(row % 2==0 ? '' : 'row-alt');
 			for(var i=0,l=columns.length;i<l;i++){
 				var col = columns[i];
-				if(col.lock == true){
+				if(col.lock === true){
 					var td = document.createElement("TD");
 					td.recordid=''+record.id;
 					if(col.type == 'rowcheck') {
 						td.atype = 'grid.rowcheck';
 						td.className = 'grid-rowbox';
 					}else{
-						td.style.visibility=col.hidden == true ? 'hidden' : 'visible';
+						td.style.visibility=col.hidden === true ? 'hidden' : 'visible';
 						td.style.textAlign=col.align||'left';
 						if(!this.isFunctionCol(col)) td.dataindex=col.dataindex;
 						td.atype='grid-cell';					
@@ -410,7 +410,7 @@ $A.Grid = Ext.extend($A.Component,{
 			var col = columns[i];
 			if(col.lock !== true){
 				var td = document.createElement("TD");
-				td.style.visibility=col.hidden == true ? 'hidden' : 'visible';
+				td.style.visibility=col.hidden === true ? 'hidden' : 'visible';
 				td.style.textAlign=col.align||'left';
 				td.dataindex=col.dataindex;
 				td.recordid=record.id;
@@ -734,11 +734,37 @@ $A.Grid = Ext.extend($A.Component,{
 	onHeadClick : function(e){
 		var target = Ext.fly(e.target).findParent('td');
 		var atype;
-		if(target) atype = Ext.fly(target).getAttributeNS("","atype");
-		if(atype=='grid-cell'){
-			//TODO:sort?
+		if(target) {
+			target = Ext.fly(target)
+            atype = target.getAttributeNS("","atype");
+		}
+		if(atype=='grid.head'){
+			var index = target.getAttributeNS("","dataindex");
+			var col = this.findColByDataIndex(index);
+			if(col.sortable === true){
+				var d = target.child('div');
+				this.dataset.setQueryParameter('ORDER_FIELD', index);
+				if(this.currentSortTarget){
+					var cst = Ext.fly(this.currentSortTarget)
+					cst.removeClass('grid-desc');
+				    cst.removeClass('grid-asc');
+				}
+				this.currentSortTarget = d;
+				if(col.sorttype == 'asc') {
+					col.sorttype = 'desc'
+					d.removeClass('grid-asc');
+				    d.addClass('grid-desc');
+    				this.dataset.setQueryParameter('ORDER_TYPE', 'desc');
+				}else{
+				    col.sorttype = 'asc';
+				    d.removeClass('grid-desc');
+                    d.addClass('grid-asc');
+                    this.dataset.setQueryParameter('ORDER_TYPE', 'asc');
+				}
+				this.dataset.query();
+			}
 		}else if(atype=='grid.rowcheck'){
-			var cb = Ext.fly(target).child('div[atype=grid.headcheck]');
+			var cb = target.child('div[atype=grid.headcheck]');
 			var checked = cb.hasClass('item-ckb-c');
 			this.setCheckBoxStatus(cb,!checked);
 			if(!checked){
@@ -840,7 +866,7 @@ $A.Grid = Ext.extend($A.Component,{
 		for(var i=0,l=columns.length;i<l;i++){
 			var c = columns[i];
 			if(c.dataindex && c.dataindex === dataindex){
-				if(c.hidden == true) return;
+				if(c.hidden === true) return;
 				c.width = size;
 				if(c.lock !== true){					
 					hth = this.uh.child('TH[dataindex='+dataindex+']');
@@ -851,7 +877,7 @@ $A.Grid = Ext.extend($A.Component,{
 					
 				}
 			}
-			c.lock != true ? (uw += c.width) : (lw += c.width);
+			c.lock !== true ? (uw += c.width) : (lw += c.width);
 		}
 		var tds = Ext.DomQuery.select('TD[dataindex='+dataindex+']',this.wrap.dom);
 		for(var i=0,l=tds.length;i<l;i++){
