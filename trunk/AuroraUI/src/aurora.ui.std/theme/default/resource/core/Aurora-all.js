@@ -11,7 +11,7 @@
  * @author 牛佳庆
  * @singleton
  */
-$A = Aurora = {version: '1.0'};
+$A = Aurora = {version: '1.0',revision:'$Rev$'};
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
 }
@@ -85,10 +85,12 @@ $A.CmpManager = function(){
             		if(atype == 'grid-cell'){
             			var rid = Ext.fly(target).getAttributeNS("","recordid");
             			var record = ds.findById(rid);
-            			var name = Ext.fly(target).getAttributeNS("","dataindex");        			
-    					var msg = record.valid[name];
-    	        		if(Ext.isEmpty(msg))return;
-    	        		$A.ToolTip.show(target, msg);
+            			if(record){
+                			var name = Ext.fly(target).getAttributeNS("","dataindex");        			
+        					var msg = record.valid[name];
+        	        		if(Ext.isEmpty(msg))return;
+        	        		$A.ToolTip.show(target, msg);
+            			}
                     }
         		}
         	}else{
@@ -196,11 +198,10 @@ $A.request = function(url, para, success, failed, scope){
 						res = Ext.decode(response.responseText);
 					}catch(e){
 						$A.showErrorMessage('错误', '返回格式不正确!');
-//						alert('返回格式不正确!')
 					}
 					if(res && !res.success){
 						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
-						if(res.error){//								
+						if(res.error){
 							if(failed) 
 								failed.call(scope, res);
 							else
@@ -339,6 +340,52 @@ $A.ToolTip = function(){
 		}
 	}
 	return q
+}();
+$A.SideBar = function(){
+    var m = {
+    	enable:true,
+        bar:null,
+        show : function(msg){
+        	if(!this.enable)return;
+            this.hide();
+            var p = '<div class="item-slideBar">'+msg+'</div>';
+            this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+            this.bar.setStyle('z-index', 999999);
+            var sf = this;
+            this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
+                setTimeout(function(){
+                   sf.hide();
+                }, 2000);            
+            },'easeOut','run');
+        },
+        hide : function(){
+            if(this.bar) {
+                Ext.fly(this.bar).remove();
+                this.bar = null;
+            }
+        }
+    }
+    return m;
+}();
+$A.Status = function(){
+    var m = {
+        bar:null,
+        enable:true,
+        show : function(msg){
+        	if(!this.enable)return;
+        	this.hide();
+            var p = '<div class="item-statusBar" unselectable="on">'+msg+'</div>';
+            this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+            this.bar.setStyle('z-index', 999998);
+        },
+        hide : function(){
+            if(this.bar) {
+                Ext.fly(this.bar).remove();
+                this.bar = null;
+            }
+        }
+    }
+    return m;
 }();
 $A.Cover = function(){
 	var m = {
@@ -569,6 +616,22 @@ $A.EventManager = Ext.extend(Ext.util.Observable,{
     }
 });
 $A.manager = new $A.EventManager();
+$A.manager.on('ajaxstart',function(){
+    $A.Status.show('正在请求数据....');   
+})
+$A.manager.on('timeout',function(){
+    $A.Status.hide();
+})
+$A.manager.on('ajaxerror',function(){
+    $A.Status.hide();
+})
+$A.manager.on('ajaxcomplete',function(){
+    $A.Status.hide();
+})
+$A.manager.on('ajaxsuccess',function(){
+    $A.SideBar.show('操作成功!')
+})
+
 $A.regEvent = function(name, hanlder){
 	$A.manager.on(name, hanlder);
 }
@@ -1518,6 +1581,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Number} page(可选) 查询的页数.
      */
     query : function(page){
+    	this.slideBarEnable = $A.SideBar.enable;
+    	$A.SideBar.enable = false;
     	var r;
     	if(this.qds) {
     		if(this.qds.getCurrentRecord() == null) this.qds.create();
@@ -1615,9 +1680,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		p[i] = Ext.apply(p[i],this.spara)
     	}
     	
-    	if(p.length > 0) {
+    	//if(p.length > 0) {
 	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
-    	}
+    	//}
     },
     
     afterEdit : function(record, name, value) {
@@ -1674,8 +1739,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    	this.fireEvent("indexchange", this, this.getCurrentRecord());
     },
     onSubmitFailed : function(res){
-    	$A.showWarningMessage('错误', res.error.message,null,350,150);
-		this.fireEvent('submitfailed', this, res)   
+    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
+		this.fireEvent('submitfailed', this, res);		
     },
     onLoadSuccess : function(res){
     	if(res == null) return;
@@ -1698,12 +1763,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.loading = false;
     	this.loadData(datas, total);
     	this.locate(this.currentIndex,true);
+        $A.SideBar.enable = this.slideBarEnable;
 	    
     },
     onLoadFailed : function(res){
-    	$A.showWarningMessage('错误', res.error.message);
+    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
 //    	alert(res.error.message)
     	this.loading = false;
+    	$A.SideBar.enable = this.slideBarEnable;
     },
     onFieldChange : function(record,field,type,value) {
     	this.fireEvent('fieldchange', this, record, field, type, value)
