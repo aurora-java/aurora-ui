@@ -15,7 +15,6 @@ $A = Aurora = {version: '1.0',revision:'$Rev$'};
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
 }
-
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
 $A.cache = {};
 $A.cmps = {};
