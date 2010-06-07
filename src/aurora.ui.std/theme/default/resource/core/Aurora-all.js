@@ -15,7 +15,6 @@ $A = Aurora = {version: '1.0',revision:'$Rev$'};
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
 }
-
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
 $A.cache = {};
 $A.cmps = {};
@@ -125,7 +124,7 @@ $A.CmpManager = function(){
     };
 }();
 Ext.Ajax.on("requestexception", function(conn, response, options) {
-	$A.SideBar.enable = $A.slideBarEnable;
+	if($A.slideBarEnable)$A.SideBar.enable = $A.slideBarEnable;
 	$A.manager.fireEvent('ajaxerror', $A.manager, response.status, response);
 	if($A.logWindow){
 		var record = $('HTTPWATCH_DATASET').getCurrentRecord();
@@ -4174,7 +4173,7 @@ $A.Window = Ext.extend($A.Component,{
     	var screenWidth = $A.getViewportWidth();
     	var screenHeight = $A.getViewportHeight();
     	var x = (screenWidth - this.width)/2;
-    	var y = (screenHeight - this.height)/2;
+    	var y = (screenHeight - this.height-25)/2;
         this.wrap.moveTo(x,y);
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
@@ -4187,11 +4186,11 @@ $A.Window = Ext.extend($A.Component,{
         },10)
     },
     getShadowTemplate: function(){
-    	return ['<DIV class="item-shadow""></DIV>']
+    	return ['<DIV class="item-shadow"></DIV>']
     },
     getTemplate : function() {
         return [
-            '<TABLE class="window-wrap" style="width:{width}px;height:{height}px;" cellSpacing="0" cellPadding="0" border="0">',
+            '<TABLE class="window-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0">',
 			'<TBODY>',
 			'<TR style="height:25px;" >',
 				'<TD class="window-caption">',
@@ -4209,7 +4208,7 @@ $A.Window = Ext.extend($A.Component,{
 					'</TABLE>',
 				'</TD>',
 			'</TR>',
-			'<TR style="height:99%">',
+			'<TR style="height:{height}px">',
 				'<TD class="window-body" vAlign="top" unselectable="on">',
 					'<DIV class="window-content" atype="window.body" style="position:relatvie;width:{bodywidth}px;height:{height}px;" unselectable="on"></DIV>',
 				'</TD>',
