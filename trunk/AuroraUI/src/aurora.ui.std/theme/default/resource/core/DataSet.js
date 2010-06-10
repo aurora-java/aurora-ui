@@ -379,8 +379,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    		}
 //    	}
         var index = (this.currentPage-1)*this.pageSize + this.data.length;
-        this.locate(index, true);
         this.fireEvent("add", this, record, index);
+        this.locate(index, true);
     },
     /**
      * 获取当前指针的Record. 

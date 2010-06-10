@@ -387,7 +387,7 @@ $A.Grid = Ext.extend($A.Component,{
 					var td = document.createElement("TD");
 					td.recordid=''+record.id;
 					if(col.type == 'rowcheck') {
-						td.atype = 'grid.rowcheck';
+						Ext.fly(td).set({'atype':col.dataindex})
 						td.className = 'grid-rowbox';
 					}else{
 						td.style.visibility=col.hidden === true ? 'hidden' : 'visible';
@@ -412,9 +412,11 @@ $A.Grid = Ext.extend($A.Component,{
 				var td = document.createElement("TD");
 				td.style.visibility=col.hidden === true ? 'hidden' : 'visible';
 				td.style.textAlign=col.align||'left';
-				td.dataindex=col.dataindex;
-				td.recordid=record.id;
-				td.atype='grid-cell';
+				Ext.fly(td).set({
+				    'dataindex':col.dataindex,
+				    'recordid':record.id,
+				    'atype':'grid-cell'
+				})
 				var cell = this.createCell(col,record,false);
 				td.innerHTML = cell;
 				utr.appendChild(td);
@@ -626,6 +628,7 @@ $A.Grid = Ext.extend($A.Component,{
 					ed.bind(sf.dataset, dataindex);
 					ed.rerender(record);
 					ed.focus();
+					ed.on('blur',sf.onEditorBlur, sf);
 					Ext.get(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
 				}
 			},1)
@@ -637,14 +640,15 @@ $A.Grid = Ext.extend($A.Component,{
 	 */
 	focusRow : function(row){
 		var r = 25;
-		var stop = this.ub.getScroll().top;
-		if(row*r<stop){
-			this.ub.scrollTo('top',row*r-1)
-		}
-		if((row+1)*r>(stop+this.ub.getHeight())){
-			this.ub.scrollTo('top',(row+1)*r-this.ub.getHeight())
-		}
-		this.focus();
+        var stop = this.ub.getScroll().top;
+        if(row*r<stop){
+            this.ub.scrollTo('top',row*r-1)
+        }
+        if((row+1)*r>(stop+this.ub.getHeight())){//this.ub.dom.scrollHeight
+        	var st = this.ub.dom.scrollWidth > this.ub.dom.clientWidth ? (row+1)*r-this.ub.getHeight() + 16 : (row+1)*r-this.ub.getHeight();
+            this.ub.scrollTo('top',st)
+        }
+        this.focus();
 	},
 	focusColumn: function(dataIndex){
 		var r = 25;
@@ -679,6 +683,7 @@ $A.Grid = Ext.extend($A.Component,{
 	hideEditor : function(){
 		if(this.currentEditor && this.currentEditor.editor){
 			var ed = this.currentEditor.editor;
+			ed.un('blur',this.onEditorBlur, this);
 			var needHide = true;
 			if(ed.canHide){
 				needHide = ed.canHide();
@@ -693,6 +698,7 @@ $A.Grid = Ext.extend($A.Component,{
 		}
 	},
 	onEditorBlur : function(e){
+		alert(e)
 		if(this.currentEditor && !this.currentEditor.editor.isEventFromComponent(e.target)) {			
 			this.hideEditor();
 		}
@@ -761,7 +767,7 @@ $A.Grid = Ext.extend($A.Component,{
                     d.addClass('grid-asc');
                     this.dataset.setQueryParameter('ORDER_TYPE', 'asc');
 				}
-				this.dataset.query();
+				if(this.dataset.getAll().length!=0)this.dataset.query();
 			}
 		}else if(atype=='grid.rowcheck'){
 			var cb = target.child('div[atype=grid.headcheck]');
@@ -811,7 +817,7 @@ $A.Grid = Ext.extend($A.Component,{
 		this.sp.setVisible(false);
 		if(this.dragWidth != -1)
 		this.setColumnSize(this.columns[this.dragIndex].dataindex, this.dragWidth);
-		
+		this.syncScroll();
 	},
 	/**
 	 * 根据列的name获取列配置.
@@ -883,7 +889,7 @@ $A.Grid = Ext.extend($A.Component,{
 		for(var i=0,l=tds.length;i<l;i++){
 			var td = tds[i];
 			var ce = Ext.fly(td).child('DIV.grid-cell');
-			if(ce)Ext.fly(ce).setStyle("width", (size-10)+"px");
+			if(ce)Ext.fly(ce).setStyle("width", Math.max(size-10,0)+"px");
 		}
 		
 		
@@ -924,7 +930,7 @@ $A.Grid = Ext.extend($A.Component,{
 	/**
 	 * 显示某列.
 	 * 
-	 * @param {String} name 列的name
+	 * @param {String} dataindex 列的dataindex
 	 */
 	showColumn : function(dataindex){
 		var col = this.findColByDataIndex(dataindex);
@@ -933,20 +939,20 @@ $A.Grid = Ext.extend($A.Component,{
 				delete col.hidden;
 				this.setColumnSize(dataindex, col.hiddenWidth);
 				delete col.hiddenWidth;
-				if(!Ext.isIE){
+//				if(!Ext.isIE){
 					var tds = Ext.DomQuery.select('TD[dataindex='+dataindex+']',this.wrap.dom);
 					for(var i=0,l=tds.length;i<l;i++){
 						var td = tds[i];
 						Ext.fly(td).show();
 					}
-				}
+//				}
 			}
 		}	
 	},
 	/**
 	 * 隐藏某列.
 	 * 
-	 * @param {String} name 列的name;
+	 * @param {String} dataindex 列的dataindex;
 	 */
 	hideColumn : function(dataindex){
 		var col = this.findColByDataIndex(dataindex);
@@ -954,13 +960,13 @@ $A.Grid = Ext.extend($A.Component,{
 			if(col.hidden !== true){
 				col.hiddenWidth = col.width;
 				this.setColumnSize(dataindex, 0, false);
-				if(!Ext.isIE){
+//				if(!Ext.isIE){
 					var tds = Ext.DomQuery.select('TD[dataindex='+dataindex+']',this.wrap.dom);
 					for(var i=0,l=tds.length;i<l;i++){
 						var td = tds[i];
 						Ext.fly(td).hide();
 					}
-				}
+//				}
 				col.hidden = true;
 			}
 		}		

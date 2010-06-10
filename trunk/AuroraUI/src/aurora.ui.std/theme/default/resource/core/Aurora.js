@@ -12,10 +12,17 @@
  * @singleton
  */
 $A = Aurora = {version: '1.0',revision:'$Rev$'};
+$A.firstFire = false;
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
+	var w = $A.getViewportWidth();
+    var h = $A.getViewportHeight();
+//    alert(w+" : "+h)
 }
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
+
+
+
 $A.cache = {};
 $A.cmps = {};
 $A.onReady = Ext.onReady;
@@ -44,14 +51,6 @@ $A.center = function(el){
     ele.moveTo(x,y);
 }
 
-/**
- * Copies all the properties of config to obj.
- * @param {Object} obj The receiver of the properties
- * @param {Object} config The source of the properties
- * @param {Object} defaults A different object that will also be applied for default values
- * @return {Object} returns obj
- * @member Ext apply
- */
 $A.setTheme = function(theme){
 	if(theme) {
 		var exp  = new Date();   
@@ -202,10 +201,16 @@ $A.request = function(url, para, success, failed, scope){
 					if(res && !res.success){
 						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 						if(res.error){
-							if(failed) 
+							if(failed) {
 								failed.call(scope, res);
-							else
-								$A.showWarningMessage('警告', res.error.message);
+							}else{
+								if(res.error.message)
+								    $A.showWarningMessage('警告', res.error.message);
+								else
+								    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
+							}
+                                
+								
 						}								    						    
 					} else {
 						$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);

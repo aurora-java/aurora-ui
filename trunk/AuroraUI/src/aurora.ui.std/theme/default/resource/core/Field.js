@@ -112,7 +112,7 @@ $A.Field = Ext.extend($A.Component,{
         var keyCode = e.keyCode;
         if(keyCode == 13 || keyCode == 27) {
         	this.blur();
-        	if(keyCode == 13)  {
+        	if(keyCode == 13) {
         		var sf = this;
         		setTimeout(function(){
         			sf.fireEvent('enterdown', sf, e)
@@ -270,10 +270,12 @@ $A.Field = Ext.extend($A.Component,{
     focus : function(){
     	if(this.readonly) return;
     	this.el.dom.focus();
+    	this.fireEvent('focus', this);
     },
     blur : function(){
     	if(this.readonly) return;
     	this.el.blur();
+    	this.fireEvent('blur', this);
     },
     clearValue : function(){
     	this.setValue('', true);

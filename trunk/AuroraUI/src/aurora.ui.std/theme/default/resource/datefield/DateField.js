@@ -170,14 +170,14 @@ $A.DateField = Ext.extend($A.Component, {
 				var cell = document.createElement("td"); 
 				cell.className = "item-day";
 				cell.innerHTML = "&nbsp;";
-				cell.date=0;
+				Ext.fly(cell).set({'date':0});
 				if(arr.length){
 					var d = arr.shift();
 					if(d){
 						cell.innerHTML = d;
 						this.days[d] = cell;
 						var on = new Date(this.year, this.month - 1, d);
-						cell.date=on;
+						Ext.fly(cell).set({'date':on});
 						//判断是否今日
 						this.isSame(on, new Date()) && this.onToday(cell);
 						//判断是否选择日期
