@@ -81,8 +81,8 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     position: absolute;
 }
 .item-statusBar {
-    right:0px;
-    bottom:0px;
+    right:1px;
+    bottom:1px;
     height:18px;
     width:120px;
     padding:2px 15px 0px 15px;

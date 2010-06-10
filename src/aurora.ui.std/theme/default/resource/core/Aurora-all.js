@@ -12,10 +12,17 @@
  * @singleton
  */
 $A = Aurora = {version: '1.0',revision:'$Rev$'};
+$A.firstFire = false;
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
+	var w = $A.getViewportWidth();
+    var h = $A.getViewportHeight();
+//    alert(w+" : "+h)
 }
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
+
+
+
 $A.cache = {};
 $A.cmps = {};
 $A.onReady = Ext.onReady;
@@ -44,14 +51,6 @@ $A.center = function(el){
     ele.moveTo(x,y);
 }
 
-/**
- * Copies all the properties of config to obj.
- * @param {Object} obj The receiver of the properties
- * @param {Object} config The source of the properties
- * @param {Object} defaults A different object that will also be applied for default values
- * @return {Object} returns obj
- * @member Ext apply
- */
 $A.setTheme = function(theme){
 	if(theme) {
 		var exp  = new Date();   
@@ -202,10 +201,16 @@ $A.request = function(url, para, success, failed, scope){
 					if(res && !res.success){
 						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 						if(res.error){
-							if(failed) 
+							if(failed) {
 								failed.call(scope, res);
-							else
-								$A.showWarningMessage('警告', res.error.message);
+							}else{
+								if(res.error.message)
+								    $A.showWarningMessage('警告', res.error.message);
+								else
+								    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
+							}
+                                
+								
 						}								    						    
 					} else {
 						$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
@@ -1154,8 +1159,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    		}
 //    	}
         var index = (this.currentPage-1)*this.pageSize + this.data.length;
-        this.locate(index, true);
         this.fireEvent("add", this, record, index);
+        this.locate(index, true);
     },
     /**
      * 获取当前指针的Record. 
@@ -2597,7 +2602,7 @@ $A.Field = Ext.extend($A.Component,{
         var keyCode = e.keyCode;
         if(keyCode == 13 || keyCode == 27) {
         	this.blur();
-        	if(keyCode == 13)  {
+        	if(keyCode == 13) {
         		var sf = this;
         		setTimeout(function(){
         			sf.fireEvent('enterdown', sf, e)
@@ -2755,10 +2760,12 @@ $A.Field = Ext.extend($A.Component,{
     focus : function(){
     	if(this.readonly) return;
     	this.el.dom.focus();
+    	this.fireEvent('focus', this);
     },
     blur : function(){
     	if(this.readonly) return;
     	this.el.blur();
+    	this.fireEvent('blur', this);
     },
     clearValue : function(){
     	this.setValue('', true);
@@ -3899,14 +3906,14 @@ $A.DateField = Ext.extend($A.Component, {
 				var cell = document.createElement("td"); 
 				cell.className = "item-day";
 				cell.innerHTML = "&nbsp;";
-				cell.date=0;
+				Ext.fly(cell).set({'date':0});
 				if(arr.length){
 					var d = arr.shift();
 					if(d){
 						cell.innerHTML = d;
 						this.days[d] = cell;
 						var on = new Date(this.year, this.month - 1, d);
-						cell.date=on;
+						Ext.fly(cell).set({'date':on});
 						//判断是否今日
 						this.isSame(on, new Date()) && this.onToday(cell);
 						//判断是否选择日期
