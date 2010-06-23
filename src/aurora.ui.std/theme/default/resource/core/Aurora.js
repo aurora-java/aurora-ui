@@ -15,10 +15,8 @@ $A = Aurora = {version: '1.0',revision:'$Rev$'};
 $A.firstFire = false;
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
-	var w = $A.getViewportWidth();
-    var h = $A.getViewportHeight();
-//    alert(w+" : "+h)
 }
+
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
 
 
@@ -169,6 +167,14 @@ $A.getViewportWidth = function() {
         return self.innerWidth;
     }
 }
+$A.recordSize = function(){
+    var w = $A.getViewportWidth();
+    var h = $A.getViewportHeight();
+    document.cookie = "vw="+w;
+    document.cookie = "vh="+h;
+}
+$A.recordSize();
+
 $A.request = function(url, para, success, failed, scope){
 	$A.manager.fireEvent('ajaxstart', url, para);
 	if($A.logWindow){

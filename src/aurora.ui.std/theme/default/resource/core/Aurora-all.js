@@ -15,10 +15,8 @@ $A = Aurora = {version: '1.0',revision:'$Rev$'};
 $A.firstFire = false;
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
-	var w = $A.getViewportWidth();
-    var h = $A.getViewportHeight();
-//    alert(w+" : "+h)
 }
+
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
 
 
@@ -169,6 +167,14 @@ $A.getViewportWidth = function() {
         return self.innerWidth;
     }
 }
+$A.recordSize = function(){
+    var w = $A.getViewportWidth();
+    var h = $A.getViewportHeight();
+    document.cookie = "vw="+w;
+    document.cookie = "vh="+h;
+}
+$A.recordSize();
+
 $A.request = function(url, para, success, failed, scope){
 	$A.manager.fireEvent('ajaxstart', url, para);
 	if($A.logWindow){
@@ -3378,12 +3384,14 @@ $A.TriggerField = Ext.extend($A.TextField,{
         $A.TriggerField.superclass.onFocus.call(this);
         if(!this.isExpanded())this.expand();
     },
-    onBlur : function(){
+    onBlur : function(e){    	
+        if(!this.isEventFromComponent(e.target)){
 //    	if(!this.isExpanded()){
 	    	this.hasFocus = false;
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
 //    	}
+        }
     },
     onKeyDown: function(e){
     	$A.TriggerField.superclass.onKeyDown.call(this,e);
@@ -3489,8 +3497,8 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		this.doQuery('',true);
 		$A.ComboBox.superclass.onTriggerClick.call(this);		
 	},
-	onBlur : function(){
-		$A.ComboBox.superclass.onBlur.call(this);
+	onBlur : function(e){
+		$A.ComboBox.superclass.onBlur.call(this,e);
 		if(!this.isExpanded()) {
 			var raw = this.getRawValue();
 			var record = this.getRecordByDisplay(raw);
@@ -3982,8 +3990,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.setValue(date);
     	this.fireEvent('select',this, date);
     },
-	onBlur : function(){
-		$A.DatePicker.superclass.onBlur.call(this);
+	onBlur : function(e){
+		$A.DatePicker.superclass.onBlur.call(this,e);
 		if(!this.isExpanded()) {
 			var raw = this.getRawValue();
 			if(!isNaN(new Date(raw.replace(/-/g,"/")))){
@@ -4487,12 +4495,13 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     commit:function(r,lr){
 		if(this.win) this.win.close();
+		this.setRawValue('')
 		var record = lr ? lr : this.record;
 		if(record){
 			var mapping = this.getMapping();
 			for(var i=0;i<mapping.length;i++){
 				var map = mapping[i];
-				record.set(map.to,r.get(map.from));
+				record.set(map.to,r.get(map.from)||'');
 			}
 		}
 		this.fireEvent('commit', this, record, r)
@@ -4565,6 +4574,11 @@ $A.Lov = Ext.extend($A.TextField,{
 		$A.SideBar.enable = $A.slideBarEnable;
 		$A.showErrorMessage('错误', res.error.message);
 	},
+	onBlur : function(e){      
+        if(!this.isEventFromComponent(e.target)){
+        	$A.Lov.superclass.onBlur.call(this,e);
+        }
+    },
 	showLovWindow : function(e){
 		e.stopEvent();
 		if(this.fetching||this.isWinOpen||this.readonly) return;

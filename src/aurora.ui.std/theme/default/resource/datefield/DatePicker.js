@@ -39,8 +39,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.setValue(date);
     	this.fireEvent('select',this, date);
     },
-	onBlur : function(){
-		$A.DatePicker.superclass.onBlur.call(this);
+	onBlur : function(e){
+		$A.DatePicker.superclass.onBlur.call(this,e);
 		if(!this.isExpanded()) {
 			var raw = this.getRawValue();
 			if(!isNaN(new Date(raw.replace(/-/g,"/")))){

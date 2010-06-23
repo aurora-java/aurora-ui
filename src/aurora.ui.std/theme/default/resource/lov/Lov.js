@@ -54,12 +54,13 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     commit:function(r,lr){
 		if(this.win) this.win.close();
+		this.setRawValue('')
 		var record = lr ? lr : this.record;
 		if(record){
 			var mapping = this.getMapping();
 			for(var i=0;i<mapping.length;i++){
 				var map = mapping[i];
-				record.set(map.to,r.get(map.from));
+				record.set(map.to,r.get(map.from)||'');
 			}
 		}
 		this.fireEvent('commit', this, record, r)
@@ -132,6 +133,11 @@ $A.Lov = Ext.extend($A.TextField,{
 		$A.SideBar.enable = $A.slideBarEnable;
 		$A.showErrorMessage('错误', res.error.message);
 	},
+	onBlur : function(e){      
+        if(!this.isEventFromComponent(e.target)){
+        	$A.Lov.superclass.onBlur.call(this,e);
+        }
+    },
 	showLovWindow : function(e){
 		e.stopEvent();
 		if(this.fetching||this.isWinOpen||this.readonly) return;
