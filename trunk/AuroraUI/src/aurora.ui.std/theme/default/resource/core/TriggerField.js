@@ -51,12 +51,14 @@ $A.TriggerField = Ext.extend($A.TextField,{
         $A.TriggerField.superclass.onFocus.call(this);
         if(!this.isExpanded())this.expand();
     },
-    onBlur : function(){
+    onBlur : function(e){    	
+        if(!this.isEventFromComponent(e.target)){
 //    	if(!this.isExpanded()){
 	    	this.hasFocus = false;
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
 //    	}
+        }
     },
     onKeyDown: function(e){
     	$A.TriggerField.superclass.onKeyDown.call(this,e);

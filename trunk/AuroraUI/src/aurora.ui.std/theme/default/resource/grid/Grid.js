@@ -698,7 +698,6 @@ $A.Grid = Ext.extend($A.Component,{
 		}
 	},
 	onEditorBlur : function(e){
-		alert(e)
 		if(this.currentEditor && !this.currentEditor.editor.isEventFromComponent(e.target)) {			
 			this.hideEditor();
 		}

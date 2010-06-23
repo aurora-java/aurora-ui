@@ -40,8 +40,8 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		this.doQuery('',true);
 		$A.ComboBox.superclass.onTriggerClick.call(this);		
 	},
-	onBlur : function(){
-		$A.ComboBox.superclass.onBlur.call(this);
+	onBlur : function(e){
+		$A.ComboBox.superclass.onBlur.call(this,e);
 		if(!this.isExpanded()) {
 			var raw = this.getRawValue();
 			var record = this.getRecordByDisplay(raw);
