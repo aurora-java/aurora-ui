@@ -52,10 +52,10 @@ $A.Lov = Ext.extend($A.TextField,{
     canHide : function(){
     	return this.isWinOpen == false
     },
-    commit:function(r,lr){
+    commit:function(r){
 		if(this.win) this.win.close();
 		this.setRawValue('')
-		var record = lr ? lr : this.record;
+		var record = this.record;
 		if(record){
 			var mapping = this.getMapping();
 			for(var i=0;i<mapping.length;i++){
@@ -112,20 +112,20 @@ $A.Lov = Ext.extend($A.TextField,{
 				break;
 			}
 		}
-		var record = this.record;
+//		var record = this.record;
 		$A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
 		$A.request(url, p, function(res){
-			var r = new $A.Record({});
+			var record = new $A.Record({});
 			if(res.result.record){
 	    		var datas = [].concat(res.result.record);
 	    		if(datas.length>0){
 	    			var data = datas[0];
-	    			r = new $A.Record(data);
+	    			record = new $A.Record(data);
 	    		}
 	    	}
 	    	this.fetching = false;
-			this.commit(r,record);
+			this.commit(record);
 			$A.SideBar.enable = $A.slideBarEnable;
 		}, this.onFetchFailed, this);
 	},

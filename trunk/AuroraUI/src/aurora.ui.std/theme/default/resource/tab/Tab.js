@@ -92,6 +92,11 @@ $A.Tab = Ext.extend($A.Component,{
     	Ext.fly(dom).setStyle('line-height','');
     },
 	load : function(url,dom,index){
+		if(url.indexOf('?') !=-1){
+            url=url+'&_vw='+this.width+'&_vh='+(this.height-Ext.fly(this.head).getHeight());
+		} else {
+            url=url+'?_vw='+this.width+'&_vh='+(this.height-Ext.fly(this.head).getHeight());
+		}
 		this.showLoading(dom);
 		var sf = this;
     	Ext.Ajax.request({
