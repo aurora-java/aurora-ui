@@ -14,14 +14,14 @@ import com.yahoo.platform.yui.compressor.YUICompressor;
 
 public class PatchAll {
 	
-	
 	private static final String RES_DIR = "src/aurora.ui.std/theme/default/resource/";
 	private static final String THEME_DIR= "src/aurora.ui.std/theme/";
-	private static final String DEPLOY_DIR= "resource/aurora.ui.std/";
+	private static final String DEPLOY_DIR= "D:/WorkDevSpace/eclipse3.3/workspace/HAP/web/resource/aurora.ui.std/";//"resource/aurora.ui.std/";
 	private static final String AURORA_ALL= "core/Aurora-all.js";
 	private static final String CSS_ALL= "core/Aurora-all.css";
 	
 	
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception{
 		List list = new ArrayList();
 		list.add("core/Aurora.js");
@@ -72,10 +72,11 @@ public class PatchAll {
 		pa.patchAllFile(csslist,RES_DIR,CSS_ALL);
 		pa.compressAllFiles(compressJs,"js");
 		pa.compressAllFiles(compressCss,"css");
-		
+//		
 //		pa.deployAllFiles();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void compressAllFiles(List files, String type) throws Exception{
 		ClassLoader loader = new JarClassLoader();
         Thread.currentThread().setContextClassLoader(loader);
@@ -94,7 +95,7 @@ public class PatchAll {
         	main.invoke(null, new Object[]{args});	
         }	
 	}
-	
+	@SuppressWarnings("unchecked")
 	public void patchAllFile(List list,String dir, String dest) throws Exception {
 		List lines = new ArrayList();
 		Iterator it = list.iterator();
@@ -116,7 +117,8 @@ public class PatchAll {
 	
 	public void deployAllFiles() throws IOException{
 		File current = new File(".");
-		File file = new File(current, DEPLOY_DIR);
+//		File file = new File(current, DEPLOY_DIR);
+		File file = new File(DEPLOY_DIR);
 		File themefile = new File(current, THEME_DIR);
 		String[] files = themefile.list();
 		for(int i=0;i<files.length;i++){
