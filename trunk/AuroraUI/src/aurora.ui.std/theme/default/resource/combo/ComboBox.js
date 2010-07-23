@@ -259,17 +259,25 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //	},
 	setValue: function(v, silent){
         $A.ComboBox.superclass.setValue.call(this, v, silent);
-        //TODO: v是空的时候?
         if(this.record){
 			var field = this.record.getMeta().getField(this.binder.name);
 			if(field){
 				var mapping = field.get('mapping');
 				var raw = this.getRawValue();
 				var record = this.getRecordByDisplay(raw);
-				if(mapping&&record){
+//				if(mapping&&record){
+				if(mapping){//TODO: v是空的时候?
 					for(var i=0;i<mapping.length;i++){
 						var map = mapping[i];
-						this.record.set(map.to,record.get(map.from));
+    					var vl = record ? record.get(map.from) : '';
+//    					var vl = record ? (record.get(map.from)||'') : '';
+//    					if(vl!=''){
+    					if(vl != undefined){
+                            this.record.set(map.to,vl);
+    					}else{
+    						delete this.record.data[map.to];
+    					}
+						
 					}
 				}
 			}

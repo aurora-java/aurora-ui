@@ -1,8 +1,9 @@
 html, body {
 	margin:0; 
 	padding:0;
-	font-family: sans-serif !important;
-	font-family: tahoma, arial, sans-serif,helvetica;
+	background-color:#ffffff;
+	font-family: 微软雅黑,sans-serif !important;
+	font-family: 微软雅黑,tahoma, arial, sans-serif,helvetica;
 	font-size:12px !important;
 	font-size:11px;
 }
