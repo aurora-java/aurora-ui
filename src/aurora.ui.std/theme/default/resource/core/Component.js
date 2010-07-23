@@ -177,8 +177,9 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 			if(this.record.valid[this.binder.name]){
 				this.markInvalid();
 			}
-			if(this.value == value) return;
-			this.setValue(value,true);
+			//TODO:和lov的设值有问题
+//			if(this.value == value) return;
+			if(value!=undefined)this.setValue(value,true);
 		}else{
 			this.setValue('',true);
 		}
