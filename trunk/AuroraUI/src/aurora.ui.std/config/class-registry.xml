@@ -1,29 +1,29 @@
 <class-registry>
-	<feature-attach elementName="separator" featureClass="aurora.presentation.component.std.Component" />
-	<feature-attach elementName="textArea" featureClass="aurora.presentation.component.std.TextArea" />
-	<feature-attach elementName="tree" featureClass="aurora.presentation.component.std.Tree" />
-	<feature-attach elementName="label" featureClass="aurora.presentation.component.std.Label" />
-	<feature-attach elementName="checkBox" featureClass="aurora.presentation.component.std.CheckBox" />
-	<feature-attach elementName="radio" featureClass="aurora.presentation.component.std.Radio" />
-	<feature-attach elementName="button" featureClass="aurora.presentation.component.std.Button" />
-	<feature-attach elementName="toolBar" featureClass="aurora.presentation.component.std.ToolBar" />
-	<feature-attach elementName="navBar" featureClass="aurora.presentation.component.std.NavBar" />
-	<feature-attach elementName="comboBox" featureClass="aurora.presentation.component.std.ComboBox" />
-	<feature-attach elementName="lov" featureClass="aurora.presentation.component.std.Lov" />
-	<feature-attach elementName="textField" featureClass="aurora.presentation.component.std.TextField" />
-	<feature-attach elementName="passWord" featureClass="aurora.presentation.component.std.PassWord" />
-	<feature-attach elementName="numberField" featureClass="aurora.presentation.component.std.NumberField" />
-	<feature-attach elementName="datePicker" featureClass="aurora.presentation.component.std.DatePicker" />
-	<feature-attach elementName="grid" featureClass="aurora.presentation.component.std.Grid" />
-	<feature-attach elementName="dataSet" featureClass="aurora.presentation.component.std.DataSet" />
-	<feature-attach elementName="formPanel" featureClass="aurora.presentation.component.std.Form" />
-	<feature-attach elementName="fieldSet" featureClass="aurora.presentation.component.std.FieldSet" />
-	<feature-attach elementName="box" featureClass="aurora.presentation.component.std.Box" />
-	<feature-attach elementName="vBox" featureClass="aurora.presentation.component.std.VBox" />
-	<feature-attach elementName="dataSets" featureClass="aurora.application.features.DataSetInit" />
-	<feature-attach elementName="autoForm" featureClass="aurora.application.features.AutoForm" />
-	<feature-attach elementName="autoGrid" featureClass="aurora.application.features.AutoGrid" />
-	<feature-attach elementName="tabPanel" featureClass="aurora.presentation.component.std.Tab" />
-	<feature-attach elementName="switch" featureClass="aurora.presentation.component.std.Switch"/>
-	<feature-attach elementName="repeater" featureClass="aurora.presentation.component.std.Repeater"/>
+	<feature-attach elementName="separator" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Component" />
+	<feature-attach elementName="textArea" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.TextArea" />
+	<feature-attach elementName="tree" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Tree" />
+	<feature-attach elementName="label" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Label" />
+	<feature-attach elementName="checkBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.CheckBox" />
+	<feature-attach elementName="radio" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Radio" />
+	<feature-attach elementName="button" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Button" />
+	<feature-attach elementName="toolBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ToolBar" />
+	<feature-attach elementName="navBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.NavBar" />
+	<feature-attach elementName="comboBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ComboBox" />
+	<feature-attach elementName="lov" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Lov" />
+	<feature-attach elementName="textField" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.TextField" />
+	<feature-attach elementName="passWord" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.PassWord" />
+	<feature-attach elementName="numberField" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.NumberField" />
+	<feature-attach elementName="datePicker" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.DatePicker" />
+	<feature-attach elementName="grid" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Grid" />
+	<feature-attach elementName="dataSet" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.DataSet" />
+	<feature-attach elementName="form" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Form" />
+	<feature-attach elementName="fieldSet" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.FieldSet" />
+	<feature-attach elementName="box" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Box" />
+	<feature-attach elementName="vBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.VBox" />
+	<feature-attach elementName="dataSets" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.application.features.DataSetInit" />
+	<feature-attach elementName="autoForm" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.application.features.AutoForm" />
+	<feature-attach elementName="autoGrid" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.application.features.AutoGrid" />
+	<feature-attach elementName="tabPanel" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Tab" />
+	<feature-attach elementName="switch" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Switch"/>
+	<feature-attach elementName="repeater" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Repeater"/>
 </class-registry>
