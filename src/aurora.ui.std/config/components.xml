@@ -6,6 +6,7 @@
 		<view-component elementName="textArea" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="tree" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="label" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+		<view-component elementName="imageCode" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="button" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="checkBox" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="radio" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />

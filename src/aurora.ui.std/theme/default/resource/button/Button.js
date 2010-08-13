@@ -17,9 +17,8 @@ $A.Button = Ext.extend($A.Component,{
 	initComponent : function(config){
     	$A.Button.superclass.initComponent.call(this, config);
     	this.el = this.wrap.child('button[atype=btn]');
-    	if(this.hidden == true){
-    		this.setVisible(false)
-    	}
+    	if(this.hidden == true)this.setVisible(false)
+    	if(this.disabled == true)this.disable();
     },
     processListener: function(ou){
     	$A.Button.superclass.processListener.call(this,ou);
@@ -87,21 +86,29 @@ $A.Button = Ext.extend($A.Component,{
     	this.el.dom.disabled = false;
     },
     onMouseDown: function(e){
-    	this.wrap.addClass(this.pressCss);
-    	Ext.get(document.documentElement).on("mouseup", this.onMouseUp, this);
+    	if(!this.disabled){
+        	this.wrap.addClass(this.pressCss);
+        	Ext.get(document.documentElement).on("mouseup", this.onMouseUp, this);
+    	}
     },
     onMouseUp: function(e){
-    	Ext.get(document.documentElement).un("mouseup", this.onMouseUp, this);
-    	this.wrap.removeClass(this.pressCss);
+    	if(!this.disabled){
+        	Ext.get(document.documentElement).un("mouseup", this.onMouseUp, this);
+        	this.wrap.removeClass(this.pressCss);
+    	}
     },
     onClick: function(e){
-    	e.stopEvent();
-    	this.fireEvent("click", this, e);
+    	if(!this.disabled){
+        	e.stopEvent();
+        	this.fireEvent("click", this, e);
+    	}
     },
     onMouseOver: function(e){
+    	if(!this.disabled)
     	this.wrap.addClass(this.overCss);
     },
     onMouseOut: function(e){
+    	if(!this.disabled)
     	this.wrap.removeClass(this.overCss);
     }
 });

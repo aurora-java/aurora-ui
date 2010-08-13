@@ -21,13 +21,15 @@
 	width:2px;
 }
 .item-toolbar .item-btn button {
+	/*
 	padding-left:1px;
 	padding-right:1px;
+	*/
 }
-.item-toolbar .item-btn-icon button{
-	padding-left:17px;
+.item-toolbar .item-btn-icon div{
+	/*padding-left:17px;*/
 }
-.item-toolbar .item-btn-icon-text button {
+.item-toolbar .item-btn-icon-text div {
 	padding-left:16px !important;
 	padding-left:19px;
 }
@@ -45,9 +47,9 @@
 	line-height:20px;
 	text-align:center;
 }
-.nav-prepage, .nav-prepage, .nav-firstpage, .nav-lastpage, .nav-nextpage, .nav-refresh {
+.nav-prepage div, .nav-prepage div, .nav-firstpage div, .nav-lastpage div, .nav-nextpage div, .nav-refresh div{
 	background-image:url(../toolbar/navigation.gif);
 }
-.grid-add,.grid-delete,.grid-save {
+.grid-add div,.grid-delete div,.grid-save div{
 	background-image:url(../toolbar/toolbar_btn.gif);
 }

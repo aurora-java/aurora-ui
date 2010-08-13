@@ -1,12 +1,21 @@
 .item-textField {
-	float:left;  
+	/*float:left;  
 	border:0;  
-	height:19px; 
+	height:18px; 
 	line-height:16px;
-	padding-top:1px;
+	padding-top:2px;
 	padding-left:3px;
-	font-family:微软雅黑,Tahoma,Geneva,sans-serif; 
+	font-family:Tahoma,Geneva,sans-serif;
 	font-size:12px;
+	*/
+	float:left;  
+    border:0;  
+    height:18px;
+    line-height:16px;
+    padding-top:2px;
+    padding-left:3px;
+    font-family:微软雅黑,Tahoma,Geneva,sans-serif; 
+    font-size:12px;
 }
 .item-notBlank, .item-notBlank .item-textField{
 	background:#fff9c2;

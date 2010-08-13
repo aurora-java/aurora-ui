@@ -51,14 +51,14 @@ $A.TriggerField = Ext.extend($A.TextField,{
         $A.TriggerField.superclass.onFocus.call(this);
         if(!this.isExpanded())this.expand();
     },
-    onBlur : function(e){    	
-        if(!this.isEventFromComponent(e.target)){
+    onBlur : function(e){
+//        if(!this.isEventFromComponent(e.target)){//???
 //    	if(!this.isExpanded()){
 	    	this.hasFocus = false;
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
 //    	}
-        }
+//        }
     },
     onKeyDown: function(e){
     	$A.TriggerField.superclass.onKeyDown.call(this,e);
@@ -77,6 +77,8 @@ $A.TriggerField = Ext.extend($A.TextField,{
     		this.collapse();
     	}
     	this.trigger.un('click',this.onTriggerClick, this)
+    	this.shadow.remove();
+    	this.popup.remove();
     	delete this.trigger;
     	delete this.popup;
     	$A.TriggerField.superclass.destroy.call(this);

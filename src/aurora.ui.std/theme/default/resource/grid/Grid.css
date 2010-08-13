@@ -25,9 +25,12 @@
 .grid-lb table, .grid-lh table,  .grid-uh table, .grid-ub table{
 	table-layout:fixed;
 }
+.ext-ie7 .grid-hl {
+    position:absolute;
+}
 .grid-hl{
-	position:static !important;
-	position:absolute;	
+	/*position:static !important;
+	position:absolute;*/
 }
 .grid-fs{
 	FONT-SIZE: 1px;	
@@ -70,9 +73,10 @@
     background: url(../grid/sort_desc.gif) no-repeat right;
 }
 .grid-hc {
+	border-left:1px solid #ffffff;
 	border-right:1px solid #cccccc;/*a4bed4*/
 	border-bottom:1px solid #cccccc;/*a4bed4*/
-	background: url(../grid/grid_bg.gif) repeat-x;
+	/*background: url(../grid/grid_bg.gif) repeat-x;*/
 	color: #055a78;	
 	padding:0px;
 	text-align:center;

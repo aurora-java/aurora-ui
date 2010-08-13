@@ -46,10 +46,10 @@ $A.Tab = Ext.extend($A.Component,{
 		var activeBody = bodys[index];
 		if(activeStrip){
 			if(this.activeTab){
-				this.activeTab.removeClass('active');
+				this.activeTab.replaceClass('active','unactive');
 			}
 			this.activeTab = Ext.get(activeStrip);
-			Ext.fly(activeStrip).addClass('active');
+			Ext.fly(activeStrip).replaceClass('unactive','active');
 		}
 		if(activeBody){
 			if(this.activeBody){

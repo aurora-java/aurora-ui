@@ -6,7 +6,7 @@
 			<DIV class="item-grid" id="${id}" style="width:${width}px;height:${height}px;${gridstyle}">
 				${lockarea}
 				<DIV class="grid-ua" atype="grid.uc" style="width:${unlockwidth}px;">
-					<DIV class="grid-uh" unselectable="on" onselectstart="return false;" style="width:${unlockwidth}px;-moz-user-select:none;text-align:left;"  atype="grid.uh" style="height:${headHeight}px;">
+					<DIV class="grid-uh" unselectable="on" onselectstart="return false;" style="width:${unlockwidth}px;-moz-user-select:none;text-align:left;height:${headHeight}px;"  atype="grid.uh">
 						${unlockarea}
 					</DIV>
 					<DIV class="grid-ub"  atype="grid.ub" style="width:${unlockwidth}px;height:${bodyHeight}px;text-align:left;">
