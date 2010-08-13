@@ -29,6 +29,7 @@ public class PatchAll {
 		list.add("core/Component.js");
 		list.add("core/Field.js");
 		list.add("core/Box.js");
+		list.add("core/ImageCode.js");
 		list.add("core/Label.js");
 		list.add("button/Button.js");
 		list.add("checkbox/CheckBox.js");
@@ -89,7 +90,6 @@ public class PatchAll {
         	File file = new File(current, RES_DIR+dest);
         	String name = file.getName();
         	String minName = name.replaceAll("."+type, "")+"-min."+type;
-        	System.out.println();
         	File minFile = new File(file.getParentFile().getAbsolutePath(),minName);
         	String[] args = new String[]{file.getAbsolutePath(),"-o",minFile.getAbsolutePath(),"--type", type, "--charset","utf-8"};
         	main.invoke(null, new Object[]{args});	
