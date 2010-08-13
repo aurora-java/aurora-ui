@@ -11,6 +11,13 @@ $A.ImageCode = Ext.extend($A.Component,{
         this.wrap[ou]("click", this.onClick,  this);
     },
     onClick : function(){
+    	this.refresh();
+    },
+    /**
+     * 重新加载验证码
+     * 
+     */
+    refresh : function(){
         this.wrap.dom.src = "imagecode?r="+Math.random();
     }
 });
