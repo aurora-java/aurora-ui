@@ -1,4 +1,4 @@
-.window-wrap {
+.win-wrap {
 	border:1px solid #808080; 
 	TABLE-LAYOUT: fixed; 
 	/**z-index: 40;#c2d5dc;**/ 
@@ -18,12 +18,12 @@
 	moz-outline: 0 none;	
 	outline: 0 none
 }
-.window-caption {
+.win-caption {
 	height: 21px;
 	border-bottom:1px solid #808080;
-	background:url(../toolbar/toolbar_bg.gif) repeat-x;
+	background:url(../window/window-header.gif) repeat-x;
 }
-.window-caption-label div {
+.win-caption-label div {
 	width:100%;
 	FONT-WEIGHT: bold; 
 	padding-left:5px;
@@ -31,48 +31,59 @@
 	FLOAT: left; 
 	COLOR: #055a78;
 	overflow:hidden; 
-	HEIGHT: 14px
+	height: 23px;
+	line-height:23px;
 	
 }
-.window-caption-button .window-close{
-	BACKGROUND-IMAGE: url(../window/btn_close.gif); 
-	WIDTH: 17px; 
+.win-caption-button {
+    vertical-align:top;
+}
+.win-close{
+	background-image: url(../window/win_close.gif);
+	/*background-position:0px 0px;*/
+	WIDTH: 45px; 
 	CURSOR: pointer; 
 	BACKGROUND-REPEAT: no-repeat; 
 	HEIGHT: 17px; 
 	BACKGROUND-COLOR: transparent;
 }
-.window-body {
+.win-btn-over {
+    background-position:0px -17px;
+}
+.win-btn-down{
+    background-position:0px -34px;
+}
+.win-body {
 	BACKGROUND-COLOR: #ffffff;
 }
-.window-content{
+.win-content{
 	width:100%;
 	height:100%;
 	overflow:auto;
 	position:relative;
 	overflow:hidden; 
 }
-.window-alert {
+.win-alert {
 	padding:10px;
 	padding-left:140px;
 }
-.window-type {
+.win-type {
 	margin-left:40px;
 	overflow-y:auto; 
 }
-.window-icon {
+.win-icon {
     margin:10px;
     background-repeat: no-repeat;
 }
-.window-warning {
+.win-warning {
 	background-image: url(../window/icon-warning.gif); 
 }
-.window-error { 
+.win-error { 
 	background-image: url(../window/icon-error.gif); 
 }
-.window-info {
+.win-info {
 	background-image: url(../window/icon-info.gif); 
 }
-.window-question {
+.win-question {
     background-image: url(../window/icon-question.gif); 
 }

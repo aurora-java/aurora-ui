@@ -195,14 +195,14 @@ $A.request = function(url, para, success, failed, scope){
 					record.set('status',response.status);
 					record.set('response',response.responseText);
 				}
-				
 				$A.manager.fireEvent('ajaxcomplete', url, para,response);
-				if(response && response.responseText){
+				if(response){
 					var res = null;
 					try {
 						res = Ext.decode(response.responseText);
 					}catch(e){
 						$A.showErrorMessage('错误', '返回格式不正确!');
+						return;
 					}
 					if(res && !res.success){
 						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
@@ -214,9 +214,7 @@ $A.request = function(url, para, success, failed, scope){
 								    $A.showWarningMessage('警告', res.error.message);
 								else
 								    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
-							}
-                                
-								
+							}	
 						}								    						    
 					} else {
 						$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
@@ -442,21 +440,29 @@ $A.SideBar = function(){
         bar:null,
         show : function(msg){
         	if(!this.enable)return;
-            this.hide();
-            var p = '<div class="item-slideBar">'+msg+'</div>';
-            this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
-            this.bar.setStyle('z-index', 999999);
+//            this.hide();
             var sf = this;
-            this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
-                setTimeout(function(){
-                   sf.hide();
-                }, 2000);            
-            },'easeOut','run');
+            if(parent.showSideBar){
+                parent.showSideBar(msg)
+            }else{
+                var p = '<div class="item-slideBar">'+msg+'</div>';
+                this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+                this.bar.setStyle('z-index', 999999);
+                this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
+                    setTimeout(function(){
+                       sf.hide();
+                    }, 2000);            
+                },'easeOut','run');
+            }
         },
         hide : function(){
-            if(this.bar) {
-                Ext.fly(this.bar).remove();
-                this.bar = null;
+        	if(parent.hideSideBar){
+                parent.hideSideBar()
+            }else{
+                if(this.bar) {
+                    Ext.fly(this.bar).remove();
+                    this.bar = null;
+                }
             }
         }
     }
@@ -469,15 +475,23 @@ $A.Status = function(){
         show : function(msg){
         	if(!this.enable)return;
         	this.hide();
-            var p = '<div class="item-statusBar" unselectable="on">'+msg+'</div>';
-            this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
-            this.bar.setStyle('z-index', 999998);
+        	if(parent.showStatus) {
+        	   parent.showStatus(msg);
+        	}else{
+                var p = '<div class="item-statusBar" unselectable="on">'+msg+'</div>';
+                this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+                this.bar.setStyle('z-index', 999998);
+        	}
         },
         hide : function(){
-            if(this.bar) {
-                Ext.fly(this.bar).remove();
-                this.bar = null;
-            }
+        	if(parent.hideStatus){
+                parent.hideStatus();
+        	}else{
+                if(this.bar) {
+                    Ext.fly(this.bar).remove();
+                    this.bar = null;
+                }
+        	}
         }
     }
     return m;

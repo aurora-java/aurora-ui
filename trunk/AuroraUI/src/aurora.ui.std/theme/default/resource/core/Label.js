@@ -16,7 +16,7 @@ $A.Label = Ext.extend($A.Component,{
      * 绘制Label
      * @param {Aurora.Record} record record对象
      */
-    rerender : function(record){
+    render : function(record){
     	this.record = record;
     	if(this.record) {
 			var value = this.record.get(this.binder.name);

@@ -20,9 +20,10 @@
 	border:1px solid #cccccc;
 	position:relative;
 	overflow:auto;
+	background-color:#fff;
 }
 .active{
-	background-color:#fff;
+	/*background-color:#fff;*/
 	position:relative;
 	top:1px;
 	z-index:1;

@@ -181,6 +181,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	padding-right:5px;
 }
 .form_head {
+	border-left:1px solid #ffffff;
 	border-bottom:1px solid #bbbbbb;
 	height:25px;
 	COLOR: #055a78;	

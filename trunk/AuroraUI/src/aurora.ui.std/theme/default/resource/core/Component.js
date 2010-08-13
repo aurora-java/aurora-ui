@@ -163,9 +163,9 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     onRefresh : function(ds){
     	if(this.isFireEvent == true || this.isHidden == true) return;
     	this.clearInvalid();
-		this.rerender(ds.getCurrentRecord());
+		this.render(ds.getCurrentRecord());
     },
-    rerender : function(record){
+    render : function(record){
     	this.record = record;
     	if(this.record) {
 			var value = this.record.get(this.binder.name);
@@ -179,7 +179,11 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 			}
 			//TODO:和lov的设值有问题
 //			if(this.value == value) return;
-			if(value!=undefined)this.setValue(value,true);
+			if(!Ext.isEmpty(value,true)) {
+                this.setValue(value,true);
+			}else{
+                this.setValue('',true);
+			}
 		}else{
 			this.setValue('',true);
 		}

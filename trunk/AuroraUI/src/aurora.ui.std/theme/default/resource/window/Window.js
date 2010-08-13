@@ -70,7 +70,12 @@ $A.Window = Ext.extend($A.Component,{
     },
     processListener: function(ou){
     	$A.Window.superclass.processListener.call(this,ou);
-    	if(this.closeable) this.closeBtn[ou]("click", this.onClose,  this); 
+    	if(this.closeable) {
+    	   this.closeBtn[ou]("click", this.onCloseClick,  this); 
+    	   this.closeBtn[ou]("mouseover", this.onCloseOver,  this);
+    	   this.closeBtn[ou]("mouseout", this.onCloseOut,  this);
+    	   this.closeBtn[ou]("mousedown", this.onCloseDown,  this);
+    	}
     	this.wrap[ou]("click", this.toFront, this);
     	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
     	if(this.draggable)this.head.on('mousedown', this.onMouseDown,this);
@@ -88,7 +93,6 @@ $A.Window = Ext.extend($A.Component,{
     },
     initDraggable: function(){
     	this.head.addClass('item-draggable');
-//    	this.head.on('mousedown', this.onMouseDown,this);
     },
     focus: function(){
 		this.focusEl.focus();
@@ -97,7 +101,7 @@ $A.Window = Ext.extend($A.Component,{
     	var screenWidth = $A.getViewportWidth();
     	var screenHeight = $A.getViewportHeight();
     	var x = (screenWidth - this.width)/2;
-    	var y = (screenHeight - this.height-25)/2;
+    	var y = (screenHeight - this.height-23)/2;
         this.wrap.moveTo(x,y);
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
@@ -114,34 +118,34 @@ $A.Window = Ext.extend($A.Component,{
     },
     getTemplate : function() {
         return [
-            '<TABLE class="window-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0">',
+            '<TABLE class="win-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0">',
 			'<TBODY>',
-			'<TR style="height:25px;" >',
-				'<TD class="window-caption">',
-					'<TABLE cellSpacing="0" unselectable="on"  onselectstart="return false;" style="-moz-user-select:none;"  cellPadding="1" width="100%" height="100%" border="0" unselectable="on">',
+			'<TR style="height:23px;" >',
+				'<TD class="win-caption">',
+					'<TABLE cellSpacing="0" unselectable="on"  onselectstart="return false;" style="height:23px;-moz-user-select:none;"  cellPadding="0" width="100%" border="0" unselectable="on">',
 						'<TBODY>',
 						'<TR>',
-							'<TD unselectable="on" class="window-caption-label" atype="window.head" width="99%">',
+							'<TD unselectable="on" class="win-caption-label" atype="window.head" width="99%">',
 								'<A atype="win.focus" href="#" class="win-fs" tabIndex="-1">&#160;</A><DIV unselectable="on" atype="window.title" unselectable="on">{title}</DIV>',
 							'</TD>',
-							'<TD unselectable="on" class="window-caption-button" noWrap>',
-								'<DIV class="window-close" atype="window.close" unselectable="on"></DIV>',
+							'<TD unselectable="on" class="win-caption-button" noWrap>',
+								'<DIV class="win-close" atype="window.close" unselectable="on"></DIV>',
 							'</TD>',
+							'<TD><DIV style="width:5px;"/></TD>',
 						'</TR>',
 						'</TBODY>',
 					'</TABLE>',
 				'</TD>',
 			'</TR>',
 			'<TR style="height:{height}px">',
-				'<TD class="window-body" vAlign="top" unselectable="on">',
-					'<DIV class="window-content" atype="window.body" style="position:relatvie;width:{bodywidth}px;height:{height}px;" unselectable="on"></DIV>',
+				'<TD class="win-body" vAlign="top" unselectable="on">',
+					'<DIV class="win-content" atype="window.body" style="position:relatvie;width:{bodywidth}px;height:{height}px;" unselectable="on"></DIV>',
 				'</TD>',
 			'</TR>',
 			'</TBODY>',
 		'</TABLE>'
         ];
     },
-    /**toFront**/
     toFront : function(){ 
     	var myzindex = this.wrap.getStyle('z-index');
     	var zindex = $A.WindowManager.getZindex();
@@ -198,9 +202,24 @@ $A.Window = Ext.extend($A.Component,{
     	sf.proxy.setHeight(sf.wrap.getHeight());
     	sf.proxy.setLocation(xy[0], xy[1]);
     },
-    onClose : function(e){
+    onCloseClick : function(e){
         e.stopEvent();
     	this.close(); 	
+    },
+    onCloseOver : function(e){
+        this.closeBtn.addClass("win-btn-over");
+    },
+    onCloseOut : function(e){
+    	this.closeBtn.removeClass("win-btn-over");
+    },
+    onCloseDown : function(e){
+    	this.closeBtn.removeClass("win-btn-over");
+    	this.closeBtn.addClass("win-btn-down");
+        Ext.get(document.documentElement).on("mouseup", this.onCloseUp, this);
+    },
+    onCloseUp : function(e){
+    	this.closeBtn.removeClass("win-btn-down");
+    	Ext.get(document.documentElement).un("mouseup", this.onCloseUp, this);
     },
     close : function(){
     	$A.WindowManager.remove(this);
@@ -269,25 +288,25 @@ $A.Window = Ext.extend($A.Component,{
     }
 });
 $A.showMessage = function(title, msg,callback,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info',callback);
+	return $A.showTypeMessage(title, msg, width||300, height||100,'win-info',callback);
 }
 $A.showWarningMessage = function(title, msg,callback,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-warning',callback);
+	return $A.showTypeMessage(title, msg, width||300, height||100,'win-warning',callback);
 }
 $A.showInfoMessage = function(title, msg,callback,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info',callback);
+	return $A.showTypeMessage(title, msg, width||300, height||100,'win-info',callback);
 }
 $A.showErrorMessage = function(title,msg,callback,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-error',callback);
+	return $A.showTypeMessage(title, msg, width||300, height||100,'win-error',callback);
 }
 $A.showTypeMessage = function(title, msg,width,height,css,callback){
-	var msg = '<div class="window-icon '+css+'"><div class="window-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
+	var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
 	return $A.showOkWindow(title, msg, width, height,callback);	
 } 
 $A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
 	width = width||300;
 	height = height||100;
-    var msg = '<div class="window-icon window-question"><div class="window-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
+    var msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
     return $A.showOkCancelWindow(title, msg, okfun,cancelfun, width, height);  	
 }
 //$A.hideWindow = function(){

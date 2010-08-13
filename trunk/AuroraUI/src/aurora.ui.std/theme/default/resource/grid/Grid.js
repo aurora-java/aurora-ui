@@ -241,7 +241,7 @@ $A.Grid = Ext.extend($A.Component,{
             data = Ext.apply(data,{
                 align:col.align||'left',
                 cellcls: cls,
-                width:col.width-10,
+                width:col.width-11,
                 text:this.renderText(record,col,record.data[col.name])
             })
             cellTpl =  this.cellTpl;
@@ -387,13 +387,13 @@ $A.Grid = Ext.extend($A.Component,{
                     var td = document.createElement("TD");
                     td.recordid=''+record.id;
                     if(col.type == 'rowcheck') {
-                        Ext.fly(td).set({'atype':col.name})
+                        Ext.fly(td).set({'atype':'grid.rowcheck'})
                         td.className = 'grid-rowbox';
                     }else{
                         td.style.visibility=col.hidden === true ? 'hidden' : 'visible';
                         td.style.textAlign=col.align||'left';
                         if(!this.isFunctionCol(col)) td.dataindex=col.name;
-                        td.atype='grid-cell';                   
+                        Ext.fly(td).set({'atype':'grid-cell'});           
                     }
                     var cell = this.createCell(col,record, false);
                     td.innerHTML = cell;
@@ -620,14 +620,13 @@ $A.Grid = Ext.extend($A.Component,{
                 };
                 var ed = sf.currentEditor.editor;
                 if(ed){
-
                     ed.setHeight(Ext.fly(dom.parentNode).getHeight()-5)
                     ed.setWidth(Ext.fly(dom.parentNode).getWidth()-7);
                     ed.isFireEvent = true;
                     ed.isHidden = false;
                     ed.move(xy[0],xy[1])
                     ed.bind(sf.dataset, name);
-                    ed.rerender(record);
+                    ed.render(record);
                     ed.focus();
                     ed.on('blur',sf.onEditorBlur, sf);
                     Ext.get(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
@@ -889,7 +888,7 @@ $A.Grid = Ext.extend($A.Component,{
         for(var i=0,l=tds.length;i<l;i++){
             var td = tds[i];
             var ce = Ext.fly(td).child('DIV.grid-cell');
-            if(ce)Ext.fly(ce).setStyle("width", Math.max(size-10,0)+"px");
+            if(ce)Ext.fly(ce).setStyle("width", Math.max(size-11,0)+"px");
         }
         
         

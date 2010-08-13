@@ -107,6 +107,7 @@
 .grid-navbar {
 	border:none;
 	border-top:1px solid #2a2d32;
+	border-left:1px solid #ffffff;
 }
 .grid-sp {
 	position:absolute;

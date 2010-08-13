@@ -195,14 +195,14 @@ $A.request = function(url, para, success, failed, scope){
 					record.set('status',response.status);
 					record.set('response',response.responseText);
 				}
-				
 				$A.manager.fireEvent('ajaxcomplete', url, para,response);
-				if(response && response.responseText){
+				if(response){
 					var res = null;
 					try {
 						res = Ext.decode(response.responseText);
 					}catch(e){
 						$A.showErrorMessage('错误', '返回格式不正确!');
+						return;
 					}
 					if(res && !res.success){
 						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
@@ -214,9 +214,7 @@ $A.request = function(url, para, success, failed, scope){
 								    $A.showWarningMessage('警告', res.error.message);
 								else
 								    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
-							}
-                                
-								
+							}	
 						}								    						    
 					} else {
 						$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
@@ -442,21 +440,29 @@ $A.SideBar = function(){
         bar:null,
         show : function(msg){
         	if(!this.enable)return;
-            this.hide();
-            var p = '<div class="item-slideBar">'+msg+'</div>';
-            this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
-            this.bar.setStyle('z-index', 999999);
+//            this.hide();
             var sf = this;
-            this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
-                setTimeout(function(){
-                   sf.hide();
-                }, 2000);            
-            },'easeOut','run');
+            if(parent.showSideBar){
+                parent.showSideBar(msg)
+            }else{
+                var p = '<div class="item-slideBar">'+msg+'</div>';
+                this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+                this.bar.setStyle('z-index', 999999);
+                this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
+                    setTimeout(function(){
+                       sf.hide();
+                    }, 2000);            
+                },'easeOut','run');
+            }
         },
         hide : function(){
-            if(this.bar) {
-                Ext.fly(this.bar).remove();
-                this.bar = null;
+        	if(parent.hideSideBar){
+                parent.hideSideBar()
+            }else{
+                if(this.bar) {
+                    Ext.fly(this.bar).remove();
+                    this.bar = null;
+                }
             }
         }
     }
@@ -469,15 +475,23 @@ $A.Status = function(){
         show : function(msg){
         	if(!this.enable)return;
         	this.hide();
-            var p = '<div class="item-statusBar" unselectable="on">'+msg+'</div>';
-            this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
-            this.bar.setStyle('z-index', 999998);
+        	if(parent.showStatus) {
+        	   parent.showStatus(msg);
+        	}else{
+                var p = '<div class="item-statusBar" unselectable="on">'+msg+'</div>';
+                this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+                this.bar.setStyle('z-index', 999998);
+        	}
         },
         hide : function(){
-            if(this.bar) {
-                Ext.fly(this.bar).remove();
-                this.bar = null;
-            }
+        	if(parent.hideStatus){
+                parent.hideStatus();
+        	}else{
+                if(this.bar) {
+                    Ext.fly(this.bar).remove();
+                    this.bar = null;
+                }
+        	}
         }
     }
     return m;
@@ -2483,9 +2497,9 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     onRefresh : function(ds){
     	if(this.isFireEvent == true || this.isHidden == true) return;
     	this.clearInvalid();
-		this.rerender(ds.getCurrentRecord());
+		this.render(ds.getCurrentRecord());
     },
-    rerender : function(record){
+    render : function(record){
     	this.record = record;
     	if(this.record) {
 			var value = this.record.get(this.binder.name);
@@ -2499,7 +2513,11 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 			}
 			//TODO:和lov的设值有问题
 //			if(this.value == value) return;
-			if(value!=undefined)this.setValue(value,true);
+			if(!Ext.isEmpty(value,true)) {
+                this.setValue(value,true);
+			}else{
+                this.setValue('',true);
+			}
 		}else{
 			this.setValue('',true);
 		}
@@ -2671,7 +2689,7 @@ $A.Field = Ext.extend($A.Component,{
 	},
 	setHeight: function(h){
 		this.wrap.setStyle("height",h+"px");
-		this.el.setStyle("height",(h-1)+"px");
+		this.el.setStyle("height",(h-2)+"px");
 	},
 	setVisible: function(v){
 		if(v==true)
@@ -2921,6 +2939,22 @@ $A.Box = Ext.extend($A.Component,{
     }
 });
 /**
+ * @class Aurora.ImageCode
+ * @extends Aurora.Component
+ * <p>图片验证码组件.
+ * @author njq.niu@hand-china.com
+ * @constructor 
+ */
+$A.ImageCode = Ext.extend($A.Component,{
+    processListener: function(ou){
+        $A.ImageCode.superclass.processListener.call(this,ou);
+        this.wrap[ou]("click", this.onClick,  this);
+    },
+    onClick : function(){
+        this.wrap.dom.src = "imagecode?r="+Math.random();
+    }
+});
+/**
  * @class Aurora.Label
  * @extends Aurora.Component
  * <p>Label组件.
@@ -2938,7 +2972,7 @@ $A.Label = Ext.extend($A.Component,{
      * 绘制Label
      * @param {Aurora.Record} record record对象
      */
-    rerender : function(record){
+    render : function(record){
     	this.record = record;
     	if(this.record) {
 			var value = this.record.get(this.binder.name);
@@ -2974,9 +3008,8 @@ $A.Button = Ext.extend($A.Component,{
 	initComponent : function(config){
     	$A.Button.superclass.initComponent.call(this, config);
     	this.el = this.wrap.child('button[atype=btn]');
-    	if(this.hidden == true){
-    		this.setVisible(false)
-    	}
+    	if(this.hidden == true)this.setVisible(false)
+    	if(this.disabled == true)this.disable();
     },
     processListener: function(ou){
     	$A.Button.superclass.processListener.call(this,ou);
@@ -3044,21 +3077,29 @@ $A.Button = Ext.extend($A.Component,{
     	this.el.dom.disabled = false;
     },
     onMouseDown: function(e){
-    	this.wrap.addClass(this.pressCss);
-    	Ext.get(document.documentElement).on("mouseup", this.onMouseUp, this);
+    	if(!this.disabled){
+        	this.wrap.addClass(this.pressCss);
+        	Ext.get(document.documentElement).on("mouseup", this.onMouseUp, this);
+    	}
     },
     onMouseUp: function(e){
-    	Ext.get(document.documentElement).un("mouseup", this.onMouseUp, this);
-    	this.wrap.removeClass(this.pressCss);
+    	if(!this.disabled){
+        	Ext.get(document.documentElement).un("mouseup", this.onMouseUp, this);
+        	this.wrap.removeClass(this.pressCss);
+    	}
     },
     onClick: function(e){
-    	e.stopEvent();
-    	this.fireEvent("click", this, e);
+    	if(!this.disabled){
+        	e.stopEvent();
+        	this.fireEvent("click", this, e);
+    	}
     },
     onMouseOver: function(e){
+    	if(!this.disabled)
     	this.wrap.addClass(this.overCss);
     },
     onMouseOut: function(e){
+    	if(!this.disabled)
     	this.wrap.removeClass(this.overCss);
     }
 });
@@ -3475,14 +3516,14 @@ $A.TriggerField = Ext.extend($A.TextField,{
         $A.TriggerField.superclass.onFocus.call(this);
         if(!this.isExpanded())this.expand();
     },
-    onBlur : function(e){    	
-        if(!this.isEventFromComponent(e.target)){
+    onBlur : function(e){
+//        if(!this.isEventFromComponent(e.target)){//???
 //    	if(!this.isExpanded()){
 	    	this.hasFocus = false;
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
 //    	}
-        }
+//        }
     },
     onKeyDown: function(e){
     	$A.TriggerField.superclass.onKeyDown.call(this,e);
@@ -3501,6 +3542,8 @@ $A.TriggerField = Ext.extend($A.TextField,{
     		this.collapse();
     	}
     	this.trigger.un('click',this.onTriggerClick, this)
+    	this.shadow.remove();
+    	this.popup.remove();
     	delete this.trigger;
     	delete this.popup;
     	$A.TriggerField.superclass.destroy.call(this);
@@ -4260,7 +4303,12 @@ $A.Window = Ext.extend($A.Component,{
     },
     processListener: function(ou){
     	$A.Window.superclass.processListener.call(this,ou);
-    	if(this.closeable) this.closeBtn[ou]("click", this.onClose,  this); 
+    	if(this.closeable) {
+    	   this.closeBtn[ou]("click", this.onCloseClick,  this); 
+    	   this.closeBtn[ou]("mouseover", this.onCloseOver,  this);
+    	   this.closeBtn[ou]("mouseout", this.onCloseOut,  this);
+    	   this.closeBtn[ou]("mousedown", this.onCloseDown,  this);
+    	}
     	this.wrap[ou]("click", this.toFront, this);
     	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
     	if(this.draggable)this.head.on('mousedown', this.onMouseDown,this);
@@ -4278,7 +4326,6 @@ $A.Window = Ext.extend($A.Component,{
     },
     initDraggable: function(){
     	this.head.addClass('item-draggable');
-//    	this.head.on('mousedown', this.onMouseDown,this);
     },
     focus: function(){
 		this.focusEl.focus();
@@ -4287,7 +4334,7 @@ $A.Window = Ext.extend($A.Component,{
     	var screenWidth = $A.getViewportWidth();
     	var screenHeight = $A.getViewportHeight();
     	var x = (screenWidth - this.width)/2;
-    	var y = (screenHeight - this.height-25)/2;
+    	var y = (screenHeight - this.height-23)/2;
         this.wrap.moveTo(x,y);
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
@@ -4304,34 +4351,34 @@ $A.Window = Ext.extend($A.Component,{
     },
     getTemplate : function() {
         return [
-            '<TABLE class="window-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0">',
+            '<TABLE class="win-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0">',
 			'<TBODY>',
-			'<TR style="height:25px;" >',
-				'<TD class="window-caption">',
-					'<TABLE cellSpacing="0" unselectable="on"  onselectstart="return false;" style="-moz-user-select:none;"  cellPadding="1" width="100%" height="100%" border="0" unselectable="on">',
+			'<TR style="height:23px;" >',
+				'<TD class="win-caption">',
+					'<TABLE cellSpacing="0" unselectable="on"  onselectstart="return false;" style="height:23px;-moz-user-select:none;"  cellPadding="0" width="100%" border="0" unselectable="on">',
 						'<TBODY>',
 						'<TR>',
-							'<TD unselectable="on" class="window-caption-label" atype="window.head" width="99%">',
+							'<TD unselectable="on" class="win-caption-label" atype="window.head" width="99%">',
 								'<A atype="win.focus" href="#" class="win-fs" tabIndex="-1">&#160;</A><DIV unselectable="on" atype="window.title" unselectable="on">{title}</DIV>',
 							'</TD>',
-							'<TD unselectable="on" class="window-caption-button" noWrap>',
-								'<DIV class="window-close" atype="window.close" unselectable="on"></DIV>',
+							'<TD unselectable="on" class="win-caption-button" noWrap>',
+								'<DIV class="win-close" atype="window.close" unselectable="on"></DIV>',
 							'</TD>',
+							'<TD><DIV style="width:5px;"/></TD>',
 						'</TR>',
 						'</TBODY>',
 					'</TABLE>',
 				'</TD>',
 			'</TR>',
 			'<TR style="height:{height}px">',
-				'<TD class="window-body" vAlign="top" unselectable="on">',
-					'<DIV class="window-content" atype="window.body" style="position:relatvie;width:{bodywidth}px;height:{height}px;" unselectable="on"></DIV>',
+				'<TD class="win-body" vAlign="top" unselectable="on">',
+					'<DIV class="win-content" atype="window.body" style="position:relatvie;width:{bodywidth}px;height:{height}px;" unselectable="on"></DIV>',
 				'</TD>',
 			'</TR>',
 			'</TBODY>',
 		'</TABLE>'
         ];
     },
-    /**toFront**/
     toFront : function(){ 
     	var myzindex = this.wrap.getStyle('z-index');
     	var zindex = $A.WindowManager.getZindex();
@@ -4388,9 +4435,24 @@ $A.Window = Ext.extend($A.Component,{
     	sf.proxy.setHeight(sf.wrap.getHeight());
     	sf.proxy.setLocation(xy[0], xy[1]);
     },
-    onClose : function(e){
+    onCloseClick : function(e){
         e.stopEvent();
     	this.close(); 	
+    },
+    onCloseOver : function(e){
+        this.closeBtn.addClass("win-btn-over");
+    },
+    onCloseOut : function(e){
+    	this.closeBtn.removeClass("win-btn-over");
+    },
+    onCloseDown : function(e){
+    	this.closeBtn.removeClass("win-btn-over");
+    	this.closeBtn.addClass("win-btn-down");
+        Ext.get(document.documentElement).on("mouseup", this.onCloseUp, this);
+    },
+    onCloseUp : function(e){
+    	this.closeBtn.removeClass("win-btn-down");
+    	Ext.get(document.documentElement).un("mouseup", this.onCloseUp, this);
     },
     close : function(){
     	$A.WindowManager.remove(this);
@@ -4459,25 +4521,25 @@ $A.Window = Ext.extend($A.Component,{
     }
 });
 $A.showMessage = function(title, msg,callback,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info',callback);
+	return $A.showTypeMessage(title, msg, width||300, height||100,'win-info',callback);
 }
 $A.showWarningMessage = function(title, msg,callback,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-warning',callback);
+	return $A.showTypeMessage(title, msg, width||300, height||100,'win-warning',callback);
 }
 $A.showInfoMessage = function(title, msg,callback,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-info',callback);
+	return $A.showTypeMessage(title, msg, width||300, height||100,'win-info',callback);
 }
 $A.showErrorMessage = function(title,msg,callback,width,height){
-	return $A.showTypeMessage(title, msg, width||300, height||100,'window-error',callback);
+	return $A.showTypeMessage(title, msg, width||300, height||100,'win-error',callback);
 }
 $A.showTypeMessage = function(title, msg,width,height,css,callback){
-	var msg = '<div class="window-icon '+css+'"><div class="window-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
+	var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
 	return $A.showOkWindow(title, msg, width, height,callback);	
 } 
 $A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
 	width = width||300;
 	height = height||100;
-    var msg = '<div class="window-icon window-question"><div class="window-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
+    var msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
     return $A.showOkCancelWindow(title, msg, okfun,cancelfun, width, height);  	
 }
 //$A.hideWindow = function(){
