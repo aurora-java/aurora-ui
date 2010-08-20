@@ -134,7 +134,7 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 	}
 	switch(response.status){
 		case 404:
-			$A.showErrorMessage('404错误', '未找到"'+ response.statusText+'"');
+			$A.showErrorMessage('404错误', '未找到 "'+ response.statusText+'"',null,400,150);
 			break;
 		case 500:
             $A.showErrorMessage(response.status + '错误', response.responseText,null,400,250);
@@ -445,6 +445,7 @@ $A.SideBar = function(){
             if(parent.showSideBar){
                 parent.showSideBar(msg)
             }else{
+            	this.hide();
                 var p = '<div class="item-slideBar">'+msg+'</div>';
                 this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
                 this.bar.setStyle('z-index', 999999);
