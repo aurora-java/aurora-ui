@@ -1,13 +1,24 @@
+/*
+ * Aurora UI Library.
+ * Copyright(c) 2010, Hand China Co.,Ltd.
+ * 
+ * http://www.hand-china.com
+ * 
+ * author:牛佳庆
+ * revision:$Rev$
+ */
 html, body {
 	margin:0; 
 	padding:0;
 	background-color:#ffffff;
-	font-family: 微软雅黑,sans-serif !important;
-	font-family: 微软雅黑,tahoma, arial, sans-serif,helvetica;
+	font-family: 微软雅黑,sans-serif !important;/**/
+	font-family: 微软雅黑,tahoma, arial, sans-serif,helvetica;/**/
 	font-size:12px !important;
 	font-size:11px;
 }
-HTML {BORDER: none;}
+HTML {
+    border: none;
+}
 .ext-gecko,.ext-gecko3{
 	font-size:12px;
 }
@@ -276,7 +287,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     background-color:transparent;
     cursor:pointer;
     margin:0px;
-    vertical-align: middle;
+    vertical-align: top;
     overflow:visible;
     /*padding-left:3px;
     padding-right:3px;*/
@@ -435,7 +446,7 @@ button div {
     background-position: 0 -21px;
 }
 .item-btn-icon-text div {
-    background-position: 1px;
+    background-position: 0px;
     padding-left:20px;
     background-repeat: no-repeat;
 }
@@ -446,6 +457,7 @@ button div {
 }
 .item-btn-disabled *{
     cursor:default !important;
+    color:#ccc;
 }
 .item-btn-tl, .item-btn-tr, .item-btn-tc, .item-btn-ml, .item-btn-mr, .item-btn-mc, .item-btn-bl, .item-btn-br, .item-btn-bc{
     background-image:url(../button/btn.gif);
@@ -466,7 +478,7 @@ button div {
     line-height:16px;
     padding-top:2px;
     padding-left:3px;
-    font-family:微软雅黑,Tahoma,Geneva,sans-serif; 
+    font-family:微软雅黑,Tahoma,Geneva,sans-serif; /**/
     font-size:12px;
 }
 .item-notBlank, .item-notBlank .item-textField{
@@ -609,8 +621,8 @@ button div {
 	/*padding-left:17px;*/
 }
 .item-toolbar .item-btn-icon-text div {
-	padding-left:16px !important;
-	padding-left:19px;
+	/*padding-left:16px !important;*/
+	padding-left:17px;
 }
 .item-toolbar .item-btn-tl,.item-toolbar .item-btn-tr,.item-toolbar .item-btn-tc,.item-toolbar .item-btn-ml,.item-toolbar .item-btn-mr,.item-toolbar .item-btn-mc,.item-toolbar .item-btn-bl,.item-toolbar .item-btn-br,.item-toolbar .item-btn-bc{
 	background-image:none;
@@ -693,7 +705,7 @@ button div {
 .win-content{
 	width:100%;
 	height:100%;
-	overflow:auto;
+	/*overflow:auto;*/
 	position:relative;
 	overflow:hidden; 
 }
@@ -703,7 +715,7 @@ button div {
 }
 .win-type {
 	margin-left:40px;
-	overflow-y:auto; 
+	overflow:auto;
 }
 .win-icon {
     margin:10px;

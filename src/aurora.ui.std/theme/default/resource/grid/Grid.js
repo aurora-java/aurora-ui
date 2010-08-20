@@ -992,3 +992,4 @@ $A.Grid = Ext.extend($A.Component,{
         delete this.sp;
     }
 });
+$A.Grid.revision='$Rev$';

@@ -218,7 +218,6 @@ $A.Component = Ext.extend(Ext.util.Observable,{
      * @param {Boolean} silent 是否更新到dataSet中
      */
     setValue : function(v, silent){
-    	var ov = this.value;
     	this.value = v;
     	if(silent === true)return;
     	if(this.binder){
@@ -231,9 +230,10 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     			this.record.validate(this.binder.name);
     		}else{
     			this.record.set(this.binder.name,v);
-	    		if(v=='') delete this.record.data[this.binder.name];	    		
+	    		if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
     		}
     	}
+    	var ov = this.value;
     	if(ov!=v){
             this.fireEvent('change', this, v, ov);
     	}
