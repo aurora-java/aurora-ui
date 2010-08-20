@@ -17,7 +17,7 @@
     background-color:transparent;
     cursor:pointer;
     margin:0px;
-    vertical-align: middle;
+    vertical-align: top;
     overflow:visible;
     /*padding-left:3px;
     padding-right:3px;*/
@@ -176,7 +176,7 @@ button div {
     background-position: 0 -21px;
 }
 .item-btn-icon-text div {
-    background-position: 1px;
+    background-position: 0px;
     padding-left:20px;
     background-repeat: no-repeat;
 }
@@ -187,6 +187,7 @@ button div {
 }
 .item-btn-disabled *{
     cursor:default !important;
+    color:#ccc;
 }
 .item-btn-tl, .item-btn-tr, .item-btn-tc, .item-btn-ml, .item-btn-mr, .item-btn-mc, .item-btn-bl, .item-btn-br, .item-btn-bc{
     background-image:url(../button/btn.gif);
