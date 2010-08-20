@@ -1,13 +1,22 @@
+/*
+ * Aurora UI Library.
+ * Copyright(c) 2010, Hand China Co.,Ltd.
+ * 
+ * http://www.hand-china.com
+ * revision:$Rev$
+ */
 html, body {
 	margin:0; 
 	padding:0;
 	background-color:#ffffff;
-	font-family: 微软雅黑,sans-serif !important;
-	font-family: 微软雅黑,tahoma, arial, sans-serif,helvetica;
+	font-family: 微软雅黑,sans-serif !important;/**/
+	font-family: 微软雅黑,tahoma, arial, sans-serif,helvetica;/**/
 	font-size:12px !important;
 	font-size:11px;
 }
-HTML {BORDER: none;}
+HTML {
+    border: none;
+}
 .ext-gecko,.ext-gecko3{
 	font-size:12px;
 }
