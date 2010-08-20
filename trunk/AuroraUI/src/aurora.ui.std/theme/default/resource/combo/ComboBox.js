@@ -259,7 +259,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //	},
 	setValue: function(v, silent){
         $A.ComboBox.superclass.setValue.call(this, v, silent);
-        if(this.record){
+        if(this.record && !silent){
 			var field = this.record.getMeta().getField(this.binder.name);
 			if(field){
 				var mapping = field.get('mapping');
@@ -272,7 +272,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
     					var vl = record ? record.get(map.from) : '';
 //    					var vl = record ? (record.get(map.from)||'') : '';
 //    					if(vl!=''){
-    					if(vl != undefined){
+    					if(!Ext.isEmpty(vl,true)){
                             this.record.set(map.to,vl);
     					}else{
     						delete this.record.data[map.to];

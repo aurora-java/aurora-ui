@@ -821,6 +821,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var q = {};
     	if(r != null) Ext.apply(q, r.data);
     	Ext.apply(q, this.qpara);
+    	for(var k in q){
+    	   var v = q[k];
+    	   if(Ext.isEmpty(v,false)) delete q[k];
+    	}
     	var para = 'pagesize='+this.pageSize + 
     				  '&pagenum='+this.currentPage+
     				  '&_fetchall='+this.fetchAll+
