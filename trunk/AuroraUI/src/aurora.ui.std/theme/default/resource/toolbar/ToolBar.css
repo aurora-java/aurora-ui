@@ -30,8 +30,8 @@
 	/*padding-left:17px;*/
 }
 .item-toolbar .item-btn-icon-text div {
-	padding-left:16px !important;
-	padding-left:19px;
+	/*padding-left:16px !important;*/
+	padding-left:17px;
 }
 .item-toolbar .item-btn-tl,.item-toolbar .item-btn-tr,.item-toolbar .item-btn-tc,.item-toolbar .item-btn-ml,.item-toolbar .item-btn-mr,.item-toolbar .item-btn-mc,.item-toolbar .item-btn-bl,.item-toolbar .item-btn-br,.item-toolbar .item-btn-bc{
 	background-image:none;
