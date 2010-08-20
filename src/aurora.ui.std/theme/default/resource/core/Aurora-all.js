@@ -134,7 +134,7 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 	}
 	switch(response.status){
 		case 404:
-			$A.showErrorMessage('404错误', '未找到"'+ response.statusText+'"');
+			$A.showErrorMessage('404错误', '未找到 "'+ response.statusText+'"',null,400,150);
 			break;
 		case 500:
             $A.showErrorMessage(response.status + '错误', response.responseText,null,400,250);
@@ -445,6 +445,7 @@ $A.SideBar = function(){
             if(parent.showSideBar){
                 parent.showSideBar(msg)
             }else{
+            	this.hide();
                 var p = '<div class="item-slideBar">'+msg+'</div>';
                 this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
                 this.bar.setStyle('z-index', 999999);
@@ -1711,6 +1712,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var q = {};
     	if(r != null) Ext.apply(q, r.data);
     	Ext.apply(q, this.qpara);
+    	for(var k in q){
+    	   var v = q[k];
+    	   if(Ext.isEmpty(v,false)) delete q[k];
+    	}
     	var para = 'pagesize='+this.pageSize + 
     				  '&pagenum='+this.currentPage+
     				  '&_fetchall='+this.fetchAll+
@@ -2552,7 +2557,6 @@ $A.Component = Ext.extend(Ext.util.Observable,{
      * @param {Boolean} silent 是否更新到dataSet中
      */
     setValue : function(v, silent){
-    	var ov = this.value;
     	this.value = v;
     	if(silent === true)return;
     	if(this.binder){
@@ -2565,9 +2569,10 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     			this.record.validate(this.binder.name);
     		}else{
     			this.record.set(this.binder.name,v);
-	    		if(v=='') delete this.record.data[this.binder.name];	    		
+	    		if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
     		}
     	}
+    	var ov = this.value;
     	if(ov!=v){
             this.fireEvent('change', this, v, ov);
     	}
@@ -3857,7 +3862,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //	},
 	setValue: function(v, silent){
         $A.ComboBox.superclass.setValue.call(this, v, silent);
-        if(this.record){
+        if(this.record && !silent){
 			var field = this.record.getMeta().getField(this.binder.name);
 			if(field){
 				var mapping = field.get('mapping');
@@ -3870,7 +3875,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
     					var vl = record ? record.get(map.from) : '';
 //    					var vl = record ? (record.get(map.from)||'') : '';
 //    					if(vl!=''){
-    					if(vl != undefined){
+    					if(!Ext.isEmpty(vl,true)){
                             this.record.set(map.to,vl);
     					}else{
     						delete this.record.data[map.to];
