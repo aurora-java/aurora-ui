@@ -6,7 +6,7 @@
     <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
 </head>
 <body  onload="prettyPrint();">
-    <pre class="prettyprint lang-js"><div id="cls-Aurora.Lov"></div>/**
+    <pre class="prettyprint lang-js">/**
  * @class Aurora.Lov
  * @extends Aurora.TextField
  * <p>Lov 值列表组件.
@@ -62,15 +62,16 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     commit:function(r,lr){
 		if(this.win) this.win.close();
-		var record = lr ? lr : this.record;
-		if(record){
-			var mapping = this.getMapping();
-			for(var i=0;i<mapping.length;i++){
-				var map = mapping[i];
-				record.set(map.to,r.get(map.from));
-			}
-		}
-		this.fireEvent('commit', this, record, r)
+//        this.setRawValue('')
+        var record = lr ? lr : this.record;
+        if(record){
+            var mapping = this.getMapping();
+            for(var i=0;i<mapping.length;i++){
+                var map = mapping[i];
+                record.set(map.to,r.get(map.from)||'');
+            }
+        }
+        this.fireEvent('commit', this, record, r)
 	},
 	getMapping: function(){
 		var mapping
@@ -120,6 +121,8 @@ $A.Lov = Ext.extend($A.TextField,{
 			}
 		}
 		var record = this.record;
+		$A.slideBarEnable = $A.SideBar.enable;
+        $A.SideBar.enable = false;
 		$A.request(url, p, function(res){
 			var r = new $A.Record({});
 			if(res.result.record){
@@ -131,12 +134,20 @@ $A.Lov = Ext.extend($A.TextField,{
 	    	}
 	    	this.fetching = false;
 			this.commit(r,record);
+			$A.SideBar.enable = $A.slideBarEnable;
 		}, this.onFetchFailed, this);
 	},
 	onFetchFailed: function(res){
+		$A.SideBar.enable = $A.slideBarEnable;
 		$A.showErrorMessage('错误', res.error.message);
 	},
-	showLovWindow : function(){
+	onBlur : function(e){      
+        if(!this.isEventFromComponent(e.target)){
+        	$A.Lov.superclass.onBlur.call(this,e);
+        }
+    },
+	showLovWindow : function(e){
+		e.stopEvent();
 		if(this.fetching||this.isWinOpen||this.readonly) return;
 		this.isWinOpen = true;
 		

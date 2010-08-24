@@ -54,10 +54,10 @@ $A.Tab = Ext.extend($A.Component,{
 		var activeBody = bodys[index];
 		if(activeStrip){
 			if(this.activeTab){
-				this.activeTab.removeClass('active');
+				this.activeTab.replaceClass('active','unactive');
 			}
 			this.activeTab = Ext.get(activeStrip);
-			Ext.fly(activeStrip).addClass('active');
+			Ext.fly(activeStrip).replaceClass('unactive','active');
 		}
 		if(activeBody){
 			if(this.activeBody){
@@ -100,6 +100,11 @@ $A.Tab = Ext.extend($A.Component,{
     	Ext.fly(dom).setStyle('line-height','');
     },
 	load : function(url,dom,index){
+		if(url.indexOf('?') !=-1){
+            url=url+'&_vw='+this.width+'&_vh='+(this.height-Ext.fly(this.head).getHeight());
+		} else {
+            url=url+'?_vw='+this.width+'&_vh='+(this.height-Ext.fly(this.head).getHeight());
+		}
 		this.showLoading(dom);
 		var sf = this;
     	Ext.Ajax.request({

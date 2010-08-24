@@ -6,7 +6,7 @@
     <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
 </head>
 <body  onload="prettyPrint();">
-    <pre class="prettyprint lang-js"><div id="cls-Aurora.Field"></div>/**
+    <pre class="prettyprint lang-js">/**
  * @class Aurora.Field
  * @extends Aurora.Component
  * <p>带有input标记的输入类的组件.
@@ -92,7 +92,7 @@ $A.Field = Ext.extend($A.Component,{
 	},
 	setHeight: function(h){
 		this.wrap.setStyle("height",h+"px");
-		this.el.setStyle("height",(h-1)+"px");
+		this.el.setStyle("height",(h-2)+"px");
 	},
 	setVisible: function(v){
 		if(v==true)
@@ -120,7 +120,7 @@ $A.Field = Ext.extend($A.Component,{
         var keyCode = e.keyCode;
         if(keyCode == 13 || keyCode == 27) {
         	this.blur();
-        	if(keyCode == 13)  {
+        	if(keyCode == 13) {
         		var sf = this;
         		setTimeout(function(){
         			sf.fireEvent('enterdown', sf, e)
@@ -278,10 +278,12 @@ $A.Field = Ext.extend($A.Component,{
     focus : function(){
     	if(this.readonly) return;
     	this.el.dom.focus();
+    	this.fireEvent('focus', this);
     },
     blur : function(){
     	if(this.readonly) return;
     	this.el.blur();
+    	this.fireEvent('blur', this);
     },
     clearValue : function(){
     	this.setValue('', true);

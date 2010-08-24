@@ -6,7 +6,7 @@
     <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
 </head>
 <body  onload="prettyPrint();">
-    <pre class="prettyprint lang-js"><div id="cls-Aurora.DataSet"></div>/**
+    <pre class="prettyprint lang-js">/**
  * @class Aurora.DataSet
  * @extends Ext.util.Observable
  * <p>DataSet是一个数据源，也是一个数据集合，它封装了所有数据的操作，校验，提交等操作.
@@ -387,8 +387,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    		}
 //    	}
         var index = (this.currentPage-1)*this.pageSize + this.data.length;
-        this.locate(index, true);
         this.fireEvent("add", this, record, index);
+        this.locate(index, true);
     },
     <div id="method-Aurora.DataSet-getCurrentRecord"></div>/**
      * 获取当前指针的Record. 
@@ -814,6 +814,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Number} page(可选) 查询的页数.
      */
     query : function(page){
+    	$A.slideBarEnable = $A.SideBar.enable;
+    	$A.SideBar.enable = false;
     	var r;
     	if(this.qds) {
     		if(this.qds.getCurrentRecord() == null) this.qds.create();
@@ -911,9 +913,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		p[i] = Ext.apply(p[i],this.spara)
     	}
     	
-    	if(p.length > 0) {
+    	//if(p.length > 0) {
 	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
-    	}
+    	//}
     },
     
     afterEdit : function(record, name, value) {
@@ -970,8 +972,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    	this.fireEvent("indexchange", this, this.getCurrentRecord());
     },
     onSubmitFailed : function(res){
-    	$A.showWarningMessage('错误', res.error.message,350,150);
-		this.fireEvent('submitfailed', this, res)   
+    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
+		this.fireEvent('submitfailed', this, res);		
     },
     onLoadSuccess : function(res){
     	if(res == null) return;
@@ -994,12 +996,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.loading = false;
     	this.loadData(datas, total);
     	this.locate(this.currentIndex,true);
+        $A.SideBar.enable = $A.slideBarEnable;
 	    
     },
     onLoadFailed : function(res){
-    	$A.showWarningMessage('错误', res.error.message);
+    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
 //    	alert(res.error.message)
     	this.loading = false;
+    	$A.SideBar.enable = $A.slideBarEnable;
     },
     onFieldChange : function(record,field,type,value) {
     	this.fireEvent('fieldchange', this, record, field, type, value)
@@ -1012,7 +1016,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     }
 });
 
-<div id="cls-Aurora.Record"></div>/**
+/**
  * @class Aurora.Record
  * <p>Record是一个数据对象.
  * @constructor
@@ -1288,7 +1292,7 @@ $A.Record.Meta.prototype = {
 		}
 	}
 }
-<div id="cls-Aurora.Record.Field"></div>/**
+/**
  * @class Aurora.Record.Field
  * <p>Field是一个配置对象，主要配置指定列的一些附加属性，例如非空，只读，值列表等信息.
  * @constructor
