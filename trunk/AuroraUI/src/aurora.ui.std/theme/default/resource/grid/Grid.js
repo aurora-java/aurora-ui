@@ -20,6 +20,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     initComponent:function(config){
         $A.Grid.superclass.initComponent.call(this, config);
+        this.wb = Ext.get(this.id+'_wrap');
         this.uc = this.wrap.child('div[atype=grid.uc]');
         this.uh = this.wrap.child('div[atype=grid.uh]');
         this.ub = this.wrap.child('div[atype=grid.ub]'); 
@@ -156,12 +157,16 @@ $A.Grid = Ext.extend($A.Component,{
     processDataSetLiestener: function(ou){
         var ds = this.dataset;
         if(ds){
+        	ds[ou]('ajaxfailed', this.onAjaxFailed, this);
             ds[ou]('metachange', this.onRefresh, this);
             ds[ou]('update', this.onUpdate, this);
             ds[ou]('reject', this.onUpdate, this);
             ds[ou]('add', this.onAdd, this);
+            ds[ou]('beforeload', this.onBeforLoad, this);
             ds[ou]('load', this.onLoad, this);
+            ds[ou]('loadfailed', this.onAjaxFailed, this);
             ds[ou]('valid', this.onValid, this);
+            ds[ou]('beforeremove', this.onBeforeRemove, this); 
             ds[ou]('remove', this.onRemove, this);
             ds[ou]('clear', this.onLoad, this);
             ds[ou]('refresh',this.onRefresh,this);
@@ -291,13 +296,23 @@ $A.Grid = Ext.extend($A.Component,{
         sb.add('</TR>');
         return sb.join('');
     },
+    onBeforeRemove : function(){
+        $A.Masker.mask(this.wb,'正在删除数据...');
+    },
+    onBeforLoad : function(){
+        $A.Masker.mask(this.wb,'正在查询数据...');
+    },
     onLoad : function(focus){
         var cb = Ext.fly(this.wrap).child('div[atype=grid.headcheck]');
         if(this.selectable && this.selectionmodel=='multiple')this.setCheckBoxStatus(cb,false);
         if(this.lb)
         this.renderLockArea();
         this.renderUnLockAread();
-        if(focus !== false) this.focus.defer(10,this)
+        if(focus !== false) this.focus.defer(10,this);
+        $A.Masker.unmask(this.wb);
+    },
+    onAjaxFailed : function(res,opt){
+        $A.Masker.unmask(this.wb);
     },
     focus: function(){
         this.fs.focus();
@@ -474,6 +489,7 @@ $A.Grid = Ext.extend($A.Component,{
         
         var urow = Ext.get(this.id+'$u-'+record.id);
         if(urow)urow.remove();
+        $A.Masker.unmask(this.wb);
     },
     onClear : function(){
         
