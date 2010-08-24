@@ -13,22 +13,27 @@
  * http://www.hand-china.com
  */
 
-<div id="cls-Aurora"></div>/**
+/**
  * @class Aurora
  * Aurora UI 核心工具类.
  * @author 牛佳庆
  * @singleton
  */
-$A = Aurora = {version: '1.0'};
+$A = Aurora = {version: '1.0',revision:'$Rev$'};
+$A.firstFire = false;
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
 }
 
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
+
+
+
 $A.cache = {};
 $A.cmps = {};
 $A.onReady = Ext.onReady;
 $A.get = Ext.get;
+$A.focusWindow;
 
 $A.center = function(el){
 	var ele;
@@ -52,14 +57,6 @@ $A.center = function(el){
     ele.moveTo(x,y);
 }
 
-<div id="method-Ext-apply"></div>/**
- * Copies all the properties of config to obj.
- * @param {Object} obj The receiver of the properties
- * @param {Object} config The source of the properties
- * @param {Object} defaults A different object that will also be applied for default values
- * @return {Object} returns obj
- * @member Ext apply
- */
 $A.setTheme = function(theme){
 	if(theme) {
 		var exp  = new Date();   
@@ -71,6 +68,7 @@ $A.setTheme = function(theme){
 $A.CmpManager = function(){
     return {
         put : function(id, cmp){
+        	if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
         	if(!this.cache) this.cache = {};
         	if(this.cache[id] != null) {
 	        	alert("错误: ID为' " + id +" '的组件已经存在!");
@@ -91,10 +89,12 @@ $A.CmpManager = function(){
             		if(atype == 'grid-cell'){
             			var rid = Ext.fly(target).getAttributeNS("","recordid");
             			var record = ds.findById(rid);
-            			var name = Ext.fly(target).getAttributeNS("","dataindex");        			
-    					var msg = record.valid[name];
-    	        		if(Ext.isEmpty(msg))return;
-    	        		$A.ToolTip.show(target, msg);
+            			if(record){
+                			var name = Ext.fly(target).getAttributeNS("","dataindex");        			
+        					var msg = record.valid[name];
+        	        		if(Ext.isEmpty(msg))return;
+        	        		$A.ToolTip.show(target, msg);
+            			}
                     }
         		}
         	}else{
@@ -129,6 +129,7 @@ $A.CmpManager = function(){
     };
 }();
 Ext.Ajax.on("requestexception", function(conn, response, options) {
+	if($A.slideBarEnable)$A.SideBar.enable = $A.slideBarEnable;
 	$A.manager.fireEvent('ajaxerror', $A.manager, response.status, response);
 	if($A.logWindow){
 		var record = $('HTTPWATCH_DATASET').getCurrentRecord();
@@ -141,10 +142,10 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 	}
 	switch(response.status){
 		case 404:
-			$A.showErrorMessage('404错误', '未找到"'+ response.statusText+'"');
+			$A.showErrorMessage('404错误', '未找到 "'+ response.statusText+'"',null,400,150);
 			break;
 		case 500:
-            $A.showErrorMessage(response.status + '错误', response.responseText,400,250);
+            $A.showErrorMessage(response.status + '错误', response.responseText,null,400,250);
             break;
 		default:
 			$A.showErrorMessage('错误', response.statusText);
@@ -174,6 +175,14 @@ $A.getViewportWidth = function() {
         return self.innerWidth;
     }
 }
+$A.recordSize = function(){
+    var w = $A.getViewportWidth();
+    var h = $A.getViewportHeight();
+    document.cookie = "vw="+w;
+    document.cookie = "vh="+h;
+}
+$A.recordSize();
+
 $A.request = function(url, para, success, failed, scope){
 	$A.manager.fireEvent('ajaxstart', url, para);
 	if($A.logWindow){
@@ -194,23 +203,26 @@ $A.request = function(url, para, success, failed, scope){
 					record.set('status',response.status);
 					record.set('response',response.responseText);
 				}
-				
 				$A.manager.fireEvent('ajaxcomplete', url, para,response);
-				if(response && response.responseText){
+				if(response){
 					var res = null;
 					try {
 						res = Ext.decode(response.responseText);
 					}catch(e){
 						$A.showErrorMessage('错误', '返回格式不正确!');
-//						alert('返回格式不正确!')
+						return;
 					}
 					if(res && !res.success){
 						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
-						if(res.error){//								
-							if(failed) 
+						if(res.error){
+							if(failed) {
 								failed.call(scope, res);
-							else
-								$A.showWarningMessage('警告', res.error.message);
+							}else{
+								if(res.error.message)
+								    $A.showWarningMessage('警告', res.error.message);
+								else
+								    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
+							}	
 						}								    						    
 					} else {
 						$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
@@ -221,10 +233,94 @@ $A.request = function(url, para, success, failed, scope){
 			scope: scope
 		});
 }
+Aurora.dateFormat = function () { 
+	var masks = {  
+        "default":      "ddd mmm dd yyyy HH:MM:ss",  
+        shortDate:      "m/d/yy",  
+        mediumDate:     "mmm d, yyyy",  
+        longDate:       "mmmm d, yyyy",  
+        fullDate:       "dddd, mmmm d, yyyy",  
+        shortTime:      "h:MM TT",  
+        mediumTime:     "h:MM:ss TT",  
+        longTime:       "h:MM:ss TT Z",  
+        isoDate:        "yyyy-mm-dd",  
+        isoTime:        "HH:MM:ss",  
+        isoDateTime:    "yyyy-mm-dd'T'HH:MM:ss",  
+        isoUtcDateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'"  
+    };
+    var token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,  
+        timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g,  
+        timezoneClip = /[^-+\dA-Z]/g,  
+        pad = function (val, len) {  
+            val = String(val);  
+            len = len || 2;  
+            while (val.length < len) val = "0" + val;  
+            return val;  
+        }; 
+    return function (date, mask, utc) {    
+        if (arguments.length == 1 && (typeof date == "string" || date instanceof String) && !/\d/.test(date)) {  
+            mask = date;  
+            date = undefined;  
+        }   
+        date = date ? new Date(date) : new Date();  
+        if (isNaN(date)) throw new SyntaxError("invalid date");  
+  
+        mask = String(masks[mask] || mask || masks["default"]);  
+        if (mask.slice(0, 4) == "UTC:") {  
+            mask = mask.slice(4);  
+            utc = true;  
+        }  
+  
+        var _ = utc ? "getUTC" : "get",  
+            d = date[_ + "Date"](),  
+            D = date[_ + "Day"](),  
+            m = date[_ + "Month"](),  
+            y = date[_ + "FullYear"](),  
+            H = date[_ + "Hours"](),  
+            M = date[_ + "Minutes"](),  
+            s = date[_ + "Seconds"](),  
+            L = date[_ + "Milliseconds"](),  
+            o = utc ? 0 : date.getTimezoneOffset(),  
+            flags = {  
+                d:    d,  
+                dd:   pad(d),
+                m:    m + 1,  
+                mm:   pad(m + 1),  
+                yy:   String(y).slice(2),  
+                yyyy: y,  
+                h:    H % 12 || 12,  
+                hh:   pad(H % 12 || 12),  
+                H:    H,  
+                HH:   pad(H),  
+                M:    M,  
+                MM:   pad(M),  
+                s:    s,  
+                ss:   pad(s),  
+                l:    pad(L, 3),  
+                L:    pad(L > 99 ? Math.round(L / 10) : L),  
+                t:    H < 12 ? "a"  : "p",  
+                tt:   H < 12 ? "am" : "pm",  
+                T:    H < 12 ? "A"  : "P",  
+                TT:   H < 12 ? "AM" : "PM",  
+                Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),  
+                o:    (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),  
+                S:    ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]  
+            }; 
+        return mask.replace(token, function ($0) {  
+            return $0 in flags ? flags[$0] : $0.slice(1, $0.length - 1);  
+        });  
+    };  
+}();
+
 Ext.applyIf(String.prototype, {
 	trim : function(){
 		return this.replace(/(^\s*)|(\s*$)/g, "");
 	}
+});
+Ext.applyIf(Date.prototype, {
+    format : function(mask, utc){
+        return Aurora.dateFormat(this, mask, utc);  
+    }
 });
 Ext.applyIf(Array.prototype, {
 	add : function(o){
@@ -346,6 +442,69 @@ $A.ToolTip = function(){
 	}
 	return q
 }();
+$A.SideBar = function(){
+    var m = {
+    	enable:true,
+        bar:null,
+        show : function(msg){
+        	if(!this.enable)return;
+//            this.hide();
+            var sf = this;
+            if(parent.showSideBar){
+                parent.showSideBar(msg)
+            }else{
+            	this.hide();
+                var p = '<div class="item-slideBar">'+msg+'</div>';
+                this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+                this.bar.setStyle('z-index', 999999);
+                this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
+                    setTimeout(function(){
+                       sf.hide();
+                    }, 2000);            
+                },'easeOut','run');
+            }
+        },
+        hide : function(){
+        	if(parent.hideSideBar){
+                parent.hideSideBar()
+            }else{
+                if(this.bar) {
+                    Ext.fly(this.bar).remove();
+                    this.bar = null;
+                }
+            }
+        }
+    }
+    return m;
+}();
+$A.Status = function(){
+    var m = {
+        bar:null,
+        enable:true,
+        show : function(msg){
+        	if(!this.enable)return;
+        	this.hide();
+        	if(parent.showStatus) {
+        	   parent.showStatus(msg);
+        	}else{
+                var p = '<div class="item-statusBar" unselectable="on">'+msg+'</div>';
+                this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+                this.bar.setStyle('z-index', 999998);
+        	}
+        },
+        hide : function(){
+        	if(parent.hideStatus){
+                parent.hideStatus();
+        	}else{
+                if(this.bar) {
+                    Ext.fly(this.bar).remove();
+                    this.bar = null;
+                }
+        	}
+        }
+    }
+    return m;
+}();
 $A.Cover = function(){
 	var m = {
 		container: {},
@@ -381,6 +540,17 @@ $A.Cover = function(){
 	}
 	return m;
 }();
+Ext.util.JSON.encodeDate = function(o){
+	var pad = function(n) {
+        return n < 10 ? "0" + n : n;
+    };
+    return '"' + o.getFullYear() + "-" +
+            pad(o.getMonth() + 1) + "-" +
+            pad(o.getDate()) /*+ " " +
+            pad(o.getHours()) + ":" +
+            pad(o.getMinutes()) + ":" +
+            pad(o.getSeconds())*/ + '"';
+};
 Ext.Element.prototype.update = function(html, loadScripts, callback){
     if(typeof html == "undefined"){
         html = "";
@@ -536,12 +706,7 @@ $A.parseDate = function(str){
   	return null;      
 }
 Aurora.formateDate = function(date){
-	if(!date)return '';
-	if(date.getFullYear){
-		return date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate()
-	}else{
-		return date
-	}
+	return date.format('isoDate');
 }
 Aurora.formateDateTime = function(date){
 	if(!date)return '';
@@ -575,6 +740,22 @@ $A.EventManager = Ext.extend(Ext.util.Observable,{
     }
 });
 $A.manager = new $A.EventManager();
+$A.manager.on('ajaxstart',function(){
+    $A.Status.show('正在请求数据....');   
+})
+$A.manager.on('timeout',function(){
+    $A.Status.hide();
+})
+$A.manager.on('ajaxerror',function(){
+    $A.Status.hide();
+})
+$A.manager.on('ajaxcomplete',function(){
+    $A.Status.hide();
+})
+$A.manager.on('ajaxsuccess',function(){
+    $A.SideBar.show('操作成功!')
+})
+
 $A.regEvent = function(name, hanlder){
 	$A.manager.on(name, hanlder);
 }
