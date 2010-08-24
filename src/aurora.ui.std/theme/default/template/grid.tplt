@@ -1,4 +1,4 @@
-<TABLE class="${wrapClass}" style="${style}" cellSpacing="0" cellPadding="0" border="0">
+<TABLE class="${wrapClass}" id="${id}_wrap" style="${style}" cellSpacing="0" cellPadding="0" border="0">
 <TBODY>
 	${toolBar}	
 	<TR>
