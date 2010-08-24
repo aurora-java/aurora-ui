@@ -21,6 +21,8 @@
 				,
                 {"href":"output/Aurora.Grid.html","text":"Grid","id":"Aurora.Grid","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
 				,
+                {"href":"output/Aurora.ImageCode.html","text":"ImageCode","id":"Aurora.ImageCode","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
+				,
                 {"href":"output/Aurora.Label.html","text":"Label","id":"Aurora.Label","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
 				,
                 {"href":"output/Aurora.Lov.html","text":"Lov","id":"Aurora.Lov","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
@@ -113,6 +115,8 @@
 			"Aurora.Field":"icon-cls"
 			,
 			"Aurora.Grid":"icon-cls"
+			,
+			"Aurora.ImageCode":"icon-cls"
 			,
 			"Aurora.Label":"icon-cls"
 			,
