@@ -139,7 +139,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	return c;
     },
     initEvents : function(){
-    	this.addEvents(  
+    	this.addEvents( 
+            /**
+             * @event ajaxfailed
+             * ajax调用失败.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+            'ajaxfailed',
     	    /**
              * @event beforecreate
              * 数据创建前事件.
@@ -183,6 +189,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */
 	        'remove',
 	        /**
+             * @event beforeremove
+             * 数据删除前.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+            'beforeremove',
+	        /**
              * @event update
              * 数据更新事件.
              * "update", this, record, name, value
@@ -198,12 +210,24 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              */
 	        'clear',
+	        /**
+             * @event beforeload
+             * 准备加载数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
+	        'beforeload',
             /**
              * @event load
              * 加载数据事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              */ 
 	        'load',
+	        /**
+             * @event loadfailed
+             * 加载数据失败.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
+            'loadfailed',
 	        /**
              * @event refresh
              * 刷新事件.
@@ -250,6 +274,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */
 	        'reject',
 	        /**
+             * @event submit
+             * 数据提交事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+	        'submit',
+	        /**
              * @event submitsuccess
              * 数据提交成功事件.
              * this, datas, res
@@ -257,7 +287,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Array} datas 提交的数据.
              * @param {Object} res 返回的json对象.
              */
-	        'submitsuccess',
+            'submitsuccess',
 	        /**
              * @event submitfailed
              * 数据提交失败事件.
@@ -441,7 +471,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    		p[i] = Ext.apply(p[i],this.spara)
 //    	}
     	if(p.length > 0) {
-	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this);
+    		this.fireEvent("beforeremove", this);
+	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
     	}
     
     },
@@ -837,7 +868,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		url = this.queryUrl + '&' + para;
     	}
     	this.loading = true;
-    	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this);
+    	this.fireEvent("beforeload", this);
+    	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this,this.onAjaxFailed);
     },
     /**
      * 判断当前数据集是否发生改变.
@@ -910,7 +942,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	
     	//if(p.length > 0) {
-	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
+    	   this.fireEvent("submit", this);
+	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
     	//}
     },
     
@@ -995,9 +1028,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         $A.SideBar.enable = $A.slideBarEnable;
 	    
     },
+    onAjaxFailed : function(res,opt){
+        this.fireEvent('ajaxfailed', this);
+    },
     onLoadFailed : function(res){
+    	this.fireEvent('loadfailed', this);
     	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
-//    	alert(res.error.message)
     	this.loading = false;
     	$A.SideBar.enable = $A.slideBarEnable;
     },
