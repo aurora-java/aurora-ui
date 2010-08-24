@@ -19,8 +19,6 @@ $A.fireWindowResize = function(){
 
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
 
-
-
 $A.cache = {};
 $A.cmps = {};
 $A.onReady = Ext.onReady;
@@ -175,7 +173,7 @@ $A.recordSize = function(){
 }
 $A.recordSize();
 
-$A.request = function(url, para, success, failed, scope){
+$A.request = function(url, para, success, errorCall, scope, failureCall){
 	$A.manager.fireEvent('ajaxstart', url, para);
 	if($A.logWindow){
 		$A['_startTime'] = new Date();
@@ -207,8 +205,8 @@ $A.request = function(url, para, success, failed, scope){
 					if(res && !res.success){
 						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 						if(res.error){
-							if(failed) {
-								failed.call(scope, res);
+							if(errorCall) {
+								errorCall.call(scope, res);
 							}else{
 								if(res.error.message)
 								    $A.showWarningMessage('警告', res.error.message);
@@ -221,6 +219,9 @@ $A.request = function(url, para, success, failed, scope){
 						if(success)success.call(scope,res);
 					}
 				}
+			},
+			failure : function(response, opts){
+                if(failureCall)failureCall.call(scope, response, opts);
 			},
 			scope: scope
 		});
@@ -531,6 +532,34 @@ $A.Cover = function(){
 		}
 	}
 	return m;
+}();
+$A.Masker = function(){
+    var m = {
+        container: {},
+        mask : function(el,msg){
+        	msg = msg||'正在操作...';
+            var w = Ext.fly(el).getWidth();
+            var h = Ext.fly(el).getHeight();//display:none;
+            var p = '<div class="aurora-mask"  style="left:0px;top:0px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
+            var masker = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+            var zi = Ext.fly(el).getStyle('z-index') == 'auto' ? 0 : Ext.fly(el).getStyle('z-index');
+            masker.setStyle('z-index', zi + 1);
+            masker.setXY(Ext.fly(el).getXY());
+            var sp = masker.child('span');
+            var size = $A.TextMetrics.measure(sp,msg);
+            sp.setLeft((w-size.width)/2)
+            $A.Masker.container[el] = masker;
+        },
+        unmask : function(el){
+            var masker = $A.Masker.container[el];
+            if(masker) {
+                Ext.fly(masker).remove();
+                $A.Masker.container[el] = null;
+                delete $A.Masker.container[el];
+            }
+        }
+    }
+    return m;
 }();
 Ext.util.JSON.encodeDate = function(o){
 	var pad = function(n) {
@@ -1030,7 +1059,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	return c;
     },
     initEvents : function(){
-    	this.addEvents(  
+    	this.addEvents( 
+            /**
+             * @event ajaxfailed
+             * ajax调用失败.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+            'ajaxfailed',
     	    /**
              * @event beforecreate
              * 数据创建前事件.
@@ -1074,6 +1109,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */
 	        'remove',
 	        /**
+             * @event beforeremove
+             * 数据删除前.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+            'beforeremove',
+	        /**
              * @event update
              * 数据更新事件.
              * "update", this, record, name, value
@@ -1089,12 +1130,24 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              */
 	        'clear',
+	        /**
+             * @event beforeload
+             * 准备加载数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
+	        'beforeload',
             /**
              * @event load
              * 加载数据事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              */ 
 	        'load',
+	        /**
+             * @event loadfailed
+             * 加载数据失败.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
+            'loadfailed',
 	        /**
              * @event refresh
              * 刷新事件.
@@ -1141,6 +1194,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */
 	        'reject',
 	        /**
+             * @event submit
+             * 数据提交事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+	        'submit',
+	        /**
              * @event submitsuccess
              * 数据提交成功事件.
              * this, datas, res
@@ -1148,7 +1207,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Array} datas 提交的数据.
              * @param {Object} res 返回的json对象.
              */
-	        'submitsuccess',
+            'submitsuccess',
 	        /**
              * @event submitfailed
              * 数据提交失败事件.
@@ -1332,7 +1391,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    		p[i] = Ext.apply(p[i],this.spara)
 //    	}
     	if(p.length > 0) {
-	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this);
+    		this.fireEvent("beforeremove", this);
+	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
     	}
     
     },
@@ -1728,7 +1788,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		url = this.queryUrl + '&' + para;
     	}
     	this.loading = true;
-    	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this);
+    	this.fireEvent("beforeload", this);
+    	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this,this.onAjaxFailed);
     },
     /**
      * 判断当前数据集是否发生改变.
@@ -1801,7 +1862,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	
     	//if(p.length > 0) {
-	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
+    	   this.fireEvent("submit", this);
+	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
     	//}
     },
     
@@ -1886,9 +1948,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         $A.SideBar.enable = $A.slideBarEnable;
 	    
     },
+    onAjaxFailed : function(res,opt){
+        this.fireEvent('ajaxfailed', this);
+    },
     onLoadFailed : function(res){
+    	this.fireEvent('loadfailed', this);
     	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
-//    	alert(res.error.message)
     	this.loading = false;
     	$A.SideBar.enable = $A.slideBarEnable;
     },
@@ -3862,7 +3927,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //	},
 	setValue: function(v, silent){
         $A.ComboBox.superclass.setValue.call(this, v, silent);
-        if(this.record && !silent){
+        if(this.record){
 			var field = this.record.getMeta().getField(this.binder.name);
 			if(field){
 				var mapping = field.get('mapping');
