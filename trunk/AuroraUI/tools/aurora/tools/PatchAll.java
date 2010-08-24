@@ -21,6 +21,8 @@ public class PatchAll {
 	private static final String CSS_ALL= "core/Aurora-all.css";
 	
 	
+	private int lineNum = 0;
+	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception{
 		List list = new ArrayList();
@@ -75,6 +77,7 @@ public class PatchAll {
 		pa.compressAllFiles(compressCss,"css");
 //		
 //		pa.deployAllFiles();
+		System.out.println(pa.lineNum);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -107,6 +110,7 @@ public class PatchAll {
 				List ls = FileUtils.readLines(file, "UTF-8");
 				for(int i=0;i<ls.size();i++) {
 		        	String line = ls.get(i).toString();
+		        	lineNum ++;
 		        	lines.add(line);
 				}
 			}			
