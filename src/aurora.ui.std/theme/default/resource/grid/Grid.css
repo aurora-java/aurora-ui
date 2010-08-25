@@ -84,6 +84,7 @@
 }
 .grid-hc {
 	border-left:1px solid #ffffff;
+	border-top:1px solid #ffffff;
 	border-right:1px solid #cccccc;/*a4bed4*/
 	border-bottom:1px solid #cccccc;/*a4bed4*/
 	/*background: url(../grid/grid_bg.gif) repeat-x;*/
