@@ -10,6 +10,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	constructor: function(config) {
 		this.isWinOpen = false;
 		this.fetching = false;
+		this.context = config.context||'';
         $A.Lov.superclass.constructor.call(this, config);        
     },
     initComponent : function(config){
@@ -99,9 +100,9 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.fetching = true;
 		var v = this.getRawValue();
 		if(!Ext.isEmpty(this.lovservice)){
-			url = 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
+			url = this.context + 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
 		}else if(!Ext.isEmpty(this.lovmodel)){
-			url = 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
+			url = this.context + 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
 		}
 		var p = {};
 		var mapping = this.getMapping();
@@ -149,9 +150,9 @@ $A.Lov = Ext.extend($A.TextField,{
 		if(!Ext.isEmpty(this.lovurl)){
 			url = this.lovurl+'?';
 		}else if(!Ext.isEmpty(this.lovservice)){
-			url = 'sys_lov.screen?url='+encodeURIComponent('sys_lov.svc?svc='+this.lovservice)+'&service='+this.lovservice+'&';			
+			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice)+'&service='+this.lovservice+'&';			
 		}else {
-			url = 'sys_lov.screen?url='+encodeURIComponent('autocrud/'+this.lovmodel+'/query')+'&service='+this.lovmodel+'&';
+			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query')+'&service='+this.lovmodel+'&';
 		}
     	this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
     	this.win.on('close',this.onWinClose,this);
