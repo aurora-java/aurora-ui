@@ -350,7 +350,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.fireEvent("load", this);
     },
     sort : function(f, direction){
-    	//TODO:排序
+    	//TODO:grid已经实现服务端排序
     },
     create : function(data, valid){
     	this.fireEvent("beforecreate", this);
@@ -1389,10 +1389,10 @@ $A.Record.Field.prototype = {
 	},
 	/**
 	 * 当前Field是否只读.
-	 * @param {Boolean} readonly 是否只读
+	 * @return {Boolean} readonly 是否只读
 	 */
 	isReadOnly : function(){
-	   return this.getPropertity('readonly');
+        return this.getPropertity('readonly');
 	},
 	/**
 	 * 设置当前Field的数据集.
