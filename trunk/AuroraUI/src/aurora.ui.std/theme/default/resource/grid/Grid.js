@@ -270,12 +270,7 @@ $A.Grid = Ext.extend($A.Component,{
     renderText : function(record,col,value){
         var renderer = col.renderer;
         if(renderer&&!Ext.isEmpty(value)){
-            var rder;
-            if(renderer.indexOf('Aurora.') != -1){
-                rder = $A[renderer.substr(7,renderer.length)]
-            }else{
-                rder = window[renderer];
-            }
+            var rder = $A.getRenderer(renderer);
             if(rder == null){
                 alert("未找到"+renderer+"方法!")
                 return value;
@@ -762,7 +757,7 @@ $A.Grid = Ext.extend($A.Component,{
         if(atype=='grid.head'){
             var index = target.getAttributeNS("","dataindex");
             var col = this.findColByName(index);
-            if(col.sortable === true){
+            if(col && col.sortable === true){
                 var d = target.child('div');
                 this.dataset.setQueryParameter('ORDER_FIELD', index);
                 if(this.currentSortTarget){
