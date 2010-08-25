@@ -218,22 +218,28 @@ $A.Component = Ext.extend(Ext.util.Observable,{
      * @param {Boolean} silent 是否更新到dataSet中
      */
     setValue : function(v, silent){
+    	var ov = this.value;
     	this.value = v;
     	if(silent === true)return;
     	if(this.binder){
     		this.record = this.binder.ds.getCurrentRecord();
-    		if(this.record == null){    			
-    			//TODO:应该先create()再编辑
-    			var data = {};
-    			data[this.binder.name] = v;
-    			this.record = this.binder.ds.create(data,false);
-    			this.record.validate(this.binder.name);
-    		}else{
-    			this.record.set(this.binder.name,v);
-	    		if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
-    		}
+    		if(this.record == null){
+                this.record = this.binder.ds.create({},false);                
+            }
+            this.record.set(this.binder.name,v);
+            if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
+           
+//    		if(this.record == null){    			
+//    			//TODO:应该先create()再编辑
+//    			var data = {};
+////    			data[this.binder.name] = v;
+//    			this.record = this.binder.ds.create(data,false);
+//    			this.record.validate(this.binder.name);
+//    		}else{
+//    			this.record.set(this.binder.name,v);
+//	    		if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
+//    		}
     	}
-    	var ov = this.value;
     	if(ov!=v){
             this.fireEvent('change', this, v, ov);
     	}
