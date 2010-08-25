@@ -209,7 +209,7 @@ $A.request = function(url, para, success, errorCall, scope, failureCall){
 								errorCall.call(scope, res);
 							}else{
 								if(res.error.message)
-								    $A.showWarningMessage('警告', res.error.message);
+								    $A.showWarningMessage('警告', res.error.message,null,400,150);
 								else
 								    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
 							}	
@@ -537,6 +537,7 @@ $A.Masker = function(){
     var m = {
         container: {},
         mask : function(el,msg){
+        	if($A.Masker.container[el])return;
         	msg = msg||'正在操作...';
             var w = Ext.fly(el).getWidth();
             var h = Ext.fly(el).getHeight();//display:none;
@@ -726,10 +727,20 @@ $A.parseDate = function(str){
 	}      
   	return null;      
 }
-Aurora.formateDate = function(date){
+$A.getRenderer = function(renderer){
+	var rder;
+    if(renderer.indexOf('Aurora.') != -1){
+        rder = $A[renderer.substr(7,renderer.length)]
+    }else{
+        rder = window[renderer];
+    }
+    return rder;
+}
+
+$A.formateDate = function(date){
 	return date.format('isoDate');
 }
-Aurora.formateDateTime = function(date){
+$A.formateDateTime = function(date){
 	if(!date)return '';
 	if(date.getFullYear){
 		return date.getFullYear() + 
@@ -743,6 +754,25 @@ Aurora.formateDateTime = function(date){
 		return date
 	}
 }
+$A.formatNumber = function(value){
+    var ps = String(value).split('.');
+    var sub = (ps.length==2)?'.'+ps[1]:'';
+    var whole = ps[0];
+    var r = /(\d+)(\d{3})/;
+    while (r.test(whole)) {
+        whole = whole.replace(r, '$1' + ',' + '$2');
+    }
+    v = whole + sub;
+    return v;   
+}
+$A.removeNumberFormat = function(rv){
+    rv = String(rv||'');
+    while (rv.indexOf(',')!=-1) {
+        rv = rv.replace(',', '');
+    }
+    return isNaN(rv) ? parseFloat(rv) : rv;
+}
+
 $A.EventManager = Ext.extend(Ext.util.Observable,{
 	constructor: function() {
 		$A.EventManager.superclass.constructor.call(this);
@@ -1270,7 +1300,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.fireEvent("load", this);
     },
     sort : function(f, direction){
-    	//TODO:排序
+    	//TODO:grid已经实现服务端排序
     },
     create : function(data, valid){
     	this.fireEvent("beforecreate", this);
@@ -2309,10 +2339,18 @@ $A.Record.Field.prototype = {
 	},
 	/**
 	 * 当前Field是否只读.
-	 * @param {Boolean} readonly 是否只读
+	 * @return {Boolean} readonly 是否只读
 	 */
 	isReadOnly : function(){
-	   return this.getPropertity('readonly');
+        return this.getPropertity('readonly');
+	},
+	/**
+     * 当前Field是否需要千分位格式.
+     * @return {Boolean} numberformat 是否千分位显示
+     */
+	isNumberFormat : function(){
+		var r = this.getPropertity('numberformat');
+        return r ? r : false;
 	},
 	/**
 	 * 设置当前Field的数据集.
@@ -2622,22 +2660,28 @@ $A.Component = Ext.extend(Ext.util.Observable,{
      * @param {Boolean} silent 是否更新到dataSet中
      */
     setValue : function(v, silent){
+    	var ov = this.value;
     	this.value = v;
     	if(silent === true)return;
     	if(this.binder){
     		this.record = this.binder.ds.getCurrentRecord();
-    		if(this.record == null){    			
-    			//TODO:应该先create()再编辑
-    			var data = {};
-    			data[this.binder.name] = v;
-    			this.record = this.binder.ds.create(data,false);
-    			this.record.validate(this.binder.name);
-    		}else{
-    			this.record.set(this.binder.name,v);
-	    		if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
-    		}
+    		if(this.record == null){
+                this.record = this.binder.ds.create({},false);                
+            }
+            this.record.set(this.binder.name,v);
+            if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
+           
+//    		if(this.record == null){    			
+//    			//TODO:应该先create()再编辑
+//    			var data = {};
+////    			data[this.binder.name] = v;
+//    			this.record = this.binder.ds.create(data,false);
+//    			this.record.validate(this.binder.name);
+//    		}else{
+//    			this.record.set(this.binder.name,v);
+//	    		if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
+//    		}
     	}
-    	var ov = this.value;
     	if(ov!=v){
             this.fireEvent('change', this, v, ov);
     	}
@@ -3041,7 +3085,6 @@ $A.ImageCode = Ext.extend($A.Component,{
 $A.Label = Ext.extend($A.Component,{
     onUpdate : function(ds, record, name, value){
     	if(this.binder.ds == ds && this.binder.name == name){
-//    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase()){
 	    	this.updateLabel(record,name,value);
     	}
     },
@@ -3057,13 +3100,11 @@ $A.Label = Ext.extend($A.Component,{
     	}
     },
     updateLabel: function(record,name,value){
-    	if(value){
-	    	if(this.renderer){
-	    		var rder = window[this.renderer]
-	    		value = rder.call(window,value,record, name);
-	    	}
-	    	this.wrap.update(value);
-    	}
+        var rder = $A.getRenderer(this.renderer);
+	    if(rder!=null){
+    		value = rder.call(window,value,record, name);
+	    }
+	    this.wrap.update(value);
     }
 });
 /**
@@ -3489,10 +3530,11 @@ $A.TextField = Ext.extend($A.Field,{
  */
 $A.NumberField = Ext.extend($A.TextField,{
 	allowdecimals : true,
+    allownegative : true,
+    allowformat : true,
 	baseChars : "0123456789",
     decimalSeparator : ".",
     decimalprecision : 2,
-    allownegative : true,
 	constructor: function(config) {
         $A.NumberField.superclass.constructor.call(this, config);
     },
@@ -3522,9 +3564,19 @@ $A.NumberField = Ext.extend($A.TextField,{
         }
         $A.NumberField.superclass.onKeyPress.call(this, e); 
     },
-    onBlur : function(e){
-    	this.setRawValue(this.fixPrecision(this.parseValue(this.getRawValue())));
-    	$A.NumberField.superclass.onBlur.call(this,e);    	
+    formatValue : function(v){
+    	var rv = this.fixPrecision(this.parseValue(v))        
+        if(this.allowformat)rv = $A.formatNumber(rv);
+        return rv;
+    },
+    processValue : function(v){
+    	return this.fixPrecision(this.parseValue(v));
+    },
+    onFocus : function(e) {
+    	if(this.allowformat) {
+            this.setRawValue($A.removeNumberFormat(this.getRawValue()));
+        }
+    	$A.NumberField.superclass.onFocus.call(this,e);
     },
     parseValue : function(value){
     	if(!this.allownegative)value = String(value).replace('-','');
@@ -4689,6 +4741,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	constructor: function(config) {
 		this.isWinOpen = false;
 		this.fetching = false;
+		this.context = config.context||'';
         $A.Lov.superclass.constructor.call(this, config);        
     },
     initComponent : function(config){
@@ -4778,9 +4831,9 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.fetching = true;
 		var v = this.getRawValue();
 		if(!Ext.isEmpty(this.lovservice)){
-			url = 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
+			url = this.context + 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
 		}else if(!Ext.isEmpty(this.lovmodel)){
-			url = 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
+			url = this.context + 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
 		}
 		var p = {};
 		var mapping = this.getMapping();
@@ -4828,9 +4881,9 @@ $A.Lov = Ext.extend($A.TextField,{
 		if(!Ext.isEmpty(this.lovurl)){
 			url = this.lovurl+'?';
 		}else if(!Ext.isEmpty(this.lovservice)){
-			url = 'sys_lov.screen?url='+encodeURIComponent('sys_lov.svc?svc='+this.lovservice)+'&service='+this.lovservice+'&';			
+			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice)+'&service='+this.lovservice+'&';			
 		}else {
-			url = 'sys_lov.screen?url='+encodeURIComponent('autocrud/'+this.lovmodel+'/query')+'&service='+this.lovmodel+'&';
+			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query')+'&service='+this.lovmodel+'&';
 		}
     	this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
     	this.win.on('close',this.onWinClose,this);
