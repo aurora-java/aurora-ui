@@ -8,7 +8,6 @@
 $A.Label = Ext.extend($A.Component,{
     onUpdate : function(ds, record, name, value){
     	if(this.binder.ds == ds && this.binder.name == name){
-//    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase()){
 	    	this.updateLabel(record,name,value);
     	}
     },
@@ -24,12 +23,10 @@ $A.Label = Ext.extend($A.Component,{
     	}
     },
     updateLabel: function(record,name,value){
-    	if(value){
-	    	if(this.renderer){
-	    		var rder = window[this.renderer]
-	    		value = rder.call(window,value,record, name);
-	    	}
-	    	this.wrap.update(value);
-    	}
+        var rder = $A.getRenderer(this.renderer);
+	    if(rder!=null){
+    		value = rder.call(window,value,record, name);
+	    }
+	    this.wrap.update(value);
     }
 });
