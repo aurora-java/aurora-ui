@@ -209,7 +209,7 @@ $A.request = function(url, para, success, errorCall, scope, failureCall){
 								errorCall.call(scope, res);
 							}else{
 								if(res.error.message)
-								    $A.showWarningMessage('警告', res.error.message);
+								    $A.showWarningMessage('警告', res.error.message,null,400,150);
 								else
 								    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
 							}	
@@ -537,6 +537,7 @@ $A.Masker = function(){
     var m = {
         container: {},
         mask : function(el,msg){
+        	if($A.Masker.container[el])return;
         	msg = msg||'正在操作...';
             var w = Ext.fly(el).getWidth();
             var h = Ext.fly(el).getHeight();//display:none;
@@ -726,10 +727,20 @@ $A.parseDate = function(str){
 	}      
   	return null;      
 }
-Aurora.formateDate = function(date){
+$A.getRenderer = function(renderer){
+	var rder;
+    if(renderer.indexOf('Aurora.') != -1){
+        rder = $A[renderer.substr(7,renderer.length)]
+    }else{
+        rder = window[renderer];
+    }
+    return rder;
+}
+
+$A.formateDate = function(date){
 	return date.format('isoDate');
 }
-Aurora.formateDateTime = function(date){
+$A.formateDateTime = function(date){
 	if(!date)return '';
 	if(date.getFullYear){
 		return date.getFullYear() + 
@@ -743,6 +754,25 @@ Aurora.formateDateTime = function(date){
 		return date
 	}
 }
+$A.formatNumber = function(value){
+    var ps = String(value).split('.');
+    var sub = (ps.length==2)?'.'+ps[1]:'';
+    var whole = ps[0];
+    var r = /(\d+)(\d{3})/;
+    while (r.test(whole)) {
+        whole = whole.replace(r, '$1' + ',' + '$2');
+    }
+    v = whole + sub;
+    return v;   
+}
+$A.removeNumberFormat = function(rv){
+    rv = String(rv||'');
+    while (rv.indexOf(',')!=-1) {
+        rv = rv.replace(',', '');
+    }
+    return isNaN(rv) ? parseFloat(rv) : rv;
+}
+
 $A.EventManager = Ext.extend(Ext.util.Observable,{
 	constructor: function() {
 		$A.EventManager.superclass.constructor.call(this);
