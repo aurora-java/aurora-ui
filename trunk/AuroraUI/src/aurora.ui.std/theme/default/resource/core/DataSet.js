@@ -38,7 +38,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		this.loadData(config.datas);
     		//this.locate(this.currentIndex); //不确定有没有影响
     	}
-    	if(config.autoQuery === true) this.query();
+    	if(config.autoQuery === true) {
+            var sf = this;
+            Ext.onReady(function(){
+               sf.query(); 
+            });
+    	}
     },
     destroy : function(){
     	if(this.bindtarget&&this.bindname){
@@ -998,7 +1003,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	       	}
 	       	r.clear();
     	}
-//    	this.fireEvent("indexchange", this, this.getCurrentRecord());
     },
     onSubmitFailed : function(res){
     	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
@@ -1006,10 +1010,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     onLoadSuccess : function(res){
     	if(res == null) return;
-//    	if(!res.result.record) return;
     	if(!res.result.record) res.result.record = [];
     	var records = [].concat(res.result.record);
-//    	var total = res.result.record.totalCount;
     	var total = res.result.totalCount;
     	var datas = [];
     	if(records.length > 0){

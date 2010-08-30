@@ -135,7 +135,7 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 			$A.showErrorMessage('404错误', '未找到 "'+ response.statusText+'"',null,400,150);
 			break;
 		case 500:
-            $A.showErrorMessage(response.status + '错误', response.responseText,null,400,250);
+            $A.showErrorMessage(response.status + '错误', response.responseText,null,500,300);
             break;
 		default:
 			$A.showErrorMessage('错误', response.statusText);
@@ -165,13 +165,13 @@ $A.getViewportWidth = function() {
         return self.innerWidth;
     }
 }
-$A.recordSize = function(){
-    var w = $A.getViewportWidth();
-    var h = $A.getViewportHeight();
-    document.cookie = "vw="+w;
-    document.cookie = "vh="+h;
-}
-$A.recordSize();
+//$A.recordSize = function(){
+//    var w = $A.getViewportWidth();
+//    var h = $A.getViewportHeight();
+//    document.cookie = "vw="+w;
+//    document.cookie = "vh="+h;
+//}
+//$A.recordSize();
 
 $A.request = function(url, para, success, errorCall, scope, failureCall){
 	$A.manager.fireEvent('ajaxstart', url, para);
@@ -539,13 +539,14 @@ $A.Masker = function(){
         mask : function(el,msg){
         	if($A.Masker.container[el])return;
         	msg = msg||'正在操作...';
-            var w = Ext.fly(el).getWidth();
-            var h = Ext.fly(el).getHeight();//display:none;
+        	var el = Ext.get(el);
+            var w = el.getWidth();
+            var h = el.getHeight();//display:none;
             var p = '<div class="aurora-mask"  style="left:0px;top:0px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
-            var masker = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
-            var zi = Ext.fly(el).getStyle('z-index') == 'auto' ? 0 : Ext.fly(el).getStyle('z-index');
+            var masker = Ext.get(Ext.DomHelper.append(el.parent(),p));
+            var zi = el.getStyle('z-index') == 'auto' ? 0 : el.getStyle('z-index');
             masker.setStyle('z-index', zi + 1);
-            masker.setXY(Ext.fly(el).getXY());
+            masker.setXY(el.getXY());
             var sp = masker.child('span');
             var size = $A.TextMetrics.measure(sp,msg);
             sp.setLeft((w-size.width)/2)
@@ -988,7 +989,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		this.loadData(config.datas);
     		//this.locate(this.currentIndex); //不确定有没有影响
     	}
-    	if(config.autoQuery === true) this.query();
+    	if(config.autoQuery === true) {
+            var sf = this;
+            Ext.onReady(function(){
+               sf.query(); 
+            });
+    	}
     },
     destroy : function(){
     	if(this.bindtarget&&this.bindname){
@@ -1948,7 +1954,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	       	}
 	       	r.clear();
     	}
-//    	this.fireEvent("indexchange", this, this.getCurrentRecord());
     },
     onSubmitFailed : function(res){
     	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
@@ -1956,10 +1961,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     onLoadSuccess : function(res){
     	if(res == null) return;
-//    	if(!res.result.record) return;
     	if(!res.result.record) res.result.record = [];
     	var records = [].concat(res.result.record);
-//    	var total = res.result.record.totalCount;
     	var total = res.result.totalCount;
     	var datas = [];
     	if(records.length > 0){
@@ -2343,14 +2346,6 @@ $A.Record.Field.prototype = {
 	 */
 	isReadOnly : function(){
         return this.getPropertity('readonly');
-	},
-	/**
-     * 当前Field是否需要千分位格式.
-     * @return {Boolean} numberformat 是否千分位显示
-     */
-	isNumberFormat : function(){
-		var r = this.getPropertity('numberformat');
-        return r ? r : false;
 	},
 	/**
 	 * 设置当前Field的数据集.
@@ -3323,6 +3318,7 @@ $A.Radio = Ext.extend($A.Component, {
 	readonlyUncheckedCss:'item-radio-img-readonly-u',
 //	optionCss:'item-radio-option',
 	imgCss:'item-radio-img',
+	valueField:'value',
 	constructor: function(config){
 		config.checked = config.checked || false;
 		config.readonly = config.readonly || false;
@@ -3332,6 +3328,7 @@ $A.Radio = Ext.extend($A.Component, {
 		$A.Radio.superclass.initComponent.call(this, config);
 		this.wrap=Ext.get(this.id);	
 		this.nodes = Ext.DomQuery.select('.item-radio-option',this.wrap.dom);
+		this.select(this.selectIndex);
 	},	
 	processListener: function(ou){
     	this.wrap[ou]('click',this.onClick,this);
@@ -3352,14 +3349,14 @@ $A.Radio = Ext.extend($A.Component, {
             var vi = this.getValueItem();
             var i = this.options.indexOf(vi);
             if(i+1 < this.options.length){
-                var v = this.options[i+1]['value'];
+                var v = this.options[i+1][this.valueField];
                 this.setValue(v)
             }
         }else if(keyCode==38){
             var vi = this.getValueItem();
             var i = this.options.indexOf(vi);
             if(i-1 >=0){
-                var v = this.options[i-1]['value'];
+                var v = this.options[i-1][this.valueField];
                 this.setValue(v)
             }
         }
@@ -3387,12 +3384,18 @@ $A.Radio = Ext.extend($A.Component, {
 	   var r = null;
 	   for(var i=0;i<l;i++){
 	       var o = this.options[i];
-	       if(o['value']==v){
+	       if(o[this.valueField]==v){
 	           r = o;
 	           break;
 	       }
 	   }	   
 	   return r;
+	},
+	select : function(i){
+		var v = this.getItemValue(i);
+		if(v){
+			this.setValue(v);
+		}
 	},
 	getValue : function(){
     	var v = this.value;
