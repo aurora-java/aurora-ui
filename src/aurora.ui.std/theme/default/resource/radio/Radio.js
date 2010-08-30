@@ -13,6 +13,7 @@ $A.Radio = Ext.extend($A.Component, {
 	readonlyUncheckedCss:'item-radio-img-readonly-u',
 //	optionCss:'item-radio-option',
 	imgCss:'item-radio-img',
+	valueField:'value',
 	constructor: function(config){
 		config.checked = config.checked || false;
 		config.readonly = config.readonly || false;
@@ -22,6 +23,7 @@ $A.Radio = Ext.extend($A.Component, {
 		$A.Radio.superclass.initComponent.call(this, config);
 		this.wrap=Ext.get(this.id);	
 		this.nodes = Ext.DomQuery.select('.item-radio-option',this.wrap.dom);
+		this.select(this.selectIndex);
 	},	
 	processListener: function(ou){
     	this.wrap[ou]('click',this.onClick,this);
@@ -42,14 +44,14 @@ $A.Radio = Ext.extend($A.Component, {
             var vi = this.getValueItem();
             var i = this.options.indexOf(vi);
             if(i+1 < this.options.length){
-                var v = this.options[i+1]['value'];
+                var v = this.options[i+1][this.valueField];
                 this.setValue(v)
             }
         }else if(keyCode==38){
             var vi = this.getValueItem();
             var i = this.options.indexOf(vi);
             if(i-1 >=0){
-                var v = this.options[i-1]['value'];
+                var v = this.options[i-1][this.valueField];
                 this.setValue(v)
             }
         }
@@ -77,12 +79,18 @@ $A.Radio = Ext.extend($A.Component, {
 	   var r = null;
 	   for(var i=0;i<l;i++){
 	       var o = this.options[i];
-	       if(o['value']==v){
+	       if(o[this.valueField]==v){
 	           r = o;
 	           break;
 	       }
 	   }	   
 	   return r;
+	},
+	select : function(i){
+		var v = this.getItemValue(i);
+		if(v){
+			this.setValue(v);
+		}
 	},
 	getValue : function(){
     	var v = this.value;

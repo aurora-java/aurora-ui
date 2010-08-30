@@ -9,6 +9,7 @@
 $A.Tree = Ext.extend($A.Component,{
 	constructor: function(config){
 		$A.Tree.superclass.constructor.call(this,config);
+		this.sequence = config.sequence||'sequence';
 	},
 	initComponent:function(config){
 		this.nodeHash = {};
@@ -36,16 +37,16 @@ $A.Tree = Ext.extend($A.Component,{
 	processDataSetLiestener: function(ou){
 		var ds = this.dataset;
 		if(ds){
-//			ds[ou]('metachange', this.onRefresh, this);
 			ds[ou]('update', this.onUpdate, this);
-//	    	ds[ou]('add', this.onAdd, this);
 	    	ds[ou]('load', this.onLoad, this);
+	    	ds[ou]('indexchange', this.onIndexChange, this);
+//			ds[ou]('metachange', this.onRefresh, this);
+//	    	ds[ou]('add', this.onAdd, this);
 //	    	ds[ou]('valid', this.onValid, this);
 //	    	ds[ou]('remove', this.onRemove, this);
 //	    	ds[ou]('clear', this.onLoad, this);
 //	    	ds[ou]('refresh',this.onRefresh,this);
 //	    	ds[ou]('fieldchange', this.onFieldChange, this);
-	    	ds[ou]('indexchange', this.onIndexChange, this);
 		}
 	},
 	bind: function(ds){
@@ -58,7 +59,7 @@ $A.Tree = Ext.extend($A.Component,{
     	this.onLoad();
 	},
 	onUpdate : function(ds, record, name, value){
-		if(this.parentfield == name || name == 'num'){
+		if(this.parentfield == name || name == this.sequence){
 			this.onLoad();
 		}else{
 			var node = this.nodeHash[record.id];
@@ -221,7 +222,7 @@ $A.Tree.TreeNode = function(data) {
 	this.isExpand = false;
 	
 	this.checked = this.record.get('checked') == "true";
-	this.expanded = this.record.get('expaned') == "true";
+	this.expanded = this.record.get('expanded') == "true" || this.record.get('expanded') == 1;
 
 	var children = data.children || [];
 	for(var i=0,j=children.length;i<j;i++){
@@ -271,7 +272,6 @@ $A.Tree.TreeNode.prototype={
 		if(this.getOwnerTree().showcheckbox === false) {
 			this.els['checkbox'].style.display='none';
 		}
-		
 		var text = this.record.get(this.ownerTree.displayfield)
 		if(this.isRoot() && text=='_root'){
 			this.els['itemNodeTable'].style.display='none';
@@ -419,12 +419,13 @@ $A.Tree.TreeNode.prototype={
 		this.els['text'].innerHTML=text
 	},
 	paintChildren : function(){
+		var sequence = this.getOwnerTree().sequence;
 		if(!this.childrenRendered){
 			this.els['child'].innerHTML = '';
 			this.childrenRendered = true;			
 			this.childNodes.sort(function(a, b){
-	        	var n1 = a.record.get('num')||0;
-				var n2 = b.record.get('num')||0;
+	        	var n1 = a.record.get(sequence)||Number.MAX_VALUE;
+				var n2 = b.record.get(sequence)||Number.MAX_VALUE;
 	            return n1-n2;
 	        });
 			var childNodes = this.childNodes;

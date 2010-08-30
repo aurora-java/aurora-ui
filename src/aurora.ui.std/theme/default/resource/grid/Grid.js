@@ -162,6 +162,9 @@ $A.Grid = Ext.extend($A.Component,{
             ds[ou]('update', this.onUpdate, this);
             ds[ou]('reject', this.onUpdate, this);
             ds[ou]('add', this.onAdd, this);
+            ds[ou]('submit', this.onBeforSubmit, this);
+            ds[ou]('submitfailed', this.onAfterSuccess, this);
+            ds[ou]('submitsuccess', this.onAfterSuccess, this);
             ds[ou]('beforeload', this.onBeforLoad, this);
             ds[ou]('load', this.onLoad, this);
             ds[ou]('loadfailed', this.onAjaxFailed, this);
@@ -296,6 +299,12 @@ $A.Grid = Ext.extend($A.Component,{
     },
     onBeforLoad : function(){
         $A.Masker.mask(this.wb,'正在查询数据...');
+    },
+    onBeforSubmit : function(){
+    	$A.Masker.mask(this.wb,'正在提交数据...');
+    },
+    onAfterSuccess : function(){
+        $A.Masker.unmask(this.wb);
     },
     onLoad : function(focus){
         var cb = Ext.fly(this.wrap).child('div[atype=grid.headcheck]');
