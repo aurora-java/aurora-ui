@@ -10,6 +10,7 @@ $A.Tree = Ext.extend($A.Component,{
 	constructor: function(config){
 		$A.Tree.superclass.constructor.call(this,config);
 		this.sequence = config.sequence||'sequence';
+		this.context = config.context||'';
 	},
 	initComponent:function(config){
 		this.nodeHash = {};
@@ -221,8 +222,8 @@ $A.Tree.TreeNode = function(data) {
 	this.childrenRendered = false;
 	this.isExpand = false;
 	
-	this.checked = this.record.get('checked') == "true";
-	this.expanded = this.record.get('expanded') == "true" || this.record.get('expanded') == 1;
+	this.checked = this.record.get('checked') == "Y";
+	this.expanded = this.record.get('expanded') == "Y";
 
 	var children = data.children || [];
 	for(var i=0,j=children.length;i<j;i++){
@@ -395,7 +396,7 @@ $A.Tree.TreeNode.prototype={
 		}
 		if(this.icon) {
 			this.els['icon'].className = 'node-icon';
-			this.els['icon'].src = this.icon;
+			this.els['icon'].src = ownerTree.context + this.icon;
 		}else{
 			this.els['icon'].className = 'node-icon icon-' + icon;//ownerTree.getIcon(icon);
 		}
