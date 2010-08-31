@@ -739,6 +739,7 @@ $A.getRenderer = function(renderer){
 }
 
 $A.formatDate = function(date){
+	if(!date)return '';
 	return date.format('isoDate');
 }
 $A.formatDateTime = function(date){
