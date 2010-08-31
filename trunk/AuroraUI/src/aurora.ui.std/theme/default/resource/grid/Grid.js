@@ -272,7 +272,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     renderText : function(record,col,value){
         var renderer = col.renderer;
-        if(renderer&&!Ext.isEmpty(value)){
+        if(renderer){//&&!Ext.isEmpty(value)  去掉对value是否为空的判断
             var rder = $A.getRenderer(renderer);
             if(rder == null){
                 alert("未找到"+renderer+"方法!")
