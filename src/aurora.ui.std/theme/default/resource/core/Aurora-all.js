@@ -1956,7 +1956,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     onSubmitFailed : function(res){
-    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
+    	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
 		this.fireEvent('submitfailed', this, res);		
     },
     onLoadSuccess : function(res){
