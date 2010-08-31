@@ -738,10 +738,10 @@ $A.getRenderer = function(renderer){
     return rder;
 }
 
-$A.formateDate = function(date){
+$A.formatDate = function(date){
 	return date.format('isoDate');
 }
-$A.formateDateTime = function(date){
+$A.formatDateTime = function(date){
 	if(!date)return '';
 	if(date.getFullYear){
 		return date.getFullYear() + 
