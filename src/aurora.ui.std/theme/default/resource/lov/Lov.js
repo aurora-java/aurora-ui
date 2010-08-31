@@ -116,6 +116,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		var record = this.record;
 		$A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
+        this.setRawValue('正在查询...')
 		$A.request(url, p, function(res){
 			var r = new $A.Record({});
 			if(res.result.record){
@@ -134,11 +135,12 @@ $A.Lov = Ext.extend($A.TextField,{
 		$A.SideBar.enable = $A.slideBarEnable;
 		$A.showErrorMessage('错误', res.error.message);
 	},
-	onBlur : function(e){      
-        if(!this.isEventFromComponent(e.target)){
-        	$A.Lov.superclass.onBlur.call(this,e);
-        }
-    },
+//	onBlur : function(e){      
+//        if(!this.isEventFromComponent(e.target)){
+//        	alert(1)
+//        	$A.Lov.superclass.onBlur.call(this,e);
+//        }
+//    },
 	showLovWindow : function(e){
 		e.stopEvent();
 		if(this.fetching||this.isWinOpen||this.readonly) return;
