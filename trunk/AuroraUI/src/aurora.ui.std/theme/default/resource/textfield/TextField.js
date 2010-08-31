@@ -51,7 +51,8 @@ $A.TextField = Ext.extend($A.Field,{
     onKeyPress : function(e){
     	$A.TextField.superclass.onKeyPress.call(this,e);
     	if(this.detectCapsLock) this.isCapsLock(e);
-		var keyCode = e.getKey(),code;
+		var keyCode = e.getKey();
+		var code = keyCode;
 		if(this.typecase){
         	if(this.typecase == 'upper'){
                 if(keyCode>=97 && keyCode<=122) code = keyCode - 32;
