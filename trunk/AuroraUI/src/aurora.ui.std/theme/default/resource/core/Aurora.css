@@ -221,10 +221,10 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .aurora-mask div {
     width:100%;
     height:100%;
-    filter: alpha(opacity=30);
+    filter: alpha(opacity=20);
     background-color: #000000;
-    opacity: 0.3; 
-    MozOpacity: 0.3
+    opacity: 0.2; 
+    MozOpacity: 0.2
 }
 .aurora-mask span {
 	background:url(wait.gif) no-repeat 5px 50%;

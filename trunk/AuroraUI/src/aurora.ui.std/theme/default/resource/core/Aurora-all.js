@@ -3499,17 +3499,17 @@ $A.TextField = Ext.extend($A.Field,{
     onKeyPress : function(e){
     	$A.TextField.superclass.onKeyPress.call(this,e);
     	if(this.detectCapsLock) this.isCapsLock(e);
-		var keyCode = e.getKey();
+		var keyCode = e.getKey(),code;
 		if(this.typecase){
         	if(this.typecase == 'upper'){
-                if(keyCode>=97 && keyCode<=122) keyCode = keyCode - 32;
+                if(keyCode>=97 && keyCode<=122) code = keyCode - 32;
             }else if(this.typecase == 'lower') {
-            	if(keyCode>=65 && keyCode<=90) keyCode = keyCode + 32;
+            	if(keyCode>=65 && keyCode<=90) code = keyCode + 32;
             }
             if(Ext.isIE) {
-                e.browserEvent.keyCode = keyCode;
-            }else{
-                var v = String.fromCharCode(keyCode);
+                e.browserEvent.keyCode = code;
+            }else if((keyCode>=97 && keyCode<=122)||(keyCode>=65 && keyCode<=90)){
+                var v = String.fromCharCode(code);
                 e.stopEvent();
                 var d = this.el.dom
                 var rv = this.getRawValue();
@@ -4850,6 +4850,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		var record = this.record;
 		$A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
+        this.setRawValue('正在查询...')
 		$A.request(url, p, function(res){
 			var r = new $A.Record({});
 			if(res.result.record){
@@ -4868,11 +4869,12 @@ $A.Lov = Ext.extend($A.TextField,{
 		$A.SideBar.enable = $A.slideBarEnable;
 		$A.showErrorMessage('错误', res.error.message);
 	},
-	onBlur : function(e){      
-        if(!this.isEventFromComponent(e.target)){
-        	$A.Lov.superclass.onBlur.call(this,e);
-        }
-    },
+//	onBlur : function(e){      
+//        if(!this.isEventFromComponent(e.target)){
+//        	alert(1)
+//        	$A.Lov.superclass.onBlur.call(this,e);
+//        }
+//    },
 	showLovWindow : function(e){
 		e.stopEvent();
 		if(this.fetching||this.isWinOpen||this.readonly) return;
