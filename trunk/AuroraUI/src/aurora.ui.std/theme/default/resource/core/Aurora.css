@@ -11,8 +11,8 @@ html, body {
 	margin:0; 
 	padding:0;
 	background-color:#ffffff;
-	font-family: 微软雅黑,sans-serif !important;/**/
-	font-family: 微软雅黑,tahoma, arial, sans-serif,helvetica;/**/
+	font-family: 微软雅黑,新宋体,sans-serif !important;/**/
+	font-family: 微软雅黑,新宋体,tahoma, arial, sans-serif,helvetica;/**/
 	font-size:12px !important;
 	font-size:11px;
 }
