@@ -947,8 +947,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	
     	//if(p.length > 0) {
-    	   this.fireEvent("submit", this);
-	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
+            this.fireEvent("submit", this);
+            $A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
     	//}
     },
     
