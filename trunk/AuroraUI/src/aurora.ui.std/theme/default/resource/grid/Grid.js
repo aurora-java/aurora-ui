@@ -8,7 +8,7 @@
  */
 $A.Grid = Ext.extend($A.Component,{
     bgc:'background-color',
-    scor:'#dfeaf5',//'#d9e7ed',
+    scor:'#dfeaf5',
     ocor:'#ffe3a8',
     cecls:'cell-editor',
     nbcls:'item-notBlank',
@@ -48,7 +48,6 @@ $A.Grid = Ext.extend($A.Component,{
         this.initTemplate();
     },
     processListener: function(ou){
-//      $A.Grid.superclass.initComponent.call(this, ou);//???
         this.wrap[ou]("mouseover", this.onMouseOver, this);
         this.wrap[ou]("mouseout", this.onMouseOut, this);
         this.wrap[ou]('click',this.focus,this);
@@ -181,7 +180,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     bind : function(ds){
         if(typeof(ds)==='string'){
-            ds = $(ds);
+            ds = $A.CmpManager.get(ds);
             if(!ds) return;
         }
         this.dataset = ds;
@@ -306,7 +305,9 @@ $A.Grid = Ext.extend($A.Component,{
     onAfterSuccess : function(){
         $A.Masker.unmask(this.wb);
     },
+    preLoad : function(){},
     onLoad : function(focus){
+    	this.preLoad();
         var cb = Ext.fly(this.wrap).child('div[atype=grid.headcheck]');
         if(this.selectable && this.selectionmodel=='multiple')this.setCheckBoxStatus(cb,false);
         if(this.lb)
