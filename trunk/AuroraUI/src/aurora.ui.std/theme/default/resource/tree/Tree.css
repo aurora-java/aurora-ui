@@ -35,13 +35,13 @@
 	white-space: nowrap;
 }
 .checkbox0 {
-	background:url(../tree/checkbox_0.gif) no-repeat;
+	background:url(../tree/checkbox_0.gif) no-repeat 50%;
 }
 .checkbox1 {
-	background:url(../tree/checkbox_1.gif) no-repeat;
+	background:url(../tree/checkbox_1.gif) no-repeat 50%;
 }
 .checkbox2 {
-	background:url(../tree/checkbox_2.gif) no-repeat;
+	background:url(../tree/checkbox_2.gif) no-repeat 50%;
 }
 .icon-root {
 	background:url(../tree/folder.gif) no-repeat;
@@ -60,37 +60,37 @@
 	background:url(../tree/empty.gif) no-repeat;
 }
 .clip-plus {
-	background:url(../tree/plus.gif) no-repeat;
+	background:url(../tree/plus.gif) no-repeat 50%;
 }
 .clip-plusBottom {
-	background:url(../tree/plusbottom.gif) no-repeat;
+	background:url(../tree/plusbottom.gif) no-repeat 50%;
 }
 .clip-plusTop {
-	background:url(../tree/plustop.gif) no-repeat;
+	background:url(../tree/plustop.gif) no-repeat 50%;
 }
 .clip-join {
-	background:url(../tree/join.gif) no-repeat;
+	background:url(../tree/join.gif) no-repeat 50%;
 }
 .clip-joinTop {
-	background:url(../tree/jointop.gif) no-repeat;
+	background:url(../tree/jointop.gif) no-repeat 50%;
 }
 .clip-joinBottom {
-	background:url(../tree/joinbottom.gif) no-repeat;
+	background:url(../tree/joinbottom.gif) no-repeat 50%;
 }
 .clip-minus {
-	background:url(../tree/minus.gif) no-repeat;
+	background:url(../tree/minus.gif) no-repeat 50%;
 }
 .clip-minusTop {
-	background:url(../tree/minustop.gif) no-repeat;
+	background:url(../tree/minustop.gif) no-repeat 50%;
 }
 .clip-minusBottom {
-	background:url(../tree/minusbottom.gif) no-repeat;
+	background:url(../tree/minusbottom.gif) no-repeat 50%;
 }
 .node-empty {
 	background:url(../tree/empty.gif) no-repeat;
 }
 .node-line {
-	background: url(../tree/line.gif) no-repeat;
+	background: url(../tree/line.gif) no-repeat 50% 50%;
 }
 /*
 .item-tree a {
