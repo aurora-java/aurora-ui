@@ -65,7 +65,7 @@ $A.DateField = Ext.extend($A.Component, {
     },
     mouseOver: function(e){
     	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
-    	if(Ext.fly(e.target).hasClass('item-day') && Ext.fly(e.target).getAttribute('_date') != '0'){
+    	if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
     		this.overTd = e.target; 
     		Ext.fly(this.overTd).addClass('dateover');
     	}
@@ -76,7 +76,7 @@ $A.DateField = Ext.extend($A.Component, {
     		
     	}else{
     		if(this.selectedDay) Ext.fly(this.selectedDay).removeClass('onSelect');
-    		if(Ext.fly(e.target).hasClass('item-day') && Ext.fly(e.target).getAttribute('_date') != '0'){
+    		if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
 	    		this.selectedDay = e.target; 
 	    		this.onSelectDay(this.selectedDay);
 	    		this.fireEvent('select', this, new Date(parseInt(Ext.fly(e.target).getAttribute('_date'))));
