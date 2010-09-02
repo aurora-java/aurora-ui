@@ -1899,8 +1899,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	
     	//if(p.length > 0) {
-    	   this.fireEvent("submit", this);
-	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
+            this.fireEvent("submit", this);
+            $A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
     	//}
     },
     
@@ -3367,9 +3367,9 @@ $A.Radio = Ext.extend($A.Component, {
 		this.addEvents('click','keydown','enterdown');    
 	},
 	setValue:function(value,silent){
-		this.value = value;
-		this.initStatus();
+		if(value=='')return;
 		$A.Radio.superclass.setValue.call(this,value, silent);
+		this.initStatus();
 		this.focus();
 	},
 	getItem: function(){
@@ -4085,7 +4085,7 @@ $A.DateField = Ext.extend($A.Component, {
     },
     mouseOver: function(e){
     	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
-    	if(Ext.fly(e.target).hasClass('item-day') && e.target.date != 0){
+    	if(Ext.fly(e.target).hasClass('item-day') && Ext.fly(e.target).getAttribute('_date') != '0'){
     		this.overTd = e.target; 
     		Ext.fly(this.overTd).addClass('dateover');
     	}
@@ -4096,10 +4096,10 @@ $A.DateField = Ext.extend($A.Component, {
     		
     	}else{
     		if(this.selectedDay) Ext.fly(this.selectedDay).removeClass('onSelect');
-    		if(Ext.fly(e.target).hasClass('item-day') && e.target.date != 0){
+    		if(Ext.fly(e.target).hasClass('item-day') && Ext.fly(e.target).getAttribute('_date') != '0'){
 	    		this.selectedDay = e.target; 
 	    		this.onSelectDay(this.selectedDay);
-	    		this.fireEvent('select', this, this.selectedDay.date);
+	    		this.fireEvent('select', this, new Date(parseInt(Ext.fly(e.target).getAttribute('_date'))));
 	    	}
     	}
     },
@@ -4190,14 +4190,14 @@ $A.DateField = Ext.extend($A.Component, {
 				var cell = document.createElement("td"); 
 				cell.className = "item-day";
 				cell.innerHTML = "&nbsp;";
-				Ext.fly(cell).set({'date':0});
+				Ext.fly(cell).set({'_date':'0'});
 				if(arr.length){
 					var d = arr.shift();
 					if(d){
 						cell.innerHTML = d;
 						this.days[d] = cell;
 						var on = new Date(this.year, this.month - 1, d);
-						Ext.fly(cell).set({'date':on});
+						Ext.fly(cell).set({'_date':''+on.getTime()});
 						//判断是否今日
 						this.isSame(on, new Date()) && this.onToday(cell);
 						//判断是否选择日期
@@ -4871,12 +4871,11 @@ $A.Lov = Ext.extend($A.TextField,{
 		$A.SideBar.enable = $A.slideBarEnable;
 		$A.showErrorMessage('错误', res.error.message);
 	},
-//	onBlur : function(e){      
-//        if(!this.isEventFromComponent(e.target)){
-//        	alert(1)
-//        	$A.Lov.superclass.onBlur.call(this,e);
-//        }
-//    },
+	onBlur : function(e){      
+        if(!this.isEventFromComponent(e.target)){
+        	$A.Lov.superclass.onBlur.call(this,e);
+        }
+    },
 	showLovWindow : function(e){
 		e.stopEvent();
 		if(this.fetching||this.isWinOpen||this.readonly) return;
