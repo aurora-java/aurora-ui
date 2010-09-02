@@ -61,9 +61,9 @@ $A.Radio = Ext.extend($A.Component, {
 		this.addEvents('click','keydown','enterdown');    
 	},
 	setValue:function(value,silent){
-		this.value = value;
-		this.initStatus();
+		if(value=='')return;
 		$A.Radio.superclass.setValue.call(this,value, silent);
+		this.initStatus();
 		this.focus();
 	},
 	getItem: function(){
