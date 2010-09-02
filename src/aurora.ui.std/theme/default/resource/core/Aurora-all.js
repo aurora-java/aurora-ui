@@ -3584,9 +3584,10 @@ $A.NumberField = Ext.extend($A.TextField,{
     	$A.NumberField.superclass.onFocus.call(this,e);
     },
     parseValue : function(value){
-    	if(!this.allownegative)value = String(value).replace('-','');
+    	value = String(value) 
+    	if(!this.allownegative)value = value.replace('-','');
     	if(!this.allowdecimals)value = value.indexOf(".")==-1?value:value.substring(0,value.indexOf("."));
-        value = parseFloat(String(value).replace(this.decimalSeparator, "."));
+        value = parseFloat(value.replace(this.decimalSeparator, "."));
         return isNaN(value) ? '' : value;
     },
     fixPrecision : function(value){
