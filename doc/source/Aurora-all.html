@@ -19,15 +19,13 @@
  * @author 牛佳庆
  * @singleton
  */
-$A = Aurora = {version: '1.0',revision:'$Rev$'};
+$A = Aurora = {version: '1.0',revision:'$Rev: 1282 $'};
 $A.firstFire = false;
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
 }
 
 Ext.fly(window).on("resize", $A.fireWindowResize, this);
-
-
 
 $A.cache = {};
 $A.cmps = {};
@@ -145,7 +143,7 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 			$A.showErrorMessage('404错误', '未找到 "'+ response.statusText+'"',null,400,150);
 			break;
 		case 500:
-            $A.showErrorMessage(response.status + '错误', response.responseText,null,400,250);
+            $A.showErrorMessage(response.status + '错误', response.responseText,null,500,300);
             break;
 		default:
 			$A.showErrorMessage('错误', response.statusText);
@@ -175,15 +173,15 @@ $A.getViewportWidth = function() {
         return self.innerWidth;
     }
 }
-$A.recordSize = function(){
-    var w = $A.getViewportWidth();
-    var h = $A.getViewportHeight();
-    document.cookie = "vw="+w;
-    document.cookie = "vh="+h;
-}
-$A.recordSize();
+//$A.recordSize = function(){
+//    var w = $A.getViewportWidth();
+//    var h = $A.getViewportHeight();
+//    document.cookie = "vw="+w;
+//    document.cookie = "vh="+h;
+//}
+//$A.recordSize();
 
-$A.request = function(url, para, success, failed, scope){
+$A.request = function(url, para, success, errorCall, scope, failureCall){
 	$A.manager.fireEvent('ajaxstart', url, para);
 	if($A.logWindow){
 		$A['_startTime'] = new Date();
@@ -215,11 +213,11 @@ $A.request = function(url, para, success, failed, scope){
 					if(res && !res.success){
 						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 						if(res.error){
-							if(failed) {
-								failed.call(scope, res);
+							if(errorCall) {
+								errorCall.call(scope, res);
 							}else{
 								if(res.error.message)
-								    $A.showWarningMessage('警告', res.error.message);
+								    $A.showWarningMessage('警告', res.error.message,null,400,150);
 								else
 								    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
 							}	
@@ -229,6 +227,9 @@ $A.request = function(url, para, success, failed, scope){
 						if(success)success.call(scope,res);
 					}
 				}
+			},
+			failure : function(response, opts){
+                if(failureCall)failureCall.call(scope, response, opts);
 			},
 			scope: scope
 		});
@@ -540,6 +541,36 @@ $A.Cover = function(){
 	}
 	return m;
 }();
+$A.Masker = function(){
+    var m = {
+        container: {},
+        mask : function(el,msg){
+        	if($A.Masker.container[el])return;
+        	msg = msg||'正在操作...';
+        	var el = Ext.get(el);
+            var w = el.getWidth();
+            var h = el.getHeight();//display:none;
+            var p = '<div class="aurora-mask"  style="left:0px;top:0px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
+            var masker = Ext.get(Ext.DomHelper.append(el.parent(),p));
+            var zi = el.getStyle('z-index') == 'auto' ? 0 : el.getStyle('z-index');
+            masker.setStyle('z-index', zi + 1);
+            masker.setXY(el.getXY());
+            var sp = masker.child('span');
+            var size = $A.TextMetrics.measure(sp,msg);
+            sp.setLeft((w-size.width)/2)
+            $A.Masker.container[el] = masker;
+        },
+        unmask : function(el){
+            var masker = $A.Masker.container[el];
+            if(masker) {
+                Ext.fly(masker).remove();
+                $A.Masker.container[el] = null;
+                delete $A.Masker.container[el];
+            }
+        }
+    }
+    return m;
+}();
 Ext.util.JSON.encodeDate = function(o){
 	var pad = function(n) {
         return n < 10 ? "0" + n : n;
@@ -705,10 +736,21 @@ $A.parseDate = function(str){
 	}      
   	return null;      
 }
-Aurora.formateDate = function(date){
+$A.getRenderer = function(renderer){
+	var rder;
+    if(renderer.indexOf('Aurora.') != -1){
+        rder = $A[renderer.substr(7,renderer.length)]
+    }else{
+        rder = window[renderer];
+    }
+    return rder;
+}
+
+$A.formatDate = function(date){
+	if(!date)return '';
 	return date.format('isoDate');
 }
-Aurora.formateDateTime = function(date){
+$A.formatDateTime = function(date){
 	if(!date)return '';
 	if(date.getFullYear){
 		return date.getFullYear() + 
@@ -722,6 +764,25 @@ Aurora.formateDateTime = function(date){
 		return date
 	}
 }
+$A.formatNumber = function(value){
+    var ps = String(value).split('.');
+    var sub = (ps.length==2)?'.'+ps[1]:'';
+    var whole = ps[0];
+    var r = /(\d+)(\d{3})/;
+    while (r.test(whole)) {
+        whole = whole.replace(r, '$1' + ',' + '$2');
+    }
+    v = whole + sub;
+    return v;   
+}
+$A.removeNumberFormat = function(rv){
+    rv = String(rv||'');
+    while (rv.indexOf(',')!=-1) {
+        rv = rv.replace(',', '');
+    }
+    return isNaN(rv) ? parseFloat(rv) : rv;
+}
+
 $A.EventManager = Ext.extend(Ext.util.Observable,{
 	constructor: function() {
 		$A.EventManager.superclass.constructor.call(this);
@@ -937,7 +998,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		this.loadData(config.datas);
     		//this.locate(this.currentIndex); //不确定有没有影响
     	}
-    	if(config.autoQuery === true) this.query();
+    	if(config.autoQuery === true) {
+            var sf = this;
+            Ext.onReady(function(){
+               sf.query(); 
+            });
+    	}
+    	if(config.autoCreate==true) this.create();
     },
     destroy : function(){
     	if(this.bindtarget&&this.bindname){
@@ -1038,7 +1105,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	return c;
     },
     initEvents : function(){
-    	this.addEvents(  
+    	this.addEvents( 
+            <div id="event-Aurora.DataSet-ajaxfailed"></div>/**
+             * @event ajaxfailed
+             * ajax调用失败.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+            'ajaxfailed',
     	    <div id="event-Aurora.DataSet-beforecreate"></div>/**
              * @event beforecreate
              * 数据创建前事件.
@@ -1081,6 +1154,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Number} index 指针.
              */
 	        'remove',
+	        <div id="event-Aurora.DataSet-beforeremove"></div>/**
+             * @event beforeremove
+             * 数据删除前.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+            'beforeremove',
 	        <div id="event-Aurora.DataSet-update"></div>/**
              * @event update
              * 数据更新事件.
@@ -1097,12 +1176,24 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              */
 	        'clear',
+	        <div id="event-Aurora.DataSet-beforeload"></div>/**
+             * @event beforeload
+             * 准备加载数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
+	        'beforeload',
             <div id="event-Aurora.DataSet-load"></div>/**
              * @event load
              * 加载数据事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              */ 
 	        'load',
+	        <div id="event-Aurora.DataSet-loadfailed"></div>/**
+             * @event loadfailed
+             * 加载数据失败.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
+            'loadfailed',
 	        <div id="event-Aurora.DataSet-refresh"></div>/**
              * @event refresh
              * 刷新事件.
@@ -1148,6 +1239,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Object} value 重置的值.
              */
 	        'reject',
+	        <div id="event-Aurora.DataSet-submit"></div>/**
+             * @event submit
+             * 数据提交事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+	        'submit',
 	        <div id="event-Aurora.DataSet-submitsuccess"></div>/**
              * @event submitsuccess
              * 数据提交成功事件.
@@ -1156,7 +1253,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Array} datas 提交的数据.
              * @param {Object} res 返回的json对象.
              */
-	        'submitsuccess',
+            'submitsuccess',
 	        <div id="event-Aurora.DataSet-submitfailed"></div>/**
              * @event submitfailed
              * 数据提交失败事件.
@@ -1219,7 +1316,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.fireEvent("load", this);
     },
     sort : function(f, direction){
-    	//TODO:排序
+    	//TODO:grid已经实现服务端排序
     },
     create : function(data, valid){
     	this.fireEvent("beforecreate", this);
@@ -1340,7 +1437,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    		p[i] = Ext.apply(p[i],this.spara)
 //    	}
     	if(p.length > 0) {
-	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this);
+    		this.fireEvent("beforeremove", this);
+	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
     	}
     
     },
@@ -1720,6 +1818,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var q = {};
     	if(r != null) Ext.apply(q, r.data);
     	Ext.apply(q, this.qpara);
+    	for(var k in q){
+    	   var v = q[k];
+    	   if(Ext.isEmpty(v,false)) delete q[k];
+    	}
     	var para = 'pagesize='+this.pageSize + 
     				  '&pagenum='+this.currentPage+
     				  '&_fetchall='+this.fetchAll+
@@ -1732,7 +1834,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		url = this.queryUrl + '&' + para;
     	}
     	this.loading = true;
-    	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this);
+    	this.fireEvent("beforeload", this);
+    	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this,this.onAjaxFailed);
     },
     <div id="method-Aurora.DataSet-isModified"></div>/**
      * 判断当前数据集是否发生改变.
@@ -1805,7 +1908,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	
     	//if(p.length > 0) {
-	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
+            this.fireEvent("submit", this);
+            $A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
     	//}
     },
     
@@ -1860,18 +1964,15 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	       	}
 	       	r.clear();
     	}
-//    	this.fireEvent("indexchange", this, this.getCurrentRecord());
     },
     onSubmitFailed : function(res){
-    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
+    	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
 		this.fireEvent('submitfailed', this, res);		
     },
     onLoadSuccess : function(res){
     	if(res == null) return;
-//    	if(!res.result.record) return;
     	if(!res.result.record) res.result.record = [];
     	var records = [].concat(res.result.record);
-//    	var total = res.result.record.totalCount;
     	var total = res.result.totalCount;
     	var datas = [];
     	if(records.length > 0){
@@ -1890,9 +1991,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         $A.SideBar.enable = $A.slideBarEnable;
 	    
     },
+    onAjaxFailed : function(res,opt){
+        this.fireEvent('ajaxfailed', this);
+    },
     onLoadFailed : function(res){
+    	this.fireEvent('loadfailed', this);
     	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
-//    	alert(res.error.message)
     	this.loading = false;
     	$A.SideBar.enable = $A.slideBarEnable;
     },
@@ -2248,10 +2352,10 @@ $A.Record.Field.prototype = {
 	},
 	<div id="method-Aurora.Record.Field-isReadOnly"></div>/**
 	 * 当前Field是否只读.
-	 * @param {Boolean} readonly 是否只读
+	 * @return {Boolean} readonly 是否只读
 	 */
 	isReadOnly : function(){
-	   return this.getPropertity('readonly');
+        return this.getPropertity('readonly');
 	},
 	<div id="method-Aurora.Record.Field-setOptions"></div>/**
 	 * 设置当前Field的数据集.
@@ -2566,16 +2670,22 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	if(silent === true)return;
     	if(this.binder){
     		this.record = this.binder.ds.getCurrentRecord();
-    		if(this.record == null){    			
-    			//TODO:应该先create()再编辑
-    			var data = {};
-    			data[this.binder.name] = v;
-    			this.record = this.binder.ds.create(data,false);
-    			this.record.validate(this.binder.name);
-    		}else{
-    			this.record.set(this.binder.name,v);
-	    		if(v=='') delete this.record.data[this.binder.name];	    		
-    		}
+    		if(this.record == null){
+                this.record = this.binder.ds.create({},false);                
+            }
+            this.record.set(this.binder.name,v);
+            if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
+           
+//    		if(this.record == null){    			
+//    			//TODO:应该先create()再编辑
+//    			var data = {};
+////    			data[this.binder.name] = v;
+//    			this.record = this.binder.ds.create(data,false);
+//    			this.record.validate(this.binder.name);
+//    		}else{
+//    			this.record.set(this.binder.name,v);
+//	    		if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
+//    		}
     	}
     	if(ov!=v){
             this.fireEvent('change', this, v, ov);
@@ -2980,7 +3090,6 @@ $A.ImageCode = Ext.extend($A.Component,{
 $A.Label = Ext.extend($A.Component,{
     onUpdate : function(ds, record, name, value){
     	if(this.binder.ds == ds && this.binder.name == name){
-//    	if(this.binder.ds == ds && this.binder.name.toLowerCase() == name.toLowerCase()){
 	    	this.updateLabel(record,name,value);
     	}
     },
@@ -2996,13 +3105,11 @@ $A.Label = Ext.extend($A.Component,{
     	}
     },
     updateLabel: function(record,name,value){
-    	if(value){
-	    	if(this.renderer){
-	    		var rder = window[this.renderer]
-	    		value = rder.call(window,value,record, name);
-	    	}
-	    	this.wrap.update(value);
-    	}
+        var rder = $A.getRenderer(this.renderer);
+	    if(rder!=null){
+    		value = rder.call(window,value,record, name);
+	    }
+	    this.wrap.update(value);
     }
 });
 /**
@@ -3215,12 +3322,13 @@ $A.CheckBox = Ext.extend($A.Component,{
  * @param {Object} config 配置对象. 
  */
 $A.Radio = Ext.extend($A.Component, {
-	checkedCss:'item-radio-img-c',
-	uncheckedCss:'item-radio-img-u',
-	readonyCheckedCss:'item-radio-img-readonly-c',
-	readonlyUncheckedCss:'item-radio-img-readonly-u',
+	ccs:'item-radio-img-c',
+	ucs:'item-radio-img-u',
+	rcc:'item-radio-img-readonly-c',
+	ruc:'item-radio-img-readonly-u',
 //	optionCss:'item-radio-option',
 	imgCss:'item-radio-img',
+	valueField:'value',
 	constructor: function(config){
 		config.checked = config.checked || false;
 		config.readonly = config.readonly || false;
@@ -3230,6 +3338,8 @@ $A.Radio = Ext.extend($A.Component, {
 		$A.Radio.superclass.initComponent.call(this, config);
 		this.wrap=Ext.get(this.id);	
 		this.nodes = Ext.DomQuery.select('.item-radio-option',this.wrap.dom);
+		this.initStatus();
+//		this.select(this.selectIndex);
 	},	
 	processListener: function(ou){
     	this.wrap[ou]('click',this.onClick,this);
@@ -3250,14 +3360,14 @@ $A.Radio = Ext.extend($A.Component, {
             var vi = this.getValueItem();
             var i = this.options.indexOf(vi);
             if(i+1 < this.options.length){
-                var v = this.options[i+1]['value'];
+                var v = this.options[i+1][this.valueField];
                 this.setValue(v)
             }
         }else if(keyCode==38){
             var vi = this.getValueItem();
             var i = this.options.indexOf(vi);
             if(i-1 >=0){
-                var v = this.options[i-1]['value'];
+                var v = this.options[i-1][this.valueField];
                 this.setValue(v)
             }
         }
@@ -3267,9 +3377,9 @@ $A.Radio = Ext.extend($A.Component, {
 		this.addEvents('click','keydown','enterdown');    
 	},
 	setValue:function(value,silent){
-		this.value = value;
-		this.initStatus();
+		if(value=='')return;
 		$A.Radio.superclass.setValue.call(this,value, silent);
+		this.initStatus();
 		this.focus();
 	},
 	getItem: function(){
@@ -3285,12 +3395,18 @@ $A.Radio = Ext.extend($A.Component, {
 	   var r = null;
 	   for(var i=0;i<l;i++){
 	       var o = this.options[i];
-	       if(o['value']==v){
+	       if(o[this.valueField]==v){
 	           r = o;
 	           break;
 	       }
 	   }	   
 	   return r;
+	},
+	select : function(i){
+		var v = this.getItemValue(i);
+		if(v){
+			this.setValue(v);
+		}
 	},
 	getValue : function(){
     	var v = this.value;
@@ -3307,15 +3423,15 @@ $A.Radio = Ext.extend($A.Component, {
 		var l=this.nodes.length;
 		for (var i = 0; i < l; i++) {
 			var node=Ext.fly(this.nodes[i]).child('.'+this.imgCss);		
-			node.removeClass(this.checkedCss);
-			node.removeClass(this.uncheckedCss);
-			node.removeClass(this.readonyCheckedCss);
-			node.removeClass(this.readonlyUncheckedCss);
+			node.removeClass(this.ccs);
+			node.removeClass(this.ucs);
+			node.removeClass(this.rcc);
+			node.removeClass(this.ruc);
 			var value = Ext.fly(this.nodes[i]).getAttributeNS("","itemvalue");
-			if((i==0 && this.value == '') || value === this.value){
-				this.readonly?node.addClass(this.readonyCheckedCss):node.addClass(this.checkedCss);				
+			if((i==0 && !this.value) || value === this.value){
+				this.readonly?node.addClass(this.rcc):node.addClass(this.ccs);				
 			}else{
-				this.readonly?node.addClass(this.readonlyUncheckedCss):node.addClass(this.uncheckedCss);		
+				this.readonly?node.addClass(this.ruc):node.addClass(this.ucs);		
 			}
 		}
 	},
@@ -3395,16 +3511,17 @@ $A.TextField = Ext.extend($A.Field,{
     	$A.TextField.superclass.onKeyPress.call(this,e);
     	if(this.detectCapsLock) this.isCapsLock(e);
 		var keyCode = e.getKey();
+		var code = keyCode;
 		if(this.typecase){
         	if(this.typecase == 'upper'){
-                if(keyCode>=97 && keyCode<=122) keyCode = keyCode - 32;
+                if(keyCode>=97 && keyCode<=122) code = keyCode - 32;
             }else if(this.typecase == 'lower') {
-            	if(keyCode>=65 && keyCode<=90) keyCode = keyCode + 32;
+            	if(keyCode>=65 && keyCode<=90) code = keyCode + 32;
             }
             if(Ext.isIE) {
-                e.browserEvent.keyCode = keyCode;
-            }else{
-                var v = String.fromCharCode(keyCode);
+                e.browserEvent.keyCode = code;
+            }else if((keyCode>=97 && keyCode<=122)||(keyCode>=65 && keyCode<=90)){
+                var v = String.fromCharCode(code);
                 e.stopEvent();
                 var d = this.el.dom
                 var rv = this.getRawValue();
@@ -3428,10 +3545,11 @@ $A.TextField = Ext.extend($A.Field,{
  */
 $A.NumberField = Ext.extend($A.TextField,{
 	allowdecimals : true,
+    allownegative : true,
+    allowformat : true,
 	baseChars : "0123456789",
     decimalSeparator : ".",
     decimalprecision : 2,
-    allownegative : true,
 	constructor: function(config) {
         $A.NumberField.superclass.constructor.call(this, config);
     },
@@ -3461,14 +3579,25 @@ $A.NumberField = Ext.extend($A.TextField,{
         }
         $A.NumberField.superclass.onKeyPress.call(this, e); 
     },
-    onBlur : function(e){
-    	this.setRawValue(this.fixPrecision(this.parseValue(this.getRawValue())));
-    	$A.NumberField.superclass.onBlur.call(this,e);    	
+    formatValue : function(v){
+    	var rv = this.fixPrecision(this.parseValue(v))        
+        if(this.allowformat)rv = $A.formatNumber(rv);
+        return rv;
+    },
+    processValue : function(v){
+    	return this.fixPrecision(this.parseValue(v));
+    },
+    onFocus : function(e) {
+    	if(this.allowformat) {
+            this.setRawValue($A.removeNumberFormat(this.getRawValue()));
+        }
+    	$A.NumberField.superclass.onFocus.call(this,e);
     },
     parseValue : function(value){
-    	if(!this.allownegative)value = String(value).replace('-','');
+    	value = String(value) 
+    	if(!this.allownegative)value = value.replace('-','');
     	if(!this.allowdecimals)value = value.indexOf(".")==-1?value:value.substring(0,value.indexOf("."));
-        value = parseFloat(String(value).replace(this.decimalSeparator, "."));
+        value = parseFloat(value.replace(this.decimalSeparator, "."));
         return isNaN(value) ? '' : value;
     },
     fixPrecision : function(value){
@@ -3879,7 +4008,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
     					var vl = record ? record.get(map.from) : '';
 //    					var vl = record ? (record.get(map.from)||'') : '';
 //    					if(vl!=''){
-    					if(vl != undefined){
+    					if(!Ext.isEmpty(vl,true)){
                             this.record.set(map.to,vl);
     					}else{
     						delete this.record.data[map.to];
@@ -3967,7 +4096,7 @@ $A.DateField = Ext.extend($A.Component, {
     },
     mouseOver: function(e){
     	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
-    	if(Ext.fly(e.target).hasClass('item-day') && e.target.date != 0){
+    	if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
     		this.overTd = e.target; 
     		Ext.fly(this.overTd).addClass('dateover');
     	}
@@ -3978,10 +4107,10 @@ $A.DateField = Ext.extend($A.Component, {
     		
     	}else{
     		if(this.selectedDay) Ext.fly(this.selectedDay).removeClass('onSelect');
-    		if(Ext.fly(e.target).hasClass('item-day') && e.target.date != 0){
+    		if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
 	    		this.selectedDay = e.target; 
 	    		this.onSelectDay(this.selectedDay);
-	    		this.fireEvent('select', this, this.selectedDay.date);
+	    		this.fireEvent('select', this, new Date(parseInt(Ext.fly(e.target).getAttribute('_date'))));
 	    	}
     	}
     },
@@ -4072,14 +4201,14 @@ $A.DateField = Ext.extend($A.Component, {
 				var cell = document.createElement("td"); 
 				cell.className = "item-day";
 				cell.innerHTML = "&nbsp;";
-				Ext.fly(cell).set({'date':0});
+				Ext.fly(cell).set({'_date':'0'});
 				if(arr.length){
 					var d = arr.shift();
 					if(d){
 						cell.innerHTML = d;
 						this.days[d] = cell;
 						var on = new Date(this.year, this.month - 1, d);
-						Ext.fly(cell).set({'date':on});
+						Ext.fly(cell).set({'_date':''+on.getTime()});
 						//判断是否今日
 						this.isSame(on, new Date()) && this.onToday(cell);
 						//判断是否选择日期
@@ -4161,7 +4290,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     formatValue : function(date){
     	if(date instanceof Date) {
-    		return Aurora.formateDate(date);
+    		return Aurora.formatDate(date);
     	}else{
     		return date;
     	}
@@ -4628,6 +4757,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	constructor: function(config) {
 		this.isWinOpen = false;
 		this.fetching = false;
+		this.context = config.context||'';
         $A.Lov.superclass.constructor.call(this, config);        
     },
     initComponent : function(config){
@@ -4717,9 +4847,9 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.fetching = true;
 		var v = this.getRawValue();
 		if(!Ext.isEmpty(this.lovservice)){
-			url = 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
+			url = this.context + 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
 		}else if(!Ext.isEmpty(this.lovmodel)){
-			url = 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
+			url = this.context + 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
 		}
 		var p = {};
 		var mapping = this.getMapping();
@@ -4733,6 +4863,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		var record = this.record;
 		$A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
+        this.setRawValue('正在查询...')
 		$A.request(url, p, function(res){
 			var r = new $A.Record({});
 			if(res.result.record){
@@ -4767,9 +4898,9 @@ $A.Lov = Ext.extend($A.TextField,{
 		if(!Ext.isEmpty(this.lovurl)){
 			url = this.lovurl+'?';
 		}else if(!Ext.isEmpty(this.lovservice)){
-			url = 'sys_lov.screen?url='+encodeURIComponent('sys_lov.svc?svc='+this.lovservice)+'&service='+this.lovservice+'&';			
+			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice)+'&service='+this.lovservice+'&';			
 		}else {
-			url = 'sys_lov.screen?url='+encodeURIComponent('autocrud/'+this.lovmodel+'/query')+'&service='+this.lovmodel+'&';
+			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query')+'&service='+this.lovmodel+'&';
 		}
     	this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
     	this.win.on('close',this.onWinClose,this);
