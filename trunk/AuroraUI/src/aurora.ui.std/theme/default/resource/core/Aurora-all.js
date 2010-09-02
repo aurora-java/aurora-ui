@@ -996,6 +996,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                sf.query(); 
             });
     	}
+    	if(config.autoCreate==true) this.create();
     },
     destroy : function(){
     	if(this.bindtarget&&this.bindname){
@@ -3313,10 +3314,10 @@ $A.CheckBox = Ext.extend($A.Component,{
  * @param {Object} config 配置对象. 
  */
 $A.Radio = Ext.extend($A.Component, {
-	checkedCss:'item-radio-img-c',
-	uncheckedCss:'item-radio-img-u',
-	readonyCheckedCss:'item-radio-img-readonly-c',
-	readonlyUncheckedCss:'item-radio-img-readonly-u',
+	ccs:'item-radio-img-c',
+	ucs:'item-radio-img-u',
+	rcc:'item-radio-img-readonly-c',
+	ruc:'item-radio-img-readonly-u',
 //	optionCss:'item-radio-option',
 	imgCss:'item-radio-img',
 	valueField:'value',
@@ -3329,7 +3330,8 @@ $A.Radio = Ext.extend($A.Component, {
 		$A.Radio.superclass.initComponent.call(this, config);
 		this.wrap=Ext.get(this.id);	
 		this.nodes = Ext.DomQuery.select('.item-radio-option',this.wrap.dom);
-		this.select(this.selectIndex);
+		this.initStatus();
+//		this.select(this.selectIndex);
 	},	
 	processListener: function(ou){
     	this.wrap[ou]('click',this.onClick,this);
@@ -3413,15 +3415,15 @@ $A.Radio = Ext.extend($A.Component, {
 		var l=this.nodes.length;
 		for (var i = 0; i < l; i++) {
 			var node=Ext.fly(this.nodes[i]).child('.'+this.imgCss);		
-			node.removeClass(this.checkedCss);
-			node.removeClass(this.uncheckedCss);
-			node.removeClass(this.readonyCheckedCss);
-			node.removeClass(this.readonlyUncheckedCss);
+			node.removeClass(this.ccs);
+			node.removeClass(this.ucs);
+			node.removeClass(this.rcc);
+			node.removeClass(this.ruc);
 			var value = Ext.fly(this.nodes[i]).getAttributeNS("","itemvalue");
-			if((i==0 && this.value == '') || value === this.value){
-				this.readonly?node.addClass(this.readonyCheckedCss):node.addClass(this.checkedCss);				
+			if((i==0 && !this.value) || value === this.value){
+				this.readonly?node.addClass(this.rcc):node.addClass(this.ccs);				
 			}else{
-				this.readonly?node.addClass(this.readonlyUncheckedCss):node.addClass(this.uncheckedCss);		
+				this.readonly?node.addClass(this.ruc):node.addClass(this.ucs);		
 			}
 		}
 	},
