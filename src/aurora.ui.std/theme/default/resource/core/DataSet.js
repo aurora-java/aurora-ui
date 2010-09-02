@@ -44,6 +44,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                sf.query(); 
             });
     	}
+    	if(config.autoCreate==true) this.create();
     },
     destroy : function(){
     	if(this.bindtarget&&this.bindname){
