@@ -67,7 +67,7 @@ $A.Tree = Ext.extend($A.Component,{
 	},
 	bind: function(ds){
 		if(typeof(ds)==='string'){
-			ds = $A.CmpManager.get(ds);
+			ds = $(ds);
 			if(!ds) return;
 		}
 		this.dataset = ds;
