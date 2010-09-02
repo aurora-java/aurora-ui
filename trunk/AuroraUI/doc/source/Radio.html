@@ -15,12 +15,13 @@
  * @param {Object} config 配置对象. 
  */
 $A.Radio = Ext.extend($A.Component, {
-	checkedCss:'item-radio-img-c',
-	uncheckedCss:'item-radio-img-u',
-	readonyCheckedCss:'item-radio-img-readonly-c',
-	readonlyUncheckedCss:'item-radio-img-readonly-u',
+	ccs:'item-radio-img-c',
+	ucs:'item-radio-img-u',
+	rcc:'item-radio-img-readonly-c',
+	ruc:'item-radio-img-readonly-u',
 //	optionCss:'item-radio-option',
 	imgCss:'item-radio-img',
+	valueField:'value',
 	constructor: function(config){
 		config.checked = config.checked || false;
 		config.readonly = config.readonly || false;
@@ -30,6 +31,8 @@ $A.Radio = Ext.extend($A.Component, {
 		$A.Radio.superclass.initComponent.call(this, config);
 		this.wrap=Ext.get(this.id);	
 		this.nodes = Ext.DomQuery.select('.item-radio-option',this.wrap.dom);
+		this.initStatus();
+//		this.select(this.selectIndex);
 	},	
 	processListener: function(ou){
     	this.wrap[ou]('click',this.onClick,this);
@@ -50,14 +53,14 @@ $A.Radio = Ext.extend($A.Component, {
             var vi = this.getValueItem();
             var i = this.options.indexOf(vi);
             if(i+1 < this.options.length){
-                var v = this.options[i+1]['value'];
+                var v = this.options[i+1][this.valueField];
                 this.setValue(v)
             }
         }else if(keyCode==38){
             var vi = this.getValueItem();
             var i = this.options.indexOf(vi);
             if(i-1 >=0){
-                var v = this.options[i-1]['value'];
+                var v = this.options[i-1][this.valueField];
                 this.setValue(v)
             }
         }
@@ -67,9 +70,9 @@ $A.Radio = Ext.extend($A.Component, {
 		this.addEvents('click','keydown','enterdown');    
 	},
 	setValue:function(value,silent){
-		this.value = value;
-		this.initStatus();
+		if(value=='')return;
 		$A.Radio.superclass.setValue.call(this,value, silent);
+		this.initStatus();
 		this.focus();
 	},
 	getItem: function(){
@@ -85,12 +88,18 @@ $A.Radio = Ext.extend($A.Component, {
 	   var r = null;
 	   for(var i=0;i<l;i++){
 	       var o = this.options[i];
-	       if(o['value']==v){
+	       if(o[this.valueField]==v){
 	           r = o;
 	           break;
 	       }
 	   }	   
 	   return r;
+	},
+	select : function(i){
+		var v = this.getItemValue(i);
+		if(v){
+			this.setValue(v);
+		}
 	},
 	getValue : function(){
     	var v = this.value;
@@ -107,15 +116,15 @@ $A.Radio = Ext.extend($A.Component, {
 		var l=this.nodes.length;
 		for (var i = 0; i < l; i++) {
 			var node=Ext.fly(this.nodes[i]).child('.'+this.imgCss);		
-			node.removeClass(this.checkedCss);
-			node.removeClass(this.uncheckedCss);
-			node.removeClass(this.readonyCheckedCss);
-			node.removeClass(this.readonlyUncheckedCss);
+			node.removeClass(this.ccs);
+			node.removeClass(this.ucs);
+			node.removeClass(this.rcc);
+			node.removeClass(this.ruc);
 			var value = Ext.fly(this.nodes[i]).getAttributeNS("","itemvalue");
-			if((i==0 && this.value == '') || value === this.value){
-				this.readonly?node.addClass(this.readonyCheckedCss):node.addClass(this.checkedCss);				
+			if((i==0 && !this.value) || value === this.value){
+				this.readonly?node.addClass(this.rcc):node.addClass(this.ccs);				
 			}else{
-				this.readonly?node.addClass(this.readonlyUncheckedCss):node.addClass(this.uncheckedCss);		
+				this.readonly?node.addClass(this.ruc):node.addClass(this.ucs);		
 			}
 		}
 	},

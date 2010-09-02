@@ -16,10 +16,11 @@
  */
 $A.NumberField = Ext.extend($A.TextField,{
 	allowdecimals : true,
+    allownegative : true,
+    allowformat : true,
 	baseChars : "0123456789",
     decimalSeparator : ".",
     decimalprecision : 2,
-    allownegative : true,
 	constructor: function(config) {
         $A.NumberField.superclass.constructor.call(this, config);
     },
@@ -49,14 +50,25 @@ $A.NumberField = Ext.extend($A.TextField,{
         }
         $A.NumberField.superclass.onKeyPress.call(this, e); 
     },
-    onBlur : function(e){
-    	this.setRawValue(this.fixPrecision(this.parseValue(this.getRawValue())));
-    	$A.NumberField.superclass.onBlur.call(this,e);    	
+    formatValue : function(v){
+    	var rv = this.fixPrecision(this.parseValue(v))        
+        if(this.allowformat)rv = $A.formatNumber(rv);
+        return rv;
+    },
+    processValue : function(v){
+    	return this.fixPrecision(this.parseValue(v));
+    },
+    onFocus : function(e) {
+    	if(this.allowformat) {
+            this.setRawValue($A.removeNumberFormat(this.getRawValue()));
+        }
+    	$A.NumberField.superclass.onFocus.call(this,e);
     },
     parseValue : function(value){
-    	if(!this.allownegative)value = String(value).replace('-','');
+    	value = String(value) 
+    	if(!this.allownegative)value = value.replace('-','');
     	if(!this.allowdecimals)value = value.indexOf(".")==-1?value:value.substring(0,value.indexOf("."));
-        value = parseFloat(String(value).replace(this.decimalSeparator, "."));
+        value = parseFloat(value.replace(this.decimalSeparator, "."));
         return isNaN(value) ? '' : value;
     },
     fixPrecision : function(value){

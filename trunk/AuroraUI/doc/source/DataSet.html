@@ -46,7 +46,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		this.loadData(config.datas);
     		//this.locate(this.currentIndex); //不确定有没有影响
     	}
-    	if(config.autoQuery === true) this.query();
+    	if(config.autoQuery === true) {
+            var sf = this;
+            Ext.onReady(function(){
+               sf.query(); 
+            });
+    	}
+    	if(config.autoCreate==true) this.create();
     },
     destroy : function(){
     	if(this.bindtarget&&this.bindname){
@@ -147,7 +153,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	return c;
     },
     initEvents : function(){
-    	this.addEvents(  
+    	this.addEvents( 
+            <div id="event-Aurora.DataSet-ajaxfailed"></div>/**
+             * @event ajaxfailed
+             * ajax调用失败.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+            'ajaxfailed',
     	    <div id="event-Aurora.DataSet-beforecreate"></div>/**
              * @event beforecreate
              * 数据创建前事件.
@@ -190,6 +202,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Number} index 指针.
              */
 	        'remove',
+	        <div id="event-Aurora.DataSet-beforeremove"></div>/**
+             * @event beforeremove
+             * 数据删除前.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+            'beforeremove',
 	        <div id="event-Aurora.DataSet-update"></div>/**
              * @event update
              * 数据更新事件.
@@ -206,12 +224,24 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              */
 	        'clear',
+	        <div id="event-Aurora.DataSet-beforeload"></div>/**
+             * @event beforeload
+             * 准备加载数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
+	        'beforeload',
             <div id="event-Aurora.DataSet-load"></div>/**
              * @event load
              * 加载数据事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              */ 
 	        'load',
+	        <div id="event-Aurora.DataSet-loadfailed"></div>/**
+             * @event loadfailed
+             * 加载数据失败.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
+            'loadfailed',
 	        <div id="event-Aurora.DataSet-refresh"></div>/**
              * @event refresh
              * 刷新事件.
@@ -257,6 +287,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Object} value 重置的值.
              */
 	        'reject',
+	        <div id="event-Aurora.DataSet-submit"></div>/**
+             * @event submit
+             * 数据提交事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+	        'submit',
 	        <div id="event-Aurora.DataSet-submitsuccess"></div>/**
              * @event submitsuccess
              * 数据提交成功事件.
@@ -265,7 +301,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Array} datas 提交的数据.
              * @param {Object} res 返回的json对象.
              */
-	        'submitsuccess',
+            'submitsuccess',
 	        <div id="event-Aurora.DataSet-submitfailed"></div>/**
              * @event submitfailed
              * 数据提交失败事件.
@@ -328,7 +364,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.fireEvent("load", this);
     },
     sort : function(f, direction){
-    	//TODO:排序
+    	//TODO:grid已经实现服务端排序
     },
     create : function(data, valid){
     	this.fireEvent("beforecreate", this);
@@ -449,7 +485,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    		p[i] = Ext.apply(p[i],this.spara)
 //    	}
     	if(p.length > 0) {
-	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this);
+    		this.fireEvent("beforeremove", this);
+	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
     	}
     
     },
@@ -829,6 +866,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var q = {};
     	if(r != null) Ext.apply(q, r.data);
     	Ext.apply(q, this.qpara);
+    	for(var k in q){
+    	   var v = q[k];
+    	   if(Ext.isEmpty(v,false)) delete q[k];
+    	}
     	var para = 'pagesize='+this.pageSize + 
     				  '&pagenum='+this.currentPage+
     				  '&_fetchall='+this.fetchAll+
@@ -841,7 +882,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		url = this.queryUrl + '&' + para;
     	}
     	this.loading = true;
-    	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this);
+    	this.fireEvent("beforeload", this);
+    	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this,this.onAjaxFailed);
     },
     <div id="method-Aurora.DataSet-isModified"></div>/**
      * 判断当前数据集是否发生改变.
@@ -914,7 +956,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	
     	//if(p.length > 0) {
-	    	$A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this);
+            this.fireEvent("submit", this);
+            $A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
     	//}
     },
     
@@ -969,18 +1012,15 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	       	}
 	       	r.clear();
     	}
-//    	this.fireEvent("indexchange", this, this.getCurrentRecord());
     },
     onSubmitFailed : function(res){
-    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
+    	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
 		this.fireEvent('submitfailed', this, res);		
     },
     onLoadSuccess : function(res){
     	if(res == null) return;
-//    	if(!res.result.record) return;
     	if(!res.result.record) res.result.record = [];
     	var records = [].concat(res.result.record);
-//    	var total = res.result.record.totalCount;
     	var total = res.result.totalCount;
     	var datas = [];
     	if(records.length > 0){
@@ -999,9 +1039,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         $A.SideBar.enable = $A.slideBarEnable;
 	    
     },
+    onAjaxFailed : function(res,opt){
+        this.fireEvent('ajaxfailed', this);
+    },
     onLoadFailed : function(res){
+    	this.fireEvent('loadfailed', this);
     	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
-//    	alert(res.error.message)
     	this.loading = false;
     	$A.SideBar.enable = $A.slideBarEnable;
     },
@@ -1357,10 +1400,10 @@ $A.Record.Field.prototype = {
 	},
 	<div id="method-Aurora.Record.Field-isReadOnly"></div>/**
 	 * 当前Field是否只读.
-	 * @param {Boolean} readonly 是否只读
+	 * @return {Boolean} readonly 是否只读
 	 */
 	isReadOnly : function(){
-	   return this.getPropertity('readonly');
+        return this.getPropertity('readonly');
 	},
 	<div id="method-Aurora.Record.Field-setOptions"></div>/**
 	 * 设置当前Field的数据集.
