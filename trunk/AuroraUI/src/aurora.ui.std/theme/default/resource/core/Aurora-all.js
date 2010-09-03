@@ -1715,7 +1715,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	for(var k = 0,l=records.length;k<l;k++){
 			var record = records[k];
-			if(record.dirty == true || record.isNew == true) {
+			//TODO:有些项目是虚拟的字段,例如密码修改
+//			if(record.dirty == true || record.isNew == true) {
 				if(!record.validateRecord()){
 					this.isValid = false;
 					unvalidRecord = record;
@@ -1739,7 +1740,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 						break;
 					}
 									
-				}
+//				}
 			}
 		}
 		if(unvalidRecord != null){
