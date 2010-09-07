@@ -331,22 +331,25 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		var data = datas[i].data||datas[i];
     		for(var key in this.fields){
     			var field = this.fields[key];
-    			var dt = field.getPropertity('datatype');
-    			dt = dt ? dt.toLowerCase() : '';
-    			switch(dt){
-    				case 'date':
-    					data[key] = $A.parseDate(data[key]);
-    					break;
-    				case 'java.util.date':
-    					data[key] = $A.parseDate(data[key]);
-    					break;
-    				case 'java.sql.date':
-    					data[key] = $A.parseDate(data[key]);
-    					break;
-    				case 'int':
-    					data[key] = parseInt(data[key]);
-    					break;
+    			if(field){
+                    data[key] = this.processData(data[key],field)
     			}
+//    			var dt = field.getPropertity('datatype');
+//    			dt = dt ? dt.toLowerCase() : '';
+//    			switch(dt){
+//    				case 'date':
+//    					data[key] = $A.parseDate(data[key]);
+//    					break;
+//    				case 'java.util.date':
+//    					data[key] = $A.parseDate(data[key]);
+//    					break;
+//    				case 'java.sql.date':
+//    					data[key] = $A.parseDate(data[key]);
+//    					break;
+//    				case 'int':
+//    					data[key] = parseInt(data[key]);
+//    					break;
+//    			}
     		}
     		var record = new $A.Record(data,datas[i].field);
             record.setDataSet(this);
@@ -763,7 +766,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	for(var k = 0,l=records.length;k<l;k++){
 			var record = records[k];
-			if(record.dirty == true || record.isNew == true) {
+			//TODO:有些项目是虚拟的字段,例如密码修改
+//			if(record.dirty == true || record.isNew == true) {
 				if(!record.validateRecord()){
 					this.isValid = false;
 					unvalidRecord = record;
@@ -787,7 +791,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 						break;
 					}
 									
-				}
+//				}
 			}
 		}
 		if(unvalidRecord != null){
@@ -995,8 +999,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 					var ov = r.get(field);
 					var nv = data[k]
 					if(field == '_id' || field == '_status'||field=='__parameter_parsed__') continue;
-					if(f && f.getPropertity('datatype') == 'date') 
-					nv = $A.parseDate(nv)
+					if(f){
+					   nv = this.processData(nv,f);
+					}
+//					if(f && f.getPropertity('datatype') == 'date') 
+//					nv = $A.parseDate(nv)
 					if(ov != nv) {
 						r.set(field,nv);
 					}
@@ -1005,6 +1012,26 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	       	r.clear();
     	}
     },
+    processData: function(value,field){
+        var dt = field.getPropertity('datatype');
+        dt = dt ? dt.toLowerCase() : '';
+        var v = value;
+        switch(dt){
+            case 'date':
+                v = $A.parseDate(v);
+                break;
+            case 'java.util.date':
+                v = $A.parseDate(v);
+                break;
+            case 'java.sql.date':
+                v = $A.parseDate(v);
+                break;
+            case 'int':
+                v = parseInt(v);
+                break;
+        }
+        return v;
+    },    
     onSubmitFailed : function(res){
     	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
 		this.fireEvent('submitfailed', this, res);		

@@ -716,15 +716,16 @@ Ext.EventObjectImpl.prototype['isSpecialKey'] = function(){
 }
 $A.parseDate = function(str){
 	if(typeof str == 'string'){  
+		
 		//TODO:临时, 需要服务端解决
-		if(str.indexOf('.0') !=-1) str = str.substr(0,str.length-2);
+//		if(str.indexOf('.0') !=-1) str = str.substr(0,str.length-2);
 		
 		var results = str.match(/^ *(\d{4})-(\d{1,2})-(\d{1,2}) *$/);      
 		if(results && results.length>3)      
-	  		return new Date(parseInt(results[1]),parseInt(results[2]) -1,parseInt(results[3]));       
-		results = str.match(/^ *(\d{4})-(\d{1,2})-(\d{1,2}) +(\d{1,2}):(\d{1,2}):(\d{1,2}) *$/);      
+	  		return new Date(parseInt(results[1]),parseInt(results[2],10) -1,parseInt(results[3],10));       
+		results = str.match(/^ *(\d{4})-(\d{1,2})-(\d{1,2}) +(\d{1,2}):(\d{1,2}):(\d{1,2}) *$/);  
 	    if(results && results.length>6)      
-    	return new Date(parseInt(results[1]),parseInt(results[2]) -1,parseInt(results[3]),parseInt(results[4]),parseInt(results[5]),parseInt(results[6]));       
+    	return new Date(parseInt(results[1]),parseInt(results[2],10) -1,parseInt(results[3],10),parseInt(results[4],10),parseInt(results[5],10),parseInt(results[6],10));       
 	}      
   	return null;      
 }
@@ -1283,22 +1284,25 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		var data = datas[i].data||datas[i];
     		for(var key in this.fields){
     			var field = this.fields[key];
-    			var dt = field.getPropertity('datatype');
-    			dt = dt ? dt.toLowerCase() : '';
-    			switch(dt){
-    				case 'date':
-    					data[key] = $A.parseDate(data[key]);
-    					break;
-    				case 'java.util.date':
-    					data[key] = $A.parseDate(data[key]);
-    					break;
-    				case 'java.sql.date':
-    					data[key] = $A.parseDate(data[key]);
-    					break;
-    				case 'int':
-    					data[key] = parseInt(data[key]);
-    					break;
+    			if(field){
+                    data[key] = this.processData(data[key],field)
     			}
+//    			var dt = field.getPropertity('datatype');
+//    			dt = dt ? dt.toLowerCase() : '';
+//    			switch(dt){
+//    				case 'date':
+//    					data[key] = $A.parseDate(data[key]);
+//    					break;
+//    				case 'java.util.date':
+//    					data[key] = $A.parseDate(data[key]);
+//    					break;
+//    				case 'java.sql.date':
+//    					data[key] = $A.parseDate(data[key]);
+//    					break;
+//    				case 'int':
+//    					data[key] = parseInt(data[key]);
+//    					break;
+//    			}
     		}
     		var record = new $A.Record(data,datas[i].field);
             record.setDataSet(this);
@@ -1948,8 +1952,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 					var ov = r.get(field);
 					var nv = data[k]
 					if(field == '_id' || field == '_status'||field=='__parameter_parsed__') continue;
-					if(f && f.getPropertity('datatype') == 'date') 
-					nv = $A.parseDate(nv)
+					if(f){
+					   nv = this.processData(nv,f);
+					}
+//					if(f && f.getPropertity('datatype') == 'date') 
+//					nv = $A.parseDate(nv)
 					if(ov != nv) {
 						r.set(field,nv);
 					}
@@ -1958,6 +1965,26 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	       	r.clear();
     	}
     },
+    processData: function(value,field){
+        var dt = field.getPropertity('datatype');
+        dt = dt ? dt.toLowerCase() : '';
+        var v = value;
+        switch(dt){
+            case 'date':
+                v = $A.parseDate(v);
+                break;
+            case 'java.util.date':
+                v = $A.parseDate(v);
+                break;
+            case 'java.sql.date':
+                v = $A.parseDate(v);
+                break;
+            case 'int':
+                v = parseInt(v);
+                break;
+        }
+        return v;
+    },    
     onSubmitFailed : function(res){
     	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
 		this.fireEvent('submitfailed', this, res);		
