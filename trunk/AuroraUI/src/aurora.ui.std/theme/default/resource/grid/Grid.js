@@ -198,7 +198,6 @@ $A.Grid = Ext.extend($A.Component,{
         var cv = field.getPropertity('checkedvalue');
         var uv = field.getPropertity('uncheckedvalue');
         var value = record.data[name];
-//      return (value && value.trim() == cv.trim()) ? 'item-ckb-c' : 'item-ckb-u';
         return (value && value == cv) ? 'item-ckb-c' : 'item-ckb-u';
     },
     createCell : function(col,record,includTd){
@@ -294,13 +293,13 @@ $A.Grid = Ext.extend($A.Component,{
         return sb.join('');
     },
     onBeforeRemove : function(){
-        $A.Masker.mask(this.wb,'正在删除数据...');
+        $A.Masker.mask(this.wb,'正在删除数据...');//TODO:多语言
     },
     onBeforLoad : function(){
-        $A.Masker.mask(this.wb,'正在查询数据...');
+        $A.Masker.mask(this.wb,'正在查询数据...');//TODO:多语言
     },
     onBeforSubmit : function(){
-    	$A.Masker.mask(this.wb,'正在提交数据...');
+    	$A.Masker.mask(this.wb,'正在提交数据...');//TODO:多语言
     },
     onAfterSuccess : function(){
         $A.Masker.unmask(this.wb);
