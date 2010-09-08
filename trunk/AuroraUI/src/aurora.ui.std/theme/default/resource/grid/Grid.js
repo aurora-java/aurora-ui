@@ -201,7 +201,6 @@ $A.Grid = Ext.extend($A.Component,{
         return (value && value == cv) ? 'item-ckb-c' : 'item-ckb-u';
     },
     createCell : function(col,record,includTd){
-
         var data = {
             width:col.width,
             recordid:record.id,
@@ -305,14 +304,14 @@ $A.Grid = Ext.extend($A.Component,{
         $A.Masker.unmask(this.wb);
     },
     preLoad : function(){},
-    onLoad : function(focus){
+    onLoad : function(){//(focus)
     	this.preLoad();
         var cb = Ext.fly(this.wrap).child('div[atype=grid.headcheck]');
         if(this.selectable && this.selectionmodel=='multiple')this.setCheckBoxStatus(cb,false);
         if(this.lb)
         this.renderLockArea();
         this.renderUnLockAread();
-        if(focus !== false) this.focus.defer(10,this);
+//        if(focus !== false) this.focus.defer(10,this);//获取数据后的获得焦点,会引起其他编辑器无法编辑
         $A.Masker.unmask(this.wb);
     },
     onAjaxFailed : function(res,opt){
