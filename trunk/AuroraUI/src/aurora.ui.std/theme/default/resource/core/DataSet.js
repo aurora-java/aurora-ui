@@ -948,6 +948,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	if(this.submitUrl == '') return;
     	var p = this.getJsonData();
     	for(var i=0;i<p.length;i++){
+    		var data = p[i]
+    		for(var key in data){
+                if(data[key]=='')data[key]=null;
+    		}
     		p[i] = Ext.apply(p[i],this.spara)
     	}
     	
