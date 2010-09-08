@@ -581,9 +581,27 @@ $A.Grid = Ext.extend($A.Component,{
         }
     },
     /**
+     * 设置指定name列的标题.
+     * 
+     * @param {String} name 列的name
+     * @param {String} prompt 标题信息
+     */
+    setColumnPrompt: function(name,prompt){
+        var tds = Ext.DomQuery.select('TD.grid-hc',this.wrap.dom);
+        for(var i=0,l=tds.length;i<l;i++){
+            var td = tds[i];
+            var dataindex = Ext.fly(td).getAttributeNS("","dataindex");
+            if(dataindex==name){
+            	var div = Ext.fly(td).child('div');
+            	div.update(prompt)
+                break;
+            }
+        }
+    },
+    /**
      * 设置当前行的编辑器.
      * 
-     * @param {String} name 当前列的name.
+     * @param {String} name 列的name.
      * @param {String} editor 编辑器的id. ''空表示没有编辑器.
      */
     setEditor: function(name,editor){
