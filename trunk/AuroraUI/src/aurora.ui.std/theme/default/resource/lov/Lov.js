@@ -135,11 +135,15 @@ $A.Lov = Ext.extend($A.TextField,{
 		$A.SideBar.enable = $A.slideBarEnable;
 		$A.showErrorMessage('错误', res.error.message);
 	},
-	onBlur : function(e){      
-        if(!this.isEventFromComponent(e.target)){
-        	$A.Lov.superclass.onBlur.call(this,e);
-        }
-    },
+//	onBlur : function(e){
+//        if(this.isEventFromComponent(e.target)) return;
+//        var sf = this;
+//        setTimeout(function(){
+//            if(!this.isWinOpen){
+//            }
+//        })
+//        $A.Lov.superclass.onBlur.call(this,e);
+//    },
 	showLovWindow : function(e){
 		e.stopEvent();
 		if(this.fetching||this.isWinOpen||this.readonly) return;
