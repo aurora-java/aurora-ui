@@ -27,6 +27,7 @@
 		width:${width},
 		selectable:${selectable},
 		selectionmodel:'${selectionmodel}',
+		autofocus:${autofocus},
 		height:${height},
 		columns:${columns}
 	});
