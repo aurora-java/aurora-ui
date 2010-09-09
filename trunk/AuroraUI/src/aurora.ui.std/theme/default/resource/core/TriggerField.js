@@ -19,14 +19,8 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	if(this.initpopuped == true) return;
     	this.popup = this.wrap.child('div[atype=triggerfield.popup]');
     	this.shadow = this.wrap.child('div[atype=triggerfield.shadow]');
-//    	var sf = this;
-    	Ext.getBody().insertFirst(this.popup)
-    	Ext.getBody().insertFirst(this.shadow)    	
-//    	Ext.onReady(function(){
-//    		Ext.getBody().appendChild(sf.popup);
-//    		Ext.getBody().appendChild(sf.shadow)
-//    	})
-		
+    	Ext.getBody().insertFirst(this.popup);
+    	Ext.getBody().insertFirst(this.shadow);
     	this.initpopuped = true
     },
     initEvents : function(){
@@ -40,7 +34,6 @@ $A.TriggerField = Ext.extend($A.TextField,{
     isExpanded : function(){ 
     	var xy = this.popup.getXY();
     	return !(xy[0]==-1000||xy[1]==-1000)
-//        return this.popup && this.popup.isVisible();
     },
     setWidth: function(w){
 		this.wrap.setStyle("width",(w+3)+"px");
@@ -52,13 +45,12 @@ $A.TriggerField = Ext.extend($A.TextField,{
         if(!this.isExpanded())this.expand();
     },
     onBlur : function(e){
-//        if(!this.isEventFromComponent(e.target)){//???
+//        if(this.isEventFromComponent(e.target)) return;
 //    	if(!this.isExpanded()){
 	    	this.hasFocus = false;
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
 //    	}
-//        }
     },
     onKeyDown: function(e){
     	$A.TriggerField.superclass.onKeyDown.call(this,e);
