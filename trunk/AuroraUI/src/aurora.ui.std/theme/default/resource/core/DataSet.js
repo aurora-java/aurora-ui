@@ -1200,7 +1200,7 @@ $A.Record.prototype = {
 		var field = this.getMeta().getField(name)
 //		if(!v && field.snap.required == true){
 		if(!v && field.get('required') == true){
-			this.valid[name] = name +　'不能为空';
+			this.valid[name] = '当前字段不能为空!';
 			valid =  false;
 		}else{
 			var validator = field.snap.validator;
