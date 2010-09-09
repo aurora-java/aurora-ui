@@ -16,6 +16,7 @@ $A.Grid = Ext.extend($A.Component,{
         this.overId = null;
         this.selectedId = null;
         this.lockWidth = 0;
+        this.autofocus = config.autofocus||false;
         $A.Grid.superclass.constructor.call(this,config);
     },
     initComponent:function(config){
@@ -665,7 +666,7 @@ $A.Grid = Ext.extend($A.Component,{
                     ed.bind(sf.dataset, name);
                     ed.render(record);
                     ed.focus();
-                    ed.on('blur',sf.onEditorBlur, sf);
+//                    ed.on('blur',sf.onEditorBlur, sf);
                     Ext.get(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
                 }
             },1)
@@ -888,7 +889,7 @@ $A.Grid = Ext.extend($A.Component,{
         
         this.selectlockTr = Ext.get(this.id+'$l-'+record.id);
         if(this.selectlockTr)this.selectlockTr.setStyle(this.bgc,this.scor);
-        this.focusRow(row)
+        if(this.autofocus)this.focusRow(row);
         
         var r = (this.dataset.currentPage-1)*this.dataset.pageSize + row+1;
         this.selectRecord = record
