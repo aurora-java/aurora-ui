@@ -29,7 +29,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.resetConfig();
 		this.id = config.id || Ext.id();
         $A.CmpManager.put(this.id,this)	
-        if(this.bindtarget&&this.bindname) $(this.bindtarget).bind(this.bindname,this);
+        if(this.bindtarget&&this.bindname) this.bind($(this.bindtarget),this.bindname);//$(this.bindtarget).bind(this.bindname,this);
     	this.qds = Ext.isEmpty(config.queryDataSet) ? null :$(config.queryDataSet);
     	if(this.qds != null && this.qds.getCurrentRecord() == null) this.qds.create();
     	this.initEvents();
@@ -65,38 +65,66 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var name = this.bindname;
         var ds = this.fields[name].pro['dataset'];
         if(ds)
-        this.processBindDataSet(ds,'un');
+        this.processBindDataSetListener(ds,'un');
         delete this.fields[name];
     },
-    processBindDataSet : function(ds,ou){
-        var bdp = this.bindDataSetPrototype
-        ds[ou]('beforecreate', this.beforeCreate, this);
-        ds[ou]('add', bdp, this);
-        ds[ou]('remove', bdp, this);
-        ds[ou]('update', bdp, this);
-        ds[ou]('clear', bdp, this);
-//        ds[ou]('load', bdp, this);
-        ds[ou]('reject', bdp, this);
+    processBindDataSetListener : function(ds,ou){
+        var bdp = this.bindDataSetPrototype;
+        this[ou]('beforecreate', this.beforeCreate, ds);
+        this[ou]('add', bdp, ds);
+        this[ou]('remove', bdp, ds);
+        this[ou]('update', bdp, ds);
+        this[ou]('clear', bdp, ds);
+        this[ou]('load', bdp, ds);//当时为啥注释掉??update:好像会导致验证不通过
+        this[ou]('reject', bdp, ds);
+        ds[ou]('indexchange',this.bindDataSetQuery, this);
+        ds[ou]('load',this.bindDataSetClear, this);
     },
     /**
      * 将组件绑定到某个DataSet的某个Field上.
-     * @param {String} name Field的name. 
      * @param {Aurora.DataSet} dataSet 绑定的DataSet.
+     * @param {String} name Field的name. 
+     * 
      */
-    bind : function(name, ds){
-    	if(this.fields[name]) {
-    		alert('重复绑定 ' + name);
-    		return;
-    	}
-    	this.processBindDataSet(ds,'un');
-    	this.processBindDataSet(ds,'on');
-    	var field = new $A.Record.Field({
-    		name:name,
-    		type:'dataset',
-    		dataset:ds
-    	});    	
-	    this.fields[name] = field;
-//	    this.processCurrentRow();
+    bind : function(ds, name){
+        if(ds.fields[name]) {
+            alert('重复绑定 ' + name);
+            return;
+        }
+        this.processBindDataSetListener(ds,'un');
+        this.processBindDataSetListener(ds,'on');
+        var field = new $A.Record.Field({
+            name:name,
+            type:'dataset',
+            dataset:this
+        });     
+        ds.fields[name] = field;
+    },
+//    bind : function(name, ds){
+//    	if(this.fields[name]) {
+//    		alert('重复绑定 ' + name);
+//    		return;
+//    	}
+//    	this.processBindDataSet(ds,'un');
+//    	this.processBindDataSet(ds,'on');
+//    	var field = new $A.Record.Field({
+//    		name:name,
+//    		type:'dataset',
+//    		dataset:ds
+//    	});    	
+//	    this.fields[name] = field;
+////	    this.processCurrentRow();
+//    },
+    bindDataSetClear : function(){
+        this.queryRecords = {}
+    },
+    bindDataSetQuery : function(ds, record){
+    	if(!this.queryRecords) this.queryRecords = {};
+    	if(!this.queryRecords[record.id]){
+    	   this.queryRecords[record.id] = record;
+    	   Ext.apply(this.qpara,record.data);
+           this.query();
+    	}   	
     },
    	bindDataSetPrototype: function(clear){
     	var record = this.getCurrentRecord();
@@ -105,8 +133,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		var field = this.fields[k];
     		if(field.type == 'dataset'){    			
     			var ds = field.pro['dataset'];
-    			if(clear===true)ds.resetConfig()
-    			record.set(field.name,ds.getConfig())
+    			if(clear===true)ds.resetConfig();
+    			record.set(field.name,ds.getConfig(),true)
     		}
     	}
     },
@@ -334,22 +362,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     			if(field){
                     data[key] = this.processData(data[key],field)
     			}
-//    			var dt = field.getPropertity('datatype');
-//    			dt = dt ? dt.toLowerCase() : '';
-//    			switch(dt){
-//    				case 'date':
-//    					data[key] = $A.parseDate(data[key]);
-//    					break;
-//    				case 'java.util.date':
-//    					data[key] = $A.parseDate(data[key]);
-//    					break;
-//    				case 'java.sql.date':
-//    					data[key] = $A.parseDate(data[key]);
-//    					break;
-//    				case 'int':
-//    					data[key] = parseInt(data[key]);
-//    					break;
-//    			}
     		}
     		var record = new $A.Record(data,datas[i].field);
             record.setDataSet(this);
@@ -465,11 +477,15 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	this.removeRemote(rrs);    	
     },
-    removeRemote: function(rs){
+    removeRemote: function(rs){    	
     	if(this.submitUrl == '') return;
     	var p = [];
     	for(var k=0;k<rs.length;k++){
     		var r = rs[k]
+    		for(var key in this.fields){
+                var f = this.fields[key];
+                if(f && f.type == 'dataset') delete r.data[key];
+            }
         	var d = Ext.apply({}, r.data);
     		d['_id'] = r.id;
     		d['_status'] = 'delete';
@@ -601,9 +617,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     			var ds = field.pro['dataset'];
     			if(r && r.data[field.name]){
     				ds.reConfig(r.data[field.name]);
-    			}else{
-    				ds.resetConfig();
     			}
+//    			else{
+//    				ds.resetConfig();
+//    			}
     			ds.fireEvent('refresh',ds)
     			ds.processCurrentRow();
     		}
@@ -780,10 +797,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 				}else {
 					for(key in dmap){
 						var ds = dmap[key];
-						ds.reConfig(record.data[key]);
-						if(!ds.validate(false)) {
-							this.isValid = false;
-							unvalidRecord = record;
+						if(record.data[key]){
+    						ds.reConfig(record.data[key]);
+    						if(!ds.validate(false)) {
+    							this.isValid = false;
+    							unvalidRecord = record;
+    						}
 						}
 					}
 					
@@ -950,7 +969,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	for(var i=0;i<p.length;i++){
     		var data = p[i]
     		for(var key in data){
-                if(data[key]=='')data[key]=null;
+    			var f = this.fields[key];
+                if(f && f.type != 'dataset' && data[key]=='')data[key]=null;
     		}
     		p[i] = Ext.apply(p[i],this.spara)
     	}
@@ -1242,22 +1262,25 @@ $A.Record.prototype = {
      * 设置值.
      * @param {String} name 设定值的名字.
      * @param {Object} value 设定的值.
+     * @param {Boolean} notChangeDirty true不改变record的dirty状态.
      */
-	set : function(name, value){
+	set : function(name, value, notChangeDirty){
         if(this.data[name] == value){
             return;
         }
-        this.dirty = true;
-        if(!this.modified){
-            this.modified = {};
-        }
-        if(typeof this.modified[name] == 'undefined'){
-            this.modified[name] = this.data[name];
+        if(!notChangeDirty){
+            this.dirty = true;
+            if(!this.modified){
+                this.modified = {};
+            }
+            if(typeof this.modified[name] == 'undefined'){
+                this.modified[name] = this.data[name];
+            }
         }
         this.data[name] = value;
-        if(!this.editing && this.ds){
+        if(!this.editing && this.ds) {
             this.ds.afterEdit(this, name, value);
-        }        
+        }
         this.validate(name)
     },
     /**
