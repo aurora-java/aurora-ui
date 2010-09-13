@@ -210,6 +210,11 @@ $A.Grid = Ext.extend($A.Component,{
         }
         var cellTpl;
         var tdTpl = this.tdTpl;
+        var cls = col.editor ? this.cecls : '';
+        if(col.editorfunction) {
+            var ef = window[col.editorfunction];
+            if(ef) cls = ef.call(window,record,col.name)!='' ? this.cecls : '';
+        }
         if(col.type == 'rowcheck'){
             tdTpl = this.rowTdTpl;
             data = Ext.apply(data,{
@@ -229,17 +234,17 @@ $A.Grid = Ext.extend($A.Component,{
         }else if(col.type == 'cellcheck'){
             data = Ext.apply(data,{
                 align:'center',
-                cellcls: 'grid-ckb ' + this.getCheckBoxStatus(record, col.name)
+                cellcls: 'grid-ckb ' +((cls=='') ? ' disabled ' : '' )+ this.getCheckBoxStatus(record, col.name)
             })
             cellTpl =  this.cbTpl;
         }else{
-            var cls = col.editor ? this.cecls : '';
-            if(col.editorfunction) {
-                var ef = window[col.editorfunction];
-                if(ef) {
-                    cls = ef.call(window,record,col.name)!='' ? this.cecls : '';
-                }
-            }
+//            var cls = col.editor ? this.cecls : '';
+//            if(col.editorfunction) {
+//                var ef = window[col.editorfunction];
+//                if(ef) {
+//                    cls = ef.call(window,record,col.name)!='' ? this.cecls : '';
+//                }
+//            }
             var field = record.getMeta().getField(col.name);
             if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get('required') == true){
                 cls = cls + ' ' + this.nbcls
@@ -298,7 +303,7 @@ $A.Grid = Ext.extend($A.Component,{
     onBeforLoad : function(){
         $A.Masker.mask(this.wb,'正在查询数据...');//TODO:多语言
     },
-    onBeforSubmit : function(){
+    onBeforSubmit : function(ds){
     	$A.Masker.mask(this.wb,'正在提交数据...');//TODO:多语言
     },
     onAfterSuccess : function(){
@@ -319,6 +324,7 @@ $A.Grid = Ext.extend($A.Component,{
         $A.Masker.unmask(this.wb);
     },
     focus: function(){
+    	if(this.autofocus)
         this.fs.focus();
     },
     renderLockArea : function(){
@@ -662,7 +668,7 @@ $A.Grid = Ext.extend($A.Component,{
                     ed.setWidth(Ext.fly(dom.parentNode).getWidth()-7);
                     ed.isFireEvent = true;
                     ed.isHidden = false;
-                    ed.move(xy[0],xy[1])
+                    ed.move(xy[0],xy[1]);
                     ed.bind(sf.dataset, name);
                     ed.render(record);
                     ed.focus();
@@ -889,7 +895,7 @@ $A.Grid = Ext.extend($A.Component,{
         
         this.selectlockTr = Ext.get(this.id+'$l-'+record.id);
         if(this.selectlockTr)this.selectlockTr.setStyle(this.bgc,this.scor);
-        if(this.autofocus)this.focusRow(row);
+        this.focusRow(row);
         
         var r = (this.dataset.currentPage-1)*this.dataset.pageSize + row+1;
         this.selectRecord = record
