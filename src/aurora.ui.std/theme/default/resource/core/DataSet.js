@@ -48,8 +48,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     destroy : function(){
     	if(this.bindtarget&&this.bindname){
-    	   var bd = $A.CmpManager.get(this.bindtarget)
-    	   if(bd)bd.clearBind();
+            var bd = $A.CmpManager.get(this.bindtarget)
+            if(bd)bd.clearBind();
     	}
     	$A.CmpManager.remove(this.id);
     	delete $A.invalidRecords[this.id]
@@ -65,20 +65,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var name = this.bindname;
         var ds = this.fields[name].pro['dataset'];
         if(ds)
-        this.processBindDataSetListener(ds,'un');
+        ds.processBindDataSetListener(this,'un');
         delete this.fields[name];
     },
     processBindDataSetListener : function(ds,ou){
-        var bdp = this.bindDataSetPrototype;
-        this[ou]('beforecreate', this.beforeCreate, ds);
-        this[ou]('add', bdp, ds);
-        this[ou]('remove', bdp, ds);
-        this[ou]('update', bdp, ds);
-        this[ou]('clear', bdp, ds);
-        this[ou]('load', bdp, ds);//当时为啥注释掉??update:好像会导致验证不通过
-        this[ou]('reject', bdp, ds);
-        ds[ou]('indexchange',this.bindDataSetQuery, this);
-        ds[ou]('load',this.bindDataSetClear, this);
+        var bdp = this.onDataSetMoify;
+        this[ou]('beforecreate', this.beforeCreate, this);//TODO:有待测试
+        this[ou]('add', bdp, this);
+        this[ou]('remove', bdp, this);
+        this[ou]('update', bdp, this);
+        this[ou]('clear', bdp, this);
+        this[ou]('load', this.onDataSetLoad, this);
+        this[ou]('reject', bdp, this);
+        ds[ou]('indexchange',this.onDataSetIndexChange, this);
     },
     /**
      * 将组件绑定到某个DataSet的某个Field上.
@@ -100,48 +99,40 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         });     
         ds.fields[name] = field;
     },
-//    bind : function(name, ds){
-//    	if(this.fields[name]) {
-//    		alert('重复绑定 ' + name);
-//    		return;
-//    	}
-//    	this.processBindDataSet(ds,'un');
-//    	this.processBindDataSet(ds,'on');
-//    	var field = new $A.Record.Field({
-//    		name:name,
-//    		type:'dataset',
-//    		dataset:ds
-//    	});    	
-//	    this.fields[name] = field;
-////	    this.processCurrentRow();
-//    },
-    bindDataSetClear : function(){
-        this.queryRecords = {}
+    onDataSetIndexChange : function(ds, record){
+    	if(!record.get(this.bindname) && record.isNew != true){
+    		this.qpara = {};
+            Ext.apply(this.qpara,record.data);
+            this.query(1,{record:record});
+    	} 	
     },
-    bindDataSetQuery : function(ds, record){
-    	if(!this.queryRecords) this.queryRecords = {};
-    	if(!this.queryRecords[record.id]){
-    	   this.queryRecords[record.id] = record;
-    	   Ext.apply(this.qpara,record.data);
-           this.query();
-    	}   	
-    },
-   	bindDataSetPrototype: function(clear){
-    	var record = this.getCurrentRecord();
-    	if(!record)return;
-    	for(var k in this.fields){
-    		var field = this.fields[k];
-    		if(field.type == 'dataset'){    			
-    			var ds = field.pro['dataset'];
-    			if(clear===true)ds.resetConfig();
-    			record.set(field.name,ds.getConfig(),true)
-    		}
+    onDataSetMoify : function(){
+    	var bt = $A.CmpManager.get(this.bindtarget);
+    	if(bt){
+            this.refreshBindDataSet(bt.getCurrentRecord())
     	}
+    },
+//    onDataSetMoify : function(ds,record){
+//    	this.refreshBindDataSet(this.getCurrentRecord())
+//    },
+    onDataSetLoad : function(ds,options){
+    	this.refreshBindDataSet(options.opts.record)
+    },
+   	refreshBindDataSet: function(record){
+    	if(!record)return;
+    	record.set(this.bindname,this.getConfig(),true)
+//    	for(var k in this.fields){
+//    		var field = this.fields[k];
+//    		if(field.type == 'dataset'){  
+//    			var ds = field.pro['dataset'];
+////    			if(ds && clear==true)ds.resetConfig();
+//    			record.set(field.name,ds.getConfig(),true)
+//    		}
+//    	}
     },
     beforeCreate: function(ds, record, index){
     	if(this.data.length == 0){
-    		this.create({},false)
-//	    	this.bindDataSetPrototype(true);
+    		this.create({},false);
     	}
     },
     resetConfig : function(){
@@ -316,18 +307,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	        /**
              * @event submitsuccess
              * 数据提交成功事件.
-             * this, datas, res
              * @param {Aurora.DataSet} dataSet 当前DataSet.
-             * @param {Array} datas 提交的数据.
-             * @param {Object} res 返回的json对象.
              */
             'submitsuccess',
 	        /**
              * @event submitfailed
              * 数据提交失败事件.
-             * this, datas, res
              * @param {Aurora.DataSet} dataSet 当前DataSet.
-             * @param {Object} res 返回的json对象.
              */
 	        'submitfailed'
 		);    	
@@ -346,7 +332,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     getField : function(name){
     	return this.fields[name];
     },
-    loadData : function(datas, num){
+    loadData : function(datas, num, options){
         this.data = [];
         this.selected = [];
         if(num) {
@@ -368,7 +354,17 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	        this.data.add(record);
         }
         if(this.sortInfo) this.sort();
-        this.fireEvent("load", this);
+        
+        var needFire = true;
+        if(this.bindtarget){
+           var cr = $A.CmpManager.get(this.bindtarget).getCurrentRecord();
+           if(options.opts.record && cr!=options.opts.record){
+               this.refreshBindDataSet(options.opts.record);
+               needFire = false;
+           }
+        }
+        if(needFire)
+        this.fireEvent("load", this, options);
     },
     sort : function(f, direction){
     	//TODO:grid已经实现服务端排序
@@ -401,7 +397,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         var news = [];
        	for(var k = 0,l=records.length;k<l;k++){
 			var record = records[k];
-			if(record.isNewRecord == true){
+			if(record.isNew == true){
 				news.add(record);
 			}
 		}
@@ -418,7 +414,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     add : function(record){
     	record.isNew = true;
-    	record.isNewRecord = true;
+//    	record.isNewRecord = true;
         record.setDataSet(this);
         var index = this.data.length;
         this.data.add(record);
@@ -430,8 +426,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    		}
 //    	}
         var index = (this.currentPage-1)*this.pageSize + this.data.length;
-        this.fireEvent("add", this, record, index);
         this.locate(index, true);
+        this.fireEvent("add", this, record, index);
     },
     /**
      * 获取当前指针的Record. 
@@ -465,6 +461,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		record = this.getCurrentRecord();
     	}
     	if(!record)return;
+    	this.fireEvent("beforeremove", this);
     	var rs = [].concat(record);
     	var rrs = [];
     	for(var i=0;i<rs.length;i++){
@@ -496,12 +493,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    		p[i] = Ext.apply(p[i],this.spara)
 //    	}
     	if(p.length > 0) {
-    		this.fireEvent("beforeremove", this);
-	    	$A.request(this.submitUrl, p, this.onRemoveSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
+    		var opts;
+    		if(this.bindtarget){
+                var bd = $A.CmpManager.get(this.bindtarget);
+                opts = {record:bd.getCurrentRecord()};
+    		}
+	    	$A.request({url:this.submitUrl, para:p, success:this.onRemoveSuccess, error:this.onSubmitFailed, scope:this,failure:this.onAjaxFailed,opts:opts});
     	}
     
     },
-    onRemoveSuccess: function(res){
+    onRemoveSuccess: function(res,options){
     	if(res.result.record){
     		var datas = [].concat(res.result.record);
     		for(var i=0;i<datas.length;i++){
@@ -509,6 +510,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    		var r = this.findById(data['_id']);
 	    		this.removeLocal(r);
     		}
+    	}
+    	if(options.opts.record) {
+            this.refreshBindDataSet(options.opts.record)
     	}
     },
     removeLocal: function(record){
@@ -617,10 +621,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     			var ds = field.pro['dataset'];
     			if(r && r.data[field.name]){
     				ds.reConfig(r.data[field.name]);
+    			}else{
+    				ds.resetConfig();
     			}
-//    			else{
-//    				ds.resetConfig();
-//    			}
     			ds.fireEvent('refresh',ds)
     			ds.processCurrentRow();
     		}
@@ -767,7 +770,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     validate : function(fire){
     	this.isValid = true;
-//    	var current = this.getCurrentRecord();
+    	var current = this.getCurrentRecord();
     	var records = this.getAll();
 		var dmap = {};
 		var hassub = false;
@@ -783,7 +786,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	for(var k = 0,l=records.length;k<l;k++){
 			var record = records[k];
-			//TODO:有些项目是虚拟的字段,例如密码修改
+			//有些项目是虚拟的字段,例如密码修改
 //			if(record.dirty == true || record.isNew == true) {
 				if(!record.validateRecord()){
 					this.isValid = false;
@@ -803,6 +806,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     							this.isValid = false;
     							unvalidRecord = record;
     						}
+    						ds.reConfig(current.data[key]);//循环校验完毕后,重新定位到当前行
 						}
 					}
 					
@@ -813,6 +817,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //				}
 			}
 		}
+		
 		if(unvalidRecord != null){
 			var r = this.indexOf(unvalidRecord);
 			if(r!=-1)this.locate(r+1);
@@ -865,7 +870,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 查询数据.
      * @param {Number} page(可选) 查询的页数.
      */
-    query : function(page){
+    query : function(page,opts){
     	$A.slideBarEnable = $A.SideBar.enable;
     	$A.SideBar.enable = false;
     	var r;
@@ -898,7 +903,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	this.loading = true;
     	this.fireEvent("beforeload", this);
-    	$A.request(url, q, this.onLoadSuccess, this.onLoadFailed, this,this.onAjaxFailed);
+    	$A.request({url:url, para:q, success:this.onLoadSuccess, error:this.onLoadError, scope:this,failure:this.onAjaxFailed,opts:opts});
     },
     /**
      * 判断当前数据集是否发生改变.
@@ -912,6 +917,18 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 			if(record.dirty == true || record.isNew == true) {
 				modified = true;
 				break;
+			}else{
+                for(var key in this.fields){
+                    var field = this.fields[key];
+                    if(field.type == 'dataset'){                
+                        var ds = field.pro['dataset'];
+                        ds.reConfig(record.data[field.name]);
+                        if(ds.isModified()){
+                            modified = true;
+                            break;
+                        }
+                    }
+                }
 			}
 		}
 		return modified;
@@ -976,49 +993,63 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     	
     	//if(p.length > 0) {
-            this.fireEvent("submit", this);
-            $A.request(this.submitUrl, p, this.onSubmitSuccess, this.onSubmitFailed, this,this.onAjaxFailed);
+//            this.fireEvent("submit", this);
+            this.fireBindDataSetEvent("submit");
+            $A.request({url:this.submitUrl, para:p, success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
     	//}
     },
-    
+    fireBindDataSetEvent : function(event){
+    	this.fireEvent(event,this);
+        for(var k in this.fields){
+            var field = this.fields[k];
+            if(field.type == 'dataset'){  
+                var ds = field.pro['dataset'];
+                if(ds) {
+                    ds.fireBindDataSetEvent(event)
+                }
+            }
+        }
+    },
     afterEdit : function(record, name, value) {
         this.fireEvent("update", this, record, name, value);
     },
-    afterReject : function(record, name, value){
+    afterReject : function(record, name, value) {
     	this.fireEvent("reject", this, record, name, value);
     },
     onSubmitSuccess : function(res){
     	var datas = []
     	if(res.result.record){
     		datas = [].concat(res.result.record);
-    		this.refreshRecord(datas)
+    		this.refreshRecord(datas,true)
     	}
-    	this.fireEvent('submitsuccess', this, datas, res)
+    	this.fireBindDataSetEvent('submitsuccess');
+//    	this.fireEvent('submitsuccess', this, datas, res)
     },
-    refreshRecord : function(datas){
+    refreshRecord : function(datas,fire){
     	//this.resetConfig();
     	for(var i=0,l=datas.length;i<l;i++){
     		var data = datas[i];
 	    	var r = this.findById(data['_id']);
-	    	if(!r) return;	    	
+	    	if(!r) return;	 
 	    	for(var k in data){
 	    		var field = k;
-	    		if(!this.fields[k]){
-	    			for(var kf in this.fields){
-	    				if(k == kf){
-//	    				if(k.toLowerCase() == kf.toLowerCase()){
-	    					field = kf;
-	    				}
-	    			}
-	    		}
+//	    		if(!this.fields[k]){
+//	    			for(var kf in this.fields){
+//	    				if(k == kf){
+////	    				if(k.toLowerCase() == kf.toLowerCase()){
+//	    					field = kf;
+//	    					break;
+//	    				}
+//	    			}
+//	    		}
 				var f = this.fields[field];
 				if(f && f.type == 'dataset'){
 					var ds = f.pro['dataset'];
-					if(r){
-	    				ds.reConfig(r.data[f.name]);
+					ds.reConfig(r.data[f.name]);
+	    			if(data[k].record) {
+	    				//TODO:还是有问题,保存后新增有错误!!
+                        ds.refreshRecord([].concat(data[k].record), this.getCurrentRecord() == r);                        
 	    			}
-	    			if(data[k].record)
-					ds.refreshRecord([].concat(data[k].record))
 				}else{
 					var ov = r.get(field);
 					var nv = data[k]
@@ -1026,10 +1057,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 					if(f){
 					   nv = this.processData(nv,f);
 					}
-//					if(f && f.getPropertity('datatype') == 'date') 
-//					nv = $A.parseDate(nv)
 					if(ov != nv) {
-						r.set(field,nv);
+						if(fire){
+                            r.set(field,nv);
+						}else{
+                            r.data[field] = nv;
+						}
 					}
 				}
 	       	}
@@ -1056,11 +1089,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         return v;
     },    
-    onSubmitFailed : function(res){
+    onSubmitError : function(res){
     	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
-		this.fireEvent('submitfailed', this, res);		
+    	this.fireBindDataSetEvent('submitfailed');
+//		this.fireEvent('submitfailed', this, res);	
     },
-    onLoadSuccess : function(res){
+    onLoadSuccess : function(res, options){
     	if(res == null) return;
     	if(!res.result.record) res.result.record = [];
     	var records = [].concat(res.result.record);
@@ -1077,15 +1111,17 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		this.currentIndex  = 1
     	}
     	this.loading = false;
-    	this.loadData(datas, total);
+    	this.loadData(datas, total, options);
     	this.locate(this.currentIndex,true);
+    	
         $A.SideBar.enable = $A.slideBarEnable;
 	    
     },
     onAjaxFailed : function(res,opt){
-        this.fireEvent('ajaxfailed', this);
+    	this.fireBindDataSetEvent('ajaxfailed');
+//        this.fireEvent('ajaxfailed', this);
     },
-    onLoadFailed : function(res){
+    onLoadError : function(res,opt){
     	this.fireEvent('loadfailed', this);
     	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
     	this.loading = false;
