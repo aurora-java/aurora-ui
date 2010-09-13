@@ -190,7 +190,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
 	initList: function(){	
 		this.refresh();
-		this.litp=new Ext.Template('<li tabIndex="{index}">{'+this.displayfield+'}&#160;</li>');
+//		this.litp=new Ext.Template('<li tabIndex="{index}">{'+this.displayfield+'}&#160;</li>');
 		if(this.optionDataSet.loading == true){
 			this.view.update('<li tabIndex="-1">正在加载...</li>');
 		}else{
@@ -198,8 +198,15 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			var l=datas.length;
 			var sb = [];
 			for(var i=0;i<l;i++){
-				var d = Ext.apply(datas[i].data, {index:i})
-				sb.add(this.litp.applyTemplate(d));	//等数据源明确以后再修改		
+//				var d = Ext.apply(datas[i].data, {index:i})
+				var rder = $A.getRenderer(this.renderer);
+				var text = '&#160;';
+				if(rder){
+					text = rder.call(window,this,datas[i]);
+				}else{
+					text = datas[i].get(this.displayfield);
+				}
+				sb.add('<li tabIndex="'+i+'">'+text+'</li>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
 			}
 			if(l!=0){
 				this.view.update(sb.join(''));			
