@@ -5,6 +5,7 @@
 		<view-component elementName="separator" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="textArea" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="tree" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+		<view-component elementName="treeGrid" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="label" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="imageCode" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="button" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
@@ -29,5 +30,6 @@
 		<view-component elementName="tabPanel" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="switch" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Switch" />
 		<view-component elementName="repeater" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Repeater" />
+		<view-component elementName="screenBody" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.VBox" />
 	</components>
 </package>
