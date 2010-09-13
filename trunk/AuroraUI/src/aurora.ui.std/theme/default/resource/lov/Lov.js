@@ -117,7 +117,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		$A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
         this.setRawValue('正在查询...')
-		$A.request(url, p, function(res){
+		$A.request({url:url, para:p, success:function(res){
 			var r = new $A.Record({});
 			if(res.result.record){
 	    		var datas = [].concat(res.result.record);
@@ -129,7 +129,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	    	this.fetching = false;
 			this.commit(r,record);
 			$A.SideBar.enable = $A.slideBarEnable;
-		}, this.onFetchFailed, this);
+		}, error:this.onFetchFailed, scope:this});
 	},
 	onFetchFailed: function(res){
 		$A.SideBar.enable = $A.slideBarEnable;
