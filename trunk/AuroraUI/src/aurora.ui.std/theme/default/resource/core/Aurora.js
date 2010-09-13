@@ -173,58 +173,61 @@ $A.getViewportWidth = function() {
 //}
 //$A.recordSize();
 
-$A.request = function(url, para, success, errorCall, scope, failureCall){
+$A.request = function(opt){
+	var url = opt.url,para = opt.para,successCall = opt.success,errorCall = opt.error,scope = opt.scope,failureCall = opt.failure;
+	var opts = Ext.apply({},opt.opts);
 	$A.manager.fireEvent('ajaxstart', url, para);
 	if($A.logWindow){
 		$A['_startTime'] = new Date();
 		$('HTTPWATCH_DATASET').create({'url':url,'request':Ext.util.JSON.encode({parameter:para})})
 	}
 	Ext.Ajax.request({
-			url: url,
-			method: 'POST',
-			params:{_request_data:Ext.util.JSON.encode({parameter:para})},
-			success: function(response){
-				if($A.logWindow){
-					var st = $A['_startTime'];
-					var ed = new Date();					
-					var record = $('HTTPWATCH_DATASET').getCurrentRecord();
-					record.set('spend',ed-st);
-					record.set('result',response.statusText);
-					record.set('status',response.status);
-					record.set('response',response.responseText);
+		url: url,
+		method: 'POST',
+		params:{_request_data:Ext.util.JSON.encode({parameter:para})},
+		opts:opts,
+		success: function(response,options){
+			if($A.logWindow){
+				var st = $A['_startTime'];
+				var ed = new Date();					
+				var record = $('HTTPWATCH_DATASET').getCurrentRecord();
+				record.set('spend',ed-st);
+				record.set('result',response.statusText);
+				record.set('status',response.status);
+				record.set('response',response.responseText);
+			}
+			$A.manager.fireEvent('ajaxcomplete', url, para,response);
+			if(response){
+				var res = null;
+				try {
+					res = Ext.decode(response.responseText);
+				}catch(e){
+					$A.showErrorMessage('错误', '返回格式不正确!');
+					return;
 				}
-				$A.manager.fireEvent('ajaxcomplete', url, para,response);
-				if(response){
-					var res = null;
-					try {
-						res = Ext.decode(response.responseText);
-					}catch(e){
-						$A.showErrorMessage('错误', '返回格式不正确!');
-						return;
-					}
-					if(res && !res.success){
-						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
-						if(res.error){
-							if(errorCall) {
-								errorCall.call(scope, res);
-							}else{
-								if(res.error.message)
-								    $A.showWarningMessage('警告', res.error.message,null,400,150);
-								else
-								    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
-							}	
-						}								    						    
-					} else {
-						$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
-						if(success)success.call(scope,res);
-					}
+				if(res && !res.success){
+					$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
+					if(res.error){
+						if(errorCall) {
+							errorCall.call(scope, res, options);
+						}else{
+							if(res.error.message)
+							    $A.showWarningMessage('警告', res.error.message,null,400,150);
+							else
+							    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
+						}	
+					}								    						    
+				} else {
+					$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
+					if(successCall)successCall.call(scope,res, options);
 				}
-			},
-			failure : function(response, opts){
-                if(failureCall)failureCall.call(scope, response, opts);
-			},
-			scope: scope
-		});
+			}
+		},
+		failure : function(response, options){
+            if(failureCall)failureCall.call(scope, response, options);
+		},
+		scope: scope
+	});
 }
 Aurora.dateFormat = function () { 
 	var masks = {  
@@ -537,7 +540,9 @@ $A.Masker = function(){
     var m = {
         container: {},
         mask : function(el,msg){
-        	if($A.Masker.container[el])return;
+        	if($A.Masker.container[el.id]){
+        	   return;
+        	}
         	msg = msg||'正在操作...';
         	var el = Ext.get(el);
             var w = el.getWidth();
@@ -550,14 +555,14 @@ $A.Masker = function(){
             var sp = masker.child('span');
             var size = $A.TextMetrics.measure(sp,msg);
             sp.setLeft((w-size.width)/2)
-            $A.Masker.container[el] = masker;
+            $A.Masker.container[el.id] = masker;
         },
         unmask : function(el){
-            var masker = $A.Masker.container[el];
+            var masker = $A.Masker.container[el.id];
             if(masker) {
                 Ext.fly(masker).remove();
-                $A.Masker.container[el] = null;
-                delete $A.Masker.container[el];
+                $A.Masker.container[el.id] = null;
+                delete $A.Masker.container[el.id];
             }
         }
     }

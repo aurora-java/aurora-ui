@@ -752,6 +752,10 @@ button div {
 .win-question {
     background-image: url(../window/icon-question.gif); 
 }
+.win-toolbar {
+    background: url(../grid/grid_bg.gif) repeat-x;
+    border-top:1px solid #ccc;
+}
 .item-lovButton {	
 	BACKGROUND: url(../core/itembar.gif) no-repeat 2px -42px;	
 }
