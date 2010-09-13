@@ -87,3 +87,7 @@
 .win-question {
     background-image: url(../window/icon-question.gif); 
 }
+.win-toolbar {
+    background: url(../grid/grid_bg.gif) repeat-x;
+    border-top:1px solid #ccc;
+}
