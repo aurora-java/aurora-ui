@@ -1029,7 +1029,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     processBindDataSetListener : function(ds,ou){
         var bdp = this.onDataSetMoify;
-        this[ou]('beforecreate', this.beforeCreate, this);//TODO:有待测试
+//        this[ou]('beforecreate', this.beforeCreate, this);//TODO:有待测试
         this[ou]('add', bdp, this);
         this[ou]('remove', bdp, this);
         this[ou]('update', bdp, this);
@@ -1383,7 +1383,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         var index = (this.currentPage-1)*this.pageSize + this.data.length;
         this.currentIndex = index;
         this.fireEvent("add", this, record, index);
-//        this.locate(index, true);
+        this.locate(index, true);
     },
     /**
      * 获取当前指针的Record. 
