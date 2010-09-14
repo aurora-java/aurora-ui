@@ -1370,7 +1370,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     add : function(record){
     	record.isNew = true;
-//    	record.isNewRecord = true;
         record.setDataSet(this);
         var index = this.data.length;
         this.data.add(record);
@@ -1384,7 +1383,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         var index = (this.currentPage-1)*this.pageSize + this.data.length;
         this.currentIndex = index;
         this.fireEvent("add", this, record, index);
-        this.locate(index, true);
+//        this.locate(index, true);
     },
     /**
      * 获取当前指针的Record. 
@@ -1455,7 +1454,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 var bd = $A.CmpManager.get(this.bindtarget);
                 opts = {record:bd.getCurrentRecord(),dataSet:this};
     		}
-	    	$A.request({url:this.submitUrl, para:p, success:this.onRemoveSuccess, error:this.onSubmitFailed, scope:this,failure:this.onAjaxFailed,opts:opts});
+	    	$A.request({url:this.submitUrl, para:p, success:this.onRemoveSuccess, error:this.onSubmitError, scope:this, failure:this.onAjaxFailed,opts:opts});
     	}
     
     },
@@ -1479,6 +1478,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                     }
                     this.refreshBindDataSet(options.opts.record,ds.getConfig())
                     delete ds;
+                }
+            }else{
+                for(var i=0;i<datas.length;i++){
+                    var data = datas[i];
+                    this.removeLocal(this.findById(data['_id']),true); 
                 }
             }
     	}
@@ -2018,7 +2022,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 					var ds = f.pro['dataset'];
 					ds.reConfig(r.data[f.name]);
 	    			if(data[k].record) {
-	    				//TODO:还是有问题,保存后新增有错误!!
                         ds.refreshRecord([].concat(data[k].record), this.getCurrentRecord() == r);                        
 	    			}
 				}else{
@@ -2268,7 +2271,7 @@ $A.Record.prototype = {
      * @param {Boolean} notChangeDirty true 不改变record的dirty状态.
      */
 	set : function(name, value, notChangeDirty){
-//		this.data[name] = (!this.data[name]) ? '' : this.data[name];//??
+//		this.data[name] = (!this.data[name]) ? '' : this.data[name];//点击一个必输后,不会触发验证失败
         if(this.data[name] == value){
             return;
         }
