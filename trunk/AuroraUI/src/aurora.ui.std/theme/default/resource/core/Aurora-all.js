@@ -735,6 +735,7 @@ $A.parseDate = function(str){
   	return null;      
 }
 $A.getRenderer = function(renderer){
+	if(!renderer) return null;
 	var rder;
     if(renderer.indexOf('Aurora.') != -1){
         rder = $A[renderer.substr(7,renderer.length)]
@@ -1067,18 +1068,15 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     onDataSetMoify : function(){
     	var bt = $A.CmpManager.get(this.bindtarget);
     	if(bt){
-            this.refreshBindDataSet(bt.getCurrentRecord())
+            this.refreshBindDataSet(bt.getCurrentRecord(),this.getConfig())
     	}
     },
-//    onDataSetMoify : function(ds,record){
-//    	this.refreshBindDataSet(this.getCurrentRecord())
-//    },
     onDataSetLoad : function(ds,options){
-    	this.refreshBindDataSet(options.opts.record)
+    	this.refreshBindDataSet(options.opts.record,ds.getConfig())
     },
-   	refreshBindDataSet: function(record){
+   	refreshBindDataSet: function(record,config){
     	if(!record)return;
-    	record.set(this.bindname,this.getConfig(),true)
+    	record.set(this.bindname,config,true)//this.getConfig()
 //    	for(var k in this.fields){
 //    		var field = this.fields[k];
 //    		if(field.type == 'dataset'){  
@@ -1317,7 +1315,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(this.bindtarget){
            var cr = $A.CmpManager.get(this.bindtarget).getCurrentRecord();
            if(options.opts.record && cr!=options.opts.record){
-               this.refreshBindDataSet(options.opts.record);
+               this.refreshBindDataSet(options.opts.record,this.getConfig());
                needFire = false;
            }
         }
@@ -1384,8 +1382,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    		}
 //    	}
         var index = (this.currentPage-1)*this.pageSize + this.data.length;
-        this.locate(index, true);
+        this.currentIndex = index;
         this.fireEvent("add", this, record, index);
+        this.locate(index, true);
     },
     /**
      * 获取当前指针的Record. 
@@ -1454,7 +1453,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		var opts;
     		if(this.bindtarget){
                 var bd = $A.CmpManager.get(this.bindtarget);
-                opts = {record:bd.getCurrentRecord()};
+                opts = {record:bd.getCurrentRecord(),dataSet:this};
     		}
 	    	$A.request({url:this.submitUrl, para:p, success:this.onRemoveSuccess, error:this.onSubmitFailed, scope:this,failure:this.onAjaxFailed,opts:opts});
     	}
@@ -1463,14 +1462,25 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     onRemoveSuccess: function(res,options){
     	if(res.result.record){
     		var datas = [].concat(res.result.record);
-    		for(var i=0;i<datas.length;i++){
-    			var data = datas[i];
-	    		var r = this.findById(data['_id']);
-	    		this.removeLocal(r);
-    		}
-    	}
-    	if(options.opts.record) {
-            this.refreshBindDataSet(options.opts.record)
+    		if(this.bindtarget){
+                var bd = $A.CmpManager.get(this.bindtarget);
+                if(bd.getCurrentRecord()==options.opts.record){
+                    for(var i=0;i<datas.length;i++){
+                        var data = datas[i];
+                        this.removeLocal(this.findById(data['_id'])); 
+                    }
+                }else{
+                    var config = options.opts.record.get(this.bindname);
+                    var ds = new $A.DataSet({});
+                    ds.reConfig(config);
+                    for(var i=0;i<datas.length;i++){
+                        var data = datas[i];
+                        ds.removeLocal(ds.findById(data['_id']));
+                    }
+                    this.refreshBindDataSet(options.opts.record,ds.getConfig())
+                    delete ds;
+                }
+            }
     	}
     },
     removeLocal: function(record){
@@ -1860,7 +1870,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		url = this.queryUrl + '&' + para;
     	}
     	this.loading = true;
-    	this.fireEvent("beforeload", this);
+//    	this.fireEvent("beforeload", this);
+    	this.fireBindDataSetEvent("beforeload", this);
     	$A.request({url:url, para:q, success:this.onLoadSuccess, error:this.onLoadError, scope:this,failure:this.onAjaxFailed,opts:opts});
     },
     /**
