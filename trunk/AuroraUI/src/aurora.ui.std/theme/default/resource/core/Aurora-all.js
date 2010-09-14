@@ -1467,7 +1467,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 if(bd.getCurrentRecord()==options.opts.record){
                     for(var i=0;i<datas.length;i++){
                         var data = datas[i];
-                        this.removeLocal(this.findById(data['_id'])); 
+                        this.removeLocal(this.findById(data['_id']),true); 
                     }
                 }else{
                     var config = options.opts.record.get(this.bindname);
@@ -1475,7 +1475,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                     ds.reConfig(config);
                     for(var i=0;i<datas.length;i++){
                         var data = datas[i];
-                        ds.removeLocal(ds.findById(data['_id']));
+                        ds.removeLocal(ds.findById(data['_id']),true);
                     }
                     this.refreshBindDataSet(options.opts.record,ds.getConfig())
                     delete ds;
@@ -1483,11 +1483,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
     	}
     },
-    removeLocal: function(record){
+    removeLocal: function(record,count){
     	$A.removeInvalidReocrd(this.id, record)
     	var index = this.data.indexOf(record);    	
     	if(index == -1)return;
         this.data.remove(record);
+        if(count) this.totalCount --;
         this.selected.remove(record);
         if(this.data.length == 0){
         	this.removeAll();
@@ -1999,6 +2000,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	for(var i=0,l=datas.length;i<l;i++){
     		var data = datas[i];
 	    	var r = this.findById(data['_id']);
+	    	if(r.isNew) this.totalCount ++;
 	    	if(!r) return;	 
 	    	for(var k in data){
 	    		var field = k;
