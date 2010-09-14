@@ -311,6 +311,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     preLoad : function(){},
     onLoad : function(){//(focus)
+    	this.clearDomRef();
     	this.preLoad();
         var cb = Ext.fly(this.wrap).child('div[atype=grid.headcheck]');
         if(this.selectable && this.selectionmodel=='multiple')this.setCheckBoxStatus(cb,false);
@@ -319,6 +320,10 @@ $A.Grid = Ext.extend($A.Component,{
         this.renderUnLockAread();
 //        if(focus !== false) this.focus.defer(10,this);//获取数据后的获得焦点,会引起其他编辑器无法编辑
         $A.Masker.unmask(this.wb);
+    },
+    clearDomRef : function(){
+    	this.selectlockTr = null;
+        this.selectUnlockTr = null;
     },
     onAjaxFailed : function(res,opt){
         $A.Masker.unmask(this.wb);
