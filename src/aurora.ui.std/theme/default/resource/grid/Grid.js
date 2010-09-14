@@ -21,20 +21,21 @@ $A.Grid = Ext.extend($A.Component,{
     },
     initComponent:function(config){
         $A.Grid.superclass.initComponent.call(this, config);
+        var wp = this.wrap;
         this.wb = Ext.get(this.id+'_wrap');
-        this.uc = this.wrap.child('div[atype=grid.uc]');
-        this.uh = this.wrap.child('div[atype=grid.uh]');
-        this.ub = this.wrap.child('div[atype=grid.ub]'); 
-        this.uht = this.wrap.child('table[atype=grid.uht]'); 
+        this.uc = wp.child('div[atype=grid.uc]');
+        this.uh = wp.child('div[atype=grid.uh]');
+        this.ub = wp.child('div[atype=grid.ub]'); 
+        this.uht = wp.child('table[atype=grid.uht]'); 
         
-        this.lc = this.wrap.child('div[atype=grid.lc]'); 
-        this.lh = this.wrap.child('div[atype=grid.lh]');
-        this.lb = this.wrap.child('div[atype=grid.lb]');
-        this.lht = this.wrap.child('table[atype=grid.lht]'); 
+        this.lc = wp.child('div[atype=grid.lc]'); 
+        this.lh = wp.child('div[atype=grid.lh]');
+        this.lb = wp.child('div[atype=grid.lb]');
+        this.lht = wp.child('table[atype=grid.lht]'); 
 
-        this.sp = this.wrap.child('div[atype=grid.spliter]');
+        this.sp = wp.child('div[atype=grid.spliter]');
         Ext.getBody().insertFirst(this.sp)
-        this.fs = this.wrap.child('a[atype=grid.focus]');
+        this.fs = wp.child('a[atype=grid.focus]');
         
         var lock =[],unlock = [],columns=[];
         for(var i=0,l=this.columns.length;i<l;i++){
