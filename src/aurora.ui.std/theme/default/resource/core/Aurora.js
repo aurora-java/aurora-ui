@@ -735,6 +735,7 @@ $A.parseDate = function(str){
   	return null;      
 }
 $A.getRenderer = function(renderer){
+	if(!renderer) return null;
 	var rder;
     if(renderer.indexOf('Aurora.') != -1){
         rder = $A[renderer.substr(7,renderer.length)]
