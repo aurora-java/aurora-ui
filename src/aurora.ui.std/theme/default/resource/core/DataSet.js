@@ -1144,6 +1144,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.fireEvent('metachange', this, record, meta, type, value)
     },
     onRecordValid : function(record, name, valid){
+    	if(valid==false && this.isValid !== false) this.isValid = false;
     	this.fireEvent('valid', this, record, name, valid)
     }
 });
@@ -1238,7 +1239,6 @@ $A.Record.prototype = {
 		for(var k in df){
 			if(df[k].type !='dataset')
 			names.add(k);
-//			names.add(k.toLowerCase());
 		}
 		
 		for(var k in rf){
@@ -1246,10 +1246,6 @@ $A.Record.prototype = {
 				if(rf[k].type !='dataset')
 				names.add(k);
 			}
-		
-//			if(names.indexOf(k.toLowerCase()) == -1){
-//				names.add(k.toLowerCase());
-//			}
 		}
 		for(var i=0,l=names.length;i<l;i++){
 			if(this.isValid == true) {
@@ -1281,7 +1277,7 @@ $A.Record.prototype = {
 			}
 		}
 		if(valid==true) delete this.valid[name];
-		this.ds.onRecordValid(this,name,valid)
+		this.ds.onRecordValid(this,name,valid);
 		return valid;
 	},
     setDataSet : function(ds){
@@ -1308,10 +1304,10 @@ $A.Record.prototype = {
      * 设置值.
      * @param {String} name 设定值的名字.
      * @param {Object} value 设定的值.
-     * @param {Boolean} notChangeDirty true不改变record的dirty状态.
+     * @param {Boolean} notChangeDirty true 不改变record的dirty状态.
      */
 	set : function(name, value, notChangeDirty){
-		this.data[name] = (!this.data[name]) ? '' : this.data[name];
+//		this.data[name] = (!this.data[name]) ? '' : this.data[name];//??
         if(this.data[name] == value){
             return;
         }
