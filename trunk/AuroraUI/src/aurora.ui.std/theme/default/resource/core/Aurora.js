@@ -395,7 +395,7 @@ $A.ToolTip = function(){
 		show: function(el, text){
 			if(this.tip == null){
 				this.init();
-				return;
+				//return;
 			}
 			this.tip.show();
 			this.shadow.show();
