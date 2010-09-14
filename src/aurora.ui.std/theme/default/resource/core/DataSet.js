@@ -70,7 +70,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     processBindDataSetListener : function(ds,ou){
         var bdp = this.onDataSetMoify;
-        this[ou]('beforecreate', this.beforeCreate, this);//TODO:有待测试
+//        this[ou]('beforecreate', this.beforeCreate, this);//TODO:有待测试
         this[ou]('add', bdp, this);
         this[ou]('remove', bdp, this);
         this[ou]('update', bdp, this);
