@@ -1098,7 +1098,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         return v;
     },    
     onSubmitError : function(res){
-    	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
+//    	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
     	this.fireBindDataSetEvent('submitfailed');
 //		this.fireEvent('submitfailed', this, res);	
     },
@@ -1131,7 +1131,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     onLoadError : function(res,opt){
     	this.fireEvent('loadfailed', this);
-    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
+//    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
     	this.loading = false;
     	$A.SideBar.enable = $A.slideBarEnable;
     },
