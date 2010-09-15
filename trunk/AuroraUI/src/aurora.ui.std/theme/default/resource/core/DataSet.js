@@ -1035,35 +1035,27 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var datas = []
     	if(res.result.record){
     		datas = [].concat(res.result.record);
-    		this.refreshRecord(datas,true)
+    		this.commitRecords(datas,true)
     	}
     	this.fireBindDataSetEvent('submitsuccess');
 //    	this.fireEvent('submitsuccess', this, datas, res)
     },
-    refreshRecord : function(datas,fire){
+    commitRecords : function(datas,fire){
     	//this.resetConfig();
     	for(var i=0,l=datas.length;i<l;i++){
     		var data = datas[i];
 	    	var r = this.findById(data['_id']);
 	    	if(r.isNew) this.totalCount ++;
-	    	if(!r) return;	 
+	    	if(!r) return;
+	    	r.commit();
 	    	for(var k in data){
 	    		var field = k;
-//	    		if(!this.fields[k]){
-//	    			for(var kf in this.fields){
-//	    				if(k == kf){
-////	    				if(k.toLowerCase() == kf.toLowerCase()){
-//	    					field = kf;
-//	    					break;
-//	    				}
-//	    			}
-//	    		}
 				var f = this.fields[field];
 				if(f && f.type == 'dataset'){
 					var ds = f.pro['dataset'];
 					ds.reConfig(r.data[f.name]);
 	    			if(data[k].record) {
-                        ds.refreshRecord([].concat(data[k].record), this.getCurrentRecord() == r);                        
+                        ds.commitRecords([].concat(data[k].record), this.getCurrentRecord() == r);                     
 	    			}
 				}else{
 					var ov = r.get(field);
@@ -1074,14 +1066,15 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 					}
 					if(ov != nv) {
 						if(fire){
-                            r.set(field,nv);
+							//由于commit放到上面,这个时候不改变状态,防止重复提交
+                            r.set(field,nv, true);
 						}else{
                             r.data[field] = nv;
 						}
 					}
 				}
 	       	}
-	       	r.clear();
+//	       	r.commit();//挪到上面了,record.set的时候会触发update事件,重新渲染.有可能去判断isNew的状态
     	}
     },
     processData: function(value,field){
@@ -1220,7 +1213,7 @@ $A.Record = function(data, fields){
     if(fields)this.initFields(fields);
 };
 $A.Record.prototype = {
-	clear : function() {
+	commit : function() {
 		this.editing = false;
 		this.valid = {};
 		this.isValid = true;
@@ -1265,12 +1258,11 @@ $A.Record.prototype = {
 		var valid = true;
 		var v = this.get(name);
 		var field = this.getMeta().getField(name)
-//		if(!v && field.snap.required == true){
+        var validator = field.get('validator');
 		if(!v && field.get('required') == true){
 			this.valid[name] = '当前字段不能为空!';
 			valid =  false;
 		}else{
-			var validator = field.snap.validator;
 			var isvalid = true;
 			if(validator){
 				validator = window[validator];
