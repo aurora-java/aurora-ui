@@ -133,7 +133,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	},
 	onFetchFailed: function(res){
 		$A.SideBar.enable = $A.slideBarEnable;
-		$A.showErrorMessage('错误', res.error.message);
+//		$A.showErrorMessage('错误', res.error.message);
 	},
 //	onBlur : function(e){
 //        if(this.isEventFromComponent(e.target)) return;

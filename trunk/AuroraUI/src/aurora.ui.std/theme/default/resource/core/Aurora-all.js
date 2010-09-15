@@ -208,14 +208,15 @@ $A.request = function(opt){
 				if(res && !res.success){
 					$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 					if(res.error){
-						if(errorCall) {
-							errorCall.call(scope, res, options);
+						var st = res.error.stackTrace;
+						st = st.replaceAll('\r\n','</br>');
+						if(res.error.message) {
+						    $A.showErrorMessage('错误', '<font color="red"><b>'+res.error.message+'</b></font></br></br>'+st,null,400,250);
 						}else{
-							if(res.error.message)
-							    $A.showWarningMessage('警告', res.error.message,null,400,150);
-							else
-							    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
-						}	
+						    $A.showErrorMessage('错误', st,null,400,250);
+						}
+						if(errorCall)
+                        errorCall.call(scope, res, options);	
 					}								    						    
 				} else {
 					$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
@@ -324,6 +325,11 @@ Ext.applyIf(Array.prototype, {
 		this[this.length] = o;
 	}
 });
+Ext.applyIf(String.prototype, {
+    replaceAll : function(s1,s2){
+        return this.replace(new RegExp(s1,"gm"),s2);  
+    }
+}); 
 
 $A.TextMetrics = function(){
     var shared;
@@ -2057,7 +2063,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         return v;
     },    
     onSubmitError : function(res){
-    	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
+//    	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
     	this.fireBindDataSetEvent('submitfailed');
 //		this.fireEvent('submitfailed', this, res);	
     },
@@ -2090,7 +2096,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     onLoadError : function(res,opt){
     	this.fireEvent('loadfailed', this);
-    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
+//    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
     	this.loading = false;
     	$A.SideBar.enable = $A.slideBarEnable;
     },
@@ -4977,7 +4983,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	},
 	onFetchFailed: function(res){
 		$A.SideBar.enable = $A.slideBarEnable;
-		$A.showErrorMessage('错误', res.error.message);
+//		$A.showErrorMessage('错误', res.error.message);
 	},
 //	onBlur : function(e){
 //        if(this.isEventFromComponent(e.target)) return;

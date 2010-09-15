@@ -208,14 +208,15 @@ $A.request = function(opt){
 				if(res && !res.success){
 					$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 					if(res.error){
-						if(errorCall) {
-							errorCall.call(scope, res, options);
+						var st = res.error.stackTrace;
+						st = st.replaceAll('\r\n','</br>');
+						if(res.error.message) {
+						    $A.showErrorMessage('错误', '<font color="red"><b>'+res.error.message+'</b></font></br></br>'+st,null,400,250);
 						}else{
-							if(res.error.message)
-							    $A.showWarningMessage('警告', res.error.message,null,400,150);
-							else
-							    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
-						}	
+						    $A.showErrorMessage('错误', st,null,400,250);
+						}
+						if(errorCall)
+                        errorCall.call(scope, res, options);	
 					}								    						    
 				} else {
 					$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
@@ -324,6 +325,11 @@ Ext.applyIf(Array.prototype, {
 		this[this.length] = o;
 	}
 });
+Ext.applyIf(String.prototype, {
+    replaceAll : function(s1,s2){
+        return this.replace(new RegExp(s1,"gm"),s2);  
+    }
+}); 
 
 $A.TextMetrics = function(){
     var shared;
