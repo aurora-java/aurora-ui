@@ -44,7 +44,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                sf.query(); 
             });
     	}
-    	if(config.autoCreate==true) this.create();
+    	if(config.autoCreate==true) {
+            if(this.data.length == 0)
+            this.create();
+    	}
     },
     destroy : function(){
     	if(this.bindtarget&&this.bindname){
