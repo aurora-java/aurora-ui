@@ -167,8 +167,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		if(index==-1)return;
 		var record = this.optionDataSet.getAt(index);
 		var value = record.get(this.valuefield);
-		var display = record.get(this.displayfield);
-//		this.setValue(value);
+		var display = this.getRenderText(record);//record.get(this.displayfield);
 		this.setValue(display);
 		this.fireEvent('select',this, value, display, record);
 	},
@@ -200,18 +199,23 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			for(var i=0;i<l;i++){
 //				var d = Ext.apply(datas[i].data, {index:i})
 				var rder = $A.getRenderer(this.renderer);
-				var text = '&#160;';
-				if(rder){
-					text = rder.call(window,this,datas[i]);
-				}else{
-					text = datas[i].get(this.displayfield);
-				}
+				var text = this.getRenderText(datas[i]);
 				sb.add('<li tabIndex="'+i+'">'+text+'</li>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
 			}
 			if(l!=0){
 				this.view.update(sb.join(''));			
 			}
 		}
+	},
+	getRenderText : function(record){
+        var rder = $A.getRenderer(this.renderer);
+        var text = '&#160;';
+        if(rder){
+            text = rder.call(window,this,record);
+        }else{
+            text = record.get(this.displayfield);
+        }
+		return text;
 	},
 	refresh:function(){
 		this.view.update('');
