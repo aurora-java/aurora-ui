@@ -209,9 +209,10 @@ $A.request = function(opt){
 					$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 					if(res.error){
 						var st = res.error.stackTrace;
-						st = st.replaceAll('\r\n','</br>');
+						st = (st) ? st.replaceAll('\r\n','</br>') : '';
 						if(res.error.message) {
-						    $A.showErrorMessage('错误', '<font color="red"><b>'+res.error.message+'</b></font></br></br>'+st,null,400,250);
+							var h = (st=='') ? 150 : 250;
+						    $A.showErrorMessage('错误', '<font color="red">'+res.error.message+'</font></br>'+st,null,400,h);
 						}else{
 						    $A.showErrorMessage('错误', st,null,400,250);
 						}
