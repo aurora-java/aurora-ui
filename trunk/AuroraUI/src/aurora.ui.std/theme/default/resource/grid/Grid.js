@@ -16,7 +16,7 @@ $A.Grid = Ext.extend($A.Component,{
         this.overId = null;
         this.selectedId = null;
         this.lockWidth = 0;
-        this.autofocus = config.autofocus||false;
+        this.autofocus = config.autofocus||true;
         $A.Grid.superclass.constructor.call(this,config);
     },
     initComponent:function(config){
@@ -329,8 +329,7 @@ $A.Grid = Ext.extend($A.Component,{
     onAjaxFailed : function(res,opt){
         $A.Masker.unmask(this.wb);
     },
-    focus: function(){
-    	if(this.autofocus)
+    focus: function(){    	
         this.fs.focus();
     },
     renderLockArea : function(){
@@ -698,6 +697,7 @@ $A.Grid = Ext.extend($A.Component,{
             var st = this.ub.dom.scrollWidth > this.ub.dom.clientWidth ? (row+1)*r-this.ub.getHeight() + 16 : (row+1)*r-this.ub.getHeight();
             this.ub.scrollTo('top',st)
         }
+        if(this.autofocus)
         this.focus();
     },
     focusColumn: function(name){
@@ -725,6 +725,7 @@ $A.Grid = Ext.extend($A.Component,{
         if((lr-sleft)>(this.width-lw)){
             this.ub.scrollTo('left',lr  - this.width + lw)
         }
+        if(this.autofocus)
         this.focus();
     },
     /**
