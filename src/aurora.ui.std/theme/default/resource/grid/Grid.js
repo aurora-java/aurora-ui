@@ -798,6 +798,10 @@ $A.Grid = Ext.extend($A.Component,{
             var index = target.getAttributeNS("","dataindex");
             var col = this.findColByName(index);
             if(col && col.sortable === true){
+            	if(this.dataset.isModified()){
+                    $A.showInfoMessage('提示', '有未保存数据!');
+                    return;
+            	}
                 var d = target.child('div');
                 this.dataset.setQueryParameter('ORDER_FIELD', index);
                 if(this.currentSortTarget){
@@ -806,16 +810,21 @@ $A.Grid = Ext.extend($A.Component,{
                     cst.removeClass('grid-asc');
                 }
                 this.currentSortTarget = d;
-                if(col.sorttype == 'asc') {
+                if(Ext.isEmpty(col.sorttype)) {
                     col.sorttype = 'desc'
                     d.removeClass('grid-asc');
                     d.addClass('grid-desc');
                     this.dataset.setQueryParameter('ORDER_TYPE', 'desc');
-                }else{
+                } else if(col.sorttype == 'desc'){
                     col.sorttype = 'asc';
                     d.removeClass('grid-desc');
                     d.addClass('grid-asc');
                     this.dataset.setQueryParameter('ORDER_TYPE', 'asc');
+                }else {
+                    col.sorttype = '';
+                    d.removeClass('grid-desc');
+                    d.removeClass('grid-asc');
+                    delete this.dataset.qpara['ORDER_TYPE'];
                 }
                 if(this.dataset.getAll().length!=0)this.dataset.query();
             }
