@@ -212,7 +212,7 @@ $A.request = function(opt){
 						st = (st) ? st.replaceAll('\r\n','</br>') : '';
 						if(res.error.message) {
 							var h = (st=='') ? 150 : 250;
-						    $A.showErrorMessage('错误', '<font color="red">'+res.error.message+'</font></br>'+st,null,400,h);
+						    $A.showErrorMessage('错误', res.error.message+'</br>'+st,null,400,h);
 						}else{
 						    $A.showErrorMessage('错误', st,null,400,250);
 						}
