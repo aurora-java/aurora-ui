@@ -1041,7 +1041,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		this.commitRecords(datas,true)
     	}
     	this.fireBindDataSetEvent('submitsuccess');
-//    	this.fireEvent('submitsuccess', this, datas, res)
     },
     commitRecords : function(datas,fire){
     	//this.resetConfig();
@@ -1103,7 +1102,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     onSubmitError : function(res){
 //    	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
     	this.fireBindDataSetEvent('submitfailed');
-//		this.fireEvent('submitfailed', this, res);	
     },
     onLoadSuccess : function(res, options){
     	if(res == null) return;
@@ -1130,10 +1128,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     onAjaxFailed : function(res,opt){
     	this.fireBindDataSetEvent('ajaxfailed');
-//        this.fireEvent('ajaxfailed', this);
     },
     onLoadError : function(res,opt){
-    	this.fireEvent('loadfailed', this);
+    	this.fireBindDataSetEvent('loadfailed', this);
 //    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
     	this.loading = false;
     	$A.SideBar.enable = $A.slideBarEnable;
@@ -1262,7 +1259,7 @@ $A.Record.prototype = {
 		var v = this.get(name);
 		var field = this.getMeta().getField(name)
         var validator = field.get('validator');
-		if(!v && field.get('required') == true){
+		if(Ext.isEmpty(v) && field.get('required') == true){
 			this.valid[name] = '当前字段不能为空!';
 			valid =  false;
 		}else{
