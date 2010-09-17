@@ -4998,6 +4998,7 @@ $A.Lov = Ext.extend($A.TextField,{
 //        $A.Lov.superclass.onBlur.call(this,e);
 //    },
 	showLovWindow : function(e){
+		debugger
 		e.stopEvent();
 		if(this.fetching||this.isWinOpen||this.readonly) return;
 		this.isWinOpen = true;
