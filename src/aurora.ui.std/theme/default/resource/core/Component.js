@@ -184,7 +184,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 			}else{
                 this.clearValue();
 			}
-		}else{
+		} else {
 			this.setValue('',true);
 		}
     },
