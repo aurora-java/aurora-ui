@@ -330,7 +330,7 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     if(cmp == null) {
         var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok','确定');
         var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel','取消');
-        cmp = new $A.Window({id:'aurora-msg-ok-cancel',title:title, height:height,width:width});
+        cmp = new $A.Window({id:'aurora-msg-ok-cancel',title:title, height:height||100,width:width||300});
         if(msg){
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
                 var okbtn = $("aurora-msg-ok");
