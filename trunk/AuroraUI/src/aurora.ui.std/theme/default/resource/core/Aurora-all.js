@@ -2729,11 +2729,9 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 //			if(this.value == value) return;
 			if(!Ext.isEmpty(value,true)) {
                 this.setValue(value,true);
+			}else{
+                this.clearValue();
 			}
-			//??会引起一进来就设置''的值,引起update事件
-//			else{
-//                this.setValue('',true);
-//			}
 		}else{
 			this.setValue('',true);
 		}
@@ -2921,8 +2919,8 @@ $A.Field = Ext.extend($A.Component,{
 	},
     initStatus : function(){
     	this.clearInvalid();
-    	this.setRequired(this.required);
-    	this.setReadOnly(this.readonly);
+    	this.initRequired(this.required);
+    	this.initReadOnly(this.readonly);
     },
 //    onMouseOver : function(e){
 //    	$A.ToolTip.show(this.id, "测试");
@@ -3009,7 +3007,7 @@ $A.Field = Ext.extend($A.Component,{
 //		v=(v === null || v === undefined ? '' : v);
 //		return v;
 //    },
-    setRequired : function(required){
+    initRequired : function(required){
     	if(this.crrentRequired == required)return;
 		this.clearInvalid();    	
     	this.crrentRequired = required;
@@ -3019,7 +3017,7 @@ $A.Field = Ext.extend($A.Component,{
     		this.wrap.removeClass(this.requiredCss);
     	}
     },
-    setReadOnly : function(readonly){
+    initReadOnly : function(readonly){
     	if(this.currentReadOnly == readonly)return;
     	this.currentReadOnly = readonly;
     	this.el.dom.readOnly = readonly;
@@ -3398,12 +3396,12 @@ $A.CheckBox = Ext.extend($A.Component,{
 		v=(v === null || v === undefined ? '' : v);
 		return v;
     },
-	setReadOnly:function(b){
-		if(typeof(b)==='boolean'){
-			this.readonly=b?true:false;	
-			this.initStatus();		
-		}		
-	},
+//	setReadOnly:function(b){
+//		if(typeof(b)==='boolean'){
+//			this.readonly=b?true:false;	
+//			this.initStatus();		
+//		}		
+//	},
 	initStatus:function(){
 		this.el.removeClass(this.checkedCss);
 		this.el.removeClass(this.uncheckedCss);
@@ -3516,12 +3514,12 @@ $A.Radio = Ext.extend($A.Component, {
 		v=(v === null || v === undefined ? '' : v);
 		return v;
     },
-	setReadOnly:function(b){
-		if(typeof(b)==='boolean'){
-			this.readonly=b?true:false;	
-			this.initStatus();		
-		}
-	},
+//	setReadOnly:function(b){
+//		if(typeof(b)==='boolean'){
+//			this.readonly=b?true:false;	
+//			this.initStatus();		
+//		}
+//	},
 	initStatus:function(){
 		var l=this.nodes.length;
 		for (var i = 0; i < l; i++) {
