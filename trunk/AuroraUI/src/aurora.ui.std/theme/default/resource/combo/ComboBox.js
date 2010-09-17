@@ -187,7 +187,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		//值过滤先不添加
 		this.onRender();	
 	},
-	initList: function(){	
+	initList: function(){
 		this.refresh();
 //		this.litp=new Ext.Template('<li tabIndex="{index}">{'+this.displayfield+'}&#160;</li>');
 		if(this.optionDataSet.loading == true){
