@@ -284,7 +284,12 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //    					var vl = record ? (record.get(map.from)||'') : '';
 //    					if(vl!=''){
     					if(!Ext.isEmpty(vl,true)){
-                            this.record.set(map.to,vl);
+    						//避免render的时候发生update事件
+    						if(silent){
+                                this.record.data[map.to] = vl;
+    						}else{
+    						    this.record.set(map.to,vl);						
+    						}
     					}else{
     						delete this.record.data[map.to];
     					}
