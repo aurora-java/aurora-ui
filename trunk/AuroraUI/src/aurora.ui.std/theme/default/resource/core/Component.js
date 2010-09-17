@@ -181,9 +181,11 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 //			if(this.value == value) return;
 			if(!Ext.isEmpty(value,true)) {
                 this.setValue(value,true);
-			}else{
-                this.setValue('',true);
 			}
+			//??会引起一进来就设置''的值,引起update事件
+//			else{
+//                this.setValue('',true);
+//			}
 		}else{
 			this.setValue('',true);
 		}
