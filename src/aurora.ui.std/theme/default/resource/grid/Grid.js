@@ -913,7 +913,7 @@ $A.Grid = Ext.extend($A.Component,{
         if(this.selectlockTr)this.selectlockTr.setStyle(this.bgc,this.scor);
         this.focusRow(row);
         
-        var r = (this.dataset.currentPage-1)*this.dataset.pageSize + row+1;
+        var r = (this.dataset.currentPage-1)*this.dataset.pagesize + row+1;
         this.selectRecord = record
         if(locate!==false && r != null) {
 //          this.dataset.locate(r);
