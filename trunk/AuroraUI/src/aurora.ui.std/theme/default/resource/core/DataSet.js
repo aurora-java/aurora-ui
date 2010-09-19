@@ -11,16 +11,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {//datas,fields, type
 		$A.DataSet.superclass.constructor.call(this);
 		config = config || {};
+		if(config.listeners){
+            this.on(config.listeners);
+        }
 		this.pageid = config.pageid;
     	this.spara = {};
     	this.selected = [];
-    	this.pageSize = config.pageSize || 10;
-    	this.submitUrl = config.submitUrl || '';
-    	this.queryUrl = config.queryUrl || '';
-    	this.fetchAll = config.fetchAll;
-    	this.selectable = config.selectable;
-    	this.selectionmodel = config.selectionmodel;
-    	this.autoCount = config.autoCount;
+    	this.pagesize = config.pagesize || 10;
+    	this.submiturl = config.submiturl || '';
+    	this.queryurl = config.queryurl || '';
+    	this.fetchall = config.fetchall||false;
+    	this.selectable = config.selectable||false;
+    	this.selectionmodel = config.selectionmodel||'multiple';
+    	this.autocount = config.autocount;
     	this.bindtarget = config.bindtarget;
     	this.bindname = config.bindname;
 		this.loading = false;
@@ -30,7 +33,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		this.id = config.id || Ext.id();
         $A.CmpManager.put(this.id,this)	
         if(this.bindtarget&&this.bindname) this.bind($(this.bindtarget),this.bindname);//$(this.bindtarget).bind(this.bindname,this);
-    	this.qds = Ext.isEmpty(config.queryDataSet) ? null :$(config.queryDataSet);
+    	this.qds = Ext.isEmpty(config.querydataset) ? null :$(config.querydataset);
     	if(this.qds != null && this.qds.getCurrentRecord() == null) this.qds.create();
     	this.initEvents();
     	if(config.fields)this.initFields(config.fields)
@@ -38,13 +41,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		this.loadData(config.datas);
     		//this.locate(this.currentIndex); //不确定有没有影响
     	}
-    	if(config.autoQuery === true) {
+    	if(config.autoquery === true) {
             var sf = this;
             Ext.onReady(function(){
                sf.query(); 
             });
     	}
-    	if(config.autoCreate==true) {
+    	if(config.autocreate==true) {
             if(this.data.length == 0)
             this.create();
     	}
@@ -340,7 +343,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }else{
         	this.totalCount = datas.length;
         }
-    	this.totalPage = Math.ceil(this.totalCount/this.pageSize)
+    	this.totalPage = Math.ceil(this.totalCount/this.pagesize)
     	for(var i = 0, len = datas.length; i < len; i++){
     		var data = datas[i].data||datas[i];
     		for(var key in this.fields){
@@ -384,7 +387,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var data = Ext.apply(data||{},dd);
     	var record = new $A.Record(data);
         this.add(record); 
-//        var index = (this.currentPage-1)*this.pageSize + this.data.length;
+//        var index = (this.currentPage-1)*this.pagesize + this.data.length;
 //        this.locate(index, true);
         return record;
     },
@@ -424,7 +427,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    			ds.resetConfig()   			
 //    		}
 //    	}
-        var index = (this.currentPage-1)*this.pageSize + this.data.length;
+        var index = (this.currentPage-1)*this.pagesize + this.data.length;
         this.currentIndex = index;
         this.fireEvent("add", this, record, index);
         this.locate(index, true);
@@ -435,7 +438,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     getCurrentRecord : function(){
     	if(this.data.length ==0) return null;
-    	return this.data[this.currentIndex - (this.currentPage-1)*this.pageSize -1];
+    	return this.data[this.currentIndex - (this.currentPage-1)*this.pagesize -1];
     },
     /**
      * 插入数据. 
@@ -475,7 +478,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.removeRemote(rrs);    	
     },
     removeRemote: function(rs){    	
-    	if(this.submitUrl == '') return;
+    	if(this.submiturl == '') return;
     	var p = [];
     	for(var k=0;k<rs.length;k++){
     		var r = rs[k]
@@ -498,7 +501,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 var bd = $A.CmpManager.get(this.bindtarget);
                 opts = {record:bd.getCurrentRecord(),dataSet:this};
     		}
-	    	$A.request({url:this.submitUrl, para:p, success:this.onRemoveSuccess, error:this.onSubmitError, scope:this, failure:this.onAjaxFailed,opts:opts});
+	    	$A.request({url:this.submiturl, para:p, success:this.onRemoveSuccess, error:this.onSubmitError, scope:this, failure:this.onAjaxFailed,opts:opts});
     	}
     
     },
@@ -542,7 +545,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         	this.removeAll();
         	return;
         }
-        var lindex = this.currentIndex - (this.currentPage-1)*this.pageSize;
+        var lindex = this.currentIndex - (this.currentPage-1)*this.pagesize;
         if(lindex<0)return;
         if(lindex<=this.data.length){
         	this.locate(this.currentIndex,true);
@@ -712,7 +715,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	if(this.currentIndex == index && force !== true) return;
 //    	if(valid !== false) if(!this.validCurrent())return;
     	if(index <=0 || (index > this.totalCount + this.getNewRecrods().length))return;
-    	var lindex = index - (this.currentPage-1)*this.pageSize;
+    	var lindex = index - (this.currentPage-1)*this.pagesize;
     	if(this.data[lindex - 1]){
 	    	this.currentIndex = index;
     	}else{
@@ -720,7 +723,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     			$A.showInfoMessage('提示', '有未保存数据!')
     		}else{
 				this.currentIndex = index;
-				this.currentPage =  Math.ceil(index/this.pageSize);
+				this.currentPage =  Math.ceil(index/this.pagesize);
 				this.query(this.currentPage);
 				return;
     		}
@@ -734,8 +737,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     goPage : function(page){
     	if(page >0) {
     		this.gotoPage = page;
-	    	var go = (page-1)*this.pageSize + this.getNewRecrods().length +1;
-//	    	var go = Math.max(0,page-2)*this.pageSize + this.data.length + 1;
+	    	var go = (page-1)*this.pagesize + this.getNewRecrods().length +1;
+//	    	var go = Math.max(0,page-2)*this.pagesize + this.data.length + 1;
 	    	this.locate(go);
     	}
     },
@@ -850,7 +853,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {String} url 查询的Url.
      */
     setQueryUrl : function(url){
-    	this.queryUrl = url;
+    	this.queryurl = url;
     },
     /**
      * 设置查询的参数.
@@ -873,7 +876,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {String} url 提交的Url.
      */
     setSubmitUrl : function(url){
-    	this.submitUrl = url;
+    	this.submiturl = url;
     },
     /**
      * 设置提交的参数.
@@ -896,7 +899,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		if(!this.qds.validate()) return;
     		r = this.qds.getCurrentRecord();
     	}
-    	if(!this.queryUrl) return;
+    	if(!this.queryurl) return;
     	if(!page) this.currentIndex = 1;
     	this.currentPage = page || 1;
     	
@@ -907,16 +910,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	   var v = q[k];
     	   if(Ext.isEmpty(v,false)) delete q[k];
     	}
-    	var para = 'pagesize='+this.pageSize + 
+    	var para = 'pagesize='+this.pagesize + 
     				  '&pagenum='+this.currentPage+
-    				  '&_fetchall='+this.fetchAll+
-    				  '&_autocount='+this.autoCount
+    				  '&_fetchall='+this.fetchall+
+    				  '&_autocount='+this.autocount
 //    				  + '&_rootpath=list'
     	var url = '';
-    	if(this.queryUrl.indexOf('?') == -1){
-    		url = this.queryUrl + '?' + para;
+    	if(this.queryurl.indexOf('?') == -1){
+    		url = this.queryurl + '?' + para;
     	}else{
-    		url = this.queryUrl + '&' + para;
+    		url = this.queryurl + '&' + para;
     	}
     	this.loading = true;
 //    	this.fireEvent("beforeload", this);
@@ -998,8 +1001,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	if(!this.validate()){    		
     		return;
     	}
-    	this.submitUrl = url||this.submitUrl;
-    	if(this.submitUrl == '') return;
+    	this.submiturl = url||this.submiturl;
+    	if(this.submiturl == '') return;
     	var p = this.getJsonData();
     	for(var i=0;i<p.length;i++){
     		var data = p[i]
@@ -1013,7 +1016,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	//if(p.length > 0) {
 //            this.fireEvent("submit", this);
             this.fireBindDataSetEvent("submit");
-            $A.request({url:this.submitUrl, para:p, success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
+            $A.request({url:this.submiturl, para:p, success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
     	//}
     },
     fireBindDataSetEvent : function(event){

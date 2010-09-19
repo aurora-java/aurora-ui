@@ -22,6 +22,9 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 		config = config || {};
         Ext.apply(this, config);
         this.wrap = Ext.get(this.id);
+        if(this.listeners){
+            this.on(this.listeners);
+        }
     },
     processListener: function(ou){
     	this.wrap[ou]("mouseover", this.onMouseOver, this);

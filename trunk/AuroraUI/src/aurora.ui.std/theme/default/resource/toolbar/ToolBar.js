@@ -35,8 +35,8 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	this.navInfo.update(this.creatNavInfo());
     },
     creatNavInfo : function(){
-    	var from = ((this.dataSet.currentPage-1)*this.dataSet.pageSize+1);
-    	var to = this.dataSet.currentPage*this.dataSet.pageSize;
+    	var from = ((this.dataSet.currentPage-1)*this.dataSet.pagesize+1);
+    	var to = this.dataSet.currentPage*this.dataSet.pagesize;
     	if(to>this.dataSet.totalCount) to = this.dataSet.totalCount;
     	if(to==0) from =0;
     	return '显示 ' + from + ' - ' + to + ',共 ' + this.dataSet.totalCount + ' 条';
