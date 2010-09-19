@@ -18,6 +18,5 @@
 </TABLE>
 <script>
 	new Aurora.Button(${config});
-	${events}
 	${binding}
 </script>

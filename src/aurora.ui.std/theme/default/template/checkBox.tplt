@@ -1,6 +1,5 @@
 <DIV class="${wrapClass}" style="${style}" id="${id}"><DIV class="item-ckb" atype="checkbox"></DIV><label>${label}</label></DIV>
 <script>
     	new Aurora.CheckBox(${config});
-    	${events}
 		${binding}
 </script>

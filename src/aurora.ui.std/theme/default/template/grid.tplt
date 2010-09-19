@@ -22,15 +22,7 @@
 </TBODY>
 </TABLE>
 <SCRIPT LANGUAGE="JavaScript">
-	new Aurora.Grid({
-		id:'${id}',
-		width:${width},
-		selectable:${selectable},
-		selectionmodel:'${selectionmodel}',
-		autofocus:${autofocus},
-		height:${height},
-		columns:${columns}
-	});
+	new Aurora.Grid(${config});
 	$$('${id}').bind('${bindtarget}');
 	${events}
 </SCRIPT>

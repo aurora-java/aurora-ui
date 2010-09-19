@@ -6,6 +6,5 @@
 </DIV>
 <script>
     	new Aurora.ComboBox(${config});
-    	${events}
 		${binding}
 </script>

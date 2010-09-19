@@ -4,6 +4,5 @@
 </DIV>
 <script>
 	new Aurora.Lov(${config});
-	${events}
 	${binding}
 </script>	

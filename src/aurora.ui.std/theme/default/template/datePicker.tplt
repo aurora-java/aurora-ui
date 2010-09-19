@@ -29,6 +29,5 @@
 </DIV>
 <script>
 	new Aurora.DatePicker(${config});
-	${events}
 	${binding}
 </script>

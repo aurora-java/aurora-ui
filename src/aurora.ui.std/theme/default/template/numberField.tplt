@@ -3,6 +3,5 @@
 </DIV>
 <script>
 	new Aurora.NumberField(${config});
-	${events}
 	${binding}
 </script>
