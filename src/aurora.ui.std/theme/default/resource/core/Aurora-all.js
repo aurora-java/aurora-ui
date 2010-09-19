@@ -977,6 +977,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {//datas,fields, type
 		$A.DataSet.superclass.constructor.call(this);
 		config = config || {};
+		if(config.listeners){
+            this.on(config.listeners);
+        }
 		this.pageid = config.pageid;
     	this.spara = {};
     	this.selected = [];
@@ -2572,7 +2575,6 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         this.wrap = Ext.get(this.id);
         if(this.listeners){
             this.on(this.listeners);
-            delete this.listeners;
         }
     },
     processListener: function(ou){
