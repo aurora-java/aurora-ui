@@ -1,6 +1,5 @@
 <textarea class="${wrapClass}" atype="input" style="width:${width}px;height:${height}px;${style}" id="${id}"></textarea>
 <script>
 	new Aurora.TextArea(${config});
-	${events}
 	${binding}
 </script>

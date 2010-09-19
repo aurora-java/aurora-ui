@@ -6,7 +6,7 @@
 ${page:html.head.css} 
 ${page:html.head.script}
 </head>
-<body>
+<body >
 	<div id="${page:pageid}_msg" style="padding:10px;background-color:green;color:#ffffff;margin:7px;border:1px solid #cccccc;display:none"></div>
 	${page:init}
 	${page:content}	

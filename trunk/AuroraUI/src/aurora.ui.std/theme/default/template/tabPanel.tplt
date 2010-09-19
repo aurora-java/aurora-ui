@@ -22,6 +22,5 @@
 		items:${items},
 		select:${selected}
 	});
-	${events}
 	${validscript}
 </SCRIPT>

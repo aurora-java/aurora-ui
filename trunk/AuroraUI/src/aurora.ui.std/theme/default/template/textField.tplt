@@ -3,6 +3,5 @@
 </DIV>
 <script>
 	new Aurora.TextField(${config});
-	${events}
 	${binding}
 </script>

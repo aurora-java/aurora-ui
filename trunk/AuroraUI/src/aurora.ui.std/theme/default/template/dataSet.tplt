@@ -1,22 +1,4 @@
 <script>
-new Aurora.DataSet({
-	id:'${id}', 
-	datas:${datas}, 
-	fields:${fields},
-	queryDataSet:'${querydataset}', 
-	queryUrl:'${queryurl}', 
-	submitUrl:'${submiturl}',
-	fetchAll:${fetchall},
-	pageSize:${pagesize},
-	autoCreate:${autocreate},
-	autoCount:${autocount},
-	autoQuery:${autoquery},
-	selectable:${selectable},
-	selectionmodel:'${selectionmodel}',
-	pageid:'${pageid}',
-	bindtarget:'${bindtarget}',
-	bindname:'${bindname}'
-});
-${events}
+new Aurora.DataSet(${config});
 ${validscript}
 </script>
