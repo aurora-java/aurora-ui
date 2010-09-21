@@ -231,17 +231,6 @@ $A.Component = Ext.extend(Ext.util.Observable,{
             }
             this.record.set(this.binder.name,v);
             if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
-           
-//    		if(this.record == null){    			
-//    			//TODO:应该先create()再编辑
-//    			var data = {};
-////    			data[this.binder.name] = v;
-//    			this.record = this.binder.ds.create(data,false);
-//    			this.record.validate(this.binder.name);
-//    		}else{
-//    			this.record.set(this.binder.name,v);
-//	    		if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
-//    		}
     	}
     	if(ov!=v){
             this.fireEvent('change', this, v, ov);
