@@ -1304,26 +1304,23 @@ $A.Record.prototype = {
      * 设置值.
      * @param {String} name 设定值的名字.
      * @param {Object} value 设定的值.
-     * @param {Boolean} notChangeDirty true 不改变record的dirty状态.
+     * @param {Boolean} notDirty true 不改变record的dirty状态.
      */
-	set : function(name, value, notChangeDirty){
-//		this.data[name] = (!this.data[name]) ? '' : this.data[name];//点击一个必输后,不会触发验证失败
-        if(this.data[name] == value){
-            return;
-        }
-        
-        if(!notChangeDirty){
-            this.dirty = true;
-            if(!this.modified){
-                this.modified = {};
+	set : function(name, value, notDirty){
+        if(this.data[name] != value){
+            if(!notDirty){
+                this.dirty = true;
+                if(!this.modified){
+                    this.modified = {};
+                }
+                if(typeof this.modified[name] == 'undefined'){
+                    this.modified[name] = this.data[name];
+                }
             }
-            if(typeof this.modified[name] == 'undefined'){
-                this.modified[name] = this.data[name];
+            this.data[name] = value;
+            if(!this.editing && this.ds) {
+                this.ds.afterEdit(this, name, value);
             }
-        }
-        this.data[name] = value;
-        if(!this.editing && this.ds) {
-            this.ds.afterEdit(this, name, value);
         }
         this.validate(name)
     },
