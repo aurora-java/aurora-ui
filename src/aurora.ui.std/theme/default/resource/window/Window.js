@@ -42,7 +42,6 @@ $A.Window = Ext.extend($A.Component,{
         this.draggable = true;
         this.closeable = true;
         this.modal = config.modal||true;
-//        this.oldcmps = {};
         this.cmps = {};
         $A.Window.superclass.constructor.call(this,config);
     },
@@ -100,8 +99,8 @@ $A.Window = Ext.extend($A.Component,{
     center: function(){
     	var screenWidth = $A.getViewportWidth();
     	var screenHeight = $A.getViewportHeight();
-    	var x = (screenWidth - this.width)/2;
-    	var y = (screenHeight - this.height-23)/2;
+    	var x = Math.max((screenWidth - this.width)/2,0);
+    	var y = Math.max((screenHeight - this.height-23)/2,0);
         this.wrap.moveTo(x,y);
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
@@ -164,6 +163,9 @@ $A.Window = Ext.extend($A.Component,{
     	var xy = sf.wrap.getXY();
     	sf.relativeX=xy[0]-e.getPageX();
 		sf.relativeY=xy[1]-e.getPageY();
+		sf.screenWidth = $A.getViewportWidth();
+        sf.screenHeight = $A.getViewportHeight();
+        this.proxy.show();
     	Ext.get(document.documentElement).on("mousemove", sf.onMouseMove, sf);
     	Ext.get(document.documentElement).on("mouseup", sf.onMouseUp, sf);
     },
@@ -179,8 +181,15 @@ $A.Window = Ext.extend($A.Component,{
     },
     onMouseMove : function(e){
     	e.stopEvent();
-    	this.proxy.show();
-    	this.proxy.moveTo(e.getPageX()+this.relativeX,e.getPageY()+this.relativeY);
+    	var sw = this.screenWidth;
+    	var sh = this.screenHeight;
+    	var tx = e.getPageX()+this.relativeX;
+    	var ty = e.getPageY()+this.relativeY;
+    	if(tx<=0) tx =0;
+    	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
+    	if(ty<=0) ty =0;
+    	if((ty+this.height)>= (sh-30)) ty = sh - this.height - 30;
+    	this.proxy.moveTo(tx,ty);
     },
     showLoading : function(){
     	this.body.update('正在加载...');
