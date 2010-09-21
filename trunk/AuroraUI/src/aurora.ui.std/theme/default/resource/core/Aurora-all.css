@@ -38,6 +38,14 @@ A:visited {COLOR: #005a78; TEXT-DECORATION: none}
 A:active {COLOR: #005a78;TEXT-DECORATION: none}
 A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 
+.aurora-cover{
+	position: absolute;
+	overflow: hidden;
+	filter: alpha(opacity=30);
+	background-color: #000000; 
+	opacity: 0.3; 
+	mozopacity: 0.3
+}
 /**Item**/
 .item-clear{
 	clear:both;
@@ -179,7 +187,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .layout-title {
 	border:1px solid #cccccc;
 }
-.layout-td-con { /*.layout-td-cell,*/
+.layout-td-con {
 	vertical-align:top;
 }
 
@@ -202,10 +210,6 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 
 .item-fieldset {
     border:1px solid #B5B8C8;
-    /**
-    padding-bottom:10px;
-    margin-bottom:10px;
-    **/
     display:block; /* preserve margins in IE */
 }
 .item-fieldset legend {
@@ -216,7 +220,6 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 }
 .ext-ie .item-fieldset {
     padding-top: 0;
-    /**padding-bottom:10px;**/
 }
 .aurora-mask div {
     width:100%;

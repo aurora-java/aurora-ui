@@ -516,7 +516,7 @@ $A.Cover = function(){
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
-			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
+			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;" unselectable="on"></DIV>';
 			var cover = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
 	    	$A.Cover.container[el.id] = cover;
@@ -2270,26 +2270,23 @@ $A.Record.prototype = {
      * 设置值.
      * @param {String} name 设定值的名字.
      * @param {Object} value 设定的值.
-     * @param {Boolean} notChangeDirty true 不改变record的dirty状态.
+     * @param {Boolean} notDirty true 不改变record的dirty状态.
      */
-	set : function(name, value, notChangeDirty){
-//		this.data[name] = (!this.data[name]) ? '' : this.data[name];//点击一个必输后,不会触发验证失败
-        if(this.data[name] == value){
-            return;
-        }
-        
-        if(!notChangeDirty){
-            this.dirty = true;
-            if(!this.modified){
-                this.modified = {};
+	set : function(name, value, notDirty){
+        if(this.data[name] != value){
+            if(!notDirty){
+                this.dirty = true;
+                if(!this.modified){
+                    this.modified = {};
+                }
+                if(typeof this.modified[name] == 'undefined'){
+                    this.modified[name] = this.data[name];
+                }
             }
-            if(typeof this.modified[name] == 'undefined'){
-                this.modified[name] = this.data[name];
+            this.data[name] = value;
+            if(!this.editing && this.ds) {
+                this.ds.afterEdit(this, name, value);
             }
-        }
-        this.data[name] = value;
-        if(!this.editing && this.ds) {
-            this.ds.afterEdit(this, name, value);
         }
         this.validate(name)
     },
@@ -2782,17 +2779,6 @@ $A.Component = Ext.extend(Ext.util.Observable,{
             }
             this.record.set(this.binder.name,v);
             if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
-           
-//    		if(this.record == null){    			
-//    			//TODO:应该先create()再编辑
-//    			var data = {};
-////    			data[this.binder.name] = v;
-//    			this.record = this.binder.ds.create(data,false);
-//    			this.record.validate(this.binder.name);
-//    		}else{
-//    			this.record.set(this.binder.name,v);
-//	    		if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
-//    		}
     	}
     	if(ov!=v){
             this.fireEvent('change', this, v, ov);
@@ -4535,7 +4521,6 @@ $A.Window = Ext.extend($A.Component,{
         this.draggable = true;
         this.closeable = true;
         this.modal = config.modal||true;
-//        this.oldcmps = {};
         this.cmps = {};
         $A.Window.superclass.constructor.call(this,config);
     },
@@ -4593,8 +4578,8 @@ $A.Window = Ext.extend($A.Component,{
     center: function(){
     	var screenWidth = $A.getViewportWidth();
     	var screenHeight = $A.getViewportHeight();
-    	var x = (screenWidth - this.width)/2;
-    	var y = (screenHeight - this.height-23)/2;
+    	var x = Math.max((screenWidth - this.width)/2,0);
+    	var y = Math.max((screenHeight - this.height-23)/2,0);
         this.wrap.moveTo(x,y);
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
@@ -4657,6 +4642,9 @@ $A.Window = Ext.extend($A.Component,{
     	var xy = sf.wrap.getXY();
     	sf.relativeX=xy[0]-e.getPageX();
 		sf.relativeY=xy[1]-e.getPageY();
+		sf.screenWidth = $A.getViewportWidth();
+        sf.screenHeight = $A.getViewportHeight();
+        this.proxy.show();
     	Ext.get(document.documentElement).on("mousemove", sf.onMouseMove, sf);
     	Ext.get(document.documentElement).on("mouseup", sf.onMouseUp, sf);
     },
@@ -4672,8 +4660,15 @@ $A.Window = Ext.extend($A.Component,{
     },
     onMouseMove : function(e){
     	e.stopEvent();
-    	this.proxy.show();
-    	this.proxy.moveTo(e.getPageX()+this.relativeX,e.getPageY()+this.relativeY);
+    	var sw = this.screenWidth;
+    	var sh = this.screenHeight;
+    	var tx = e.getPageX()+this.relativeX;
+    	var ty = e.getPageY()+this.relativeY;
+    	if(tx<=0) tx =0;
+    	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
+    	if(ty<=0) ty =0;
+    	if((ty+this.height)>= (sh-30)) ty = sh - this.height - 30;
+    	this.proxy.moveTo(tx,ty);
     },
     showLoading : function(){
     	this.body.update('正在加载...');
