@@ -172,7 +172,14 @@ $A.getViewportWidth = function() {
 //    document.cookie = "vh="+h;
 //}
 //$A.recordSize();
-
+$A.post = function(action,data){
+    var form = Ext.getBody().createChild({tag:'form',method:'post',action:action});
+    for(var key in data){
+        form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
+    }
+    Ext.elCache = {};
+    form.dom.submit();
+}
 $A.request = function(opt){
 	var url = opt.url,para = opt.para,successCall = opt.success,errorCall = opt.error,scope = opt.scope,failureCall = opt.failure;
 	var opts = Ext.apply({},opt.opts);
@@ -953,14 +960,14 @@ $A.showValidTopMsg = function(ds) {
 		d.show(true);
 	}					
 }
-Ext.get(document.documentElement).on('keydown',function(e){
-	if(e.shiftKey&&e.keyCode == 76){
-		if(!$A.logWindow) {
-			$A.logWindow = new $A.Window({modal:false, url:'log.screen',title:'AjaxWatch', height:550,width:530});	
-			$A.logWindow.on('close',function(){
-				delete 	$A.logWindow;		
-			})
-		}
-	}
-})
+//Ext.get(document.documentElement).on('keydown',function(e){
+//	if(e.altKey&&e.keyCode == 76){
+//		if(!$A.logWindow) {
+//			$A.logWindow = new $A.Window({modal:false, url:'log.screen',title:'AjaxWatch', height:550,width:530});	
+//			$A.logWindow.on('close',function(){
+//				delete 	$A.logWindow;		
+//			})
+//		}
+//	}
+//})
 $A.setValidInfoType('tip'); 

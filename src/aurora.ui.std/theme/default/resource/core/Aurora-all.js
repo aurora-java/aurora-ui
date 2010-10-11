@@ -172,7 +172,14 @@ $A.getViewportWidth = function() {
 //    document.cookie = "vh="+h;
 //}
 //$A.recordSize();
-
+$A.post = function(action,data){
+    var form = Ext.getBody().createChild({tag:'form',method:'post',action:action});
+    for(var key in data){
+        form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
+    }
+    Ext.elCache = {};
+    form.dom.submit();
+}
 $A.request = function(opt){
 	var url = opt.url,para = opt.para,successCall = opt.success,errorCall = opt.error,scope = opt.scope,failureCall = opt.failure;
 	var opts = Ext.apply({},opt.opts);
@@ -953,16 +960,16 @@ $A.showValidTopMsg = function(ds) {
 		d.show(true);
 	}					
 }
-Ext.get(document.documentElement).on('keydown',function(e){
-	if(e.shiftKey&&e.keyCode == 76){
-		if(!$A.logWindow) {
-			$A.logWindow = new $A.Window({modal:false, url:'log.screen',title:'AjaxWatch', height:550,width:530});	
-			$A.logWindow.on('close',function(){
-				delete 	$A.logWindow;		
-			})
-		}
-	}
-})
+//Ext.get(document.documentElement).on('keydown',function(e){
+//	if(e.altKey&&e.keyCode == 76){
+//		if(!$A.logWindow) {
+//			$A.logWindow = new $A.Window({modal:false, url:'log.screen',title:'AjaxWatch', height:550,width:530});	
+//			$A.logWindow.on('close',function(){
+//				delete 	$A.logWindow;		
+//			})
+//		}
+//	}
+//})
 $A.setValidInfoType('tip'); 
 /**
  * @class Aurora.DataSet
@@ -1041,7 +1048,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         delete this.fields[name];
     },
     processBindDataSetListener : function(ds,ou){
-        var bdp = this.onDataSetMoify;
+        var bdp = this.onDataSetModify;
 //        this[ou]('beforecreate', this.beforeCreate, this);//TODO:有待测试
         this[ou]('add', bdp, this);
         this[ou]('remove', bdp, this);
@@ -1078,7 +1085,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             this.query(1,{record:record});
     	} 	
     },
-    onDataSetMoify : function(){
+    onDataSetModify : function(){
     	var bt = $A.CmpManager.get(this.bindtarget);
     	if(bt){
             this.refreshBindDataSet(bt.getCurrentRecord(),this.getConfig())
@@ -4872,6 +4879,9 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     initComponent : function(config){
     	$A.Lov.superclass.initComponent.call(this,config);
+    	if(this.lovservice.indexOf('?')!=-1){
+//            this.lovservice = this.lovservice.
+    	}
     	this.trigger = this.wrap.child('div[atype=triggerfield.trigger]'); 
     },
     processListener: function(ou){

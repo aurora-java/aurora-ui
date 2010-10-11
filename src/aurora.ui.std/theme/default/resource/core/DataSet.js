@@ -75,7 +75,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         delete this.fields[name];
     },
     processBindDataSetListener : function(ds,ou){
-        var bdp = this.onDataSetMoify;
+        var bdp = this.onDataSetModify;
 //        this[ou]('beforecreate', this.beforeCreate, this);//TODO:有待测试
         this[ou]('add', bdp, this);
         this[ou]('remove', bdp, this);
@@ -112,7 +112,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             this.query(1,{record:record});
     	} 	
     },
-    onDataSetMoify : function(){
+    onDataSetModify : function(){
     	var bt = $A.CmpManager.get(this.bindtarget);
     	if(bt){
             this.refreshBindDataSet(bt.getCurrentRecord(),this.getConfig())
