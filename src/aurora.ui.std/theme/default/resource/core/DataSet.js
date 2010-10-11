@@ -1577,6 +1577,14 @@ $A.Record.Field.prototype = {
      */
     setLovUrl : function(m){
     	this.setPropertity("lovurl",m) 
+    },
+    setLovPara : function(name,value){
+        var p = this.getPropertity('lovpara');
+        if(!p){
+            p = {};
+            this.setPropertity("lovpara",p) 
+        }
+        p[name] = value;
     }
 	
 }
