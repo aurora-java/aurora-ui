@@ -2550,6 +2550,14 @@ $A.Record.Field.prototype = {
      */
     setLovUrl : function(m){
     	this.setPropertity("lovurl",m) 
+    },
+    setLovPara : function(name,value){
+        var p = this.getPropertity('lovpara');
+        if(!p){
+            p = {};
+            this.setPropertity("lovpara",p) 
+        }
+        p[name] = value;
     }
 	
 }
@@ -4879,8 +4887,11 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     initComponent : function(config){
     	$A.Lov.superclass.initComponent.call(this,config);
-    	if(this.lovservice.indexOf('?')!=-1){
-//            this.lovservice = this.lovservice.
+    	this.para = {};
+    	var li = this.lovservice.indexOf('?')
+    	if(li!=-1){
+    		this.para = Ext.urlDecode(this.lovservice.substring(li+1,this.lovservice.length));
+            this.lovservice = this.lovservice.substring(0,li);
     	}
     	this.trigger = this.wrap.child('div[atype=triggerfield.trigger]'); 
     },
@@ -4958,6 +4969,14 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.win = null;
 		this.focus();
 	},
+	getLovPara : function(){
+        var field = this.record.getMeta().getField(this.binder.name);
+        if(field){
+        	var para = field.get('lovpara');
+            if(para)Ext.apply(this.para,para);
+        }
+        return this.para;
+	},
 	fetchRecord : function(){
 		if(this.readonly == true) return;
 		if(!Ext.isEmpty(this.lovurl)){
@@ -4966,10 +4985,11 @@ $A.Lov = Ext.extend($A.TextField,{
 		}
 		this.fetching = true;
 		var v = this.getRawValue();
+		
 		if(!Ext.isEmpty(this.lovservice)){
-			url = this.context + 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
+			url = this.context + 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
 		}else if(!Ext.isEmpty(this.lovmodel)){
-			url = this.context + 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false';
+			url = this.context + 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
 		}
 		var p = {};
 		var mapping = this.getMapping();
@@ -5022,9 +5042,9 @@ $A.Lov = Ext.extend($A.TextField,{
 		if(!Ext.isEmpty(this.lovurl)){
 			url = this.lovurl+'?';
 		}else if(!Ext.isEmpty(this.lovservice)){
-			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice)+'&service='+this.lovservice+'&';			
+			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';			
 		}else {
-			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query')+'&service='+this.lovmodel+'&';
+			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovmodel+'&';
 		}
     	this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
     	this.win.on('close',this.onWinClose,this);
