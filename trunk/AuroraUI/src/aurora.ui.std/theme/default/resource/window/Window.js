@@ -51,7 +51,8 @@ $A.Window = Ext.extend($A.Component,{
     	$A.WindowManager.put(sf);
     	var windowTpl = new Ext.Template(sf.getTemplate());
     	var shadowTpl = new Ext.Template(sf.getShadowTemplate());
-    	sf.width = sf.width||350;sf.height=sf.height||400;
+    	sf.width = 1*(sf.width||350);
+    	sf.height= 1*(sf.height||400);
         sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
         sf.shadow = shadowTpl.append(document.body, {}, true);
         sf.focusEl = sf.wrap.child('a[atype=win.focus]')
