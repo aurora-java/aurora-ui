@@ -111,8 +111,8 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	if(this.isExpanded()){
     		this.collapse();
     	}else{
-	    	this.el.focus();
     		this.expand();
+	    	this.el.focus();
     	}
     }
 });

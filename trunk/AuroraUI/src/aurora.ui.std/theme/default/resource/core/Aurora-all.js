@@ -175,10 +175,9 @@ $A.getViewportWidth = function() {
 $A.post = function(action,data){
     var form = Ext.getBody().createChild({tag:'form',method:'post',action:action});
     for(var key in data){
-    	if(data[key])
         form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
     }
-//    Ext.elCache = {};
+    Ext.elCache = {};
     form.dom.submit();
 }
 $A.request = function(opt){
@@ -3830,8 +3829,8 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	if(this.isExpanded()){
     		this.collapse();
     	}else{
-	    	this.el.focus();
     		this.expand();
+	    	this.el.focus();
     	}
     }
 });
@@ -4171,16 +4170,30 @@ $A.DateField = Ext.extend($A.Component, {
 		this.month = this.date.getMonth() + 1;
     	this.preMonthBtn = this.wrap.child("div.item-dateField-pre");
     	this.nextMonthBtn = this.wrap.child("div.item-dateField-next");
-    	this.yearSpan = this.wrap.child("span.item-dateField-year");
-    	this.monthSpan = this.wrap.child("span.item-dateField-month");
+    	this.yearSpan = this.wrap.child("input[atype=field.year]");
+    	this.monthSpan = this.wrap.child("input[atype=field.month]");
+    	this.preYearBtn = this.wrap.child("div.item-dateField-preYear");
+    	this.nextYearBtn = this.wrap.child("div.item-dateField-nextYear");
+    	this.now=this.wrap.child("div.item-dateField-current");
+    	this.now.dom.innerHTML=this.year+"-"+this.month+"-"+this.date.getDate();
+    	this.now.set({"_date":new Date(this.year,this.month-1,this.date.getDate()).getTime()});
     },
     processListener: function(ou){
     	$A.DateField.superclass.processListener.call(this,ou);
     	this.preMonthBtn[ou]("click", this.preMonth, this);
     	this.nextMonthBtn[ou]("click", this.nextMonth, this);
+    	this.preYearBtn[ou]("click", this.preYear, this);
+		this.nextYearBtn[ou]("click", this.nextYear, this);
+		this.yearSpan[ou]("focus", this.onDateFocus, this);
+		this.monthSpan[ou]("focus", this.onDateFocus, this);
+		this.yearSpan[ou]("blur", this.onDateBlur, this);
+		this.monthSpan[ou]("blur", this.onDateBlur, this);
+		this.yearSpan[ou]("keydown", this.onKeyDown, this);
+		this.monthSpan[ou]("keydown", this.onKeyDown, this);
     	this.table[ou]("click", this.onSelect, this);
     	this.table[ou]("mouseover", this.mouseOver, this);
     	this.table[ou]("mouseout", this.mouseOut, this)
+    	this.now[ou]("click", this.onSelect, this);
     },
     initEvents : function(){
     	$A.DateField.superclass.initEvents.call(this);   	
@@ -4201,6 +4214,8 @@ $A.DateField = Ext.extend($A.Component, {
     },
     destroy : function(){
     	$A.DateField.superclass.destroy.call(this);
+		delete this.preYearBtn;
+		delete this.nextYearBtn;
 		delete this.preMonthBtn;
     	delete this.nextMonthBtn;
     	delete this.yearSpan;
@@ -4220,9 +4235,7 @@ $A.DateField = Ext.extend($A.Component, {
     	
     },
     onSelect: function(e){
-    	if(this.singleSelect === false){
-    		
-    	}else{
+    	if(this.singleSelect !== false){
     		if(this.selectedDay) Ext.fly(this.selectedDay).removeClass('onSelect');
     		if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
 	    		this.selectedDay = e.target; 
@@ -4240,10 +4253,28 @@ $A.DateField = Ext.extend($A.Component, {
 	afterFinish: function(){
 		for(var i=0;i<this.selectDays.length;i++){
 			var d = this.selectDays[i];
-			if(d.getFullYear() == this.year && d.getMonth()+1 == this.month){
-				this.onSelectDay(this.days[d.getDate()]);
-			}
-		}		
+			if(d.getFullYear() == this.year && d.getMonth()+1 == this.month)this.onSelectDay(this.days[d.getDate()]);
+		}
+	},
+	onKeyDown : function(e) {
+		var c = e.keyCode, el = e.target;
+		if (c == 13) {
+			el.blur();
+		} else if (c == 27) {
+			el.value = el.oldValue || "";
+			el.blur();
+		} else if (c!=9 && c != 8 && c != 46 && (c < 48 || c > 57 || e.shiftKey)) {
+			e.stopEvent();
+			return;
+		}
+	},
+	onDateFocus : function(e) {
+		Ext.fly(e.target).replaceClass("item-dateField-input","item-dateField-input-focus");
+		e.target.select();
+	},
+	onDateBlur : function(e) {
+		Ext.fly(e.target).replaceClass("item-dateField-input-focus","item-dateField-input");
+		this.predraw(new Date(this.yearSpan.dom.value,this.monthSpan.dom.value - 1, 1));
 	},
     /**
      * 当前月
@@ -4291,13 +4322,17 @@ $A.DateField = Ext.extend($A.Component, {
 	draw: function() {
 		//用来保存日期列表
 		var arr = [];
-		//用当月第一天在一周中的日期值作为当月离第一天的天数
-		for(var i = 1, firstDay = new Date(this.year, this.month - 1, 1).getDay(); i <= firstDay; i++){ 
-			arr.push(0); 
+		//用当月第一天在一周中的日期值作为当月离第一天的天数,用上个月的最后天数补齐
+		for(var i = 1, firstDay = new Date(this.year, this.month - 1, 1).getDay(),lastDay = new Date(this.year, this.month - 1, 0).getDate(); i <= firstDay; i++){ 
+			arr.push([n=lastDay-firstDay+i,new Date(this.year, this.month - 2, n),"item-day item-day-pre"]); 
 		}
 		//用当月最后一天在一个月中的日期值作为当月的天数
 		for(var i = 1, monthDay = new Date(this.year, this.month, 0).getDate(); i <= monthDay; i++){ 
-			arr.push(i); 
+			arr.push([i,new Date(this.year, this.month - 1, i),"item-day"]); 
+		}
+		//用下个月的前几天补齐
+		for(var i=1, monthDay = new Date(this.year, this.month, 0).getDay();i<7-monthDay;i++){
+			arr.push([i,new Date(this.year, this.month, i),"item-day item-day-next"]); 
 		}
 		//清空原来的日期对象列表
 		this.days = [];
@@ -4315,16 +4350,15 @@ $A.DateField = Ext.extend($A.Component, {
 			k++;
 			//每个星期有7天
 			for(var i = 1; i <= 7; i++){
-				var cell = document.createElement("td"); 
-				cell.className = "item-day";
-				cell.innerHTML = "&nbsp;";
-				Ext.fly(cell).set({'_date':'0'});
 				if(arr.length){
 					var d = arr.shift();
 					if(d){
-						cell.innerHTML = d;
-						this.days[d] = cell;
-						var on = new Date(this.year, this.month - 1, d);
+						var cell = document.createElement("td"); 
+						cell.className = d[2];
+						cell.innerHTML = d[0];
+						this.days[d[0]] = cell;
+						var on =d[1];
+						cell.title=on.format("yyyy-mm-dd");
 						Ext.fly(cell).set({'_date':''+on.getTime()});
 						//判断是否今日
 						this.isSame(on, new Date()) && this.onToday(cell);
@@ -4336,10 +4370,8 @@ $A.DateField = Ext.extend($A.Component, {
 			}
 			this.tbody.appendChild(row);
 		}
-		
-		
-		this.yearSpan.dom.innerHTML = this.year; 
-		this.monthSpan.dom.innerHTML = this.month;
+		this.yearSpan.dom.oldValue = this.yearSpan.dom.value = this.year;
+		this.monthSpan.dom.oldValue = this.monthSpan.dom.value = this.month;
 		this.afterFinish();
 	},
 	/**
