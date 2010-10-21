@@ -39,8 +39,8 @@
     position:absolute;
 }
 .grid-hl{
-	/*position:static !important;
-	position:absolute;*/
+	position:static !important;
+	position:absolute;
 }
 .grid-fs{
 	FONT-SIZE: 1px;	
