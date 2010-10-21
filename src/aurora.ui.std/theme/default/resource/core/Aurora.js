@@ -175,9 +175,10 @@ $A.getViewportWidth = function() {
 $A.post = function(action,data){
     var form = Ext.getBody().createChild({tag:'form',method:'post',action:action});
     for(var key in data){
+    	if(data[key])
         form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
     }
-    Ext.elCache = {};
+//    Ext.elCache = {};
     form.dom.submit();
 }
 $A.request = function(opt){
