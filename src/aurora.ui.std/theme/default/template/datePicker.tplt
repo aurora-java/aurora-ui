@@ -4,9 +4,11 @@
 	<DIV class="item-popup item-dateList" atype="triggerfield.popup" style="width:150px;">
 		<DIV class="item-dateField" style="width:150px">
 			<DIV class="item-dateField-head">
-				<DIV class="item-dateField-pre"></DIV>
-				<DIV class="item-dateField-next"></DIV>
-				<SPAN class="item-dateField-year"></SPAN>年 <SPAN class="item-dateField-month"></SPAN>月
+				<DIV class="item-dateField-preYear" title="去年"></DIV>
+				<DIV class="item-dateField-pre" title="上个月"></DIV>
+				<DIV class="item-dateField-nextYear" title="明年"></DIV>
+				<DIV class="item-dateField-next" title="下个月"></DIV>
+				<DIV><input class="item-dateField-input" maxLength="4" style="width:30px" atype="field.year">年<input class="item-dateField-input" maxLength="2" style="width:15px" atype="field.month">月</DIV>
 			</DIV>
 			<TABLE cellspacing="0">
 			<THEAD>
@@ -23,6 +25,9 @@
 			<TBODY>
 			</TBODY>
 			</TABLE>
+			<DIV class="item-dateField-foot">
+				<DIV class="item-day item-dateField-current" title="选择今日"></DIV>
+			</DIV>
 		</DIV>				
 	</DIV>
 	<DIV class="item-shadow" atype="triggerfield.shadow"></DIV>

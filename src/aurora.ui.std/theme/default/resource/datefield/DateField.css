@@ -11,7 +11,7 @@
 	width:100%;
 	line-height:1.5em;
 }
-.item-dateField-head {	
+.item-dateField-head,.item-dateField-foot{	
 	FONT-WEIGHT: bold;	
 	FONT-SIZE: 100%;
 	/*BACKGROUND: url(../datefield/bgCalendarV2.gif) #305ebc repeat-x;*/
@@ -38,7 +38,7 @@
 	font-size: 11px;
 	padding:1px;
 }
-.item-dateField-pre,.item-dateField-next{
+.item-dateField-pre,.item-dateField-next,.item-dateField-preYear,.item-dateField-nextYear{
 	background-image:url(../toolbar/navigation.gif);
 	cursor:pointer;
 	width:16px;
@@ -47,13 +47,43 @@
 .week-alt {
 	background-color:#f3f3ed;
 }
+.item-dateField-preYear {
+	background-position: 0 0px;
+	float:left;
+}
+.item-dateField-nextYear{
+	background-position: 0 -16px;
+	float:right;
+}
 .item-dateField-pre {
-	background-position: 0 -31px;
+	background-position: 0 -32px;
 	float:left;
 }
 .item-dateField-next{
-	background-position: 0 -46px;
+	background-position: 0 -48px;
 	float:right;
+}
+
+.item-dateField-input{
+	FONT-WEIGHT: bold;	
+	FONT-SIZE: 100%;
+	height:16px;
+	line-height:15px;
+	border:1px solid #bababa;
+}
+.item-dateField-input-focus{
+	FONT-WEIGHT: bold;	
+	FONT-SIZE: 100%;
+	height:16px;
+	line-height:15px;
+	border:1px solid blue;
+	background-color:#e2f7ff;
+}
+.item-dateField-current{
+	cursor: pointer;
+}
+.item-day-pre,.item-day-next{
+	color:#ACACAC;
 }
 .item-dateField td.onToday {
 	background-color:#FDAB00;
