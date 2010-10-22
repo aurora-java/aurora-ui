@@ -67,6 +67,9 @@ $A.Grid = Ext.extend($A.Component,{
         if(this.lht) this.lht[ou]('mousemove',this.onLockHeadMove, this);
         if(this.lh) this.lh[ou]('mousedown', this.onHeadMouseDown,this);
         if(this.lh) this.lh[ou]('click', this.onHeadClick,this);
+        if(this.marginwidth||this.marginheight) {
+        	Ext.EventManager[ou](window, "resize", this.windowResizeListener,this);
+        }
     },
     initEvents:function(){
         $A.Grid.superclass.initEvents.call(this);
@@ -104,6 +107,16 @@ $A.Grid = Ext.extend($A.Component,{
          * @param {Aurora.Record} record 鼠标点击所在行的Record对象.
          */
         'rowclick');
+    },
+    windowResizeListener : function(){
+        if(this.marginwidth){
+            var wd = Aurora.getViewportWidth();
+            this.setWidth(wd-this.marginwidth);
+        }
+        if(this.marginheight){
+            var ht = Aurora.getViewportHeight();
+            this.setHeight(ht-this.marginheight);        	
+        }
     },
     syncScroll : function(){
         this.hideEditor();
@@ -253,7 +266,7 @@ $A.Grid = Ext.extend($A.Component,{
             data = Ext.apply(data,{
                 align:col.align||'left',
                 cellcls: cls,
-                width:col.width-11,
+                width:col.width-4,//-11
                 text:this.renderText(record,col,record.data[col.name])
             })
             cellTpl =  this.cellTpl;
@@ -1029,6 +1042,26 @@ $A.Grid = Ext.extend($A.Component,{
                 col.hidden = true;
             }
         }       
+    },
+    setWidth: function(w){
+        this.width = w;
+        this.wrap.setWidth(w);
+        this.wb.setWidth(w);
+        var tb = $A.CmpManager.get(this.id+'_tb')
+        if(tb)tb.setWidth(w);
+        var nb = $A.CmpManager.get(this.id+'_navbar')
+        if(nb)nb.setWidth(w);
+        var bw = w-this.lockWidth
+        this.uc.setWidth(bw);
+        this.uh.setWidth(bw);
+        this.ub.setWidth(bw);
+    },
+    setHeight: function(h){
+        this.height = h;
+        this.wrap.setHeight(h);
+        var bh = h - 25;
+        this.lb.setHeight(bh)
+        this.ub.setHeight(bh)
     },
     deleteSelectRows: function(win){
         var selected = [].concat(this.dataset.getSelected());
