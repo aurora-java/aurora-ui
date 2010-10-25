@@ -27,7 +27,13 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         }
     },
     processListener: function(ou){
-    	this.wrap[ou]("mouseover", this.onMouseOver, this);
+    	this.processMouseOverOut(ou)
+        if(this.marginwidth||this.marginheight) {
+            Ext.EventManager[ou](window, "resize", this.windowResizeListener,this);
+        }
+    },
+    processMouseOverOut : function(ou){
+        this.wrap[ou]("mouseover", this.onMouseOver, this);
         this.wrap[ou]("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
@@ -66,6 +72,16 @@ $A.Component = Ext.extend(Ext.util.Observable,{
          */
     	'mouseout');
     	this.processListener('on');
+    },
+    windowResizeListener : function(){
+        if(this.marginwidth){
+            var wd = Aurora.getViewportWidth();
+            this.setWidth(wd-this.marginwidth);
+        }
+        if(this.marginheight){
+            var ht = Aurora.getViewportHeight();
+            this.setHeight(ht-this.marginheight);           
+        }
     },
     isEventFromComponent:function(el){
     	return this.wrap.contains(el)

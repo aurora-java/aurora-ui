@@ -32,6 +32,7 @@ $A.Field = Ext.extend($A.Component,{
     	}
     },
     processListener: function(ou){
+    	$A.Field.superclass.processListener.call(this, ou);
 //    	this.el[ou](Ext.isIE || Ext.isSafari3 ? "keydown" : "keypress", this.fireKey,  this);
     	this.el[ou]("focus", this.onFocus,  this);
     	this.el[ou]("blur", this.onBlur,  this);
@@ -39,6 +40,10 @@ $A.Field = Ext.extend($A.Component,{
     	this.el[ou]("keyup", this.onKeyUp, this);
         this.el[ou]("keydown", this.onKeyDown, this);
         this.el[ou]("keypress", this.onKeyPress, this);
+//        this.el[ou]("mouseover", this.onMouseOver, this);
+//        this.el[ou]("mouseout", this.onMouseOut, this);
+    },
+    processMouseOverOut : function(ou){
         this.el[ou]("mouseover", this.onMouseOver, this);
         this.el[ou]("mouseout", this.onMouseOut, this);
     },

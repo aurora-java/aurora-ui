@@ -149,6 +149,14 @@ $ = $A.getCmp = function(id){
 	}
 	return cmp;
 }
+$A.setCookie = function(name,value){
+    document.cookie = name + "="+ escape (value);
+}
+$A.getCookie = function(name){
+    var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+     if(arr != null) return unescape(arr[2]); return null;
+
+}
 $A.getViewportHeight = function(){
     if(Ext.isIE){
         return Ext.isStrict ? document.documentElement.clientHeight :
@@ -178,7 +186,6 @@ $A.post = function(action,data){
     	if(data[key])
         form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
     }
-//    Ext.elCache = {};
     form.dom.submit();
 }
 $A.request = function(opt){
@@ -779,6 +786,7 @@ $A.formatDateTime = function(date){
 	}
 }
 $A.formatNumber = function(value){
+	if(!value)return '';
     var ps = String(value).split('.');
     var sub = (ps.length==2)?'.'+ps[1]:'';
     var whole = ps[0];
