@@ -53,8 +53,8 @@ $A.Window = Ext.extend($A.Component,{
     	var shadowTpl = new Ext.Template(sf.getShadowTemplate());
     	sf.width = 1*(sf.width||350);
     	sf.height= 1*(sf.height||400);
-        sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
-        sf.shadow = shadowTpl.append(document.body, {}, true);
+        sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,display:Ext.isIE6 ? '' : 'none'}, true);
+        sf.shadow = shadowTpl.append(document.body, {display:Ext.isIE6 ? '' : 'none'}, true);
         sf.focusEl = sf.wrap.child('a[atype=win.focus]')
     	sf.title = sf.wrap.child('div[atype=window.title]');
     	sf.head = sf.wrap.child('td[atype=window.head]');
@@ -103,10 +103,11 @@ $A.Window = Ext.extend($A.Component,{
     	var x = Math.max((screenWidth - this.width)/2,0);
     	var y = Math.max((screenHeight - this.height-23)/2,0);
         this.wrap.moveTo(x,y);
+        this.wrap.show();
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
         this.shadow.moveTo(x+3,y+3)
-        if(!this.proxy) this.initProxy();
+        this.shadow.show();
         this.toFront();
         var sf = this;
         setTimeout(function(){
@@ -114,11 +115,11 @@ $A.Window = Ext.extend($A.Component,{
         },10)
     },
     getShadowTemplate: function(){
-    	return ['<DIV class="item-shadow"></DIV>']
+    	return ['<DIV class="item-shadow" style="display:{display};"></DIV>']
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0">',
+            '<TABLE class="win-wrap" style="width:{width}px;display:{display};" cellSpacing="0" cellPadding="0" border="0">',
 			'<TBODY>',
 			'<TR style="height:23px;" >',
 				'<TD class="win-caption">',
@@ -166,6 +167,7 @@ $A.Window = Ext.extend($A.Component,{
 		sf.relativeY=xy[1]-e.getPageY();
 		sf.screenWidth = $A.getViewportWidth();
         sf.screenHeight = $A.getViewportHeight();
+        if(!this.proxy) this.initProxy();
         this.proxy.show();
     	Ext.get(document.documentElement).on("mousemove", sf.onMouseMove, sf);
     	Ext.get(document.documentElement).on("mouseup", sf.onMouseUp, sf);
@@ -204,9 +206,9 @@ $A.Window = Ext.extend($A.Component,{
     },
     initProxy : function(){
     	var sf = this; 
-    	var p = '<DIV style="border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
+    	var p = '<DIV style="display:none;border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
     	sf.proxy = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
-    	sf.proxy.hide();
+//    	sf.proxy.hide();
     	var xy = sf.wrap.getXY();
     	sf.proxy.setWidth(sf.wrap.getWidth());
     	sf.proxy.setHeight(sf.wrap.getHeight());
