@@ -980,6 +980,7 @@ $A.Grid = Ext.extend($A.Component,{
     setColumnSize : function(name, size){
         var columns = this.columns;
         var hth,bth,lw=0,uw=0;
+        var wd = "width",px="px";
         for(var i=0,l=columns.length;i<l;i++){
             var c = columns[i];
             if(c.name && c.name === name){
@@ -1000,37 +1001,37 @@ $A.Grid = Ext.extend($A.Component,{
         for(var i=0,l=tds.length;i<l;i++){
             var td = tds[i];
             var ce = Ext.fly(td).child('DIV.grid-cell');
-            if(ce)Ext.fly(ce).setStyle("width", Math.max(size-4,0)+"px");
+            if(ce)Ext.fly(ce).setStyle(wd, Math.max(size-4,0)+px);
         }
         
         
         this.lockWidth = lw;
-        if(hth) hth.setStyle("width", size+"px");
-        if(bth) bth.setStyle("width", size+"px");
+        if(hth) hth.setStyle(wd, size+px);
+        if(bth) bth.setStyle(wd, size+px);
         if(this.fb){
-            var ftd = this.fb.child('TD[dataindex='+name+']');
-            ftd.setStyle("width", size+"px");
+            var ftd = this.fb.child('TH[dataindex='+name+']');
+            ftd.setStyle(wd, size+px);
             var uft = this.fb.child('table[atype=fb.ubt]');
-            this.uf.setStyle("width",Math.max(this.width - lw,0)+"px");
-            uft.setStyle("width",uw+"px");
+            this.uf.setStyle(wd,Math.max(this.width - lw,0)+px);
+            uft.setStyle(wd,uw+px);
             var lft = this.fb.child('table[atype=fb.lbt]');
             var lf = this.fb.child('div[atype=grid.lf]');
-            lf.setStyle("width",(lw-1)+"px");
-            lft.setStyle("width",lw+"px");
+            lf.setStyle(wd,(lw-1)+px);
+            lft.setStyle(wd,lw+px);
         }
         
         if(this.lc){
             var lcw = Math.max(lw-1,0);
-            this.lc.setStyle("width",lcw+"px");
+            this.lc.setStyle(wd,lcw+px);
             this.lc.setStyle('display',lcw==0 ? 'none' : '');
         }
-        if(this.lht)this.lht.setStyle("width",lw+"px");
-        if(this.lbt)this.lbt.setStyle("width",lw+"px");
-        this.uc.setStyle("width", Math.max(this.width - lw,0)+"px");
-        this.uh.setStyle("width",Math.max(this.width - lw,0)+"px");
-        this.ub.setStyle("width",Math.max(this.width - lw,0)+"px");
-        this.uht.setStyle("width",uw+"px");
-        this.ubt.setStyle("width",uw+"px");
+        if(this.lht)this.lht.setStyle(wd,lw+px);
+        if(this.lbt)this.lbt.setStyle(wd,lw+px);
+        this.uc.setStyle(wd, Math.max(this.width - lw,0)+px);
+        this.uh.setStyle(wd,Math.max(this.width - lw,0)+px);
+        this.ub.setStyle(wd,Math.max(this.width - lw,0)+px);
+        this.uht.setStyle(wd,uw+px);
+        this.ubt.setStyle(wd,uw+px);
         this.syncSize();
     },
     drawFootBar : function(objs){
