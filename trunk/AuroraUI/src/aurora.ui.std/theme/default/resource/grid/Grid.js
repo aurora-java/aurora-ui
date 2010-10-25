@@ -58,6 +58,7 @@ $A.Grid = Ext.extend($A.Component,{
         this.wrap[ou]("mouseover", this.onMouseOver, this);
         this.wrap[ou]("mouseout", this.onMouseOut, this);
         this.wrap[ou]('click',this.focus,this);
+        this.wb[ou]('mousewheel',this.onMouseWheel,this);
         this.fs[ou](Ext.isOpera ? "keypress" : "keydown", this.handleKeyDown,  this);
         this.ub[ou]('scroll',this.syncScroll, this);
         this.ub[ou]('click',this.onClick, this);
@@ -326,6 +327,7 @@ $A.Grid = Ext.extend($A.Component,{
         this.renderLockArea();
         this.renderUnLockAread();
 //        if(focus !== false) this.focus.defer(10,this);//获取数据后的获得焦点,会引起其他编辑器无法编辑
+        this.drawFootBar();
         $A.Masker.unmask(this.wb);
     },
     clearDomRef : function(){
@@ -334,6 +336,16 @@ $A.Grid = Ext.extend($A.Component,{
     },
     onAjaxFailed : function(res,opt){
         $A.Masker.unmask(this.wb);
+    },
+    onMouseWheel : function(e){
+    	var delta = e.getWheelDelta();
+        if(delta > 0){
+            this.dataset.pre();
+            e.stopEvent();
+        } else if(delta < 0){
+            this.dataset.next();
+            e.stopEvent();
+        }
     },
     focus: function(){    	
         this.fs.focus();
@@ -988,18 +1000,24 @@ $A.Grid = Ext.extend($A.Component,{
         this.ubt.setStyle("width",uw+"px");
         this.syncSize();
     },
-    drawFootBar : function(name){    
-    	var col = this.findColByName(name);
-    	if(col&&col.footerrenderer){
-    	   var fder = $A.getRenderer(col.footerrenderer);
-           if(fder == null){
-                alert("未找到"+col.footerrenderer+"方法!")
-                return;
-           }
-           var v = fder.call(window,this.dataset.data, name);
-           var t = this.fb.child('td[dataindex='+name+']');
-           t.update(v)
-    	}
+    drawFootBar : function(objs){
+    	objs = [].concat((objs) ? objs : this.columns);
+    	var sf = this;
+    	Ext.each(objs, function(obj) {
+    		var col = typeof(obj)==='string' ? sf.findColByName(obj) : obj;
+            if(col&&col.footerrenderer){
+                var name = col.name;
+                var fder = $A.getRenderer(col.footerrenderer);
+                if(fder == null){
+                    alert("未找到"+col.footerrenderer+"方法!")
+                    return;
+                }
+                var v = fder.call(window,sf.dataset.data, name);
+                var t = sf.fb.child('td[dataindex='+name+']');
+                t.update(v)
+            }
+    	});
+    	
     },
     syncSize : function(){
         var lw = 0;
