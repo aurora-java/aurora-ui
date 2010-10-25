@@ -75,6 +75,7 @@
 }
 .grid-ua {
 	float:right;
+	overflow:hidden;
 }
 .grid-asc {
     background: url(../grid/sort_asc.gif) no-repeat right;
@@ -128,6 +129,22 @@
 .grid-toolbar {
 	border:none;
 	border-bottom:1px solid #cccccc;
+}
+.grid-footerbar {
+	overflow: hidden;  
+    cursor: default;  
+    white-space: nowrap;    
+    height: 25px;
+    border:none;
+    border-top:1px solid #cccccc;
+}
+.grid-footerbar td {
+    padding:1px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    border-left:1px solid #d0d0d0;
+    height:23px;
 }
 .grid-navbar {
 	border:none;

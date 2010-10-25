@@ -23,6 +23,10 @@ $A.Grid = Ext.extend($A.Component,{
         $A.Grid.superclass.initComponent.call(this, config);
         var wp = this.wrap;
         this.wb = Ext.get(this.id+'_wrap');
+        this.fb = this.wb.child('div[atype=grid.fb]');
+        if(this.fb){
+            this.uf = this.fb.child('div[atype=grid.uf]');
+        }
         this.uc = wp.child('div[atype=grid.uc]');
         this.uh = wp.child('div[atype=grid.uh]');
         this.ub = wp.child('div[atype=grid.ub]'); 
@@ -50,6 +54,7 @@ $A.Grid = Ext.extend($A.Component,{
         this.initTemplate();
     },
     processListener: function(ou){
+    	$A.Grid.superclass.processListener.call(this, ou);
         this.wrap[ou]("mouseover", this.onMouseOver, this);
         this.wrap[ou]("mouseout", this.onMouseOut, this);
         this.wrap[ou]('click',this.focus,this);
@@ -67,9 +72,6 @@ $A.Grid = Ext.extend($A.Component,{
         if(this.lht) this.lht[ou]('mousemove',this.onLockHeadMove, this);
         if(this.lh) this.lh[ou]('mousedown', this.onHeadMouseDown,this);
         if(this.lh) this.lh[ou]('click', this.onHeadClick,this);
-        if(this.marginwidth||this.marginheight) {
-        	Ext.EventManager[ou](window, "resize", this.windowResizeListener,this);
-        }
     },
     initEvents:function(){
         $A.Grid.superclass.initEvents.call(this);
@@ -108,20 +110,11 @@ $A.Grid = Ext.extend($A.Component,{
          */
         'rowclick');
     },
-    windowResizeListener : function(){
-        if(this.marginwidth){
-            var wd = Aurora.getViewportWidth();
-            this.setWidth(wd-this.marginwidth);
-        }
-        if(this.marginheight){
-            var ht = Aurora.getViewportHeight();
-            this.setHeight(ht-this.marginheight);        	
-        }
-    },
     syncScroll : function(){
         this.hideEditor();
         this.uh.dom.scrollLeft = this.ub.dom.scrollLeft;
         if(this.lb) this.lb.dom.scrollTop = this.ub.dom.scrollTop;
+        if(this.uf) this.uf.dom.scrollLeft = this.ub.dom.scrollLeft;
     },
     handleKeyDown : function(e){
         var key = e.getKey();
@@ -495,6 +488,7 @@ $A.Grid = Ext.extend($A.Component,{
                 }
             }
         }
+        this.drawFootBar(name);
     },
     onValid : function(ds, record, name, valid){
         var c = this.findColByName(name);
@@ -793,7 +787,7 @@ $A.Grid = Ext.extend($A.Component,{
         if(this.overColIndex == undefined || this.overColIndex == -1) return;
         this.dragIndex = this.overColIndex;
         this.dragStart = e.getXY()[0];
-        this.sp.setHeight(this.height);
+        this.sp.setHeight(this.wrap.getHeight());
         this.sp.setVisible(true);
         this.sp.setStyle("top", this.wrap.getXY()[1]+"px")
         this.sp.setStyle("left", e.xy[0]+"px")
@@ -961,13 +955,25 @@ $A.Grid = Ext.extend($A.Component,{
         for(var i=0,l=tds.length;i<l;i++){
             var td = tds[i];
             var ce = Ext.fly(td).child('DIV.grid-cell');
-            if(ce)Ext.fly(ce).setStyle("width", Math.max(size-11,0)+"px");
+            if(ce)Ext.fly(ce).setStyle("width", Math.max(size-4,0)+"px");
         }
         
         
         this.lockWidth = lw;
         if(hth) hth.setStyle("width", size+"px");
         if(bth) bth.setStyle("width", size+"px");
+        if(this.fb){
+            var ftd = this.fb.child('TD[dataindex='+name+']');
+            ftd.setStyle("width", size+"px");
+            var uft = this.fb.child('table[atype=fb.ubt]');
+            this.uf.setStyle("width",Math.max(this.width - lw,0)+"px");
+            uft.setStyle("width",uw+"px");
+            var lft = this.fb.child('table[atype=fb.lbt]');
+            var lf = this.fb.child('div[atype=grid.lf]');
+            lf.setStyle("width",(lw-1)+"px");
+            lft.setStyle("width",lw+"px");
+        }
+        
         if(this.lc){
             var lcw = Math.max(lw-1,0);
             this.lc.setStyle("width",lcw+"px");
@@ -981,6 +987,19 @@ $A.Grid = Ext.extend($A.Component,{
         this.uht.setStyle("width",uw+"px");
         this.ubt.setStyle("width",uw+"px");
         this.syncSize();
+    },
+    drawFootBar : function(name){    
+    	var col = this.findColByName(name);
+    	if(col&&col.footerrenderer){
+    	   var fder = $A.getRenderer(col.footerrenderer);
+           if(fder == null){
+                alert("未找到"+col.footerrenderer+"方法!")
+                return;
+           }
+           var v = fder.call(window,this.dataset.data, name);
+           var t = this.fb.child('td[dataindex='+name+']');
+           t.update(v)
+    	}
     },
     syncSize : function(){
         var lw = 0;
@@ -1044,23 +1063,31 @@ $A.Grid = Ext.extend($A.Component,{
         }       
     },
     setWidth: function(w){
+    	if(this.width == w) return;
         this.width = w;
         this.wrap.setWidth(w);
-        this.wb.setWidth(w);
         var tb = $A.CmpManager.get(this.id+'_tb')
         if(tb)tb.setWidth(w);
         var nb = $A.CmpManager.get(this.id+'_navbar')
         if(nb)nb.setWidth(w);
+        if(this.fb) this.fb.setWidth(w);
         var bw = w-this.lockWidth
         this.uc.setWidth(bw);
         this.uh.setWidth(bw);
         this.ub.setWidth(bw);
+        if(this.uf) this.uf.setWidth(bw);
     },
     setHeight: function(h){
+    	if(this.height == h) return;
         this.height = h;
+        var tb = $A.CmpManager.get(this.id+'_tb');
+        if(tb)h-=25;
+        var nb = $A.CmpManager.get(this.id+'_navbar');
+        if(nb)h-=25;
+        if(this.fb)h-=25;
         this.wrap.setHeight(h);
         var bh = h - 25;
-        this.lb.setHeight(bh)
+        if(this.lb)this.lb.setHeight(bh)
         this.ub.setHeight(bh)
     },
     deleteSelectRows: function(win){
