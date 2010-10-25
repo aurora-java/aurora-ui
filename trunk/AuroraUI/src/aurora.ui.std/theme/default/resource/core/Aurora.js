@@ -12,12 +12,11 @@
  * @singleton
  */
 $A = Aurora = {version: '1.0',revision:'$Rev$'};
-$A.firstFire = false;
+//$A.firstFire = false;
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
 }
-
-Ext.fly(window).on("resize", $A.fireWindowResize, this);
+Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
 
 $A.cache = {};
 $A.cmps = {};
@@ -525,15 +524,20 @@ $A.Status = function(){
 }();
 $A.Cover = function(){
 	var m = {
+		bodyOverflow:null,
+		sw:null,
+		sh:null,
 		container: {},
 		cover : function(el){
+			$A.Cover.bodyOverflow = Ext.getBody().getStyle('overflow');			
 			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
-    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
-			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;" unselectable="on"></DIV>';
+    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight());
+			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth)+'px;height:'+(screenHeight)+'px;" unselectable="on"></DIV>';
 			var cover = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
+	    	Ext.getBody().setStyle('overflow','hidden');
 	    	$A.Cover.container[el.id] = cover;
 		},
 		uncover : function(el){
@@ -543,12 +547,23 @@ $A.Cover = function(){
 				$A.Cover.container[el.id] = null;
 				delete $A.Cover.container[el.id];
 			}
+			var reset = true;
+			for(key in $A.Cover.container){
+                if($A.Cover.container[key]) {
+                    reset = false; 	
+                    break;
+                }
+            }
+            if(reset&&$A.Cover.bodyOverflow)Ext.getBody().setStyle('overflow',$A.Cover.bodyOverflow);
 		},
 		resizeCover : function(){
 			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
+    		if($A.Cover.sw == screenWidth && $A.Cover.sh == screenHeight) return;
+    		$A.Cover.sw = screenWidth;
+    		$A.Cover.sh = screenHeight;
 			for(key in $A.Cover.container){
 				var cover = $A.Cover.container[key];
 				Ext.fly(cover).setWidth(screenWidth);
