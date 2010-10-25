@@ -273,13 +273,30 @@ $A.Grid = Ext.extend($A.Component,{
     },
     createRow : function(type, row, cols, item){
         var sb = [];
-        sb.add('<TR id="'+this.id+'$'+type+'-'+item.id+'" class="'+(row % 2==0 ? '' : 'row-alt')+'">');
+        var css=this.parseCss(this.renderRow(item,row));
+        sb.add('<TR id="'+this.id+'$'+type+'-'+item.id+'" class="'+(row % 2==0 ? '' : 'row-alt')+css.cls+'"'+'style="'+css.style+'">');
         for(var i=0,l=cols.length;i<l;i++){
             var c = cols[i];
             sb.add(this.createCell(c,item, true))           
         }
         sb.add('</TR>');
         return sb.join('');
+    },
+    parseCss:function(css){
+    	var style="",cls="";
+    	if(Ext.isArray(css)){
+    		for(var i=0;i<css.length;i++){
+    			var _css=this.parseCss(css[i]);
+    			style+=";"+_css.style;
+    			cls+=" "+_css.cls;
+    		}
+    	}else if(typeof css=="string"){
+    		isStyle=!!css.match(/^([^,:;]+:[^:;]+;)*[^,:;]+:[^:;]+;*$/);
+    		cls=isStyle?"":css;
+			style=isStyle?css:"";
+    	}
+    	return {style:style,cls:cls}
+    	
     },
     renderText : function(record,col,value){
         var renderer = col.renderer;
@@ -293,6 +310,19 @@ $A.Grid = Ext.extend($A.Component,{
             return value == null ? '' : value;
         }
         return value == null ? '' : value;
+    },
+    renderRow : function(record,rowIndex){
+    	var renderer = this.rowrenderer,css=null;
+        if(renderer){
+            var rder = $A.getRenderer(renderer);
+            if(rder == null){
+                alert("未找到"+renderer+"方法!")
+                return css;
+            }
+            css = rder.call(window,record, rowIndex);
+            return !css? '' : css;
+        }
+        return css ;
     },
     createTH : function(cols){
         var sb = [];
@@ -425,10 +455,12 @@ $A.Grid = Ext.extend($A.Component,{
         var v = 0;
         var columns = this.columns;
         var row = this.dataset.data.length-1;
+        var css = this.parseCss(this.renderRow(record,row));
         if(this.lbt){
             var ltr = document.createElement("TR");
             ltr.id=this.id+'$l'+'-'+record.id;
-            ltr.className=(row % 2==0 ? '' : 'row-alt');
+            ltr.className=(row % 2==0 ? '' : 'row-alt')+' '+css.cls;
+            Ext.fly(ltr).set({'style':css.style});
             for(var i=0,l=columns.length;i<l;i++){
                 var col = columns[i];
                 if(col.lock === true){
@@ -453,7 +485,8 @@ $A.Grid = Ext.extend($A.Component,{
         
         var utr = document.createElement("TR");
         utr.id=this.id+'$u'+'-'+record.id;
-        utr.className=(row % 2==0 ? '' : 'row-alt');
+        utr.className=(row % 2==0 ? '' : 'row-alt')+' '+css.cls;
+        Ext.fly(utr).set({'style':css.style});
         for(var i=0,l=columns.length;i<l;i++){
             var col = columns[i];
             if(col.lock !== true){
