@@ -12,12 +12,11 @@
  * @singleton
  */
 $A = Aurora = {version: '1.0',revision:'$Rev$'};
-$A.firstFire = false;
+//$A.firstFire = false;
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
 }
-
-Ext.fly(window).on("resize", $A.fireWindowResize, this);
+Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
 
 $A.cache = {};
 $A.cmps = {};
@@ -149,6 +148,14 @@ $ = $A.getCmp = function(id){
 	}
 	return cmp;
 }
+$A.setCookie = function(name,value){
+    document.cookie = name + "="+ escape (value);
+}
+$A.getCookie = function(name){
+    var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+     if(arr != null) return unescape(arr[2]); return null;
+
+}
 $A.getViewportHeight = function(){
     if(Ext.isIE){
         return Ext.isStrict ? document.documentElement.clientHeight :
@@ -175,9 +182,9 @@ $A.getViewportWidth = function() {
 $A.post = function(action,data){
     var form = Ext.getBody().createChild({tag:'form',method:'post',action:action});
     for(var key in data){
+    	if(data[key])
         form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
     }
-    Ext.elCache = {};
     form.dom.submit();
 }
 $A.request = function(opt){
@@ -517,15 +524,20 @@ $A.Status = function(){
 }();
 $A.Cover = function(){
 	var m = {
+		bodyOverflow:null,
+		sw:null,
+		sh:null,
 		container: {},
 		cover : function(el){
+			$A.Cover.bodyOverflow = Ext.getBody().getStyle('overflow');			
 			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
-    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
-			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;" unselectable="on"></DIV>';
+    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight());
+			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth)+'px;height:'+(screenHeight)+'px;" unselectable="on"></DIV>';
 			var cover = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
+	    	Ext.getBody().setStyle('overflow','hidden');
 	    	$A.Cover.container[el.id] = cover;
 		},
 		uncover : function(el){
@@ -535,12 +547,23 @@ $A.Cover = function(){
 				$A.Cover.container[el.id] = null;
 				delete $A.Cover.container[el.id];
 			}
+			var reset = true;
+			for(key in $A.Cover.container){
+                if($A.Cover.container[key]) {
+                    reset = false; 	
+                    break;
+                }
+            }
+            if(reset&&$A.Cover.bodyOverflow)Ext.getBody().setStyle('overflow',$A.Cover.bodyOverflow);
 		},
 		resizeCover : function(){
 			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
+    		if($A.Cover.sw == screenWidth && $A.Cover.sh == screenHeight) return;
+    		$A.Cover.sw = screenWidth;
+    		$A.Cover.sh = screenHeight;
 			for(key in $A.Cover.container){
 				var cover = $A.Cover.container[key];
 				Ext.fly(cover).setWidth(screenWidth);
@@ -778,6 +801,7 @@ $A.formatDateTime = function(date){
 	}
 }
 $A.formatNumber = function(value){
+	if(!value)return '';
     var ps = String(value).split('.');
     var sub = (ps.length==2)?'.'+ps[1]:'';
     var whole = ps[0];
@@ -2590,7 +2614,13 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         }
     },
     processListener: function(ou){
-    	this.wrap[ou]("mouseover", this.onMouseOver, this);
+    	this.processMouseOverOut(ou)
+        if(this.marginwidth||this.marginheight) {
+            Ext.EventManager[ou](window, "resize", this.windowResizeListener,this);
+        }
+    },
+    processMouseOverOut : function(ou){
+        this.wrap[ou]("mouseover", this.onMouseOver, this);
         this.wrap[ou]("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
@@ -2629,6 +2659,16 @@ $A.Component = Ext.extend(Ext.util.Observable,{
          */
     	'mouseout');
     	this.processListener('on');
+    },
+    windowResizeListener : function(){
+        if(this.marginwidth){
+            var wd = Aurora.getViewportWidth();
+            this.setWidth(wd-this.marginwidth);
+        }
+        if(this.marginheight){
+            var ht = Aurora.getViewportHeight();
+            this.setHeight(ht-this.marginheight);           
+        }
     },
     isEventFromComponent:function(el){
     	return this.wrap.contains(el)
@@ -2864,6 +2904,7 @@ $A.Field = Ext.extend($A.Component,{
     	}
     },
     processListener: function(ou){
+    	$A.Field.superclass.processListener.call(this, ou);
 //    	this.el[ou](Ext.isIE || Ext.isSafari3 ? "keydown" : "keypress", this.fireKey,  this);
     	this.el[ou]("focus", this.onFocus,  this);
     	this.el[ou]("blur", this.onBlur,  this);
@@ -2871,6 +2912,10 @@ $A.Field = Ext.extend($A.Component,{
     	this.el[ou]("keyup", this.onKeyUp, this);
         this.el[ou]("keydown", this.onKeyDown, this);
         this.el[ou]("keypress", this.onKeyPress, this);
+//        this.el[ou]("mouseover", this.onMouseOver, this);
+//        this.el[ou]("mouseout", this.onMouseOut, this);
+    },
+    processMouseOverOut : function(ou){
         this.el[ou]("mouseover", this.onMouseOver, this);
         this.el[ou]("mouseout", this.onMouseOut, this);
     },
@@ -4580,8 +4625,8 @@ $A.Window = Ext.extend($A.Component,{
     	var shadowTpl = new Ext.Template(sf.getShadowTemplate());
     	sf.width = 1*(sf.width||350);
     	sf.height= 1*(sf.height||400);
-        sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
-        sf.shadow = shadowTpl.append(document.body, {}, true);
+        sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,display:Ext.isIE6 ? '' : 'none'}, true);
+        sf.shadow = shadowTpl.append(document.body, {display:Ext.isIE6 ? '' : 'none'}, true);
         sf.focusEl = sf.wrap.child('a[atype=win.focus]')
     	sf.title = sf.wrap.child('div[atype=window.title]');
     	sf.head = sf.wrap.child('td[atype=window.head]');
@@ -4630,10 +4675,11 @@ $A.Window = Ext.extend($A.Component,{
     	var x = Math.max((screenWidth - this.width)/2,0);
     	var y = Math.max((screenHeight - this.height-23)/2,0);
         this.wrap.moveTo(x,y);
+        this.wrap.show();
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
         this.shadow.moveTo(x+3,y+3)
-        if(!this.proxy) this.initProxy();
+        this.shadow.show();
         this.toFront();
         var sf = this;
         setTimeout(function(){
@@ -4641,11 +4687,11 @@ $A.Window = Ext.extend($A.Component,{
         },10)
     },
     getShadowTemplate: function(){
-    	return ['<DIV class="item-shadow"></DIV>']
+    	return ['<DIV class="item-shadow" style="display:{display};"></DIV>']
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0">',
+            '<TABLE class="win-wrap" style="width:{width}px;display:{display};" cellSpacing="0" cellPadding="0" border="0">',
 			'<TBODY>',
 			'<TR style="height:23px;" >',
 				'<TD class="win-caption">',
@@ -4693,6 +4739,7 @@ $A.Window = Ext.extend($A.Component,{
 		sf.relativeY=xy[1]-e.getPageY();
 		sf.screenWidth = $A.getViewportWidth();
         sf.screenHeight = $A.getViewportHeight();
+        if(!this.proxy) this.initProxy();
         this.proxy.show();
     	Ext.get(document.documentElement).on("mousemove", sf.onMouseMove, sf);
     	Ext.get(document.documentElement).on("mouseup", sf.onMouseUp, sf);
@@ -4731,9 +4778,9 @@ $A.Window = Ext.extend($A.Component,{
     },
     initProxy : function(){
     	var sf = this; 
-    	var p = '<DIV style="border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
+    	var p = '<DIV style="display:none;border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
     	sf.proxy = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
-    	sf.proxy.hide();
+//    	sf.proxy.hide();
     	var xy = sf.wrap.getXY();
     	sf.proxy.setWidth(sf.wrap.getWidth());
     	sf.proxy.setHeight(sf.wrap.getHeight());
