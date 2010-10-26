@@ -218,12 +218,18 @@ $A.Grid = Ext.extend($A.Component,{
         }
         var cellTpl;
         var tdTpl = this.tdTpl;
-        var cls = col.editor ? this.cecls : '';
-        if(col.editorfunction) {
-            var ef = window[col.editorfunction];
-            if(ef) cls = ef.call(window,record,col.name)!='' ? this.cecls : '';
+        var cls = ''; //col.editor ? this.cecls : 
+        var xtype = col.type;
+        var editor = this.getEditor(col,record);
+        if(editor!=''){
+            if(($(editor) instanceof $A.CheckBox)){
+                xtype = 'cellcheck';
+                cls = '';
+            }else{
+                cls = this.cecls;
+            }
         }
-        if(col.type == 'rowcheck'){
+        if(xtype == 'rowcheck'){
             tdTpl = this.rowTdTpl;
             data = Ext.apply(data,{
                 align:'center',
@@ -231,7 +237,7 @@ $A.Grid = Ext.extend($A.Component,{
                 cellcls: 'grid-ckb item-ckb-u'
             })
             cellTpl =  this.cbTpl;
-        }else if(col.type == 'rowradio'){
+        }else if(xtype == 'rowradio'){
             tdTpl = this.rowTdTpl;
             data = Ext.apply(data,{
                 align:'center',
@@ -239,20 +245,13 @@ $A.Grid = Ext.extend($A.Component,{
                 cellcls: 'grid-radio item-radio-img-u'
             })
             cellTpl =  this.cbTpl;
-        }else if(col.type == 'cellcheck'){
+        }else if(xtype == 'cellcheck'){
             data = Ext.apply(data,{
                 align:'center',
-                cellcls: 'grid-ckb ' +((cls=='') ? ' disabled ' : '' )+ this.getCheckBoxStatus(record, col.name)
+                cellcls: 'grid-ckb ' + this.getCheckBoxStatus(record, col.name) //+((cls=='') ? ' disabled ' : '' )
             })
             cellTpl =  this.cbTpl;
         }else{
-//            var cls = col.editor ? this.cecls : '';
-//            if(col.editorfunction) {
-//                var ef = window[col.editorfunction];
-//                if(ef) {
-//                    cls = ef.call(window,record,col.name)!='' ? this.cecls : '';
-//                }
-//            }
             var field = record.getMeta().getField(col.name);
             if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get('required') == true){
                 cls = cls + ' ' + this.nbcls
@@ -505,16 +504,30 @@ $A.Grid = Ext.extend($A.Component,{
         }
         this.ubt.dom.tBodies[0].appendChild(utr);
     },
+    renderEditor : function(div,record,c,editor){
+    	var cell = this.createCell(c,record,false);
+    	div.parent().update(cell);
+    	
+    	/*
+    	if(editor == ''){    	
+    		div.removeClass(this.cecls);
+    	}else if(editor != '' || ($(editor) instanceof $A.CheckBox)){
+    		var cell = this.createCell(c,record,false);
+    		div.parent().update(cell)
+    	}else{
+            div.addClass(this.cecls);
+    	}
+        */
+    },
     onUpdate : function(ds,record, name, value){
         var div = Ext.get(this.id+'_'+name+'_'+record.id);
         if(div){
             var c = this.findColByName(name);
-            if(c&&c.type=='cellcheck'){
-                div.removeClass('item-ckb-c');
-                div.removeClass('item-ckb-u')
-                var cls = this.getCheckBoxStatus(record, name);
-                div.addClass(cls)
+            var editor = this.getEditor(c,record);            
+            if(editor!='' && ($(editor) instanceof $A.CheckBox)){
+            	this.renderEditor(div,record,c,editor);
             }else{
+            	//考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
                 var text =  this.renderText(record,c, value);
                 div.update(text);
             }
@@ -522,15 +535,19 @@ $A.Grid = Ext.extend($A.Component,{
         var cls = this.columns;
         for(var i=0,l=cls.length;i<l;i++){
             var c = cls[i];
-            if(c.name != name && c.editorfunction){
-                var ef = window[c.editorfunction];
-                if(ef) {
-                    var editor = ef.call(window,record,c.name);
-                    var ediv = Ext.get(this.id+'_'+c.name+'_'+record.id);
-                    if(ediv){
-                        (editor == '') ? ediv.removeClass(this.cecls) : ediv.addClass(this.cecls);
+            if(c.name != name) {
+            	var ediv = Ext.get(this.id+'_'+c.name+'_'+record.id);
+            	if(ediv) {
+            		if(c.editorfunction){
+                		var editor = this.getEditor(c,record);
+                        this.renderEditor(ediv,record, c, editor);
+            		}
+                    if(c.renderer){
+                        var text =  this.renderText(record,c, record.get(c.name));
+                        ediv.update(text);
                     }
                 }
+                
             }
         }
         this.drawFootBar(name);
@@ -544,8 +561,7 @@ $A.Grid = Ext.extend($A.Component,{
                 if(valid == false){
                     div.addClass('item-invalid');
                 }else{
-                    div.removeClass('item-invalid');
-                    div.removeClass(this.nbcls);
+                    div.removeClass([this.nbcls,'item-invalid']);
                 }
             }
         }
@@ -676,6 +692,18 @@ $A.Grid = Ext.extend($A.Component,{
             (editor == '') ? div.removeClass(this.cecls) : div.addClass(this.cecls)
         }
     },
+    getEditor : function(col,record){
+        var ed = col.editor||'';
+        if(col.editorfunction) {
+            var ef = window[col.editorfunction];
+            if(ef==null) {
+                alert("未找到"+col.editorfunction+"方法!") ;
+                return null;
+            }
+            ed = ef.call(window,record,col.name)
+        }
+        return ed;
+    },
     /**
      * 显示编辑器.
      * @param {Number} row 行号
@@ -690,18 +718,9 @@ $A.Grid = Ext.extend($A.Component,{
         if(record.id != this.selectedId);
         this.selectRow(row);
         this.focusColumn(name);
-        
-        if(col.editorfunction) {
-            var ef = window[col.editorfunction];
-            if(ef==null) {
-                alert("未找到"+col.editorfunction+"方法!") ;
-                return;
-            }
-            var editor = ef.call(window,record,name)
-            this.setEditor(name, editor);
-        }
-        var editor = col.editor;
-        if(col.type == 'cellcheck'){
+        var editor = this.getEditor(col,record);
+        this.setEditor(name, editor);
+        if(editor!='' && ($(editor) instanceof $A.CheckBox)){
             var field = this.dataset.getField(name)
             var cv = field.getPropertity('checkedvalue');
             var uv = field.getPropertity('uncheckedvalue');
@@ -858,8 +877,7 @@ $A.Grid = Ext.extend($A.Component,{
                 this.dataset.setQueryParameter('ORDER_FIELD', index);
                 if(this.currentSortTarget){
                     var cst = Ext.fly(this.currentSortTarget)
-                    cst.removeClass('grid-desc');
-                    cst.removeClass('grid-asc');
+                    cst.removeClass(['grid-asc','grid-desc']);
                 }
                 this.currentSortTarget = d;
                 if(Ext.isEmpty(col.sorttype)) {
@@ -874,8 +892,7 @@ $A.Grid = Ext.extend($A.Component,{
                     this.dataset.setQueryParameter('ORDER_TYPE', 'asc');
                 }else {
                     col.sorttype = '';
-                    d.removeClass('grid-desc');
-                    d.removeClass('grid-asc');
+                    d.removeClass(['grid-desc','grid-asc']);
                     delete this.dataset.qpara['ORDER_TYPE'];
                 }
                 if(this.dataset.getAll().length!=0)this.dataset.query();
