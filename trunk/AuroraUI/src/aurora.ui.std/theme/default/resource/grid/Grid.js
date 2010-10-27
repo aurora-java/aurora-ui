@@ -225,7 +225,8 @@ $A.Grid = Ext.extend($A.Component,{
         var xtype = col.type;
         var editor = this.getEditor(col,record);
         if(editor!=''){
-        	var edi = $A.CmpManager.get(editor)
+        	var edi = $A.CmpManager.get(editor);
+        	//这里对于checkbox可能会存在问题
             if(edi && (edi instanceof $A.CheckBox)){
                 xtype = 'cellcheck';
                 cls = '';
@@ -1056,6 +1057,7 @@ $A.Grid = Ext.extend($A.Component,{
         this.syncSize();
     },
     drawFootBar : function(objs){
+    	if(!this.fb) return;
     	objs = [].concat((objs) ? objs : this.columns);
     	var sf = this;
     	Ext.each(objs, function(obj) {
