@@ -969,10 +969,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 以json格式返回当前数据集.
      * @return {Object} json 返回的json对象.
      */
-    getJsonData : function(){
+    getJsonData : function(selected){
     	var datas = [];
-    	for(var i=0,l=this.data.length;i<l;i++){
-    		var r = this.data[i];
+    	var items = this.data;
+    	if(selected) items = this.getSelected();
+    	for(var i=0,l=items.length;i<l;i++){
+    		var r = items[i];
     		var isAdd = r.dirty || r.isNew
 			var d = Ext.apply({}, r.data);
 			d['_id'] = r.id;
@@ -993,31 +995,41 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	
     	return datas;
     },
-    /**
-     * 提交操作.
-     * @return {String} url(可选) 提交的url.
-     */
-    submit : function(url){
-    	if(!this.validate()){    		
-    		return;
-    	}
-    	this.submiturl = url||this.submiturl;
-    	if(this.submiturl == '') return;
-    	var p = this.getJsonData();
-    	for(var i=0;i<p.length;i++){
-    		var data = p[i]
-    		for(var key in data){
-    			var f = this.fields[key];
+    doSubmit : function(url, items){
+        if(!this.validate()){           
+            return;
+        }
+        this.submiturl = url||this.submiturl;
+        if(this.submiturl == '') return;
+        var p = items;//this.getJsonData();
+        for(var i=0;i<p.length;i++){
+            var data = p[i]
+            for(var key in data){
+                var f = this.fields[key];
                 if(f && f.type != 'dataset' && data[key]=='')data[key]=null;
-    		}
-    		p[i] = Ext.apply(p[i],this.spara)
-    	}
-    	
-    	//if(p.length > 0) {
+            }
+            p[i] = Ext.apply(p[i],this.spara)
+        }
+        
+        //if(p.length > 0) {
 //            this.fireEvent("submit", this);
             this.fireBindDataSetEvent("submit");
             $A.request({url:this.submiturl, para:p, success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
-    	//}
+        //}
+    },
+    /**
+     * 提交选中数据.
+     * @return {String} url(可选) 提交的url.
+     */
+    submitSelected : function(url){
+        this.doSubmit(url,this.getJsonData(true));
+    },
+    /**
+     * 提交数据.
+     * @return {String} url(可选) 提交的url.
+     */
+    submit : function(url){
+    	this.doSubmit(url,this.getJsonData());
     },
     fireBindDataSetEvent : function(event){
     	this.fireEvent(event,this);
