@@ -225,7 +225,8 @@ $A.Grid = Ext.extend($A.Component,{
         var xtype = col.type;
         var editor = this.getEditor(col,record);
         if(editor!=''){
-            if(($(editor) instanceof $A.CheckBox)){
+        	var edi = $A.CmpManager.get(editor)
+            if(edi && (edi instanceof $A.CheckBox)){
                 xtype = 'cellcheck';
                 cls = '';
             }else{

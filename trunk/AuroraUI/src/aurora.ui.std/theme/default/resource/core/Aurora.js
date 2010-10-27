@@ -144,7 +144,6 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 $ = $A.getCmp = function(id){
 	var cmp = $A.CmpManager.get(id)
 	if(cmp == null) {
-		debugger
 		alert('未找到组件:' + id)
 	}
 	return cmp;
