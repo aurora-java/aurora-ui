@@ -192,9 +192,12 @@ $A.Grid = Ext.extend($A.Component,{
             ds = $(ds);
             if(!ds) return;
         }
-        this.dataset = ds;
-        this.processDataSetLiestener('on');
-        this.onLoad();
+        var sf = this;
+        sf.dataset = ds;
+        sf.processDataSetLiestener('on');
+        Ext.onReady(function(){
+            sf.onLoad();
+        })
     },
     initTemplate : function(){
         this.rowTdTpl = new Ext.Template('<TD atype="{atype}" class="grid-rowbox" recordid="{recordid}">');
