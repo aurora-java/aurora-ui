@@ -28,8 +28,7 @@ $A.WindowManager = function(){
         		var win = all[i];
         		var zd = win.wrap.getStyle('z-index');
         		if(zd =='auto') zd = 0;
-        		if(zd > zindex) zindex = zd;
-				break;        		
+        		if(zd > zindex) zindex = zd;       		
         	}
         	return zindex;
         }
@@ -78,7 +77,7 @@ $A.Window = Ext.extend($A.Component,{
     	}
     	this.wrap[ou]("click", this.toFront, this);
     	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
-    	if(this.draggable)this.head.on('mousedown', this.onMouseDown,this);
+    	if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
     },
     initEvents : function(){
     	$A.Window.superclass.initEvents.call(this);
@@ -161,7 +160,7 @@ $A.Window = Ext.extend($A.Component,{
     onMouseDown : function(e){
     	var sf = this; 
     	//e.stopEvent();
-//    	sf.toFront();
+    	sf.toFront();
     	var xy = sf.wrap.getXY();
     	sf.relativeX=xy[0]-e.getPageX();
 		sf.relativeY=xy[1]-e.getPageY();
@@ -362,7 +361,7 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     return cmp;
 }
 $A.showOkWindow = function(title, msg, width, height,callback){
-	var cmp = $A.CmpManager.get('aurora-msg-ok')
+	var cmp = $A.CmpManager.get('aurora-msg-ok');
 	if(cmp == null) {
 		var btnhtml = $A.Button.getTemplate('aurora-msg-yes','确定');
 		cmp = new $A.Window({id:'aurora-msg-ok',title:title, height:height,width:width});
