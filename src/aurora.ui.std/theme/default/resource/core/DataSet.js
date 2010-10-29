@@ -1596,7 +1596,11 @@ $A.Record.Field.prototype = {
             p = {};
             this.setPropertity("lovpara",p) 
         }
-        p[name] = value;
+        if(value==null){
+        	delete p[name]
+        }else{
+            p[name] = value;
+        }
     }
 	
 }
