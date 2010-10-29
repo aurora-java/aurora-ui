@@ -98,12 +98,13 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.focus();
 	},
 	getLovPara : function(){
+		var para = Ext.apply({},this.para);
         var field = this.record.getMeta().getField(this.binder.name);
         if(field){
-        	var para = field.get('lovpara');
-            if(para)Ext.apply(this.para,para);
+        	var lovpara = field.get('lovpara'); 
+            if(lovpara)Ext.apply(para,lovpara);
         }
-        return this.para;
+        return para;
 	},
 	fetchRecord : function(){
 		if(this.readonly == true) return;
@@ -147,19 +148,20 @@ $A.Lov = Ext.extend($A.TextField,{
 		}, error:this.onFetchFailed, scope:this});
 	},
 	onFetchFailed: function(res){
+		this.fetching = false;
 		$A.SideBar.enable = $A.slideBarEnable;
 //		$A.showErrorMessage('错误', res.error.message);
 	},
-	onBlur : function(e){
-//        if(this.isEventFromComponent(e.target)) return;
-//        var sf = this;
-//        setTimeout(function(){
-//            if(!this.isWinOpen){
-//            }
-//        })
-		if(!fetching)
-        $A.Lov.superclass.onBlur.call(this,e);
-    },
+//	onBlur : function(e){
+////        if(this.isEventFromComponent(e.target)) return;
+////        var sf = this;
+////        setTimeout(function(){
+////            if(!this.isWinOpen){
+////            }
+////        })
+//		if(!this.fetching)
+//        $A.Lov.superclass.onBlur.call(this,e);
+//    },
 	showLovWindow : function(e){
 		e.stopEvent();
 		if(this.fetching||this.isWinOpen||this.readonly) return;
