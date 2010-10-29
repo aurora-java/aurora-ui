@@ -988,7 +988,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 					d[k] = ds.getJsonData();
 				}
 			}
-    		if(isAdd){
+    		if(isAdd||selected){
 	    		datas.push(d);    			
 			}
     	}
