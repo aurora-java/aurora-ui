@@ -119,16 +119,16 @@ $A.Lov = Ext.extend($A.TextField,{
 		}else if(!Ext.isEmpty(this.lovmodel)){
 			url = this.context + 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
 		}
+		var record = this.record;
 		var p = {};
 		var mapping = this.getMapping();
 		for(var i=0;i<mapping.length;i++){
-			var map = mapping[i];
+			var map = mapping[i];			
 			if(this.binder.name == map.to){
 				p[map.from]=v;
-				break;
 			}
+			record.set(map.to,'');			
 		}
-		var record = this.record;
 		$A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
         this.setRawValue('正在查询...')
@@ -150,15 +150,16 @@ $A.Lov = Ext.extend($A.TextField,{
 		$A.SideBar.enable = $A.slideBarEnable;
 //		$A.showErrorMessage('错误', res.error.message);
 	},
-//	onBlur : function(e){
+	onBlur : function(e){
 //        if(this.isEventFromComponent(e.target)) return;
 //        var sf = this;
 //        setTimeout(function(){
 //            if(!this.isWinOpen){
 //            }
 //        })
-//        $A.Lov.superclass.onBlur.call(this,e);
-//    },
+		if(!fetching)
+        $A.Lov.superclass.onBlur.call(this,e);
+    },
 	showLovWindow : function(e){
 		e.stopEvent();
 		if(this.fetching||this.isWinOpen||this.readonly) return;
