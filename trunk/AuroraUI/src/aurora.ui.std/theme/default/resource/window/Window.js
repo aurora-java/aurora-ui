@@ -42,6 +42,7 @@ $A.Window = Ext.extend($A.Component,{
         this.closeable = true;
         this.modal = config.modal||true;
         this.cmps = {};
+        $A.focusWindow = null;
         $A.Window.superclass.constructor.call(this,config);
     },
     initComponent : function(config){
@@ -370,8 +371,9 @@ $A.showOkWindow = function(title, msg, width, height,callback){
     			var btn = $("aurora-msg-yes");
                 cmp.cmps['aurora-msg-yes'] = btn;
                 btn.on('click',function(){
-                if(callback)callback.call(this,cmp)
-                cmp.close()});
+                    if(callback)callback.call(this,cmp);
+                    cmp.close()
+                });
                 btn.focus();
 			});
 		}

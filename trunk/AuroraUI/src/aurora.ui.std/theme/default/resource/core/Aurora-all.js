@@ -4630,6 +4630,7 @@ $A.Window = Ext.extend($A.Component,{
         this.closeable = true;
         this.modal = config.modal||true;
         this.cmps = {};
+        $A.focusWindow = null;
         $A.Window.superclass.constructor.call(this,config);
     },
     initComponent : function(config){
@@ -4882,8 +4883,6 @@ $A.Window = Ext.extend($A.Component,{
 //	    			sf.cmps[key] = cmps[key];
 //	    		}
 //	    	}
-//    		debugger
-    		if($A.focusWindow == sf) $A.focusWindow = null;
 	    	sf.fireEvent('load',sf)
     	});
     }
