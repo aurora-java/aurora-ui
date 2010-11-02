@@ -1,0 +1,6 @@
+.item-treegrid .node-text div{
+    overflow:hidden;
+    height:20px;
+    text-overflow:ellipsis;
+    
+}

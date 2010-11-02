@@ -7,6 +7,7 @@
  * @param {Object} config 配置对象. 
  */
 $A.Tree = Ext.extend($A.Component,{
+	showSkeleton: true,
 	constructor: function(config){
 		$A.Tree.superclass.constructor.call(this,config);
 		this.sequence = config.sequence||'sequence';
@@ -70,9 +71,12 @@ $A.Tree = Ext.extend($A.Component,{
 			ds = $(ds);
 			if(!ds) return;
 		}
-		this.dataset = ds;
-		this.processDataSetLiestener('on');
-    	this.onLoad();
+		var sf = this;
+		sf.dataset = ds;
+		sf.processDataSetLiestener('on');
+    	Ext.onReady(function(){
+            sf.onLoad();
+        })
 	},
 	onUpdate : function(ds, record, name, value){
 		if(this.parentfield == name || name == this.sequence){
@@ -106,9 +110,11 @@ $A.Tree = Ext.extend($A.Component,{
 				}
 			}
 		}else if(_type == 'icon' || _type == 'text'){
+			
 			var node = this.nodeHash[elem.indexId];
 			this.setFocusNode(node);
-			this.dataset.locate.defer(5, this.dataset,[this.dataset.indexOf(node.record)+1,false]);
+//			this.dataset.locate.defer(5, this.dataset,[this.dataset.indexOf(node.record)+1,false]);
+			this.dataset.locate(this.dataset.indexOf(node.record)+1,true);
 			this.fireEvent('click', this, node.record, node);
 		}else if(_type == 'checked'){
 			var node = this.nodeHash[elem.indexId];
@@ -195,7 +201,7 @@ $A.Tree = Ext.extend($A.Component,{
 			var data = {};
 			data[this.displayfield] = '_root';
 			var root = { 
-				'record': new Aurora.Record(data), 
+				'record': new Aurora.Record(data),
 			    'children':[]
 			}
 			for(var i=0;i<array.length;i++){
@@ -214,33 +220,38 @@ $A.Tree = Ext.extend($A.Component,{
             return parseFloat(n1)-parseFloat(n2);
        });
        for(var i=0;i<children.length;i++){
-       	    var n = children[i]
+       	    var n = children[i];
        	    this.sortChildren(n.children,sequence)
        }
+	},
+	createTreeNode : function(item){
+		return new $A.Tree.TreeNode(item);
 	},
 	onLoad : function(){
 		var root = this.buildTree();
 		if(!root) {
 			return;
 		}
-		var node = new $A.Tree.TreeNode(root);
+		var node = this.createTreeNode(root);
 		this.setRootNode(node);		
 		this.body.update('');
+		if(this.dataset.data.length>0)
 		this.root.render();
 		this.fireEvent('render', this,root);
 	},
-	syncSize : function(){
-		this.root.syncSize();
-	},
+//	syncSize : function(){
+//		this.root.syncSize();
+//	},
 	getIconByType : function(type){
 		return type;
 	},
 	onNodeSelect : function(el){
-		el['text'].style.backgroundColor='#dfeaf5';
+		el[this.displayfield+'_text'].style.backgroundColor='#dfeaf5';
 	},
 	onNodeUnSelect : function(el){
-	   el['text'].style.backgroundColor='';
-	}
+	   el[this.displayfield+'_text'].style.backgroundColor='';
+	},
+	initColumns : function(node){}
 })
 /**
  * @class Aurora.Tree.TreeNode
@@ -250,30 +261,37 @@ $A.Tree = Ext.extend($A.Component,{
  * @constructor 
  */
 $A.Tree.TreeNode = function(data) {
-	this.data = data;
-	this.record = data.record;
-	this.els = null;
-	this.id = this.record.id;
-	this.parentNode = null;
-  	this.childNodes = [];
-	this.lastChild = null;
-	this.firstChild = null;
-	this.previousSibling = null;
-	this.nextSibling = null;
-	this.childrenRendered = false;
-	this.isExpand = false;
-	
-	this.checked = this.record.get('checked') == "Y";
-	this.expanded = this.record.get('expanded') == "Y";
-
-	var children = data.children || [];
-	for(var i=0,j=children.length;i<j;i++){
-		var node = new $A.Tree.TreeNode(children[i]);
-		this.appendChild(node);
-	}
+	this.init(data)
 }
 $A.Tree.TreeNode.prototype={
+	init : function(data){
+		this.data = data;
+        this.record = data.record;
+        this.els = null;
+        this.id = this.record.id;
+        this.parentNode = null;
+        this.childNodes = [];
+        this.lastChild = null;
+        this.firstChild = null;
+        this.previousSibling = null;
+        this.nextSibling = null;
+        this.childrenRendered = false;
+        this.isExpand = false;
+        
+        this.checked = this.record.get('checked') == "Y";
+        this.expanded = this.record.get('expanded') == "Y";
+    
+        var children = data.children || [];
+        for(var i=0,j=children.length;i<j;i++){
+            var node = this.createNode(children[i]);
+            this.appendChild(node);
+        }
+	},
+	createNode : function(item){
+		return new $A.Tree.TreeNode(item);
+	},
 	initEl : function(){
+		var df = this.getOwnerTree().displayfield;
 		this.els = {};
 		this.els['element'] = document.createElement('div');
 		this.els['element'].className = 'item-node';
@@ -284,37 +302,45 @@ $A.Tree.TreeNode.prototype={
 		this.els['itemNodeTable'].cellPadding=0;
 		this.els['itemNodeTbody'] = document.createElement('tbody');
 		this.els['itemNodeTr'] = document.createElement('tr');
-		this.els['line']= document.createElement('td');
-		this.els['clip']= document.createElement('td');
-		this.els['icon']= (this.icon) ? document.createElement('img') : document.createElement('div');
-		this.els['iconTd']= document.createElement('td');
-		Ext.fly(this.els['iconTd']).setWidth(18);
-		this.els['iconTd'].appendChild(this.els['icon']);
-		this.els['textTd']= document.createElement('td');
-		this.els['text']= document.createElement('span');
-		this.els['textTd'].appendChild(this.els['text']);
-		this.els['textTd'].className='node-text'
- 		this.els['checkbox'] = document.createElement('td'); 
+		if(this.getOwnerTree().showSkeleton){
+			
+    		this.els['line']= document.createElement('td');
+    		this.els['clip']= document.createElement('td');
+    		this.els['icon']= (this.icon) ? document.createElement('img') : document.createElement('div');
+    		this.els['iconTd']= document.createElement('td');
+     		this.els['checkbox'] = document.createElement('td'); 
+    		Ext.fly(this.els['iconTd']).setWidth(18);
+    		this.els['iconTd'].appendChild(this.els['icon']);
+		}
+		this.els[df+'_td']= document.createElement('td');
+		this.els[df+'_text']= document.createElement('div');
+		this.els[df+'_td'].appendChild(this.els[df+'_text']);
+		this.els[df+'_td'].className='node-text'
+		if(this.getOwnerTree().showSkeleton){
+    		this.els['itemNodeTr'].appendChild(this.els['line']);
+    		this.els['itemNodeTr'].appendChild(this.els['clip']);
+    		this.els['itemNodeTr'].appendChild(this.els['iconTd']);
+    		this.els['itemNodeTr'].appendChild(this.els['checkbox']);
+		}
+		this.els['itemNodeTr'].appendChild(this.els[df+'_td']);
+		this.getOwnerTree().initColumns(this);
 		
-		this.els['itemNodeTr'].appendChild(this.els['line']);
-		this.els['itemNodeTr'].appendChild(this.els['clip']);
-		this.els['itemNodeTr'].appendChild(this.els['iconTd']);
-		this.els['itemNodeTr'].appendChild(this.els['checkbox']);	
-		this.els['itemNodeTr'].appendChild(this.els['textTd']);
 		this.els['itemNodeTbody'].appendChild(this.els['itemNodeTr']);
 		this.els['itemNodeTable'].appendChild(this.els['itemNodeTbody']);
 		this.els['element'].appendChild(this.els['itemNodeTable']);
 		
 		this.els['element'].noWrap='true';
-		this.els['line']['_type_'] ='line';
-		this.els['clip']['_type_'] ='clip';
-		this.els['iconTd']['_type_'] ='icon';
-		this.els['textTd']['_type_'] ='text';
-		this.els['checkbox']['_type_'] ='checked';
+		if(this.getOwnerTree().showSkeleton){
+    		this.els['line']['_type_'] ='line';
+    		this.els['clip']['_type_'] ='clip';
+    		this.els['iconTd']['_type_'] ='icon';
+    		this.els['checkbox']['_type_'] ='checked';
+		}
+		this.els[df+'_td']['_type_'] ='text';
 		if(this.getOwnerTree().showcheckbox === false) {
 			this.els['checkbox'].style.display='none';
 		}
-		var text = this.record.get(this.ownerTree.displayfield)
+		var text = this.record.get(df)
 		if(this.isRoot() && text=='_root'){
 			this.els['itemNodeTable'].style.display='none';
 		}
@@ -326,13 +352,14 @@ $A.Tree.TreeNode.prototype={
 	},
 	render : function(){
 		this.icon = this.record.get('icon');
+		var tree = this.getOwnerTree();
 		if(!this.els){
 			this.initEl();
 		}
 		if(this.isRoot()){
-			this.getOwnerTree().body.appendChild(this.els['element']);
-			if(this.getOwnerTree().showRoot == false)
-			this.els['icon'].style.display=this.els['checkbox'].style.display=this.els['text'].style.display='none';
+			tree.body.appendChild(this.els['element']);
+			if(this.getOwnerTree().showRoot == false && this.getOwnerTree().showSkeleton)
+			this.els['icon'].style.display=this.els['checkbox'].style.display=this.els[tree.displayfield+'_text'].style.display='none';
 			this.expand();
 		}else{
 			this.parentNode.els['child'].appendChild(this.els['element']);
@@ -343,28 +370,39 @@ $A.Tree.TreeNode.prototype={
 		this.els['element'].indexId = this.id;
 		if(this.checked == true)
 		this.setCheck(true);
-		this.resize();
 	},
-	syncSize : function(){
-        this.resize();
+//	syncSize : function(){
+//        this.resize();
+//        if(this.childrenRendered) {
+//            var pathNodes = this.childNodes;
+//            for(var i=0;i<pathNodes.length;i++){
+//            	var node = pathNodes[i];
+//            	node.syncSize();
+//            }
+//        }
+//	},
+	setWidth : function(name,w){
+		this.doSetWidth(name,w);
         if(this.childrenRendered) {
             var pathNodes = this.childNodes;
             for(var i=0;i<pathNodes.length;i++){
-            	var node = pathNodes[i];
-            	node.syncSize();
+              var node = pathNodes[i];
+              node.setWidth(name,w);
             }
         }
 	},
-	resize : function(){
-//		if(this.isRoot()) return;
-		var w = this.getOwnerTree().width
+	doSetWidth : function(name,w){
 		if(!w)return;
-		var pathNodes = this.getPathNodes();
-        var lw = (pathNodes.length-2)*18;
-		var cw = 18,iw = 18;
-		var bw = this.getOwnerTree().showcheckbox ? 18 : 0;
-		var left = lw+cw+iw+bw;
-        Ext.fly(this.els['textTd']).setWidth(w-left);
+		if(this.isRoot()) return;
+		var left = 0;
+		if(name == this.getOwnerTree().displayfield && this.getOwnerTree().showSkeleton){
+    		var pathNodes = this.getPathNodes();
+            var lw = (pathNodes.length-2)*18;
+            var cw = 18,iw = 18,bw=0;  		
+            var bw = this.getOwnerTree().showcheckbox ? 18 : 0;
+    		left = lw+cw+iw+bw;
+		}
+        Ext.fly(this.els[name+'_text']).setWidth(Math.max((w-left),0));
 	},
 	paintPrefix : function(){
 		this.paintLine();
@@ -375,6 +413,7 @@ $A.Tree.TreeNode.prototype={
 	},
 	paintLine : function(){
 		var ownerTree = this.getOwnerTree();
+		if(!ownerTree.showSkeleton) return;
 		this.els['line'].innerHTML = '';
 		var pathNodes = this.getPathNodes();
 		var w = (pathNodes.length-2)*18;
@@ -397,6 +436,7 @@ $A.Tree.TreeNode.prototype={
 		this.els['line'].appendChild(c);
 	},
 	paintClipIcoImg : function(){
+		if(!this.getOwnerTree().showSkeleton) return;
 		if(this.isRoot()){
 			this.els['clip'].style.display='none';//不显示根节点的clip
 			return;
@@ -439,6 +479,7 @@ $A.Tree.TreeNode.prototype={
 	},
 	paintIconImg : function(){
 		var ownerTree = this.getOwnerTree();
+		if(!ownerTree.showSkeleton) return;
 		var icon = this.data.icon;
 		if(!icon){
 			var type = this.data.type;
@@ -465,7 +506,8 @@ $A.Tree.TreeNode.prototype={
 		}
 	},
 	paintCheckboxImg : function(){
-		var ownerTree = this.getOwnerTree();		
+		var ownerTree = this.getOwnerTree();	
+		if(!ownerTree.showSkeleton) return;
 		var checked = this.checked;
 		if(this.els){
 			this.els['checkbox'].className = ((checked==2)?'checkbox2':(checked==1)?'checkbox1':'checkbox0');
@@ -480,7 +522,7 @@ $A.Tree.TreeNode.prototype={
 			if(renderer)
 			text = renderer.call(this, text, this.record, this);
 		}
-		this.els['text'].innerHTML=text
+		this.els[ownerTree.displayfield+'_text'].innerHTML=text
 	},
 	paintChildren : function(){
 //		var sequence = this.getOwnerTree().sequence;

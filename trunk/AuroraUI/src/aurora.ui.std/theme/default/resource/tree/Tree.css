@@ -18,13 +18,18 @@
 	cursor:default;
 	white-space: nowrap;
 }
+.node-select {
+    background-color:#dfeaf5;
+}
 .item-child,.item-node {
 	clear:left;
 }
-.node-text span{
+.node-text div{
 	line-height:18px;
-	padding:2px;
-	white-space: nowrap;
+	/*padding-left:2px;*/
+	padding-right:2px;
+	text-indent:3px;
+	white-space: nowrap;	
 }
 .item-node table {
 	padding:0px;
