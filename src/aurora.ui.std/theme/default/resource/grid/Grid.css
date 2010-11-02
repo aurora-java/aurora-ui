@@ -104,8 +104,8 @@
 .grid-cell{
 	/*
 	padding-left:5px;
-	padding-right:2px;
 	*/
+	padding-right:2px;	
 	text-indent:3px;
 	line-height:20px;
 	height:22px;
@@ -137,14 +137,18 @@
     height: 25px;
     border:none;
     border-top:1px solid #cccccc;
+    background: url(../grid/grid_bg.gif) repeat-x;
 }
 .grid-footerbar td {
-    padding:1px;
+	padding:1px;
+    padding-left:2px;
+    padding-right:2px;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
-    border-left:1px solid #d0d0d0;
-    height:23px;
+    border-right:1px solid #ccc;
+    border-left:1px solid #fff;
+    height:24px;
 }
 .grid-navbar {
 	border:none;

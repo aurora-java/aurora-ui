@@ -41,16 +41,16 @@ $A.Grid = Ext.extend($A.Component,{
         Ext.getBody().insertFirst(this.sp)
         this.fs = wp.child('a[atype=grid.focus]');
         
-        var lock =[],unlock = [],columns=[];
+        this.lockColumns =[],this.unlockColumns = [];
         for(var i=0,l=this.columns.length;i<l;i++){
             var c = this.columns[i];
             if(c.lock === true){
-                lock.add(c);
+                this.lockColumns.add(c);
             }else{
-                unlock.add(c);
+                this.unlockColumns.add(c);
             }
         }
-        this.columns = lock.concat(unlock);
+        this.columns = this.lockColumns.concat(this.unlockColumns);
         this.initTemplate();
     },
     processListener: function(ou){
@@ -200,8 +200,8 @@ $A.Grid = Ext.extend($A.Component,{
         })
     },
     initTemplate : function(){
-        this.rowTdTpl = new Ext.Template('<TD atype="{atype}" class="grid-rowbox" recordid="{recordid}">');
-        this.tdTpl = new Ext.Template('<TD style="visibility:{visibility};text-align:{align}" dataindex="{name}" atype="grid-cell" recordid="{recordid}">');
+        this.rowTdTpl = new Ext.Template('<td atype="{atype}" class="grid-rowbox" recordid="{recordid}">');
+        this.tdTpl = new Ext.Template('<td style="visibility:{visibility};text-align:{align}" dataindex="{name}" atype="grid-cell" recordid="{recordid}">');
         this.cellTpl = new Ext.Template('<div class="grid-cell {cellcls}" style="width:{width}px" id="'+this.id+'_{name}_{recordid}">{text}</div>');        
         this.cbTpl = new Ext.Template('<center><div class="{cellcls}" id="'+this.id+'_{name}_{recordid}"></div></center>');
     },
@@ -261,10 +261,12 @@ $A.Grid = Ext.extend($A.Component,{
             if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get('required') == true){
                 cls = cls + ' ' + this.nbcls
             }
+            var sp = (cls.indexOf(this.cecls)!=-1) ? 6 : 4;
             data = Ext.apply(data,{
                 align:col.align||'left',
                 cellcls: cls,
-                width:col.width-4,//-11
+//                width:col.width-4,//-11
+                width:col.width-sp,//-11
                 text:this.renderText(record,col,record.data[col.name])
             })
             cellTpl =  this.cellTpl;
@@ -272,18 +274,18 @@ $A.Grid = Ext.extend($A.Component,{
         var sb = [];
         if(includTd)sb.add(tdTpl.applyTemplate(data));
         sb.add(cellTpl.applyTemplate(data));
-        if(includTd)sb.add('</TD>')
+        if(includTd)sb.add('</td>')
         return sb.join('');
     },
     createRow : function(type, row, cols, item){
         var sb = [];
         var css=this.parseCss(this.renderRow(item,row));
-        sb.add('<TR id="'+this.id+'$'+type+'-'+item.id+'" class="'+(row % 2==0 ? '' : 'row-alt')+css.cls+'"'+'style="'+css.style+'">');
+        sb.add('<tr id="'+this.id+'$'+type+'-'+item.id+'" class="'+(row % 2==0 ? '' : 'row-alt')+css.cls+'"'+'style="'+css.style+'">');
         for(var i=0,l=cols.length;i<l;i++){
             var c = cols[i];
             sb.add(this.createCell(c,item, true))           
         }
-        sb.add('</TR>');
+        sb.add('</tr>');
         return sb.join('');
     },
     parseCss:function(css){
@@ -330,13 +332,13 @@ $A.Grid = Ext.extend($A.Component,{
     },
     createTH : function(cols){
         var sb = [];
-        sb.add('<TR class="grid-hl">');
+        sb.add('<tr class="grid-hl">');
         for(var i=0,l=cols.length;i<l;i++){
             var w = cols[i].width;
             if(cols[i].hidden === true) w = 0;
-            sb.add('<TH dataindex="'+cols[i].name+'" style="height:0px;width:'+w+'px"></TH>');
+            sb.add('<th dataindex="'+cols[i].name+'" style="height:0px;width:'+w+'px"></th>');
         }
-        sb.add('</TR>');
+        sb.add('</tr>');
         return sb.join('');
     },
     onBeforeRemove : function(){
@@ -352,7 +354,7 @@ $A.Grid = Ext.extend($A.Component,{
         $A.Masker.unmask(this.wb);
     },
     preLoad : function(){},
-    onLoad : function(){//(focus)
+    onLoad : function(){
     	this.clearDomRef();
     	this.preLoad();
         var cb = Ext.fly(this.wrap).child('div[atype=grid.headcheck]');
@@ -387,12 +389,10 @@ $A.Grid = Ext.extend($A.Component,{
     renderLockArea : function(){
         var sb = [];var cols = [];
         var v = 0;
-        var columns = this.columns;
+        var columns = this.lockColumns;
         for(var i=0,l=columns.length;i<l;i++){
-            if(columns[i].lock === true){
-                cols.add(columns[i]);
-                if(columns[i].hidden !== true) v += columns[i].width;
-            }
+            cols.add(columns[i]);
+            if(columns[i].hidden !== true) v += columns[i].width;            
         }
         this.lockWidth = v;
         sb.add('<TABLE cellSpacing="0" atype="grid.lbt" cellPadding="0" border="0"  width="'+v+'"><TBODY>');
@@ -408,12 +408,10 @@ $A.Grid = Ext.extend($A.Component,{
     renderUnLockAread : function(){
         var sb = [];var cols = [];
         var v = 0;
-        var columns = this.columns;
+        var columns = this.unlockColumns;
         for(var i=0,l=columns.length;i<l;i++){
-            if(columns[i].lock !== true){
-                cols.add(columns[i]);
-                if(columns[i].hidden !== true) v += columns[i].width;
-            }
+            cols.add(columns[i]);
+            if(columns[i].hidden !== true) v += columns[i].width;            
         }
         sb.add('<TABLE cellSpacing="0" atype="grid.ubt" cellPadding="0" border="0" width="'+v+'"><TBODY>');
         sb.add(this.createTH(cols));
@@ -461,14 +459,14 @@ $A.Grid = Ext.extend($A.Component,{
         var row = this.dataset.data.length-1;
         var css = this.parseCss(this.renderRow(record,row));
         if(this.lbt){
-            var ltr = document.createElement("TR");
+            var ltr = document.createElement("tr");
             ltr.id=this.id+'$l'+'-'+record.id;
             ltr.className=(row % 2==0 ? '' : 'row-alt')+' '+css.cls;
             Ext.fly(ltr).set({'style':css.style});
             for(var i=0,l=columns.length;i<l;i++){
                 var col = columns[i];
                 if(col.lock === true){
-                    var td = document.createElement("TD");
+                    var td = document.createElement("td");
                     td.recordid=''+record.id;
                     if(col.type == 'rowcheck') {
                         Ext.fly(td).set({'atype':'grid.rowcheck'})
@@ -487,14 +485,14 @@ $A.Grid = Ext.extend($A.Component,{
             this.lbt.dom.tBodies[0].appendChild(ltr);
         }
         
-        var utr = document.createElement("TR");
+        var utr = document.createElement("tr");
         utr.id=this.id+'$u'+'-'+record.id;
         utr.className=(row % 2==0 ? '' : 'row-alt')+' '+css.cls;
         Ext.fly(utr).set({'style':css.style});
         for(var i=0,l=columns.length;i<l;i++){
             var col = columns[i];
             if(col.lock !== true){
-                var td = document.createElement("TD");
+                var td = document.createElement("td");
                 td.style.visibility=col.hidden === true ? 'hidden' : 'visible';
                 td.style.textAlign=col.align||'left';
                 Ext.fly(td).set({
@@ -672,7 +670,7 @@ $A.Grid = Ext.extend($A.Component,{
      * @param {String} prompt 标题信息
      */
     setColumnPrompt: function(name,prompt){
-        var tds = Ext.DomQuery.select('TD.grid-hc',this.wrap.dom);
+        var tds = Ext.DomQuery.select('td.grid-hc',this.wrap.dom);
         for(var i=0,l=tds.length;i<l;i++){
             var td = tds[i];
             var dataindex = Ext.fly(td).getAttributeNS("","dataindex");
@@ -1009,21 +1007,25 @@ $A.Grid = Ext.extend($A.Component,{
                 if(c.hidden === true) return;
                 c.width = size;
                 if(c.lock !== true){                    
-                    hth = this.uh.child('TH[dataindex='+name+']');
-                    bth = this.ub.child('TH[dataindex='+name+']');                  
+                    hth = this.uh.child('th[dataindex='+name+']');
+                    bth = this.ub.child('th[dataindex='+name+']');                  
                 }else{                          
-                    if(this.lh) hth = this.lh.child('TH[dataindex='+name+']');
-                    if(this.lb) bth = this.lb.child('TH[dataindex='+name+']');
+                    if(this.lh) hth = this.lh.child('th[dataindex='+name+']');
+                    if(this.lb) bth = this.lb.child('th[dataindex='+name+']');
                     
                 }
             }
             c.lock !== true ? (uw += c.width) : (lw += c.width);
         }
-        var tds = Ext.DomQuery.select('TD[dataindex='+name+']',this.wrap.dom);
+        var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
         for(var i=0,l=tds.length;i<l;i++){
             var td = tds[i];
             var ce = Ext.fly(td).child('DIV.grid-cell');
-            if(ce)Ext.fly(ce).setStyle(wd, Math.max(size-4,0)+px);
+//            if(ce)Ext.fly(ce).setStyle(wd, Math.max(size-4,0)+px);
+            if(ce){
+            	var sp = ce.hasClass(this.cecls) ? 6 : 4;
+                Ext.fly(ce).setStyle(wd, Math.max(size-sp,0)+px);
+            }
         }
         
         
@@ -1031,15 +1033,17 @@ $A.Grid = Ext.extend($A.Component,{
         if(hth) hth.setStyle(wd, size+px);
         if(bth) bth.setStyle(wd, size+px);
         if(this.fb){
-            var ftd = this.fb.child('TH[dataindex='+name+']');
+            var ftd = this.fb.child('th[dataindex='+name+']');
             ftd.setStyle(wd, size+px);
             var uft = this.fb.child('table[atype=fb.ubt]');
             this.uf.setStyle(wd,Math.max(this.width - lw,0)+px);
             uft.setStyle(wd,uw+px);
             var lft = this.fb.child('table[atype=fb.lbt]');
+            if(lft){
             var lf = this.fb.child('div[atype=grid.lf]');
-            lf.setStyle(wd,(lw-1)+px);
-            lft.setStyle(wd,lw+px);
+                lf.setStyle(wd,(lw-1)+px);
+                lft.setStyle(wd,lw+px);
+            }
         }
         
         if(this.lc){
@@ -1053,7 +1057,7 @@ $A.Grid = Ext.extend($A.Component,{
         this.uh.setStyle(wd,Math.max(this.width - lw,0)+px);
         this.ub.setStyle(wd,Math.max(this.width - lw,0)+px);
         this.uht.setStyle(wd,uw+px);
-        this.ubt.setStyle(wd,uw+px);
+        if(this.ubt)this.ubt.setStyle(wd,uw+px);
         this.syncSize();
     },
     drawFootBar : function(objs){
@@ -1106,7 +1110,7 @@ $A.Grid = Ext.extend($A.Component,{
                 this.setColumnSize(name, col.hiddenWidth);
                 delete col.hiddenWidth;
 //              if(!Ext.isIE){
-                    var tds = Ext.DomQuery.select('TD[dataindex='+name+']',this.wrap.dom);
+                    var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
                     for(var i=0,l=tds.length;i<l;i++){
                         var td = tds[i];
                         Ext.fly(td).show();
@@ -1127,7 +1131,7 @@ $A.Grid = Ext.extend($A.Component,{
                 col.hiddenWidth = col.width;
                 this.setColumnSize(name, 0, false);
 //              if(!Ext.isIE){
-                    var tds = Ext.DomQuery.select('TD[dataindex='+name+']',this.wrap.dom);
+                    var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
                     for(var i=0,l=tds.length;i<l;i++){
                         var td = tds[i];
                         Ext.fly(td).hide();
