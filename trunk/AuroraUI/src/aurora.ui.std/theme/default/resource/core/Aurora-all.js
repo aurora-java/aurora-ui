@@ -1099,7 +1099,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             name:name,
             type:'dataset',
             dataset:this
-        });     
+        });
         ds.fields[name] = field;
     },
     onDataSetIndexChange : function(ds, record){
