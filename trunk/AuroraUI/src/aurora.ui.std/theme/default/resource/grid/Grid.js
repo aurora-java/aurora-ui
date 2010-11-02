@@ -42,12 +42,15 @@ $A.Grid = Ext.extend($A.Component,{
         this.fs = wp.child('a[atype=grid.focus]');
         
         this.lockColumns =[],this.unlockColumns = [];
+        this.lockWidth = 0,this.unlockWidth = 0;
         for(var i=0,l=this.columns.length;i<l;i++){
             var c = this.columns[i];
             if(c.lock === true){
                 this.lockColumns.add(c);
+                if(c.hidden !== true) this.lockWidth += c.width;
             }else{
                 this.unlockColumns.add(c);
+                if(c.hidden !== true) this.unlockWidth += c.width;
             }
         }
         this.columns = this.lockColumns.concat(this.unlockColumns);
@@ -387,15 +390,15 @@ $A.Grid = Ext.extend($A.Component,{
         this.fs.focus();
     },
     renderLockArea : function(){
-        var sb = [];var cols = [];
-        var v = 0;
-        var columns = this.lockColumns;
-        for(var i=0,l=columns.length;i<l;i++){
-            cols.add(columns[i]);
-            if(columns[i].hidden !== true) v += columns[i].width;            
-        }
-        this.lockWidth = v;
-        sb.add('<TABLE cellSpacing="0" atype="grid.lbt" cellPadding="0" border="0"  width="'+v+'"><TBODY>');
+        var sb = [];var cols = this.lockColumns;
+//        var v = 0;
+//        var columns = this.lockColumns;
+//        for(var i=0,l=columns.length;i<l;i++){
+//            cols.add(columns[i]);
+//            if(columns[i].hidden !== true) v += columns[i].width;            
+//        }
+//        this.lockWidth = v;
+        sb.add('<TABLE cellSpacing="0" atype="grid.lbt" cellPadding="0" border="0"  width="'+this.lockWidth+'"><TBODY>');
         sb.add(this.createTH(cols));
         for(var i=0,l=this.dataset.data.length;i<l;i++){
             sb.add(this.createRow('l', i, cols, this.dataset.getAt(i)));
@@ -406,14 +409,14 @@ $A.Grid = Ext.extend($A.Component,{
         this.lbt = this.lb.child('table[atype=grid.lbt]'); 
     },
     renderUnLockAread : function(){
-        var sb = [];var cols = [];
-        var v = 0;
-        var columns = this.unlockColumns;
-        for(var i=0,l=columns.length;i<l;i++){
-            cols.add(columns[i]);
-            if(columns[i].hidden !== true) v += columns[i].width;            
-        }
-        sb.add('<TABLE cellSpacing="0" atype="grid.ubt" cellPadding="0" border="0" width="'+v+'"><TBODY>');
+        var sb = [];var cols = this.unlockColumns;
+//        var v = 0;
+//        var columns = this.unlockColumns;
+//        for(var i=0,l=columns.length;i<l;i++){
+//            cols.add(columns[i]);
+//            if(columns[i].hidden !== true) v += columns[i].width;            
+//        }
+        sb.add('<TABLE cellSpacing="0" atype="grid.ubt" cellPadding="0" border="0" width="'+this.unlockWidth+'"><TBODY>');
         sb.add(this.createTH(cols));
         for(var i=0,l=this.dataset.data.length;i<l;i++){
             sb.add(this.createRow('u', i, cols, this.dataset.getAt(i)));
