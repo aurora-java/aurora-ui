@@ -9,7 +9,7 @@
 					<DIV class="grid-uh" unselectable="on" onselectstart="return false;" style="width:${unlockwidth}px;-moz-user-select:none;text-align:left;height:${headHeight}px;"  atype="grid.uh">
 						${unlockarea}
 					</DIV>
-					<DIV class="grid-ub"  atype="grid.ub" style="width:${unlockwidth}px;height:${bodyHeight}px;text-align:left;">
+					<DIV class="grid-ub" atype="grid.ub" style="width:${unlockwidth}px;height:${bodyHeight}px;text-align:left;">
 					</DIV>
 				</DIV>
 				<DIV style="clear:both"></DIV>

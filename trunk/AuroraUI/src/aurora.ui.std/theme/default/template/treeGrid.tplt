@@ -3,7 +3,7 @@
     ${toolBar}  
     <TR>
         <TD class="layout-td-cell">
-            <DIV class="item-grid" id="${id}" style="width:${width}px;height:${height}px;${gridstyle}">
+            <DIV class="item-grid" id="${id}" style="width:${width}px;height:${tableHeight}px;${gridstyle}">
                 ${lockarea}
                 <DIV class="grid-ua" atype="grid.uc" style="width:${unlockwidth}px;">
                     <DIV class="grid-uh" unselectable="on" onselectstart="return false;" style="width:${unlockwidth}px;-moz-user-select:none;text-align:left;height:${headHeight}px;"  atype="grid.uh">
@@ -18,18 +18,11 @@
             </DIV>
         </TD>
     </TR>
+    ${footerBar}
 </TBODY>
 </TABLE>
 <SCRIPT LANGUAGE="JavaScript">
-    new Aurora.TreeGrid({
-        id:'${id}',
-        width:${width},
-        selectable:${selectable},
-        selectionmodel:'${selectionmodel}',
-        height:${height},
-        columns:${columns},
-        treeconfig:${config}
-    });
+    new Aurora.TreeGrid(${config});
     $$('${id}').bind('${bindtarget}');
     ${events}
 </SCRIPT>
