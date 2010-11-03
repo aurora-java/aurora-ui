@@ -198,9 +198,10 @@ $A.Grid = Ext.extend($A.Component,{
         var sf = this;
         sf.dataset = ds;
         sf.processDataSetLiestener('on');
-        Ext.onReady(function(){
-            sf.onLoad();
-        })
+        this.onLoad();
+//        Ext.onReady(function(){
+//            sf.onLoad();
+//        })
     },
     initTemplate : function(){
         this.rowTdTpl = new Ext.Template('<td atype="{atype}" class="grid-rowbox" recordid="{recordid}">');
@@ -215,13 +216,16 @@ $A.Grid = Ext.extend($A.Component,{
         var value = record.data[name];
         return (value && value == cv) ? 'item-ckb-c' : 'item-ckb-u';
     },
-    createCell : function(col,record,includTd){
-        var data = {
-            width:col.width,
+    createTemplateData : function(col,record){
+    	return {
+            width:col.width-2,
             recordid:record.id,
             visibility: col.hidden === true ? 'hidden' : 'visible',
             name:col.name
         }
+    },
+    createCell : function(col,record,includTd){
+        var data = this.createTemplateData(col,record)
         var cellTpl;
         var tdTpl = this.tdTpl;
         var cls = ''; //col.editor ? this.cecls : 
@@ -264,12 +268,12 @@ $A.Grid = Ext.extend($A.Component,{
             if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get('required') == true){
                 cls = cls + ' ' + this.nbcls
             }
-            var sp = (cls.indexOf(this.cecls)!=-1) ? 6 : 4;
+            var sp = (cls.indexOf(this.cecls)!=-1) ? 4 : 2;
             data = Ext.apply(data,{
                 align:col.align||'left',
                 cellcls: cls,
 //                width:col.width-4,//-11
-                width:col.width-sp,//-11
+                width:data.width-sp,//-11
                 text:this.renderText(record,col,record.data[col.name])
             })
             cellTpl =  this.cellTpl;
