@@ -4,3 +4,7 @@
     text-overflow:ellipsis;
     
 }
+.item-grid .node-line {
+  height:22px;
+}
+

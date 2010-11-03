@@ -2,16 +2,26 @@ $A.TreeGrid = Ext.extend($A.Grid,{
     initComponent:function(config){
         $A.TreeGrid.superclass.initComponent.call(this, config);
         if(this.lockColumns.length >0){
-            var ltid = this.id+"_lb_tree"
-            this.lb.set({id:ltid});
-            var ltc = this.createTreeConfig(config,this.lockColumns,ltid,true,this);
-            this.lockTree = new $A.Tree(ltc);
-            this.lb.addClass('item-treegrid');
-            this.lockTree.body = this.lb;
-            this.lockTree.on('render',this.processData,this)
-            this.lockTree.on('expand',function(node){
-                //alert('expand ' + node)             
-            })
+        	var sf = this;
+            var ltid = sf.id+"_lb_tree"
+            sf.lb.set({id:ltid});
+            var ltc = sf.createTreeConfig(config,sf.lockColumns,ltid,true,sf);
+            sf.lockTree = new $A.Tree(ltc);
+            sf.lb.addClass('item-treegrid');
+            sf.lockTree.body = sf.lb;
+            sf.lockTree.treegrid = sf;
+            sf.lockTree.on('render',function(){
+                sf.processData();
+            	Ext.DomHelper.insertHtml("beforeEnd",sf.lb.dom,'<div style="height:17px"></div>');
+            },sf)
+            this.lockTree.on('expand',function(tree,node){
+                var node = this.unlockTree.getNodeById(node.id);
+                node.expand();
+            },this);
+            this.lockTree.on('collapse',function(tree,node){
+                var node = this.unlockTree.getNodeById(node.id);
+                node.collapse();
+            },this)
         }
         
         var utid = this.id+"_ub_tree"
@@ -20,20 +30,33 @@ $A.TreeGrid = Ext.extend($A.Grid,{
         this.unlockTree = new $A.Tree(tc);
         this.ub.addClass('item-treegrid');
         this.unlockTree.body = this.ub;
+        this.unlockTree.treegrid = this;
         this.unlockTree.on('render',this.processData,this)
-        this.unlockTree.on('expand',function(node){
-            //alert('expand ' + node)             
-        })
+    },
+    initTemplate : function(){
+    	$A.TreeGrid.superclass.initTemplate.call(this);       
+        this.cbTpl = new Ext.Template('<center><div class="{cellcls}" style="height:13px;padding:0px;" id="'+this.id+'_{name}_{recordid}"></div></center>');
+    },
+    createTemplateData : function(col,record){
+        return {
+            width:col.width-2,
+//            cwidth:col.width-4,
+            recordid:record.id,
+            visibility: col.hidden === true ? 'hidden' : 'visible',
+            name:col.name
+        }
     },
     createTreeConfig : function(config,columns,id,showSkeleton,grid){
     	var c = columns[0];
         var width = (c) ? c.width : 150;
         return Ext.apply(config,{
+        	pw:2,
             id:id,
             showSkeleton:showSkeleton,
             width: width,
+            column: c,
             displayfield: c.name,
-            renderer:c.renderer,
+            renderer:c.renderer,            
             initColumns : function(node){
                 if(!node.isRoot()){
                     for(var i=0;i<columns.length;i++){
@@ -41,6 +64,10 @@ $A.TreeGrid = Ext.extend($A.Grid,{
                         if(c.name == node.ownerTree.displayfield) continue;
                         var td = document.createElement('td');
                         td['_type_'] ='text';
+                        td['atype'] ='grid-cell';
+                        td['dataindex'] = c.name;
+                        td['recordid'] = node.record.id;
+                        if(c.align)td.style.textAlign=c.align;
                         node.els[c.name+'_td'] = td;
                         
 //                        var div = document.createElement('div');
@@ -50,11 +77,12 @@ $A.TreeGrid = Ext.extend($A.Grid,{
 //                        
                         
                         var html = grid.createCell(c,node.record,false);
-                        node.els[c.name+'_text'] = Ext.DomHelper.insertHtml("afterBegin",td,html);
+                        var div = Ext.DomHelper.insertHtml("afterBegin",td,html);
+                        Ext.fly(td).setWidth(c.width-2);
+                        node.els[c.name+'_text'] = div;
                         
                         td.appendChild(node.els[c.name+'_text']);
                         td.className='node-text';
-                        td.style.textAlign=c.align||'left';
                         node.els['itemNodeTr'].appendChild(node.els[c.name+'_td']);
                     }
                }    
@@ -107,7 +135,9 @@ $A.TreeGrid = Ext.extend($A.Grid,{
         $A.TreeGrid.superclass.setColumnSize.call(this, name,size);
         var c = this.findColByName(name);
         var tree = (c.lock == true) ? this.lockTree : this.unlockTree;
-        tree.root.setWidth(name,size-2);//(name == tree.displayfield) ? size-2 : 
+        c.width = size-2;
+        if(name == tree.displayfield) tree.width = size;
+        tree.root.setWidth(name,size);//(name == tree.displayfield) ? size-2 : 
     },
     renderLockArea : function(){
         var v = 0;
@@ -129,10 +159,22 @@ $A.Tree.TreeGridNode = Ext.extend($A.Tree.TreeNode,{
     createNode : function(item){
         return new $A.Tree.TreeGridNode(item);
     },
+    createCellEl : function(df){ 
+    	var tree = this.getOwnerTree();
+        var html = tree.treegrid.createCell(tree.column,this.record,false);
+        var td = this.els[df+'_td'];
+        var div = Ext.DomHelper.insertHtml("afterBegin",this.els[df+'_td'],html);
+        td['dataindex'] = df;
+        td['atype'] ='grid-cell';
+        td['recordid'] = this.record.id;
+        if(tree.column.align)td.style.textAlign=tree.column.align;
+        this.els[df+'_text'] = div;
+    },
+    paintText : function(){},
     render : function(){
         $A.Tree.TreeGridNode.superclass.render.call(this);
         var tree = this.getOwnerTree();
-        this.setWidth(tree.displayfield, tree.width-2);
+        this.setWidth(tree.displayfield, tree.width);
     },
     setWidth : function(n,w){
         $A.Tree.TreeGridNode.superclass.setWidth.call(this, n,w);
