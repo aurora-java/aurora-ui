@@ -8,6 +8,7 @@
  */
 $A.Tree = Ext.extend($A.Component,{
 	showSkeleton: true,
+	pw:0,
 	constructor: function(config){
 		$A.Tree.superclass.constructor.call(this,config);
 		this.sequence = config.sequence||'sequence';
@@ -110,7 +111,6 @@ $A.Tree = Ext.extend($A.Component,{
 				}
 			}
 		}else if(_type == 'icon' || _type == 'text'){
-			
 			var node = this.nodeHash[elem.indexId];
 			this.setFocusNode(node);
 //			this.dataset.locate.defer(5, this.dataset,[this.dataset.indexOf(node.record)+1,false]);
@@ -200,8 +200,10 @@ $A.Tree = Ext.extend($A.Component,{
 		}else{
 			var data = {};
 			data[this.displayfield] = '_root';
+			var record =  new Aurora.Record(data);
+			record.setDataSet(this.dataset);
 			var root = { 
-				'record': new Aurora.Record(data),
+				'record':record,
 			    'children':[]
 			}
 			for(var i=0;i<array.length;i++){
@@ -290,6 +292,10 @@ $A.Tree.TreeNode.prototype={
 	createNode : function(item){
 		return new $A.Tree.TreeNode(item);
 	},
+	createCellEl : function(df){
+        this.els[df+'_text']= document.createElement('div');
+        this.els[df+'_td'].appendChild(this.els[df+'_text']);		
+	},
 	initEl : function(){
 		var df = this.getOwnerTree().displayfield;
 		this.els = {};
@@ -313,8 +319,9 @@ $A.Tree.TreeNode.prototype={
     		this.els['iconTd'].appendChild(this.els['icon']);
 		}
 		this.els[df+'_td']= document.createElement('td');
-		this.els[df+'_text']= document.createElement('div');
-		this.els[df+'_td'].appendChild(this.els[df+'_text']);
+		this.createCellEl(df);
+//		this.els[df+'_text']= document.createElement('div');
+//		this.els[df+'_td'].appendChild(this.els[df+'_text']);
 		this.els[df+'_td'].className='node-text'
 		if(this.getOwnerTree().showSkeleton){
     		this.els['itemNodeTr'].appendChild(this.els['line']);
@@ -332,6 +339,7 @@ $A.Tree.TreeNode.prototype={
 		this.els['element'].noWrap='true';
 		if(this.getOwnerTree().showSkeleton){
     		this.els['line']['_type_'] ='line';
+    		this.els['line'].className ='line';
     		this.els['clip']['_type_'] ='clip';
     		this.els['iconTd']['_type_'] ='icon';
     		this.els['checkbox']['_type_'] ='checked';
@@ -396,13 +404,15 @@ $A.Tree.TreeNode.prototype={
 		if(this.isRoot()) return;
 		var left = 0;
 		if(name == this.getOwnerTree().displayfield && this.getOwnerTree().showSkeleton){
+			var pw = this.getOwnerTree().pw;
     		var pathNodes = this.getPathNodes();
-            var lw = (pathNodes.length-2)*18;
-            var cw = 18,iw = 18,bw=0;  		
-            var bw = this.getOwnerTree().showcheckbox ? 18 : 0;
+            var lw = (pathNodes.length-2)*(18 +pw) ;
+            var cw = 18+ pw,iw = 18 + pw,bw=0;  		
+            var bw = this.getOwnerTree().showcheckbox ? 18 + pw : 0;
     		left = lw+cw+iw+bw;
 		}
-        Ext.fly(this.els[name+'_text']).setWidth(Math.max((w-left),0));
+		Ext.fly(this.els[name+'_td']).setWidth(Math.max((w-left),0));
+        Ext.fly(this.els[name+'_text']).setWidth(Math.max((w-left-2),0));
 	},
 	paintPrefix : function(){
 		this.paintLine();
