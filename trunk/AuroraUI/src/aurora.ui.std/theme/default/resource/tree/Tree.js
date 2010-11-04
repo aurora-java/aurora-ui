@@ -8,7 +8,7 @@
  */
 $A.Tree = Ext.extend($A.Component,{
 	showSkeleton: true,
-	pw:0,
+	sw:18,
 	constructor: function(config){
 		$A.Tree.superclass.constructor.call(this,config);
 		this.sequence = config.sequence||'sequence';
@@ -341,8 +341,10 @@ $A.Tree.TreeNode.prototype={
     		this.els['line']['_type_'] ='line';
     		this.els['line'].className ='line';
     		this.els['clip']['_type_'] ='clip';
+    		this.els['clip'].innerHTML = '&#160';
     		this.els['iconTd']['_type_'] ='icon';
     		this.els['checkbox']['_type_'] ='checked';
+    		this.els['checkbox'].innerHTML = '&#160';
 		}
 		this.els[df+'_td']['_type_'] ='text';
 		if(this.getOwnerTree().showcheckbox === false) {
@@ -404,11 +406,11 @@ $A.Tree.TreeNode.prototype={
 		if(this.isRoot()) return;
 		var left = 0;
 		if(name == this.getOwnerTree().displayfield && this.getOwnerTree().showSkeleton){
-			var pw = this.getOwnerTree().pw;
+			var sw = this.getOwnerTree().sw;
     		var pathNodes = this.getPathNodes();
-            var lw = (pathNodes.length-2)*(18 +pw) ;
-            var cw = 18+ pw,iw = 18 + pw,bw=0;  		
-            var bw = this.getOwnerTree().showcheckbox ? 18 + pw : 0;
+            var lw = (pathNodes.length-2)*(sw) ;
+            var cw = sw,iw = sw,bw=0;  		
+            var bw = this.getOwnerTree().showcheckbox ? sw : 0;
     		left = lw+cw+iw+bw;
 		}
 		Ext.fly(this.els[name+'_td']).setWidth(Math.max((w-left),0));
@@ -426,13 +428,13 @@ $A.Tree.TreeNode.prototype={
 		if(!ownerTree.showSkeleton) return;
 		this.els['line'].innerHTML = '';
 		var pathNodes = this.getPathNodes();
-		var w = (pathNodes.length-2)*18;
+		var w = (pathNodes.length-2)*ownerTree.sw;
 		Ext.fly(this.els['line']).setWidth(w);
 		if(w==0){
 			this.els['line'].style.display='none';
 		}
 		var c = document.createElement('div');
-		Ext.fly(c).setWidth((pathNodes.length-2)*18);
+		Ext.fly(c).setWidth((pathNodes.length-2)*ownerTree.sw);
 		for(var i = 1 ,count = pathNodes.length-1 ; i < count ; i++){
 				var node = pathNodes[i];
 				var ld = document.createElement('div');
