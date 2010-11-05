@@ -119,7 +119,15 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     onDataSetLoad : function(ds,options){
-    	this.refreshBindDataSet(options.opts.record,ds.getConfig())
+    	var record;
+    	if(options){
+    		record = options.opts.record;
+    	}else{
+    		var bt = $A.CmpManager.get(this.bindtarget);
+    		if(bt) record = getCurrentRecord();    		
+    	}
+    	if(record)
+    	this.refreshBindDataSet(record,ds.getConfig())
     },
    	refreshBindDataSet: function(record,config){
     	if(!record)return;
