@@ -16,14 +16,6 @@
 </TABLE>
 <SCRIPT LANGUAGE="JavaScript">
 	new Aurora.Tab(${config});
-	/*
-	new Aurora.Tab({
-		id:'${id}',
-		width:${width},
-		height:${height},
-		items:${items},
-		select:${selected}
-	});
-	*/
+	
 	${validscript}
 </SCRIPT>
