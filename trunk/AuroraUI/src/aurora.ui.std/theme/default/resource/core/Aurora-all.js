@@ -1356,7 +1356,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(this.sortInfo) this.sort();
         
         var needFire = true;
-        if(this.bindtarget){
+        if(this.bindtarget && options){
            var cr = $A.CmpManager.get(this.bindtarget).getCurrentRecord();
            if(options.opts.record && cr!=options.opts.record){
                this.refreshBindDataSet(options.opts.record,this.getConfig());
