@@ -124,7 +124,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		record = options.opts.record;
     	}else{
     		var bt = $A.CmpManager.get(this.bindtarget);
-    		if(bt) record = getCurrentRecord();    		
+    		if(bt) record = bt.getCurrentRecord();    		
     	}
     	if(record)
     	this.refreshBindDataSet(record,ds.getConfig())
