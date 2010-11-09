@@ -19,6 +19,7 @@
         </TD>
     </TR>
     ${footerBar}
+    ${navbar}
 </TBODY>
 </TABLE>
 <SCRIPT LANGUAGE="JavaScript">
