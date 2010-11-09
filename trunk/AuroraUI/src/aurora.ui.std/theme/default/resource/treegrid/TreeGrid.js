@@ -128,6 +128,10 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 		this.dataset.data = items;
 		// this.onLoad();
 	},
+	onLoad : function(){
+        this.drawFootBar();
+        $A.Masker.unmask(this.wb);
+	},
 	processNode : function(items, node) {
 		items.add(node.record);
 		var children = node.children;
