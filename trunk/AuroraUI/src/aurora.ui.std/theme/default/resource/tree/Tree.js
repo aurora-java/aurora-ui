@@ -11,7 +11,6 @@ $A.Tree = Ext.extend($A.Component,{
 	sw:18,
 	constructor: function(config){
 		$A.Tree.superclass.constructor.call(this,config);
-		this.sequence = config.sequence||'sequence';
 		this.context = config.context||'';
 	},
 	initComponent:function(config){
@@ -80,7 +79,7 @@ $A.Tree = Ext.extend($A.Component,{
         })
 	},
 	onUpdate : function(ds, record, name, value){
-		if(this.parentfield == name || name == this.sequence){
+		if(this.parentfield == name || name == this.sequencefield){
 			this.onLoad();
 		}else{
 			var node = this.nodeHash[record.id];
@@ -167,6 +166,7 @@ $A.Tree = Ext.extend($A.Component,{
 		}
 	},
 	buildTree: function(){
+        
 		var array = [];
 		var map1 = {};
 		var map2 = {};
@@ -176,6 +176,8 @@ $A.Tree = Ext.extend($A.Component,{
 			var record = datas[i];
 			var id = record.get(this.idfield);
 			var node = this.createNode(record);
+			node.checked = (node.record.get(this.checkfield) == "Y") ? 1 : 0;
+            node.expanded = node.record.get(this.expandfield) == "Y";
 			map1[id] = node;
 			map2[id] = node;
 		}
@@ -212,7 +214,40 @@ $A.Tree = Ext.extend($A.Component,{
 			this.showRoot = false;
 			rtnode = root;
 		}
-		this.sortChildren(rtnode.children,this.sequence);
+		
+		var process = function(item){
+			var children = item.children;
+			var count = children.length;
+			for(var i=0;i<count;i++){
+                var node = children[i]
+                if(node.children.length >0){
+                    process(node);
+                } 
+            }                     
+            
+            var checked1 = 0;
+            for(var i=0;i<count;i++){
+                var checked = children[i].checked;
+                if(checked==1){
+                    checked1++;
+                }
+            }
+            if(checked1==0){
+            	item.checked = 0;
+            }else if(count==checked1){
+                item.checked = 1;
+            }else {
+                item.checked = 2;
+            }
+		}
+		
+		for(var i=0;i<array.length;i++){
+            var item = array[i];
+        	process(item)
+        }
+		
+		
+		this.sortChildren(rtnode.children,this.sequencefield);
 		return rtnode;
 	},
 	sortChildren : function(children,sequence){
@@ -278,10 +313,8 @@ $A.Tree.TreeNode.prototype={
         this.previousSibling = null;
         this.nextSibling = null;
         this.childrenRendered = false;
-        this.isExpand = false;
-        
-        this.checked = this.record.get('checked') == "Y";
-        this.expanded = this.record.get('expanded') == "Y";
+        this.isExpand = data.expanded;//false;    
+        this.checked = data.checked;
     
         var children = data.children || [];
         for(var i=0,j=children.length;i<j;i++){
@@ -361,11 +394,12 @@ $A.Tree.TreeNode.prototype={
 		
 	},
 	render : function(){
-		this.icon = this.record.get('icon');
 		var tree = this.getOwnerTree();
+		this.icon = this.record.get(tree.iconfield);
 		if(!this.els){
 			this.initEl();
 		}
+		
 		if(this.isRoot()){
 			tree.body.appendChild(this.els['element']);
 			if(this.getOwnerTree().showRoot == false && this.getOwnerTree().showSkeleton)
@@ -373,13 +407,14 @@ $A.Tree.TreeNode.prototype={
 			this.expand();
 		}else{
 			this.parentNode.els['child'].appendChild(this.els['element']);
-			if(this.expanded)
+			if(this.isExpand)
 			this.expand();
 		}
 		this.paintPrefix();
 		this.els['element'].indexId = this.id;
-		if(this.checked == true)
-		this.setCheck(true);
+		this.paintCheckboxImg();
+//		if(this.checked == true)
+//		this.setCheck(true);
 	},
 //	syncSize : function(){
 //        this.resize();
@@ -559,6 +594,8 @@ $A.Tree.TreeNode.prototype={
 	 */
 	collapse : function(){
 		this.isExpand=false;
+		if(!this.isRoot())
+		this.record.set(this.getOwnerTree().expandfield,"N");
 		this.els['child'].style.display='none';
 		this.paintIconImg();
 		this.paintClipIcoImg();
@@ -568,6 +605,8 @@ $A.Tree.TreeNode.prototype={
 	 */
 	expand : function(){
 		if(!this.isLeaf()&&this.childNodes.length>0){
+			if(!this.isRoot())
+			this.record.set(this.getOwnerTree().expandfield,"Y");
 			this.isExpand=true;
 			this.paintChildren();
 			this.els['child'].style.display='block';
@@ -616,6 +655,8 @@ $A.Tree.TreeNode.prototype={
 		}else{
 			this.checked=checked;
 		}
+		if(!this.isRoot())
+        this.record.set(this.getOwnerTree().checkfield, (this.checked==1||this.checked==2) ? "Y" : "N");
 		this.paintCheckboxImg();
 	},
 	setCheck : function(cked){
@@ -627,6 +668,7 @@ $A.Tree.TreeNode.prototype={
 				node.setCheckStatus(3);
 			});
 		}else{
+			
 			this.cascade(function(node){
 				node.setCheckStatus(0);
 			});
