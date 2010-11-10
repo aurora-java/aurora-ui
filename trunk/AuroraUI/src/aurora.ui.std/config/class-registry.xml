@@ -10,6 +10,7 @@
 	<feature-attach elementName="button" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Button" />
 	<feature-attach elementName="toolBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ToolBar" />
 	<feature-attach elementName="navBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.NavBar" />
+	<feature-attach elementName="menuBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.MenuBar" />
 	<feature-attach elementName="comboBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ComboBox" />
 	<feature-attach elementName="lov" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Lov" />
 	<feature-attach elementName="textField" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.TextField" />

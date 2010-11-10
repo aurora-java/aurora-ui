@@ -1,0 +1,7 @@
+<div id="${id}" class="item-menu-bar-wrap">
+	<ul class="item-menu-bar"></ul>
+</div>
+<script>
+	new Aurora.MenuBar(${config});
+	$$('${id}').bind('${bindtarget}');
+</script>
