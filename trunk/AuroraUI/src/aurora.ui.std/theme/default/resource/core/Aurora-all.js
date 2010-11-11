@@ -5048,6 +5048,9 @@ $A.Lov = Ext.extend($A.TextField,{
                 record.set(map.to,r.get(map.from)||'');
             }
         }
+//        else{
+//        	this.setValue()
+//        }
         this.fireEvent('commit', this, record, r)
 	},
 	getMapping: function(){
@@ -5077,7 +5080,8 @@ $A.Lov = Ext.extend($A.TextField,{
 	},
 	getLovPara : function(){
 		var para = Ext.apply({},this.para);
-        var field = this.record.getMeta().getField(this.binder.name);
+		var field;
+		if(this.record) field = this.record.getMeta().getField(this.binder.name);
         if(field){
         	var lovpara = field.get('lovpara'); 
             if(lovpara)Ext.apply(para,lovpara);
