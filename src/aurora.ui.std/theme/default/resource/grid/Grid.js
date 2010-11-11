@@ -1035,7 +1035,7 @@ $A.Grid = Ext.extend($A.Component,{
             }
         }
         
-        
+        this.unlockWidth = uw;
         this.lockWidth = lw;
         if(hth) hth.setStyle(wd, size+px);
         if(bth) bth.setStyle(wd, size+px);
