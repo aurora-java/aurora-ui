@@ -4787,7 +4787,7 @@ $A.Window = Ext.extend($A.Component,{
     	if(tx<=0) tx =0;
     	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
     	if(ty<=0) ty =0;
-    	if((ty+this.height)>= (sh-30)) ty = sh - this.height - 30;
+    	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
     	this.proxy.moveTo(tx,ty);
     },
     showLoading : function(){
