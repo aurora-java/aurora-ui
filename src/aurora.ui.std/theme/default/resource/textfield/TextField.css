@@ -1,13 +1,4 @@
 .item-textField {
-	/*float:left;  
-	border:0;  
-	height:18px; 
-	line-height:16px;
-	padding-top:2px;
-	padding-left:3px;
-	font-family:Tahoma,Geneva,sans-serif;
-	font-size:12px;
-	*/
 	float:left;  
     border:0;  
     height:18px;
@@ -16,6 +7,9 @@
     padding-left:3px;    
     font-family:微软雅黑,宋体,Tahoma,Geneva,sans-serif;
     font-size:11px;
+}
+.ext-ie6 .item-textField{
+    font-size:12px;
 }
 .item-notBlank, .item-notBlank .item-textField{
 	background:#fff9c2;
