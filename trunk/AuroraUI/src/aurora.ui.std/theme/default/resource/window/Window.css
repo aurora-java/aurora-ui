@@ -27,7 +27,7 @@
 	width:100%;
 	FONT-WEIGHT: bold; 
 	padding-left:5px;
-	FONT-SIZE: 12px; 
+	/**FONT-SIZE: 12px;**/ 
 	FLOAT: left; 
 	COLOR: #055a78;
 	overflow:hidden; 

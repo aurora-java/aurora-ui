@@ -14,13 +14,12 @@ html, body {
 	font-family: 微软雅黑,宋体,sans-serif !important;/**/
 	font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;/**/
 	font-size:11px;
-	font-size:12px !important;
 }
 HTML {
     border: none;
 }
-.ext-gecko,.ext-gecko3,.ext-ie6{
-	font-size:12px;
+.ext-gecko,.ext-gecko3{
+	/*font-size:12px;*/
 }
 div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, button, p, blockquote, th, td { margin:0; padding:0; }
 fieldset, img { border:0; }

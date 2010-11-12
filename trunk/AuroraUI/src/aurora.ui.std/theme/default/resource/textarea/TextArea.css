@@ -10,5 +10,5 @@
 	*/
 }
 .ext-gecko .item-textarea,.ext-safari .item-textarea,.ext-gecko3 .item-textarea{
-	font-size:12px;
+	/**font-size:12px;**/
 }

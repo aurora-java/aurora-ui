@@ -13,7 +13,7 @@
 }
 .item-dateField-head,.item-dateField-foot{	
 	FONT-WEIGHT: bold;	
-	FONT-SIZE: 100%;
+	/**FONT-SIZE: 100%;**/
 	/*BACKGROUND: url(../datefield/bgCalendarV2.gif) #305ebc repeat-x;*/
 	border-bottom:1px solid #bababa;
 	background-image: url(../toolbar/toolbar_bg.gif);
@@ -35,7 +35,7 @@
 .item-dateField table thead{color:#acacac; height:20px;}
 
 .item-dateField table td {
-	font-size: 11px;
+	/**font-size: 11px;**/
 	padding:1px;
 }
 .item-dateField-pre,.item-dateField-next,.item-dateField-preYear,.item-dateField-nextYear{
@@ -66,14 +66,14 @@
 
 .item-dateField-input{
 	FONT-WEIGHT: bold;	
-	FONT-SIZE: 100%;
+	/**FONT-SIZE: 100%;**/
 	height:16px;
 	line-height:15px;
 	border:1px solid #bababa;
 }
 .item-dateField-input-focus{
 	FONT-WEIGHT: bold;	
-	FONT-SIZE: 100%;
+	/**FONT-SIZE: 100%;**/
 	height:16px;
 	line-height:15px;
 	border:1px solid blue;
