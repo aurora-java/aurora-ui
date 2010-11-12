@@ -13,9 +13,9 @@
     height:18px;
     line-height:16px;
     padding-top:2px;
-    padding-left:3px;
-    font-family:微软雅黑,宋体,Tahoma,Geneva,sans-serif; /**/
-    font-size:12px;
+    padding-left:3px;    
+    font-family:微软雅黑,宋体,Tahoma,Geneva,sans-serif;
+    font-size:11px;
 }
 .item-notBlank, .item-notBlank .item-textField{
 	background:#fff9c2;
