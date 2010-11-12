@@ -18,8 +18,8 @@ html, body {
 HTML {
     border: none;
 }
-.ext-gecko,.ext-gecko3{
-	/*font-size:12px;*/
+.ext-ie6{
+	font-size:12px;
 }
 div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, button, p, blockquote, th, td { margin:0; padding:0; }
 fieldset, img { border:0; }
@@ -323,6 +323,9 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     white-space: nowrap;
     text-align:center;
 }
+.ext-ie6 button{
+    font-size:12px;
+}
 button div {
     left: 0px;
     position: relative;
@@ -485,15 +488,6 @@ button div {
     background-image:url(../button/btn.gif);
 }
 .item-textField {
-	/*float:left;  
-	border:0;  
-	height:18px; 
-	line-height:16px;
-	padding-top:2px;
-	padding-left:3px;
-	font-family:Tahoma,Geneva,sans-serif;
-	font-size:12px;
-	*/
 	float:left;  
     border:0;  
     height:18px;
@@ -502,6 +496,9 @@ button div {
     padding-left:3px;    
     font-family:微软雅黑,宋体,Tahoma,Geneva,sans-serif;
     font-size:11px;
+}
+.ext-ie6 .item-textField{
+    font-size:12px;
 }
 .item-notBlank, .item-notBlank .item-textField{
 	background:#fff9c2;
@@ -803,6 +800,6 @@ button div {
 	font-family: tahoma, arial, sans-serif,helvetica;
 	*/
 }
-.ext-gecko .item-textarea,.ext-safari .item-textarea,.ext-gecko3 .item-textarea{
-	/**font-size:12px;**/
+.ext-ie6 .item-textarea{
+	font-size:12px;
 }

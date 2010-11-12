@@ -9,6 +9,6 @@
 	font-family: tahoma, arial, sans-serif,helvetica;
 	*/
 }
-.ext-gecko .item-textarea,.ext-safari .item-textarea,.ext-gecko3 .item-textarea{
-	/**font-size:12px;**/
+.ext-ie6 .item-textarea{
+	font-size:12px;
 }
