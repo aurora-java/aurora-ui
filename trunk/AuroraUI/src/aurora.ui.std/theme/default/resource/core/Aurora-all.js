@@ -5156,11 +5156,13 @@ $A.Lov = Ext.extend($A.TextField,{
 			url = this.lovurl+'?';
 		}else if(!Ext.isEmpty(this.lovservice)){
 			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';			
-		}else {
+		}else if(!Ext.isEmpty(this.lovmodel)){
 			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovmodel+'&';
 		}
-    	this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
-    	this.win.on('close',this.onWinClose,this);
+		if(url) {
+        	this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
+        	this.win.on('close',this.onWinClose,this);
+		}
     }
 });
 /**
