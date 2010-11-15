@@ -930,8 +930,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		url = this.queryurl + '&' + para;
     	}
     	this.loading = true;
-//    	this.fireEvent("beforeload", this);
-    	this.fireBindDataSetEvent("beforeload", this);
+    	this.fireEvent("beforeload", this);
+//    	this.fireBindDataSetEvent("beforeload", this);//主dataset无数据,子dataset一直loading
     	$A.request({url:url, para:q, success:this.onLoadSuccess, error:this.onLoadError, scope:this,failure:this.onAjaxFailed,opts:opts});
     },
     /**
