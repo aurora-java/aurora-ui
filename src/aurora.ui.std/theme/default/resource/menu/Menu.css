@@ -14,20 +14,31 @@
 	white-space:nowrap;
 }
 .item-menu{
-	height:17px;
-	line-height:17px;
-	padding:4px;
+	line-height:25px;
 	-moz-user-select: -moz-none;
+}
+.item-menu table{
+	height:25px;
 }
 .item-menu-bar li{
 	float:left;
+	margin-right:4px;
 }
-.item-menu-icon,.item-menu-type{
-	float:left;
+.item-menu-text{
+	padding-left:3px;
+	padding-right:3px;
+}
+.item-menu-icon{
+	border-right: 1px solid #E0E0E0;
+}
+.item-menu-icon div{
 	height:17px;
 }
+.item-menu-type,.item-menu-arrow,.item-menu-icon{
+	vertical-align: middle;
+	text-align: center;
+}
 .item-menu-type div{
-	margin:2px;
 	width:13px;
 	height:13px;
 }
@@ -42,13 +53,13 @@
 .item-menu-type div.check{
 	background-position: 0 -13px;
 }
-.item-menu-arrow{
-	float:right;
-	height:17px;
+.item-menu-arrow div{
+	width:16px;
+	height:16px;
 	background-image:url("../toolbar/navigation.gif");
 	background-position:0 -48px;
 }
-.item-menu-split{
+.item-menu-h-split{
 	height:1px;
 	line-height:1px;
 	font-size: 1px;
@@ -56,16 +67,16 @@
 	padding: 1px;
 	white-space: nowrap;
 }
-.item-menu-split span{
-	background-color:#E0E0E0;
+.item-menu-h-split span{
 	border-bottom-color:#FFFFFF;
-	display: block;
-	font-size:1px;
 	line-height:1px;
 	margin-bottom:2px;
 	margin-left:3px;
 	margin-right:3px;
 	margin-top:2px;
+	background-color:#E0E0E0;	
+	display: block;
+	font-size:1px;
 	overflow-x:hidden;
 	overflow-y:hidden;
 }
