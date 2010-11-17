@@ -55,6 +55,7 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
 		this.handler=config.handler||'handler';
 		this.menutype=config.menutype||'type';
 		this.checked=config.checked||'checked';
+		this.url=config.url||'url';
 	},
 	initComponent : function(config){
 		$A.MenuBar.superclass.initComponent.call(this,config);
@@ -72,6 +73,22 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
     	Ext.getBody()[ou]('contextmenu',this.preventMenuAndSelect,this);
     	Ext.fly(this.focus||document)[ou]('keyup',this.onKeyUp,this);
     	Ext.fly(this.focus||document)[ou]('keydown',this.onKeyDown,this);
+    	if(ou=='on')Ext.onReady(function(ou){this.processIframeListener(ou);}.createDelegate(this,[ou]))
+    	else this.processIframeListener(ou);
+    },
+    processIframeListener:function(ou){//解决iframe中子窗口无法响应父窗口的事件
+    	var frames=document.getElementsByTagName('iframe');
+    	for(var i=0;frames[i];i++){
+			Ext.fly(frames[i])[ou]('load',function(frame){
+	    		Ext.fly(frame.contentDocument)[ou]('mousedown',this.onMouseDown,this);
+	    		Ext.fly(frame.contentDocument)[ou]('mouseup',this.onMouseUp,this);
+	    		if(!this.focus||Ext.fly(this.focus).contains(frame)){
+	    			Ext.fly(frame.contentDocument)[ou]('keyup',this.onKeyUp,this);
+    				Ext.fly(frame.contentDocument)[ou]('keydown',this.onKeyDown,this);
+	    		}
+			}.createDelegate(this,[frames[i]]))
+			if(this.targetname&&this.targetname==frames[i].name)this.targetFrame=frames[i];
+    	}
     },
     processDataSetLiestener: function(ou){
 		var ds = this.dataset;
@@ -109,8 +126,8 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
     			Ext.apply(map[datas[i].get(this.idfield)],{type:types[1],checked:datas[i].get(this.checked)=="true"||false});
     			if(types[2])Ext.apply(map[datas[i].get(this.idfield)],{groupName:types[2]});
     		}
-    		if(datas[i].get(this.handler))Ext.apply(map[datas[i].get(this.idfield)],{listeners:{'submit':function(handler,record){return function(){window[handler].apply(window,Ext.toArray(arguments).concat(record))}}(datas[i].get(this.handler),datas[i])}});
-    	
+    		if(datas[i].get(this.handler))Ext.apply(map[datas[i].get(this.idfield)],{listeners:{'mouseup':function(handler,record){return function(){window[handler].apply(window,Ext.toArray(arguments).concat(record))}}(datas[i].get(this.handler),datas[i])}});
+    		if(datas[i].get(this.url))Ext.apply(map[datas[i].get(this.idfield)],{listeners:{'submit':this.directURL.createDelegate(this,[datas[i].get(this.url),datas[i].get(this.displayfield)])}});
     	}
     	for(var i=0;datas[i];i++){
     		var pid=datas[i].get(this.parentfield);
@@ -121,6 +138,10 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
     		}
     	}
     	this.addMenus(options.sort(this.sortOptions));
+    },
+    directURL : function(url,title){
+    	if(this.targetFrame)this.targetFrame.setAttribute('src',url);
+    	else new $A.Window({title:title,url:url,width:Ext.fly(document).child('html').getWidth()-100,height:Ext.fly(document).child('html').getHeight()-100})
     },
     sortOptions : function(o1,o2){
     	if(o1.options)o1.options.sort($A.MenuBar.prototype.sortOptions);
@@ -185,6 +206,7 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
 	    		this.children[0].active(e);
 	    	}else this.isActive=false;
     	}
+    	e.stopEvent();
     },
     onKeyDown : function(e){
     	if(this.children.length==0)return;
@@ -282,7 +304,7 @@ $A.MenuItem=Ext.extend($A.Component,Ext.apply({
     },
 	initEvents : function(){
 		$A.MenuItem.superclass.initEvents.call(this);
-		this.addEvents('submit');
+		this.addEvents('submit','mouseup');
 	},
 	getWidth : function(){
 		return this.wrap.child('span.item-menu-text').getWidth()+(this.hasIcon?16:0)+(this.parent==this.bar?0:72);
@@ -376,7 +398,8 @@ $A.MenuItem=Ext.extend($A.Component,Ext.apply({
 				}
 			}
     	}
-    	this.fireEvent('submit',this.bar,this);
+    	this.fireEvent('mouseup',this.bar,this);
+    	this.fireEvent('submit',this.bar);
     },
 	onMouseUp : function(e){
 		if(e.button==0)this.submit();
