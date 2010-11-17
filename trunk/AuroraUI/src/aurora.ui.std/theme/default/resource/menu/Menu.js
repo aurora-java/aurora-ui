@@ -80,11 +80,11 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
     	var frames=document.getElementsByTagName('iframe');
     	for(var i=0;frames[i];i++){
 			Ext.fly(frames[i])[ou]('load',function(frame){
-	    		Ext.fly(frame.contentDocument)[ou]('mousedown',this.onMouseDown,this);
-	    		Ext.fly(frame.contentDocument)[ou]('mouseup',this.onMouseUp,this);
+	    		Ext.fly(frame.contentWindow.document)[ou]('mousedown',this.onMouseDown,this);
+	    		Ext.fly(frame.contentWindow.document)[ou]('mouseup',this.onMouseUp,this);
 	    		if(!this.focus||Ext.fly(this.focus).contains(frame)){
-	    			Ext.fly(frame.contentDocument)[ou]('keyup',this.onKeyUp,this);
-    				Ext.fly(frame.contentDocument)[ou]('keydown',this.onKeyDown,this);
+	    			Ext.fly(frame.contentWindow.document)[ou]('keyup',this.onKeyUp,this);
+    				Ext.fly(frame.contentWindow.document)[ou]('keydown',this.onKeyDown,this);
 	    		}
 			}.createDelegate(this,[frames[i]]))
 			if(this.targetname&&this.targetname==frames[i].name)this.targetFrame=frames[i];
@@ -307,16 +307,16 @@ $A.MenuItem=Ext.extend($A.Component,Ext.apply({
 		this.addEvents('submit','mouseup');
 	},
 	getWidth : function(){
-		return this.wrap.child('span.item-menu-text').getWidth()+(this.hasIcon?16:0)+(this.parent==this.bar?0:72);
+		return this.wrap.child('td.item-menu-text').getWidth()+(this.hasIcon?16:0)+(this.parent==this.bar?0:72);
 	},
 	initMenuType : function(){
-		if(this.type=='radio')this.wrap.child('div.item-menu-type div').addClass("type-radio");
-		else if(this.type=='checkbox')this.wrap.child('div.item-menu-type div').addClass("type-checkbox");
+		if(this.type=='radio')this.wrap.child('td.item-menu-type div').addClass("type-radio");
+		else if(this.type=='checkbox')this.wrap.child('td.item-menu-type div').addClass("type-checkbox");
 		this.check();
 	},
 	check : function(value){
 		this.checked=value;
-		this.wrap.child('div.item-menu-type div')[this.checked?'addClass':'removeClass']('check');
+		this.wrap.child('td.item-menu-type div')[this.checked?'addClass':'removeClass']('check');
 	},
 	getBindingRecord : function(){
 		return this.record;
@@ -330,17 +330,17 @@ $A.MenuItem=Ext.extend($A.Component,Ext.apply({
 		return this.text;
 	},
 	setIcon : function(icon){
-		if(this.parent.icons.length)this.wrap.child('div.item-menu-icon').setWidth('16px');
+		if(this.parent.icons.length)this.wrap.child('td.item-menu-icon div').setWidth('17px');
 		if(!(icon||(icon=this.icon)))return;
 		if(this.parent.icons.length==0){
-			var list=this.parent.container.query('div.item-menu-icon');
+			var list=this.parent.container.query('td.item-menu-icon div');
 			while(list.length){
-				Ext.fly(list.shift()).setWidth('16px');
+				Ext.fly(list.shift()).setWidth('17px');
 			}
 		}
 		this.parent.icons.add(this);
 		var _icon=icon.match(/^([^\?]*)\??([^?]*)?$/);
-		this.wrap.child('div.item-menu-icon').setStyle({'background-image':'url('+(_icon[1].match(/^[\/]{1}/)?this.bar.context:'')+_icon[1]+')','background-position':_icon[2]||'0 0'})
+		this.wrap.child('td.item-menu-icon div').setStyle({'background-image':'url('+(_icon[1].match(/^[\/]{1}/)?this.bar.context:'')+_icon[1]+')','background-position':_icon[2]||'0 0'})
 		this.hasIcon=true;
 	},
 	getIcon : function(){
@@ -433,9 +433,10 @@ $A.MenuItem=Ext.extend($A.Component,Ext.apply({
 		delete this.bar;
 		$A.MenuItem.superclass.destroy.call(this);
 	},
-	menuTpl :['<DIV class="item-menu-type" style="width:{width}"><DIV></DIV></DIV>',
-				'<DIV class="item-menu-icon"></DIV>',
-				'<SPAN class="item-menu-text">{text}</SPAN>'],
+	menuTpl :['<TD class="item-menu-type"><DIV></DIV></TD>',
+				'<TD class="item-menu-icon"><DIV></DIV></TD>',
+				'<TD class="item-menu-text">{text}</TD>',
+				'<TD></TD>' ],
 	menuBarTpl:'<SPAN class="item-menu-text">{text}</SPAN>'
 },$A.MenuHelper));
 $A.Menu=Ext.extend($A.MenuItem,{
@@ -586,12 +587,13 @@ $A.Menu=Ext.extend($A.MenuItem,{
 		}
 		return false;
 	},
-	menuTpl : [ '<DIV class="item-menu-type" style="width:{width}"><DIV></DIV></DIV>',
-				'<DIV class="item-menu-arrow" style="width:{width}"></DIV>',
-				'<DIV class="item-menu-icon"></DIV>',
-				'<SPAN class="item-menu-text">{text}</SPAN>'],
-	containerTpl : '<UL class="item-menu-container item-menu-hide" style="z-index:{zIndex}"></UL>',
+	menuTpl :['<TD class="item-menu-type"><DIV></DIV></TD>',
+				'<TD class="item-menu-icon"><DIV></DIV></TD>',
+				'<TD class="item-menu-text">{text}</TD>',
+				'<TD class="item-menu-arrow"><DIV></DIV></TD>'],
+	containerTpl : '<TABLE cellspacing="0" class="item-menu-container item-menu-hide" style="z-index:{zIndex}"></TABLE>',
 	shadowTpl : '<DIV class="item-shadow" style="z-index:{zIndex}"></DIV>',
-	childTpl : '<LI id="{id}" class="item-menu"></LI>',
-	splitTpl : '<LI class="item-menu-split"><span>&nbsp;</span></LI>'
+	childTpl : '<TR id="{id}" class="item-menu"></TR>',
+	hSplitTpl : '<TR class="item-menu-h-split"><TD>&nbsp;</TD></TR>'
 });
+delete $A.MenuHelper;
