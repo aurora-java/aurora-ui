@@ -1014,7 +1014,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             var data = p[i]
             for(var key in data){
                 var f = this.fields[key];
-                if(f && f.type != 'dataset' && data[key]=='')data[key]=null;
+                if(f && f.type != 'dataset' && data[key]==='')data[key]=null;
             }
             p[i] = Ext.apply(p[i],this.spara)
         }
@@ -1434,7 +1434,7 @@ $A.Record.Meta.prototype = {
 			this.record.onMetaChange(this, 'required', r);
 		}
 	},
-	setReadOnly : function(r){		
+	setReadOnly : function(r){
 		var op = this.pro['readonly'];
 		if(op !== r){
 			this.pro['readonly'] = r;
