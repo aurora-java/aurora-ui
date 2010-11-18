@@ -287,6 +287,23 @@ $A.Window = Ext.extend($A.Component,{
     	if(!this.body) return;
     	this.clearLoading();
     	var html = response.responseText;
+    	var res
+    	try {
+            res = Ext.decode(response.responseText);
+        }catch(e){}
+        if(res && res.success == false){
+        	if(res.error){
+                var st = res.error.stackTrace;
+                st = (st) ? st.replaceAll('\r\n','</br>') : '';
+                if(res.error.message) {
+                    var h = (st=='') ? 150 : 250;
+                    $A.showErrorMessage('错误', res.error.message+'</br>'+st,null,400,h);
+                }else{
+                    $A.showErrorMessage('错误', st,null,400,250);
+                }   
+            }
+            return;
+        }
     	var sf = this
     	this.body.update(html,true,function(){
 //	    	var cmps = $A.CmpManager.getAll();
