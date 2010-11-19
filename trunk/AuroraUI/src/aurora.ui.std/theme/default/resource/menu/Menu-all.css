@@ -33,24 +33,24 @@
 }
 .item-menu-icon div{
 	height:17px;
-	width:17px;
 }
-.item-menu-arrow,.item-menu-icon{
+.item-menu-type,.item-menu-arrow,.item-menu-icon{
 	vertical-align: middle;
+	text-align: center;
 }
-.item-menu-icon div.type-radio{
+.item-menu-type div{
+	width:13px;
+	height:13px;
+}
+.item-menu-type div.type-radio{
 	background-image:url('../radio/radio.gif');
 	background-position: 0 0;
-	width:13px;
-	height:13px;
 }
-.item-menu-icon div.type-checkbox{
+.item-menu-type div.type-checkbox{
 	background-image:url('../checkBox/checkbox.gif');
 	background-position: 0 0;
-	width:13px;
-	height:13px;
 }
-.item-menu-icon div.check{
+.item-menu-type div.check{
 	background-position: 0 -13px;
 }
 .item-menu-arrow div{
