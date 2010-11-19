@@ -71,6 +71,8 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
     	Ext.fly(document)[ou]('mouseup',this.onMouseUp,this);
     	Ext.getBody()[ou]('selectstart',this.preventMenuAndSelect,this);
     	Ext.getBody()[ou]('contextmenu',this.preventMenuAndSelect,this);
+    	Ext.fly(this.focus||document)[ou]('keyup',this.onKeyUp,this);
+    	Ext.fly(this.focus||document)[ou]('keydown',this.onKeyDown,this);
     	if(ou=='on')Ext.onReady(function(ou){this.processIframeListener(ou);}.createDelegate(this,[ou]))
     	else this.processIframeListener(ou);
     },
@@ -80,6 +82,10 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
 			Ext.fly(frames[i])[ou]('load',function(frame){
 	    		Ext.fly(frame.contentWindow.document)[ou]('mousedown',this.onMouseDown,this);
 	    		Ext.fly(frame.contentWindow.document)[ou]('mouseup',this.onMouseUp,this);
+	    		if(!this.focus||Ext.fly(this.focus).contains(frame)){
+	    			Ext.fly(frame.contentWindow.document)[ou]('keyup',this.onKeyUp,this);
+    				Ext.fly(frame.contentWindow.document)[ou]('keydown',this.onKeyDown,this);
+	    		}
 			}.createDelegate(this,[frames[i]]))
 			if(this.targetname&&this.targetname==frames[i].name)this.targetFrame=frames[i];
     	}
@@ -104,9 +110,12 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
     	if(!this.renderer)return data.get(this.displayfield);
     	return $A.getRenderer(this.renderer).call(window,data.get(this.displayfield),data,this.context);
     },
-    onUpdate : function(ds,record,name,value){
-    	if(name==this.displayfield)record.menu.setText(this.value);
-    	else if(name==this.checked)record.menu.check(value);
+    onUpdate : function(ds,record, name, value){
+    	if(name==this.displayfield){
+    		record.menu.setText(this.value);
+    	}else if(name==this.checked){
+    		record.menu.check(value);
+    	}
     },
     onLoad : function(){
     	var options=[],map={},datas=this.dataset.data;
@@ -142,6 +151,81 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
     },
     preventMenuAndSelect :function(e){
     	if(this.isAncestor(e.target)){e.stopEvent();return false;}
+    },
+    pressKeyDown : function(){
+		if(!this.children[this.selectIndex].isActive){
+			this.children[this.selectIndex].show();
+			this.children[this.selectIndex].selectIndex=0;
+			this.children[this.selectIndex].children[0].active();
+		}else {
+			if(this.children[this.selectIndex].selectIndex!=null)this.children[this.selectIndex].pressKeyDown();
+			else{
+				this.children[this.selectIndex].selectIndex=0;
+				this.children[this.selectIndex].children[0].active();
+			}
+		}
+    },
+    pressKeyUp : function(){
+		if(!this.children[this.selectIndex].isActive){
+			this.children[this.selectIndex].show();
+			this.children[this.selectIndex].selectIndex=0;
+			this.children[this.selectIndex].children[0].active();
+		}else {
+			if(this.children[this.selectIndex].selectIndex!=null)this.children[this.selectIndex].pressKeyUp();
+			else{
+				this.children[this.selectIndex].selectIndex=this.children[this.selectIndex].children.length-1;
+				this.children[this.selectIndex].children[this.children[this.selectIndex].selectIndex].active();
+			}
+		}
+    },
+    pressKeyLeft : function(){
+		if(!this.children[this.selectIndex].isActive){
+			this.children[this.selectIndex].inactive();
+			this.selectIndex=(--this.selectIndex<0)?this.children.length+this.selectIndex:this.selectIndex;
+			this.children[this.selectIndex].active();
+		}else this.children[this.selectIndex].pressKeyLeft();
+    },
+    pressKeyRight : function(){
+		if(!this.children[this.selectIndex].isActive){
+			this.children[this.selectIndex].inactive();
+			this.selectIndex=(++this.selectIndex==this.children.length)?0:this.selectIndex;
+			this.children[this.selectIndex].active();
+		}else{
+			this.children[this.selectIndex].selectIndex=this.children[this.selectIndex].selectIndex||0;
+			this.children[this.selectIndex].pressKeyRight();
+		}
+    },
+    pressKeyEnter : function(){
+    	if(!this.children[this.selectIndex].isActive) this.pressKeyDown();
+    	else this.children[this.selectIndex].pressKeyEnter();
+    },
+    onKeyUp : function(e){
+    	if(this.children.length==0)return;
+    	if(e.keyCode==18){
+	    	if(!this.isActive){
+	    		this.isActive=true;
+	    		this.children[0].active(e);
+	    	}else this.isActive=false;
+    	}
+    	e.stopEvent();
+    },
+    onKeyDown : function(e){
+    	if(this.children.length==0)return;
+    	if(this.isActive){
+    		if(e.altKey&&this.selectIndex!=null){
+    			this.children[this.selectIndex].inactive(e);
+    			this.children[this.selectIndex].hide();
+				this.selectIndex=null;
+    		}
+    		switch(e.keyCode){
+    			case 13:this.pressKeyEnter();break;
+    			case 37:this.pressKeyLeft();break;
+    			case 38:this.pressKeyUp();break;
+    			case 39:this.pressKeyRight();break;
+    			case 40:this.pressKeyDown();break;
+    		}
+    	}
+    	e.stopEvent();
     },
 	onMouseDown : function(e){
 		if(this.selectIndex==null||this.children.length==0)return;
@@ -224,16 +308,16 @@ $A.MenuItem=Ext.extend($A.Component,Ext.apply({
 		this.addEvents('submit','mouseup');
 	},
 	getWidth : function(){
-		return this.wrap.child('td.item-menu-text').getWidth()+(this.parent==this.bar?0:72);
+		return this.wrap.child('td.item-menu-text').getWidth()+(this.hasIcon?16:0)+(this.parent==this.bar?0:72);
 	},
 	initMenuType : function(){
-		if(this.type=='radio')this.wrap.child('td.item-menu-icon div').addClass("type-radio");
-		else if(this.type=='checkbox')this.wrap.child('td.item-menu-icon div').addClass("type-checkbox");
+		if(this.type=='radio')this.wrap.child('td.item-menu-type div').addClass("type-radio");
+		else if(this.type=='checkbox')this.wrap.child('td.item-menu-type div').addClass("type-checkbox");
 		this.check();
 	},
 	check : function(value){
 		this.checked=value;
-		this.wrap.child('td.item-menu-icon div')[this.checked?'addClass':'removeClass']('check');
+		this.wrap.child('td.item-menu-type div')[this.checked?'addClass':'removeClass']('check');
 	},
 	getBindingRecord : function(){
 		return this.record;
@@ -247,7 +331,15 @@ $A.MenuItem=Ext.extend($A.Component,Ext.apply({
 		return this.text;
 	},
 	setIcon : function(icon){
-		if(!(icon||(icon=this.icon))||this.type)return;
+		if(this.parent.icons.length)this.wrap.child('td.item-menu-icon div').setWidth('17px');
+		if(!(icon||(icon=this.icon)))return;
+		if(this.parent.icons.length==0){
+			var list=this.parent.container.query('td.item-menu-icon div');
+			while(list.length){
+				Ext.fly(list.shift()).setWidth('17px');
+			}
+		}
+		this.parent.icons.add(this);
 		var _icon=icon.match(/^([^\?]*)\??([^?]*)?$/);
 		this.wrap.child('td.item-menu-icon div').setStyle({'background-image':'url('+(_icon[1].match(/^[\/]{1}/)?this.bar.context:'')+_icon[1]+')','background-position':_icon[2]||'0 0'})
 		this.hasIcon=true;
@@ -257,12 +349,35 @@ $A.MenuItem=Ext.extend($A.Component,Ext.apply({
 	},
 	clearIcon : function(){
 		if(!this.hasIcon)return;
-		this.wrap.child('div.item-menu-icon div').setStyle({'background-image':'none','background-position':'0 0'})
+		this.wrap.child('div.item-menu-icon').setStyle({'background-image':'none','background-position':'0 0'})
+		this.parent.icons.remove(this);
+		if(this.parent.icons.length==0){
+			for(var list=this.parent.container.query('div.item-menu-icon');list.length;){
+				Ext.fly(list.shift()).setWidth(0);
+			}
+		}
 		this.hasIcon=false;
 	},
 	toggleIcon : function(){
 		this[this.hasIcon?'clearIcon':'setIcon'].apply(this);
 	},
+	pressKeyRight : function(){
+		this.bar.children[this.bar.selectIndex].hide();
+		this.bar.pressKeyRight();
+		this.bar.pressKeyDown();
+	},
+    pressKeyLeft : function(){
+    	if(this.parent==this.bar){
+    		this.bar.children[this.bar.selectIndex].hide();
+			this.bar.pressKeyLeft();
+			this.bar.pressKeyDown();
+    	}else{
+			this.parent.children[this.parent.selectIndex].hide();
+    	}
+    },
+    pressKeyEnter : function(){
+    	this.submit();
+    },
     submit : function(){
     	if(!this.children){
 			if(this.parent!=this.bar){
@@ -319,14 +434,15 @@ $A.MenuItem=Ext.extend($A.Component,Ext.apply({
 		delete this.bar;
 		$A.MenuItem.superclass.destroy.call(this);
 	},
-	menuTpl :['<TD class="item-menu-icon" align="center"><DIV></DIV></TD>',
+	menuTpl :['<TD class="item-menu-type"><DIV></DIV></TD>',
+				'<TD class="item-menu-icon"><DIV></DIV></TD>',
 				'<TD class="item-menu-text">{text}</TD>',
-				'<TD></TD>'],
+				'<TD></TD>' ],
 	menuBarTpl:'<SPAN class="item-menu-text">{text}</SPAN>'
 },$A.MenuHelper));
 $A.Menu=Ext.extend($A.MenuItem,{
 	constructor: function(config) {
-		this.children=[],this.selectIndex=null,this.groups={},this.isActive=false,this.initMenus=false;
+		this.children=[],this.selectIndex=null,this.icons=[],this.groups={},this.isActive=false,this.initMenus=false;
 		$A.Menu.superclass.constructor.call(this, config);
 	},
 	initComponent : function(config){
@@ -354,6 +470,69 @@ $A.Menu=Ext.extend($A.MenuItem,{
 		}
 		this.container.setWidth(width);
 	},
+	pressKeyRight : function(eventName){
+    	if(this.children[this.selectIndex]){
+			if(!this.children[this.selectIndex].isActive){
+				if(this.children[this.selectIndex].children){
+					this.children[this.selectIndex].show();
+					this.children[this.selectIndex].selectIndex=0;
+					this.children[this.selectIndex].children[0].active();
+				}else this.children[this.selectIndex][eventName||'pressKeyRight']();
+			}else{
+				if(this.children[this.selectIndex].selectIndex!=null)this.children[this.selectIndex][eventName||'pressKeyRight']();
+				else{
+					this.children[this.selectIndex].selectIndex=0;
+					this.children[this.selectIndex].children[0].active();
+				}
+			}
+		}
+    },
+    pressKeyLeft : function(){
+    	if(this.parent==this.bar&&(this.selectIndex==null||!this.children[this.selectIndex].isActive)){
+    		this.bar.children[this.bar.selectIndex].hide();
+			this.bar.pressKeyLeft();
+			this.bar.pressKeyDown();
+    	}else{
+    		if(!this.children[this.selectIndex].isActive)this.parent.children[this.parent.selectIndex].hide();
+    		else{
+    			if(this.children[this.selectIndex].selectIndex!=null)this.children[this.selectIndex].pressKeyLeft();
+    			else this.children[this.selectIndex].hide();
+    		}
+    	}
+    },
+    pressKeyUp : function(){
+    	if(this.children[this.selectIndex]){
+			if(!this.children[this.selectIndex].isActive){
+				this.children[this.selectIndex].inactive();
+				this.selectIndex=(--this.selectIndex<0)?this.children.length+this.selectIndex:this.selectIndex;
+				this.children[this.selectIndex].active();
+			}else{
+				if(this.children[this.selectIndex].selectIndex!=null)this.children[this.selectIndex].pressKeyUp();
+				else{
+					this.children[this.selectIndex].selectIndex=this.children[this.selectIndex].children.length-1;
+					this.children[this.selectIndex].children[this.children[this.selectIndex].selectIndex].active();
+				}
+			}
+		}
+    },
+    pressKeyDown : function(){
+    	if(this.children[this.selectIndex]){
+			if(!this.children[this.selectIndex].isActive){
+				this.children[this.selectIndex].inactive();
+				this.selectIndex=(++this.selectIndex==this.children.length)?0:this.selectIndex;
+				this.children[this.selectIndex].active();
+			}else{
+				if(this.children[this.selectIndex].selectIndex!=null)this.children[this.selectIndex].pressKeyDown();
+				else{
+					this.children[this.selectIndex].selectIndex=0;
+					this.children[this.selectIndex].children[0].active();
+				}
+			}
+		}
+    },
+    pressKeyEnter : function(){
+    	this.pressKeyRight('pressKeyEnter');
+    },
     onMouseOver : function(e){
 		$A.Menu.superclass.onMouseOver.call(this,e);
 		if(this.parent===this.bar)this.show();
@@ -409,9 +588,10 @@ $A.Menu=Ext.extend($A.MenuItem,{
 		}
 		return false;
 	},
-	menuTpl :['<TD class="item-menu-icon" align="center"><DIV></DIV></TD>',
+	menuTpl :['<TD class="item-menu-type"><DIV></DIV></TD>',
+				'<TD class="item-menu-icon"><DIV></DIV></TD>',
 				'<TD class="item-menu-text">{text}</TD>',
-				'<TD class="item-menu-arrow" align="center"><DIV></DIV></TD>'],
+				'<TD class="item-menu-arrow"><DIV></DIV></TD>'],
 	containerTpl : '<TABLE cellspacing="0" class="item-menu-container item-menu-hide" style="z-index:{zIndex}"></TABLE>',
 	shadowTpl : '<DIV class="item-shadow" style="z-index:{zIndex}"></DIV>',
 	childTpl : '<TR id="{id}" class="item-menu"></TR>',
