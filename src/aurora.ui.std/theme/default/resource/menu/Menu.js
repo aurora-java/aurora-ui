@@ -1,52 +1,4 @@
-$A.MenuHelper={
-	getMenuAt :function(index){
-		return (!this.children||this.children.length==0)?null:this.children[index];
-	},
-	getMenus : function(){
-		return this.getMenusByText();
-	},
-	getMenusByText : function(text){
-		var results=[];
-		if(!this.children)return results;
-		if(this.children.length==0){
-			this.addMenus(this.options);this.initMenus=true;
-			if(this.children.length==0)return results;
-		}
-		for(var i=0;this.children[i];i++){
-			if(typeof text=='undefined'||text==this.children[i].text)results.add(this.children[i]);
-			if(this.children[i].children)results=results.concat(this.children[i].getMenusByText(text));
-		}
-		return results;
-	},
-	getMenuById : function(id){
-		if(this.dataId==id)return this;
-		if(!this.children||this.children.length==0)return null;
-		for(var i=0;this.children[i];i++){
-			var menu=this.children[i].getMenuById(id);
-			if(menu)return menu;
-		}
-	},
-	findAncestorMenus : function(){
-		return this.findAncestorMenusByText();
-	},
-	findAncestorMenusByText : function(text){
-		if(!this.parent)return [];
-		var results=[];
-		if((typeof text=='undefined'||text==this.parent.text)&&this.parent!=this.bar)results.add(this.parent);
-		results=results.concat(this.parent.findAncestorMenusByText(text));
-		return results;
-	},
-	parentMenu : function(){
-		return this.parent;
-	},
-	perviewMenu : function(){
-		return this.parent.children[(this.index-1)==-1?this.parent.children.length-1:this.index-1];
-	},
-	nextMenu : function(){
-		return this.parent.children[(this.index+1)==this.parent.children.length?0:this.index+1];
-	}
-}
-$A.MenuBar=Ext.extend($A.Component,Ext.apply({
+$A.MenuBar=Ext.extend($A.Component,{
 	constructor: function(config) {
 		this.isActive=false,this.needHide=false,this.children=[],this.selectIndex = null,this.altKeyAccess=false;
 		$A.MenuBar.superclass.constructor.call(this, config);
@@ -74,7 +26,7 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
     	if(ou=='on')Ext.onReady(function(ou){this.processIframeListener(ou);}.createDelegate(this,[ou]))
     	else this.processIframeListener(ou);
     },
-    processIframeListener:function(ou){//解决iframe中子窗口无法响应父窗口的事件
+    processIframeListener:function(ou){
     	var frames=document.getElementsByTagName('iframe');
     	for(var i=0;frames[i];i++){
 			Ext.fly(frames[i])[ou]('load',function(frame){
@@ -176,12 +128,6 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
 			this.children.push(menu);j++;
 		}
 	},
-	clearMenus : function(){
-		while(this.children.length){
-			this.children.shift().destroy();
-		}
-		this.isActive=false,this.needHide=false,this.selectIndex = null,this.altKeyAccess=false;
-	},
 	destroy : function(){
 		this.container.remove();
 		delete this.children;
@@ -197,8 +143,8 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
 		return false;
 	},
 	childTpl : '<LI id="{id}" class="item-menu"></LI>'
-},$A.MenuHelper));
-$A.MenuItem=Ext.extend($A.Component,Ext.apply({
+});
+$A.MenuItem=Ext.extend($A.Component,{
 	constructor: function(config) {
 		this.hasIcon=false;
 		$A.MenuItem.superclass.constructor.call(this, config);
@@ -243,25 +189,11 @@ $A.MenuItem=Ext.extend($A.Component,Ext.apply({
 		this.renderText=this.bar.renderText(this.record);
 		this.el.update(this.renderText);
 	},
-	getText : function(){
-		return this.text;
-	},
 	setIcon : function(icon){
 		if(!(icon||(icon=this.icon))||this.type)return;
 		var _icon=icon.match(/^([^\?]*)\??([^?]*)?$/);
 		this.wrap.child('td.item-menu-icon div').setStyle({'background-image':'url('+(_icon[1].match(/^[\/]{1}/)?this.bar.context:'')+_icon[1]+')','background-position':_icon[2]||'0 0'})
 		this.hasIcon=true;
-	},
-	getIcon : function(){
-		return this.icon;
-	},
-	clearIcon : function(){
-		if(!this.hasIcon)return;
-		this.wrap.child('div.item-menu-icon div').setStyle({'background-image':'none','background-position':'0 0'})
-		this.hasIcon=false;
-	},
-	toggleIcon : function(){
-		this[this.hasIcon?'clearIcon':'setIcon'].apply(this);
 	},
     submit : function(){
     	if(!this.children){
@@ -323,7 +255,7 @@ $A.MenuItem=Ext.extend($A.Component,Ext.apply({
 				'<TD class="item-menu-text">{text}</TD>',
 				'<TD></TD>'],
 	menuBarTpl:'<SPAN class="item-menu-text">{text}</SPAN>'
-},$A.MenuHelper));
+});
 $A.Menu=Ext.extend($A.MenuItem,{
 	constructor: function(config) {
 		this.children=[],this.selectIndex=null,this.groups={},this.isActive=false,this.initMenus=false;
@@ -417,4 +349,3 @@ $A.Menu=Ext.extend($A.MenuItem,{
 	childTpl : '<TR id="{id}" class="item-menu"></TR>',
 	hSplitTpl : '<TR class="item-menu-h-split"><TD>&nbsp;</TD></TR>'
 });
-delete $A.MenuHelper;
