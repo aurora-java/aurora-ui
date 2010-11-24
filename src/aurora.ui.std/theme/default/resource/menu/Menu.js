@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.MenuBar
+ * @extends Aurora.Component
+ * <p>树形组件.
+ * @author huazhen.wu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.MenuBar=Ext.extend($A.Component,{
 	constructor: function(config) {
 		this.isActive=false,this.needHide=false,this.children=[],this.selectIndex = null,this.altKeyAccess=false;
@@ -144,6 +152,15 @@ $A.MenuBar=Ext.extend($A.Component,{
 	},
 	childTpl : '<LI id="{id}" class="item-menu"></LI>'
 });
+
+/**
+ * @class Aurora.MenuItem
+ * @extends Aurora.Component
+ * <p>树形组件.
+ * @author huazhen.wu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.MenuItem=Ext.extend($A.Component,{
 	constructor: function(config) {
 		this.hasIcon=false;
@@ -167,7 +184,17 @@ $A.MenuItem=Ext.extend($A.Component,{
     },
 	initEvents : function(){
 		$A.MenuItem.superclass.initEvents.call(this);
-		this.addEvents('submit','mouseup');
+		this.addEvents(
+		/**
+         * @event submit
+         * menu的url定向.
+         */
+		'submit',
+		/**
+         * @event mouseup
+         * menu点击事件.
+         */
+		'mouseup');
 	},
 	getWidth : function(){
 		return this.wrap.child('td.item-menu-text').getWidth()+(this.parent==this.bar?0:72);
@@ -256,6 +283,15 @@ $A.MenuItem=Ext.extend($A.Component,{
 				'<TD></TD>'],
 	menuBarTpl:'<SPAN class="item-menu-text">{text}</SPAN>'
 });
+
+/**
+ * @class Aurora.Menu
+ * @extends Aurora.MenuItem
+ * <p>树形组件.
+ * @author huazhen.wu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Menu=Ext.extend($A.MenuItem,{
 	constructor: function(config) {
 		this.children=[],this.selectIndex=null,this.groups={},this.isActive=false,this.initMenus=false;
