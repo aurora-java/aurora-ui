@@ -1,0 +1,7 @@
+.item-grid-wrap .item-toolbar {
+	background-image: url(../grid/toolbar_bg.gif);
+}
+.item-grid-wrap .item-toolbar BUTTON{
+    color:#000000;
+    font-weight:normal;
+}
