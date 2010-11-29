@@ -26,6 +26,9 @@
 	HEIGHT: 20px;	
 	TEXT-ALIGN: center;
 }
+.item-dateField-foot {
+	margin-top:2px;
+}
 .item-dateField a{
 	color:#1e5494;
 }
@@ -39,9 +42,10 @@
 
 .item-dateField table td {
 	/**font-size: 11px;**/
-	padding:1px;
+	padding:3px 1px 3px 1px;
 }
 .item-dateField-pre,.item-dateField-next,.item-dateField-preYear,.item-dateField-nextYear{
+	margin-top:2px;
 	background-image:url(../toolbar/navigation.gif);
 	cursor:pointer;
 	width:16px;
@@ -68,8 +72,9 @@
 }
 
 .item-dateField-input{
-	FONT-WEIGHT: bold;	
+	/*FONT-WEIGHT: bold;*/	
 	/**FONT-SIZE: 100%;**/
+	margin-top:1px;
 	height:16px;
 	line-height:15px;
 	border:1px solid #bababa;
@@ -93,7 +98,7 @@
 	color:#fff;
 }
 .item-dateField td.dateover {
-	background-color:#dfeaf5;
+	background-color:#d1e5ff;/*#dfeaf5;*/
 	cursor:pointer;
 }
 .item-dateField td.onSelect {
