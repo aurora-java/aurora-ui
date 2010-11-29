@@ -1,28 +1,223 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<a:screen xmlns:a="http://www.aurora-framework.org/application">
-    <a:init-procedure>
-    </a:init-procedure>
-    <a:view template="default" package="aurora.ui.std">
-        <dataSets>
-            <dataSet id="TEST_DS">
-                <fields>
-                    <field name="test1" datatype="date" readonly="true" prompt="test1"/>
-                    <field name="test2" datatype="date" prompt="test2"/>
-                    <field name="test3" datatype="date" required="true" prompt="test2"/>
-                </fields>
-            </dataSet>
-        </dataSets>
-        <hBox>
-            <form labelWidth="100" width="300" title="绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
-                <datePicker name="test1"  bindTarget="TEST_DS" width="150" />
-                <datePicker name="test2"  bindTarget="TEST_DS" width="150"/>
-                <datePicker name="test3"  bindTarget="TEST_DS" width="150"/>
-            </form>
-            <form labelWidth="100" width="300" title="非绑定DataSet" style="border:1px solid #cccccc;margin:10px;">
-                <datePicker name="test1"  width="150" prompt="test1" readonly="true"/>
-                <datePicker name="test2"  width="150" prompt="test2"/>
-                <datePicker name="test3"  width="150" prompt="test3" required="true"/>
-            </form>
-        </hBox>
+<!--
+    $Author: ouyangzhaochang2663 $
+    $Date: 2010/09/19 02:07:37 $
+    $Revision: 1.5 $
+    $Purpose: 新增用户
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+    <a:init-procedure/>
+    <a:view>
+        <script><![CDATA[
+        
+            function closeUserCreateWindow(){
+                $('sys_user_create_window').close();
+            }
+
+            function createUser(){
+                var record = $('sys_user_create_ds').getCurrentRecord();
+                var state = record.get('state');
+                if(state == 1){ //有效期为天时
+                    if(Ext.isEmpty(record.get('password_lifespan_days'))){
+                         Aurora.showMessage('提示信息','请输入登录天数！');
+                         return;
+                    }
+                }else if(state == 2){
+                    if(Ext.isEmpty(record.get('password_lifespan_access'))){
+                         Aurora.showMessage('提示信息','请输入登录次数！');
+                         return;
+                    }
+                }
+                $('sys_user_create_ds').submit();
+            }
+            
+            function onRadioChange(radio, newValue, oldValue){
+                var record = $('sys_user_create_ds').getCurrentRecord();  
+                if(newValue=='1'){
+                    record.set('password_lifespan_access',null)
+                    record.getMeta().getField('password_lifespan_days').setReadOnly(false);
+                    record.getMeta().getField('password_lifespan_access').setReadOnly(true);
+                }else if(newValue=='2'){
+                    record.set('password_lifespan_days',null)
+                    record.getMeta().getField('password_lifespan_days').setReadOnly(true);
+                    record.getMeta().getField('password_lifespan_access').setReadOnly(false);
+                }else{
+                    record.set('password_lifespan_access',null)
+                    record.set('password_lifespan_days',null)
+                    record.getMeta().getField('password_lifespan_days').setReadOnly(true);
+                    record.getMeta().getField('password_lifespan_access').setReadOnly(true);
+                }
+            }
+            
+            function closeWindow(){
+                closeUserCreateWindow();
+                queryService();
+            };
+            
+            function onCreateUserSuccess(dataSet, datas, res){
+                Aurora.showMessage('提示信息','账号创建成功！',closeWindow);
+            }
+            
+            function onCheckBoxChange(checkbox, newValue, oldValue){
+                var record = $('sys_user_create_ds').getCurrentRecord();  
+                if(newValue == 'Y'){
+                    var date = new Date().format('yyyy-mm-dd');
+                    record.set('frozen_date',date);
+                }else{
+                    record.set('frozen_date','');
+                }
+            }
+            
+            function onUpdate(ds,record,name,value){
+                if(name == 'user_password' || name == 'user_password_re'){
+                    record.validate((name == 'user_password') ? 'user_password_re' : 'user_password'); 
+                }
+                if(name == 'start_date' || name == 'end_date'){
+                    record.validate((name == 'start_date') ? 'end_date' : 'start_date');
+                }
+            }
+            
+            //验证两次输入的密码是否一致
+            function passwordValidator(record, name, value){
+                if(name == 'user_password' || name == 'user_password_re'){
+                    //record.validate((name == 'user_password') ? 'user_password_re' : 'user_password')
+                    var password = record.get('user_password');
+                    var passwordRe = record.get('user_password_re');
+                    if(password != passwordRe){
+                        return '您两次输入的密码不匹配';
+                    }
+                    return true;
+                }                             
+            }
+            
+            function compareDate(start, end){
+                if(start > end){
+                    return false;
+                }
+                return true;
+            }
+            
+            function dateValidator(record, name, value){
+                if(name == 'start_date' || name == 'end_date'){
+                    var start_date = record.get('start_date');
+                    var end_date = record.get('end_date');
+                    if(typeof(end_date) != 'undefined' && !Ext.isEmpty(end_date)){
+                        if(!compareDate(start_date, end_date)){
+                            return '开始时间不能大于结束时间';
+                        }
+                    }
+                    return true;
+                }
+            }
+             function dateValidator2(record, name, value){
+                if(name == 'start_date' || name == 'end_date'){
+                    var start_date = record.get('start_date');
+                    var end_date = record.get('end_date');
+                    if(typeof(end_date) != 'undefined' && !Ext.isEmpty(end_date)){
+                        if(!compareDate(start_date, end_date)){
+                            return '开始时间不能大于结束时间';
+                        }
+                    }
+                    var today=new Date();
+	        		if(start_date < new Date(today.getFullYear(),today.getMonth(),today.getDate())){
+	        			return '日期必须大于等于今天';
+	        		}
+                    return true;
+                }
+            }
+            
+            function fn(bar,menu,record){
+        		var text="bar.getMenus().length:"+bar.getMenus().length+"\n"
+        				+"record.get('name'):"+record.get('name')+"\n"
+        				+"bar.getMenusByText('个人文件夹').length:"+bar.getMenusByText('个人文件夹').length+"\n"
+        				+"menu.parentMenu().getMenusByText('126.com').length:"+menu.parentMenu().getMenusByText('126.com').length+"\n"
+						+"menu.findAncestorMenus().length:"+menu.findAncestorMenus().length+"\n"
+						+"menu.findAncestorMenusByText('个人文件夹').length:"+menu.findAncestorMenusByText('个人文件夹').length+"\n"
+						+"bar.getMenuById(16).text:"+bar.getMenuById(16).text+"\n"
+						+"menu.nextMenu().text:"+menu.nextMenu().text+"\n"
+						+"menu.perviewMenu().text:"+menu.perviewMenu().text+"\n";
+				//alert(text);
+				var menus=menu.findAncestorMenusByText('个人文件夹');
+				while(menus.length){
+					menus.shift().getBindingRecord().set('name','新建文件夹');
+				}
+				menus=bar.getMenusByText('搜索文件夹');
+				while(menus.length){
+					menus.shift().getBindingRecord().set('name','新建文件夹');
+				}
+				//alert("$('MENU_DS2').data[0].get('name'):"+$('MENU_DS2').data[0].get('name'));
+			}
+        	function renderer(text,record){
+        		if(record.get("name")=="垃圾邮件")return "<a href='"+record.get("url")+"'>"+text+"</a>";
+        		if(record.get("parent")=="5")return "<span style='color:red'>"+text+"</span>";
+        		return text;
+        	}
+        	function dayRenderer(cell,date){
+        		var today=new Date();
+        		if(date < new Date(today.getFullYear(),today.getMonth(),today.getDate())){
+        			cell.disabled=true;
+        			cell.style.color="#bababa";
+        		}
+        	}
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet autoCreate="true" id="sys_user_create_ds" model="sys.sys_user">
+                <a:fields>
+                    <a:field name="user_name" required="true"/>
+                    <a:field format="yyyy/mm/dd HH:MM:ss" name="start_date" required="true" validator="dateValidator2" viewSize="4"/>
+                    <a:field name="description" required="true"/>
+                    <a:field name="user_password" required="true" validator="passwordValidator"/>
+                    <a:field name="user_password_re" required="true" validator="passwordValidator"/>
+                    <a:field format="yyyy-m-d" name="end_date" validator="dateValidator"/>
+                    <a:field defaultValue="3" name="state"/>
+                    <a:field checkedValue="Y" defaultValue="N" name="frozen_flag" uncheckedValue="N"/>
+                    <a:field name="frozen_date" readOnly="true"/>
+                </a:fields>
+                <events>
+                    <a:event handler="onCreateUserSuccess" name="submitsuccess"/>
+                    <a:event handler="onUpdate" name="update"/>
+                </events>
+            </a:dataSet>
+        </a:dataSets>
+        <a:fieldSet column="2" style="margin:10px;" title="SYS_USER.USER_INFO" width="510">
+            <a:vBox>
+                <a:textField bindTarget="sys_user_create_ds" name="user_name"/>
+                <a:passWord bindTarget="sys_user_create_ds" name="user_password" prompt="SYS_USER.NEW_PASSWORD"/>
+                <a:datePicker bindTarget="sys_user_create_ds" dayRenderer="dayRenderer" name="start_date"/>
+                <a:hBox padding="0" prompt="SYS_USER.PASSWD_EXPIRED_TYPE">
+                    <a:radio bindTarget="sys_user_create_ds" layout="vertical" name="state" style="padding-top:5px;padding-bottom:5px;" width="80">
+                        <a:items>
+                            <a:item label="SYS_USER.PASSWD_EXPIRED_DAYS" value="1"/>
+                            <a:item label="SYS_USER.PASSWD_EXPIRED_TIMES" value="2"/>
+                            <a:item label="SYS_USER.PASSWD_EXPIRED_NEVER" value="3"/>
+                        </a:items>
+                        <a:events>
+                            <a:event handler="onRadioChange" name="change"/>
+                        </a:events>
+                    </a:radio>
+                    <a:vBox>
+                        <a:numberField allowDecimals="false" allowNegative="false" bindTarget="sys_user_create_ds" name="password_lifespan_days" readOnly="true" width="67"/>
+                        <a:numberField allowDecimals="false" allowNegative="false" bindTarget="sys_user_create_ds" name="password_lifespan_access" readOnly="true" width="67"/>
+                    </a:vBox>
+                </a:hBox>
+            </a:vBox>
+            <a:vBox>
+                <a:textField bindTarget="sys_user_create_ds" name="description"/>
+                <a:passWord bindTarget="sys_user_create_ds" name="user_password_re" prompt="SYS_USER.CONFIRM"/>
+                <a:datePicker bindTarget="sys_user_create_ds" name="end_date"/>
+                <a:checkBox bindTarget="sys_user_create_ds" name="frozen_flag">
+                    <a:events>
+                        <a:event handler="onCheckBoxChange" name="change"/>
+                    </a:events>
+                </a:checkBox>
+                <a:datePicker bindTarget="sys_user_create_ds" name="frozen_date"/>
+            </a:vBox>
+        </a:fieldSet>
+        <div class="win-toolbar" style="width:510px;height:40px;">
+            <a:hBox style="float:right;margin-right:10px;margin-top:5px;">
+                <a:button click="createUser" text="HAP_SAVE" width="90"/>
+                <a:button click="closeUserCreateWindow" text="HAP_CLOSE" width="90"/>
+            </a:hBox>
+        </div>
     </a:view>
 </a:screen>

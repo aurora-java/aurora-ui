@@ -268,59 +268,130 @@ Aurora.dateFormat = function () {
             len = len || 2;  
             while (val.length < len) val = "0" + val;  
             return val;  
+        },
+        hasTimeStamp = function(mask,token){
+	    	return !!String(masks[mask] || mask || masks["default"]).match(token);
+        },
+        parseDate=function(string,mask,fun){
+        	for(var i=0,arr=mask.match(token),numbers=string.match(/\d+/g);i<arr.length;i++){
+        		var value;
+        		if(numbers.length==arr.length)value=numbers[i];
+        		else value=parseInt(string.slice(index=mask.search(arr[i]),index+arr[i].length));
+        		switch(arr[i]){
+        			case "mm":;
+        			case "m":value=value-1;break;
+        		}
+        		fun(arr[i],value);
+        	}
         }; 
-    return function (date, mask, utc) {    
-        if (arguments.length == 1 && (typeof date == "string" || date instanceof String) && !/\d/.test(date)) {  
-            mask = date;  
-            date = undefined;  
-        }   
-        date = date ? new Date(date) : new Date();  
-        if (isNaN(date)) throw new SyntaxError("invalid date");  
-  
-        mask = String(masks[mask] || mask || masks["default"]);  
-        if (mask.slice(0, 4) == "UTC:") {  
-            mask = mask.slice(4);  
-            utc = true;  
-        }  
-  
-        var _ = utc ? "getUTC" : "get",  
-            d = date[_ + "Date"](),  
-            D = date[_ + "Day"](),  
-            m = date[_ + "Month"](),  
-            y = date[_ + "FullYear"](),  
-            H = date[_ + "Hours"](),  
-            M = date[_ + "Minutes"](),  
-            s = date[_ + "Seconds"](),  
-            L = date[_ + "Milliseconds"](),  
-            o = utc ? 0 : date.getTimezoneOffset(),  
-            flags = {  
-                d:    d,  
-                dd:   pad(d),
-                m:    m + 1,  
-                mm:   pad(m + 1),  
-                yy:   String(y).slice(2),  
-                yyyy: y,  
-                h:    H % 12 || 12,  
-                hh:   pad(H % 12 || 12),  
-                H:    H,  
-                HH:   pad(H),  
-                M:    M,  
-                MM:   pad(M),  
-                s:    s,  
-                ss:   pad(s),  
-                l:    pad(L, 3),  
-                L:    pad(L > 99 ? Math.round(L / 10) : L),  
-                t:    H < 12 ? "a"  : "p",  
-                tt:   H < 12 ? "am" : "pm",  
-                T:    H < 12 ? "A"  : "P",  
-                TT:   H < 12 ? "AM" : "PM",  
-                Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),  
-                o:    (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),  
-                S:    ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]  
-            }; 
-        return mask.replace(token, function ($0) {  
-            return $0 in flags ? flags[$0] : $0.slice(1, $0.length - 1);  
-        });  
+    return {
+    	pad:pad,
+    	parseDate:function(string,mask,utc){
+    		if(typeof string!="string"||string=="")return null;
+    		mask = String(masks[mask] || mask || masks["default"]); 
+    		if (mask.slice(0, 4) == "UTC:") {  
+	            mask = mask.slice(4);  
+	            utc = true;  
+	        }
+    		var date=new Date(1970,1,2,0,0,0),
+    			_ = utc ? "setUTC" : "set",  
+	            d = date[_ + "Date"],  
+	            m = date[_ + "Month"],  
+	            yy = date[_ + "FullYear"], 
+	            y = date[_ + "Year"], 
+	            H = date[_ + "Hours"],  
+	            M = date[_ + "Minutes"],  
+	            s = date[_ + "Seconds"],  
+	            L = date[_ + "Milliseconds"],  
+	            //o = utc ? 0 : date.getTimezoneOffset();
+				flags = {  
+	                d:    d,  
+	                dd:   d,
+	                m:    m,  
+	                mm:   m,  
+	                yy:   y,  
+	                yyyy: yy,  
+	                h:    H,  
+	                hh:   H,  
+	                H:    H,  
+	                HH:   H,  
+	                M:    M,  
+	                MM:   M,  
+	                s:    s,  
+	                ss:   s,  
+	                l:    L,  
+	                L:    L
+	            }; 
+	            try{
+					parseDate(string,mask,function($0,value){
+					   	flags[$0].call(date,value);
+					});
+	            }catch(e){throw new SyntaxError("invalid date");}
+				if (isNaN(date)||date.format(mask)!=string) throw new SyntaxError("invalid date"); 
+				return date;
+    	},
+	    format:function (date, mask, utc) {    
+	        if (arguments.length == 1 && (typeof date == "string" || date instanceof String) && !/\d/.test(date)) {  
+	            mask = date;  
+	            date = undefined;  
+	        }   
+	        date = date ? new Date(date) : new Date();  
+	        if (isNaN(date)) throw new SyntaxError("invalid date");  
+	  
+	        mask = String(masks[mask] || mask || masks["default"]);  
+	        if (mask.slice(0, 4) == "UTC:") {  
+	            mask = mask.slice(4);  
+	            utc = true;  
+	        }  
+	  
+	        var _ = utc ? "getUTC" : "get",  
+	            d = date[_ + "Date"](),  
+	            D = date[_ + "Day"](),  
+	            m = date[_ + "Month"](),  
+	            y = date[_ + "FullYear"](),  
+	            H = date[_ + "Hours"](),  
+	            M = date[_ + "Minutes"](),  
+	            s = date[_ + "Seconds"](),  
+	            L = date[_ + "Milliseconds"](),  
+	            o = utc ? 0 : date.getTimezoneOffset(),  
+	            flags = {  
+	                d:    d,  
+	                dd:   pad(d),
+	                m:    m + 1,  
+	                mm:   pad(m + 1),  
+	                yy:   String(y).slice(2),  
+	                yyyy: y,  
+	                h:    H % 12 || 12,  
+	                hh:   pad(H % 12 || 12),  
+	                H:    H,  
+	                HH:   pad(H),  
+	                M:    M,  
+	                MM:   pad(M),  
+	                s:    s,  
+	                ss:   pad(s),  
+	                l:    pad(L, 3),  
+	                L:    pad(L > 99 ? Math.round(L / 10) : L),  
+	                t:    H < 12 ? "a"  : "p",  
+	                tt:   H < 12 ? "am" : "pm",  
+	                T:    H < 12 ? "A"  : "P",  
+	                TT:   H < 12 ? "AM" : "PM",  
+	                Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),  
+	                o:    (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),  
+	                S:    ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]  
+	            }; 
+	        return mask.replace(token, function ($0) {  
+	            return $0 in flags ? flags[$0] : $0.slice(1, $0.length - 1);  
+	        });  
+	    },
+	    hasHour:function(mask){
+	    	return hasTimeStamp(mask,/([hH])\1?/);
+	    },
+	    hasMinute:function(mask){
+	    	return hasTimeStamp(mask,/M{1,2}/);
+	    },
+	    hasSecond:function(mask){
+	    	return hasTimeStamp(mask,/s{1,2}/);
+	    }
     };  
 }();
 
@@ -331,7 +402,7 @@ Ext.applyIf(String.prototype, {
 });
 Ext.applyIf(Date.prototype, {
     format : function(mask, utc){
-        return Aurora.dateFormat(this, mask, utc);  
+        return Aurora.dateFormat.format(this, mask, utc);  
     }
 });
 Ext.applyIf(Array.prototype, {
@@ -345,7 +416,11 @@ Ext.applyIf(String.prototype, {
         return this.replace(new RegExp(s1,"gm"),s2);  
     }
 }); 
-
+Ext.applyIf(String.prototype, {
+    parseDate : function(mask,utc){
+        return Aurora.dateFormat.parseDate(this.toString(),mask,utc);  
+    }
+}); 
 $A.TextMetrics = function(){
     var shared;
     return {
