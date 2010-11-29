@@ -238,6 +238,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Aurora.Record} record 更新的record.
              * @param {String} name 更新的field.
              * @param {Object} value 更新的值.
+             * @param {Object} oldvalue 更新前的值.
              */
 	        'update',
 	        /**
@@ -1051,8 +1052,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
     },
-    afterEdit : function(record, name, value) {
-        this.fireEvent("update", this, record, name, value);
+    afterEdit : function(record, name, value,oldvalue) {
+        this.fireEvent("update", this, record, name, value,oldvalue);
     },
     afterReject : function(record, name, value) {
     	this.fireEvent("reject", this, record, name, value);
@@ -1337,9 +1338,10 @@ $A.Record.prototype = {
                     this.modified[name] = this.data[name];
                 }
             }
+            var old = this.data[name];
             this.data[name] = value;
             if(!this.editing && this.ds) {
-                this.ds.afterEdit(this, name, value);
+                this.ds.afterEdit(this, name, value, old);
             }
         }
         this.validate(name)

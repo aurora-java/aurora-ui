@@ -34,7 +34,14 @@ $A.WindowManager = function(){
         }
     };
 }();
-
+/**
+ * @class Aurora.Window
+ * @extends Aurora.Component
+ * <p>窗口组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Window = Ext.extend($A.Component,{
 	constructor: function(config) { 
 		if($A.WindowManager.get(config.id))return;
@@ -82,7 +89,19 @@ $A.Window = Ext.extend($A.Component,{
     },
     initEvents : function(){
     	$A.Window.superclass.initEvents.call(this);
-    	this.addEvents('close','load');    	
+    	this.addEvents(
+    	/**
+         * @event close
+         * 窗口关闭事件.
+         * @param {Window} this 当前窗口.         * 
+         */
+    	'close',
+    	/**
+         * @event load
+         * 窗口加载完毕.
+         * @param {Window} this 当前窗口.
+         */
+    	'load');    	
     },
     handleKeyDown : function(e){
 		e.stopEvent();
@@ -94,9 +113,17 @@ $A.Window = Ext.extend($A.Component,{
     initDraggable: function(){
     	this.head.addClass('item-draggable');
     },
+    /**
+     * 窗口获得焦点.
+     * 
+     */
     focus: function(){
 		this.focusEl.focus();
 	},
+	/**
+     * 窗口居中.
+     * 
+     */
     center: function(){
     	var screenWidth = $A.getViewportWidth();
     	var screenHeight = $A.getViewportHeight();
@@ -147,6 +174,10 @@ $A.Window = Ext.extend($A.Component,{
 		'</TABLE>'
         ];
     },
+    /**
+     * 窗口定位到最上层.
+     * 
+     */
     toFront : function(){ 
     	var myzindex = this.wrap.getStyle('z-index');
     	var zindex = $A.WindowManager.getZindex();
@@ -266,6 +297,12 @@ $A.Window = Ext.extend($A.Component,{
         	}
         },10)
     },
+    /**
+     * 窗口加载.
+     * 
+     * @param {String} url  加载的url
+     * @param {Object} params  加载的参数
+     */
     load : function(url,params){
 //    	var cmps = $A.CmpManager.getAll();
 //    	for(var key in cmps){
@@ -316,22 +353,75 @@ $A.Window = Ext.extend($A.Component,{
     	});
     }
 });
+/**
+ * 
+ * 显示提示信息窗口
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} callback 回调函数
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showMessage = function(title, msg,callback,width,height){
 	return $A.showTypeMessage(title, msg, width||300, height||100,'win-info',callback);
 }
+/**
+ * 显示带警告图标的窗口
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} callback 回调函数
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showWarningMessage = function(title, msg,callback,width,height){
 	return $A.showTypeMessage(title, msg, width||300, height||100,'win-warning',callback);
 }
+/**
+ * 显示带信息图标的窗口
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} callback 回调函数
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showInfoMessage = function(title, msg,callback,width,height){
 	return $A.showTypeMessage(title, msg, width||300, height||100,'win-info',callback);
 }
+/**
+ * 显示带错误图标的窗口
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} callback 回调函数
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showErrorMessage = function(title,msg,callback,width,height){
 	return $A.showTypeMessage(title, msg, width||300, height||100,'win-error',callback);
 }
+
 $A.showTypeMessage = function(title, msg,width,height,css,callback){
 	var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
 	return $A.showOkWindow(title, msg, width, height,callback);	
 } 
+/**
+ * 带图标的确定窗口.
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} okfun 确定的callback
+ * @param {Function} cancelfun 取消的callback
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
 	width = width||300;
 	height = height||100;
@@ -353,7 +443,17 @@ $A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
 //	}
 //	return cmp;
 //}
-
+/**
+ * 带确定取消按钮的窗口.
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} okfun 确定的callback
+ * @param {Function} cancelfun 取消的callback
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
     if(cmp == null) {
@@ -378,6 +478,17 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     }
     return cmp;
 }
+/**
+ * 带确定按钮的窗口.
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} okfun 确定的callback
+ * @param {Function} cancelfun 取消的callback
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showOkWindow = function(title, msg, width, height,callback){
 	var cmp = $A.CmpManager.get('aurora-msg-ok');
 	if(cmp == null) {
