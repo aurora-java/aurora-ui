@@ -12,11 +12,18 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     initComponent : function(config){
     	$A.DatePicker.superclass.initComponent.call(this,config);
+    },
+    bind : function(ds, name){
+    	$A.DatePicker.superclass.bind.call(this,ds,name);
+    	this.initDateField();
+    },
+    initDateField:function(){
+    	this.format=this.format||"isoDate";
+    	this.viewsize=(!this.viewsize||this.viewsize<1)?1:(this.viewsize>4?4:this.viewsize);
+    	this.popup.setStyle({'width':150*this.viewsize+"px"})
     	if(!this.dateField){
-    		var cfg = {id:this.id+'_df',container:this.popup}
+    		var cfg = {id:this.id+'_df',container:this.popup,dayrenderer:this.dayrenderer,format:this.format,viewsize:this.viewsize,datestart:this.datestart,dateend:this.dateend,listeners:{"select": this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
 	    	this.dateField = new $A.DateField(cfg);
-	    	this.dateField.on("select", this.onSelect, this);
-	    	this.dateField.on("draw", this.onDraw, this);
     	}
     },
     initEvents : function(){
@@ -39,42 +46,34 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.setValue(date);
     	this.fireEvent('select',this, date);
     },
-	onBlur : function(e){
+    onBlur : function(e){
 		$A.DatePicker.superclass.onBlur.call(this,e);
-		if(!this.isExpanded()) {
-			var raw = this.getRawValue();
-			if(!isNaN(new Date(raw.replace(/-/g,"/")))){
-				this.setValue(new Date(raw.replace(/-/g,"/")));
-			}else {
-				this.setValue('');
+		if(!this.isExpanded()){
+			try{
+				this.setValue(this.getRawValue().parseDate(this.format));
+			}catch(e){alert(e.message);
+				this.setValue(null);
 			}
 		}
     },
     formatValue : function(date){
-    	if(date instanceof Date) {
-    		return Aurora.formatDate(date);
-    	}else{
-    		return date;
-    	}
+    	if(date instanceof Date)return date.format(this.format);
+    	return date;
     },
     expand : function(){
     	$A.DatePicker.superclass.expand.call(this);
     	if(this.dateField.selectDay != this.getValue()) {
-    		this.dateField.selectDay = this.getValue()
+    		this.dateField.selectDay = this.getValue();
     		this.dateField.predraw(this.dateField.selectDay);
-    		var w = this.popup.getWidth();
-	    	var h = this.popup.getHeight();
-	    	this.shadow.setWidth(w);
-	    	this.shadow.setHeight(h);
     	}
-    	var screenHeight = $A.getViewportHeight();
-    	var h = this.popup.getHeight();
-    	var y = this.popup.getY();
-    	if(y+h > screenHeight) {
-    		var xy = this.wrap.getXY();
-	    	this.popup.moveTo(xy[0],xy[1]-h);
-	    	this.shadow.moveTo(xy[0]+3,xy[1]-h+3);
-    	}
+    	var xy=this.wrap.getXY(),
+			W=this.popup.getWidth(),H=this.popup.getHeight(),
+			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
+			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3,
+			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
+			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
+    	this.popup.moveTo(x,y);
+    	this.shadow.moveTo(x+3,y+3);
     },
     destroy : function(){
     	$A.DatePicker.superclass.destroy.call(this);

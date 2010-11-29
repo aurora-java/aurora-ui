@@ -333,8 +333,8 @@ $A.Menu=Ext.extend($A.MenuItem,{
 		if(!this.initMenus){this.addMenus(this.options);this.initMenus=true;}
 		var xy=this.wrap.getXY(),x,y,
 			W=this.container.getWidth(),H=this.container.getHeight(),
-			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),html=Ext.fly(document).child('html'),
-			BH=html.getHeight(),BW=html.getWidth();
+			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
+			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3;
 		if(this.parent===this.bar){
 			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
 			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);

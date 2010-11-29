@@ -1,32 +1,58 @@
 <DIV class="${wrapClass}" style="width:${width}px;${style}" id="${id}">
 	<INPUT class="item-textField" atype="field.input" style="width: ${inputwidth}px;" ${readonly} autocomplete="off" value="${value}" />
 	<DIV class="item-trigger item-dateButton" atype="triggerfield.trigger" hideFocus></DIV>
-	<DIV class="item-popup item-dateList" atype="triggerfield.popup" style="width:150px;">
-		<DIV class="item-dateField" style="width:150px">
-			<DIV class="item-dateField-head">
+	<DIV class="item-popup item-dateList" atype="triggerfield.popup">
+		<DIV class="item-dateField">
+			<DIV class="item-dateField-head" align="center">
 				<DIV class="item-dateField-preYear" title="去年"></DIV>
 				<DIV class="item-dateField-pre" title="上个月"></DIV>
 				<DIV class="item-dateField-nextYear" title="明年"></DIV>
 				<DIV class="item-dateField-next" title="下个月"></DIV>
-				<DIV><input class="item-dateField-input" maxLength="4" style="width:30px" atype="field.year">年<input class="item-dateField-input" maxLength="2" style="width:15px" atype="field.month">月</DIV>
+				<DIV>
+					<DIV class="item-dateField-input" style="width:44px !important;width:47px;">
+						<INPUT maxLength="4" style="width:32px" atype="field.year">
+						<DIV style="width:8px">年</DIV>
+					</DIV>
+					<DIV class="item-dateField-input" style="width:28px !important;width:31px;">
+						<INPUT maxLength="2" style="width:16px" atype="field.month">
+						<DIV style="width:8px">月</DIV>
+					</DIV>
+				</DIV>
 			</DIV>
-			<TABLE cellspacing="0">
-			<THEAD>
-			  <TR>
-				<TD>日</TD>
-				<TD>一</TD>
-				<TD>二</TD>
-				<TD>三</TD>
-				<TD>四</TD>
-				<TD>五</TD>
-				<TD>六</TD>
-			  </TR>
-			</THEAD>
-			<TBODY>
-			</TBODY>
+			<TABLE class="item-dateField-body" cellspacing="0">
+				<TR>
+					<TD valign="top">
+						<TABLE cellspacing="0">
+							<THEAD>
+								<TR class="item-dateField-head" align="center">
+								  	<TD></TD>
+								  	<TD colspan="5"></TD>
+								  	<TD></TD>
+								</TR>
+								<TR>
+									<TD>日</TD>
+									<TD>一</TD>
+									<TD>二</TD>
+									<TD>三</TD>
+									<TD>四</TD>
+									<TD>五</TD>
+									<TD>六</TD>
+								</TR>
+							</THEAD>
+							<TBODY>
+							</TBODY>
+						</TABLE>
+					</TD>
+				</TR>
 			</TABLE>
-			<DIV class="item-dateField-foot">
-				<DIV class="item-day item-dateField-current" title="选择今日"></DIV>
+			<DIV class="item-dateField-foot" align="center">
+				<DIV class="item-dateField-input" style="width:66px !important;width:71px;">
+					<INPUT style="width:16px" maxLength="2" atype="field.hour">
+					<DIV style="width:8px">:</DIV>
+					<INPUT style="width:16px" maxLength="2" atype="field.minute">
+					<DIV style="width:8px">:</DIV>
+					<INPUT style="width:16px" maxLength="2" atype="field.second">
+				</DIV>
 			</DIV>
 		</DIV>				
 	</DIV>
