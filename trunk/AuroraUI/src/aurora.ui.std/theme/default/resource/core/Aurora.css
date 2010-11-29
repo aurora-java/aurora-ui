@@ -11,9 +11,11 @@ html, body {
 	margin:0; 
 	padding:0;
 	background-color:#ffffff;
+}
+html, body,input, button {
 	font-family: 微软雅黑,宋体,sans-serif !important;/**/
-	font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;/**/
-	font-size:11px;
+    font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;/**/
+    font-size:11px;
 }
 HTML {
     border: none;

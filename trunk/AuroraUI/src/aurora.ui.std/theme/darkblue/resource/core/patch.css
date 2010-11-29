@@ -14,3 +14,13 @@
 .item-lovButton {   
     BACKGROUND: url(../core/itembar.gif) no-repeat 2px -38px;   
 }
+.week-alt {
+    background-color:none;
+    #617bb0
+}
+.item-dateField-head,.item-dateField-foot{  
+    background-color:#d2d7ea; 
+}
+.item-dateField td.dateover {
+    background-color:#8197bf;
+}

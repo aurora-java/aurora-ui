@@ -11,9 +11,11 @@ html, body {
 	margin:0; 
 	padding:0;
 	background-color:#ffffff;
+}
+html, body,input, button {
 	font-family: 微软雅黑,宋体,sans-serif !important;/**/
-	font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;/**/
-	font-size:11px;
+    font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;/**/
+    font-size:11px;
 }
 HTML {
     border: none;
@@ -316,9 +318,6 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     outline:0 none;
     width:auto !important;
     width:1px;
-    
-    font-family:微软雅黑,宋体,Tahoma,Geneva,sans-serif; 
-    font-size:11px;
     color:#333;
     white-space: nowrap;
     text-align:center;
@@ -494,8 +493,7 @@ button div {
     line-height:16px;
     padding-top:2px;
     padding-left:3px;    
-    font-family:微软雅黑,宋体,Tahoma,Geneva,sans-serif;
-    font-size:11px;
+    
 }
 .ext-ie6 .item-textField{
     font-size:12px;
@@ -567,6 +565,9 @@ button div {
 	HEIGHT: 20px;	
 	TEXT-ALIGN: center;
 }
+.item-dateField-foot {
+	margin-top:2px;
+}
 .item-dateField a{
 	color:#1e5494;
 }
@@ -580,9 +581,10 @@ button div {
 
 .item-dateField table td {
 	/**font-size: 11px;**/
-	padding:1px;
+	padding:3px 1px 3px 1px;
 }
 .item-dateField-pre,.item-dateField-next,.item-dateField-preYear,.item-dateField-nextYear{
+	margin-top:2px;
 	background-image:url(../toolbar/navigation.gif);
 	cursor:pointer;
 	width:16px;
@@ -609,8 +611,9 @@ button div {
 }
 
 .item-dateField-input{
-	FONT-WEIGHT: bold;	
+	/*FONT-WEIGHT: bold;*/	
 	/**FONT-SIZE: 100%;**/
+	margin-top:1px;
 	height:16px;
 	line-height:15px;
 	border:1px solid #bababa;
@@ -634,7 +637,7 @@ button div {
 	color:#fff;
 }
 .item-dateField td.dateover {
-	background-color:#dfeaf5;
+	background-color:#d1e5ff;/*#dfeaf5;*/
 	cursor:pointer;
 }
 .item-dateField td.onSelect {
@@ -821,4 +824,14 @@ button div {
 }
 .item-lovButton {   
     BACKGROUND: url(../core/itembar.gif) no-repeat 2px -38px;   
+}
+.week-alt {
+    background-color:none;
+    #617bb0
+}
+.item-dateField-head,.item-dateField-foot{  
+    background-color:#d2d7ea; 
+}
+.item-dateField td.dateover {
+    background-color:#8197bf;
 }
