@@ -1,3 +1,11 @@
+/**
+ * @class Aurora.TreeGrid
+ * @extends Aurora.Grid
+ * <p>树形表格组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.TreeGrid = Ext.extend($A.Grid, {
 	initComponent : function(config) {
 		$A.TreeGrid.superclass.initComponent.call(this, config);

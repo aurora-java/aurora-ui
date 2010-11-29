@@ -67,6 +67,9 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		}
 		return record;
     },
+    /**
+     * 展开下拉菜单.
+     */
 	expand:function(){
 		if(!this.optionDataSet)return;
 		if(this.rendered===false)this.initQuery();
@@ -82,6 +85,9 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			this.selectedIndex = this.currentIndex;
 		}		
 	},
+	/**
+	 * 收起下拉菜单.
+	 */
 	collapse:function(){
 		$A.ComboBox.superclass.collapse.call(this);
 		if(this.currentIndex!==undefined)
