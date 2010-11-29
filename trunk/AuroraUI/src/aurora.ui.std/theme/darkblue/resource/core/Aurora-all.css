@@ -553,15 +553,18 @@ button div {
 	line-height:1.5em;
 }
 .item-dateField-head,.item-dateField-foot{	
-	FONT-WEIGHT: bold;	
+	/*FONT-WEIGHT: bold;*/	
 	/**FONT-SIZE: 100%;**/
 	/*BACKGROUND: url(../datefield/bgCalendarV2.gif) #305ebc repeat-x;*/
-	border-bottom:1px solid #bababa;
+	border:1px solid #bababa;
+	background-color:#d1e5ff;
+	/**
 	background-image: url(../toolbar/toolbar_bg.gif);
 	background-repeat:repeat-x;
+	**/
 	COLOR: #055a78;	
-	LINE-HEIGHT: 17px;	
-	HEIGHT: 18px;	
+	LINE-HEIGHT: 20px;	
+	HEIGHT: 20px;	
 	TEXT-ALIGN: center;
 }
 .item-dateField a{
