@@ -810,8 +810,6 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
         }
         
         
-        
-        
 //        for(var i = 0,l=jslink.length;i<l;i++){
 //        	var js = jslink[i];
 //        	var s = document.createElement("script");
