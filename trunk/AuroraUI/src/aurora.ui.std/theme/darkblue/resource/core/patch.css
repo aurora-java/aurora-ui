@@ -16,10 +16,9 @@
 }
 .week-alt {
     background-color:none;
-    #617bb0
 }
 .item-dateField-head,.item-dateField-foot{  
-    background-color:#d2d7ea; 
+    background-color:#d2d7ea;
 }
 .item-dateField td.dateover {
     background-color:#8197bf;
