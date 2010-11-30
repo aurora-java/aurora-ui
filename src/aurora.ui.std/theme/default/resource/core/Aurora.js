@@ -772,32 +772,68 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
             }
         }
         var loaded = 0;
-        for(var i = 0,l=jslink.length;i<l;i++){
-        	var js = jslink[i];
-        	var s = document.createElement("script");
+        
+        
+        
+        
+        var onReadOnLoad = function(){
+            var isready = Ext.isIE ? (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") : true;
+            if(isready) {
+                loaded ++;
+                if(loaded==jslink.length) {
+                    for(j=0,k=jsscript.length;j<k;j++){
+                        var jst = jsscript[j];
+                        if(window.execScript) {
+                            window.execScript(jst);
+                        } else {
+                            window.eval(jst);
+                        }
+                    }
+                }else{
+                	var js = jslink[loaded];
+                    var s = document.createElement("script");
+                    s.src = js.src;
+                    s.type = js.type;
+                    s[Ext.isIE ? "onreadystatechange" : "onload"] = onReadOnLoad;
+                    hd.appendChild(s);
+                }
+            }
+        }
+        
+        if(jslink.length > 0){
+            var js = jslink[0];
+            var s = document.createElement("script");
             s.src = js.src;
             s.type = js.type;
-            s[Ext.isIE ? "onreadystatechange" : "onload"] = function(){
-            	var isready = Ext.isIE ? (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") : true;
-            	if(isready) {            		
-	            	loaded ++;
-	            	if(loaded==jslink.length) {
-	                    for(j=0,k=jsscript.length;j<k;j++){
-		                	var jst = jsscript[j];
-		                	if(window.execScript) {
-		                    	window.execScript(jst);
-		                    } else {
-		                    	window.eval(jst);
-		                    }
-		                }
-//		                if(typeof callback == "function"){
-//				            callback();
-//				        }
-	            	}
-            	}
-            };
-			hd.appendChild(s);
+            s[Ext.isIE ? "onreadystatechange" : "onload"] = onReadOnLoad;
+            hd.appendChild(s);
         }
+        
+        
+//        for(var i = 0,l=jslink.length;i<l;i++){
+//        	var js = jslink[i];
+//        	var s = document.createElement("script");
+//            s.src = js.src;
+//            s.type = js.type;
+//            s[Ext.isIE ? "onreadystatechange" : "onload"] = function(){
+//           	var isready = Ext.isIE ? (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") : true;
+//            	if(isready) {
+//            		alert(this.readyState + " " + Aurora.Tree)
+//	            	loaded ++;
+//	            	if(loaded==jslink.length) {
+//	                    for(j=0,k=jsscript.length;j<k;j++){
+//		                	var jst = jsscript[j];
+//		                	if(window.execScript) {
+//		                    	window.execScript(jst);
+//		                    } else {
+//		                    	window.eval(jst);
+//		                    }
+//		                }
+//	            	}
+//            	}
+//            };
+//			hd.appendChild(s);
+//        }
         if(jslink.length ==0) {
         	for(j=0,k=jsscript.length;j<k;j++){
             	var jst = jsscript[j];
@@ -807,9 +843,6 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
                    window.eval(jst);
                 }
             }
-//            if(typeof callback == "function"){
-//	            callback();
-//	        }
         }        
         var el = document.getElementById(id);
         if(el){Ext.removeNode(el);} 
