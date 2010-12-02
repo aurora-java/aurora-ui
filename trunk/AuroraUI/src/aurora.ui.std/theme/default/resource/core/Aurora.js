@@ -272,9 +272,8 @@ Aurora.dateFormat = function () {
         hasTimeStamp = function(mask,token){
 	    	return !!String(masks[mask] || mask || masks["default"]).match(token);
         },
-        parseDate=function(string,mask,fun){
-        	for(var i=0,arr=mask.match(token),numbers=string.match(/\d+/g);i<arr.length;i++){
-        		var value;
+        _parseDate=function(string,mask,fun){
+        	for(var i=0,arr=mask.match(token),numbers=string.match(/\d+/g),value;i<arr.length;i++){
         		if(numbers.length==arr.length)value=numbers[i];
         		else value=parseInt(string.slice(index=mask.search(arr[i]),index+arr[i].length));
         		switch(arr[i]){
@@ -323,11 +322,11 @@ Aurora.dateFormat = function () {
 	                L:    L
 	            }; 
 	            try{
-					parseDate(string,mask,function($0,value){
+					_parseDate(string,mask,function($0,value){
 					   	flags[$0].call(date,value);
 					});
 	            }catch(e){throw new SyntaxError("invalid date");}
-				if (isNaN(date)||date.format(mask)!=string) throw new SyntaxError("invalid date"); 
+				if (isNaN(date)) throw new SyntaxError("invalid date"); 
 				return date;
     	},
 	    format:function (date, mask, utc) {    
@@ -383,14 +382,8 @@ Aurora.dateFormat = function () {
 	            return $0 in flags ? flags[$0] : $0.slice(1, $0.length - 1);  
 	        });  
 	    },
-	    hasHour:function(mask){
-	    	return hasTimeStamp(mask,/([hH])\1?/);
-	    },
-	    hasMinute:function(mask){
-	    	return hasTimeStamp(mask,/M{1,2}/);
-	    },
-	    hasSecond:function(mask){
-	    	return hasTimeStamp(mask,/s{1,2}/);
+	    isDateTime:function(mask){
+	    	return hasTimeStamp(mask,/([HhMs])\1?/);
 	    }
     };  
 }();
@@ -892,21 +885,13 @@ $A.getRenderer = function(renderer){
 
 $A.formatDate = function(date){
 	if(!date)return '';
-	return date.format('isoDate');
+	if(date.format)return date.format('isoDate');
+	return date;
 }
 $A.formatDateTime = function(date){
 	if(!date)return '';
-	if(date.getFullYear){
-		return date.getFullYear() + 
-		"-" + (date.getMonth()+1) + 
-		"-" + date.getDate() + 
-		" " + date.getHours() + 
-		":" + date.getMinutes() + 
-		":" + date.getSeconds();
-		
-	}else{
-		return date
-	}
+	if(date.format)return date.format('yyyy-mm-dd HH:MM:ss');
+	return date;
 }
 $A.formatNumber = function(value){
 	if(!value)return '';

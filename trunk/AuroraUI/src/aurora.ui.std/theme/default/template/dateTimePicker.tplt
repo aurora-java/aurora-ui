@@ -32,19 +32,25 @@
 				<DIV class="item-dateField-pre" title="上个月"></DIV>
 				<DIV class="item-dateField-nextYear" title="明年"></DIV>
 				<DIV class="item-dateField-next" title="下个月"></DIV>
-				<DIV class="item-dateField-input" style="width:74px !important;width:78px;">
+				<DIV class="item-dateField-input" style="width:74px !important;width:75px;">
 					<INPUT maxLength="4" style="width:32px" atype="field.year">
 					<DIV style="width:9px">年</DIV>
 					<INPUT maxLength="2" style="width:16px" atype="field.month">
 					<DIV style="width:9px">月</DIV>
 				</DIV>
-				<DIV class="item-day" style="cursor:pointer" atype="field.current">今日</DIV>
+				<DIV class="item-dateField-input" style="width:66px !important;width:71px;">
+					<INPUT style="width:16px" maxLength="2" atype="field.hour">
+					<DIV style="width:8px">:</DIV>
+					<INPUT style="width:16px" maxLength="2" atype="field.minute">
+					<DIV style="width:8px">:</DIV>
+					<INPUT style="width:16px" maxLength="2" atype="field.second">
+				</DIV>
 			</DIV>
 		</DIV>				
 	</DIV>
 	<DIV class="item-shadow" atype="triggerfield.shadow"></DIV>
 </DIV>
 <script>
-	new Aurora.DatePicker(${config});
+	new Aurora.DateTimePicker(${config});
 	${binding}
 </script>

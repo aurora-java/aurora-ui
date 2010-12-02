@@ -7,16 +7,10 @@
  * @param {Object} config 配置对象. 
  */
 $A.DatePicker = Ext.extend($A.TriggerField,{
-	constructor: function(config) {
-        $A.DatePicker.superclass.constructor.call(this, config);        
-    },
-    initComponent : function(config){
-    	$A.DatePicker.superclass.initComponent.call(this,config);
-    },
-    bind : function(ds, name){
-    	$A.DatePicker.superclass.bind.call(this,ds,name);
+	initComponent : function(config){ 
+		$A.DatePicker.superclass.initComponent.call(this,config);
     	this.initDateField();
-    },
+	},
     initDateField:function(){
     	this.format=this.format||"isoDate";
     	this.viewsize=(!this.viewsize||this.viewsize<1)?1:(this.viewsize>4?4:this.viewsize);
@@ -37,11 +31,20 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
          */
         'select');
     },
-    onDraw: function(){
+    onKeyUp: function(e){
+    	$A.DatePicker.superclass.onKeyUp.call(this,e);
+    	try{
+    		this.dateField.selectDay=this.getRawValue().parseDate(this.format);
+    		$A.Component.prototype.setValue.call(this,this.dateField.selectDay);
+    		this.dateField.predraw(this.dateField.selectDay);
+    	}catch(e){
+    	}
+    },
+    onDraw : function(){
     	this.shadow.setWidth(this.popup.getWidth());
     	this.shadow.setHeight(this.popup.getHeight());
     },
-    onSelect: function(dateField, date){
+    onSelect : function(dateField, date){
     	this.collapse();
     	this.setValue(date);
     	this.fireEvent('select',this, date);
@@ -77,5 +80,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     destroy : function(){
     	$A.DatePicker.superclass.destroy.call(this);
+    	delete this.format;
+    	delete this.viewsize;
 	}
 });

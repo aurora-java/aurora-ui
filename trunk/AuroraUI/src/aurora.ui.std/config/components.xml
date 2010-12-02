@@ -20,6 +20,7 @@
 		<view-component elementName="passWord" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" defaultTemplate="textField.tplt"/>
 		<view-component elementName="numberField" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
 		<view-component elementName="datePicker" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+		<view-component elementName="dateTimePicker" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="box" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Box" />
 		<view-component elementName="form" nameSpace="http://www.aurora-framework.org/application"  builder="aurora.presentation.component.std.Form" />
 		<view-component elementName="fieldSet" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.FieldSet" />
