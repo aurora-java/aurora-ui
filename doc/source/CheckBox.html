@@ -72,12 +72,12 @@ $A.CheckBox = Ext.extend($A.Component,{
 		v=(v === null || v === undefined ? '' : v);
 		return v;
     },
-	setReadOnly:function(b){
-		if(typeof(b)==='boolean'){
-			this.readonly=b?true:false;	
-			this.initStatus();		
-		}		
-	},
+//	setReadOnly:function(b){
+//		if(typeof(b)==='boolean'){
+//			this.readonly=b?true:false;	
+//			this.initStatus();		
+//		}		
+//	},
 	initStatus:function(){
 		this.el.removeClass(this.checkedCss);
 		this.el.removeClass(this.uncheckedCss);

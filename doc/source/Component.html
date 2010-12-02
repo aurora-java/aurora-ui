@@ -30,9 +30,18 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 		config = config || {};
         Ext.apply(this, config);
         this.wrap = Ext.get(this.id);
+        if(this.listeners){
+            this.on(this.listeners);
+        }
     },
     processListener: function(ou){
-    	this.wrap[ou]("mouseover", this.onMouseOver, this);
+    	this.processMouseOverOut(ou)
+        if(this.marginwidth||this.marginheight) {
+            Ext.EventManager[ou](window, "resize", this.windowResizeListener,this);
+        }
+    },
+    processMouseOverOut : function(ou){
+        this.wrap[ou]("mouseover", this.onMouseOver, this);
         this.wrap[ou]("mouseout", this.onMouseOut, this);
     },
     initEvents : function(){
@@ -71,6 +80,16 @@ $A.Component = Ext.extend(Ext.util.Observable,{
          */
     	'mouseout');
     	this.processListener('on');
+    },
+    windowResizeListener : function(){
+        if(this.marginwidth){
+            var wd = Aurora.getViewportWidth();
+            this.setWidth(wd-this.marginwidth);
+        }
+        if(this.marginheight){
+            var ht = Aurora.getViewportHeight();
+            this.setHeight(ht-this.marginheight);           
+        }
     },
     isEventFromComponent:function(el){
     	return this.wrap.contains(el)
@@ -190,9 +209,9 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 			if(!Ext.isEmpty(value,true)) {
                 this.setValue(value,true);
 			}else{
-                this.setValue('',true);
+                this.clearValue();
 			}
-		}else{
+		} else {
 			this.setValue('',true);
 		}
     },
@@ -236,17 +255,6 @@ $A.Component = Ext.extend(Ext.util.Observable,{
             }
             this.record.set(this.binder.name,v);
             if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
-           
-//    		if(this.record == null){    			
-//    			//TODO:应该先create()再编辑
-//    			var data = {};
-////    			data[this.binder.name] = v;
-//    			this.record = this.binder.ds.create(data,false);
-//    			this.record.validate(this.binder.name);
-//    		}else{
-//    			this.record.set(this.binder.name,v);
-//	    		if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
-//    		}
     	}
     	if(ov!=v){
             this.fireEvent('change', this, v, ov);

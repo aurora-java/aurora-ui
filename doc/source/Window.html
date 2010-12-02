@@ -36,22 +36,28 @@
         		var win = all[i];
         		var zd = win.wrap.getStyle('z-index');
         		if(zd =='auto') zd = 0;
-        		if(zd > zindex) zindex = zd;
-				break;        		
+        		if(zd > zindex) zindex = zd;       		
         	}
         	return zindex;
         }
     };
 }();
-
+/**
+ * @class Aurora.Window
+ * @extends Aurora.Component
+ * <p>窗口组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Window = Ext.extend($A.Component,{
 	constructor: function(config) { 
 		if($A.WindowManager.get(config.id))return;
         this.draggable = true;
         this.closeable = true;
         this.modal = config.modal||true;
-//        this.oldcmps = {};
         this.cmps = {};
+        $A.focusWindow = null;
         $A.Window.superclass.constructor.call(this,config);
     },
     initComponent : function(config){
@@ -60,9 +66,10 @@ $A.Window = Ext.extend($A.Component,{
     	$A.WindowManager.put(sf);
     	var windowTpl = new Ext.Template(sf.getTemplate());
     	var shadowTpl = new Ext.Template(sf.getShadowTemplate());
-    	sf.width = sf.width||350;sf.height=sf.height||400;
-        sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
-        sf.shadow = shadowTpl.append(document.body, {}, true);
+    	sf.width = 1*(sf.width||350);
+    	sf.height= 1*(sf.height||400);
+        sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,display:Ext.isIE6 ? '' : 'none'}, true);
+        sf.shadow = shadowTpl.append(document.body, {display:Ext.isIE6 ? '' : 'none'}, true);
         sf.focusEl = sf.wrap.child('a[atype=win.focus]')
     	sf.title = sf.wrap.child('div[atype=window.title]');
     	sf.head = sf.wrap.child('td[atype=window.head]');
@@ -86,11 +93,23 @@ $A.Window = Ext.extend($A.Component,{
     	}
     	this.wrap[ou]("click", this.toFront, this);
     	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
-    	if(this.draggable)this.head.on('mousedown', this.onMouseDown,this);
+    	if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
     },
     initEvents : function(){
     	$A.Window.superclass.initEvents.call(this);
-    	this.addEvents('close','load');    	
+    	this.addEvents(
+    	<div id="event-Aurora.Window-close"></div>/**
+         * @event close
+         * 窗口关闭事件.
+         * @param {Window} this 当前窗口.         * 
+         */
+    	'close',
+    	<div id="event-Aurora.Window-load"></div>/**
+         * @event load
+         * 窗口加载完毕.
+         * @param {Window} this 当前窗口.
+         */
+    	'load');    	
     },
     handleKeyDown : function(e){
 		e.stopEvent();
@@ -102,19 +121,28 @@ $A.Window = Ext.extend($A.Component,{
     initDraggable: function(){
     	this.head.addClass('item-draggable');
     },
+    <div id="method-Aurora.Window-focus"></div>/**
+     * 窗口获得焦点.
+     * 
+     */
     focus: function(){
 		this.focusEl.focus();
 	},
+	<div id="method-Aurora.Window-center"></div>/**
+     * 窗口居中.
+     * 
+     */
     center: function(){
     	var screenWidth = $A.getViewportWidth();
     	var screenHeight = $A.getViewportHeight();
-    	var x = (screenWidth - this.width)/2;
-    	var y = (screenHeight - this.height-23)/2;
+    	var x = Math.max((screenWidth - this.width)/2,0);
+    	var y = Math.max((screenHeight - this.height-23)/2,0);
         this.wrap.moveTo(x,y);
+        this.wrap.show();
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
         this.shadow.moveTo(x+3,y+3)
-        if(!this.proxy) this.initProxy();
+        this.shadow.show();
         this.toFront();
         var sf = this;
         setTimeout(function(){
@@ -122,11 +150,11 @@ $A.Window = Ext.extend($A.Component,{
         },10)
     },
     getShadowTemplate: function(){
-    	return ['<DIV class="item-shadow"></DIV>']
+    	return ['<DIV class="item-shadow" style="display:{display};"></DIV>']
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0">',
+            '<TABLE class="win-wrap" style="width:{width}px;display:{display};" cellSpacing="0" cellPadding="0" border="0">',
 			'<TBODY>',
 			'<TR style="height:23px;" >',
 				'<TD class="win-caption">',
@@ -154,6 +182,10 @@ $A.Window = Ext.extend($A.Component,{
 		'</TABLE>'
         ];
     },
+    <div id="method-Aurora.Window-toFront"></div>/**
+     * 窗口定位到最上层.
+     * 
+     */
     toFront : function(){ 
     	var myzindex = this.wrap.getStyle('z-index');
     	var zindex = $A.WindowManager.getZindex();
@@ -168,10 +200,14 @@ $A.Window = Ext.extend($A.Component,{
     onMouseDown : function(e){
     	var sf = this; 
     	//e.stopEvent();
-//    	sf.toFront();
+    	sf.toFront();
     	var xy = sf.wrap.getXY();
     	sf.relativeX=xy[0]-e.getPageX();
 		sf.relativeY=xy[1]-e.getPageY();
+		sf.screenWidth = $A.getViewportWidth();
+        sf.screenHeight = $A.getViewportHeight();
+        if(!this.proxy) this.initProxy();
+        this.proxy.show();
     	Ext.get(document.documentElement).on("mousemove", sf.onMouseMove, sf);
     	Ext.get(document.documentElement).on("mouseup", sf.onMouseUp, sf);
     },
@@ -187,8 +223,15 @@ $A.Window = Ext.extend($A.Component,{
     },
     onMouseMove : function(e){
     	e.stopEvent();
-    	this.proxy.show();
-    	this.proxy.moveTo(e.getPageX()+this.relativeX,e.getPageY()+this.relativeY);
+    	var sw = this.screenWidth;
+    	var sh = this.screenHeight;
+    	var tx = e.getPageX()+this.relativeX;
+    	var ty = e.getPageY()+this.relativeY;
+    	if(tx<=0) tx =0;
+    	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
+    	if(ty<=0) ty =0;
+    	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
+    	this.proxy.moveTo(tx,ty);
     },
     showLoading : function(){
     	this.body.update('正在加载...');
@@ -202,9 +245,9 @@ $A.Window = Ext.extend($A.Component,{
     },
     initProxy : function(){
     	var sf = this; 
-    	var p = '<DIV style="border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
+    	var p = '<DIV style="display:none;border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
     	sf.proxy = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
-    	sf.proxy.hide();
+//    	sf.proxy.hide();
     	var xy = sf.wrap.getXY();
     	sf.proxy.setWidth(sf.wrap.getWidth());
     	sf.proxy.setHeight(sf.wrap.getHeight());
@@ -262,6 +305,12 @@ $A.Window = Ext.extend($A.Component,{
         	}
         },10)
     },
+    <div id="method-Aurora.Window-load"></div>/**
+     * 窗口加载.
+     * 
+     * @param {String} url  加载的url
+     * @param {Object} params  加载的参数
+     */
     load : function(url,params){
 //    	var cmps = $A.CmpManager.getAll();
 //    	for(var key in cmps){
@@ -283,6 +332,23 @@ $A.Window = Ext.extend($A.Component,{
     	if(!this.body) return;
     	this.clearLoading();
     	var html = response.responseText;
+    	var res
+    	try {
+            res = Ext.decode(response.responseText);
+        }catch(e){}
+        if(res && res.success == false){
+        	if(res.error){
+                var st = res.error.stackTrace;
+                st = (st) ? st.replaceAll('\r\n','</br>') : '';
+                if(res.error.message) {
+                    var h = (st=='') ? 150 : 250;
+                    $A.showErrorMessage('错误', res.error.message+'</br>'+st,null,400,h);
+                }else{
+                    $A.showErrorMessage('错误', st,null,400,250);
+                }   
+            }
+            return;
+        }
     	var sf = this
     	this.body.update(html,true,function(){
 //	    	var cmps = $A.CmpManager.getAll();
@@ -295,22 +361,75 @@ $A.Window = Ext.extend($A.Component,{
     	});
     }
 });
+<div id="method-Aurora.Window-showMessage"></div>/**
+ * 
+ * 显示提示信息窗口
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} callback 回调函数
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showMessage = function(title, msg,callback,width,height){
 	return $A.showTypeMessage(title, msg, width||300, height||100,'win-info',callback);
 }
+<div id="method-Aurora.Window-showWarningMessage"></div>/**
+ * 显示带警告图标的窗口
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} callback 回调函数
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showWarningMessage = function(title, msg,callback,width,height){
 	return $A.showTypeMessage(title, msg, width||300, height||100,'win-warning',callback);
 }
+<div id="method-Aurora.Window-showInfoMessage"></div>/**
+ * 显示带信息图标的窗口
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} callback 回调函数
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showInfoMessage = function(title, msg,callback,width,height){
 	return $A.showTypeMessage(title, msg, width||300, height||100,'win-info',callback);
 }
+<div id="method-Aurora.Window-showErrorMessage"></div>/**
+ * 显示带错误图标的窗口
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} callback 回调函数
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showErrorMessage = function(title,msg,callback,width,height){
 	return $A.showTypeMessage(title, msg, width||300, height||100,'win-error',callback);
 }
+
 $A.showTypeMessage = function(title, msg,width,height,css,callback){
 	var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
 	return $A.showOkWindow(title, msg, width, height,callback);	
 } 
+<div id="method-Aurora.Window-showComfirm"></div>/**
+ * 带图标的确定窗口.
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} okfun 确定的callback
+ * @param {Function} cancelfun 取消的callback
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
 	width = width||300;
 	height = height||100;
@@ -332,13 +451,23 @@ $A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
 //	}
 //	return cmp;
 //}
-
+<div id="method-Aurora.Window-showOkCancelWindow"></div>/**
+ * 带确定取消按钮的窗口.
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} okfun 确定的callback
+ * @param {Function} cancelfun 取消的callback
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
     if(cmp == null) {
         var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok','确定');
         var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel','取消');
-        cmp = new $A.Window({id:'aurora-msg-ok-cancel',title:title, height:height,width:width});
+        cmp = new $A.Window({id:'aurora-msg-ok-cancel',title:title, height:height||100,width:width||300});
         if(msg){
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
                 var okbtn = $("aurora-msg-ok");
@@ -357,8 +486,19 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     }
     return cmp;
 }
+<div id="method-Aurora.Window-showOkWindow"></div>/**
+ * 带确定按钮的窗口.
+ * 
+ * @param {String} title 标题
+ * @param {String} msg 内容
+ * @param {Function} okfun 确定的callback
+ * @param {Function} cancelfun 取消的callback
+ * @param {int} width 宽度
+ * @param {int} height 高度
+ * @return {Window} 窗口对象
+ */
 $A.showOkWindow = function(title, msg, width, height,callback){
-	var cmp = $A.CmpManager.get('aurora-msg-ok')
+	var cmp = $A.CmpManager.get('aurora-msg-ok');
 	if(cmp == null) {
 		var btnhtml = $A.Button.getTemplate('aurora-msg-yes','确定');
 		cmp = new $A.Window({id:'aurora-msg-ok',title:title, height:height,width:width});
@@ -367,8 +507,9 @@ $A.showOkWindow = function(title, msg, width, height,callback){
     			var btn = $("aurora-msg-yes");
                 cmp.cmps['aurora-msg-yes'] = btn;
                 btn.on('click',function(){
-                if(callback)callback.call(this,cmp)
-                cmp.close()});
+                    if(callback)callback.call(this,cmp);
+                    cmp.close()
+                });
                 btn.focus();
 			});
 		}
