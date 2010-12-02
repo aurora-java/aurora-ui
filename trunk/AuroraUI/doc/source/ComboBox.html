@@ -75,6 +75,9 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		}
 		return record;
     },
+    <div id="method-Aurora.ComboBox-expand"></div>/**
+     * 展开下拉菜单.
+     */
 	expand:function(){
 		if(!this.optionDataSet)return;
 		if(this.rendered===false)this.initQuery();
@@ -90,6 +93,9 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			this.selectedIndex = this.currentIndex;
 		}		
 	},
+	<div id="method-Aurora.ComboBox-collapse"></div>/**
+	 * 收起下拉菜单.
+	 */
 	collapse:function(){
 		$A.ComboBox.superclass.collapse.call(this);
 		if(this.currentIndex!==undefined)
@@ -175,8 +181,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		if(index==-1)return;
 		var record = this.optionDataSet.getAt(index);
 		var value = record.get(this.valuefield);
-		var display = record.get(this.displayfield);
-//		this.setValue(value);
+		var display = this.getRenderText(record);//record.get(this.displayfield);
 		this.setValue(display);
 		this.fireEvent('select',this, value, display, record);
 	},
@@ -196,9 +201,9 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		//值过滤先不添加
 		this.onRender();	
 	},
-	initList: function(){	
+	initList: function(){
 		this.refresh();
-		this.litp=new Ext.Template('<li tabIndex="{index}">{'+this.displayfield+'}&#160;</li>');
+//		this.litp=new Ext.Template('<li tabIndex="{index}">{'+this.displayfield+'}&#160;</li>');
 		if(this.optionDataSet.loading == true){
 			this.view.update('<li tabIndex="-1">正在加载...</li>');
 		}else{
@@ -206,13 +211,25 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			var l=datas.length;
 			var sb = [];
 			for(var i=0;i<l;i++){
-				var d = Ext.apply(datas[i].data, {index:i})
-				sb.add(this.litp.applyTemplate(d));	//等数据源明确以后再修改		
+//				var d = Ext.apply(datas[i].data, {index:i})
+				var rder = $A.getRenderer(this.renderer);
+				var text = this.getRenderText(datas[i]);
+				sb.add('<li tabIndex="'+i+'">'+text+'</li>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
 			}
 			if(l!=0){
 				this.view.update(sb.join(''));			
 			}
 		}
+	},
+	getRenderText : function(record){
+        var rder = $A.getRenderer(this.renderer);
+        var text = '&#160;';
+        if(rder){
+            text = rder.call(window,this,record);
+        }else{
+            text = record.get(this.displayfield);
+        }
+		return text;
 	},
 	refresh:function(){
 		this.view.update('');
@@ -281,7 +298,12 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //    					var vl = record ? (record.get(map.from)||'') : '';
 //    					if(vl!=''){
     					if(!Ext.isEmpty(vl,true)){
-                            this.record.set(map.to,vl);
+    						//避免render的时候发生update事件
+    						if(silent){
+                                this.record.data[map.to] = vl;
+    						}else{
+    						    this.record.set(map.to,vl);						
+    						}
     					}else{
     						delete this.record.data[map.to];
     					}

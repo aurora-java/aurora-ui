@@ -45,7 +45,11 @@
 				,
                 {"href":"output/Aurora.Tree.TreeNode.html","text":"Tree.TreeNode","id":"Aurora.Tree.TreeNode","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
 				,
+                {"href":"output/Aurora.TreeGrid.html","text":"TreeGrid","id":"Aurora.TreeGrid","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
+				,
                 {"href":"output/Aurora.TriggerField.html","text":"TriggerField","id":"Aurora.TriggerField","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
+				,
+                {"href":"output/Aurora.Window.html","text":"Window","id":"Aurora.Window","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
 				]}
 				,
                 {"id":"pkg-Ext","text":"Ext","iconCls":"icon-pkg","cls":"package","singleClickExpand":true, children:[
@@ -140,7 +144,11 @@
 			,
 			"Aurora.Tree.TreeNode":"icon-cls"
 			,
+			"Aurora.TreeGrid":"icon-cls"
+			,
 			"Aurora.TriggerField":"icon-cls"
+			,
+			"Aurora.Window":"icon-cls"
 			,
 			"Ext.data.Connection":"icon-cls"
 			,

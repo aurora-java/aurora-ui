@@ -19,13 +19,12 @@
  * @author 牛佳庆
  * @singleton
  */
-$A = Aurora = {version: '1.0',revision:'$Rev: 1282 $'};
-$A.firstFire = false;
+$A = Aurora = {version: '1.0',revision:'$Rev: 1488 $'};
+//$A.firstFire = false;
 $A.fireWindowResize = function(){
 	$A.Cover.resizeCover();
 }
-
-Ext.fly(window).on("resize", $A.fireWindowResize, this);
+Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
 
 $A.cache = {};
 $A.cmps = {};
@@ -157,6 +156,14 @@ $ = $A.getCmp = function(id){
 	}
 	return cmp;
 }
+$A.setCookie = function(name,value){
+    document.cookie = name + "="+ escape (value);
+}
+$A.getCookie = function(name){
+    var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+     if(arr != null) return unescape(arr[2]); return null;
+
+}
 $A.getViewportHeight = function(){
     if(Ext.isIE){
         return Ext.isStrict ? document.documentElement.clientHeight :
@@ -180,59 +187,71 @@ $A.getViewportWidth = function() {
 //    document.cookie = "vh="+h;
 //}
 //$A.recordSize();
-
-$A.request = function(url, para, success, errorCall, scope, failureCall){
+$A.post = function(action,data){
+    var form = Ext.getBody().createChild({tag:'form',method:'post',action:action});
+    for(var key in data){
+    	if(data[key])
+        form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
+    }
+    form.dom.submit();
+}
+$A.request = function(opt){
+	var url = opt.url,para = opt.para,successCall = opt.success,errorCall = opt.error,scope = opt.scope,failureCall = opt.failure;
+	var opts = Ext.apply({},opt.opts);
 	$A.manager.fireEvent('ajaxstart', url, para);
 	if($A.logWindow){
 		$A['_startTime'] = new Date();
 		$('HTTPWATCH_DATASET').create({'url':url,'request':Ext.util.JSON.encode({parameter:para})})
 	}
 	Ext.Ajax.request({
-			url: url,
-			method: 'POST',
-			params:{_request_data:Ext.util.JSON.encode({parameter:para})},
-			success: function(response){
-				if($A.logWindow){
-					var st = $A['_startTime'];
-					var ed = new Date();					
-					var record = $('HTTPWATCH_DATASET').getCurrentRecord();
-					record.set('spend',ed-st);
-					record.set('result',response.statusText);
-					record.set('status',response.status);
-					record.set('response',response.responseText);
+		url: url,
+		method: 'POST',
+		params:{_request_data:Ext.util.JSON.encode({parameter:para})},
+		opts:opts,
+		success: function(response,options){
+			if($A.logWindow){
+				var st = $A['_startTime'];
+				var ed = new Date();					
+				var record = $('HTTPWATCH_DATASET').getCurrentRecord();
+				record.set('spend',ed-st);
+				record.set('result',response.statusText);
+				record.set('status',response.status);
+				record.set('response',response.responseText);
+			}
+			$A.manager.fireEvent('ajaxcomplete', url, para,response);
+			if(response){
+				var res = null;
+				try {
+					res = Ext.decode(response.responseText);
+				}catch(e){
+					$A.showErrorMessage('错误', '返回格式不正确!');
+					return;
 				}
-				$A.manager.fireEvent('ajaxcomplete', url, para,response);
-				if(response){
-					var res = null;
-					try {
-						res = Ext.decode(response.responseText);
-					}catch(e){
-						$A.showErrorMessage('错误', '返回格式不正确!');
-						return;
-					}
-					if(res && !res.success){
-						$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
-						if(res.error){
-							if(errorCall) {
-								errorCall.call(scope, res);
-							}else{
-								if(res.error.message)
-								    $A.showWarningMessage('警告', res.error.message,null,400,150);
-								else
-								    $A.showErrorMessage('错误', res.error.stackTrace,null,400,250);
-							}	
-						}								    						    
-					} else {
-						$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
-						if(success)success.call(scope,res);
-					}
+				if(res && !res.success){
+					$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
+					if(res.error){
+						var st = res.error.stackTrace;
+						st = (st) ? st.replaceAll('\r\n','</br>') : '';
+						if(res.error.message) {
+							var h = (st=='') ? 150 : 250;
+						    $A.showErrorMessage('错误', res.error.message+'</br>'+st,null,400,h);
+						}else{
+						    $A.showErrorMessage('错误', st,null,400,250);
+						}
+						if(errorCall)
+                        errorCall.call(scope, res, options);	
+					}								    						    
+				} else {
+					$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
+					if(successCall)successCall.call(scope,res, options);
 				}
-			},
-			failure : function(response, opts){
-                if(failureCall)failureCall.call(scope, response, opts);
-			},
-			scope: scope
-		});
+			}
+		},
+		failure : function(response, options){
+            if(failureCall)failureCall.call(scope, response, options);
+		},
+		scope: scope
+	});
 }
 Aurora.dateFormat = function () { 
 	var masks = {  
@@ -329,6 +348,11 @@ Ext.applyIf(Array.prototype, {
 		this[this.length] = o;
 	}
 });
+Ext.applyIf(String.prototype, {
+    replaceAll : function(s1,s2){
+        return this.replace(new RegExp(s1,"gm"),s2);  
+    }
+}); 
 
 $A.TextMetrics = function(){
     var shared;
@@ -400,7 +424,7 @@ $A.ToolTip = function(){
 		show: function(el, text){
 			if(this.tip == null){
 				this.init();
-				return;
+				//return;
 			}
 			this.tip.show();
 			this.shadow.show();
@@ -508,15 +532,20 @@ $A.Status = function(){
 }();
 $A.Cover = function(){
 	var m = {
+		bodyOverflow:null,
+		sw:null,
+		sh:null,
 		container: {},
 		cover : function(el){
+			$A.Cover.bodyOverflow = Ext.getBody().getStyle('overflow');			
 			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
-    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
-			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+screenWidth+'px;height:'+screenHeight+'px;POSITION: absolute;FILTER: alpha(opacity=30);BACKGROUND-COLOR: #000000; opacity: 0.3; MozOpacity: 0.3" unselectable="on"></DIV>';
+    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight());
+			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth)+'px;height:'+(screenHeight)+'px;" unselectable="on"></DIV>';
 			var cover = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
+	    	Ext.getBody().setStyle('overflow','hidden');
 	    	$A.Cover.container[el.id] = cover;
 		},
 		uncover : function(el){
@@ -526,12 +555,23 @@ $A.Cover = function(){
 				$A.Cover.container[el.id] = null;
 				delete $A.Cover.container[el.id];
 			}
+			var reset = true;
+			for(key in $A.Cover.container){
+                if($A.Cover.container[key]) {
+                    reset = false; 	
+                    break;
+                }
+            }
+            if(reset&&$A.Cover.bodyOverflow)Ext.getBody().setStyle('overflow',$A.Cover.bodyOverflow);
 		},
 		resizeCover : function(){
 			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
+    		if($A.Cover.sw == screenWidth && $A.Cover.sh == screenHeight) return;
+    		$A.Cover.sw = screenWidth;
+    		$A.Cover.sh = screenHeight;
 			for(key in $A.Cover.container){
 				var cover = $A.Cover.container[key];
 				Ext.fly(cover).setWidth(screenWidth);
@@ -545,7 +585,9 @@ $A.Masker = function(){
     var m = {
         container: {},
         mask : function(el,msg){
-        	if($A.Masker.container[el])return;
+        	if($A.Masker.container[el.id]){
+        	   return;
+        	}
         	msg = msg||'正在操作...';
         	var el = Ext.get(el);
             var w = el.getWidth();
@@ -558,14 +600,14 @@ $A.Masker = function(){
             var sp = masker.child('span');
             var size = $A.TextMetrics.measure(sp,msg);
             sp.setLeft((w-size.width)/2)
-            $A.Masker.container[el] = masker;
+            $A.Masker.container[el.id] = masker;
         },
         unmask : function(el){
-            var masker = $A.Masker.container[el];
+            var masker = $A.Masker.container[el.id];
             if(masker) {
                 Ext.fly(masker).remove();
-                $A.Masker.container[el] = null;
-                delete $A.Masker.container[el];
+                $A.Masker.container[el.id] = null;
+                delete $A.Masker.container[el.id];
             }
         }
     }
@@ -724,19 +766,21 @@ Ext.EventObjectImpl.prototype['isSpecialKey'] = function(){
 }
 $A.parseDate = function(str){
 	if(typeof str == 'string'){  
+		
 		//TODO:临时, 需要服务端解决
-		if(str.indexOf('.0') !=-1) str = str.substr(0,str.length-2);
+//		if(str.indexOf('.0') !=-1) str = str.substr(0,str.length-2);
 		
 		var results = str.match(/^ *(\d{4})-(\d{1,2})-(\d{1,2}) *$/);      
 		if(results && results.length>3)      
-	  		return new Date(parseInt(results[1]),parseInt(results[2]) -1,parseInt(results[3]));       
-		results = str.match(/^ *(\d{4})-(\d{1,2})-(\d{1,2}) +(\d{1,2}):(\d{1,2}):(\d{1,2}) *$/);      
+	  		return new Date(parseInt(results[1]),parseInt(results[2],10) -1,parseInt(results[3],10));       
+		results = str.match(/^ *(\d{4})-(\d{1,2})-(\d{1,2}) +(\d{1,2}):(\d{1,2}):(\d{1,2}) *$/);  
 	    if(results && results.length>6)      
-    	return new Date(parseInt(results[1]),parseInt(results[2]) -1,parseInt(results[3]),parseInt(results[4]),parseInt(results[5]),parseInt(results[6]));       
+    	return new Date(parseInt(results[1]),parseInt(results[2],10) -1,parseInt(results[3],10),parseInt(results[4],10),parseInt(results[5],10),parseInt(results[6],10));       
 	}      
   	return null;      
 }
 $A.getRenderer = function(renderer){
+	if(!renderer) return null;
 	var rder;
     if(renderer.indexOf('Aurora.') != -1){
         rder = $A[renderer.substr(7,renderer.length)]
@@ -765,6 +809,7 @@ $A.formatDateTime = function(date){
 	}
 }
 $A.formatNumber = function(value){
+	if(!value)return '';
     var ps = String(value).split('.');
     var sub = (ps.length==2)?'.'+ps[1]:'';
     var whole = ps[0];
@@ -947,16 +992,16 @@ $A.showValidTopMsg = function(ds) {
 		d.show(true);
 	}					
 }
-Ext.get(document.documentElement).on('keydown',function(e){
-	if(e.shiftKey&&e.keyCode == 76){
-		if(!$A.logWindow) {
-			$A.logWindow = new $A.Window({modal:false, url:'log.screen',title:'AjaxWatch', height:550,width:530});	
-			$A.logWindow.on('close',function(){
-				delete 	$A.logWindow;		
-			})
-		}
-	}
-})
+//Ext.get(document.documentElement).on('keydown',function(e){
+//	if(e.altKey&&e.keyCode == 76){
+//		if(!$A.logWindow) {
+//			$A.logWindow = new $A.Window({modal:false, url:'log.screen',title:'AjaxWatch', height:550,width:530});	
+//			$A.logWindow.on('close',function(){
+//				delete 	$A.logWindow;		
+//			})
+//		}
+//	}
+//})
 $A.setValidInfoType('tip'); </pre>    
 </body>
 </html>
