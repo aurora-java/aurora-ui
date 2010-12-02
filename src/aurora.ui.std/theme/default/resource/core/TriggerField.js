@@ -53,12 +53,12 @@ $A.TriggerField = Ext.extend($A.TextField,{
 //    	}
     },
     onKeyDown: function(e){
-    	$A.TriggerField.superclass.onKeyDown.call(this,e);
-    	if(e.browserEvent.keyCode == 9 || e.keyCode == 27) {
+    	if(e.keyCode == 9 || e.keyCode == 27||e.keyCode == 13) {
         	if(this.isExpanded()){
 	    		this.collapse();
 	    	}
         }
+    	$A.TriggerField.superclass.onKeyDown.call(this,e);
     },
     isEventFromComponent:function(el){
     	var isfrom = $A.TriggerField.superclass.isEventFromComponent.call(this,el);

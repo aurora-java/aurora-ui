@@ -272,9 +272,8 @@ Aurora.dateFormat = function () {
         hasTimeStamp = function(mask,token){
 	    	return !!String(masks[mask] || mask || masks["default"]).match(token);
         },
-        parseDate=function(string,mask,fun){
-        	for(var i=0,arr=mask.match(token),numbers=string.match(/\d+/g);i<arr.length;i++){
-        		var value;
+        _parseDate=function(string,mask,fun){
+        	for(var i=0,arr=mask.match(token),numbers=string.match(/\d+/g),value;i<arr.length;i++){
         		if(numbers.length==arr.length)value=numbers[i];
         		else value=parseInt(string.slice(index=mask.search(arr[i]),index+arr[i].length));
         		switch(arr[i]){
@@ -323,11 +322,11 @@ Aurora.dateFormat = function () {
 	                L:    L
 	            }; 
 	            try{
-					parseDate(string,mask,function($0,value){
+					_parseDate(string,mask,function($0,value){
 					   	flags[$0].call(date,value);
 					});
 	            }catch(e){throw new SyntaxError("invalid date");}
-				if (isNaN(date)||date.format(mask)!=string) throw new SyntaxError("invalid date"); 
+				if (isNaN(date)) throw new SyntaxError("invalid date"); 
 				return date;
     	},
 	    format:function (date, mask, utc) {    
@@ -383,14 +382,8 @@ Aurora.dateFormat = function () {
 	            return $0 in flags ? flags[$0] : $0.slice(1, $0.length - 1);  
 	        });  
 	    },
-	    hasHour:function(mask){
-	    	return hasTimeStamp(mask,/([hH])\1?/);
-	    },
-	    hasMinute:function(mask){
-	    	return hasTimeStamp(mask,/M{1,2}/);
-	    },
-	    hasSecond:function(mask){
-	    	return hasTimeStamp(mask,/s{1,2}/);
+	    isDateTime:function(mask){
+	    	return hasTimeStamp(mask,/([HhMs])\1?/);
 	    }
     };  
 }();
@@ -892,21 +885,13 @@ $A.getRenderer = function(renderer){
 
 $A.formatDate = function(date){
 	if(!date)return '';
-	return date.format('isoDate');
+	if(date.format)return date.format('isoDate');
+	return date;
 }
 $A.formatDateTime = function(date){
 	if(!date)return '';
-	if(date.getFullYear){
-		return date.getFullYear() + 
-		"-" + (date.getMonth()+1) + 
-		"-" + date.getDate() + 
-		" " + date.getHours() + 
-		":" + date.getMinutes() + 
-		":" + date.getSeconds();
-		
-	}else{
-		return date
-	}
+	if(date.format)return date.format('yyyy-mm-dd HH:MM:ss');
+	return date;
 }
 $A.formatNumber = function(value){
 	if(!value)return '';
@@ -3950,12 +3935,12 @@ $A.TriggerField = Ext.extend($A.TextField,{
 //    	}
     },
     onKeyDown: function(e){
-    	$A.TriggerField.superclass.onKeyDown.call(this,e);
-    	if(e.browserEvent.keyCode == 9 || e.keyCode == 27) {
+    	if(e.keyCode == 9 || e.keyCode == 27||e.keyCode == 13) {
         	if(this.isExpanded()){
 	    		this.collapse();
 	    	}
         }
+    	$A.TriggerField.superclass.onKeyDown.call(this,e);
     },
     isEventFromComponent:function(el){
     	var isfrom = $A.TriggerField.superclass.isEventFromComponent.call(this,el);
@@ -4344,6 +4329,7 @@ $A.DateField = Ext.extend($A.Component, {
     },
     initComponent : function(config){
     	$A.DateField.superclass.initComponent.call(this, config);
+    	this.isDateTime=$A.dateFormat.isDateTime(this.format);
     	this.wrap = typeof(config.container) == "string" ? Ext.get(config.container) : config.container;
         this.body = this.wrap.child("table.item-dateField-body");
         this.tables=[];
@@ -4353,27 +4339,33 @@ $A.DateField = Ext.extend($A.Component, {
     	this.nextYearBtn = this.wrap.child("div.item-dateField-nextYear");
     	this.yearSpan = this.wrap.child("input[atype=field.year]");
     	this.monthSpan = this.wrap.child("input[atype=field.month]");
-    	this.hourSpan = this.wrap.child("input[atype=field.hour]");
-    	this.minuteSpan = this.wrap.child("input[atype=field.minute]");
-    	this.secondSpan = this.wrap.child("input[atype=field.second]");
+    	if(this.isDateTime){
+	    	this.hourSpan = this.wrap.child("input[atype=field.hour]");
+	    	this.minuteSpan = this.wrap.child("input[atype=field.minute]");
+	    	this.secondSpan = this.wrap.child("input[atype=field.second]");
+    	}else{
+    		this.now=this.wrap.child("div[atype=field.current]");
+	    	this.now.dom.title=new Date().format(this.format);
+	    	this.now.set({"_date":new Date().getTime()});
+    	}
         var tableTpl=this.body.dom.rows[0].cells[0];
 		for(var i=0;i<this.viewsize;i++){
 			var clone=i==0?tableTpl:tableTpl.cloneNode(true);
         	this.tables[i]=Ext.fly(clone).child("table").dom;
         	var tr=Ext.fly(this.tables[i]).child("tr.item-dateField-head").dom;
-        	this.tables[i].head=tr.cells[1];
-        	this.tables[i].pre=tr.cells[0];
-        	this.tables[i].next=tr.cells[2];
-        	if(i!=this.viewsize-1)clone.style.cssText="border-right:1px solid #BABABA";
-        	else clone.style.cssText="";
+        	this.tables[i].head=tr.cells[0];
+        	if(i!=0){
+        		this.tables[i].head.text=document.createElement('span');
+        		this.tables[i].head.appendChild(this.tables[i].head.text);
+        	}
+        	clone.style.cssText=(i!=this.viewsize-1)?"border-right:1px solid #BABABA":"";
         	this.body.dom.rows[0].appendChild(clone);
         }
-        this.tables[0].pre.appendChild(this.preMonthBtn.dom);
+        this.tables[0].head.appendChild(this.preYearBtn.dom);
+        this.tables[0].head.appendChild(this.preMonthBtn.dom);
+        this.tables[this.viewsize-1].head.appendChild(this.nextYearBtn.dom);
+        this.tables[this.viewsize-1].head.appendChild(this.nextMonthBtn.dom);
         this.tables[0].head.appendChild(this.monthSpan.dom.parentNode);
-        this.tables[this.viewsize-1].next.appendChild(this.nextMonthBtn.dom);
-        if(!$A.dateFormat.hasHour(this.format))this.hourSpan.dom.readOnly=true;
-        if(!$A.dateFormat.hasMinute(this.format))this.minuteSpan.dom.readOnly=true;
-        if(!$A.dateFormat.hasSecond(this.format))this.secondSpan.dom.readOnly=true;
     },
     processListener: function(ou){
     	$A.DateField.superclass.processListener.call(this,ou);
@@ -4387,18 +4379,20 @@ $A.DateField = Ext.extend($A.Component, {
 		this.monthSpan[ou]("focus", this.onDateFocus, this);
 		this.monthSpan[ou]("blur", this.onDateBlur, this);
 		this.monthSpan[ou]("keydown", this.onKeyDown, this);
-		this.hourSpan[ou]("focus", this.onDateFocus, this);
-		this.hourSpan[ou]("blur", this.onDateBlur, this);
-		this.hourSpan[ou]("keydown", this.onKeyDown, this);
-		this.minuteSpan[ou]("focus", this.onDateFocus, this);
-		this.minuteSpan[ou]("blur", this.onDateBlur, this);
-		this.minuteSpan[ou]("keydown", this.onKeyDown, this);
-		this.secondSpan[ou]("focus", this.onDateFocus, this);
-		this.secondSpan[ou]("blur", this.onDateBlur, this);
-		this.secondSpan[ou]("keydown", this.onKeyDown, this);
+		if(this.isDateTime){
+			this.hourSpan[ou]("focus", this.onDateFocus, this);
+			this.hourSpan[ou]("blur", this.onDateBlur, this);
+			this.hourSpan[ou]("keydown", this.onKeyDown, this);
+			this.minuteSpan[ou]("focus", this.onDateFocus, this);
+			this.minuteSpan[ou]("blur", this.onDateBlur, this);
+			this.minuteSpan[ou]("keydown", this.onKeyDown, this);
+			this.secondSpan[ou]("focus", this.onDateFocus, this);
+			this.secondSpan[ou]("blur", this.onDateBlur, this);
+			this.secondSpan[ou]("keydown", this.onKeyDown, this);
+		}
+    	else this.now[ou]("mouseup", this.onSelect, this);
     	this.body[ou]("mouseup", this.onSelect, this);
     	this.body[ou]("mouseover", this.mouseOver, this);
-    	this.body[ou]("mouseout", this.mouseOut, this)
     },
     initEvents : function(){
     	$A.DateField.superclass.initEvents.call(this);   	
@@ -4425,15 +4419,15 @@ $A.DateField = Ext.extend($A.Component, {
     	delete this.nextMonthBtn;
     	delete this.yearSpan;
     	delete this.monthSpan; 
-    	delete this.hourSpan; 
-    	delete this.minuteSpan; 
-    	delete this.secondSpan; 
+    	if(this.isDateTime){
+	    	delete this.hourSpan; 
+	    	delete this.minuteSpan; 
+	    	delete this.secondSpan;
+    	}else delete this.now;
     	delete this.body;        
         delete this.tables;
+        delete this.isDateTime;
 	},
-    mouseOut: function(e){
-    	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
-    },
     mouseOver: function(e){
     	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
     	if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
@@ -4465,7 +4459,7 @@ $A.DateField = Ext.extend($A.Component, {
 		} else if (c == 27) {
 			el.value = el.oldValue || "";
 			el.blur();
-		} else if (c!=9 && c != 8 && c != 46 && (c < 48 || c > 57 || e.shiftKey)) {
+		} else if (c != 8 && c!=9 && c!=37 && c!=39 && c != 46 && (c < 48 || c > 57 || e.shiftKey)) {
 			e.stopEvent();
 			return;
 		}
@@ -4478,7 +4472,8 @@ $A.DateField = Ext.extend($A.Component, {
 		var el=e.target;
 		Ext.fly(el.parentNode).removeClass("item-dateField-input-focus");
 		if(!el.value.match(/^[0-9]*$/))el.value=el.oldValue||"";
-		else this.predraw(new Date(this.yearSpan.dom.value,this.monthSpan.dom.value - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value));
+		else if(this.isDateTime)this.predraw(new Date(this.yearSpan.dom.value,this.monthSpan.dom.value - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value));
+		else this.predraw(new Date(this.yearSpan.dom.value,this.monthSpan.dom.value - 1, 1,0,0,0));
 	},
     /**
      * 当前月
@@ -4522,22 +4517,24 @@ $A.DateField = Ext.extend($A.Component, {
   		}
 		this.year = date.getFullYear(); this.month = date.getMonth() + 1;
   		for(var i=0;i<this.viewsize;i++){
-			this.draw(this.year,this.month+i,this.hours,this.minutes,this.seconds,i);
-			if(i!=0)this.tables[i].head.innerHTML=((this.month+i)%12||12)+"月"
+			this.draw(new Date(this.year,this.month+i-1,1,this.hours,this.minutes,this.seconds),i);
         }
         this.yearSpan.dom.oldValue = this.yearSpan.dom.value = this.year;
 		this.monthSpan.dom.oldValue = this.monthSpan.dom.value = this.month;
-		this.hourSpan.dom.oldValue = this.hourSpan.dom.value = $A.dateFormat.pad(this.hours);
-		this.minuteSpan.dom.oldValue = this.minuteSpan.dom.value = $A.dateFormat.pad(this.minutes);
-		this.secondSpan.dom.oldValue = this.secondSpan.dom.value = $A.dateFormat.pad(this.seconds);
+		if(this.isDateTime){
+			this.hourSpan.dom.oldValue = this.hourSpan.dom.value = $A.dateFormat.pad(this.hours);
+			this.minuteSpan.dom.oldValue = this.minuteSpan.dom.value = $A.dateFormat.pad(this.minutes);
+			this.secondSpan.dom.oldValue = this.secondSpan.dom.value = $A.dateFormat.pad(this.seconds);
+		}
 		this.fireEvent("draw",this);
   	},
   	/**
   	 * 渲染日历
   	 */
-	draw: function(year,month,hour,minute,second,index) {
+	draw: function(date,index) {
 		//用来保存日期列表
-		var arr = [];
+		var arr = [],year=date.getFullYear(),month=date.getMonth()+1,hour=date.getHours(),minute=date.getMinutes(),second=date.getSeconds();
+		if(index!=0)this.tables[index].head.text.innerHTML=year+"年"+month+"月";
 		//用当月第一天在一周中的日期值作为当月离第一天的天数,用上个月的最后天数补齐
 		for(var i = 1, firstDay = new Date(year, month - 1, 1).getDay(),lastDay = new Date(year, month - 1, 0).getDate(); i <= firstDay; i++){ 
 			if(index==0)arr.push([n=lastDay-firstDay+i,new Date(year, month - 2, n,hour,minute,second),"item-day item-day-besides"]);
@@ -4611,16 +4608,10 @@ $A.DateField = Ext.extend($A.Component, {
  * @param {Object} config 配置对象. 
  */
 $A.DatePicker = Ext.extend($A.TriggerField,{
-	constructor: function(config) {
-        $A.DatePicker.superclass.constructor.call(this, config);        
-    },
-    initComponent : function(config){
-    	$A.DatePicker.superclass.initComponent.call(this,config);
-    },
-    bind : function(ds, name){
-    	$A.DatePicker.superclass.bind.call(this,ds,name);
+	initComponent : function(config){ 
+		$A.DatePicker.superclass.initComponent.call(this,config);
     	this.initDateField();
-    },
+	},
     initDateField:function(){
     	this.format=this.format||"isoDate";
     	this.viewsize=(!this.viewsize||this.viewsize<1)?1:(this.viewsize>4?4:this.viewsize);
@@ -4641,11 +4632,20 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
          */
         'select');
     },
-    onDraw: function(){
+    onKeyUp: function(e){
+    	$A.DatePicker.superclass.onKeyUp.call(this,e);
+    	try{
+    		this.dateField.selectDay=this.getRawValue().parseDate(this.format);
+    		$A.Component.prototype.setValue.call(this,this.dateField.selectDay);
+    		this.dateField.predraw(this.dateField.selectDay);
+    	}catch(e){
+    	}
+    },
+    onDraw : function(){
     	this.shadow.setWidth(this.popup.getWidth());
     	this.shadow.setHeight(this.popup.getHeight());
     },
-    onSelect: function(dateField, date){
+    onSelect : function(dateField, date){
     	this.collapse();
     	this.setValue(date);
     	this.fireEvent('select',this, date);
@@ -4681,7 +4681,38 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     destroy : function(){
     	$A.DatePicker.superclass.destroy.call(this);
+    	delete this.format;
+    	delete this.viewsize;
 	}
+});
+/**
+ * @class Aurora.DatePicker
+ * @extends Aurora.TriggerField
+ * <p>DatePicker组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
+$A.DateTimePicker = Ext.extend($A.DatePicker,{
+    initDateField:function(){
+    	this.format=this.format||"yyyy-mm-dd HH:MM:ss";
+    	this.viewsize=1;
+    	this.popup.setStyle({'width':"150px"})
+    	if(!this.dateField){
+    		var cfg = {id:this.id+'_df',container:this.popup,dayrenderer:this.dayrenderer,format:this.format,viewsize:this.viewsize,datestart:this.datestart,dateend:this.dateend,listeners:{"select": this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
+	    	this.dateField = new $A.DateField(cfg);
+    	}
+    },collapse : function(){
+    	$A.DateTimePicker.superclass.collapse.call(this);
+    	if(this.getRawValue()){
+    		if(this.dateField.selectDay){
+	    		this.dateField.selectDay.setHours((el=this.dateField.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+	    		this.dateField.selectDay.setMinutes((el=this.dateField.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+	    		this.dateField.selectDay.setSeconds((el=this.dateField.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+    		}
+    		this.setValue(this.dateField.selectDay);
+    	}
+    }
 });
 $A.ToolBar = Ext.extend($A.Component,{
 	constructor: function(config) {

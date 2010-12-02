@@ -4,7 +4,6 @@
 .item-dateField {
 	padding:1px;
 	background-color:#fff;
-	float:left;
 	text-align:center;
 	width:100%;
 	line-height:1.5em;
@@ -45,25 +44,30 @@
 	cursor:pointer;
 	width:16px;
 	height:16px;
+	top:3px;
 }
 .week-alt {
 	background-color:#f3f3ed;
 }
 .item-dateField-preYear {
 	background-position: 0 0px;
-	float:left;
+	position:absolute;
+	left:0;
 }
 .item-dateField-nextYear{
 	background-position: 0 -16px;
-	float:right;
+	position:absolute;
+	right:0;
 }
 .item-dateField-pre {
 	background-position: 0 -32px;
-	float:left;
+	position:absolute;
+	left:16px;
 }
 .item-dateField-next{
 	background-position: 0 -48px;
-	float:right;
+	position:absolute;
+	right:16px;
 }
 .item-dateField-input{
 	margin:1px;
