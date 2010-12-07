@@ -16,12 +16,22 @@ $A.Lov = Ext.extend($A.TextField,{
     initComponent : function(config){
     	$A.Lov.superclass.initComponent.call(this,config);
     	this.para = {};
-    	var li = this.lovservice.indexOf('?')
-    	if(li!=-1){
-    		this.para = Ext.urlDecode(this.lovservice.substring(li+1,this.lovservice.length));
-            this.lovservice = this.lovservice.substring(0,li);
-    	}
+    	if(!Ext.isEmpty(this.lovurl)){
+            this.lovurl = this.processParmater(this.lovurl);
+        }else if(!Ext.isEmpty(this.lovservice)){
+            this.lovservice = this.processParmater(this.lovservice);           
+        }else if(!Ext.isEmpty(this.lovmodel)){
+            this.lovmodel = this.processParmater(this.lovmodel);
+        }    	
     	this.trigger = this.wrap.child('div[atype=triggerfield.trigger]'); 
+    },
+    processParmater:function(url){
+        var li = url.indexOf('?')
+        if(li!=-1){
+            this.para = Ext.urlDecode(url.substring(li+1,url.length));
+            return url.substring(0,li);
+        } 
+        return url;
     },
     processListener: function(ou){
     	$A.Lov.superclass.processListener.call(this,ou);
@@ -175,7 +185,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.blur();
 		var url;
 		if(!Ext.isEmpty(this.lovurl)){
-			url = this.lovurl+'?';
+			url = this.lovurl+'?' + Ext.urlEncode(this.getLovPara());
 		}else if(!Ext.isEmpty(this.lovservice)){
 			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';			
 		}else if(!Ext.isEmpty(this.lovmodel)){
