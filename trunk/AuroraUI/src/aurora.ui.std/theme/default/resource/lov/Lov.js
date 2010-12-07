@@ -185,7 +185,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.blur();
 		var url;
 		if(!Ext.isEmpty(this.lovurl)){
-			url = this.lovurl+'?' + Ext.urlEncode(this.getLovPara());
+			url = this.lovurl+'?' + Ext.urlEncode(this.getLovPara()) + '&';
 		}else if(!Ext.isEmpty(this.lovservice)){
 			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';			
 		}else if(!Ext.isEmpty(this.lovmodel)){
