@@ -658,8 +658,8 @@ $A.Grid = Ext.extend($A.Component,{
                 var record = this.dataset.findById(rid);
                 var row = this.dataset.indexOf(record);
                 var name = Ext.fly(target).getAttributeNS("","dataindex");
-                this.fireEvent('cellclick', this, row, name, record);
                 this.showEditor(row,name);
+                this.fireEvent('cellclick', this, row, name, record);
                 this.fireEvent('rowclick', this, row, record);
             }else if(atype=='grid.rowcheck'){               
                 var cb = Ext.get(this.id+'__'+rid);
