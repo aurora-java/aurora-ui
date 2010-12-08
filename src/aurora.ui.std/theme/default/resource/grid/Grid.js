@@ -112,7 +112,17 @@ $A.Grid = Ext.extend($A.Component,{
          * @param {Number} row 行号.
          * @param {Aurora.Record} record 鼠标点击所在行的Record对象.
          */
-        'rowclick');
+        'rowclick',
+        /**
+         * @event editorShow
+         * 编辑器显示后触发的事件.
+         * @param {Aurora.Grid} grid 当前Grid组件.
+         * @param {Editor} grid 当前Editor组件.
+         * @param {Number} row 行号.
+         * @param {String} 当前name.
+         * @param {Aurora.Record} record 鼠标点击所在行的Record对象.
+         */
+        'editorshow');
     },
     syncScroll : function(){
         this.hideEditor();
@@ -761,6 +771,7 @@ $A.Grid = Ext.extend($A.Component,{
 //                    ed.on('blur',sf.onEditorBlur, sf);
                     Ext.get(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
                 }
+                sf.fireEvent('editorshow', sf, ed, row, name, record);
             },1)
         }           
     },
