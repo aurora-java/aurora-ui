@@ -1011,6 +1011,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.submiturl = url||this.submiturl;
         if(this.submiturl == '') return;
         var p = items;//this.getJsonData();
+        this.fireBindDataSetEvent("submit");
         for(var i=0;i<p.length;i++){
             var data = p[i]
             for(var key in data){
@@ -1022,7 +1023,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         
         //if(p.length > 0) {
 //            this.fireEvent("submit", this);
-            this.fireBindDataSetEvent("submit");
             $A.request({url:this.submiturl, para:p, success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
         //}
     },
