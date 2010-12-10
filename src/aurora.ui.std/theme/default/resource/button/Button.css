@@ -34,7 +34,7 @@
 }
 button div {
     left: 0px;
-    position: relative;
+    /*position: relative;*/
     top: 0px;
 }
 .item-btn em {
