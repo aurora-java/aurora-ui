@@ -4685,35 +4685,6 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	delete this.viewsize;
 	}
 });
-/**
- * @class Aurora.DatePicker
- * @extends Aurora.TriggerField
- * <p>DatePicker组件.
- * @author njq.niu@hand-china.com
- * @constructor
- * @param {Object} config 配置对象. 
- */
-$A.DateTimePicker = Ext.extend($A.DatePicker,{
-    initDateField:function(){
-    	this.format=this.format||"yyyy-mm-dd HH:MM:ss";
-    	this.viewsize=1;
-    	this.popup.setStyle({'width':"150px"})
-    	if(!this.dateField){
-    		var cfg = {id:this.id+'_df',container:this.popup,dayrenderer:this.dayrenderer,format:this.format,viewsize:this.viewsize,datestart:this.datestart,dateend:this.dateend,listeners:{"select": this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
-	    	this.dateField = new $A.DateField(cfg);
-    	}
-    },collapse : function(){
-    	$A.DateTimePicker.superclass.collapse.call(this);
-    	if(this.getRawValue()){
-    		if(this.dateField.selectDay){
-	    		this.dateField.selectDay.setHours((el=this.dateField.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-	    		this.dateField.selectDay.setMinutes((el=this.dateField.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-	    		this.dateField.selectDay.setSeconds((el=this.dateField.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-    		}
-    		this.setValue(this.dateField.selectDay);
-    	}
-    }
-});
 $A.ToolBar = Ext.extend($A.Component,{
 	constructor: function(config) {
         $A.ToolBar.superclass.constructor.call(this, config);        
@@ -5283,6 +5254,20 @@ $A.showOkWindow = function(title, msg, width, height,callback){
 	return cmp;
 }
 /**
+ * 上传附件窗口.
+ * 
+ * @param {String} path  当前的context路径
+ * @param {String} title 上传窗口标题
+ * @param {int} pkvalue  pkvalue
+ * @param {String} source_type source_type
+ * @param {int} max_size 最大上传大小(单位kb)  0表示不限制
+ * @param {String} file_type 上传类型(*.doc,*.jpg)
+ * @param {String} callback 回调函数的名字
+ */
+$A.showUploadWindow = function(path,title,source_type,pkvalue,max_size,file_type,callback){
+    new Aurora.Window({id:'upload_window', url:path+'/upload.screen?callback='+callback+'&pkvalue='+pkvalue+'&source_type='+source_type+'&max_size='+(max_size||0)+'&file_type='+(file_type||'*.*'), title:title||'上传附件', height:330,width:595});
+}
+/**
  * @class Aurora.Lov
  * @extends Aurora.TextField
  * <p>Lov 值列表组件.
@@ -5300,12 +5285,22 @@ $A.Lov = Ext.extend($A.TextField,{
     initComponent : function(config){
     	$A.Lov.superclass.initComponent.call(this,config);
     	this.para = {};
-    	var li = this.lovservice.indexOf('?')
-    	if(li!=-1){
-    		this.para = Ext.urlDecode(this.lovservice.substring(li+1,this.lovservice.length));
-            this.lovservice = this.lovservice.substring(0,li);
-    	}
+    	if(!Ext.isEmpty(this.lovurl)){
+            this.lovurl = this.processParmater(this.lovurl);
+        }else if(!Ext.isEmpty(this.lovservice)){
+            this.lovservice = this.processParmater(this.lovservice);           
+        }else if(!Ext.isEmpty(this.lovmodel)){
+            this.lovmodel = this.processParmater(this.lovmodel);
+        }    	
     	this.trigger = this.wrap.child('div[atype=triggerfield.trigger]'); 
+    },
+    processParmater:function(url){
+        var li = url.indexOf('?')
+        if(li!=-1){
+            this.para = Ext.urlDecode(url.substring(li+1,url.length));
+            return url.substring(0,li);
+        } 
+        return url;
     },
     processListener: function(ou){
     	$A.Lov.superclass.processListener.call(this,ou);
@@ -5459,7 +5454,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.blur();
 		var url;
 		if(!Ext.isEmpty(this.lovurl)){
-			url = this.lovurl+'?';
+			url = this.lovurl+'?' + Ext.urlEncode(this.getLovPara()) + '&';
 		}else if(!Ext.isEmpty(this.lovservice)){
 			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';			
 		}else if(!Ext.isEmpty(this.lovmodel)){
