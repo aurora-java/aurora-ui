@@ -508,3 +508,17 @@ $A.showOkWindow = function(title, msg, width, height,callback){
 	}
 	return cmp;
 }
+/**
+ * 上传附件窗口.
+ * 
+ * @param {String} path  当前的context路径
+ * @param {String} title 上传窗口标题
+ * @param {int} pkvalue  pkvalue
+ * @param {String} source_type source_type
+ * @param {int} max_size 最大上传大小(单位kb)  0表示不限制
+ * @param {String} file_type 上传类型(*.doc,*.jpg)
+ * @param {String} callback 回调函数的名字
+ */
+$A.showUploadWindow = function(path,title,source_type,pkvalue,max_size,file_type,callback){
+    new Aurora.Window({id:'upload_window', url:path+'/upload.screen?callback='+callback+'&pkvalue='+pkvalue+'&source_type='+source_type+'&max_size='+(max_size||0)+'&file_type='+(file_type||'*.*'), title:title||'上传附件', height:330,width:595});
+}
