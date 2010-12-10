@@ -328,7 +328,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 }
 button div {
     left: 0px;
-    position: relative;
+    /*position: relative;*/
     top: 0px;
 }
 .item-btn em {
@@ -762,9 +762,10 @@ button div {
 .win-content{
 	width:100%;
 	height:100%;
-	/*overflow:auto;*/
+	overflow:auto;
+	overflow-x:hidden;
 	position:relative;
-	overflow:hidden; 
+	/*overflow:hidden;*/ 
 }
 .win-alert {
 	padding:10px;
