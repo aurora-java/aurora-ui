@@ -2101,7 +2101,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.submiturl = url||this.submiturl;
         if(this.submiturl == '') return;
         var p = items;//this.getJsonData();
-        this.fireBindDataSetEvent("submit");
         for(var i=0;i<p.length;i++){
             var data = p[i]
             for(var key in data){
@@ -2121,6 +2120,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @return {String} url(可选) 提交的url.
      */
     submitSelected : function(url){
+    	this.fireBindDataSetEvent("submit");
         this.doSubmit(url,this.getJsonData(true));
     },
     /**
@@ -2128,6 +2128,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @return {String} url(可选) 提交的url.
      */
     submit : function(url){
+    	this.fireBindDataSetEvent("submit");
     	this.doSubmit(url,this.getJsonData());
     },
     fireBindDataSetEvent : function(event){
