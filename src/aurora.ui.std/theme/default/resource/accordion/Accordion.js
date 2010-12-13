@@ -60,7 +60,7 @@ $A.Accordion = Ext.extend($A.Component,{
 			var accordion=Ext.get(this.accordions[i]);
 			if(accordion.hasClass('selected')){
 				if(this.singlemode||i==index)accordion.setHeight(this.stripheight+Ext.fly(this.bodys[i]).getHeight()*(1-this.currentTime/this.actionTimes));
-			}else if(i==index) accordion.setStyle('height',(this.stripheight+Ext.fly(this.bodys[i]).getHeight()*(this.currentTime/this.actionTimes))+"px");
+			}else if(i==index) accordion.setHeight(this.stripheight+Ext.fly(this.bodys[i]).getHeight()*(this.currentTime/this.actionTimes));
 		}
 		if(this.actionTimes==this.currentTime){
 			for(var i=0;i<this.accordions.length;i++){
@@ -123,21 +123,21 @@ $A.Accordion = Ext.extend($A.Component,{
 		});		
     },
     setWidth : function(w){
-    	var w = Math.max(w,this.stripheight),wd = w+'px';
+    	var w = Math.max(w,this.stripheight);
     	this.width = w;
     	for(var i=0;i<this.accordions.length;i++){
-    		Ext.fly(this.strips[i]).setStyle('width',wd);
-    		Ext.fly(this.bodys[i]).setStyle('width',wd);
+    		Ext.fly(this.strips[i]).setWidth(w);
+    		Ext.fly(this.bodys[i]).setWidth(w);
     	}
     },
     setHeight : function(h){
     	var l=this.accordions.length,h = Math.max(h,this.stripheight*l);
     	this.height=h;
     	for(var i=0;i<l;i++){
-    		Ext.fly(this.bodys[i]).setStyle('height',(h-this.stripheight*l)/(this.singlemode?1:l)+'px');
+    		Ext.fly(this.bodys[i]).setHeight((h-this.stripheight*l)/(this.singlemode?1:l));
     	}
     	for(var i=0;i<this.selectedItems.length;i++){
-    		this.selectedItems[i].setStyle('height',this.singlemode?(h-this.stripheight*(l-1)):(h/l)+'px');
+    		this.selectedItems[i].setHeight(this.singlemode?(h-this.stripheight*(l-1)):(h/l));
     	}
     }
 });
