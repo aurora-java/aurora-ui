@@ -1,0 +1,18 @@
+.item-accordion {
+	overflow-y: hidden;
+	border-bottom: 1px solid #CCCCCC;
+	border-left: 1px solid #CCCCCC;
+	border-right: 1px solid #CCCCCC;
+	background-color:#fff;
+}
+
+.item-accordion .strip {
+	overflow: hidden;
+	background-image: url("../toolbar/toolbar_bg.gif");
+	text-indent: 5px;
+	cursor: pointer;
+}
+.item-accordion-body {
+	overflow: auto;
+	border-top: 1px solid #BBBBBB;
+}
