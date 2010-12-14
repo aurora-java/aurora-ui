@@ -68,10 +68,12 @@ public class PatchAll {
 		compressJs.add(AURORA_ALL);
 		compressJs.add("grid/Grid.js");
 		compressJs.add("tree/Tree.js");
+		compressJs.add("upload/upload.js");
 		List compressCss = new ArrayList();
 		compressCss.add(CSS_ALL);
 		compressCss.add("grid/Grid.css");
 		compressCss.add("tab/Tab.css");
+		compressCss.add("upload/upload.css");
 		
 		PatchAll pa = new PatchAll();
 		pa.patchAllFile(list,RES_DIR,AURORA_ALL);
@@ -176,7 +178,7 @@ public class PatchAll {
 		csslist.add("tab/Tab-min.css");
 		
 		StringBuffer sb = new StringBuffer();
-		List lines = new ArrayList();
+		
 		List patchlines = new ArrayList();
 		
 		
@@ -202,6 +204,7 @@ public class PatchAll {
 				}
 			}
 			
+			List lines = new ArrayList();
 			List fs = FileUtils.readLines(file, "UTF-8");
 			for(int i=0;i<fs.size();i++) {
 	        	String line = fs.get(i).toString();
