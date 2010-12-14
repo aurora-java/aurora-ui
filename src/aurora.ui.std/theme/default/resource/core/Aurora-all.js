@@ -597,7 +597,7 @@ $A.Cover = function(){
 		sh:null,
 		container: {},
 		cover : function(el){
-			$A.Cover.bodyOverflow = Ext.getBody().getStyle('overflow');			
+			if(!$A.Cover.bodyOverflow)$A.Cover.bodyOverflow = Ext.getBody().getStyle('overflow');			
 			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
