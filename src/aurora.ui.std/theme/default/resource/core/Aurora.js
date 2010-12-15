@@ -862,7 +862,7 @@ Ext.removeNode = Ext.isIE && !Ext.isIE8 ? function(){
     return function(n){
         if(n && n.tagName != 'BODY'){
             (Ext.enableNestedListenerRemoval) ? Ext.EventManager.purgeElement(n, true) : Ext.EventManager.removeAll(n);
-            d = d || document.createElement('<div style="position:absolute;display:none;left:-1000px,top:-1000px">');
+            d = d || document.createElement('<div style="position:absolute;display:none;left:-1000px;top:-1000px">');
             if(!d.parentNode)document.appendChild(d);
             d.appendChild(n);
             d.innerHTML = '';
