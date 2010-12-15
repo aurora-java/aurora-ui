@@ -92,7 +92,7 @@ $A.Accordion = Ext.extend($A.Component,{
 		}
 	},
 	showLoading : function(dom){
-    	Ext.fly(dom).update('正在加载,请稍后...');
+    	Ext.fly(dom).update(_lang['accordion.loading']);
     	Ext.fly(dom).setStyle('text-align','center');
     	Ext.fly(dom).setStyle('line-height',5);
     },

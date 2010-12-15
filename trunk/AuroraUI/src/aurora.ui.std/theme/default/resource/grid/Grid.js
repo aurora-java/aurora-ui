@@ -359,13 +359,13 @@ $A.Grid = Ext.extend($A.Component,{
         return sb.join('');
     },
     onBeforeRemove : function(){
-        $A.Masker.mask(this.wb,'正在删除数据...');//TODO:多语言
+        $A.Masker.mask(this.wb,_lang['grid.mask.remove']);//TODO:多语言
     },
     onBeforLoad : function(){
-        $A.Masker.mask(this.wb,'正在查询数据...');//TODO:多语言
+        $A.Masker.mask(this.wb,_lang['grid.mask.loading']);//TODO:多语言
     },
     onBeforSubmit : function(ds){
-    	$A.Masker.mask(this.wb,'正在提交数据...');//TODO:多语言
+    	$A.Masker.mask(this.wb,_lang['grid.mask.submit']);//TODO:多语言
     },
     onAfterSuccess : function(){
         $A.Masker.unmask(this.wb);

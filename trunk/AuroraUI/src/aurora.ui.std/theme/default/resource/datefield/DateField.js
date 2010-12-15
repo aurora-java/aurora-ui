@@ -217,7 +217,7 @@ $A.DateField = Ext.extend($A.Component, {
 	draw: function(date,index) {
 		//用来保存日期列表
 		var arr = [],year=date.getFullYear(),month=date.getMonth()+1,hour=date.getHours(),minute=date.getMinutes(),second=date.getSeconds();
-		if(index!=0)this.tables[index].head.text.innerHTML=year+"年"+month+"月";
+		if(index!=0)this.tables[index].head.text.innerHTML=year+this.yearSpan.next('div',true).innerHTML+month+this.monthSpan.next('div',true).innerHTML;
 		//用当月第一天在一周中的日期值作为当月离第一天的天数,用上个月的最后天数补齐
 		for(var i = 1, firstDay = new Date(year, month - 1, 1).getDay(),lastDay = new Date(year, month - 1, 0).getDate(); i <= firstDay; i++){ 
 			if(index==0)arr.push([n=lastDay-firstDay+i,new Date(year, month - 2, n,hour,minute,second),"item-day item-day-besides"]);

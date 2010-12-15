@@ -146,7 +146,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		}
 		$A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
-        this.setRawValue('正在查询...')
+        this.setRawValue(_lang['lov.query'])
 		$A.request({url:url, para:p, success:function(res){
 			var r = new $A.Record({});
 			if(res.result.record){
