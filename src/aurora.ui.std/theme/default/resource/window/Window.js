@@ -226,7 +226,7 @@ $A.Window = Ext.extend($A.Component,{
     	this.proxy.moveTo(tx,ty);
     },
     showLoading : function(){
-    	this.body.update('正在加载...');
+    	this.body.update(_lang['window.loading']);
     	this.body.setStyle('text-align','center');
     	this.body.setStyle('line-height',5);
     },
@@ -334,9 +334,9 @@ $A.Window = Ext.extend($A.Component,{
                 st = (st) ? st.replaceAll('\r\n','</br>') : '';
                 if(res.error.message) {
                     var h = (st=='') ? 150 : 250;
-                    $A.showErrorMessage('错误', res.error.message+'</br>'+st,null,400,h);
+                    $A.showErrorMessage(_lang['window.error'], res.error.message+'</br>'+st,null,400,h);
                 }else{
-                    $A.showErrorMessage('错误', st,null,400,250);
+                    $A.showErrorMessage(_lang['window.error'], st,null,400,250);
                 }   
             }
             return;
@@ -457,8 +457,8 @@ $A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
 $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
     if(cmp == null) {
-        var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok','确定');
-        var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel','取消');
+        var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok',_lang['window.button.ok']);
+        var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel',_lang['window.button.cancel']);
         cmp = new $A.Window({id:'aurora-msg-ok-cancel',title:title, height:height||100,width:width||300});
         if(msg){
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
@@ -492,7 +492,7 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
 $A.showOkWindow = function(title, msg, width, height,callback){
 	var cmp = $A.CmpManager.get('aurora-msg-ok');
 	if(cmp == null) {
-		var btnhtml = $A.Button.getTemplate('aurora-msg-yes','确定');
+		var btnhtml = $A.Button.getTemplate('aurora-msg-yes',_lang['window.button.ok']);
 		cmp = new $A.Window({id:'aurora-msg-ok',title:title, height:height,width:width});
 		if(msg){
 			cmp.body.update(msg+ '<center>'+btnhtml+'</center>',true,function(){
@@ -520,5 +520,5 @@ $A.showOkWindow = function(title, msg, width, height,callback){
  * @param {String} callback 回调函数的名字
  */
 $A.showUploadWindow = function(path,title,source_type,pkvalue,max_size,file_type,callback){
-    new Aurora.Window({id:'upload_window', url:path+'/upload.screen?callback='+callback+'&pkvalue='+pkvalue+'&source_type='+source_type+'&max_size='+(max_size||0)+'&file_type='+(file_type||'*.*'), title:title||'上传附件', height:330,width:595});
+    new Aurora.Window({id:'upload_window', url:path+'/upload.screen?callback='+callback+'&pkvalue='+pkvalue+'&source_type='+source_type+'&max_size='+(max_size||0)+'&file_type='+(file_type||'*.*'), title:title||_lang['window.upload.title'], height:330,width:595});
 }

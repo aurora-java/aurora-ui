@@ -729,7 +729,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    	this.currentIndex = index;
     	}else{
     		if(this.isModified()){
-    			$A.showInfoMessage('提示', '有未保存数据!')
+    			$A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.locate'])
     		}else{
 				this.currentIndex = index;
 				this.currentPage =  Math.ceil(index/this.pagesize);
@@ -854,7 +854,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		if(fire !== false) {
 			$A.manager.fireEvent('valid', $A.manager, this, this.isValid);
 		}
-		if(!this.isValid) $A.showInfoMessage('提示', '验证不通过!');
+		if(!this.isValid) $A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.validate']);
 		return this.isValid;
     },
     /**
@@ -1285,7 +1285,7 @@ $A.Record.prototype = {
 		var field = this.getMeta().getField(name)
         var validator = field.get('validator');
 		if(Ext.isEmpty(v) && field.get('required') == true){
-			this.valid[name] = '当前字段不能为空!';
+			this.valid[name] = _lang['dataset.validate.required'];
 			valid =  false;
 		}else{
 			var isvalid = true;

@@ -31,7 +31,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     },
     onLoad : function(){
     	this.pageInput.setValue(this.dataSet.currentPage);
-    	this.pageInfo.update('共' + this.dataSet.totalPage + '页');
+    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
     	this.navInfo.update(this.creatNavInfo());
     },
     creatNavInfo : function(){
@@ -39,7 +39,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	var to = this.dataSet.currentPage*this.dataSet.pagesize;
     	if(to>this.dataSet.totalCount) to = this.dataSet.totalCount;
     	if(to==0) from =0;
-    	return '显示 ' + from + ' - ' + to + ',共 ' + this.dataSet.totalCount + ' 条';
+    	return _lang['toolbar.visible'] + from + ' - ' + to + ','+ _lang['toolbar.total'] + this.dataSet.totalCount + _lang['toolbar.item'];
     },
     onInputKeyPress : function(input, e){
     	if(e.keyCode == 13){

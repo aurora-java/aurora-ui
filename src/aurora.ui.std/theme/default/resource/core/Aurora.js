@@ -131,13 +131,13 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 	}
 	switch(response.status){
 		case 404:
-			$A.showErrorMessage('404错误', '未找到 "'+ response.statusText+'"',null,400,150);
+			$A.showErrorMessage(response.status + _lang['ajax.error'], _lang['ajax.error.404']+'"'+ response.statusText+'"',null,400,150);
 			break;
 		case 500:
-            $A.showErrorMessage(response.status + '错误', response.responseText,null,500,300);
+            $A.showErrorMessage(response.status + _lang['ajax.error'], response.responseText,null,500,300);
             break;
 		default:
-			$A.showErrorMessage('错误', response.statusText);
+			$A.showErrorMessage(_lang['ajax.error'], response.statusText);
 			break;
 	}	
 }, this);
@@ -216,7 +216,7 @@ $A.request = function(opt){
 				try {
 					res = Ext.decode(response.responseText);
 				}catch(e){
-					$A.showErrorMessage('错误', '返回格式不正确!');
+					$A.showErrorMessage(_lang['ajax.error'], _lang['ajax.error.format']);
 					return;
 				}
 				if(res && !res.success){
@@ -226,9 +226,9 @@ $A.request = function(opt){
 						st = (st) ? st.replaceAll('\r\n','</br>') : '';
 						if(res.error.message) {
 							var h = (st=='') ? 150 : 250;
-						    $A.showErrorMessage('错误', res.error.message+'</br>'+st,null,400,h);
+						    $A.showErrorMessage(_lang['ajax.error'], res.error.message+'</br>'+st,null,400,h);
 						}else{
-						    $A.showErrorMessage('错误', st,null,400,250);
+						    $A.showErrorMessage(_lang['ajax.error'], st,null,400,250);
 						}
 						if(errorCall)
                         errorCall.call(scope, res, options);	
@@ -648,7 +648,7 @@ $A.Masker = function(){
         	if($A.Masker.container[el.id]){
         	   return;
         	}
-        	msg = msg||'正在操作...';
+        	msg = msg||_lang['mask.loading'];
         	var el = Ext.get(el);
             var w = el.getWidth();
             var h = el.getHeight();//display:none;
@@ -951,7 +951,7 @@ $A.EventManager = Ext.extend(Ext.util.Observable,{
 });
 $A.manager = new $A.EventManager();
 $A.manager.on('ajaxstart',function(){
-    $A.Status.show('正在请求数据....');   
+    $A.Status.show(_lang['eventmanager.start']);   
 })
 $A.manager.on('timeout',function(){
     $A.Status.hide();
@@ -963,7 +963,7 @@ $A.manager.on('ajaxcomplete',function(){
     $A.Status.hide();
 })
 $A.manager.on('ajaxsuccess',function(){
-    $A.SideBar.show('操作成功!')
+    $A.SideBar.show(_lang['eventmanager.success'])
 })
 
 $A.regEvent = function(name, hanlder){
@@ -1047,7 +1047,7 @@ $A.showValidWindowMsg = function(ds) {
 		if($A.validWindow)$A.validWindow.close();
 	}
 	if(!$A.validWindow && empty == false){
-		$A.validWindow = $A.showWarningMessage('校验失败','',400,200);
+		$A.validWindow = $A.showWarningMessage(_lang['valid.fail'],'',400,200);
 		$A.validWindow.on('close',function(){
 			$A.validWindow = null;			
 		})
@@ -1057,7 +1057,7 @@ $A.showValidWindowMsg = function(ds) {
 	for(var i=0;i<rs.length;i++){
 		var r = rs[i];
 		var index = r.ds.data.indexOf(r)+1
-		sb[sb.length] ='记录<a href="#" onclick="$(\''+r.ds.id+'\').locate('+index+')">('+r.id+')</a>:';
+		sb[sb.length] =_lang['valid.fail.note']+'<a href="#" onclick="$(\''+r.ds.id+'\').locate('+index+')">('+r.id+')</a>:';
 
 		for(var k in r.valid){
 			sb[sb.length] = r.valid[k]+';'
@@ -1083,7 +1083,7 @@ $A.showValidTopMsg = function(ds) {
 	for(var i=0;i<rs.length;i++){
 		var r = rs[i];
 		var index = r.ds.data.indexOf(r)+1
-		sb[sb.length] ='记录<a href="#" onclick="$(\''+r.ds.id+'\').locate('+index+')">('+r.id+')</a>:';
+		sb[sb.length] =_lang['valid.fail.note']+'<a href="#" onclick="$(\''+r.ds.id+'\').locate('+index+')">('+r.id+')</a>:';
 
 		for(var k in r.valid){
 			sb[sb.length] = r.valid[k]+';'
