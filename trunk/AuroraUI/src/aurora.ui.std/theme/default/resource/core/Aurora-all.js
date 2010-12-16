@@ -131,13 +131,13 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 	}
 	switch(response.status){
 		case 404:
-			$A.showErrorMessage('404错误', '未找到 "'+ response.statusText+'"',null,400,150);
+			$A.showErrorMessage(response.status + _lang['ajax.error'], _lang['ajax.error.404']+'"'+ response.statusText+'"',null,400,150);
 			break;
 		case 500:
-            $A.showErrorMessage(response.status + '错误', response.responseText,null,500,300);
+            $A.showErrorMessage(response.status + _lang['ajax.error'], response.responseText,null,500,300);
             break;
 		default:
-			$A.showErrorMessage('错误', response.statusText);
+			$A.showErrorMessage(_lang['ajax.error'], response.statusText);
 			break;
 	}	
 }, this);
@@ -216,7 +216,7 @@ $A.request = function(opt){
 				try {
 					res = Ext.decode(response.responseText);
 				}catch(e){
-					$A.showErrorMessage('错误', '返回格式不正确!');
+					$A.showErrorMessage(_lang['ajax.error'], _lang['ajax.error.format']);
 					return;
 				}
 				if(res && !res.success){
@@ -226,9 +226,9 @@ $A.request = function(opt){
 						st = (st) ? st.replaceAll('\r\n','</br>') : '';
 						if(res.error.message) {
 							var h = (st=='') ? 150 : 250;
-						    $A.showErrorMessage('错误', res.error.message+'</br>'+st,null,400,h);
+						    $A.showErrorMessage(_lang['ajax.error'], res.error.message+'</br>'+st,null,400,h);
 						}else{
-						    $A.showErrorMessage('错误', st,null,400,250);
+						    $A.showErrorMessage(_lang['ajax.error'], st,null,400,250);
 						}
 						if(errorCall)
                         errorCall.call(scope, res, options);	
@@ -648,7 +648,7 @@ $A.Masker = function(){
         	if($A.Masker.container[el.id]){
         	   return;
         	}
-        	msg = msg||'正在操作...';
+        	msg = msg||_lang['mask.loading'];
         	var el = Ext.get(el);
             var w = el.getWidth();
             var h = el.getHeight();//display:none;
@@ -857,6 +857,25 @@ Ext.EventObjectImpl.prototype['isSpecialKey'] = function(){
     (k >= 33 && k <= 35) ||
     (k >= 36 && k <= 39);
 }
+Ext.removeNode = Ext.isIE && !Ext.isIE8 ? function(){
+    var d;
+    return function(n){
+        if(n && n.tagName != 'BODY'){
+            (Ext.enableNestedListenerRemoval) ? Ext.EventManager.purgeElement(n, true) : Ext.EventManager.removeAll(n);
+            d = d || document.createElement('<div style="position:absolute;display:none;left:-1000px;top:-1000px">');
+            if(!d.parentNode)document.appendChild(d);
+            d.appendChild(n);
+            d.innerHTML = '';
+            delete Ext.elCache[n.id];
+        }
+    }
+}() : function(n){
+    if(n && n.parentNode && n.tagName != 'BODY'){
+        (Ext.enableNestedListenerRemoval) ? Ext.EventManager.purgeElement(n, true) : Ext.EventManager.removeAll(n);
+        n.parentNode.removeChild(n);
+        delete Ext.elCache[n.id];
+    }
+}
 $A.parseDate = function(str){
 	if(typeof str == 'string'){  
 		
@@ -932,7 +951,7 @@ $A.EventManager = Ext.extend(Ext.util.Observable,{
 });
 $A.manager = new $A.EventManager();
 $A.manager.on('ajaxstart',function(){
-    $A.Status.show('正在请求数据....');   
+    $A.Status.show(_lang['eventmanager.start']);   
 })
 $A.manager.on('timeout',function(){
     $A.Status.hide();
@@ -944,7 +963,7 @@ $A.manager.on('ajaxcomplete',function(){
     $A.Status.hide();
 })
 $A.manager.on('ajaxsuccess',function(){
-    $A.SideBar.show('操作成功!')
+    $A.SideBar.show(_lang['eventmanager.success'])
 })
 
 $A.regEvent = function(name, hanlder){
@@ -1028,7 +1047,7 @@ $A.showValidWindowMsg = function(ds) {
 		if($A.validWindow)$A.validWindow.close();
 	}
 	if(!$A.validWindow && empty == false){
-		$A.validWindow = $A.showWarningMessage('校验失败','',400,200);
+		$A.validWindow = $A.showWarningMessage(_lang['valid.fail'],'',400,200);
 		$A.validWindow.on('close',function(){
 			$A.validWindow = null;			
 		})
@@ -1038,7 +1057,7 @@ $A.showValidWindowMsg = function(ds) {
 	for(var i=0;i<rs.length;i++){
 		var r = rs[i];
 		var index = r.ds.data.indexOf(r)+1
-		sb[sb.length] ='记录<a href="#" onclick="$(\''+r.ds.id+'\').locate('+index+')">('+r.id+')</a>:';
+		sb[sb.length] =_lang['valid.fail.note']+'<a href="#" onclick="$(\''+r.ds.id+'\').locate('+index+')">('+r.id+')</a>:';
 
 		for(var k in r.valid){
 			sb[sb.length] = r.valid[k]+';'
@@ -1064,7 +1083,7 @@ $A.showValidTopMsg = function(ds) {
 	for(var i=0;i<rs.length;i++){
 		var r = rs[i];
 		var index = r.ds.data.indexOf(r)+1
-		sb[sb.length] ='记录<a href="#" onclick="$(\''+r.ds.id+'\').locate('+index+')">('+r.id+')</a>:';
+		sb[sb.length] =_lang['valid.fail.note']+'<a href="#" onclick="$(\''+r.ds.id+'\').locate('+index+')">('+r.id+')</a>:';
 
 		for(var k in r.valid){
 			sb[sb.length] = r.valid[k]+';'
@@ -1819,7 +1838,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    	this.currentIndex = index;
     	}else{
     		if(this.isModified()){
-    			$A.showInfoMessage('提示', '有未保存数据!')
+    			$A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.locate'])
     		}else{
 				this.currentIndex = index;
 				this.currentPage =  Math.ceil(index/this.pagesize);
@@ -1944,7 +1963,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		if(fire !== false) {
 			$A.manager.fireEvent('valid', $A.manager, this, this.isValid);
 		}
-		if(!this.isValid) $A.showInfoMessage('提示', '验证不通过!');
+		if(!this.isValid) $A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.validate']);
 		return this.isValid;
     },
     /**
@@ -2375,7 +2394,7 @@ $A.Record.prototype = {
 		var field = this.getMeta().getField(name)
         var validator = field.get('validator');
 		if(Ext.isEmpty(v) && field.get('required') == true){
-			this.valid[name] = '当前字段不能为空!';
+			this.valid[name] = _lang['dataset.validate.required'];
 			valid =  false;
 		}else{
 			var isvalid = true;
@@ -3774,7 +3793,7 @@ $A.TextField = Ext.extend($A.Field,{
         var isShift  =  e.shiftKey;
         if (((keyCode >= 65&&keyCode<=90)&&!isShift)||((keyCode>=97&&keyCode<=122)&&isShift)){
         	if(this.dcl!=true)
-            $A.showWarningMessage('警告', '大些锁定打开!');
+            $A.showWarningMessage(_lang['textfield.warn'], _lang['textfield.warn.capslock']);
         	this.dcl = true;
         }else{
             this.dcl = false;
@@ -4198,7 +4217,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		this.refresh();
 //		this.litp=new Ext.Template('<li tabIndex="{index}">{'+this.displayfield+'}&#160;</li>');
 		if(this.optionDataSet.loading == true){
-			this.view.update('<li tabIndex="-1">正在加载...</li>');
+			this.view.update('<li tabIndex="-1">'+_lang['combobox.loading']+'</li>');
 		}else{
 			var datas = this.optionDataSet.getAll();
 			var l=datas.length;
@@ -4535,7 +4554,7 @@ $A.DateField = Ext.extend($A.Component, {
 	draw: function(date,index) {
 		//用来保存日期列表
 		var arr = [],year=date.getFullYear(),month=date.getMonth()+1,hour=date.getHours(),minute=date.getMinutes(),second=date.getSeconds();
-		if(index!=0)this.tables[index].head.text.innerHTML=year+"年"+month+"月";
+		if(index!=0)this.tables[index].head.text.innerHTML=year+this.yearSpan.next('div',true).innerHTML+month+this.monthSpan.next('div',true).innerHTML;
 		//用当月第一天在一周中的日期值作为当月离第一天的天数,用上个月的最后天数补齐
 		for(var i = 1, firstDay = new Date(year, month - 1, 1).getDay(),lastDay = new Date(year, month - 1, 0).getDate(); i <= firstDay; i++){ 
 			if(index==0)arr.push([n=lastDay-firstDay+i,new Date(year, month - 2, n,hour,minute,second),"item-day item-day-besides"]);
@@ -4719,7 +4738,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     },
     onLoad : function(){
     	this.pageInput.setValue(this.dataSet.currentPage);
-    	this.pageInfo.update('共' + this.dataSet.totalPage + '页');
+    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
     	this.navInfo.update(this.creatNavInfo());
     },
     creatNavInfo : function(){
@@ -4727,7 +4746,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	var to = this.dataSet.currentPage*this.dataSet.pagesize;
     	if(to>this.dataSet.totalCount) to = this.dataSet.totalCount;
     	if(to==0) from =0;
-    	return '显示 ' + from + ' - ' + to + ',共 ' + this.dataSet.totalCount + ' 条';
+    	return _lang['toolbar.visible'] + from + ' - ' + to + ','+ _lang['toolbar.total'] + this.dataSet.totalCount + _lang['toolbar.item'];
     },
     onInputKeyPress : function(input, e){
     	if(e.keyCode == 13){
@@ -4972,7 +4991,7 @@ $A.Window = Ext.extend($A.Component,{
     	this.proxy.moveTo(tx,ty);
     },
     showLoading : function(){
-    	this.body.update('正在加载...');
+    	this.body.update(_lang['window.loading']);
     	this.body.setStyle('text-align','center');
     	this.body.setStyle('line-height',5);
     },
@@ -5080,9 +5099,9 @@ $A.Window = Ext.extend($A.Component,{
                 st = (st) ? st.replaceAll('\r\n','</br>') : '';
                 if(res.error.message) {
                     var h = (st=='') ? 150 : 250;
-                    $A.showErrorMessage('错误', res.error.message+'</br>'+st,null,400,h);
+                    $A.showErrorMessage(_lang['window.error'], res.error.message+'</br>'+st,null,400,h);
                 }else{
-                    $A.showErrorMessage('错误', st,null,400,250);
+                    $A.showErrorMessage(_lang['window.error'], st,null,400,250);
                 }   
             }
             return;
@@ -5203,8 +5222,8 @@ $A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
 $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
     if(cmp == null) {
-        var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok','确定');
-        var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel','取消');
+        var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok',_lang['window.button.ok']);
+        var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel',_lang['window.button.cancel']);
         cmp = new $A.Window({id:'aurora-msg-ok-cancel',title:title, height:height||100,width:width||300});
         if(msg){
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
@@ -5238,7 +5257,7 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
 $A.showOkWindow = function(title, msg, width, height,callback){
 	var cmp = $A.CmpManager.get('aurora-msg-ok');
 	if(cmp == null) {
-		var btnhtml = $A.Button.getTemplate('aurora-msg-yes','确定');
+		var btnhtml = $A.Button.getTemplate('aurora-msg-yes',_lang['window.button.ok']);
 		cmp = new $A.Window({id:'aurora-msg-ok',title:title, height:height,width:width});
 		if(msg){
 			cmp.body.update(msg+ '<center>'+btnhtml+'</center>',true,function(){
@@ -5266,7 +5285,7 @@ $A.showOkWindow = function(title, msg, width, height,callback){
  * @param {String} callback 回调函数的名字
  */
 $A.showUploadWindow = function(path,title,source_type,pkvalue,max_size,file_type,callback){
-    new Aurora.Window({id:'upload_window', url:path+'/upload.screen?callback='+callback+'&pkvalue='+pkvalue+'&source_type='+source_type+'&max_size='+(max_size||0)+'&file_type='+(file_type||'*.*'), title:title||'上传附件', height:330,width:595});
+    new Aurora.Window({id:'upload_window', url:path+'/upload.screen?callback='+callback+'&pkvalue='+pkvalue+'&source_type='+source_type+'&max_size='+(max_size||0)+'&file_type='+(file_type||'*.*'), title:title||_lang['window.upload.title'], height:330,width:595});
 }
 /**
  * @class Aurora.Lov
@@ -5416,7 +5435,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		}
 		$A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
-        this.setRawValue('正在查询...')
+        this.setRawValue(_lang['lov.query'])
 		$A.request({url:url, para:p, success:function(res){
 			var r = new $A.Record({});
 			if(res.result.record){
