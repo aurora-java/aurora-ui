@@ -5,9 +5,7 @@
 	new Aurora.NavBar({
 		id:'${id}',
 		dataSet:'${dataset}',
-		pageId:'${pageId}',
 		inputId:'${inputid}',
-		infoId:'${infoid}',
 		width:${width}
 	});
 </SCRIPT>
