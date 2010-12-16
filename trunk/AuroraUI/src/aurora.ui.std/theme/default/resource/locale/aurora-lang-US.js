@@ -29,10 +29,11 @@ _lang['tab.loading'] = 'Loading,please wait...';
 _lang['textfield.warn'] = 'Warning';
 _lang['textfield.warn.capslock'] = 'Caps Lock is on!';
 
-_lang['toolbar.total'] = 'total';
-_lang['toolbar.page'] = 'page(s)';
+_lang['toolbar.ctPage'] = 'Page:';
+_lang['toolbar.total'] = ' of ';
+_lang['toolbar.page'] = '';
 _lang['toolbar.item'] = ' ';
-_lang['toolbar.visible'] = 'current';
+_lang['toolbar.visible'] = 'Displaying ';
 
 _lang['window.loading'] = 'Loading...';
 _lang['window.error'] = 'Error';

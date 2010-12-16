@@ -4724,9 +4724,12 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	$A.NavBar.superclass.initComponent.call(this, config);
     	this.dataSet = $(this.dataSet);
     	this.pageInput = $(this.inputId);
-    	this.pageInfo = Ext.get(this.pageId);
-    	this.navInfo = Ext.get(this.infoId);
+    	this.currentPage = this.wrap.child('div[atype=currentPage]');
+    	this.pageInfo = this.wrap.child('div[atype=pageInfo]');//Ext.get(this.pageId);
+    	this.navInfo = this.wrap.child('div[atype=displayInfo]');//Ext.get(this.infoId);
     	this.pageInput.setValue(1)
+    	
+    	this.currentPage.update(_lang['toolbar.ctPage']);
     },
     processListener: function(ou){
     	$A.NavBar.superclass.processListener.call(this,ou);
@@ -4746,7 +4749,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	var to = this.dataSet.currentPage*this.dataSet.pagesize;
     	if(to>this.dataSet.totalCount) to = this.dataSet.totalCount;
     	if(to==0) from =0;
-    	return _lang['toolbar.visible'] + from + ' - ' + to + ','+ _lang['toolbar.total'] + this.dataSet.totalCount + _lang['toolbar.item'];
+    	return _lang['toolbar.visible'] + from + ' - ' + to + ' '+ _lang['toolbar.total'] + this.dataSet.totalCount + _lang['toolbar.item'];
     },
     onInputKeyPress : function(input, e){
     	if(e.keyCode == 13){

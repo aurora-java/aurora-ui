@@ -29,6 +29,7 @@ _lang['tab.loading'] = '正在加载,请稍后...';
 _lang['textfield.warn'] = '警告';
 _lang['textfield.warn.capslock'] = '大些锁定打开!';
 
+_lang['toolbar.ctPage'] = '页数:';
 _lang['toolbar.total'] = '共';
 _lang['toolbar.page'] = '页';
 _lang['toolbar.item'] = ' 条';
