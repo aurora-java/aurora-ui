@@ -2136,20 +2136,46 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     /**
      * 提交选中数据.
-     * @return {String} url(可选) 提交的url.
+     * @param {String} url(可选) 提交的url.
      */
     submitSelected : function(url){
-    	this.fireBindDataSetEvent("submit");
-        this.doSubmit(url,this.getJsonData(true));
+    	var sf=this,intervalId=setInterval(function(){
+    		if(!sf.getCurrentRecord().isReady)return;
+	    	sf.fireBindDataSetEvent("submit");
+	        sf.doSubmit(url,sf.getJsonData(true));
+	        clearInterval(intervalId);
+    	},10);
     },
     /**
      * 提交数据.
-     * @return {String} url(可选) 提交的url.
+     * @param {String} url(可选) 提交的url.
      */
     submit : function(url){
-    	this.fireBindDataSetEvent("submit");
-    	this.doSubmit(url,this.getJsonData());
+    	var sf=this,intervalId=setInterval(function(){
+    		if(!sf.getCurrentRecord().isReady)return;
+	    	sf.fireBindDataSetEvent("submit");
+	    	sf.doSubmit(url,sf.getJsonData());
+	    	clearInterval(intervalId);
+    	},10);
     },
+    /**
+     * post方式提交数据.
+     * @param {String} url(可选) 提交的url.
+     */
+    post : function(url,data){
+    	var sf=this,intervalId=setInterval(function(){
+    		if(!sf.getCurrentRecord().isReady)return;
+    		if(sf.validate()){           
+			    var data=data||sf.getCurrentRecord().data,form = Ext.getBody().createChild({tag:'form',method:'post',action:url});
+			    for(var key in data){
+			    	if(data[key])
+			        form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
+			    }
+			    form.dom.submit();
+	        }
+		    clearInterval(intervalId);
+    	},10);
+	},
     /**
      * 重置数据.
      */
@@ -2355,6 +2381,12 @@ $A.Record = function(data, fields){
      * @property
      */
 	this.modified= null;
+	/**
+     * 是否是已就绪数据 (只读).
+     * @type Boolean
+     * @property
+     */
+	this.isReady=true;
     this.meta = new $A.Record.Meta(this);
     if(fields)this.initFields(fields);
 };
@@ -5439,6 +5471,7 @@ $A.Lov = Ext.extend($A.TextField,{
 			url = this.context + 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
 		}
 		var record = this.record;
+		record.isReady=false;
 		var p = {};
 		var mapping = this.getMapping();
 		for(var i=0;i<mapping.length;i++){
@@ -5462,6 +5495,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	    	}
 	    	this.fetching = false;
 			this.commit(r,record);
+			record.isReady=true;
 			$A.SideBar.enable = $A.slideBarEnable;
 		}, error:this.onFetchFailed, scope:this});
 	},

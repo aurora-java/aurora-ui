@@ -135,6 +135,7 @@ $A.Lov = Ext.extend($A.TextField,{
 			url = this.context + 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
 		}
 		var record = this.record;
+		record.isReady=false;
 		var p = {};
 		var mapping = this.getMapping();
 		for(var i=0;i<mapping.length;i++){
@@ -158,6 +159,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	    	}
 	    	this.fetching = false;
 			this.commit(r,record);
+			record.isReady=true;
 			$A.SideBar.enable = $A.slideBarEnable;
 		}, error:this.onFetchFailed, scope:this});
 	},
