@@ -1048,7 +1048,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var record=this.getCurrentRecord();
     	if(!record&&!record.fields)return;
     	for(var c in record.fields){
-    		record.set(c,"");
+    		var v=record.fields[c].get('defaultvalue');
+    		if(v!=record.get(c))
+    			record.set(c,v==undefined||v==null?"":v);
     	}
     },
     fireBindDataSetEvent : function(event){
