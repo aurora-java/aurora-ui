@@ -2150,6 +2150,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.fireBindDataSetEvent("submit");
     	this.doSubmit(url,this.getJsonData());
     },
+    /**
+     * 重置数据.
+     */
+    reset : function(){
+    	var record=this.getCurrentRecord();
+    	if(!record&&!record.fields)return;
+    	for(var c in record.fields){
+    		record.set(c,"");
+    	}
+    },
     fireBindDataSetEvent : function(event){
     	this.fireEvent(event,this);
         for(var k in this.fields){
