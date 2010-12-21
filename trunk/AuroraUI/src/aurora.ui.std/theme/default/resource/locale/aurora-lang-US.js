@@ -19,7 +19,7 @@ _lang['dataset.info.validate'] = 'Validation not through! ';
 _lang['dataset.validate.required'] = 'The current fields is required!';
 
 _lang['grid.mask.remove'] = 'Deleting...';
-_lang['grid.mask.loading'] = 'Querying...';
+_lang['grid.mask.loading'] = 'Loading...';
 _lang['grid.mask.submit'] = 'Submitting...';
 
 _lang['lov.query'] = 'Querying...';

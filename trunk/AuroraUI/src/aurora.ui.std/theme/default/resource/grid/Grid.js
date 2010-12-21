@@ -186,7 +186,7 @@ $A.Grid = Ext.extend($A.Component,{
             ds[ou]('submit', this.onBeforSubmit, this);
             ds[ou]('submitfailed', this.onAfterSuccess, this);
             ds[ou]('submitsuccess', this.onAfterSuccess, this);
-            ds[ou]('beforeload', this.onBeforLoad, this);
+            ds[ou]('beforeload', this.onBeforeLoad, this);
             ds[ou]('load', this.onLoad, this);
             ds[ou]('loadfailed', this.onAjaxFailed, this);
             ds[ou]('valid', this.onValid, this);
@@ -361,7 +361,7 @@ $A.Grid = Ext.extend($A.Component,{
     onBeforeRemove : function(){
         $A.Masker.mask(this.wb,_lang['grid.mask.remove']);//TODO:多语言
     },
-    onBeforLoad : function(){
+    onBeforeLoad : function(){
         $A.Masker.mask(this.wb,_lang['grid.mask.loading']);//TODO:多语言
     },
     onBeforSubmit : function(ds){
