@@ -108,7 +108,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	onWinClose: function(){
 		this.isWinOpen = false;
 		this.win = null;
-		this.focus();
+		if(!Ext.isIE6)this.focus();
 	},
 	getLovPara : function(){
 		var para = Ext.apply({},this.para);
