@@ -72,6 +72,13 @@ $A.Table = Ext.extend($A.Component,{
 			this.createCell(tr,this.columns[i],record);
 		}
 	},
+	createEmptyRow:function(){
+		var tr=this.tbody.dom.insertRow(-1);
+		for(var i=0,l=this.columns.length;i<l;i++){
+			var td=tr.insertCell(-1);
+			Ext.fly(td).set({'atype':'table-cell','dataindex':this.columns[i].name,'style':'text-align:'+(this.columns[i].align||'left')+';visibility:visible;'});
+		}
+	},
 	createCell:function(tr,col,record){
 		var field = record.getMeta().getField(col.name);
         if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get('required') == true){
@@ -342,7 +349,9 @@ $A.Table = Ext.extend($A.Component,{
     },
     onLoad:function(){
     	this.clearBody();
-		for(var i=0,l=this.dataset.data.length;i<l;i++){
+    	var l=this.dataset.data.length;
+    	if(l==0)this.createEmptyRow();
+		for(var i=0;i<l;i++){
             this.createRow(this.dataset.getAt(i),i);
         }
         this.drawFootBar();
