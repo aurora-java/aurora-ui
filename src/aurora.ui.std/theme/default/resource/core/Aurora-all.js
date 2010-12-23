@@ -4048,9 +4048,9 @@ $A.TriggerField = Ext.extend($A.TextField,{
     expand : function(){
 //    	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this, {delay: 10});
     	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this);
-    	this.positionPopup();
+    	this.syncPopup();
     },
-    positionPopup:function(){
+    syncPopup:function(){
     	var xy = this.wrap.getXY();
     	this.popup.moveTo(xy[0],xy[1]+23);
     	this.shadow.moveTo(xy[0]+3,xy[1]+26);
