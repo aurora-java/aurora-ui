@@ -4014,11 +4014,10 @@ $A.TriggerField = Ext.extend($A.TextField,{
 		if(this.isExpanded()){
     		this.collapse();
     	}
-    	this.trigger.un('click',this.onTriggerClick, this)
     	this.shadow.remove();
     	this.popup.remove();
-    	delete this.trigger;
     	delete this.popup;
+    	delete this.shadow;
     	$A.TriggerField.superclass.destroy.call(this);
 	},
     triggerBlur : function(e){
