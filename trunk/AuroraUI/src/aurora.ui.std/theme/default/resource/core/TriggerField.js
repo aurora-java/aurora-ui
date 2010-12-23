@@ -23,9 +23,9 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	Ext.getBody().insertFirst(this.shadow);
     	this.initpopuped = true
     },
-    initEvents : function(){
-    	$A.TriggerField.superclass.initEvents.call(this);    
-    	this.trigger.on('click',this.onTriggerClick, this, {preventDefault:true})
+    processListener: function(ou){
+    	$A.TriggerField.superclass.processListener.call(this, ou);
+    	this.trigger[ou]('click',this.onTriggerClick, this, {preventDefault:true})
     },
     /**
      * 判断当时弹出面板是否展开
@@ -102,6 +102,9 @@ $A.TriggerField = Ext.extend($A.TextField,{
     expand : function(){
 //    	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this, {delay: 10});
     	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this);
+    	this.syncPopup();
+    },
+    syncPopup:function(){
     	var xy = this.wrap.getXY();
     	this.popup.moveTo(xy[0],xy[1]+23);
     	this.shadow.moveTo(xy[0]+3,xy[1]+26);

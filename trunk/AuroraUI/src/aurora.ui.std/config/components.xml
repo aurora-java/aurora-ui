@@ -28,6 +28,7 @@
 		<view-component elementName="hBox" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.HBox" />
 		<view-component elementName="dataSet" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="grid" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
+		<view-component elementName="table" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
 		<view-component elementName="dataSets" nameSpace="http://www.aurora-framework.org/application" builder="aurora.application.features.DataSetInit" />
 		<view-component elementName="tabPanel" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="accordionPanel" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
