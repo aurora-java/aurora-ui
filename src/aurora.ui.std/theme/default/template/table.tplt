@@ -1,5 +1,6 @@
 <TABLE class="${wrapClass}" id="${id}" width="${width}%" style="${style}" cellSpacing="0" cellPadding="0" border="0">
 <THEAD>
+	${title}
 	${heads}
 </THEAD>
 <TBODY>

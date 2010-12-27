@@ -50,3 +50,11 @@
     border-left:1px solid #fff;
     height:24px;
 }
+.table_title {
+	border-left:1px solid #ffffff;
+	border-bottom:1px solid #bbbbbb;
+	height:25px;
+	COLOR: #055a78;	
+	background:url(../toolbar/toolbar_bg.gif) repeat-x;
+	padding-left:5px;
+}
