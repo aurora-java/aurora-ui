@@ -913,6 +913,7 @@ $A.formatDateTime = function(date){
 	return date;
 }
 $A.formatNumber = function(value){
+	if(value==0)return '0';
 	if(!value)return '';
     var ps = String(value).split('.');
     var sub = (ps.length==2)?'.'+ps[1]:'';
