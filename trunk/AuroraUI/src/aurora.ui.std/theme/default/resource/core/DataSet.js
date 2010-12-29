@@ -23,6 +23,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.fetchall = config.fetchall||false;
     	this.selectable = config.selectable||false;
     	this.selectionmodel = config.selectionmodel||'multiple';
+    	this.selectfunction = config.selectfunction;
     	this.autocount = config.autocount;
     	this.bindtarget = config.bindtarget;
     	this.bindname = config.bindname;
@@ -687,20 +688,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Aurora.Record} record 需要选择的record.
      */
     select : function(r){
+    	if(!this.selectable)return;
     	if(typeof(r) == 'string') r = this.findById(r);
-    	if(this.selectable && this.selectionmodel == 'multiple'){
-    		if(this.selected.indexOf(r) == -1) {
-    			this.selected.add(r);
-    			this.fireEvent('select', this, r);
-    		}
+    	if(this.selected.indexOf(r) != -1)return;
+    	if(!this.execSelectFunction(r))return;
+    	if(this.selectionmodel == 'multiple'){
+			this.selected.add(r);
+			this.fireEvent('select', this, r);
        	}else{
-       		if(this.selected.indexOf(r) == -1) {
-	       		var or = this.selected[0];
-	       		this.unSelect(or);
-	       		this.selected = []
-	       		this.selected.add(r);
-	       		this.fireEvent('select', this, r);
-       		}
+       		var or = this.selected[0];
+       		this.unSelect(or);
+       		this.selected = []
+       		this.selected.add(r);
+       		this.fireEvent('select', this, r);
        	}
     },
     /**
@@ -708,13 +708,23 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Aurora.Record} record 需要取消选择的record.
      */
     unSelect : function(r){
+    	if(!this.selectable)return;
     	if(typeof(r) == 'string') r = this.findById(r);
-    	if(this.selectable){
-    		if(this.selected.indexOf(r) != -1) {
-    			this.selected.remove(r);
-    			this.fireEvent('unselect', this, r);
-    		}
+    	if(this.selected.indexOf(r) == -1) return;
+		this.selected.remove(r);
+		this.fireEvent('unselect', this, r);
+    },
+    execSelectFunction:function(r){
+    	if(this.selectfunction){
+    		var selfun = $A.getRenderer(this.selectfunction);
+            if(selfun == null){
+                alert("未找到"+this.selectfunction+"方法!")
+            }else{
+            	var b=selfun.call(window,r);
+            	if(Ext.isDefined(b))return b;
+            }
     	}
+    	return true;
     },
     /**
      * 定位到某个指针位置.
@@ -1092,7 +1102,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
     },
     afterEdit : function(record, name, value,oldvalue) {
-        this.fireEvent("update", this, record, name, value,oldvalue);
+        this.fireEvent("update", this, record, name, value);
     },
     afterReject : function(record, name, value) {
     	this.fireEvent("reject", this, record, name, value);

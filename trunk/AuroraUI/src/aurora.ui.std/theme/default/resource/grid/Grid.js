@@ -251,20 +251,14 @@ $A.Grid = Ext.extend($A.Component,{
                 cls = this.cecls;
             }
         }
-        if(xtype == 'rowcheck'){
+        if(xtype == 'rowcheck'||xtype == 'rowradio'){
+        	var readonly="";
+        	if(!this.dataset.execSelectFunction(record))readonly="-readonly"
             tdTpl = this.rowTdTpl;
             data = Ext.apply(data,{
                 align:'center',
-                atype:'grid.rowcheck',
-                cellcls: 'grid-ckb item-ckb-u'
-            })
-            cellTpl =  this.cbTpl;
-        }else if(xtype == 'rowradio'){
-            tdTpl = this.rowTdTpl;
-            data = Ext.apply(data,{
-                align:'center',
-                atype:'grid.rowradio',
-                cellcls: 'grid-radio item-radio-img-u'
+                atype:xtype == 'rowcheck'?'grid.rowcheck':'grid.rowradio',
+                cellcls: xtype == 'rowcheck'?'grid-ckb item-ckb'+readonly+'-u':'grid-radio item-radio-img'+readonly+'-u'
             })
             cellTpl =  this.cbTpl;
         }else if(xtype == 'cellcheck'){
@@ -523,6 +517,7 @@ $A.Grid = Ext.extend($A.Component,{
             }
         }
         this.ubt.dom.tBodies[0].appendChild(utr);
+    	this.setSelectStatus(record);
     },
     renderEditor : function(div,record,c,editor){
     	var cell = this.createCell(c,record,false);
@@ -540,6 +535,7 @@ $A.Grid = Ext.extend($A.Component,{
         */
     },
     onUpdate : function(ds,record, name, value){
+        this.setSelectStatus(record);
         var div = Ext.get(this.id+'_'+name+'_'+record.id);
         if(div){
             var c = this.findColByName(name);
@@ -673,9 +669,12 @@ $A.Grid = Ext.extend($A.Component,{
                 this.fireEvent('rowclick', this, row, record);
             }else if(atype=='grid.rowcheck'){               
                 var cb = Ext.get(this.id+'__'+rid);
+                if(cb.hasClass('item-ckb-readonly-u'))return;
                 var checked = cb.hasClass('item-ckb-c');
                 (checked) ? this.dataset.unSelect(rid) : this.dataset.select(rid);
             }else if(atype=='grid.rowradio'){
+            	var cb = Ext.get(this.id+'__'+rid);
+                if(cb.hasClass('item-radio-img-readonly-u'))return;
                 this.dataset.select(rid);
             }
         }
@@ -946,6 +945,37 @@ $A.Grid = Ext.extend($A.Component,{
             el.addClass('item-ckb-c');
             el.removeClass('item-ckb-u');
         }
+    },
+    setSelectDisable:function(el){
+    	if(this.selectable && this.selectionmodel=='multiple'){
+    		el.removeClass('item-ckb-c');
+    		el.removeClass('item-ckb-u');
+    		el.addClass('item-ckb-readonly-u');
+    	}else{
+    		el.removeClass('item-radio-img-c');
+    		el.removeClass('item-radio-img-u');
+    		el.addClass('item-radio-img-readonly-u');
+    	}
+    },
+    setSelectEnable:function(el){
+    	if(this.selectable && this.selectionmodel=='multiple'){
+    		el.removeClass('item-ckb-readonly-u');
+    		el.addClass('item-ckb-u');
+    	}else{
+    		el.removeClass('item-radio-img-readonly-u');
+    		el.addClass('item-radio-img-u');
+    	}	
+    },
+    setSelectStatus:function(record){
+    	if(this.dataset.selectfunction){
+	    	var cb = Ext.get(this.id+'__'+record.id);
+	    	if(!this.dataset.execSelectFunction(record)){
+	    		 this.dataset.unSelect(record);
+	    		 this.setSelectDisable(cb)
+	    	}else{
+	    		 this.setSelectEnable(cb);
+	    	}
+    	}
     },
     onHeadMouseMove: function(e){
 //      this.draging = true
