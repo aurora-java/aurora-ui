@@ -1560,6 +1560,7 @@ $A.Record.Field.prototype = {
 	 * @param {Boolean} readonly 是否只读
 	 */
 	setReadOnly : function(r){	
+		if(r)delete this.record.valid[this.name];
 		this.setPropertity('readonly',r);
 	},
 	/**
