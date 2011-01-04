@@ -44,7 +44,7 @@ $A.NumberField = Ext.extend($A.TextField,{
     },
     formatValue : function(v){
     	var rv = this.fixPrecision(this.parseValue(v))        
-        if(this.allowformat)rv = $A.formatNumber(rv);
+        if(this.allowformat)rv = $A.formatNumber(rv,this.decimalprecision);
         return rv;
     },
     processValue : function(v){
