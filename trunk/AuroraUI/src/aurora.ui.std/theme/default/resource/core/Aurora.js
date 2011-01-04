@@ -912,9 +912,9 @@ $A.formatDateTime = function(date){
 	if(date.format)return date.format('yyyy-mm-dd HH:MM:ss');
 	return date;
 }
-$A.formatNumber = function(value){
-	if(value==0)return '0';
-	if(!value)return '';
+$A.formatNumber = function(value,decimalprecision){
+	if(value!==0&&(!value||isNaN(value)))return '';
+	if(decimalprecision||decimalprecision===0) value=Number(value).toFixed(decimalprecision);
     var ps = String(value).split('.');
     var sub = (ps.length==2)?'.'+ps[1]:'';
     var whole = ps[0];
