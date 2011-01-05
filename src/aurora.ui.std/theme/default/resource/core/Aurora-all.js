@@ -3929,7 +3929,7 @@ $A.NumberField = Ext.extend($A.TextField,{
     },
     formatValue : function(v){
     	var rv = this.fixPrecision(this.parseValue(v))        
-        if(this.allowformat)rv = $A.formatNumber(rv,this.decimalprecision);
+        if(this.allowformat)rv = $A.formatNumber(rv);
         return rv;
     },
     processValue : function(v){
@@ -3953,7 +3953,7 @@ $A.NumberField = Ext.extend($A.TextField,{
         if(!this.allowdecimals || this.decimalprecision == -1 || nan || !value){
            return nan ? '' : value;
         }
-        return parseFloat(parseFloat(value).toFixed(this.decimalprecision));
+        return parseFloat(value).toFixed(this.decimalprecision);
     }
 })
 /**
