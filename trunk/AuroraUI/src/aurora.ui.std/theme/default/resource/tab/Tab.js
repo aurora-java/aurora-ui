@@ -99,6 +99,7 @@ $A.Tab = Ext.extend($A.Component,{
 		}
 		this.showLoading(dom);
 		var sf = this;
+		//TODO:错误信息
     	Ext.Ajax.request({
 			url: url,
 		   	success: function(response, options){
