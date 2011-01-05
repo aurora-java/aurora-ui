@@ -252,12 +252,12 @@ $A.DateField = Ext.extend($A.Component, {
 						var cell = document.createElement("td"); 
 						if(d[1]){
 							cell.innerHTML = d[0];
+							cell.className = d[2];
 							this.renderCell(cell,d[1]);
 							if(cell.disabled){
 								Ext.fly(cell).set({'_date':'0'});
-								d[2]+=" item-day-disabled";
+								Ext.fly(cell).addClass("item-day-disabled");
 							}else Ext.fly(cell).set({'_date':(''+d[1].getTime()),'title':d[1].format(this.format)});
-							cell.className = d[2];
 							//判断是否今日
 							if(this.isSame(d[1], new Date())) this.onToday(cell);
 							//判断是否选择日期
