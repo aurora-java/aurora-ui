@@ -65,10 +65,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     expand : function(){
     	$A.DatePicker.superclass.expand.call(this);
-    	if(this.dateField.selectDay != this.getValue()) {
-    		this.dateField.selectDay = this.getValue();
-    		this.dateField.predraw(this.dateField.selectDay);
-    	}
+    	this.dateField.selectDay = this.getValue();
+		this.dateField.predraw(this.dateField.selectDay);
     	var xy=this.wrap.getXY(),
 			W=this.popup.getWidth(),H=this.popup.getHeight(),
 			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
