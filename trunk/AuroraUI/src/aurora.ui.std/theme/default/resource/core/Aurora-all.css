@@ -634,6 +634,9 @@ button div {
 .item-day-besides{
 	color:#ACACAC;
 }
+.item-day-disabled{
+	color:#BABABA;
+}
 .item-dateField td.onToday {
 	background-color:#FDAB00;
 	color:#fff;
