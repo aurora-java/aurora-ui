@@ -330,6 +330,7 @@ $A.Window = Ext.extend($A.Component,{
         }catch(e){}
         if(res && res.success == false){
         	if(res.error){
+        		$A.manager.fireEvent('ajaxfailed', $A.manager, options.url,options.para,res);
                 var st = res.error.stackTrace;
                 st = (st) ? st.replaceAll('\r\n','</br>') : '';
                 if(res.error.message) {

@@ -5,7 +5,7 @@
  * http://www.hand-china.com
  * 
  * author:牛佳庆
- * revision:$Rev: 1518 $
+ * revision:$Rev: 1848 $
  */
  
 .item-grid-wrap {
@@ -47,8 +47,6 @@
 	LEFT: 0px;	
 	WIDTH: 1px;	
 	LINE-HEIGHT: 1px;	
-	POSITION: absolute;	
-	TOP: 0px;	
 	HEIGHT: 1px;	
 	moz-user-select: text;	
 	khtml-user-select: text;	
