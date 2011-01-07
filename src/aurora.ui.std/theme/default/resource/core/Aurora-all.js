@@ -3936,6 +3936,7 @@ $A.NumberField = Ext.extend($A.TextField,{
     	return this.fixPrecision(this.parseValue(v));
     },
     onFocus : function(e) {
+    	if(this.readonly) return;
     	if(this.allowformat) {
             this.setRawValue($A.removeNumberFormat(this.getRawValue()));
         }
@@ -4648,9 +4649,11 @@ $A.DateField = Ext.extend($A.Component, {
 						if(d[1]){
 							cell.innerHTML = d[0];
 							cell.className = d[2];
-							cell.title=d[1].format(this.format);
 							this.renderCell(cell,d[1]);
-							Ext.fly(cell).set({'_date':cell.disabled?'0':''+d[1].getTime()});
+							if(cell.disabled){
+								Ext.fly(cell).set({'_date':'0'});
+								Ext.fly(cell).addClass("item-day-disabled");
+							}else Ext.fly(cell).set({'_date':(''+d[1].getTime()),'title':d[1].format(this.format)});
 							//判断是否今日
 							if(this.isSame(d[1], new Date())) this.onToday(cell);
 							//判断是否选择日期
@@ -4744,10 +4747,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     expand : function(){
     	$A.DatePicker.superclass.expand.call(this);
-    	if(this.dateField.selectDay != this.getValue()) {
-    		this.dateField.selectDay = this.getValue();
-    		this.dateField.predraw(this.dateField.selectDay);
-    	}
+    	this.dateField.selectDay = this.getValue();
+		this.dateField.predraw(this.dateField.selectDay);
     	var xy=this.wrap.getXY(),
 			W=this.popup.getWidth(),H=this.popup.getHeight(),
 			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),

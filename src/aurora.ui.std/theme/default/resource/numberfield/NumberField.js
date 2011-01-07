@@ -51,6 +51,7 @@ $A.NumberField = Ext.extend($A.TextField,{
     	return this.fixPrecision(this.parseValue(v));
     },
     onFocus : function(e) {
+    	if(this.readonly) return;
     	if(this.allowformat) {
             this.setRawValue($A.removeNumberFormat(this.getRawValue()));
         }
