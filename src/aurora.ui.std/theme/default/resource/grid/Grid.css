@@ -65,7 +65,8 @@
 	height:0px;
 }
 .row-alt {
-	background-color:#fafafa;
+	/*background-color:#fafafa;*/
+	background-color:#ededed;
 }
 .grid-la {
 	float:left;
@@ -119,7 +120,7 @@
 }
 .grid-ub td, .grid-lb td {
 	/*border-right:1px solid #bbbbbb;*/
-	border-bottom:1px solid #ededed;
+	border-bottom:1px solid #cccccc;
 	padding:1px;
 	/**color: #808080;**/
 	height:22px;

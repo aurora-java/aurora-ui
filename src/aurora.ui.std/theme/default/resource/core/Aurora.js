@@ -428,12 +428,14 @@ $A.TextMetrics = function(){
     };
 }();
 $A.TextMetrics.Instance = function(bindTo, fixedWidth){
-    var ml = new Ext.Element(document.createElement('div'));
-    document.body.appendChild(ml.dom);
-    ml.position('absolute');
-    ml.setLeft(-1000);
-    ml.setTop(-1000);    
-    ml.hide();
+	var p = '<div style="left:-1000px;top:-1000px;position:absolute;visibility:hidden"></div>';
+	var ml = Ext.get(Ext.DomHelper.append(Ext.get(bindTo),p));
+//    var ml = new Ext.Element(document.createElement('div'));
+//    document.body.appendChild(ml.dom);
+//    ml.position('absolute');
+//    ml.setLeft(-1000);
+//    ml.setTop(-1000);    
+//    ml.hide();
     if(fixedWidth){
         ml.setWidth(fixedWidth);
     }
@@ -659,7 +661,7 @@ $A.Masker = function(){
             masker.setXY(el.getXY());
             var sp = masker.child('span');
             var size = $A.TextMetrics.measure(sp,msg);
-            sp.setLeft((w-size.width)/2)
+            sp.setLeft((w-size.width - 45)/2)
             $A.Masker.container[el.id] = masker;
         },
         unmask : function(el){
@@ -862,7 +864,7 @@ Ext.removeNode = Ext.isIE && !Ext.isIE8 ? function(){
     return function(n){
         if(n && n.tagName != 'BODY'){
             (Ext.enableNestedListenerRemoval) ? Ext.EventManager.purgeElement(n, true) : Ext.EventManager.removeAll(n);
-            d = d || document.createElement('<div style="position:absolute;display:none;left:-1000px;top:-1000px">');
+            d = d || document.createElement('<div id="_removenode" style="position:absolute;display:none;left:-1000px;top:-1000px">');
             if(!d.parentNode)document.appendChild(d);
             d.appendChild(n);
             d.innerHTML = '';
