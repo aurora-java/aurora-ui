@@ -165,8 +165,8 @@ $A.Table = Ext.extend($A.Component,{
     },
     positionEditor:function(){
     	var ed=this.currentEditor.editor,dom=this.focusdiv,xy = dom.getXY(),sf=this;
-        ed.setHeight(dom.getHeight()-2)
-        ed.setWidth(dom.getWidth()-5);
+        ed.setHeight(dom.getHeight()-2);
+        ed.setWidth(dom.getWidth()-5<22?22:(dom.getWidth()-5));
         ed.move(xy[0],xy[1]);
         if(ed.isExpanded&&ed.isExpanded()){
         	if(Ext.isIE){
