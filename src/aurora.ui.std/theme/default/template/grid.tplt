@@ -14,7 +14,7 @@
 				</DIV>
 				<DIV style="clear:both"></DIV>
 				<DIV atype="grid.spliter" class="grid-sp" style="display:none;"></DIV>
-				<A atype="grid.focus" href="#" class="grid-fs" tabIndex="-1">&#160;</A>
+				<A atype="grid.focus" href="#" class="grid-fs" tabIndex="-1"></A>
 			</DIV>
 		</TD>
 	</TR>
