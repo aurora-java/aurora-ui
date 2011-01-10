@@ -353,13 +353,13 @@ $A.Grid = Ext.extend($A.Component,{
         return sb.join('');
     },
     onBeforeRemove : function(){
-        $A.Masker.mask(this.wb,_lang['grid.mask.remove']);//TODO:多语言
+        $A.Masker.mask(this.wb,_lang['grid.mask.remove']);
     },
     onBeforeLoad : function(){
-        $A.Masker.mask(this.wb,_lang['grid.mask.loading']);//TODO:多语言
+        $A.Masker.mask(this.wb,_lang['grid.mask.loading']);
     },
     onBeforSubmit : function(ds){
-    	$A.Masker.mask(this.wb,_lang['grid.mask.submit']);//TODO:多语言
+    	$A.Masker.mask(this.wb,_lang['grid.mask.submit']);
     },
     onAfterSuccess : function(){
         $A.Masker.unmask(this.wb);

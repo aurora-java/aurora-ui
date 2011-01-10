@@ -1102,7 +1102,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
     },
     afterEdit : function(record, name, value,oldvalue) {
-        this.fireEvent("update", this, record, name, value);
+        this.fireEvent("update", this, record, name, value,oldvalue);
     },
     afterReject : function(record, name, value) {
     	this.fireEvent("reject", this, record, name, value);
@@ -1399,7 +1399,8 @@ $A.Record.prototype = {
                 this.ds.afterEdit(this, name, value, old);
             }
         }
-        this.validate(name)
+        this.validateRecord();
+        //this.validate(name)
     },
     /**
      * 设置值.
