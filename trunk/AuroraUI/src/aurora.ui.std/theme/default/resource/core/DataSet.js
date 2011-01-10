@@ -910,6 +910,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Number} page(可选) 查询的页数.
      */
     query : function(page,opts){
+    	if(!this.getCurrentRecord()){this.doQuery(page,opts);return;}
+    	var sf=this,intervalId=setInterval(function(){
+    		if(!sf.getCurrentRecord().isReady)return;
+	        sf.doQuery(page,opts);
+	        clearInterval(intervalId);
+    	},10);
+    },
+    doQuery:function(page,opts){
     	$A.slideBarEnable = $A.SideBar.enable;
     	$A.SideBar.enable = false;
     	var r;
