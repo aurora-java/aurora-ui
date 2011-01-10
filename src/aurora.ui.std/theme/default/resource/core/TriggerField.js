@@ -33,7 +33,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
      */
     isExpanded : function(){ 
     	var xy = this.popup.getXY();
-    	return !(xy[0]==-1000||xy[1]==-1000)
+    	return !(xy[0]<-500||xy[1]<-500)
     },
     setWidth: function(w){
 		this.wrap.setStyle("width",(w+3)+"px");
