@@ -15,19 +15,18 @@
 }
 .item-table tbody td{
 	border-bottom:1px solid #ededed;
-	height: 22px;
 	padding:1px;
 }
 .table-cell{
 	padding-right:2px;	
 	text-indent:3px;
 	line-height:20px;
-	height:22px;
-	text-overflow:ellipsis
+	height:100%;
+	text-overflow:ellipsis;
 }
 .table-cell-editor {
 	border:1px solid #bababa;
-	margin:0px;
+	margin:0;
 	height:20px;
 }
 .table-foot {
