@@ -1407,8 +1407,7 @@ $A.Record.prototype = {
                 this.ds.afterEdit(this, name, value, old);
             }
         }
-        this.validateRecord();
-        //this.validate(name)
+        this.validate(name)
     },
     /**
      * 设置值.

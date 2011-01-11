@@ -180,7 +180,7 @@ $A.getViewportWidth = function() {
 //}
 //$A.recordSize();
 $A.post = function(action,data){
-    var form = Ext.getBody().createChild({tag:'form',method:'post',action:action});
+    var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action});
     for(var key in data){
     	if(data[key])
         form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
@@ -2022,6 +2022,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Number} page(可选) 查询的页数.
      */
     query : function(page,opts){
+    	if(!this.getCurrentRecord()){this.doQuery(page,opts);return;}
+    	var sf=this,intervalId=setInterval(function(){
+    		if(!sf.getCurrentRecord().isReady)return;
+	        sf.doQuery(page,opts);
+	        clearInterval(intervalId);
+    	},10);
+    },
+    doQuery:function(page,opts){
     	$A.slideBarEnable = $A.SideBar.enable;
     	$A.SideBar.enable = false;
     	var r;
@@ -2511,8 +2519,7 @@ $A.Record.prototype = {
                 this.ds.afterEdit(this, name, value, old);
             }
         }
-        this.validateRecord()
-        //this.validate(name)
+        this.validate(name)
     },
     /**
      * 设置值.
@@ -3047,10 +3054,12 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         return v;
     },
     setWidth: function(w){
+    	if(this.width == w) return;
     	this.width = w;
     	this.wrap.setWidth(w);
     },
     setHeight: function(h){
+    	if(this.height == h) return;
     	this.height = h;
     	this.wrap.setHeight(h);
     },
@@ -3995,7 +4004,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
      */
     isExpanded : function(){ 
     	var xy = this.popup.getXY();
-    	return !(xy[0]==-1000||xy[1]==-1000)
+    	return !(xy[0]<-500||xy[1]<-500)
     },
     setWidth: function(w){
 		this.wrap.setStyle("width",(w+3)+"px");
@@ -4890,8 +4899,8 @@ $A.Window = Ext.extend($A.Component,{
     	var shadowTpl = new Ext.Template(sf.getShadowTemplate());
     	sf.width = 1*(sf.width||350);
     	sf.height= 1*(sf.height||400);
-        sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,display:Ext.isIE6 ? '' : 'none'}, true);
-        sf.shadow = shadowTpl.append(document.body, {display:Ext.isIE6 ? '' : 'none'}, true);
+        sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
+        sf.shadow = shadowTpl.append(document.body, {}, true);
         sf.focusEl = sf.wrap.child('a[atype=win.focus]')
     	sf.title = sf.wrap.child('div[atype=window.title]');
     	sf.head = sf.wrap.child('td[atype=window.head]');
@@ -4960,11 +4969,9 @@ $A.Window = Ext.extend($A.Component,{
     	var x = Math.max((screenWidth - this.width)/2,0);
     	var y = Math.max((screenHeight - this.height-23)/2,0);
         this.wrap.moveTo(x,y);
-        this.wrap.show();
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
         this.shadow.moveTo(x+3,y+3)
-        this.shadow.show();
         this.toFront();
         var sf = this;
         setTimeout(function(){
@@ -4972,11 +4979,11 @@ $A.Window = Ext.extend($A.Component,{
         },10)
     },
     getShadowTemplate: function(){
-    	return ['<DIV class="item-shadow" style="display:{display};"></DIV>']
+    	return ['<DIV class="item-shadow"></DIV>']
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap" style="width:{width}px;display:{display};" cellSpacing="0" cellPadding="0" border="0">',
+            '<TABLE class="win-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0">',
 			'<TBODY>',
 			'<TR style="height:23px;" >',
 				'<TD class="win-caption">',
@@ -5067,7 +5074,7 @@ $A.Window = Ext.extend($A.Component,{
     },
     initProxy : function(){
     	var sf = this; 
-    	var p = '<DIV style="display:none;border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
+    	var p = '<DIV style="border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
     	sf.proxy = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
 //    	sf.proxy.hide();
     	var xy = sf.wrap.getXY();
@@ -5463,7 +5470,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	onWinClose: function(){
 		this.isWinOpen = false;
 		this.win = null;
-		if(!Ext.isIE6)this.focus();
+		if(!Ext.isIE6 && !Ext.isIE7)this.focus();//TODO:ie6 ie7 会死掉 
 	},
 	getLovPara : function(){
 		var para = Ext.apply({},this.para);
