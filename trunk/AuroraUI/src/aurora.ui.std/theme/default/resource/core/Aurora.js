@@ -180,7 +180,7 @@ $A.getViewportWidth = function() {
 //}
 //$A.recordSize();
 $A.post = function(action,data){
-    var form = Ext.getBody().createChild({tag:'form',method:'post',action:action});
+    var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action});
     for(var key in data){
     	if(data[key])
         form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});

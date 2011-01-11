@@ -427,6 +427,8 @@ $A.Tree.TreeNode.prototype={
 //        }
 //	},
 	setWidth : function(name,w){
+		if(this.width == w) return;
+        this.width = w;
 		this.doSetWidth(name,w);
         if(this.childrenRendered) {
             var pathNodes = this.childNodes;
