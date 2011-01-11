@@ -2022,26 +2022,26 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Number} page(可选) 查询的页数.
      */
     query : function(page,opts){
-    	if(!this.getCurrentRecord()){this.doQuery(page,opts);return;}
-    	var sf=this,intervalId=setInterval(function(){
-    		if(!sf.getCurrentRecord().isReady)return;
-	        sf.doQuery(page,opts);
-	        clearInterval(intervalId);
-    	},10);
-    },
-    doQuery:function(page,opts){
     	$A.slideBarEnable = $A.SideBar.enable;
     	$A.SideBar.enable = false;
-    	var r;
+    	if(!this.queryurl) return;
     	if(this.qds) {
     		if(this.qds.getCurrentRecord() == null) this.qds.create();
-    		if(!this.qds.validate()) return;
-    		r = this.qds.getCurrentRecord();
+	    	var sf=this,intervalId=setInterval(function(){
+	    		if(!sf.qds.getCurrentRecord().isReady)return;
+		        clearInterval(intervalId);
+		        if(!sf.qds.validate()) return;
+		        sf.doQuery(page,opts);
+	    	},10);
+    	}else{
+    		this.doQuery(page,opts);
     	}
-    	if(!this.queryurl) return;
+    },
+    doQuery:function(page,opts){
+    	var r;
+    	if(this.qds)r = this.qds.getCurrentRecord();
     	if(!page) this.currentIndex = 1;
     	this.currentPage = page || 1;
-    	
     	var q = {};
     	if(r != null) Ext.apply(q, r.data);
     	Ext.apply(q, this.qpara);
@@ -2054,12 +2054,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     				  '&_fetchall='+this.fetchall+
     				  '&_autocount='+this.autocount
 //    				  + '&_rootpath=list'
-    	var url = '';
-    	if(this.queryurl.indexOf('?') == -1){
-    		url = this.queryurl + '?' + para;
-    	}else{
-    		url = this.queryurl + '&' + para;
-    	}
+    	var url = this.queryurl +(this.queryurl.indexOf('?') == -1?'?':'&') + para;
     	this.loading = true;
     	this.fireEvent("beforeload", this);
 //    	this.fireBindDataSetEvent("beforeload", this);//主dataset无数据,子dataset一直loading
@@ -2155,16 +2150,22 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             $A.request({url:this.submiturl, para:p, success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
         //}
     },
+    isAllReady:function(records){
+    	for(var i=0;i<records.length;i++){
+    		if(!records[i].isReady)return false;
+    	}
+    	return true;
+    },
     /**
      * 提交选中数据.
      * @param {String} url(可选) 提交的url.
      */
     submitSelected : function(url){
     	var sf=this,intervalId=setInterval(function(){
-    		if(!sf.getCurrentRecord().isReady)return;
+    		if(!sf.isAllReady(sf.getSelected()))return;
+	        clearInterval(intervalId);
 	    	sf.fireBindDataSetEvent("submit");
 	        sf.doSubmit(url,sf.getJsonData(true));
-	        clearInterval(intervalId);
     	},10);
     },
     /**
@@ -2173,10 +2174,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     submit : function(url){
     	var sf=this,intervalId=setInterval(function(){
-    		if(!sf.getCurrentRecord().isReady)return;
+    		if(!sf.isAllReady(sf.getAll()))return;
+	    	clearInterval(intervalId);
 	    	sf.fireBindDataSetEvent("submit");
 	    	sf.doSubmit(url,sf.getJsonData());
-	    	clearInterval(intervalId);
     	},10);
     },
     /**
@@ -2185,7 +2186,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     post : function(url,data){
     	var sf=this,intervalId=setInterval(function(){
-    		if(!sf.getCurrentRecord().isReady)return;
+    		if(!sf.isAllReady(sf.getAll()))return;
+		    clearInterval(intervalId);
     		if(sf.validate()){           
 			    var data=data||sf.getCurrentRecord().data,form = Ext.getBody().createChild({tag:'form',method:'post',action:url});
 			    for(var key in data){
@@ -2194,7 +2196,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 			    }
 			    form.dom.submit();
 	        }
-		    clearInterval(intervalId);
     	},10);
 	},
     /**
