@@ -182,8 +182,11 @@ $A.getViewportWidth = function() {
 $A.post = function(action,data){
     var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action});
     for(var key in data){
-    	if(data[key])
-        form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
+    	var v = data[key]
+    	if(v) {
+    		if(v instanceof Date) v = v.format('isoDate');//TODO:时分秒如何处理?
+            form.createChild({tag:"input",type:"hidden",name:key,value:v});
+    	}
     }
     form.dom.submit();
 }
