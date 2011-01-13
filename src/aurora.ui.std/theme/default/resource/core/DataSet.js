@@ -181,6 +181,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @event ajaxfailed
              * ajax调用失败.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Object} res res.
+             * @param {Object} opt opt.
              */
             'ajaxfailed',
     	    /**
@@ -264,6 +266,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @event loadfailed
              * 加载数据失败.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Object} res res.
+             * @param {Object} opt opt.
              */ 
             'loadfailed',
 	        /**
@@ -315,18 +319,22 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @event submit
              * 数据提交事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {String} url 提交的url.
+             * @param {Array} datas 提交的数据.
              */
 	        'submit',
 	        /**
              * @event submitsuccess
              * 数据提交成功事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Object} res 返回结果res.
              */
             'submitsuccess',
 	        /**
              * @event submitfailed
              * 数据提交失败事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Object} res 返回结果res.
              */
 	        'submitfailed'
 		);    	
@@ -599,7 +607,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     /**
      * 根据id查找数据.  
-     * @param {String} id id.
+     * @param {Number} id id.
      * @return {Aurora.Record} 查找的record
      */
     findById : function(id){
@@ -1052,8 +1060,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var sf=this,intervalId=setInterval(function(){
     		if(!sf.isAllReady(sf.getSelected()))return;
 	        clearInterval(intervalId);
-	    	sf.fireBindDataSetEvent("submit");
-	        sf.doSubmit(url,sf.getJsonData(true));
+	        var d = sf.getJsonData(true)
+	    	sf.fireBindDataSetEvent("submit",url,d);
+	        sf.doSubmit(url,d);
     	},10);
     },
     /**
@@ -1064,8 +1073,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var sf=this,intervalId=setInterval(function(){
     		if(!sf.isAllReady(sf.getAll()))return;
 	    	clearInterval(intervalId);
-	    	sf.fireBindDataSetEvent("submit");
-	    	sf.doSubmit(url,sf.getJsonData());
+	    	var d = sf.getJsonData()
+	    	sf.fireBindDataSetEvent("submit",url,d);
+	    	sf.doSubmit(url,d);
     	},10);
     },
     /**
@@ -1098,8 +1108,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     			record.set(c,v==undefined||v==null?"":v);
     	}
     },
-    fireBindDataSetEvent : function(event){
-    	this.fireEvent(event,this);
+    fireBindDataSetEvent : function(){//event
+    	var a = Ext.toArray(arguments);
+    	var event = a[0];
+    	a[0] = this;
+    	this.fireEvent.apply(this,[event].concat(a))
+//    	this.fireEvent(event,this);
         for(var k in this.fields){
             var field = this.fields[k];
             if(field.type == 'dataset'){  
@@ -1122,7 +1136,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		datas = [].concat(res.result.record);
     		this.commitRecords(datas,true)
     	}
-    	this.fireBindDataSetEvent('submitsuccess');
+    	this.fireBindDataSetEvent('submitsuccess',res);
     },
     commitRecords : function(datas,fire){
     	//this.resetConfig();
@@ -1183,7 +1197,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },    
     onSubmitError : function(res){
 //    	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
-    	this.fireBindDataSetEvent('submitfailed');
+    	this.fireBindDataSetEvent('submitfailed', res);
     },
     onLoadSuccess : function(res, options){
     	if(res == null) return;
@@ -1209,10 +1223,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    
     },
     onAjaxFailed : function(res,opt){
-    	this.fireBindDataSetEvent('ajaxfailed');
+    	this.fireBindDataSetEvent('ajaxfailed',res,opt);
     },
     onLoadError : function(res,opt){
-    	this.fireBindDataSetEvent('loadfailed', this);
+    	this.fireBindDataSetEvent('loadfailed', res,opt);
 //    	$A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
     	this.loading = false;
     	$A.SideBar.enable = $A.slideBarEnable;
