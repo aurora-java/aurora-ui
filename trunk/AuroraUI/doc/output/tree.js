@@ -1,6 +1,8 @@
 
 		Docs.classData ={"id":"apidocs","iconCls":"icon-docs","text":"API Documentation","singleClickExpand":true,"children":[
                 {"id":"pkg-Aurora","text":"Aurora","iconCls":"icon-pkg","cls":"package","singleClickExpand":true, children:[
+                {"href":"output/Aurora.Accordion.html","text":"Accordion","id":"Aurora.Accordion","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
+				,
                 {"href":"output/Aurora.Box.html","text":"Box","id":"Aurora.Box","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
 				,
                 {"href":"output/Aurora.Button.html","text":"Button","id":"Aurora.Button","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
@@ -27,6 +29,12 @@
 				,
                 {"href":"output/Aurora.Lov.html","text":"Lov","id":"Aurora.Lov","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
 				,
+                {"href":"output/Aurora.Menu.html","text":"Menu","id":"Aurora.Menu","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
+				,
+                {"href":"output/Aurora.MenuBar.html","text":"MenuBar","id":"Aurora.MenuBar","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
+				,
+                {"href":"output/Aurora.MenuItem.html","text":"MenuItem","id":"Aurora.MenuItem","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
+				,
                 {"href":"output/Aurora.NumberField.html","text":"NumberField","id":"Aurora.NumberField","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
 				,
                 {"href":"output/Aurora.Radio.html","text":"Radio","id":"Aurora.Radio","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
@@ -36,6 +44,8 @@
                 {"href":"output/Aurora.Record.Field.html","text":"Record.Field","id":"Aurora.Record.Field","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
 				,
                 {"href":"output/Aurora.Tab.html","text":"Tab","id":"Aurora.Tab","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
+				,
+                {"href":"output/Aurora.Table.html","text":"Table","id":"Aurora.Table","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
 				,
                 {"href":"output/Aurora.TextArea.html","text":"TextArea","id":"Aurora.TextArea","isClass":true,"iconCls":"icon-cls","cls":"cls","leaf":true}
 				,
@@ -100,6 +110,8 @@
 				]};
         Docs.icons = {
         
+			"Aurora.Accordion":"icon-cls"
+			,
 			"Aurora.Box":"icon-cls"
 			,
 			"Aurora.Button":"icon-cls"
@@ -126,6 +138,12 @@
 			,
 			"Aurora.Lov":"icon-cls"
 			,
+			"Aurora.Menu":"icon-cls"
+			,
+			"Aurora.MenuBar":"icon-cls"
+			,
+			"Aurora.MenuItem":"icon-cls"
+			,
 			"Aurora.NumberField":"icon-cls"
 			,
 			"Aurora.Radio":"icon-cls"
@@ -135,6 +153,8 @@
 			"Aurora.Record.Field":"icon-cls"
 			,
 			"Aurora.Tab":"icon-cls"
+			,
+			"Aurora.Table":"icon-cls"
 			,
 			"Aurora.TextArea":"icon-cls"
 			,

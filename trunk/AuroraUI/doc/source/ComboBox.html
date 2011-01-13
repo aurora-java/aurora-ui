@@ -205,7 +205,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		this.refresh();
 //		this.litp=new Ext.Template('<li tabIndex="{index}">{'+this.displayfield+'}&#160;</li>');
 		if(this.optionDataSet.loading == true){
-			this.view.update('<li tabIndex="-1">正在加载...</li>');
+			this.view.update('<li tabIndex="-1">'+_lang['combobox.loading']+'</li>');
 		}else{
 			var datas = this.optionDataSet.getAll();
 			var l=datas.length;

@@ -68,8 +68,8 @@ $A.Window = Ext.extend($A.Component,{
     	var shadowTpl = new Ext.Template(sf.getShadowTemplate());
     	sf.width = 1*(sf.width||350);
     	sf.height= 1*(sf.height||400);
-        sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,display:Ext.isIE6 ? '' : 'none'}, true);
-        sf.shadow = shadowTpl.append(document.body, {display:Ext.isIE6 ? '' : 'none'}, true);
+        sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
+        sf.shadow = shadowTpl.append(document.body, {}, true);
         sf.focusEl = sf.wrap.child('a[atype=win.focus]')
     	sf.title = sf.wrap.child('div[atype=window.title]');
     	sf.head = sf.wrap.child('td[atype=window.head]');
@@ -138,11 +138,9 @@ $A.Window = Ext.extend($A.Component,{
     	var x = Math.max((screenWidth - this.width)/2,0);
     	var y = Math.max((screenHeight - this.height-23)/2,0);
         this.wrap.moveTo(x,y);
-        this.wrap.show();
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
         this.shadow.moveTo(x+3,y+3)
-        this.shadow.show();
         this.toFront();
         var sf = this;
         setTimeout(function(){
@@ -150,11 +148,11 @@ $A.Window = Ext.extend($A.Component,{
         },10)
     },
     getShadowTemplate: function(){
-    	return ['<DIV class="item-shadow" style="display:{display};"></DIV>']
+    	return ['<DIV class="item-shadow"></DIV>']
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap" style="width:{width}px;display:{display};" cellSpacing="0" cellPadding="0" border="0">',
+            '<TABLE class="win-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0">',
 			'<TBODY>',
 			'<TR style="height:23px;" >',
 				'<TD class="win-caption">',
@@ -234,7 +232,7 @@ $A.Window = Ext.extend($A.Component,{
     	this.proxy.moveTo(tx,ty);
     },
     showLoading : function(){
-    	this.body.update('正在加载...');
+    	this.body.update(_lang['window.loading']);
     	this.body.setStyle('text-align','center');
     	this.body.setStyle('line-height',5);
     },
@@ -245,7 +243,7 @@ $A.Window = Ext.extend($A.Component,{
     },
     initProxy : function(){
     	var sf = this; 
-    	var p = '<DIV style="display:none;border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
+    	var p = '<DIV style="border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
     	sf.proxy = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
 //    	sf.proxy.hide();
     	var xy = sf.wrap.getXY();
@@ -338,13 +336,14 @@ $A.Window = Ext.extend($A.Component,{
         }catch(e){}
         if(res && res.success == false){
         	if(res.error){
+        		$A.manager.fireEvent('ajaxfailed', $A.manager, options.url,options.para,res);
                 var st = res.error.stackTrace;
                 st = (st) ? st.replaceAll('\r\n','</br>') : '';
                 if(res.error.message) {
                     var h = (st=='') ? 150 : 250;
-                    $A.showErrorMessage('错误', res.error.message+'</br>'+st,null,400,h);
+                    $A.showErrorMessage(_lang['window.error'], res.error.message+'</br>'+st,null,400,h);
                 }else{
-                    $A.showErrorMessage('错误', st,null,400,250);
+                    $A.showErrorMessage(_lang['window.error'], st,null,400,250);
                 }   
             }
             return;
@@ -465,8 +464,8 @@ $A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
 $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
     if(cmp == null) {
-        var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok','确定');
-        var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel','取消');
+        var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok',_lang['window.button.ok']);
+        var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel',_lang['window.button.cancel']);
         cmp = new $A.Window({id:'aurora-msg-ok-cancel',title:title, height:height||100,width:width||300});
         if(msg){
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
@@ -500,7 +499,7 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
 $A.showOkWindow = function(title, msg, width, height,callback){
 	var cmp = $A.CmpManager.get('aurora-msg-ok');
 	if(cmp == null) {
-		var btnhtml = $A.Button.getTemplate('aurora-msg-yes','确定');
+		var btnhtml = $A.Button.getTemplate('aurora-msg-yes',_lang['window.button.ok']);
 		cmp = new $A.Window({id:'aurora-msg-ok',title:title, height:height,width:width});
 		if(msg){
 			cmp.body.update(msg+ '<center>'+btnhtml+'</center>',true,function(){
@@ -515,6 +514,20 @@ $A.showOkWindow = function(title, msg, width, height,callback){
 		}
 	}
 	return cmp;
+}
+<div id="method-Aurora.Window-showUploadWindow"></div>/**
+ * 上传附件窗口.
+ * 
+ * @param {String} path  当前的context路径
+ * @param {String} title 上传窗口标题
+ * @param {int} pkvalue  pkvalue
+ * @param {String} source_type source_type
+ * @param {int} max_size 最大上传大小(单位kb)  0表示不限制
+ * @param {String} file_type 上传类型(*.doc,*.jpg)
+ * @param {String} callback 回调函数的名字
+ */
+$A.showUploadWindow = function(path,title,source_type,pkvalue,max_size,file_type,callback){
+    new Aurora.Window({id:'upload_window', url:path+'/upload.screen?callback='+callback+'&pkvalue='+pkvalue+'&source_type='+source_type+'&max_size='+(max_size||0)+'&file_type='+(file_type||'*.*'), title:title||_lang['window.upload.title'], height:330,width:595});
 }</pre>    
 </body>
 </html>

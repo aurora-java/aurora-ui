@@ -90,7 +90,7 @@ $A.Tab = Ext.extend($A.Component,{
 		}
 	},
 	showLoading : function(dom){
-    	Ext.fly(dom).update('正在加载,请稍后...');
+    	Ext.fly(dom).update(_lang['tab.loading']);
     	Ext.fly(dom).setStyle('text-align','center');
     	Ext.fly(dom).setStyle('line-height',5);
     },
@@ -107,6 +107,7 @@ $A.Tab = Ext.extend($A.Component,{
 		}
 		this.showLoading(dom);
 		var sf = this;
+		//TODO:错误信息
     	Ext.Ajax.request({
 			url: url,
 		   	success: function(response, options){
@@ -121,6 +122,7 @@ $A.Tab = Ext.extend($A.Component,{
     setWidth : function(w){
     	w = Math.max(w,2);
     	$A.Tab.superclass.setWidth.call(this, w);
+    	if(this.width == w) return;
     	var wd = (w-2)+'px'
     	Ext.fly(this.body.dom).setStyle('width',wd);
     	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
@@ -132,6 +134,7 @@ $A.Tab = Ext.extend($A.Component,{
     setHeight : function(h){
     	h = Math.max(h,25);
     	$A.Tab.superclass.setHeight.call(this, h);
+    	if(this.height == h) return;
     	var hp = (h-25)+'px';
     	Ext.fly(this.body.dom).setStyle('height',hp);
     	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);

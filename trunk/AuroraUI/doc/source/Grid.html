@@ -120,7 +120,17 @@ $A.Grid = Ext.extend($A.Component,{
          * @param {Number} row 行号.
          * @param {Aurora.Record} record 鼠标点击所在行的Record对象.
          */
-        'rowclick');
+        'rowclick',
+        <div id="event-Aurora.Grid-editorShow"></div>/**
+         * @event editorShow
+         * 编辑器显示后触发的事件.
+         * @param {Aurora.Grid} grid 当前Grid组件.
+         * @param {Editor} grid 当前Editor组件.
+         * @param {Number} row 行号.
+         * @param {String} 当前name.
+         * @param {Aurora.Record} record 鼠标点击所在行的Record对象.
+         */
+        'editorshow');
     },
     syncScroll : function(){
         this.hideEditor();
@@ -184,7 +194,7 @@ $A.Grid = Ext.extend($A.Component,{
             ds[ou]('submit', this.onBeforSubmit, this);
             ds[ou]('submitfailed', this.onAfterSuccess, this);
             ds[ou]('submitsuccess', this.onAfterSuccess, this);
-            ds[ou]('beforeload', this.onBeforLoad, this);
+            ds[ou]('beforeload', this.onBeforeLoad, this);
             ds[ou]('load', this.onLoad, this);
             ds[ou]('loadfailed', this.onAjaxFailed, this);
             ds[ou]('valid', this.onValid, this);
@@ -249,20 +259,14 @@ $A.Grid = Ext.extend($A.Component,{
                 cls = this.cecls;
             }
         }
-        if(xtype == 'rowcheck'){
+        if(xtype == 'rowcheck'||xtype == 'rowradio'){
+        	var readonly="";
+        	if(!this.dataset.execSelectFunction(record))readonly="-readonly"
             tdTpl = this.rowTdTpl;
             data = Ext.apply(data,{
                 align:'center',
-                atype:'grid.rowcheck',
-                cellcls: 'grid-ckb item-ckb-u'
-            })
-            cellTpl =  this.cbTpl;
-        }else if(xtype == 'rowradio'){
-            tdTpl = this.rowTdTpl;
-            data = Ext.apply(data,{
-                align:'center',
-                atype:'grid.rowradio',
-                cellcls: 'grid-radio item-radio-img-u'
+                atype:xtype == 'rowcheck'?'grid.rowcheck':'grid.rowradio',
+                cellcls: xtype == 'rowcheck'?'grid-ckb item-ckb'+readonly+'-u':'grid-radio item-radio-img'+readonly+'-u'
             })
             cellTpl =  this.cbTpl;
         }else if(xtype == 'cellcheck'){
@@ -357,13 +361,13 @@ $A.Grid = Ext.extend($A.Component,{
         return sb.join('');
     },
     onBeforeRemove : function(){
-        $A.Masker.mask(this.wb,'正在删除数据...');//TODO:多语言
+        $A.Masker.mask(this.wb,_lang['grid.mask.remove']);
     },
-    onBeforLoad : function(){
-        $A.Masker.mask(this.wb,'正在查询数据...');//TODO:多语言
+    onBeforeLoad : function(){
+        $A.Masker.mask(this.wb,_lang['grid.mask.loading']);
     },
     onBeforSubmit : function(ds){
-    	$A.Masker.mask(this.wb,'正在提交数据...');//TODO:多语言
+    	$A.Masker.mask(this.wb,_lang['grid.mask.submit']);
     },
     onAfterSuccess : function(){
         $A.Masker.unmask(this.wb);
@@ -521,6 +525,7 @@ $A.Grid = Ext.extend($A.Component,{
             }
         }
         this.ubt.dom.tBodies[0].appendChild(utr);
+    	this.setSelectStatus(record);
     },
     renderEditor : function(div,record,c,editor){
     	var cell = this.createCell(c,record,false);
@@ -538,6 +543,7 @@ $A.Grid = Ext.extend($A.Component,{
         */
     },
     onUpdate : function(ds,record, name, value){
+        this.setSelectStatus(record);
         var div = Ext.get(this.id+'_'+name+'_'+record.id);
         if(div){
             var c = this.findColByName(name);
@@ -666,14 +672,17 @@ $A.Grid = Ext.extend($A.Component,{
                 var record = this.dataset.findById(rid);
                 var row = this.dataset.indexOf(record);
                 var name = Ext.fly(target).getAttributeNS("","dataindex");
-                this.fireEvent('cellclick', this, row, name, record);
                 this.showEditor(row,name);
+                this.fireEvent('cellclick', this, row, name, record);
                 this.fireEvent('rowclick', this, row, record);
             }else if(atype=='grid.rowcheck'){               
                 var cb = Ext.get(this.id+'__'+rid);
+                if(cb.hasClass('item-ckb-readonly-u'))return;
                 var checked = cb.hasClass('item-ckb-c');
                 (checked) ? this.dataset.unSelect(rid) : this.dataset.select(rid);
             }else if(atype=='grid.rowradio'){
+            	var cb = Ext.get(this.id+'__'+rid);
+                if(cb.hasClass('item-radio-img-readonly-u'))return;
                 this.dataset.select(rid);
             }
         }
@@ -769,6 +778,7 @@ $A.Grid = Ext.extend($A.Component,{
 //                    ed.on('blur',sf.onEditorBlur, sf);
                     Ext.get(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
                 }
+                sf.fireEvent('editorshow', sf, ed, row, name, record);
             },1)
         }           
     },
@@ -943,6 +953,37 @@ $A.Grid = Ext.extend($A.Component,{
             el.addClass('item-ckb-c');
             el.removeClass('item-ckb-u');
         }
+    },
+    setSelectDisable:function(el){
+    	if(this.selectable && this.selectionmodel=='multiple'){
+    		el.removeClass('item-ckb-c');
+    		el.removeClass('item-ckb-u');
+    		el.addClass('item-ckb-readonly-u');
+    	}else{
+    		el.removeClass('item-radio-img-c');
+    		el.removeClass('item-radio-img-u');
+    		el.addClass('item-radio-img-readonly-u');
+    	}
+    },
+    setSelectEnable:function(el){
+    	if(this.selectable && this.selectionmodel=='multiple'){
+    		el.removeClass('item-ckb-readonly-u');
+    		el.addClass('item-ckb-u');
+    	}else{
+    		el.removeClass('item-radio-img-readonly-u');
+    		el.addClass('item-radio-img-u');
+    	}	
+    },
+    setSelectStatus:function(record){
+    	if(this.dataset.selectfunction){
+	    	var cb = Ext.get(this.id+'__'+record.id);
+	    	if(!this.dataset.execSelectFunction(record)){
+	    		 this.dataset.unSelect(record);
+	    		 this.setSelectDisable(cb)
+	    	}else{
+	    		 this.setSelectEnable(cb);
+	    	}
+    	}
     },
     onHeadMouseMove: function(e){
 //      this.draging = true
@@ -1206,6 +1247,6 @@ $A.Grid = Ext.extend($A.Component,{
         delete this.sp;
     }
 });
-$A.Grid.revision='$Rev: 1605 $';</pre>    
+$A.Grid.revision='$Rev: 1851 $';</pre>    
 </body>
 </html>

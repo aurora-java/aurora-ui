@@ -270,10 +270,12 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         return v;
     },
     setWidth: function(w){
+    	if(this.width == w) return;
     	this.width = w;
     	this.wrap.setWidth(w);
     },
     setHeight: function(h){
+    	if(this.height == h) return;
     	this.height = h;
     	this.wrap.setHeight(h);
     },

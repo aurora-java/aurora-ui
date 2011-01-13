@@ -6,7 +6,15 @@
     <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
 </head>
 <body  onload="prettyPrint();">
-    <pre class="prettyprint lang-js">$A.MenuBar=Ext.extend($A.Component,{
+    <pre class="prettyprint lang-js"><div id="cls-Aurora.MenuBar"></div>/**
+ * @class Aurora.MenuBar
+ * @extends Aurora.Component
+ * <p>树形组件.
+ * @author huazhen.wu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
+$A.MenuBar=Ext.extend($A.Component,{
 	constructor: function(config) {
 		this.isActive=false,this.needHide=false,this.children=[],this.selectIndex = null,this.altKeyAccess=false;
 		$A.MenuBar.superclass.constructor.call(this, config);
@@ -152,6 +160,15 @@
 	},
 	childTpl : '<LI id="{id}" class="item-menu"></LI>'
 });
+
+<div id="cls-Aurora.MenuItem"></div>/**
+ * @class Aurora.MenuItem
+ * @extends Aurora.Component
+ * <p>树形组件.
+ * @author huazhen.wu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.MenuItem=Ext.extend($A.Component,{
 	constructor: function(config) {
 		this.hasIcon=false;
@@ -175,7 +192,17 @@ $A.MenuItem=Ext.extend($A.Component,{
     },
 	initEvents : function(){
 		$A.MenuItem.superclass.initEvents.call(this);
-		this.addEvents('submit','mouseup');
+		this.addEvents(
+		<div id="event-Aurora.MenuItem-submit"></div>/**
+         * @event submit
+         * menu的url定向.
+         */
+		'submit',
+		<div id="event-Aurora.MenuItem-mouseup"></div>/**
+         * @event mouseup
+         * menu点击事件.
+         */
+		'mouseup');
 	},
 	getWidth : function(){
 		return this.wrap.child('td.item-menu-text').getWidth()+(this.parent==this.bar?0:72);
@@ -264,6 +291,15 @@ $A.MenuItem=Ext.extend($A.Component,{
 				'<TD></TD>'],
 	menuBarTpl:'<SPAN class="item-menu-text">{text}</SPAN>'
 });
+
+<div id="cls-Aurora.Menu"></div>/**
+ * @class Aurora.Menu
+ * @extends Aurora.MenuItem
+ * <p>树形组件.
+ * @author huazhen.wu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
 $A.Menu=Ext.extend($A.MenuItem,{
 	constructor: function(config) {
 		this.children=[],this.selectIndex=null,this.groups={},this.isActive=false,this.initMenus=false;
@@ -305,8 +341,8 @@ $A.Menu=Ext.extend($A.MenuItem,{
 		if(!this.initMenus){this.addMenus(this.options);this.initMenus=true;}
 		var xy=this.wrap.getXY(),x,y,
 			W=this.container.getWidth(),H=this.container.getHeight(),
-			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),html=Ext.fly(document).child('html'),
-			BH=html.getHeight(),BW=html.getWidth();
+			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
+			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3;
 		if(this.parent===this.bar){
 			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
 			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);

@@ -188,12 +188,6 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 			}
 		}
 		this.lockWidth = v;
-	},
-	destroy : function() {
-		if (this.lockTree)
-			this.lockTree.destroy();
-		this.unlockTree.destroy();
-		$A.TreeGrid.superclass.destroy.call(this);
 	}
 });
 $A.Tree.TreeGridNode = Ext.extend($A.Tree.TreeNode, {
