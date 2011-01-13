@@ -31,6 +31,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.fetchall = config.fetchall||false;
     	this.selectable = config.selectable||false;
     	this.selectionmodel = config.selectionmodel||'multiple';
+    	this.selectfunction = config.selectfunction;
     	this.autocount = config.autocount;
     	this.bindtarget = config.bindtarget;
     	this.bindname = config.bindname;
@@ -246,6 +247,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Aurora.Record} record 更新的record.
              * @param {String} name 更新的field.
              * @param {Object} value 更新的值.
+             * @param {Object} oldvalue 更新前的值.
              */
 	        'update',
 	        <div id="event-Aurora.DataSet-clear"></div>/**
@@ -694,20 +696,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Aurora.Record} record 需要选择的record.
      */
     select : function(r){
+    	if(!this.selectable)return;
     	if(typeof(r) == 'string') r = this.findById(r);
-    	if(this.selectable && this.selectionmodel == 'multiple'){
-    		if(this.selected.indexOf(r) == -1) {
-    			this.selected.add(r);
-    			this.fireEvent('select', this, r);
-    		}
+    	if(this.selected.indexOf(r) != -1)return;
+    	if(!this.execSelectFunction(r))return;
+    	if(this.selectionmodel == 'multiple'){
+			this.selected.add(r);
+			this.fireEvent('select', this, r);
        	}else{
-       		if(this.selected.indexOf(r) == -1) {
-	       		var or = this.selected[0];
-	       		this.unSelect(or);
-	       		this.selected = []
-	       		this.selected.add(r);
-	       		this.fireEvent('select', this, r);
-       		}
+       		var or = this.selected[0];
+       		this.unSelect(or);
+       		this.selected = []
+       		this.selected.add(r);
+       		this.fireEvent('select', this, r);
        	}
     },
     <div id="method-Aurora.DataSet-unSelect"></div>/**
@@ -715,13 +716,23 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Aurora.Record} record 需要取消选择的record.
      */
     unSelect : function(r){
+    	if(!this.selectable)return;
     	if(typeof(r) == 'string') r = this.findById(r);
-    	if(this.selectable){
-    		if(this.selected.indexOf(r) != -1) {
-    			this.selected.remove(r);
-    			this.fireEvent('unselect', this, r);
-    		}
+    	if(this.selected.indexOf(r) == -1) return;
+		this.selected.remove(r);
+		this.fireEvent('unselect', this, r);
+    },
+    execSelectFunction:function(r){
+    	if(this.selectfunction){
+    		var selfun = $A.getRenderer(this.selectfunction);
+            if(selfun == null){
+                alert("未找到"+this.selectfunction+"方法!")
+            }else{
+            	var b=selfun.call(window,r);
+            	if(Ext.isDefined(b))return b;
+            }
     	}
+    	return true;
     },
     <div id="method-Aurora.DataSet-locate"></div>/**
      * 定位到某个指针位置.
@@ -736,7 +747,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	    	this.currentIndex = index;
     	}else{
     		if(this.isModified()){
-    			$A.showInfoMessage('提示', '有未保存数据!')
+    			$A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.locate'])
     		}else{
 				this.currentIndex = index;
 				this.currentPage =  Math.ceil(index/this.pagesize);
@@ -861,7 +872,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		if(fire !== false) {
 			$A.manager.fireEvent('valid', $A.manager, this, this.isValid);
 		}
-		if(!this.isValid) $A.showInfoMessage('提示', '验证不通过!');
+		if(!this.isValid) $A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.validate']);
 		return this.isValid;
     },
     <div id="method-Aurora.DataSet-setQueryUrl"></div>/**
@@ -909,16 +920,24 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     query : function(page,opts){
     	$A.slideBarEnable = $A.SideBar.enable;
     	$A.SideBar.enable = false;
-    	var r;
+    	if(!this.queryurl) return;
     	if(this.qds) {
     		if(this.qds.getCurrentRecord() == null) this.qds.create();
-    		if(!this.qds.validate()) return;
-    		r = this.qds.getCurrentRecord();
+	    	var sf=this,intervalId=setInterval(function(){
+	    		if(!sf.qds.getCurrentRecord().isReady)return;
+		        clearInterval(intervalId);
+		        if(!sf.qds.validate()) return;
+		        sf.doQuery(page,opts);
+	    	},10);
+    	}else{
+    		this.doQuery(page,opts);
     	}
-    	if(!this.queryurl) return;
+    },
+    doQuery:function(page,opts){
+    	var r;
+    	if(this.qds)r = this.qds.getCurrentRecord();
     	if(!page) this.currentIndex = 1;
     	this.currentPage = page || 1;
-    	
     	var q = {};
     	if(r != null) Ext.apply(q, r.data);
     	Ext.apply(q, this.qpara);
@@ -931,12 +950,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     				  '&_fetchall='+this.fetchall+
     				  '&_autocount='+this.autocount
 //    				  + '&_rootpath=list'
-    	var url = '';
-    	if(this.queryurl.indexOf('?') == -1){
-    		url = this.queryurl + '?' + para;
-    	}else{
-    		url = this.queryurl + '&' + para;
-    	}
+    	var url = this.queryurl +(this.queryurl.indexOf('?') == -1?'?':'&') + para;
     	this.loading = true;
     	this.fireEvent("beforeload", this);
 //    	this.fireBindDataSetEvent("beforeload", this);//主dataset无数据,子dataset一直loading
@@ -1029,23 +1043,68 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         
         //if(p.length > 0) {
 //            this.fireEvent("submit", this);
-            this.fireBindDataSetEvent("submit");
             $A.request({url:this.submiturl, para:p, success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
         //}
     },
+    isAllReady:function(records){
+    	for(var i=0;i<records.length;i++){
+    		if(!records[i].isReady)return false;
+    	}
+    	return true;
+    },
     <div id="method-Aurora.DataSet-submitSelected"></div>/**
      * 提交选中数据.
-     * @return {String} url(可选) 提交的url.
+     * @param {String} url(可选) 提交的url.
      */
     submitSelected : function(url){
-        this.doSubmit(url,this.getJsonData(true));
+    	var sf=this,intervalId=setInterval(function(){
+    		if(!sf.isAllReady(sf.getSelected()))return;
+	        clearInterval(intervalId);
+	    	sf.fireBindDataSetEvent("submit");
+	        sf.doSubmit(url,sf.getJsonData(true));
+    	},10);
     },
     <div id="method-Aurora.DataSet-submit"></div>/**
      * 提交数据.
-     * @return {String} url(可选) 提交的url.
+     * @param {String} url(可选) 提交的url.
      */
     submit : function(url){
-    	this.doSubmit(url,this.getJsonData());
+    	var sf=this,intervalId=setInterval(function(){
+    		if(!sf.isAllReady(sf.getAll()))return;
+	    	clearInterval(intervalId);
+	    	sf.fireBindDataSetEvent("submit");
+	    	sf.doSubmit(url,sf.getJsonData());
+    	},10);
+    },
+    <div id="method-Aurora.DataSet-post"></div>/**
+     * post方式提交数据.
+     * @param {String} url(可选) 提交的url.
+     */
+    post : function(url,data){
+    	var sf=this,intervalId=setInterval(function(){
+    		if(!sf.isAllReady(sf.getAll()))return;
+		    clearInterval(intervalId);
+    		if(sf.validate()){           
+			    var data=data||sf.getCurrentRecord().data,form = Ext.getBody().createChild({tag:'form',method:'post',action:url});
+			    for(var key in data){
+			    	if(data[key])
+			        form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
+			    }
+			    form.dom.submit();
+	        }
+    	},10);
+	},
+    <div id="method-Aurora.DataSet-reset"></div>/**
+     * 重置数据.
+     */
+    reset : function(){
+    	var record=this.getCurrentRecord();
+    	if(!record&&!record.fields)return;
+    	for(var c in record.fields){
+    		var v=record.fields[c].get('defaultvalue');
+    		if(v!=record.get(c))
+    			record.set(c,v==undefined||v==null?"":v);
+    	}
     },
     fireBindDataSetEvent : function(event){
     	this.fireEvent(event,this);
@@ -1059,8 +1118,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
     },
-    afterEdit : function(record, name, value) {
-        this.fireEvent("update", this, record, name, value);
+    afterEdit : function(record, name, value,oldvalue) {
+        this.fireEvent("update", this, record, name, value,oldvalue);
     },
     afterReject : function(record, name, value) {
     	this.fireEvent("reject", this, record, name, value);
@@ -1240,6 +1299,12 @@ $A.Record = function(data, fields){
      * @property
      */
 	this.modified= null;
+	<div id="prop-Aurora.Record-isReady"></div>/**
+     * 是否是已就绪数据 (只读).
+     * @type Boolean
+     * @property
+     */
+	this.isReady=true;
     this.meta = new $A.Record.Meta(this);
     if(fields)this.initFields(fields);
 };
@@ -1291,7 +1356,7 @@ $A.Record.prototype = {
 		var field = this.getMeta().getField(name)
         var validator = field.get('validator');
 		if(Ext.isEmpty(v) && field.get('required') == true){
-			this.valid[name] = '当前字段不能为空!';
+			this.valid[name] = _lang['dataset.validate.required'];
 			valid =  false;
 		}else{
 			var isvalid = true;
@@ -1335,8 +1400,8 @@ $A.Record.prototype = {
      * @param {Boolean} notDirty true 不改变record的dirty状态.
      */
 	set : function(name, value, notDirty){
-        if(this.data[name] != value){
-            if(!notDirty){
+        if(!(this.data[name] == value||(Ext.isDate(this.data[name])&&Ext.isDate(value)&&this.data[name].getTime()==value.getTime()))){
+        	if(!notDirty){
                 this.dirty = true;
                 if(!this.modified){
                     this.modified = {};
@@ -1345,9 +1410,10 @@ $A.Record.prototype = {
                     this.modified[name] = this.data[name];
                 }
             }
+            var old = this.data[name];
             this.data[name] = value;
             if(!this.editing && this.ds) {
-                this.ds.afterEdit(this, name, value);
+                this.ds.afterEdit(this, name, value, old);
             }
         }
         this.validate(name)
@@ -1511,6 +1577,7 @@ $A.Record.Field.prototype = {
 	 * @param {Boolean} readonly 是否只读
 	 */
 	setReadOnly : function(r){	
+		if(r)delete this.record.valid[this.name];
 		this.setPropertity('readonly',r);
 	},
 	<div id="method-Aurora.Record.Field-isReadOnly"></div>/**

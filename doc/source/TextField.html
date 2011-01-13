@@ -50,7 +50,7 @@ $A.TextField = Ext.extend($A.Field,{
         var isShift  =  e.shiftKey;
         if (((keyCode >= 65&&keyCode<=90)&&!isShift)||((keyCode>=97&&keyCode<=122)&&isShift)){
         	if(this.dcl!=true)
-            $A.showWarningMessage('警告', '大些锁定打开!');
+            $A.showWarningMessage(_lang['textfield.warn'], _lang['textfield.warn.capslock']);
         	this.dcl = true;
         }else{
             this.dcl = false;

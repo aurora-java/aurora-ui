@@ -31,9 +31,9 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	Ext.getBody().insertFirst(this.shadow);
     	this.initpopuped = true
     },
-    initEvents : function(){
-    	$A.TriggerField.superclass.initEvents.call(this);    
-    	this.trigger.on('click',this.onTriggerClick, this, {preventDefault:true})
+    processListener: function(ou){
+    	$A.TriggerField.superclass.processListener.call(this, ou);
+    	this.trigger[ou]('click',this.onTriggerClick, this, {preventDefault:true})
     },
     <div id="method-Aurora.TriggerField-isExpanded"></div>/**
      * 判断当时弹出面板是否展开
@@ -41,7 +41,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
      */
     isExpanded : function(){ 
     	var xy = this.popup.getXY();
-    	return !(xy[0]==-1000||xy[1]==-1000)
+    	return !(xy[0]<-500||xy[1]<-500)
     },
     setWidth: function(w){
 		this.wrap.setStyle("width",(w+3)+"px");
@@ -61,12 +61,12 @@ $A.TriggerField = Ext.extend($A.TextField,{
 //    	}
     },
     onKeyDown: function(e){
-    	$A.TriggerField.superclass.onKeyDown.call(this,e);
-    	if(e.browserEvent.keyCode == 9 || e.keyCode == 27) {
+    	if(e.keyCode == 9 || e.keyCode == 27||e.keyCode == 13) {
         	if(this.isExpanded()){
 	    		this.collapse();
 	    	}
         }
+    	$A.TriggerField.superclass.onKeyDown.call(this,e);
     },
     isEventFromComponent:function(el){
     	var isfrom = $A.TriggerField.superclass.isEventFromComponent.call(this,el);
@@ -76,11 +76,10 @@ $A.TriggerField = Ext.extend($A.TextField,{
 		if(this.isExpanded()){
     		this.collapse();
     	}
-    	this.trigger.un('click',this.onTriggerClick, this)
     	this.shadow.remove();
     	this.popup.remove();
-    	delete this.trigger;
     	delete this.popup;
+    	delete this.shadow;
     	$A.TriggerField.superclass.destroy.call(this);
 	},
     triggerBlur : function(e){
@@ -110,6 +109,9 @@ $A.TriggerField = Ext.extend($A.TextField,{
     expand : function(){
 //    	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this, {delay: 10});
     	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this);
+    	this.syncPopup();
+    },
+    syncPopup:function(){
     	var xy = this.wrap.getXY();
     	this.popup.moveTo(xy[0],xy[1]+23);
     	this.shadow.moveTo(xy[0]+3,xy[1]+26);
