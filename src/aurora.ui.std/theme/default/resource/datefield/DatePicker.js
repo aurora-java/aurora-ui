@@ -12,7 +12,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.initDateField();
 	},
     initDateField:function(){
-    	this.format=this.format||"isoDate";
+    	this.format=this.format||$A.defaultDateFormat;
     	this.viewsize=(!this.viewsize||this.viewsize<1)?1:(this.viewsize>4?4:this.viewsize);
     	this.popup.setStyle({'width':150*this.viewsize+"px"})
     	if(!this.dateField){

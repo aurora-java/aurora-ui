@@ -818,6 +818,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     validate : function(fire){
     	this.isValid = true;
     	var current = this.getCurrentRecord();
+    	if(!current)return true;
     	var records = this.getAll();
 		var dmap = {};
 		var hassub = false;
@@ -1082,18 +1083,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * post方式提交数据.
      * @param {String} url(可选) 提交的url.
      */
-    post : function(url,data){
+    post : function(url){
+    	var r=this.getCurrentRecord();
+    	if(!r)return;
     	var sf=this,intervalId=setInterval(function(){
-    		if(!sf.isAllReady(sf.getAll()))return;
+    		if(!r.isReady)return;
 		    clearInterval(intervalId);
-    		if(sf.validate()){           
-			    var data=data||sf.getCurrentRecord().data,form = Ext.getBody().createChild({tag:'form',method:'post',action:url});
-			    for(var key in data){
-			    	if(data[key])
-			        form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
-			    }
-			    form.dom.submit();
-	        }
+    		if(sf.validate())Aurora.post(url,r.data);
     	},10);
 	},
     /**
