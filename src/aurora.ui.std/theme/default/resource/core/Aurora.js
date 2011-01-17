@@ -184,7 +184,7 @@ $A.post = function(action,data){
     for(var key in data){
     	var v = data[key]
     	if(v) {
-    		if(v instanceof Date) v = v.format($A.defaultDateFormat);//TODO:时分秒如何处理?
+    		if(v instanceof Date) v = v.format('isoDate');//TODO:时分秒如何处理?
             form.createChild({tag:"input",type:"hidden",name:key,value:v});
     	}
     }

@@ -23,7 +23,7 @@ $A.cmps = {};
 $A.onReady = Ext.onReady;
 $A.get = Ext.get;
 $A.focusWindow;
-
+$A.defaultDateFormat="isoDate";
 $A.center = function(el){
 	var ele;
 	if(typeof(el)=="string"){
@@ -69,13 +69,13 @@ $A.CmpManager = function(){
         },
         onCmpOver: function(cmp, e){
         	if($A.validInfoType != 'tip') return;
-        	if($A.Grid && cmp instanceof $A.Grid){
+        	if(($A.Grid && cmp instanceof $A.Grid)||($A.Table && cmp instanceof $A.Table)){
         		var ds = cmp.dataset;
-        		if(!ds||ds.isValid == true)return;
+        		if(!ds||ds.isValid == true||!e.target)return;
         		var target = Ext.fly(e.target).findParent('td');
                 if(target){
                     var atype = Ext.fly(target).getAttributeNS("","atype");
-            		if(atype == 'grid-cell'){
+            		if(atype == 'grid-cell'||atype == 'table-cell'){
             			var rid = Ext.fly(target).getAttributeNS("","recordid");
             			var record = ds.findById(rid);
             			if(record){
@@ -909,7 +909,7 @@ $A.getRenderer = function(renderer){
 
 $A.formatDate = function(date){
 	if(!date)return '';
-	if(date.format)return date.format('isoDate');
+	if(date.format)return date.format($A.defaultDateFormat);
 	return date;
 }
 $A.formatDateTime = function(date){
@@ -1933,6 +1933,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     validate : function(fire){
     	this.isValid = true;
     	var current = this.getCurrentRecord();
+    	if(!current)return true;
     	var records = this.getAll();
 		var dmap = {};
 		var hassub = false;
@@ -2197,18 +2198,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * post方式提交数据.
      * @param {String} url(可选) 提交的url.
      */
-    post : function(url,data){
+    post : function(url){
+    	var r=this.getCurrentRecord();
+    	if(!r)return;
     	var sf=this,intervalId=setInterval(function(){
-    		if(!sf.isAllReady(sf.getAll()))return;
+    		if(!r.isReady)return;
 		    clearInterval(intervalId);
-    		if(sf.validate()){           
-			    var data=data||sf.getCurrentRecord().data,form = Ext.getBody().createChild({tag:'form',method:'post',action:url});
-			    for(var key in data){
-			    	if(data[key])
-			        form.createChild({tag:"input",type:"hidden",name:key,value:data[key]});
-			    }
-			    form.dom.submit();
-	        }
+    		if(sf.validate())Aurora.post(url,r.data);
     	},10);
 	},
     /**
