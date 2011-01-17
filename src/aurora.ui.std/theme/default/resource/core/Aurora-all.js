@@ -4984,8 +4984,8 @@ $A.Window = Ext.extend($A.Component,{
     center: function(){
     	var screenWidth = $A.getViewportWidth();
     	var screenHeight = $A.getViewportHeight();
-    	var x = Math.max((screenWidth - this.width)/2,0);
-    	var y = Math.max((screenHeight - this.height-23)/2,0);
+    	var x = document[Ext.isStrict?'documentElement':'body'].scrollLeft+Math.max((screenWidth - this.width)/2,0);
+    	var y = document[Ext.isStrict?'documentElement':'body'].scrollTop+Math.max((screenHeight - this.height-23)/2,0);
         this.wrap.moveTo(x,y);
         this.shadow.setWidth(this.wrap.getWidth())
         this.shadow.setHeight(this.wrap.getHeight())
@@ -5070,13 +5070,15 @@ $A.Window = Ext.extend($A.Component,{
     },
     onMouseMove : function(e){
     	e.stopEvent();
-    	var sw = this.screenWidth;
-    	var sh = this.screenHeight;
+    	var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft;
+    	var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
+    	var sw = sl + this.screenWidth;
+    	var sh = st + this.screenHeight;
     	var tx = e.getPageX()+this.relativeX;
     	var ty = e.getPageY()+this.relativeY;
-    	if(tx<=0) tx =0;
+    	if(tx<=sl) tx =sl;
     	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
-    	if(ty<=0) ty =0;
+    	if(ty<=st) ty =st;
     	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
     	this.proxy.moveTo(tx,ty);
     },
