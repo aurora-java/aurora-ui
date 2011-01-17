@@ -28,15 +28,15 @@ $A.Table = Ext.extend($A.Component,{
 	processDataSetLiestener: function(ou){
         var ds = this.dataset;
         if(ds){
-        	ds[ou]('ajaxfailed', this.onAjaxFailed, this);
+//       	ds[ou]('ajaxfailed', this.onAjaxFailed, this);
 //            ds[ou]('metachange', this.onRefresh, this);
             ds[ou]('update', this.onUpdate, this);
 //            ds[ou]('reject', this.onUpdate, this);
 //            ds[ou]('add', this.onAdd, this);
 //            ds[ou]('submit', this.onBeforSubmit, this);
 			ds[ou]('load', this.onLoad, this);
-			ds[ou]('loadfailed', this.onAjaxFailed, this);
-//            ds[ou]('valid', this.onValid, this);
+//			ds[ou]('loadfailed', this.onAjaxFailed, this);
+            ds[ou]('valid', this.onValid, this);
 //            ds[ou]('beforeremove', this.onBeforeRemove, this); 
 //            ds[ou]('remove', this.onRemove, this);
 //            ds[ou]('clear', this.onLoad, this);
@@ -356,6 +356,19 @@ $A.Table = Ext.extend($A.Component,{
         }
         this.drawFootBar();
 	},
+	onValid : function(ds, record, name, valid){
+        var c = this.findColByName(name);
+        if(c){
+            var div = Ext.get(this.id+'_'+name+'_'+record.id);
+            if(div) {
+                if(valid == false){
+                    div.addClass('item-invalid');
+                }else{
+                    div.removeClass([this.nbcls,'item-invalid']);
+                }
+            }
+        }
+    },
 	clearBody:function(){
 		while(this.tbody.dom.childNodes.length){
 			this.tbody.dom.removeChild(this.tbody.dom.firstChild);
