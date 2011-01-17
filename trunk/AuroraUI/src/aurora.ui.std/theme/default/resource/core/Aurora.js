@@ -23,7 +23,7 @@ $A.cmps = {};
 $A.onReady = Ext.onReady;
 $A.get = Ext.get;
 $A.focusWindow;
-
+$A.defaultDateFormat="isoDate";
 $A.center = function(el){
 	var ele;
 	if(typeof(el)=="string"){
@@ -184,7 +184,7 @@ $A.post = function(action,data){
     for(var key in data){
     	var v = data[key]
     	if(v) {
-    		if(v instanceof Date) v = v.format('isoDate');//TODO:时分秒如何处理?
+    		if(v instanceof Date) v = v.format($A.defaultDateFormat);//TODO:时分秒如何处理?
             form.createChild({tag:"input",type:"hidden",name:key,value:v});
     	}
     }
@@ -909,7 +909,7 @@ $A.getRenderer = function(renderer){
 
 $A.formatDate = function(date){
 	if(!date)return '';
-	if(date.format)return date.format('isoDate');
+	if(date.format)return date.format($A.defaultDateFormat);
 	return date;
 }
 $A.formatDateTime = function(date){
