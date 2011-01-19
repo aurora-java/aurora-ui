@@ -682,12 +682,17 @@ Ext.util.JSON.encodeDate = function(o){
 	var pad = function(n) {
         return n < 10 ? "0" + n : n;
     };
-    return '"' + o.getFullYear() + "-" +
+    var r = '"' + o.getFullYear() + "-" +
             pad(o.getMonth() + 1) + "-" +
-            pad(o.getDate()) /*+ " " +
+            pad(o.getDate());
+    if(o.xtype == 'timestamp') {
+        r = r + " " +
             pad(o.getHours()) + ":" +
             pad(o.getMinutes()) + ":" +
-            pad(o.getSeconds())*/ + '"';
+            pad(o.getSeconds())    	
+    }
+    r += '"';
+    return r
 };
 Ext.Element.prototype.update = function(html, loadScripts, callback){
     if(typeof html == "undefined"){
@@ -2126,7 +2131,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 			d['_id'] = r.id;
 			d['_status'] = r.isNew ? 'insert' : 'update';
 			for(var k in r.data){
-				var item = d[k]; 
+				var item = d[k];
 				if(item && item.xtype == 'dataset'){
 					var ds = new $A.DataSet({});//$(item.id);
 					ds.reConfig(item)
@@ -2299,6 +2304,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 break;
             case 'java.sql.date':
                 v = $A.parseDate(v);
+                break;
+            case 'java.sql.timestamp':
+                v = $A.parseDate(v);
+                v.xtype = 'timestamp';
                 break;
             case 'int':
                 v = parseInt(v);
@@ -4789,6 +4798,38 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	delete this.format;
     	delete this.viewsize;
 	}
+});
+/**
+ * @class Aurora.DatePicker
+ * @extends Aurora.TriggerField
+ * <p>DatePicker组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
+$A.DateTimePicker = Ext.extend($A.DatePicker,{
+    initDateField:function(){
+    	this.format=this.format||"yyyy-mm-dd HH:MM:ss";
+    	this.viewsize=1;
+    	this.popup.setStyle({'width':"150px"})
+    	if(!this.dateField){
+    		var cfg = {id:this.id+'_df',container:this.popup,dayrenderer:this.dayrenderer,format:this.format,viewsize:this.viewsize,datestart:this.datestart,dateend:this.dateend,listeners:{"select": this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
+	    	this.dateField = new $A.DateField(cfg);
+    	}
+    },
+    collapse : function(){
+    	$A.DateTimePicker.superclass.collapse.call(this);
+    	if(this.getRawValue()){
+    		var d = this.dateField.selectDay
+    		if(d){
+	    		d.setHours((el=this.dateField.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+	    		d.setMinutes((el=this.dateField.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+	    		d.setSeconds((el=this.dateField.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+    		}
+    		d.xtype = 'timestamp';
+    		this.setValue(d);
+    	}
+    }
 });
 $A.ToolBar = Ext.extend($A.Component,{
 	constructor: function(config) {

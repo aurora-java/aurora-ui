@@ -15,15 +15,18 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
     		var cfg = {id:this.id+'_df',container:this.popup,dayrenderer:this.dayrenderer,format:this.format,viewsize:this.viewsize,datestart:this.datestart,dateend:this.dateend,listeners:{"select": this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
 	    	this.dateField = new $A.DateField(cfg);
     	}
-    },collapse : function(){
+    },
+    collapse : function(){
     	$A.DateTimePicker.superclass.collapse.call(this);
     	if(this.getRawValue()){
-    		if(this.dateField.selectDay){
-	    		this.dateField.selectDay.setHours((el=this.dateField.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-	    		this.dateField.selectDay.setMinutes((el=this.dateField.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-	    		this.dateField.selectDay.setSeconds((el=this.dateField.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+    		var d = this.dateField.selectDay
+    		if(d){
+	    		d.setHours((el=this.dateField.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+	    		d.setMinutes((el=this.dateField.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+	    		d.setSeconds((el=this.dateField.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
     		}
-    		this.setValue(this.dateField.selectDay);
+    		d.xtype = 'timestamp';
+    		this.setValue(d);
     	}
     }
 });
