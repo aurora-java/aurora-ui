@@ -22,7 +22,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.popup.setStyle({'width':150*this.viewsize+'px'})
     	if(this.dateFields.length==0){
     		for(var i=0;i<this.viewsize;i++){
-	    		var cfg = {id:this.id+'_df'+i,enablemonthbtn:'none',enablebesidedays:'none',dayrenderer:this.dayrenderer,listeners:{"select":this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
+	    		var cfg = {id:this.id+'_df'+i,height:130,enablemonthbtn:'none',enablebesidedays:'none',dayrenderer:this.dayrenderer,listeners:{"select":this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
 		    	if(i==0){
 		    		if(this.enablebesidedays=="both"||this.enablebesidedays=="pre")
 		    			cfg.enablebesidedays="pre";
