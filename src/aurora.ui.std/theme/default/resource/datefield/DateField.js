@@ -43,10 +43,10 @@ $A.DateField = Ext.extend($A.Component, {
     		this.preMonthBtn[ou]("click", this.preMonth, this);
     	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
     		this.nextMonthBtn[ou]("click", this.nextMonth, this);
-    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre"||this.enablemonthbtn=="next")
-    		this.body[ou]('mousewheel',this.onMouseWheel,this);	
+    	this.body[ou]('mousewheel',this.onMouseWheel,this);	
     	this.body[ou]("mouseover", this.onMouseOver, this);
     	this.body[ou]("mouseout", this.onMouseOut, this);
+    	this.body[ou]("mouseup",this.onSelect,this);
     },
     initEvents : function(){
     	$A.DateField.superclass.initEvents.call(this);   	
@@ -74,11 +74,11 @@ $A.DateField = Ext.extend($A.Component, {
 	},
 	onMouseWheel:function(e){
 		var delta = e.getWheelDelta();
-        if(delta > 0&&(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")){
+        if(delta > 0){
             this.preMonth();
             e.stopEvent();
         }
-		if(delta < 0&&(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")){
+		if(delta < 0){
             this.nextMonth();
             e.stopEvent();
         }
@@ -92,6 +92,9 @@ $A.DateField = Ext.extend($A.Component, {
     },
     onMouseOut: function(e){
     	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
+    },
+    onSelect:function(e){
+    	this.fireEvent("select",e);
     },
 	onSelectDay: function(o){
 		if(!Ext.fly(o).hasClass('onSelect'))Ext.fly(o).addClass('onSelect');
@@ -130,11 +133,13 @@ $A.DateField = Ext.extend($A.Component, {
   	 * 根据日期画日历
   	 * @param {Date} date 当前日期
   	 */
-  	predraw: function(date) {
+  	predraw: function(date,notFire) {
   		if(!date || !date instanceof Date)date = new Date();
+  		this.date=date;
   		this.hours=date.getHours();this.minutes=date.getMinutes();this.seconds=date.getSeconds();
 		this.year = date.getFullYear(); this.month = date.getMonth() + 1;
 		this.draw(new Date(this.year,this.month-1,1,this.hours,this.minutes,this.seconds));
+		if(!notFire)this.fireEvent("draw",this);
   	},
   	/**
   	 * 渲染日历
@@ -195,7 +200,6 @@ $A.DateField = Ext.extend($A.Component, {
 			}
 			this.body.dom.tBodies[0].appendChild(row);
 		}
-		this.fireEvent("draw",this);
 	},
 	renderCell:function(cell,date,text){
 		if(this.dayrenderer)$A.getRenderer(this.dayrenderer).call(this,cell,date,text);

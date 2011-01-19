@@ -24,9 +24,9 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.popup.setStyle({'width':150*this.viewsize+'px'})
     	if(this.dateFields.length==0){
     		for(var i=0;i<this.viewsize;i++){
-	    		var cfg = {id:this.id+'_df'+i,enablemonthbtn:'none',enablebesidedays:'none',dayrenderer:this.dayrenderer,listeners:{"draw":this.onDraw.createDelegate(this)}}
+	    		var cfg = {id:this.id+'_df'+i,enablemonthbtn:'none',enablebesidedays:'none',dayrenderer:this.dayrenderer,listeners:{"select":this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
 		    	if(i==0&&(this.enablebesidedays=="both"||this.enablebesidedays=="pre")){
-		    		cfg.enablebesidedays="pre";
+		    		 cfg.enablebesidedays="pre";
 		    	}
 		    	if(i==this.viewsize-1){
 		    		if(this.enablebesidedays=="both"||this.enablebesidedays=="next")cfg.enablebesidedays=cfg.enablebesidedays=="pre"?"both":"next";
@@ -64,9 +64,10 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     		this.preMonthBtn[ou]("click", this.preMonth, this);
     	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
     		this.nextMonthBtn[ou]("click", this.nextMonth, this);
-    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre"||this.enablemonthbtn=="next")
-    		this.popup[ou]('mousewheel',this.onMouseWheel,this);	
-    	this.popup[ou]("mouseup", this.onSelect, this);
+    	if(this.now)this.now[ou]("click", this.onSelect, this);
+    	//if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre"||this.enablemonthbtn=="next")
+    		//this.popup[ou]('mousewheel',this.onMouseWheel,this);	
+    	//this.popup[ou]("mouseup", this.onSelect, this);
     },
     onKeyUp: function(e){
     	$A.DatePicker.superclass.onKeyUp.call(this,e);
@@ -77,7 +78,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	}catch(e){
     	}
     },
-    onDraw : function(){
+    onDraw : function(field){
+    	if(this.dateFields.length>1)this.sysnDateField(field);
     	this.shadow.setWidth(this.popup.getWidth());
     	this.shadow.setHeight(this.popup.getHeight());
     },
@@ -131,22 +133,28 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 			date.setSeconds(0);
 			date.setMilliseconds(0);
 		}
+		this.dateFields[0].selectDay=this.selectDay;
+		this.dateFields[0].format=this.format;
+		this.dateFields[0].predraw(date);
+	},
+	sysnDateField : function(field){
+		var date=new Date(field.date);
+		for(var i=0;i<this.viewsize;i++){
+			if(field==this.dateFields[i])date.setMonth(date.getMonth()-i);
+		}
 		for(var i=0;i<this.viewsize;i++){
 			this.dateFields[i].selectDay=this.selectDay;
-			date.setMonth(date.getMonth()+i);
+			if(i!=0)date.setMonth(date.getMonth()+1);
 			this.dateFields[i].format=this.format;
-			this.dateFields[i].predraw(date);
+			if(field!=this.dateFields[i])
+			this.dateFields[i].predraw(date,true);
 		}
 	},
 	preMonth : function(){
-		for(var i=0;i<this.viewsize;i++){
-			this.dateFields[i].preMonth();
-		}
+		this.dateFields[0].preMonth();
 	},
 	nextMonth : function(){
-		for(var i=0;i<this.viewsize;i++){
-			this.dateFields[i].nextMonth();
-		}
+		this.dateFields[0].nextMonth();
 	},
 	onMouseWheel:function(e){
 		var delta = e.getWheelDelta();
