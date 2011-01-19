@@ -150,23 +150,20 @@ $A.DateField = Ext.extend($A.Component, {
 		this.head.text.innerHTML=year + _lang['datefield.year'] + month + _lang['datefield.month'];
 		//用当月第一天在一周中的日期值作为当月离第一天的天数,用上个月的最后天数补齐
 		for(var i = 1, firstDay = new Date(year, month - 1, 1).getDay(),lastDay = new Date(year, month - 1, 0).getDate(); i <= firstDay; i++){ 
-			if(this.enablebesidedays=="both"||this.enablebesidedays=="pre")
-				arr.push([n=lastDay-firstDay+i,new Date(year, month - 2, n,hour,minute,second),"item-day item-day-besides"]);
-			else arr.push([null,null,null]);
+			arr.push((this.enablebesidedays=="both"||this.enablebesidedays=="pre")?new Date(year, month - 2, lastDay-firstDay+i,hour,minute,second):null);
 		}
 		//用当月最后一天在一个月中的日期值作为当月的天数
 		for(var i = 1, monthDay = new Date(year, month, 0).getDate(); i <= monthDay; i++){ 
-			arr.push([i,new Date(year, month - 1, i,hour,minute,second),"item-day"]); 
+			arr.push(new Date(year, month - 1, i,hour,minute,second)); 
 		}
 		//用下个月的前几天补齐6行
 		for(var i=1, monthDay = new Date(year, month, 0).getDay(),besideDays=7+(arr.length>5*7?0:7);i<besideDays-monthDay;i++){
-			if(this.enablebesidedays=="both"||this.enablebesidedays=="next")arr.push([i,new Date(year, month, i,hour,minute,second),"item-day item-day-besides"]);
-			else arr.push([null,null,null]);
+			arr.push((this.enablebesidedays=="both"||this.enablebesidedays=="next")?new Date(year, month, i,hour,minute,second):null);
 		}
 		//先清空内容再插入(ie的table不能用innerHTML)
-		while(this.body.dom.tBodies[0].firstChild)
+		while(this.body.dom.tBodies[0].firstChild){
 			this.body.dom.tBodies[0].removeChild(this.body.dom.tBodies[0].firstChild);
-		
+		}
 		//插入日期
 		var k=0;
 		while(arr.length){
@@ -178,25 +175,25 @@ $A.DateField = Ext.extend($A.Component, {
 			//每个星期有7天
 			for(var i = 1; i <= 7; i++){
 				var d = arr.shift();
-				if(d){
+				if(Ext.isDefined(d)){
 					var cell = document.createElement("td"); 
-					if(d[1]){
-						cell.className = d[2];
-						cell.innerHTML =this.renderCell(cell,d[1],d[0])||d[0];
+					if(d){
+						cell.className = date.getMonth()==d.getMonth()?"item-day":"item-day item-day-besides";
+						cell.innerHTML =this.renderCell(cell,d)||d.getDate();
 						if(cell.disabled){
 							Ext.fly(cell).set({'_date':'0'});
 							Ext.fly(cell).addClass("item-day-disabled");
 						}else {
-							Ext.fly(cell).set({'_date':(''+d[1].getTime())});
-							if(this.format)Ext.fly(cell).set({'title':d[1].format(this.format)})
+							Ext.fly(cell).set({'_date':(''+d.getTime())});
+							if(this.format)Ext.fly(cell).set({'title':d.format(this.format)})
 						}
 						//判断是否今日
-						if(this.isSame(d[1], new Date())) cell.className = "onToday";
+						if(this.isSame(d, new Date())) cell.className = "onToday";
 						//判断是否选择日期
-						if(this.selectDay && this.isSame(d[1], this.selectDay))this.onSelectDay(cell);
+						if(this.selectDay && this.isSame(d, this.selectDay))this.onSelectDay(cell);
 					}
+					row.appendChild(cell);
 				}
-				row.appendChild(cell);
 			}
 			this.body.dom.tBodies[0].appendChild(row);
 		}
