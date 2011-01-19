@@ -7,8 +7,6 @@
  * @param {Object} config 配置对象. 
  */
 $A.DatePicker = Ext.extend($A.TriggerField,{
-	preMonthTpl:['<DIV class="item-dateField-pre" title="{pre}"></DIV>'],
-	nextMonthTpl:['<DIV class="item-dateField-next" title="{next}"></DIV>'],
 	nowTpl:['<DIV class="item-day" style="cursor:pointer" title="{title}">{now}</DIV>'],
 	constructor: function(config) {
 		this.dateFields = [];
@@ -25,22 +23,20 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	if(this.dateFields.length==0){
     		for(var i=0;i<this.viewsize;i++){
 	    		var cfg = {id:this.id+'_df'+i,enablemonthbtn:'none',enablebesidedays:'none',dayrenderer:this.dayrenderer,listeners:{"select":this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
-		    	if(i==0&&(this.enablebesidedays=="both"||this.enablebesidedays=="pre")){
-		    		 cfg.enablebesidedays="pre";
+		    	if(i==0){
+		    		if(this.enablebesidedays=="both"||this.enablebesidedays=="pre")
+		    			cfg.enablebesidedays="pre";
+		    		if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
+		    			cfg.enablemonthbtn="pre";
 		    	}
 		    	if(i==this.viewsize-1){
-		    		if(this.enablebesidedays=="both"||this.enablebesidedays=="next")cfg.enablebesidedays=cfg.enablebesidedays=="pre"?"both":"next";
+		    		if(this.enablebesidedays=="both"||this.enablebesidedays=="next")
+		    			cfg.enablebesidedays=cfg.enablebesidedays=="pre"?"both":"next";
+		    		if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
+		    			cfg.enablemonthbtn=cfg.enablemonthbtn=="pre"?"both":"next";
 		    	}else Ext.fly(this.id+'_df'+i).dom.style.cssText="border-right:1px solid #BABABA";
 		    	this.dateFields.add(new $A.DateField(cfg));
     		}
-    		if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre"){
-	    		this.preMonthBtn = new Ext.Template(this.preMonthTpl).append(this.dateFields[0].head,{pre:_lang['datefield.preMonth']},true);
-    			this.dateFields[0].head.appendChild(this.dateFields[0].head.text);
-    		}
-	    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next"){
-	    		this.nextMonthBtn = new Ext.Template(this.nextMonthTpl).append(this.dateFields[this.viewsize-1].head,{next:_lang['datefield.nextMonth']},true);
-	    		this.dateFields[this.viewsize-1].head.appendChild(this.dateFields[this.viewsize-1].head.text);
-	    	}
     	}
     },
     initFooter : function(){
@@ -60,14 +56,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     processListener : function(ou){
     	$A.DatePicker.superclass.processListener.call(this,ou);
-    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
-    		this.preMonthBtn[ou]("click", this.preMonth, this);
-    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
-    		this.nextMonthBtn[ou]("click", this.nextMonth, this);
     	if(this.now)this.now[ou]("click", this.onSelect, this);
-    	//if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre"||this.enablemonthbtn=="next")
-    		//this.popup[ou]('mousewheel',this.onMouseWheel,this);	
-    	//this.popup[ou]("mouseup", this.onSelect, this);
     },
     onKeyUp: function(e){
     	$A.DatePicker.superclass.onKeyUp.call(this,e);
