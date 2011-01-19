@@ -15,7 +15,7 @@ $A.DateField = Ext.extend($A.Component, {
 						'<TD>{mon}</TD>',
 						'<TD>{tues}</TD>',
 						'<TD>{wed}</TD>',
-						'<TD>{sun}</TD>',
+						'<TD>{thur}</TD>',
 						'<TD>{fri}</TD>',
 						'<TD>{sat}</TD>',
 					'</TR>',
@@ -28,7 +28,7 @@ $A.DateField = Ext.extend($A.Component, {
     initComponent : function(config){
     	$A.DateField.superclass.initComponent.call(this, config);
     	if(this.height)this.rowHeight=(this.height-18*2)/6;
-        this.body = new Ext.Template(this.bodyTpl).append(this.wrap.dom,{sun:_lang['datefield.sun'],mon:_lang['datefield.mon'],tues:_lang['datefield.tues'],wed:_lang['datefield.wed'],sun:_lang['datefield.sun'],fri:_lang['datefield.fri'],sat:_lang['datefield.sat']},true);
+        this.body = new Ext.Template(this.bodyTpl).append(this.wrap.dom,{sun:_lang['datefield.sun'],mon:_lang['datefield.mon'],tues:_lang['datefield.tues'],wed:_lang['datefield.wed'],thur:_lang['datefield.thur'],fri:_lang['datefield.fri'],sat:_lang['datefield.sat']},true);
         this.head=this.body.child(".item-dateField-caption").dom;
         if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
     		this.preMonthBtn = new Ext.Template(this.preMonthTpl).append(this.head,{pre:_lang['datefield.preMonth']},true);
