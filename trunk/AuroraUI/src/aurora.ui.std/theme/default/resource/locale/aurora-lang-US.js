@@ -40,3 +40,17 @@ _lang['window.error'] = 'Error';
 _lang['window.button.ok'] = 'OK';
 _lang['window.button.cancel'] = 'Cancel';
 _lang['window.upload.title'] = 'Upload';
+
+_lang['datefield.year'] = '.';
+_lang['datefield.month'] = '';
+_lang['datefield.sun'] = 'Sun';
+_lang['datefield.mon'] = 'Mon';
+_lang['datefield.tues'] = 'Tues';
+_lang['datefield.wed'] = 'Wed';
+_lang['datefield.thur'] = 'Thur';
+_lang['datefield.fri'] = 'Fri';
+_lang['datefield.sat'] = 'Sats';
+_lang['datefield.preMonth'] = 'Previous month';
+_lang['datefield.nextMonth'] = 'Next month';
+
+_lang['datepicker.today'] = 'Today';

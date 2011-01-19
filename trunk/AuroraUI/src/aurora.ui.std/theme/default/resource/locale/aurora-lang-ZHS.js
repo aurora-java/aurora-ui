@@ -40,3 +40,17 @@ _lang['window.error'] = '错误';
 _lang['window.button.ok'] = '确定';
 _lang['window.button.cancel'] = '取消';
 _lang['window.upload.title'] = '上传附件';
+
+_lang['datefield.year'] = '年';
+_lang['datefield.month'] = '月';
+_lang['datefield.sun'] = '日';
+_lang['datefield.mon'] = '一';
+_lang['datefield.tues'] = '二';
+_lang['datefield.wed'] = '三';
+_lang['datefield.thur'] = '四';
+_lang['datefield.fri'] = '五';
+_lang['datefield.sat'] = '六';
+_lang['datefield.preMonth'] = '上个月';
+_lang['datefield.nextMonth'] = '下个月';
+
+_lang['datepicker.today'] = '今日';

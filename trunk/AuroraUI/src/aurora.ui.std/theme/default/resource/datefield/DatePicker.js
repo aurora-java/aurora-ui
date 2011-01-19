@@ -7,18 +7,45 @@
  * @param {Object} config 配置对象. 
  */
 $A.DatePicker = Ext.extend($A.TriggerField,{
-	initComponent : function(config){ 
+	preMonthTpl:['<DIV class="item-dateField-pre" title="{pre}"></DIV>'],
+	nextMonthTpl:['<DIV class="item-dateField-next" title="{next}"></DIV>'],
+	nowTpl:['<DIV class="item-day" style="cursor:pointer" title="{title}">{now}</DIV>'],
+	constructor: function(config) {
+		this.dateFields = [];
+        $A.DatePicker.superclass.constructor.call(this,config);
+    },
+	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
     	this.initDateField();
+    	this.initFooter();
 	},
     initDateField:function(){
     	this.format=this.format||$A.defaultDateFormat;
-    	this.viewsize=(!this.viewsize||this.viewsize<1)?1:(this.viewsize>4?4:this.viewsize);
-    	this.popup.setStyle({'width':150*this.viewsize+"px"})
-    	if(!this.dateField){
-    		var cfg = {id:this.id+'_df',container:this.popup,dayrenderer:this.dayrenderer,format:this.format,viewsize:this.viewsize,datestart:this.datestart,dateend:this.dateend,listeners:{"select": this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
-	    	this.dateField = new $A.DateField(cfg);
+    	this.popup.setStyle({'width':150*this.viewsize+'px'})
+    	if(this.dateFields.length==0){
+    		for(var i=0;i<this.viewsize;i++){
+	    		var cfg = {id:this.id+'_df'+i,enablemonthbtn:'none',enablebesidedays:'none',dayrenderer:this.dayrenderer,listeners:{"draw":this.onDraw.createDelegate(this)}}
+		    	if(i==0&&(this.enablebesidedays=="both"||this.enablebesidedays=="pre")){
+		    		cfg.enablebesidedays="pre";
+		    	}
+		    	if(i==this.viewsize-1){
+		    		if(this.enablebesidedays=="both"||this.enablebesidedays=="next")cfg.enablebesidedays=cfg.enablebesidedays=="pre"?"both":"next";
+		    	}else Ext.fly(this.id+'_df'+i).dom.style.cssText="border-right:1px solid #BABABA";
+		    	this.dateFields.add(new $A.DateField(cfg));
+    		}
+    		if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre"){
+	    		this.preMonthBtn = new Ext.Template(this.preMonthTpl).append(this.dateFields[0].head,{pre:_lang['datefield.preMonth']},true);
+    			this.dateFields[0].head.appendChild(this.dateFields[0].head.text);
+    		}
+	    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next"){
+	    		this.nextMonthBtn = new Ext.Template(this.nextMonthTpl).append(this.dateFields[this.viewsize-1].head,{next:_lang['datefield.nextMonth']},true);
+	    		this.dateFields[this.viewsize-1].head.appendChild(this.dateFields[this.viewsize-1].head.text);
+	    	}
     	}
+    },
+    initFooter : function(){
+    	if(!this.now)this.now=new Ext.Template(this.nowTpl).append(this.popup.child("div.item-dateField-foot").dom,{now:_lang['datepicker.today'],title:new Date().format(this.format)},true);;
+    	this.now.set({"_date":new Date().getTime()});
     },
     initEvents : function(){
     	$A.DatePicker.superclass.initEvents.call(this);
@@ -31,12 +58,22 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
          */
         'select');
     },
+    processListener : function(ou){
+    	$A.DatePicker.superclass.processListener.call(this,ou);
+    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
+    		this.preMonthBtn[ou]("click", this.preMonth, this);
+    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
+    		this.nextMonthBtn[ou]("click", this.nextMonth, this);
+    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre"||this.enablemonthbtn=="next")
+    		this.popup[ou]('mousewheel',this.onMouseWheel,this);	
+    	this.popup[ou]("mouseup", this.onSelect, this);
+    },
     onKeyUp: function(e){
     	$A.DatePicker.superclass.onKeyUp.call(this,e);
     	try{
-    		this.dateField.selectDay=this.getRawValue().parseDate(this.format);
-    		$A.Component.prototype.setValue.call(this,this.dateField.selectDay);
-    		this.dateField.predraw(this.dateField.selectDay);
+    		this.selectDay=this.getRawValue().parseDate(this.format);
+    		$A.Component.prototype.setValue.call(this,this.selectDay);
+    		this.predraw(this.selectDay);
     	}catch(e){
     	}
     },
@@ -44,10 +81,13 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.shadow.setWidth(this.popup.getWidth());
     	this.shadow.setHeight(this.popup.getHeight());
     },
-    onSelect : function(dateField, date){
-    	this.collapse();
-    	this.setValue(date);
-    	this.fireEvent('select',this, date);
+    onSelect: function(e){
+		if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
+    		var date=new Date(parseInt(Ext.fly(e.target).getAttribute('_date')));
+	    	this.collapse();
+	    	this.setValue(date);
+	    	this.fireEvent('select',this, date);
+    	}
     },
     onBlur : function(e){
 		$A.DatePicker.superclass.onBlur.call(this,e);
@@ -65,8 +105,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     expand : function(){
     	$A.DatePicker.superclass.expand.call(this);
-    	this.dateField.selectDay = this.getValue();
-		this.dateField.predraw(this.dateField.selectDay);
+    	this.selectDay = this.getValue();
+		this.predraw(this.selectDay);
     	var xy=this.wrap.getXY(),
 			W=this.popup.getWidth(),H=this.popup.getHeight(),
 			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
@@ -80,5 +120,43 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	$A.DatePicker.superclass.destroy.call(this);
     	delete this.format;
     	delete this.viewsize;
+	},
+	predraw : function(date,noSelect){
+		if(date && date instanceof Date){
+			if(!noSelect)this.selectDay=new Date(date);
+		}else {
+			date=new Date();
+			date.setHours(0);
+			date.setMinutes(0);
+			date.setSeconds(0);
+			date.setMilliseconds(0);
+		}
+		for(var i=0;i<this.viewsize;i++){
+			this.dateFields[i].selectDay=this.selectDay;
+			date.setMonth(date.getMonth()+i);
+			this.dateFields[i].format=this.format;
+			this.dateFields[i].predraw(date);
+		}
+	},
+	preMonth : function(){
+		for(var i=0;i<this.viewsize;i++){
+			this.dateFields[i].preMonth();
+		}
+	},
+	nextMonth : function(){
+		for(var i=0;i<this.viewsize;i++){
+			this.dateFields[i].nextMonth();
+		}
+	},
+	onMouseWheel:function(e){
+		var delta = e.getWheelDelta();
+        if(delta > 0&&(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")){
+            this.preMonth();
+            e.stopEvent();
+        }
+		if(delta < 0&&(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")){
+            this.nextMonth();
+            e.stopEvent();
+        }
 	}
 });
