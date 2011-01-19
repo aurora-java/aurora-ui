@@ -27,7 +27,7 @@ $A.DateField = Ext.extend($A.Component, {
 	nextMonthTpl:['<DIV class="item-dateField-next" title="{next}"></DIV>'],
     initComponent : function(config){
     	$A.DateField.superclass.initComponent.call(this, config);
-    	this.rowHeight=(this.height-18*2)/6;
+    	if(this.height)this.rowHeight=(this.height-18*2)/6;
         this.body = new Ext.Template(this.bodyTpl).append(this.wrap.dom,{sun:_lang['datefield.sun'],mon:_lang['datefield.mon'],tues:_lang['datefield.tues'],wed:_lang['datefield.wed'],sun:_lang['datefield.sun'],fri:_lang['datefield.fri'],sat:_lang['datefield.sat']},true);
         this.head=this.body.child(".item-dateField-caption").dom;
         if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
@@ -70,7 +70,7 @@ $A.DateField = Ext.extend($A.Component, {
 		delete this.preMonthBtn;
     	delete this.nextMonthBtn;
     	delete this.body;
-    	delete this.height;
+    	delete this.head;
 	},
 	onMouseWheel:function(e){
 		var delta = e.getWheelDelta();
@@ -96,29 +96,6 @@ $A.DateField = Ext.extend($A.Component, {
 	onSelectDay: function(o){
 		if(!Ext.fly(o).hasClass('onSelect'))Ext.fly(o).addClass('onSelect');
 	},
-	/*onKeyDown : function(e) {
-		var c = e.keyCode, el = e.target;
-		if (c == 13) {
-			el.blur();
-		} else if (c == 27) {
-			el.value = el.oldValue || "";
-			el.blur();
-		} else if (c != 8 && c!=9 && c!=37 && c!=39 && c != 46 && (c < 48 || c > 57 || e.shiftKey)) {
-			e.stopEvent();
-			return;
-		}
-	},
-	onDateFocus : function(e) {
-		Ext.fly(e.target.parentNode).addClass("item-dateField-input-focus");
-		e.target.select();
-	},
-	onDateBlur : function(e) {
-		var el=e.target;
-		Ext.fly(el.parentNode).removeClass("item-dateField-input-focus");
-		if(!el.value.match(/^[0-9]*$/))el.value=el.oldValue||"";
-		else if(this.isDateTime)this.predraw(new Date(this.yearSpan.dom.value,this.monthSpan.dom.value - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value));
-		else this.predraw(new Date(this.yearSpan.dom.value,this.monthSpan.dom.value - 1, 1,0,0,0));
-	},*/
     /**
      * 当前月
      */
