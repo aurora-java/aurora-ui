@@ -682,12 +682,17 @@ Ext.util.JSON.encodeDate = function(o){
 	var pad = function(n) {
         return n < 10 ? "0" + n : n;
     };
-    return '"' + o.getFullYear() + "-" +
+    var r = '"' + o.getFullYear() + "-" +
             pad(o.getMonth() + 1) + "-" +
-            pad(o.getDate()) /*+ " " +
+            pad(o.getDate());
+    if(o.xtype == 'timestamp') {
+        r = r + " " +
             pad(o.getHours()) + ":" +
             pad(o.getMinutes()) + ":" +
-            pad(o.getSeconds())*/ + '"';
+            pad(o.getSeconds())    	
+    }
+    r += '"';
+    return r
 };
 Ext.Element.prototype.update = function(html, loadScripts, callback){
     if(typeof html == "undefined"){

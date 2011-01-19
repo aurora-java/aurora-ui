@@ -1011,7 +1011,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 			d['_id'] = r.id;
 			d['_status'] = r.isNew ? 'insert' : 'update';
 			for(var k in r.data){
-				var item = d[k]; 
+				var item = d[k];
 				if(item && item.xtype == 'dataset'){
 					var ds = new $A.DataSet({});//$(item.id);
 					ds.reConfig(item)
@@ -1184,6 +1184,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 break;
             case 'java.sql.date':
                 v = $A.parseDate(v);
+                break;
+            case 'java.sql.timestamp':
+                v = $A.parseDate(v);
+                v.xtype = 'timestamp';
                 break;
             case 'int':
                 v = parseInt(v);
