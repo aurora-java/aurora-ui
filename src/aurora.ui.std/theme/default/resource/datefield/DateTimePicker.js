@@ -44,7 +44,7 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		var el=e.target;
 		Ext.fly(el.parentNode).removeClass("item-dateField-input-focus");
 		if(!el.value.match(/^[0-9]*$/))el.value=el.oldValue||"";
-		else this.predraw(new Date(this.dateFields[0].year,this.dateFields[0].month - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value),true);
+		else this.draw(new Date(this.dateFields[0].year,this.dateFields[0].month - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value));
 	},
 	predraw : function(date,noSelect){
 		$A.DateTimePicker.superclass.predraw.call(this,date,noSelect);

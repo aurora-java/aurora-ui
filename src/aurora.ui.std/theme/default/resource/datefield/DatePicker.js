@@ -123,9 +123,9 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	delete this.format;
     	delete this.viewsize;
 	},
-	predraw : function(date,noSelect){
+	predraw : function(date){
 		if(date && date instanceof Date){
-			if(!noSelect)this.selectDay=new Date(date);
+			this.selectDay=new Date(date);
 		}else {
 			date=new Date();
 			date.setHours(0);
@@ -133,6 +133,9 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 			date.setSeconds(0);
 			date.setMilliseconds(0);
 		}
+		this.draw(date);
+	},
+	draw: function(date){
 		this.dateFields[0].selectDay=this.selectDay;
 		this.dateFields[0].format=this.format;
 		this.dateFields[0].predraw(date);
