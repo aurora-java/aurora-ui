@@ -27,7 +27,7 @@ $A.DateField = Ext.extend($A.Component, {
 	nextMonthTpl:['<DIV class="item-dateField-next" title="{next}"></DIV>'],
     initComponent : function(config){
     	$A.DateField.superclass.initComponent.call(this, config);
-    	if(this.height)this.rowHeight=(this.height-18*2)/6;
+    	if(this.height)this.rowHeight=(this.height-18*(Ext.isIE?3:2))/6;
         this.body = new Ext.Template(this.bodyTpl).append(this.wrap.dom,{sun:_lang['datefield.sun'],mon:_lang['datefield.mon'],tues:_lang['datefield.tues'],wed:_lang['datefield.wed'],thur:_lang['datefield.thur'],fri:_lang['datefield.fri'],sat:_lang['datefield.sat']},true);
         this.head=this.body.child(".item-dateField-caption").dom;
         if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
@@ -168,7 +168,7 @@ $A.DateField = Ext.extend($A.Component, {
 		var k=0;
 		while(arr.length){
 			//每个星期插入一个tr
-			var row = document.createElement("tr");
+			var row = this.body.dom.tBodies[0].insertRow(-1);
 			if(this.rowHeight)row.style.height=this.rowHeight+"px";
 			if(k%2==0)row.className='week-alt';
 			k++;
@@ -176,7 +176,7 @@ $A.DateField = Ext.extend($A.Component, {
 			for(var i = 1; i <= 7; i++){
 				var d = arr.shift();
 				if(Ext.isDefined(d)){
-					var cell = document.createElement("td"); 
+					var cell = row.insertCell(-1); 
 					if(d){
 						cell.className = date.getMonth()==d.getMonth()?"item-day":"item-day item-day-besides";
 						cell.innerHTML =this.renderCell(cell,d)||d.getDate();
@@ -192,10 +192,8 @@ $A.DateField = Ext.extend($A.Component, {
 						//判断是否选择日期
 						if(this.selectDay && this.isSame(d, this.selectDay))this.onSelectDay(cell);
 					}
-					row.appendChild(cell);
 				}
 			}
-			this.body.dom.tBodies[0].appendChild(row);
 		}
 	},
 	renderCell:function(cell,date,text){
