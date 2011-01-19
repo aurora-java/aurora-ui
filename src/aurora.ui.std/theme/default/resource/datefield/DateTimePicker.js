@@ -7,23 +7,59 @@
  * @param {Object} config 配置对象. 
  */
 $A.DateTimePicker = Ext.extend($A.DatePicker,{
-    initDateField:function(){
-    	this.format=this.format||"yyyy-mm-dd HH:MM:ss";
-    	this.viewsize=1;
-    	this.popup.setStyle({'width':"150px"})
-    	if(!this.dateField){
-    		var cfg = {id:this.id+'_df',container:this.popup,dayrenderer:this.dayrenderer,format:this.format,viewsize:this.viewsize,datestart:this.datestart,dateend:this.dateend,listeners:{"select": this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
-	    	this.dateField = new $A.DateField(cfg);
-    	}
+	initFooter : function(){
+		this.hourSpan = this.popup.child("input[atype=field.hour]");
+    	this.minuteSpan = this.popup.child("input[atype=field.minute]");
+    	this.secondSpan = this.popup.child("input[atype=field.second]");
     },
+    processListener : function(ou){
+    	$A.DateTimePicker.superclass.processListener.call(this,ou);
+    	this.hourSpan[ou]("focus", this.onDateFocus, this);
+		this.hourSpan[ou]("blur", this.onDateBlur, this);
+		this.hourSpan[ou]("keydown", this.onDateKeyDown, this);
+		this.minuteSpan[ou]("focus", this.onDateFocus, this);
+		this.minuteSpan[ou]("blur", this.onDateBlur, this);
+		this.minuteSpan[ou]("keydown", this.onDateKeyDown, this);
+		this.secondSpan[ou]("focus", this.onDateFocus, this);
+		this.secondSpan[ou]("blur", this.onDateBlur, this);
+		this.secondSpan[ou]("keydown", this.onDateKeyDown, this);
+    },
+    onDateKeyDown : function(e) {
+		var c = e.keyCode, el = e.target;
+		if (c == 13) {
+			el.blur();
+		} else if (c == 27) {
+			el.value = el.oldValue || "";
+			el.blur();
+		} else if (c != 8 && c!=9 && c!=37 && c!=39 && c != 46 && (c < 48 || c > 57 || e.shiftKey)) {
+			e.stopEvent();
+			return;
+		}
+	},
+    onDateFocus : function(e) {
+		Ext.fly(e.target.parentNode).addClass("item-dateField-input-focus");
+		e.target.select();
+	},
+	onDateBlur : function(e) {
+		var el=e.target;
+		Ext.fly(el.parentNode).removeClass("item-dateField-input-focus");
+		if(!el.value.match(/^[0-9]*$/))el.value=el.oldValue||"";
+		else this.predraw(new Date(this.dateFields[0].year,this.dateFields[0].month - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value),true);
+	},
+	predraw : function(date,noSelect){
+		$A.DateTimePicker.superclass.predraw.call(this,date,noSelect);
+		this.hourSpan.dom.oldValue = this.hourSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].hours);
+		this.minuteSpan.dom.oldValue = this.minuteSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].minutes);
+		this.secondSpan.dom.oldValue = this.secondSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].seconds);
+	},
     collapse : function(){
     	$A.DateTimePicker.superclass.collapse.call(this);
     	if(this.getRawValue()){
-    		var d = this.dateField.selectDay
+    		var d = this.selectDay;
     		if(d){
-	    		d.setHours((el=this.dateField.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-	    		d.setMinutes((el=this.dateField.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-	    		d.setSeconds((el=this.dateField.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+	    		d.setHours((el=this.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+	    		d.setMinutes((el=this.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+	    		d.setSeconds((el=this.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
     		}
     		d.xtype = 'timestamp';
     		this.setValue(d);
