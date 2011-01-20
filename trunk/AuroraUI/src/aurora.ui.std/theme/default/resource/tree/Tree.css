@@ -11,9 +11,8 @@
 }
 .node-empty,.node-line,.node-clip,.node-icon, .checkbox0,.checkbox1,.checkbox2{
 	width:18px;
-	height:18px;
-	
-	/*float:left;*/
+	height:18px;	
+	float:left;
 }
 .node-text {
 	cursor:default;
