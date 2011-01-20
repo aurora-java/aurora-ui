@@ -135,12 +135,14 @@ $A.Window = Ext.extend($A.Component,{
     center: function(){
     	var screenWidth = $A.getViewportWidth();
     	var screenHeight = $A.getViewportHeight();
-    	var x = document[Ext.isStrict?'documentElement':'body'].scrollLeft+Math.max((screenWidth - this.width)/2,0);
-    	var y = document[Ext.isStrict?'documentElement':'body'].scrollTop+Math.max((screenHeight - this.height-(Ext.isIE?26:23))/2,0);
+    	var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft;
+    	var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
+    	var x = sl+Math.max((screenWidth - this.width)/2,0);
+    	var y = st+Math.max((screenHeight - this.height-(Ext.isIE?26:23))/2,0);
         this.shadow.setWidth(this.wrap.getWidth());
         this.shadow.setHeight(this.wrap.getHeight());
         if(this.fullScreen){
-        	x=y=0;
+        	x=sl;y=st;
         	this.shadow.moveTo(x,y)
         }else this.shadow.moveTo(x+3,y+3)
         this.wrap.moveTo(x,y);

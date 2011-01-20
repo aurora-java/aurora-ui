@@ -1,5 +1,7 @@
 .item-table{
-	border:1px solid #cccccc;
+	border-top:1px solid #cccccc;
+	border-bottom:1px solid #cccccc;
+	border-left:1px solid #cccccc;
 }
 .table-hc {
 	border-right:1px solid #cccccc;/*a4bed4*/
@@ -14,7 +16,8 @@
 	background-color: #FAFAFA;
 }
 .item-table tbody td{
-	border-bottom:1px solid #ededed;
+	border-bottom:1px solid #cccccc;
+	border-right:1px solid #cccccc;
 	padding:1px;
 }
 .table-cell{
@@ -50,8 +53,8 @@
     height:24px;
 }
 .table_title {
-	border-left:1px solid #ffffff;
 	border-bottom:1px solid #bbbbbb;
+	border-right:1px solid #cccccc;
 	height:25px;
 	COLOR: #055a78;	
 	background:url(../toolbar/toolbar_bg.gif) repeat-x;
