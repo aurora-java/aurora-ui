@@ -4433,80 +4433,51 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
  * @class Aurora.DateField
  * @extends Aurora.Component
  * <p>日期组件.
- * @author njq.niu@hand-china.com
+ * @author huazhen.wu@hand-china.com
  * @constructor
  * @param {Object} config 配置对象. 
  */
 $A.DateField = Ext.extend($A.Component, {
-	constructor: function(config) {
-        $A.DateField.superclass.constructor.call(this,config);
-    },
+	bodyTpl:['<TABLE cellspacing="0">',
+				'<CAPTION class="item-dateField-caption"></CAPTION>',
+				'<THEAD class="item-dateField-head">',
+					'<TR>',
+						'<TD>{sun}</TD>',
+						'<TD>{mon}</TD>',
+						'<TD>{tues}</TD>',
+						'<TD>{wed}</TD>',
+						'<TD>{thur}</TD>',
+						'<TD>{fri}</TD>',
+						'<TD>{sat}</TD>',
+					'</TR>',
+				'</THEAD>',
+				'<TBODY>',
+				'</TBODY>',
+			'</TABLE>'],
+	preMonthTpl:['<DIV class="item-dateField-pre" title="{pre}"></DIV>'],
+	nextMonthTpl:['<DIV class="item-dateField-next" title="{next}"></DIV>'],
     initComponent : function(config){
     	$A.DateField.superclass.initComponent.call(this, config);
-    	this.isDateTime=$A.dateFormat.isDateTime(this.format);
-    	this.wrap = typeof(config.container) == "string" ? Ext.get(config.container) : config.container;
-        this.body = this.wrap.child("table.item-dateField-body");
-        this.tables=[];
-    	this.preMonthBtn = this.wrap.child("div.item-dateField-pre");
-    	this.nextMonthBtn = this.wrap.child("div.item-dateField-next");
-    	this.preYearBtn = this.wrap.child("div.item-dateField-preYear");
-    	this.nextYearBtn = this.wrap.child("div.item-dateField-nextYear");
-    	this.yearSpan = this.wrap.child("input[atype=field.year]");
-    	this.monthSpan = this.wrap.child("input[atype=field.month]");
-    	if(this.isDateTime){
-	    	this.hourSpan = this.wrap.child("input[atype=field.hour]");
-	    	this.minuteSpan = this.wrap.child("input[atype=field.minute]");
-	    	this.secondSpan = this.wrap.child("input[atype=field.second]");
-    	}else{
-    		this.now=this.wrap.child("div[atype=field.current]");
-	    	this.now.dom.title=new Date().format(this.format);
-	    	this.now.set({"_date":new Date().getTime()});
-    	}
-        var tableTpl=this.body.dom.rows[0].cells[0];
-		for(var i=0;i<this.viewsize;i++){
-			var clone=i==0?tableTpl:tableTpl.cloneNode(true);
-        	this.tables[i]=Ext.fly(clone).child("table").dom;
-        	var tr=Ext.fly(this.tables[i]).child("tr.item-dateField-head").dom;
-        	this.tables[i].head=tr.cells[0];
-        	if(i!=0){
-        		this.tables[i].head.text=document.createElement('span');
-        		this.tables[i].head.appendChild(this.tables[i].head.text);
-        	}
-        	clone.style.cssText=(i!=this.viewsize-1)?"border-right:1px solid #BABABA":"";
-        	this.body.dom.rows[0].appendChild(clone);
-        }
-        this.tables[0].head.appendChild(this.preYearBtn.dom);
-        this.tables[0].head.appendChild(this.preMonthBtn.dom);
-        this.tables[this.viewsize-1].head.appendChild(this.nextYearBtn.dom);
-        this.tables[this.viewsize-1].head.appendChild(this.nextMonthBtn.dom);
-        this.tables[0].head.appendChild(this.monthSpan.dom.parentNode);
+    	if(this.height)this.rowHeight=(this.height-18*(Ext.isIE?3:2))/6;
+        this.body = new Ext.Template(this.bodyTpl).append(this.wrap.dom,{sun:_lang['datefield.sun'],mon:_lang['datefield.mon'],tues:_lang['datefield.tues'],wed:_lang['datefield.wed'],thur:_lang['datefield.thur'],fri:_lang['datefield.fri'],sat:_lang['datefield.sat']},true);
+        this.head=this.body.child(".item-dateField-caption").dom;
+        if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
+    		this.preMonthBtn = new Ext.Template(this.preMonthTpl).append(this.head,{pre:_lang['datefield.preMonth']},true);
+    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
+    		this.nextMonthBtn = new Ext.Template(this.nextMonthTpl).append(this.head,{next:_lang['datefield.nextMonth']},true);
+    	this.head.text=document.createElement('span');
+    	this.head.appendChild(this.head.text);
     },
     processListener: function(ou){
     	$A.DateField.superclass.processListener.call(this,ou);
-    	this.preMonthBtn[ou]("click", this.preMonth, this);
-    	this.nextMonthBtn[ou]("click", this.nextMonth, this);
-    	this.preYearBtn[ou]("click", this.preYear, this);
-		this.nextYearBtn[ou]("click", this.nextYear, this);
-		this.yearSpan[ou]("focus", this.onDateFocus, this);
-		this.yearSpan[ou]("blur", this.onDateBlur, this);
-		this.yearSpan[ou]("keydown", this.onKeyDown, this);
-		this.monthSpan[ou]("focus", this.onDateFocus, this);
-		this.monthSpan[ou]("blur", this.onDateBlur, this);
-		this.monthSpan[ou]("keydown", this.onKeyDown, this);
-		if(this.isDateTime){
-			this.hourSpan[ou]("focus", this.onDateFocus, this);
-			this.hourSpan[ou]("blur", this.onDateBlur, this);
-			this.hourSpan[ou]("keydown", this.onKeyDown, this);
-			this.minuteSpan[ou]("focus", this.onDateFocus, this);
-			this.minuteSpan[ou]("blur", this.onDateBlur, this);
-			this.minuteSpan[ou]("keydown", this.onKeyDown, this);
-			this.secondSpan[ou]("focus", this.onDateFocus, this);
-			this.secondSpan[ou]("blur", this.onDateBlur, this);
-			this.secondSpan[ou]("keydown", this.onKeyDown, this);
-		}
-    	else this.now[ou]("mouseup", this.onSelect, this);
-    	this.body[ou]("mouseup", this.onSelect, this);
-    	this.body[ou]("mouseover", this.mouseOver, this);
+    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
+    		this.preMonthBtn[ou]("click", this.preMonth, this);
+    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
+    		this.nextMonthBtn[ou]("click", this.nextMonth, this);
+    	this.body[ou]('mousewheel',this.onMouseWheel,this);	
+    	this.body[ou]("mouseover", this.onMouseOver, this);
+    	this.body[ou]("mouseout", this.onMouseOut, this);
+    	this.body[ou]("mouseup",this.onSelect,this);
     },
     initEvents : function(){
     	$A.DateField.superclass.initEvents.call(this);   	
@@ -4527,67 +4498,37 @@ $A.DateField = Ext.extend($A.Component, {
     },
     destroy : function(){
     	$A.DateField.superclass.destroy.call(this);
-		delete this.preYearBtn;
-		delete this.nextYearBtn;
 		delete this.preMonthBtn;
     	delete this.nextMonthBtn;
-    	delete this.yearSpan;
-    	delete this.monthSpan; 
-    	if(this.isDateTime){
-	    	delete this.hourSpan; 
-	    	delete this.minuteSpan; 
-	    	delete this.secondSpan;
-    	}else delete this.now;
-    	delete this.body;        
-        delete this.tables;
-        delete this.isDateTime;
+    	delete this.body;
+    	delete this.head;
 	},
-    mouseOver: function(e){
+	onMouseWheel:function(e){
+		var delta = e.getWheelDelta();
+        if(delta > 0){
+            this.preMonth();
+            e.stopEvent();
+        }
+		if(delta < 0){
+            this.nextMonth();
+            e.stopEvent();
+        }
+	},
+    onMouseOver: function(e){
     	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
     	if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
     		this.overTd = e.target; 
     		Ext.fly(this.overTd).addClass('dateover');
     	}
-    	
     },
-    onSelect: function(e){
-    	if(this.singleSelect !== false){
-    		if(this.selectedDay) Ext.fly(this.selectedDay).removeClass('onSelect');
-    		if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
-	    		this.selectedDay = e.target; 
-	    		this.onSelectDay(this.selectedDay);
-	    		this.fireEvent('select', this, new Date(parseInt(Ext.fly(e.target).getAttribute('_date'))));
-	    	}
-    	}
+    onMouseOut: function(e){
+    	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
+    },
+    onSelect:function(e){
+    	this.fireEvent("select",e);
     },
 	onSelectDay: function(o){
 		if(!Ext.fly(o).hasClass('onSelect'))Ext.fly(o).addClass('onSelect');
-	},
-	onToday: function(o){
-		o.className = "onToday";
-	},
-	onKeyDown : function(e) {
-		var c = e.keyCode, el = e.target;
-		if (c == 13) {
-			el.blur();
-		} else if (c == 27) {
-			el.value = el.oldValue || "";
-			el.blur();
-		} else if (c != 8 && c!=9 && c!=37 && c!=39 && c != 46 && (c < 48 || c > 57 || e.shiftKey)) {
-			e.stopEvent();
-			return;
-		}
-	},
-	onDateFocus : function(e) {
-		Ext.fly(e.target.parentNode).addClass("item-dateField-input-focus");
-		e.target.select();
-	},
-	onDateBlur : function(e) {
-		var el=e.target;
-		Ext.fly(el.parentNode).removeClass("item-dateField-input-focus");
-		if(!el.value.match(/^[0-9]*$/))el.value=el.oldValue||"";
-		else if(this.isDateTime)this.predraw(new Date(this.yearSpan.dom.value,this.monthSpan.dom.value - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value));
-		else this.predraw(new Date(this.yearSpan.dom.value,this.monthSpan.dom.value - 1, 1,0,0,0));
 	},
     /**
      * 当前月
@@ -4623,86 +4564,71 @@ $A.DateField = Ext.extend($A.Component, {
   	 * 根据日期画日历
   	 * @param {Date} date 当前日期
   	 */
-  	predraw: function(date) {
-  		this.hours=0;this.minutes=0;this.seconds=0;
-  		if(date=='' || !date.getFullYear)date = new Date();
-  		else{
-  			this.hours=date.getHours();this.minutes=date.getMinutes();this.seconds=date.getSeconds();
-  		}
+  	predraw: function(date,notFire) {
+  		if(!date || !date instanceof Date)date = new Date();
+  		this.date=date;
+  		this.hours=date.getHours();this.minutes=date.getMinutes();this.seconds=date.getSeconds();
 		this.year = date.getFullYear(); this.month = date.getMonth() + 1;
-  		for(var i=0;i<this.viewsize;i++){
-			this.draw(new Date(this.year,this.month+i-1,1,this.hours,this.minutes,this.seconds),i);
-        }
-        this.yearSpan.dom.oldValue = this.yearSpan.dom.value = this.year;
-		this.monthSpan.dom.oldValue = this.monthSpan.dom.value = this.month;
-		if(this.isDateTime){
-			this.hourSpan.dom.oldValue = this.hourSpan.dom.value = $A.dateFormat.pad(this.hours);
-			this.minuteSpan.dom.oldValue = this.minuteSpan.dom.value = $A.dateFormat.pad(this.minutes);
-			this.secondSpan.dom.oldValue = this.secondSpan.dom.value = $A.dateFormat.pad(this.seconds);
-		}
-		this.fireEvent("draw",this);
+		this.draw(new Date(this.year,this.month-1,1,this.hours,this.minutes,this.seconds));
+		if(!notFire)this.fireEvent("draw",this);
   	},
   	/**
   	 * 渲染日历
   	 */
-	draw: function(date,index) {
+	draw: function(date) {
 		//用来保存日期列表
 		var arr = [],year=date.getFullYear(),month=date.getMonth()+1,hour=date.getHours(),minute=date.getMinutes(),second=date.getSeconds();
-		if(index!=0)this.tables[index].head.text.innerHTML=year+this.yearSpan.next('div',true).innerHTML+month+this.monthSpan.next('div',true).innerHTML;
+		this.head.text.innerHTML=year + _lang['datefield.year'] + month + _lang['datefield.month'];
 		//用当月第一天在一周中的日期值作为当月离第一天的天数,用上个月的最后天数补齐
 		for(var i = 1, firstDay = new Date(year, month - 1, 1).getDay(),lastDay = new Date(year, month - 1, 0).getDate(); i <= firstDay; i++){ 
-			if(index==0)arr.push([n=lastDay-firstDay+i,new Date(year, month - 2, n,hour,minute,second),"item-day item-day-besides"]);
-			else arr.push([null,null,null]);
+			arr.push((this.enablebesidedays=="both"||this.enablebesidedays=="pre")?new Date(year, month - 2, lastDay-firstDay+i,hour,minute,second):null);
 		}
 		//用当月最后一天在一个月中的日期值作为当月的天数
 		for(var i = 1, monthDay = new Date(year, month, 0).getDate(); i <= monthDay; i++){ 
-			arr.push([i,new Date(year, month - 1, i,hour,minute,second),"item-day"]); 
+			arr.push(new Date(year, month - 1, i,hour,minute,second)); 
 		}
-		//用下个月的前几天补齐
-		for(var i=1, monthDay = new Date(year, month, 0).getDay();i<7-monthDay;i++){
-			if(index==this.viewsize-1)arr.push([i,new Date(year, month, i,hour,minute,second),"item-day item-day-besides"]);
-			else arr.push([null,null,null]); 
+		//用下个月的前几天补齐6行
+		for(var i=1, monthDay = new Date(year, month, 0).getDay(),besideDays=7+(arr.length>5*7?0:7);i<besideDays-monthDay;i++){
+			arr.push((this.enablebesidedays=="both"||this.enablebesidedays=="next")?new Date(year, month, i,hour,minute,second):null);
 		}
 		//先清空内容再插入(ie的table不能用innerHTML)
-		while(this.tables[index].tBodies[0].hasChildNodes()){ 
-			this.tables[index].tBodies[0].removeChild(this.tables[index].tBodies[0].firstChild); 
+		while(this.body.dom.tBodies[0].firstChild){
+			this.body.dom.tBodies[0].removeChild(this.body.dom.tBodies[0].firstChild);
 		}
-		
 		//插入日期
 		var k=0;
 		while(arr.length){
 			//每个星期插入一个tr
-			var row = document.createElement("tr");
-			if(k%2!=0)row.className='week-alt';
+			var row = this.body.dom.tBodies[0].insertRow(-1);
+			if(this.rowHeight)row.style.height=this.rowHeight+"px";
+			if(k%2==0)row.className='week-alt';
 			k++;
 			//每个星期有7天
 			for(var i = 1; i <= 7; i++){
-				if(arr.length){
-					var d = arr.shift();
+				var d = arr.shift();
+				if(Ext.isDefined(d)){
+					var cell = row.insertCell(-1); 
 					if(d){
-						var cell = document.createElement("td"); 
-						if(d[1]){
-							cell.innerHTML = d[0];
-							cell.className = d[2];
-							this.renderCell(cell,d[1]);
-							if(cell.disabled){
-								Ext.fly(cell).set({'_date':'0'});
-								Ext.fly(cell).addClass("item-day-disabled");
-							}else Ext.fly(cell).set({'_date':(''+d[1].getTime()),'title':d[1].format(this.format)});
-							//判断是否今日
-							if(this.isSame(d[1], new Date())) this.onToday(cell);
-							//判断是否选择日期
-							if(this.selectDay && this.isSame(d[1], this.selectDay))this.onSelectDay(cell);
+						cell.className = date.getMonth()==d.getMonth()?"item-day":"item-day item-day-besides";
+						cell.innerHTML =this.renderCell(cell,d)||d.getDate();
+						if(cell.disabled){
+							Ext.fly(cell).set({'_date':'0'});
+							Ext.fly(cell).addClass("item-day-disabled");
+						}else {
+							Ext.fly(cell).set({'_date':(''+d.getTime())});
+							if(this.format)Ext.fly(cell).set({'title':d.format(this.format)})
 						}
+						//判断是否今日
+						if(this.isSame(d, new Date())) cell.className = "onToday";
+						//判断是否选择日期
+						if(this.selectDay && this.isSame(d, this.selectDay))this.onSelectDay(cell);
 					}
 				}
-				row.appendChild(cell);
 			}
-			this.tables[index].tBodies[0].appendChild(row);
 		}
 	},
-	renderCell:function(cell,date){
-		if(this.dayrenderer)$A.getRenderer(this.dayrenderer).call(this,cell,date);
+	renderCell:function(cell,date,text){
+		if(this.dayrenderer)$A.getRenderer(this.dayrenderer).call(this,cell,date,text);
 	},
 	/**
 	 * 判断是否同一日
@@ -4724,18 +4650,41 @@ $A.DateField = Ext.extend($A.Component, {
  * @param {Object} config 配置对象. 
  */
 $A.DatePicker = Ext.extend($A.TriggerField,{
-	initComponent : function(config){ 
+	nowTpl:['<DIV class="item-day" style="cursor:pointer" title="{title}">{now}</DIV>'],
+	constructor: function(config) {
+		this.dateFields = [];
+        $A.DatePicker.superclass.constructor.call(this,config);
+    },
+	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
     	this.initDateField();
+    	this.initFooter();
 	},
     initDateField:function(){
-    	this.format=this.format||"isoDate";
-    	this.viewsize=(!this.viewsize||this.viewsize<1)?1:(this.viewsize>4?4:this.viewsize);
-    	this.popup.setStyle({'width':150*this.viewsize+"px"})
-    	if(!this.dateField){
-    		var cfg = {id:this.id+'_df',container:this.popup,dayrenderer:this.dayrenderer,format:this.format,viewsize:this.viewsize,datestart:this.datestart,dateend:this.dateend,listeners:{"select": this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
-	    	this.dateField = new $A.DateField(cfg);
+    	this.format=this.format||$A.defaultDateFormat;
+    	this.popup.setStyle({'width':150*this.viewsize+'px'})
+    	if(this.dateFields.length==0){
+    		for(var i=0;i<this.viewsize;i++){
+	    		var cfg = {id:this.id+'_df'+i,height:130,enablemonthbtn:'none',enablebesidedays:'none',dayrenderer:this.dayrenderer,listeners:{"select":this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
+		    	if(i==0){
+		    		if(this.enablebesidedays=="both"||this.enablebesidedays=="pre")
+		    			cfg.enablebesidedays="pre";
+		    		if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
+		    			cfg.enablemonthbtn="pre";
+		    	}
+		    	if(i==this.viewsize-1){
+		    		if(this.enablebesidedays=="both"||this.enablebesidedays=="next")
+		    			cfg.enablebesidedays=cfg.enablebesidedays=="pre"?"both":"next";
+		    		if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
+		    			cfg.enablemonthbtn=cfg.enablemonthbtn=="pre"?"both":"next";
+		    	}else Ext.fly(this.id+'_df'+i).dom.style.cssText="border-right:1px solid #BABABA";
+		    	this.dateFields.add(new $A.DateField(cfg));
+    		}
     	}
+    },
+    initFooter : function(){
+    	if(!this.now)this.now=new Ext.Template(this.nowTpl).append(this.popup.child("div.item-dateField-foot").dom,{now:_lang['datepicker.today'],title:new Date().format(this.format)},true);;
+    	this.now.set({"_date":new Date().getTime()});
     },
     initEvents : function(){
     	$A.DatePicker.superclass.initEvents.call(this);
@@ -4748,23 +4697,31 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
          */
         'select');
     },
+    processListener : function(ou){
+    	$A.DatePicker.superclass.processListener.call(this,ou);
+    	if(this.now)this.now[ou]("click", this.onSelect, this);
+    },
     onKeyUp: function(e){
     	$A.DatePicker.superclass.onKeyUp.call(this,e);
     	try{
-    		this.dateField.selectDay=this.getRawValue().parseDate(this.format);
-    		$A.Component.prototype.setValue.call(this,this.dateField.selectDay);
-    		this.dateField.predraw(this.dateField.selectDay);
+    		this.selectDay=this.getRawValue().parseDate(this.format);
+    		$A.Component.prototype.setValue.call(this,this.selectDay);
+    		this.predraw(this.selectDay);
     	}catch(e){
     	}
     },
-    onDraw : function(){
+    onDraw : function(field){
+    	if(this.dateFields.length>1)this.sysnDateField(field);
     	this.shadow.setWidth(this.popup.getWidth());
     	this.shadow.setHeight(this.popup.getHeight());
     },
-    onSelect : function(dateField, date){
-    	this.collapse();
-    	this.setValue(date);
-    	this.fireEvent('select',this, date);
+    onSelect: function(e){
+		if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
+    		var date=new Date(parseInt(Ext.fly(e.target).getAttribute('_date')));
+	    	this.collapse();
+	    	this.setValue(date);
+	    	this.fireEvent('select',this, date);
+    	}
     },
     onBlur : function(e){
 		$A.DatePicker.superclass.onBlur.call(this,e);
@@ -4782,8 +4739,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     expand : function(){
     	$A.DatePicker.superclass.expand.call(this);
-    	this.dateField.selectDay = this.getValue();
-		this.dateField.predraw(this.dateField.selectDay);
+    	this.selectDay = this.getValue();
+		this.predraw(this.selectDay);
     	var xy=this.wrap.getXY(),
 			W=this.popup.getWidth(),H=this.popup.getHeight(),
 			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
@@ -4797,6 +4754,53 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	$A.DatePicker.superclass.destroy.call(this);
     	delete this.format;
     	delete this.viewsize;
+	},
+	predraw : function(date){
+		if(date && date instanceof Date){
+			this.selectDay=new Date(date);
+		}else {
+			date=new Date();
+			date.setHours(0);
+			date.setMinutes(0);
+			date.setSeconds(0);
+			date.setMilliseconds(0);
+		}
+		this.draw(date);
+	},
+	draw: function(date){
+		this.dateFields[0].selectDay=this.selectDay;
+		this.dateFields[0].format=this.format;
+		this.dateFields[0].predraw(date);
+	},
+	sysnDateField : function(field){
+		var date=new Date(field.date);
+		for(var i=0;i<this.viewsize;i++){
+			if(field==this.dateFields[i])date.setMonth(date.getMonth()-i);
+		}
+		for(var i=0;i<this.viewsize;i++){
+			this.dateFields[i].selectDay=this.selectDay;
+			if(i!=0)date.setMonth(date.getMonth()+1);
+			this.dateFields[i].format=this.format;
+			if(field!=this.dateFields[i])
+			this.dateFields[i].predraw(date,true);
+		}
+	},
+	preMonth : function(){
+		this.dateFields[0].preMonth();
+	},
+	nextMonth : function(){
+		this.dateFields[0].nextMonth();
+	},
+	onMouseWheel:function(e){
+		var delta = e.getWheelDelta();
+        if(delta > 0&&(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")){
+            this.preMonth();
+            e.stopEvent();
+        }
+		if(delta < 0&&(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")){
+            this.nextMonth();
+            e.stopEvent();
+        }
 	}
 });
 /**
@@ -4808,23 +4812,59 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
  * @param {Object} config 配置对象. 
  */
 $A.DateTimePicker = Ext.extend($A.DatePicker,{
-    initDateField:function(){
-    	this.format=this.format||"yyyy-mm-dd HH:MM:ss";
-    	this.viewsize=1;
-    	this.popup.setStyle({'width':"150px"})
-    	if(!this.dateField){
-    		var cfg = {id:this.id+'_df',container:this.popup,dayrenderer:this.dayrenderer,format:this.format,viewsize:this.viewsize,datestart:this.datestart,dateend:this.dateend,listeners:{"select": this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
-	    	this.dateField = new $A.DateField(cfg);
-    	}
+	initFooter : function(){
+		this.hourSpan = this.popup.child("input[atype=field.hour]");
+    	this.minuteSpan = this.popup.child("input[atype=field.minute]");
+    	this.secondSpan = this.popup.child("input[atype=field.second]");
     },
+    processListener : function(ou){
+    	$A.DateTimePicker.superclass.processListener.call(this,ou);
+    	this.hourSpan[ou]("focus", this.onDateFocus, this);
+		this.hourSpan[ou]("blur", this.onDateBlur, this);
+		this.hourSpan[ou]("keydown", this.onDateKeyDown, this);
+		this.minuteSpan[ou]("focus", this.onDateFocus, this);
+		this.minuteSpan[ou]("blur", this.onDateBlur, this);
+		this.minuteSpan[ou]("keydown", this.onDateKeyDown, this);
+		this.secondSpan[ou]("focus", this.onDateFocus, this);
+		this.secondSpan[ou]("blur", this.onDateBlur, this);
+		this.secondSpan[ou]("keydown", this.onDateKeyDown, this);
+    },
+    onDateKeyDown : function(e) {
+		var c = e.keyCode, el = e.target;
+		if (c == 13) {
+			el.blur();
+		} else if (c == 27) {
+			el.value = el.oldValue || "";
+			el.blur();
+		} else if (c != 8 && c!=9 && c!=37 && c!=39 && c != 46 && (c < 48 || c > 57 || e.shiftKey)) {
+			e.stopEvent();
+			return;
+		}
+	},
+    onDateFocus : function(e) {
+		Ext.fly(e.target.parentNode).addClass("item-dateField-input-focus");
+		e.target.select();
+	},
+	onDateBlur : function(e) {
+		var el=e.target;
+		Ext.fly(el.parentNode).removeClass("item-dateField-input-focus");
+		if(!el.value.match(/^[0-9]*$/))el.value=el.oldValue||"";
+		else this.draw(new Date(this.dateFields[0].year,this.dateFields[0].month - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value));
+	},
+	predraw : function(date,noSelect){
+		$A.DateTimePicker.superclass.predraw.call(this,date,noSelect);
+		this.hourSpan.dom.oldValue = this.hourSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].hours);
+		this.minuteSpan.dom.oldValue = this.minuteSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].minutes);
+		this.secondSpan.dom.oldValue = this.secondSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].seconds);
+	},
     collapse : function(){
     	$A.DateTimePicker.superclass.collapse.call(this);
     	if(this.getRawValue()){
-    		var d = this.dateField.selectDay
+    		var d = this.selectDay;
     		if(d){
-	    		d.setHours((el=this.dateField.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-	    		d.setMinutes((el=this.dateField.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-	    		d.setSeconds((el=this.dateField.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+	    		d.setHours((el=this.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+	    		d.setMinutes((el=this.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+	    		d.setSeconds((el=this.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
     		}
     		d.xtype = 'timestamp';
     		this.setValue(d);
