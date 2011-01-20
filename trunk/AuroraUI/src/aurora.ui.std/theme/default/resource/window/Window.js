@@ -163,7 +163,7 @@ $A.Window = Ext.extend($A.Component,{
 						'<TBODY>',
 						'<TR>',
 							'<TD unselectable="on" class="win-caption-label" atype="window.head" width="99%">',
-								'<A atype="win.focus" href="#" class="win-fs" tabIndex="-1">&#160;</A><DIV unselectable="on" atype="window.title" unselectable="on">{title}</DIV>',
+								'<A atype="win.focus" href="#" class="win-fs" tabIndex="-1"></A><DIV unselectable="on" atype="window.title" unselectable="on">{title}</DIV>',
 							'</TD>',
 							'<TD unselectable="on" class="win-caption-button" noWrap>',
 								'<DIV class="win-close" atype="window.close" unselectable="on"></DIV>',

@@ -12,7 +12,8 @@
 .node-empty,.node-line,.node-clip,.node-icon, .checkbox0,.checkbox1,.checkbox2{
 	width:18px;
 	height:18px;
-	float:left;
+	
+	/*float:left;*/
 }
 .node-text {
 	cursor:default;
@@ -37,7 +38,7 @@
 	overflow:visible;
 }
 .item-node td {
-	white-space: nowrap;
+	white-space: nowrap;	
 }
 .checkbox0 {
 	background:url(../tree/checkbox_0.gif) no-repeat 50%;
@@ -96,6 +97,9 @@
 }
 .node-line {
 	background: url(../tree/line.gif) no-repeat 50% 50%;
+}
+.node-clip td{
+    border-right:none;
 }
 /*
 .item-tree a {
