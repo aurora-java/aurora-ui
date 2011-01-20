@@ -548,19 +548,21 @@ button div {
 	width:100%;
 	line-height:1.5em;
 }
-.item-dateField-head,.item-dateField-foot{	
+.item-dateField-head,.item-dateField-caption,.item-dateField-foot{
+	LINE-HEIGHT: 17px;	
+	HEIGHT: 18px;
+}
+.item-dateField-caption,.item-dateField-foot{	
 	FONT-WEIGHT: bold;
-	/**FONT-SIZE: 100%;**/
-	/*BACKGROUND: url(../datefield/bgCalendarV2.gif) #305ebc repeat-x;*/
 	background-image: url(../toolbar/toolbar_bg.gif);
 	background-repeat:repeat-x;
 	COLOR: #055a78;	
-	LINE-HEIGHT: 17px;	
-	HEIGHT: 18px;	
 }
-.item-dateField-head{
-	border-bottom:1px solid #bababa;	
+.item-dateField-caption{
+	border-bottom:1px solid #bababa;
+	text-align:center;
 }
+
 .item-dateField-foot{
 	border-top:1px solid #bababa;	
 }
@@ -573,7 +575,7 @@ button div {
 	border:0;
 }
 
-.item-dateField table thead{color:#acacac; height:20px;}
+.item-dateField table thead{color:#acacac}
 
 .item-dateField table td {
 	/**font-size: 11px;**/
@@ -591,23 +593,19 @@ button div {
 }
 .item-dateField-preYear {
 	background-position: 0 0px;
-	position:absolute;
-	left:0;
+	float: left;
 }
 .item-dateField-nextYear{
 	background-position: 0 -16px;
-	position:absolute;
-	right:0;
+	float: right;
 }
 .item-dateField-pre {
 	background-position: 0 -32px;
-	position:absolute;
-	left:16px;
+	float: left;
 }
 .item-dateField-next{
 	background-position: 0 -48px;
-	position:absolute;
-	right:16px;
+	float: right;
 }
 .item-dateField-input{
 	margin:1px;
