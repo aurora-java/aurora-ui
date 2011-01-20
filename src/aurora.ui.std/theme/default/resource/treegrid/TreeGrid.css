@@ -11,3 +11,7 @@
 .item-treegrid .line{
     padding:0px;
 }
+.item-node td {
+    border-right:none;
+}
+
