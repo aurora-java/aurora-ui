@@ -67,6 +67,8 @@ $A.Window = Ext.extend($A.Component,{
     		sf.width=$A.getViewportWidth()+(hasVScrollBarIE?17:0);
     		sf.height=$A.getViewportHeight()-(Ext.isIE?26:23);
     		sf.draggable = false;
+    		sf.marginheight=1;
+    		sf.marginwidth=1;
     	}
         sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
         sf.shadow = shadowTpl.append(document.body, {}, true);
@@ -336,6 +338,14 @@ $A.Window = Ext.extend($A.Component,{
     		var c = this.cmps[key];
     		c.setZindex(z)
     	}
+    },
+    setWidth : function(w){
+    	$A.Window.superclass.setWidth.call(this,w);
+    	this.body.setWidth(w-2);
+    },
+    setHeight : function(h){
+    	$A.Window.superclass.setHeight.call(this,h);
+    	this.body.setHeight(h-(Ext.isIE?26:23));
     },
     onLoad : function(response, options){
     	if(!this.body) return;
