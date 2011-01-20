@@ -344,6 +344,7 @@ $A.Tree.TreeNode.prototype={
 		if(this.getOwnerTree().showSkeleton){
 			
     		this.els['line']= document.createElement('td');
+
     		this.els['clip']= document.createElement('td');
     		this.els['icon']= (this.icon) ? document.createElement('img') : document.createElement('div');
     		this.els['iconTd']= document.createElement('td');
@@ -356,6 +357,7 @@ $A.Tree.TreeNode.prototype={
 //		this.els[df+'_text']= document.createElement('div');
 //		this.els[df+'_td'].appendChild(this.els[df+'_text']);
 		this.els[df+'_td'].className='node-text'
+//		Ext.fly(this.els[df+'_td']).setStyle('border-right','1px solid #ccc');
 		if(this.getOwnerTree().showSkeleton){
     		this.els['itemNodeTr'].appendChild(this.els['line']);
     		this.els['itemNodeTr'].appendChild(this.els['clip']);
@@ -450,8 +452,8 @@ $A.Tree.TreeNode.prototype={
             var bw = this.getOwnerTree().showcheckbox ? sw : 0;
     		left = lw+cw+iw+bw;
 		}
-		Ext.fly(this.els[name+'_td']).setWidth(Math.max((w-left),0));
-        Ext.fly(this.els[name+'_text']).setWidth(Math.max((w-left-2),0));
+		Ext.fly(this.els[name+'_td']).setWidth(Math.max((w-left-1),0));
+        Ext.fly(this.els[name+'_text']).setWidth(Math.max((w-left-3),0));
 	},
 	paintPrefix : function(){
 		this.paintLine();
