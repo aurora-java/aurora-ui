@@ -5079,10 +5079,10 @@ $A.Window = Ext.extend($A.Component,{
         }else this.shadow.moveTo(x+3,y+3)
         this.wrap.moveTo(x,y);
         this.toFront();
-        var sf = this;
-        setTimeout(function(){
-        	sf.focusEl.focus();
-        },10)
+//        var sf = this;
+//        setTimeout(function(){
+//        	sf.focusEl.focus();
+//        },10)
     },
     getShadowTemplate: function(){
     	return ['<DIV class="item-shadow"></DIV>']
@@ -5131,6 +5131,10 @@ $A.Window = Ext.extend($A.Component,{
 	    	if(this.modal) $A.Cover.cover(this.wrap);
     	}
     	$A.focusWindow = this;
+    	var sf = this;
+        setTimeout(function(){
+            sf.focusEl.focus();
+        },10)
     },
     onMouseDown : function(e){
     	var sf = this; 
