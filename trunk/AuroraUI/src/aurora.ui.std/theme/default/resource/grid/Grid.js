@@ -272,7 +272,7 @@ $A.Grid = Ext.extend($A.Component,{
             if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get('required') == true){
                 cls = cls + ' ' + this.nbcls
             }
-            var sp = (cls.indexOf(this.cecls)!=-1) ? 4 : 2;
+            var sp = (cls.indexOf(this.cecls)!=-1) ? 5 : 2;
             data = Ext.apply(data,{
                 align:col.align||'left',
                 cellcls: cls,
@@ -1071,7 +1071,7 @@ $A.Grid = Ext.extend($A.Component,{
             var ce = Ext.fly(td).child('DIV.grid-cell');
 //            if(ce)Ext.fly(ce).setStyle(wd, Math.max(size-4,0)+px);
             if(ce){
-            	var sp = ce.hasClass(this.cecls) ? 6 : 4;
+            	var sp = ce.hasClass(this.cecls) ? 7 : 4;
                 Ext.fly(ce).setStyle(wd, Math.max(size-sp,0)+px);
             }
         }

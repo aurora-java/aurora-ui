@@ -4981,6 +4981,7 @@ $A.Window = Ext.extend($A.Component,{
 		if($A.WindowManager.get(config.id))return;
         this.draggable = true;
         this.closeable = true;
+        this.fullScreen = false;
         this.modal = config.modal||true;
         this.cmps = {};
         $A.focusWindow = null;
@@ -4994,6 +4995,13 @@ $A.Window = Ext.extend($A.Component,{
     	var shadowTpl = new Ext.Template(sf.getShadowTemplate());
     	sf.width = 1*(sf.width||350);
     	sf.height= 1*(sf.height||400);
+    	if(sf.fullScreen){
+    		var body=document[Ext.isStrict?'documentElement':'body'];
+    		var hasVScrollBarIE=Ext.isIE8&&(body.scrollTop>0||body.scrollHeight>body.offsetHeight||body.currentStyle.overflowY=="scroll");
+    		sf.width=$A.getViewportWidth()+(hasVScrollBarIE?17:0);
+    		sf.height=$A.getViewportHeight()-(Ext.isIE?26:23);
+    		sf.draggable = false;
+    	}
         sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
         sf.shadow = shadowTpl.append(document.body, {}, true);
         sf.focusEl = sf.wrap.child('a[atype=win.focus]')
@@ -5062,11 +5070,14 @@ $A.Window = Ext.extend($A.Component,{
     	var screenWidth = $A.getViewportWidth();
     	var screenHeight = $A.getViewportHeight();
     	var x = document[Ext.isStrict?'documentElement':'body'].scrollLeft+Math.max((screenWidth - this.width)/2,0);
-    	var y = document[Ext.isStrict?'documentElement':'body'].scrollTop+Math.max((screenHeight - this.height-23)/2,0);
+    	var y = document[Ext.isStrict?'documentElement':'body'].scrollTop+Math.max((screenHeight - this.height-(Ext.isIE?26:23))/2,0);
+        this.shadow.setWidth(this.wrap.getWidth());
+        this.shadow.setHeight(this.wrap.getHeight());
+        if(this.fullScreen){
+        	x=y=0;
+        	this.shadow.moveTo(x,y)
+        }else this.shadow.moveTo(x+3,y+3)
         this.wrap.moveTo(x,y);
-        this.shadow.setWidth(this.wrap.getWidth())
-        this.shadow.setHeight(this.wrap.getHeight())
-        this.shadow.moveTo(x+3,y+3)
         this.toFront();
         var sf = this;
         setTimeout(function(){
@@ -5086,7 +5097,7 @@ $A.Window = Ext.extend($A.Component,{
 						'<TBODY>',
 						'<TR>',
 							'<TD unselectable="on" class="win-caption-label" atype="window.head" width="99%">',
-								'<A atype="win.focus" href="#" class="win-fs" tabIndex="-1">&#160;</A><DIV unselectable="on" atype="window.title" unselectable="on">{title}</DIV>',
+								'<A atype="win.focus" href="#" class="win-fs" tabIndex="-1"></A><DIV unselectable="on" atype="window.title" unselectable="on">{title}</DIV>',
 							'</TD>',
 							'<TD unselectable="on" class="win-caption-button" noWrap>',
 								'<DIV class="win-close" atype="window.close" unselectable="on"></DIV>',
