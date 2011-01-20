@@ -5,76 +5,76 @@
  * http://www.hand-china.com
  * 
  * author:牛佳庆
- * revision:$Rev: 1908 $
+ * revision:$Rev: 1912 $
  */
  
 .item-grid-wrap {
-	background-color: #ffffff;
-	border:1px solid #cccccc;/*a4bed4*/
+    background-color: #ffffff;
+    border:1px solid #cccccc;/*a4bed4*/
 }
-.item-grid {		
-	/*position:relative;*/
+.item-grid {        
+    /*position:relative;*/
 }
 .grid-lh, .grid-uh {
-	cursor: default;
-	-moz-user-select:none;
-	width:100%;
-	overflow: hidden;
-	background: url(../grid/grid_bg.gif) repeat-x; /*../grid/sky_blue_grid.gif*/
-	border-bottom:none !important;
-	border-bottom:1px solid #cccccc;/*a4bed4*/
+    cursor: default;
+    -moz-user-select:none;
+    width:100%;
+    overflow: hidden;
+    background: url(../grid/grid_bg.gif) repeat-x; /*../grid/sky_blue_grid.gif*/
+    border-bottom:none !important;
+    border-bottom:1px solid #cccccc;/*a4bed4*/
 }
 .grid-rowbox {
-	border-right:1px solid #cccccc;
-	background: url(../grid/row-box.gif) repeat-y;
+    border-right:1px solid #cccccc;
+    background: url(../grid/row-box.gif) repeat-y;
 }
 .grid-rowbox center {
-	height:17px;
-	padding-top:5px;
+    height:17px;
+    padding-top:5px;
 }
 .grid-lb table, .grid-lh table,  .grid-uh table, .grid-ub table{
-	table-layout:fixed;
+    table-layout:fixed;
 }
 .ext-ie7 .grid-hl {
     position:absolute;
 }
 .grid-hl{
-	position:static !important;
-	position:absolute;
+    position:static !important;
+    position:absolute;
 }
 .grid-fs{
-	FONT-SIZE: 1px;	
-	LEFT: 0px;	
-	WIDTH: 1px;	
-	LINE-HEIGHT: 1px;	
-	HEIGHT: 1px;	
-	moz-user-select: text;	
-	khtml-user-select: text;	
-	webkit-user-select: ignore;	
-	moz-outline: 0 none;
-	outline: 0 none
+    FONT-SIZE: 1px; 
+    LEFT: 0px;  
+    WIDTH: 1px; 
+    LINE-HEIGHT: 1px;   
+    HEIGHT: 1px;    
+    moz-user-select: text;  
+    khtml-user-select: text;    
+    webkit-user-select: ignore; 
+    moz-outline: 0 none;
+    outline: 0 none
 }
 .ext-ie6 .grid-hl {
-	display:none;
+    display:none;
 }
 .item-grid td div {
-	white-space:nowrap;
-	overflow:hidden;
+    white-space:nowrap;
+    overflow:hidden;
 }
 .grid-hl TH {
-	height:0px;
+    height:0px;
 }
 .row-alt {
-	/*background-color:#fafafa;*/
-	background-color:#ededed;
+    /*background-color:#fafafa;*/
+    background-color:#ededed;
 }
 .grid-la {
-	float:left;
-	border-right:1px solid #d0d0d0;
+    float:left;
+    border-right:1px solid #d0d0d0;
 }
 .grid-ua {
-	float:right;
-	overflow:hidden;
+    float:right;
+    overflow:hidden;
 }
 .grid-asc {
     background: url(../grid/sort_asc.gif) no-repeat right;
@@ -83,55 +83,55 @@
     background: url(../grid/sort_desc.gif) no-repeat right;
 }
 .grid-hc {
-	border-left:1px solid #ffffff;
-	border-top:1px solid #ffffff;
-	border-right:1px solid #cccccc;/*a4bed4*/
-	border-bottom:1px solid #cccccc;/*a4bed4*/
-	/*background: url(../grid/grid_bg.gif) repeat-x;*/
-	color: #055a78;	
-	padding:0px;
-	text-align:center;
+    border-left:1px solid #ffffff;
+    border-top:1px solid #ffffff;
+    border-right:1px solid #cccccc;/*a4bed4*/
+    border-bottom:1px solid #cccccc;/*a4bed4*/
+    /*background: url(../grid/grid_bg.gif) repeat-x;*/
+    color: #055a78; 
+    padding:0px;
+    text-align:center;
 }
 .grid-lb{
-	cursor: default;
-	overflow: hidden;
+    cursor: default;
+    overflow: hidden;
 }
 .grid-ub{
-	CURSOR: default;
-	overflow: auto;
+    CURSOR: default;
+    overflow: auto;
 }
 .grid-cell{
-	/*
-	padding-left:5px;
-	*/
-	padding-right:2px;	
-	text-indent:3px;
-	line-height:20px;
-	height:20px;
-	text-overflow:ellipsis
+    /*
+    padding-left:5px;
+    */
+    padding-right:2px;  
+    text-indent:3px;
+    line-height:20px;
+    height:22px;
+    text-overflow:ellipsis
 }
 .cell-editor {
-	border:1px solid #bababa;
-	margin:0px;
-	height:20px;
+    border:1px solid #bababa;
+    margin:0px;
+    height:20px;
 }
 .grid-ub table {
-	border-right:1px solid #ededed;
+    border-right:1px solid #ededed;
 }
 .grid-ub td, .grid-lb td {
-	/*border-right:1px solid #bbbbbb;*/
-	border-bottom:1px solid #cccccc;
-	border-right:1px solid #cccccc;
-	padding:1px;
-	/**color: #808080;**/
-	height:20px;
+    /*border-right:1px solid #bbbbbb;*/
+    border-bottom:1px solid #cccccc;
+    border-right:1px solid #cccccc;
+    padding:1px;
+    /**color: #808080;**/
+    height:22px;
 }
 .grid-toolbar {
-	border:none;
-	border-bottom:1px solid #cccccc;
+    border:none;
+    border-bottom:1px solid #cccccc;
 }
 .grid-footerbar {
-	overflow: hidden;  
+    overflow: hidden;  
     cursor: default;  
     white-space: nowrap;    
     height: 25px;
@@ -140,7 +140,7 @@
     background: url(../grid/grid_bg.gif) repeat-x;
 }
 .grid-footerbar td {
-	padding:1px;
+    padding:1px;
     padding-left:2px;
     padding-right:2px;
     overflow:hidden;
@@ -151,19 +151,19 @@
     height:24px;
 }
 .grid-navbar {
-	border:none;
-	border-top:1px solid #cccccc;
+    border:none;
+    border-top:1px solid #cccccc;
 }
 .grid-sp {
-	position:absolute;
-	width:2px;
-	background-color:#cccccc;
-	left:0px;
-	top:0px;
-	z-index:100000;
+    position:absolute;
+    width:2px;
+    background-color:#cccccc;
+    left:0px;
+    top:0px;
+    z-index:100000;
 }
 .row-selected {
-	background-color:#dfeaf5;
+    background-color:#dfeaf5;
 }
 .item-btn button{
 	color:#ffffff;
