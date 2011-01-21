@@ -471,7 +471,7 @@ $A.ToolTip = function(){
 		init: function(){
 			var sf = this;
 			Ext.onReady(function(){
-				var qdom = Ext.DomHelper.append(
+				var qdom = Ext.DomHelper.insertFirst(
 				    Ext.getBody(),
 				    {
 					    tag: 'div',
@@ -479,7 +479,7 @@ $A.ToolTip = function(){
 					    children: [{tag: 'div', cls:'tip-body'}]
 				    }
 				);
-				var sdom = Ext.DomHelper.append(Ext.getBody(),{tag:'div',cls: 'item-shadow'});
+				var sdom = Ext.DomHelper.insertFirst(Ext.getBody(),{tag:'div',cls: 'item-shadow'});
 				sf.tip = Ext.get(qdom);
 				sf.shadow = Ext.get(sdom);
 				sf.body = sf.tip.first("div.tip-body");
@@ -545,7 +545,7 @@ $A.SideBar = function(){
             }else{
             	this.hide();
                 var p = '<div class="item-slideBar">'+msg+'</div>';
-                this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+                this.bar = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
                 this.bar.setStyle('z-index', 999999);
                 this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
                     setTimeout(function(){
@@ -578,7 +578,7 @@ $A.Status = function(){
         	   parent.showStatus(msg);
         	}else{
                 var p = '<div class="item-statusBar" unselectable="on">'+msg+'</div>';
-                this.bar = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+                this.bar = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
                 this.bar.setStyle('z-index', 999998);
         	}
         },
@@ -602,15 +602,16 @@ $A.Cover = function(){
 		sh:null,
 		container: {},
 		cover : function(el){
-			if(!$A.Cover.bodyOverflow)$A.Cover.bodyOverflow = Ext.getBody().getStyle('overflow');			
+//			if(!$A.Cover.bodyOverflow)$A.Cover.bodyOverflow = Ext.getBody().getStyle('overflow');		
 			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight());
-			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth)+'px;height:'+(screenHeight)+'px;" unselectable="on"></DIV>';
-			var cover = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+    		var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:100%;height:'+(screenHeight-1)+'px;" unselectable="on"></DIV>';
+//			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;" unselectable="on"></DIV>';
+			var cover = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
-	    	Ext.getBody().setStyle('overflow','hidden');
+//	    	Ext.getBody().setStyle('overflow','hidden');
 	    	$A.Cover.container[el.id] = cover;
 		},
 		uncover : function(el){
@@ -627,19 +628,20 @@ $A.Cover = function(){
                     break;
                 }
             }
-            if(reset&&$A.Cover.bodyOverflow)Ext.getBody().setStyle('overflow',$A.Cover.bodyOverflow);
+//            if(reset&&$A.Cover.bodyOverflow)Ext.getBody().setStyle('overflow',$A.Cover.bodyOverflow);
 		},
 		resizeCover : function(){
-			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
+//			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
-    		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
-    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight())
-    		if($A.Cover.sw == screenWidth && $A.Cover.sh == screenHeight) return;
-    		$A.Cover.sw = screenWidth;
+//    		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth()) -1;
+    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight()) -1;
+//    		if($A.Cover.sw == screenWidth && $A.Cover.sh == screenHeight) return;
+    		if($A.Cover.sh == screenHeight) return;
+//    		$A.Cover.sw = screenWidth;
     		$A.Cover.sh = screenHeight;
 			for(key in $A.Cover.container){
 				var cover = $A.Cover.container[key];
-				Ext.fly(cover).setWidth(screenWidth);
+//				Ext.fly(cover).setWidth(screenWidth);
 				Ext.fly(cover).setHeight(screenHeight);
 			}		
 		}
@@ -2889,13 +2891,14 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.processListener('on');
     },
     windowResizeListener : function(){
-        if(this.marginwidth){
-            var wd = Aurora.getViewportWidth();
-            this.setWidth(wd-this.marginwidth);
-        }
+//    	alert(this.id)
         if(this.marginheight){
             var ht = Aurora.getViewportHeight();
             this.setHeight(ht-this.marginheight);           
+        }
+        if(this.marginwidth){
+            var wd = Aurora.getViewportWidth();
+            this.setWidth(wd-this.marginwidth);
         }
     },
     isEventFromComponent:function(el){
@@ -5001,9 +5004,11 @@ $A.Window = Ext.extend($A.Component,{
     		sf.width=$A.getViewportWidth()+(hasVScrollBarIE?17:0);
     		sf.height=$A.getViewportHeight()-(Ext.isIE?26:23);
     		sf.draggable = false;
+    		sf.marginheight=1;
+    		sf.marginwidth=1;
     	}
-        sf.wrap = windowTpl.append(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
-        sf.shadow = shadowTpl.append(document.body, {}, true);
+        sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
+        sf.shadow = shadowTpl.insertFirst(document.body, {}, true);
         sf.focusEl = sf.wrap.child('a[atype=win.focus]')
     	sf.title = sf.wrap.child('div[atype=window.title]');
     	sf.head = sf.wrap.child('td[atype=window.head]');
@@ -5069,20 +5074,20 @@ $A.Window = Ext.extend($A.Component,{
     center: function(){
     	var screenWidth = $A.getViewportWidth();
     	var screenHeight = $A.getViewportHeight();
-    	var x = document[Ext.isStrict?'documentElement':'body'].scrollLeft+Math.max((screenWidth - this.width)/2,0);
-    	var y = document[Ext.isStrict?'documentElement':'body'].scrollTop+Math.max((screenHeight - this.height-(Ext.isIE?26:23))/2,0);
+    	var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft;
+    	var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
+    	var x = sl+Math.max((screenWidth - this.width)/2,0);
+    	var y = st+Math.max((screenHeight - this.height-(Ext.isIE?26:23))/2,0);
+        this.wrap.moveTo(x,y);
         this.shadow.setWidth(this.wrap.getWidth());
         this.shadow.setHeight(this.wrap.getHeight());
         if(this.fullScreen){
-        	x=y=0;
+        	x=sl;y=st;
         	this.shadow.moveTo(x,y)
-        }else this.shadow.moveTo(x+3,y+3)
-        this.wrap.moveTo(x,y);
+        }else {
+            this.shadow.moveTo(x+3,y+3)
+        }
         this.toFront();
-//        var sf = this;
-//        setTimeout(function(){
-//        	sf.focusEl.focus();
-//        },10)
     },
     getShadowTemplate: function(){
     	return ['<DIV class="item-shadow"></DIV>']
@@ -5187,7 +5192,7 @@ $A.Window = Ext.extend($A.Component,{
     initProxy : function(){
     	var sf = this; 
     	var p = '<DIV style="border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
-    	sf.proxy = Ext.get(Ext.DomHelper.append(Ext.getBody(),p));
+    	sf.proxy = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
 //    	sf.proxy.hide();
     	var xy = sf.wrap.getXY();
     	sf.proxy.setWidth(sf.wrap.getWidth());
@@ -5268,6 +5273,14 @@ $A.Window = Ext.extend($A.Component,{
     		var c = this.cmps[key];
     		c.setZindex(z)
     	}
+    },
+    setWidth : function(w){
+    	$A.Window.superclass.setWidth.call(this,w);
+    	this.body.setWidth(w-2);
+    },
+    setHeight : function(h){
+    	$A.Window.superclass.setHeight.call(this,h);
+    	this.body.setHeight(h-(Ext.isIE?26:23));
     },
     onLoad : function(response, options){
     	if(!this.body) return;

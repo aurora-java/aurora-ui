@@ -12,11 +12,10 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 		if (this.lockColumns.length > 0) {
 			var sf = this;
 			var ltid = sf.id + "_lb_tree"
-			sf.lb.set({
-						id : ltid
-					});
-			var ltc = sf.createTreeConfig(config, sf.lockColumns, ltid, true,
-					sf);
+			sf.lb.set({id : ltid});
+			delete config.marginheight;
+			delete config.marginwidth;
+			var ltc = sf.createTreeConfig(config, sf.lockColumns, ltid, true,sf);
 			sf.lockTree = new $A.Tree(ltc);
 			sf.lb.addClass('item-treegrid');
 			sf.lockTree.body = sf.lb;
@@ -40,8 +39,7 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 		this.ub.set({
 					id : utid
 				});
-		var tc = this.createTreeConfig(config, this.unlockColumns, utid,
-				this.lockColumns.length == 0, this);
+		var tc = this.createTreeConfig(config, this.unlockColumns, utid,this.lockColumns.length == 0, this);
 		this.unlockTree = new $A.Tree(tc);
 		this.ub.addClass('item-treegrid');
 		this.unlockTree.body = this.ub;
