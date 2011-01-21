@@ -32,13 +32,13 @@ $A.Table = Ext.extend($A.Component,{
 //            ds[ou]('metachange', this.onRefresh, this);
             ds[ou]('update', this.onUpdate, this);
 //            ds[ou]('reject', this.onUpdate, this);
-//            ds[ou]('add', this.onAdd, this);
+            ds[ou]('add', this.onAdd, this);
 //            ds[ou]('submit', this.onBeforSubmit, this);
 			ds[ou]('load', this.onLoad, this);
 //			ds[ou]('loadfailed', this.onAjaxFailed, this);
             ds[ou]('valid', this.onValid, this);
 //            ds[ou]('beforeremove', this.onBeforeRemove, this); 
-//            ds[ou]('remove', this.onRemove, this);
+            ds[ou]('remove', this.onRemove, this);
 //            ds[ou]('clear', this.onLoad, this);
 //            ds[ou]('refresh',this.onRefresh,this);
 //            ds[ou]('fieldchange', this.onFieldChange, this);
@@ -76,6 +76,7 @@ $A.Table = Ext.extend($A.Component,{
 		var tr=this.tbody.dom.insertRow(-1);
 		for(var i=0,l=this.columns.length;i<l;i++){
 			var td=tr.insertCell(-1);
+			td.innerHTML="&#160;";
 			Ext.fly(td).set({'atype':'table-cell','dataindex':this.columns[i].name,'style':'text-align:'+(this.columns[i].align||'left')+';visibility:visible;'});
 		}
 	},
@@ -204,7 +205,7 @@ $A.Table = Ext.extend($A.Component,{
      * 选中高亮某行.
      * @param {Number} row 行号
      */
-    selectRow : function(row, locate){
+    selectRow : function(row, locate){debugger
         var record = this.dataset.getAt(row) 
         this.selectedId = record.id;
         if(this.selectTr)this.selectTr.setStyle(this.bgc,'');
@@ -368,6 +369,15 @@ $A.Table = Ext.extend($A.Component,{
                 }
             }
         }
+    },
+    onAdd : function(ds,record,index){
+        this.createRow(record,this.dataset.data.length-1);
+        this.selectRow(this.dataset.indexOf(record));
+    },
+    onRemove : function(ds,record,index){
+        var row = Ext.get(this.id+'-'+record.id);
+        if(row)row.remove();
+        this.selectTr=null;
     },
 	clearBody:function(){
 		while(this.tbody.dom.childNodes.length){
