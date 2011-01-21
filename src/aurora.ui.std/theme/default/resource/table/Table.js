@@ -73,12 +73,15 @@ $A.Table = Ext.extend($A.Component,{
 		}
 	},
 	createEmptyRow:function(){
-		var tr=this.tbody.dom.insertRow(-1);
+		this.emptyRow=this.tbody.dom.insertRow(-1);
 		for(var i=0,l=this.columns.length;i<l;i++){
-			var td=tr.insertCell(-1);
+			var td=this.emptyRow.insertCell(-1);
 			td.innerHTML="&#160;";
 			Ext.fly(td).set({'atype':'table-cell','dataindex':this.columns[i].name,'style':'text-align:'+(this.columns[i].align||'left')+';visibility:visible;'});
 		}
+	},
+	removeEmptyRow:function(){
+		if(this.emptyRow)this.tbody.dom.removeChild(this.emptyRow);
 	},
 	createCell:function(tr,col,record){
 		var field = record.getMeta().getField(col.name);
@@ -371,6 +374,7 @@ $A.Table = Ext.extend($A.Component,{
         }
     },
     onAdd : function(ds,record,index){
+    	this.removeEmptyRow();
         this.createRow(record,this.dataset.data.length-1);
         this.selectRow(this.dataset.indexOf(record));
     },
