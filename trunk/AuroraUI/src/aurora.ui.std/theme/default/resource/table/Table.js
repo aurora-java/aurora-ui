@@ -205,7 +205,7 @@ $A.Table = Ext.extend($A.Component,{
      * 选中高亮某行.
      * @param {Number} row 行号
      */
-    selectRow : function(row, locate){debugger
+    selectRow : function(row, locate){
         var record = this.dataset.getAt(row) 
         this.selectedId = record.id;
         if(this.selectTr)this.selectTr.setStyle(this.bgc,'');
