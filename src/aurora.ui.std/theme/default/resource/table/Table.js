@@ -81,7 +81,10 @@ $A.Table = Ext.extend($A.Component,{
 		}
 	},
 	removeEmptyRow:function(){
-		if(this.emptyRow)this.tbody.dom.removeChild(this.emptyRow);
+		if(this.emptyRow){
+			this.tbody.dom.removeChild(this.emptyRow);
+			this.emptyRow=null;
+		}
 	},
 	createCell:function(tr,col,record){
 		var field = record.getMeta().getField(col.name);
