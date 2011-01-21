@@ -39,7 +39,7 @@ $A.Table = Ext.extend($A.Component,{
             ds[ou]('valid', this.onValid, this);
 //            ds[ou]('beforeremove', this.onBeforeRemove, this); 
             ds[ou]('remove', this.onRemove, this);
-//            ds[ou]('clear', this.onLoad, this);
+            ds[ou]('clear', this.onLoad, this);
 //            ds[ou]('refresh',this.onRefresh,this);
 //            ds[ou]('fieldchange', this.onFieldChange, this);
 //            ds[ou]('indexchange', this.onIndexChange, this);
