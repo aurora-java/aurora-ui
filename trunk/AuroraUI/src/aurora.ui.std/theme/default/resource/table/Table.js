@@ -323,15 +323,16 @@ $A.Table = Ext.extend($A.Component,{
         }
     },
     onUpdate : function(ds,record, name, value){
-        if(this.focusdiv){
+    	var div=Ext.get(this.id+'_'+name+'_'+record.id);
+        if(div){
             var c = this.findColByName(name);
             var editor = this.getEditor(c,record);            
             if(editor!='' && ($(editor) instanceof $A.CheckBox)){
-            	this.renderEditor(this.focusdiv,record,c,editor);
+            	this.renderEditor(div,record,c,editor);
             }else{
             	//考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
                 var text =  this.renderText(record,c, value);
-                this.focusdiv.update(text);
+                div.update(text);
             }
         }
         var cls = this.columns;
