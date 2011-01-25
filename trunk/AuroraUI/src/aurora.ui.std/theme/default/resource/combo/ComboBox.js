@@ -122,7 +122,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},	
 	onDataSetLoad: function(){
 		this.rendered=false
-		this.expand();
+//		this.expand();//?? why expand?
 	},
 	onRender:function(){	
         if(!this.view){
