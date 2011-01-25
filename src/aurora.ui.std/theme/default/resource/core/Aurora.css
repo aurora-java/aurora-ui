@@ -41,16 +41,12 @@ A:active {COLOR: #005a78;TEXT-DECORATION: none}
 A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 
 .aurora-cover{
-	position: fixed;
+	position: absolute;
 	overflow: hidden;
 	filter: alpha(opacity=30);
 	background-color: #000000; 
 	opacity: 0.3; 
-	mozopacity: 0.3;
-	left:0px;
-	top:0px;
-	width:100%;
-	height:100%;
+	mozopacity: 0.3
 }
 /**Item**/
 .item-clear{
@@ -178,6 +174,8 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 }
 .item-shadow {
 	position:absolute;
+	top:-1000px;
+    left:-1000px; 
 	FILTER: alpha(opacity=40);
 	BACKGROUND-COLOR: #000000; 
 	opacity: 0.4; 

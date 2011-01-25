@@ -4,6 +4,7 @@
 	<TR>
 		<TD class="layout-td-cell">
 			<DIV class="item-grid" id="${id}" style="width:${width}px;height:${tableHeight}px;${gridstyle}">
+				<A atype="grid.focus" href="#" class="grid-fs" tabIndex="-1"></A>
 				${lockarea}
 				<DIV class="grid-ua" atype="grid.uc" style="width:${unlockwidth}px;">
 					<DIV class="grid-uh" unselectable="on" onselectstart="return false;" style="width:${unlockwidth}px;-moz-user-select:none;text-align:left;height:${headHeight}px;"  atype="grid.uh">
@@ -14,7 +15,6 @@
 				</DIV>
 				<DIV style="clear:both;"></DIV>
 				<DIV atype="grid.spliter" class="grid-sp" style="display:none;"></DIV>
-				<A atype="grid.focus" href="#" class="grid-fs" tabIndex="-1"></A>
 			</DIV>
 		</TD>
 	</TR>

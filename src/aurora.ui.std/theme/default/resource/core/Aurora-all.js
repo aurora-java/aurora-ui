@@ -14,7 +14,11 @@
 $A = Aurora = {version: '1.0',revision:'$Rev$'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){
-	$A.Cover.resizeCover();
+	if($A.winWidth != $A.getViewportWidth() || $A.winHeight != $A.getViewportHeight()){
+        $A.winHeight = $A.getViewportHeight();
+        $A.winWidth = $A.getViewportWidth();
+        $A.Cover.resizeCover();
+	}
 }
 Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
 
@@ -607,8 +611,7 @@ $A.Cover = function(){
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight());
-    		var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:100%;height:'+(screenHeight-1)+'px;" unselectable="on"></DIV>';
-//			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;" unselectable="on"></DIV>';
+			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;" unselectable="on"></DIV>';
 			var cover = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
 //	    	Ext.getBody().setStyle('overflow','hidden');
@@ -631,19 +634,26 @@ $A.Cover = function(){
 //            if(reset&&$A.Cover.bodyOverflow)Ext.getBody().setStyle('overflow',$A.Cover.bodyOverflow);
 		},
 		resizeCover : function(){
-//			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
-    		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
-//    		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth()) -1;
-    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight()) -1;
-//    		if($A.Cover.sw == screenWidth && $A.Cover.sh == screenHeight) return;
-    		if($A.Cover.sh == screenHeight) return;
-//    		$A.Cover.sw = screenWidth;
-    		$A.Cover.sh = screenHeight;
 			for(key in $A.Cover.container){
-				var cover = $A.Cover.container[key];
-//				Ext.fly(cover).setWidth(screenWidth);
-				Ext.fly(cover).setHeight(screenHeight);
-			}		
+                var cover = $A.Cover.container[key];
+                Ext.fly(cover).setStyle('display','none');
+            }
+            setTimeout(function(){
+    			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
+        		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
+        		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth()) -1;
+        		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight()) -1;
+    //    		if($A.Cover.sw == screenWidth && $A.Cover.sh == screenHeight) return;
+    //    		if($A.Cover.sh == screenHeight) return;
+    //    		$A.Cover.sw = screenWidth;
+    //    		$A.Cover.sh = screenHeight;
+    			for(key in $A.Cover.container){
+    				var cover = $A.Cover.container[key];
+    				Ext.fly(cover).setWidth(screenWidth);
+    				Ext.fly(cover).setHeight(screenHeight);
+    				Ext.fly(cover).setStyle('display','');
+    			}		
+            },1)
 		}
 	}
 	return m;
@@ -2891,13 +2901,13 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.processListener('on');
     },
     windowResizeListener : function(){
-//    	alert(this.id)
+    	var ht,wd;
         if(this.marginheight){
-            var ht = Aurora.getViewportHeight();
+            ht = Aurora.getViewportHeight();
             this.setHeight(ht-this.marginheight);           
         }
         if(this.marginwidth){
-            var wd = Aurora.getViewportWidth();
+            wd = Aurora.getViewportWidth();
             this.setWidth(wd-this.marginwidth);
         }
     },
@@ -5088,6 +5098,7 @@ $A.Window = Ext.extend($A.Component,{
             this.shadow.moveTo(x+3,y+3)
         }
         this.toFront();
+        this.focus.defer(10,this);
     },
     getShadowTemplate: function(){
     	return ['<DIV class="item-shadow"></DIV>']
@@ -5135,16 +5146,13 @@ $A.Window = Ext.extend($A.Component,{
 	    	this.shadow.setStyle('z-index', zindex+4);
 	    	if(this.modal) $A.Cover.cover(this.wrap);
     	}
-    	$A.focusWindow = this;
-    	var sf = this;
-        setTimeout(function(){
-            sf.focusEl.focus();
-        },10)
+    	$A.focusWindow = this;    	
     },
     onMouseDown : function(e){
     	var sf = this; 
     	//e.stopEvent();
     	sf.toFront();
+    	sf.focus();
     	var xy = sf.wrap.getXY();
     	sf.relativeX=xy[0]-e.getPageX();
 		sf.relativeY=xy[1]-e.getPageY();
@@ -5494,23 +5502,24 @@ $A.showUploadWindow = function(path,title,source_type,pkvalue,max_size,file_type
  * @param {Object} config 配置对象. 
  */
 $A.Lov = Ext.extend($A.TextField,{
-	constructor: function(config) {
-		this.isWinOpen = false;
-		this.fetching = false;
-		this.context = config.context||'';
+    constructor: function(config) {
+        this.isWinOpen = false;
+        this.fetching = false;
+        this.keeperror = false;
+        this.context = config.context||'';
         $A.Lov.superclass.constructor.call(this, config);        
     },
     initComponent : function(config){
-    	$A.Lov.superclass.initComponent.call(this,config);
-    	this.para = {};
-    	if(!Ext.isEmpty(this.lovurl)){
+        $A.Lov.superclass.initComponent.call(this,config);
+        this.para = {};
+        if(!Ext.isEmpty(this.lovurl)){
             this.lovurl = this.processParmater(this.lovurl);
         }else if(!Ext.isEmpty(this.lovservice)){
             this.lovservice = this.processParmater(this.lovservice);           
         }else if(!Ext.isEmpty(this.lovmodel)){
             this.lovmodel = this.processParmater(this.lovmodel);
-        }    	
-    	this.trigger = this.wrap.child('div[atype=triggerfield.trigger]'); 
+        }       
+        this.trigger = this.wrap.child('div[atype=triggerfield.trigger]'); 
     },
     processParmater:function(url){
         var li = url.indexOf('?')
@@ -5521,43 +5530,47 @@ $A.Lov = Ext.extend($A.TextField,{
         return url;
     },
     processListener: function(ou){
-    	$A.Lov.superclass.processListener.call(this,ou);
-    	this.trigger[ou]('click',this.showLovWindow, this, {preventDefault:true})
+        $A.Lov.superclass.processListener.call(this,ou);
+        this.trigger[ou]('click',this.onTriggerClick, this, {preventDefault:true})
     },
     initEvents : function(){
-    	$A.Lov.superclass.initEvents.call(this);
-    	this.addEvents(
-    	/**
+        $A.Lov.superclass.initEvents.call(this);
+        this.addEvents(
+        /**
          * @event commit
          * commit事件.
          * @param {Aurora.Lov} lov 当前Lov组件.
          * @param {Aurora.Record} r1 当前lov绑定的Record
          * @param {Aurora.Record} r2 选中的Record. 
          */
-    	'commit');
+        'commit');
+    },
+    onTriggerClick : function(e){
+    	e.stopEvent();
+    	this.showLovWindow();
     },
     destroy : function(){
-    	$A.Lov.superclass.destroy.call(this);
-	},
-	setWidth: function(w){
-		this.wrap.setStyle("width",(w+3)+"px");
-		this.el.setStyle("width",(w-20)+"px");
-	},
-	onChange : function(e){
+        $A.Lov.superclass.destroy.call(this);
+    },
+    setWidth: function(w){
+        this.wrap.setStyle("width",(w+3)+"px");
+        this.el.setStyle("width",(w-20)+"px");
+    },
+    onChange : function(e){
         this.fetchRecord();
-	},
-//	onKeyDown : function(e){
+    },
+//  onKeyDown : function(e){
 //        if(e.getKey() == 13) {
-//        	this.showLovWindow();
+//          this.showLovWindow();
 //        }else {
-//        	$A.TriggerField.superclass.onKeyDown.call(this,e);
+//          $A.TriggerField.superclass.onKeyDown.call(this,e);
 //        }
 //    },
     canHide : function(){
-    	return this.isWinOpen == false
+        return this.isWinOpen == false
     },
     commit:function(r,lr){
-		if(this.win) this.win.close();
+        if(this.win) this.win.close();
 //        this.setRawValue('')
         var record = lr ? lr : this.record;
         if(record){
@@ -5568,122 +5581,125 @@ $A.Lov = Ext.extend($A.TextField,{
             }
         }
 //        else{
-//        	this.setValue()
+//          this.setValue()
 //        }
         this.fireEvent('commit', this, record, r)
-	},
-	getMapping: function(){
-		var mapping
-		if(this.record){
-			var field = this.record.getMeta().getField(this.binder.name);
-			if(field){
-				mapping = field.get('mapping');
-			}
-		}
-		return mapping ? mapping : [{from:this.binder.name,to:this.binder.name}];
-	},
-//	setValue: function(v, silent){
-//		$A.Lov.superclass.setValue.call(this, v, silent);
-//		if(this.record && this.dataRecord && silent !== true){
-//			var mapping = this.getMapping();
-//			for(var i=0;i<mapping.length;i++){
-//				var map = mapping[i];
-//				this.record.set(map.to,this.dataRecord.get(map.from));
-//			}		
-//		}
-//	},
-	onWinClose: function(){
-		this.isWinOpen = false;
-		this.win = null;
-		if(!Ext.isIE6 && !Ext.isIE7)this.focus();//TODO:ie6 ie7 会死掉 
-	},
-	getLovPara : function(){
-		var para = Ext.apply({},this.para);
-		var field;
-		if(this.record) field = this.record.getMeta().getField(this.binder.name);
+    },
+    getMapping: function(){
+        var mapping
+        if(this.record){
+            var field = this.record.getMeta().getField(this.binder.name);
+            if(field){
+                mapping = field.get('mapping');
+            }
+        }
+        return mapping ? mapping : [{from:this.binder.name,to:this.binder.name}];
+    },
+//  setValue: function(v, silent){
+//      $A.Lov.superclass.setValue.call(this, v, silent);
+//      if(this.record && this.dataRecord && silent !== true){
+//          var mapping = this.getMapping();
+//          for(var i=0;i<mapping.length;i++){
+//              var map = mapping[i];
+//              this.record.set(map.to,this.dataRecord.get(map.from));
+//          }       
+//      }
+//  },
+    onWinClose: function(){
+        this.isWinOpen = false;
+        this.win = null;
+        if(!Ext.isIE6 && !Ext.isIE7)this.focus();//TODO:ie6 ie7 会死掉 
+    },
+    getLovPara : function(){
+        var para = Ext.apply({},this.para);
+        var field;
+        if(this.record) field = this.record.getMeta().getField(this.binder.name);
         if(field){
-        	var lovpara = field.get('lovpara'); 
+            var lovpara = field.get('lovpara'); 
             if(lovpara)Ext.apply(para,lovpara);
         }
         return para;
-	},
-	fetchRecord : function(){
-		if(this.readonly == true) return;
-		if(!Ext.isEmpty(this.lovurl)){
-			this.showLovWindow();
-			return;
-		}
-		this.fetching = true;
-		var v = this.getRawValue();
-		
-		if(!Ext.isEmpty(this.lovservice)){
-			url = this.context + 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
-		}else if(!Ext.isEmpty(this.lovmodel)){
-			url = this.context + 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
-		}
-		var record = this.record;
-		record.isReady=false;
-		var p = {};
-		var mapping = this.getMapping();
-		for(var i=0;i<mapping.length;i++){
-			var map = mapping[i];			
-			if(this.binder.name == map.to){
-				p[map.from]=v;
-			}
-			record.set(map.to,'');			
-		}
-		$A.slideBarEnable = $A.SideBar.enable;
+    },
+    fetchRecord : function(){
+        if(this.readonly == true) return;
+        if(!Ext.isEmpty(this.lovurl)){
+            this.showLovWindow();
+            return;
+        }
+        this.fetching = true;
+        var v = this.getRawValue();
+        
+        if(!Ext.isEmpty(this.lovservice)){
+            url = this.context + 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
+        }else if(!Ext.isEmpty(this.lovmodel)){
+            url = this.context + 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
+        }
+        var record = this.record;
+        record.isReady=false;
+        var p = {};
+        var mapping = this.getMapping();
+        for(var i=0;i<mapping.length;i++){
+            var map = mapping[i];           
+            if(this.binder.name == map.to){
+                p[map.from]=v;
+            }
+            record.set(map.to,'');          
+        }
+        $A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
         this.setRawValue(_lang['lov.query'])
-		$A.request({url:url, para:p, success:function(res){
-			var r = new $A.Record({});
-			if(res.result.record){
-	    		var datas = [].concat(res.result.record);
-	    		if(datas.length>0){
-	    			var data = datas[0];
-	    			r = new $A.Record(data);
-	    		}
-	    	}
-	    	this.fetching = false;
-			this.commit(r,record);
-			record.isReady=true;
-			$A.SideBar.enable = $A.slideBarEnable;
-		}, error:this.onFetchFailed, scope:this});
-	},
-	onFetchFailed: function(res){
-		this.fetching = false;
-		$A.SideBar.enable = $A.slideBarEnable;
-//		$A.showErrorMessage('错误', res.error.message);
-	},
-//	onBlur : function(e){
+        $A.request({url:url, para:p, success:function(res){
+            var r = new $A.Record({});
+            var find = false;
+            if(res.result.record){
+                var datas = [].concat(res.result.record);
+                if(datas.length>0){
+                    var data = datas[0];
+                    r = new $A.Record(data);
+                    find = true;
+                }
+            }
+            this.fetching = false;
+            if(!find && this.keeperror==true) {
+            	r.data[this.binder.name] =v;
+            }
+            this.commit(r,record);
+            record.isReady=true;
+            $A.SideBar.enable = $A.slideBarEnable;
+        }, error:this.onFetchFailed, scope:this});
+    },
+    onFetchFailed: function(res){
+        this.fetching = false;
+        $A.SideBar.enable = $A.slideBarEnable;
+    },    
+//  onBlur : function(e){
 ////        if(this.isEventFromComponent(e.target)) return;
 ////        var sf = this;
 ////        setTimeout(function(){
 ////            if(!this.isWinOpen){
 ////            }
 ////        })
-//		if(!this.fetching)
+//      if(!this.fetching)
 //        $A.Lov.superclass.onBlur.call(this,e);
 //    },
-	showLovWindow : function(e){
-		e.stopEvent();
-		if(this.fetching||this.isWinOpen||this.readonly) return;
-		this.isWinOpen = true;
-		
-		var v = this.getRawValue();
-		this.blur();
-		var url;
-		if(!Ext.isEmpty(this.lovurl)){
-			url = this.lovurl+'?' + Ext.urlEncode(this.getLovPara()) + '&';
-		}else if(!Ext.isEmpty(this.lovservice)){
-			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';			
-		}else if(!Ext.isEmpty(this.lovmodel)){
-			url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovmodel+'&';
-		}
-		if(url) {
-        	this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
-        	this.win.on('close',this.onWinClose,this);
-		}
+    showLovWindow : function(){        
+        if(this.fetching||this.isWinOpen||this.readonly) return;
+        this.isWinOpen = true;
+        
+        var v = this.getRawValue();
+        this.blur();
+        var url;
+        if(!Ext.isEmpty(this.lovurl)){
+            url = this.lovurl+'?' + Ext.urlEncode(this.getLovPara()) + '&';
+        }else if(!Ext.isEmpty(this.lovservice)){
+            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';           
+        }else if(!Ext.isEmpty(this.lovmodel)){
+            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovmodel+'&';
+        }
+        if(url) {
+            this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
+            this.win.on('close',this.onWinClose,this);
+        }
     }
 });
 /**
