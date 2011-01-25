@@ -13,10 +13,14 @@
  */
 $A = Aurora = {version: '1.0',revision:'$Rev$'};
 //$A.firstFire = false;
-$A.fireWindowScroll = function(){
-	if(Ext.isIE6)$A.Cover.scrollCover();
+$A.fireWindowResize = function(){
+	if($A.winWidth != $A.getViewportWidth() || $A.winHeight != $A.getViewportHeight()){
+        $A.winHeight = $A.getViewportHeight();
+        $A.winWidth = $A.getViewportWidth();
+        $A.Cover.resizeCover();
+	}
 }
-Ext.EventManager.on(window, "scroll", $A.fireWindowScroll, this);
+Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
 
 $A.cache = {};
 $A.cmps = {};
@@ -607,8 +611,7 @@ $A.Cover = function(){
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight());
-    		var p = '<DIV class="aurora-cover" unselectable="on"'+(Ext.isIE6?'style="position:absolute;height:'+$A.getViewportHeight()+'px;width:'+$A.getViewportWidth()+'px"':'')+'></DIV>';
-//			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;" unselectable="on"></DIV>';
+			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;" unselectable="on"></DIV>';
 			var cover = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
 //	    	Ext.getBody().setStyle('overflow','hidden');
@@ -630,20 +633,23 @@ $A.Cover = function(){
             }
 //            if(reset&&$A.Cover.bodyOverflow)Ext.getBody().setStyle('overflow',$A.Cover.bodyOverflow);
 		},
-		scrollCover : function(){
-//			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
-//    		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
-//    		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth()) -1;
-//    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight()) -1;
-//    		if($A.Cover.sw == screenWidth && $A.Cover.sh == screenHeight) return;
-//    		if($A.Cover.sh == screenHeight) return;
-//    		$A.Cover.sw = screenWidth;
-//    		$A.Cover.sh = screenHeight;
-			for(var key in $A.Cover.container){
-				var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft;
-	    		var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
-				$A.Cover.container[key].moveTo(sl,st);
-			}
+		resizeCover : function(){
+			for(key in $A.Cover.container){
+                var cover = $A.Cover.container[key];
+                Ext.fly(cover).setStyle('display','none');
+            }
+            setTimeout(function(){
+    			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
+        		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
+        		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth()) -1;
+        		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight()) -1;
+    			for(key in $A.Cover.container){
+    				var cover = $A.Cover.container[key];
+    				Ext.fly(cover).setWidth(screenWidth);
+    				Ext.fly(cover).setHeight(screenHeight);
+    				Ext.fly(cover).setStyle('display','');
+    			}		
+            },1)
 		}
 	}
 	return m;

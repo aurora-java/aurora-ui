@@ -74,13 +74,13 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.processListener('on');
     },
     windowResizeListener : function(){
-//    	alert(this.id)
+    	var ht,wd;
         if(this.marginheight){
-            var ht = Aurora.getViewportHeight();
+            ht = Aurora.getViewportHeight();
             this.setHeight(ht-this.marginheight);           
         }
         if(this.marginwidth){
-            var wd = Aurora.getViewportWidth();
+            wd = Aurora.getViewportWidth();
             this.setWidth(wd-this.marginwidth);
         }
     },
