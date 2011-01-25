@@ -643,10 +643,6 @@ $A.Cover = function(){
         		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
         		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth()) -1;
         		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight()) -1;
-    //    		if($A.Cover.sw == screenWidth && $A.Cover.sh == screenHeight) return;
-    //    		if($A.Cover.sh == screenHeight) return;
-    //    		$A.Cover.sw = screenWidth;
-    //    		$A.Cover.sh = screenHeight;
     			for(key in $A.Cover.container){
     				var cover = $A.Cover.container[key];
     				Ext.fly(cover).setWidth(screenWidth);
@@ -4249,7 +4245,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},	
 	onDataSetLoad: function(){
 		this.rendered=false
-		this.expand();
+//		this.expand();//?? why expand?
 	},
 	onRender:function(){	
         if(!this.view){
