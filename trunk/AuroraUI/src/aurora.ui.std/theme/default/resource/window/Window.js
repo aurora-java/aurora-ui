@@ -62,10 +62,8 @@ $A.Window = Ext.extend($A.Component,{
     	sf.width = 1*(sf.width||350);
     	sf.height= 1*(sf.height||400);
     	if(sf.fullScreen){
-    		var body=document[Ext.isStrict?'documentElement':'body'];
-    		var hasVScrollBarIE=Ext.isIE8&&(body.scrollTop>0||body.scrollHeight>body.offsetHeight||body.currentStyle.overflowY=="scroll");
-    		sf.width=$A.getViewportWidth()+(hasVScrollBarIE?17:0);
-    		sf.height=$A.getViewportHeight()-(Ext.isIE?26:23);
+    		sf.width=$A.getViewportWidth()-(Ext.isIE||!sf.hasVScrollBar()?0:17)-(Ext.isIE8?1:0);
+    		sf.height=$A.getViewportHeight()-(Ext.isIE||!sf.hasHScrollBar()?26:43);
     		sf.draggable = false;
     		sf.marginheight=1;
     		sf.marginwidth=1;
@@ -141,7 +139,6 @@ $A.Window = Ext.extend($A.Component,{
     	var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
     	var x = sl+Math.max((screenWidth - this.width)/2,0);
     	var y = st+Math.max((screenHeight - this.height-(Ext.isIE?26:23))/2,0);
-        this.wrap.moveTo(x,y);
         this.shadow.setWidth(this.wrap.getWidth());
         this.shadow.setHeight(this.wrap.getHeight());
         if(this.fullScreen){
@@ -150,8 +147,17 @@ $A.Window = Ext.extend($A.Component,{
         }else {
             this.shadow.moveTo(x+3,y+3)
         }
+        this.wrap.moveTo(x,y);
         this.toFront();
         this.focus.defer(10,this);
+    },
+    hasVScrollBar : function(){
+    	var body=document[Ext.isStrict?'documentElement':'body'];
+    	return body.scrollTop>0||body.scrollHeight>body.clientHeight;
+    },
+    hasHScrollBar : function(){
+    	var body=document[Ext.isStrict?'documentElement':'body'];
+    	return body.scrollLeft>0||body.scrollWidth>body.clientWidth;
     },
     getShadowTemplate: function(){
     	return ['<DIV class="item-shadow"></DIV>']
@@ -336,12 +342,20 @@ $A.Window = Ext.extend($A.Component,{
     	}
     },
     setWidth : function(w){
+    	w=$A.getViewportWidth()-(Ext.isIE||!this.hasVScrollBar()?0:17)-(Ext.isIE8?1:0);
     	$A.Window.superclass.setWidth.call(this,w);
     	this.body.setWidth(w-2);
+    	this.shadow.setWidth(this.wrap.getWidth());
     },
     setHeight : function(h){
-    	$A.Window.superclass.setHeight.call(this,h);
-    	this.body.setHeight(h-(Ext.isIE?26:23));
+    	h=$A.getViewportHeight()-(Ext.isIE||!this.hasHScrollBar()?26:43);
+    	Ext.fly(this.body.dom.parentNode.parentNode).setHeight(h);
+    	this.body.setHeight(h);
+        this.shadow.setHeight(this.wrap.getHeight());
+    	var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft;
+    	var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
+        this.shadow.moveTo(sl,st);
+        this.wrap.moveTo(sl,st);
     },
     onLoad : function(response, options){
     	if(!this.body) return;

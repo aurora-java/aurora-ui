@@ -20,7 +20,7 @@ $A.fireWindowResize = function(){
         $A.Cover.resizeCover();
 	}
 }
-Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
+if(Ext.isIE6)Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
 
 $A.cache = {};
 $A.cmps = {};
@@ -611,7 +611,7 @@ $A.Cover = function(){
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight());
-			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;" unselectable="on"></DIV>';
+			var p = '<DIV class="aurora-cover"'+(Ext.isIE6?' style="position:absolute;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;':'')+'" unselectable="on"></DIV>';
 			var cover = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
 //	    	Ext.getBody().setStyle('overflow','hidden');
