@@ -13,10 +13,10 @@
  */
 $A = Aurora = {version: '1.0',revision:'$Rev$'};
 //$A.firstFire = false;
-$A.fireWindowResize = function(){
-	$A.Cover.resizeCover();
+$A.fireWindowScroll = function(){
+	if(Ext.isIE6)$A.Cover.scrollCover();
 }
-Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
+Ext.EventManager.on(window, "scroll", $A.fireWindowScroll, this);
 
 $A.cache = {};
 $A.cmps = {};
@@ -607,7 +607,9 @@ $A.Cover = function(){
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight());
-    		var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:100%;height:'+(screenHeight-1)+'px;" unselectable="on"></DIV>';
+    		var percentHeight=100*$A.getViewportHeight()/document[Ext.isStrict?'documentElement':'body'].offsetHeight;
+    		var percentWidth=100*$A.getViewportWidth()/document[Ext.isStrict?'documentElement':'body'].offsetWidth;
+    		var p = '<DIV class="aurora-cover" unselectable="on"'+(Ext.isIE6?'style="position:absolute;height:'+percentHeight+'%;width:'+percentWidth+'%"':'')+'></DIV>';
 //			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;" unselectable="on"></DIV>';
 			var cover = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
@@ -630,20 +632,20 @@ $A.Cover = function(){
             }
 //            if(reset&&$A.Cover.bodyOverflow)Ext.getBody().setStyle('overflow',$A.Cover.bodyOverflow);
 		},
-		resizeCover : function(){
+		scrollCover : function(){
 //			var scrollWidth = Ext.isStrict ? document.documentElement.scrollWidth : document.body.scrollWidth;
-    		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
+//    		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
 //    		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth()) -1;
-    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight()) -1;
+//    		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight()) -1;
 //    		if($A.Cover.sw == screenWidth && $A.Cover.sh == screenHeight) return;
-    		if($A.Cover.sh == screenHeight) return;
+//    		if($A.Cover.sh == screenHeight) return;
 //    		$A.Cover.sw = screenWidth;
-    		$A.Cover.sh = screenHeight;
-			for(key in $A.Cover.container){
-				var cover = $A.Cover.container[key];
-//				Ext.fly(cover).setWidth(screenWidth);
-				Ext.fly(cover).setHeight(screenHeight);
-			}		
+//    		$A.Cover.sh = screenHeight;
+			for(var key in $A.Cover.container){
+				var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft;
+	    		var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
+				$A.Cover.container[key].moveTo(sl,st);
+			}
 		}
 	}
 	return m;

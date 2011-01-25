@@ -62,13 +62,9 @@ $A.Window = Ext.extend($A.Component,{
     	sf.width = 1*(sf.width||350);
     	sf.height= 1*(sf.height||400);
     	if(sf.fullScreen){
-    		var body=document[Ext.isStrict?'documentElement':'body'];
-    		var hasVScrollBarIE=Ext.isIE8&&(body.scrollTop>0||body.scrollHeight>body.offsetHeight||body.currentStyle.overflowY=="scroll");
-    		sf.width=$A.getViewportWidth()+(hasVScrollBarIE?17:0);
-    		sf.height=$A.getViewportHeight()-(Ext.isIE?26:23);
+    		sf.width=$A.getViewportWidth()-(Ext.isIE||!sf.hasVScrollBar()?0:17)-(Ext.isIE8?1:0);
+    		sf.height=$A.getViewportHeight()-(Ext.isIE||!sf.hasHScrollBar()?26:43);
     		sf.draggable = false;
-    		sf.marginheight=1;
-    		sf.marginwidth=1;
     	}
         sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
         sf.shadow = shadowTpl.insertFirst(document.body, {}, true);
@@ -79,11 +75,20 @@ $A.Window = Ext.extend($A.Component,{
         sf.closeBtn = sf.wrap.child('div[atype=window.close]');
         if(sf.draggable) sf.initDraggable();
         if(!sf.closeable)sf.closeBtn.hide();
-        sf.center();
+        sf.toFront();
+        sf[sf.fullScreen?'full':'center']();
         if(sf.url){
         	sf.showLoading();       
         	sf.load(sf.url,sf.params)
         }
+    },
+    hasVScrollBar : function(){
+    	var body=document[Ext.isStrict?'documentElement':'body'];
+    	return body.scrollTop>0||body.scrollHeight>body.clientHeight;
+    },
+    hasHScrollBar : function(){
+    	var body=document[Ext.isStrict?'documentElement':'body'];
+    	return body.scrollLeft>0||body.scrollWidth>body.clientWidth;
     },
     processListener: function(ou){
     	$A.Window.superclass.processListener.call(this,ou);
@@ -96,6 +101,7 @@ $A.Window = Ext.extend($A.Component,{
     	this.wrap[ou]("click", this.toFront, this);
     	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
     	if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
+    	Ext.fly(window)[ou]( "resize", this.onResize, this);
     },
     initEvents : function(){
     	$A.Window.superclass.initEvents.call(this);
@@ -144,13 +150,33 @@ $A.Window = Ext.extend($A.Component,{
         this.wrap.moveTo(x,y);
         this.shadow.setWidth(this.wrap.getWidth());
         this.shadow.setHeight(this.wrap.getHeight());
-        if(this.fullScreen){
-        	x=sl;y=st;
-        	this.shadow.moveTo(x,y)
-        }else {
-            this.shadow.moveTo(x+3,y+3)
+        this.shadow.moveTo(x+3,y+3);
+        if(Ext.isIE6){
+        	var percentHeight=100*$A.getViewportHeight()/document[Ext.isStrict?'documentElement':'body'].offsetHeight;
+    		var percentWidth=100*$A.getViewportWidth()/document[Ext.isStrict?'documentElement':'body'].offsetWidth;
+    		$A.Cover.container[this.wrap.id].setStyle({'width':percentWidth+'%','height':percentHeight+'%'})
+        	$A.Cover.container[this.wrap.id].moveTo(sl,st);
         }
-        this.toFront();
+    },
+    full:function(){
+    	var w=$A.getViewportWidth()-(Ext.isIE||!this.hasVScrollBar()?0:17)-(Ext.isIE8?1:0);
+    	var h=$A.getViewportHeight()-(Ext.isIE||!this.hasHScrollBar()?26:43);
+    	$A.Window.superclass.setWidth.call(this,w);
+    	Ext.fly(this.body.dom.parentNode.parentNode).setHeight(h);
+    	this.body.setWidth(w-2);
+    	this.body.setHeight(h);
+    	var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft;
+    	var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
+    	this.shadow.setWidth(this.wrap.getWidth());
+        this.shadow.setHeight(this.wrap.getHeight());
+        this.shadow.moveTo(sl,st);
+        this.wrap.moveTo(sl,st);
+        if(Ext.isIE6){
+        	var percentHeight=100*$A.getViewportHeight()/document[Ext.isStrict?'documentElement':'body'].offsetHeight;
+    		var percentWidth=100*$A.getViewportWidth()/document[Ext.isStrict?'documentElement':'body'].offsetWidth;
+    		$A.Cover.container[this.wrap.id].setStyle({'width':percentWidth+'%','height':percentHeight+'%'})
+        	$A.Cover.container[this.wrap.id].moveTo(sl,st);
+        }
     },
     getShadowTemplate: function(){
     	return ['<DIV class="item-shadow"></DIV>']
@@ -337,13 +363,8 @@ $A.Window = Ext.extend($A.Component,{
     		c.setZindex(z)
     	}
     },
-    setWidth : function(w){
-    	$A.Window.superclass.setWidth.call(this,w);
-    	this.body.setWidth(w-2);
-    },
-    setHeight : function(h){
-    	$A.Window.superclass.setHeight.call(this,h);
-    	this.body.setHeight(h-(Ext.isIE?26:23));
+    onResize : function(){
+    	this[this.fullScreen?'full':'center']();
     },
     onLoad : function(response, options){
     	if(!this.body) return;
