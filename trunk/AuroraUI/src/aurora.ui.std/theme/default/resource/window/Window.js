@@ -152,9 +152,7 @@ $A.Window = Ext.extend($A.Component,{
         this.shadow.setHeight(this.wrap.getHeight());
         this.shadow.moveTo(x+3,y+3);
         if(Ext.isIE6){
-        	var percentHeight=100*$A.getViewportHeight()/document[Ext.isStrict?'documentElement':'body'].offsetHeight;
-    		var percentWidth=100*$A.getViewportWidth()/document[Ext.isStrict?'documentElement':'body'].offsetWidth;
-    		$A.Cover.container[this.wrap.id].setStyle({'width':percentWidth+'%','height':percentHeight+'%'})
+			$A.Cover.container[this.wrap.id].setStyle({'width':$A.getViewportWidth()+'px','height':$A.getViewportHeight()+'px'})
         	$A.Cover.container[this.wrap.id].moveTo(sl,st);
         }
     },
@@ -172,9 +170,7 @@ $A.Window = Ext.extend($A.Component,{
         this.shadow.moveTo(sl,st);
         this.wrap.moveTo(sl,st);
         if(Ext.isIE6){
-        	var percentHeight=100*$A.getViewportHeight()/document[Ext.isStrict?'documentElement':'body'].offsetHeight;
-    		var percentWidth=100*$A.getViewportWidth()/document[Ext.isStrict?'documentElement':'body'].offsetWidth;
-    		$A.Cover.container[this.wrap.id].setStyle({'width':percentWidth+'%','height':percentHeight+'%'})
+    		$A.Cover.container[this.wrap.id].setStyle({'width':$A.getViewportWidth()+'px','height':$A.getViewportHeight()+'px'})
         	$A.Cover.container[this.wrap.id].moveTo(sl,st);
         }
     },

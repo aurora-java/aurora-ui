@@ -607,9 +607,7 @@ $A.Cover = function(){
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight());
-    		var percentHeight=100*$A.getViewportHeight()/document[Ext.isStrict?'documentElement':'body'].offsetHeight;
-    		var percentWidth=100*$A.getViewportWidth()/document[Ext.isStrict?'documentElement':'body'].offsetWidth;
-    		var p = '<DIV class="aurora-cover" unselectable="on"'+(Ext.isIE6?'style="position:absolute;height:'+percentHeight+'%;width:'+percentWidth+'%"':'')+'></DIV>';
+    		var p = '<DIV class="aurora-cover" unselectable="on"'+(Ext.isIE6?'style="position:absolute;height:'+$A.getViewportHeight()+'px;width:'+$A.getViewportWidth()+'px"':'')+'></DIV>';
 //			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;" unselectable="on"></DIV>';
 			var cover = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
