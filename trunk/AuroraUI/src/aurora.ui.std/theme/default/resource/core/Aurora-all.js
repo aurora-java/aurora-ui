@@ -20,7 +20,7 @@ $A.fireWindowResize = function(){
         $A.Cover.resizeCover();
 	}
 }
-Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
+if(Ext.isIE6)Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
 
 $A.cache = {};
 $A.cmps = {};
@@ -202,10 +202,11 @@ $A.request = function(opt){
 		$A['_startTime'] = new Date();
 		$('HTTPWATCH_DATASET').create({'url':url,'request':Ext.util.JSON.encode({parameter:para})})
 	}
+	var data = Ext.apply({parameter:para},opt.ext);
 	Ext.Ajax.request({
 		url: url,
 		method: 'POST',
-		params:{_request_data:Ext.util.JSON.encode({parameter:para})},
+		params:{_request_data:Ext.util.JSON.encode(data)},
 		opts:opts,
 		success: function(response,options){
 			if($A.logWindow){
@@ -611,7 +612,7 @@ $A.Cover = function(){
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight());
-			var p = '<DIV class="aurora-cover" style="left:0px;top:0px;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;" unselectable="on"></DIV>';
+			var p = '<DIV class="aurora-cover"'+(Ext.isIE6?' style="position:absolute;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;':'')+'" unselectable="on"></DIV>';
 			var cover = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
 //	    	Ext.getBody().setStyle('overflow','hidden');
@@ -1445,6 +1446,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	        'reject',
 	        /**
              * @event submit
+             * 数据提交前事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+	        'beforesubmit',
+	        /**
+             * @event submit
              * 数据提交事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              * @param {String} url 提交的url.
@@ -1635,7 +1642,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         	var d = Ext.apply({}, r.data);
     		d['_id'] = r.id;
     		d['_status'] = 'delete';
-            p[k] = Ext.apply(d,this.spara)
+//            p[k] = Ext.apply(d,this.spara)
     	}
 //    	var p = [d];
 //    	for(var i=0;i<p.length;i++){
@@ -1647,7 +1654,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 var bd = $A.CmpManager.get(this.bindtarget);
                 opts = {record:bd.getCurrentRecord(),dataSet:this};
     		}
-	    	$A.request({url:this.submiturl, para:p, success:this.onRemoveSuccess, error:this.onSubmitError, scope:this, failure:this.onAjaxFailed,opts:opts});
+	    	$A.request({url:this.submiturl, para:p, ext:this.spara,success:this.onRemoveSuccess, error:this.onSubmitError, scope:this, failure:this.onAjaxFailed,opts:opts});
     	}
     
     },
@@ -2158,6 +2165,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(!this.validate()){           
             return;
         }
+        this.fireBindDataSetEvent("submit",url,items);
         this.submiturl = url||this.submiturl;
         if(this.submiturl == '') return;
         var p = items;//this.getJsonData();
@@ -2167,12 +2175,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 var f = this.fields[key];
                 if(f && f.type != 'dataset' && data[key]==='')data[key]=null;
             }
-            p[i] = Ext.apply(p[i],this.spara)
+//            p[i] = Ext.apply(p[i],this.spara)
         }
         
         //if(p.length > 0) {
 //            this.fireEvent("submit", this);
-            $A.request({url:this.submiturl, para:p, success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
+            $A.request({url:this.submiturl, para:p, ext:this.spara,success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
         //}
     },
     isAllReady:function(records){
@@ -2189,8 +2197,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var sf=this,intervalId=setInterval(function(){
     		if(!sf.isAllReady(sf.getSelected()))return;
 	        clearInterval(intervalId);
-	        var d = sf.getJsonData(true)
-	    	sf.fireBindDataSetEvent("submit",url,d);
+	        sf.fireEvent("beforesubmit",sf);
+	        var d = sf.getJsonData(true);
 	        sf.doSubmit(url,d);
     	},10);
     },
@@ -2202,8 +2210,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var sf=this,intervalId=setInterval(function(){
     		if(!sf.isAllReady(sf.getAll()))return;
 	    	clearInterval(intervalId);
-	    	var d = sf.getJsonData()
-	    	sf.fireBindDataSetEvent("submit",url,d);
+	    	sf.fireEvent("beforesubmit",sf);
+	    	var d = sf.getJsonData();
 	    	sf.doSubmit(url,d);
     	},10);
     },
@@ -5005,10 +5013,8 @@ $A.Window = Ext.extend($A.Component,{
     	sf.width = 1*(sf.width||350);
     	sf.height= 1*(sf.height||400);
     	if(sf.fullScreen){
-    		var body=document[Ext.isStrict?'documentElement':'body'];
-    		var hasVScrollBarIE=Ext.isIE8&&(body.scrollTop>0||body.scrollHeight>body.offsetHeight||body.currentStyle.overflowY=="scroll");
-    		sf.width=$A.getViewportWidth()+(hasVScrollBarIE?17:0);
-    		sf.height=$A.getViewportHeight()-(Ext.isIE?26:23);
+    		sf.width=$A.getViewportWidth()-(Ext.isIE||!sf.hasVScrollBar()?0:17)-(Ext.isIE8?1:0);
+    		sf.height=$A.getViewportHeight()-(Ext.isIE||!sf.hasHScrollBar()?26:43);
     		sf.draggable = false;
     		sf.marginheight=1;
     		sf.marginwidth=1;
@@ -5084,7 +5090,6 @@ $A.Window = Ext.extend($A.Component,{
     	var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
     	var x = sl+Math.max((screenWidth - this.width)/2,0);
     	var y = st+Math.max((screenHeight - this.height-(Ext.isIE?26:23))/2,0);
-        this.wrap.moveTo(x,y);
         this.shadow.setWidth(this.wrap.getWidth());
         this.shadow.setHeight(this.wrap.getHeight());
         if(this.fullScreen){
@@ -5093,8 +5098,17 @@ $A.Window = Ext.extend($A.Component,{
         }else {
             this.shadow.moveTo(x+3,y+3)
         }
+        this.wrap.moveTo(x,y);
         this.toFront();
         this.focus.defer(10,this);
+    },
+    hasVScrollBar : function(){
+    	var body=document[Ext.isStrict?'documentElement':'body'];
+    	return body.scrollTop>0||body.scrollHeight>body.clientHeight;
+    },
+    hasHScrollBar : function(){
+    	var body=document[Ext.isStrict?'documentElement':'body'];
+    	return body.scrollLeft>0||body.scrollWidth>body.clientWidth;
     },
     getShadowTemplate: function(){
     	return ['<DIV class="item-shadow"></DIV>']
@@ -5279,12 +5293,20 @@ $A.Window = Ext.extend($A.Component,{
     	}
     },
     setWidth : function(w){
+    	w=$A.getViewportWidth()-(Ext.isIE||!this.hasVScrollBar()?0:17)-(Ext.isIE8?1:0);
     	$A.Window.superclass.setWidth.call(this,w);
     	this.body.setWidth(w-2);
+    	this.shadow.setWidth(this.wrap.getWidth());
     },
     setHeight : function(h){
-    	$A.Window.superclass.setHeight.call(this,h);
-    	this.body.setHeight(h-(Ext.isIE?26:23));
+    	h=$A.getViewportHeight()-(Ext.isIE||!this.hasHScrollBar()?26:43);
+    	Ext.fly(this.body.dom.parentNode.parentNode).setHeight(h);
+    	this.body.setHeight(h);
+        this.shadow.setHeight(this.wrap.getHeight());
+    	var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft;
+    	var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
+        this.shadow.moveTo(sl,st);
+        this.wrap.moveTo(sl,st);
     },
     onLoad : function(response, options){
     	if(!this.body) return;

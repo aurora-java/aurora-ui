@@ -5,7 +5,7 @@
  * http://www.hand-china.com
  * 
  * author:牛佳庆
- * revision:$Rev: 1656 $
+ * revision:$Rev: 1935 $
  */
 html, body {
 	margin:0; 
@@ -41,12 +41,16 @@ A:active {COLOR: #005a78;TEXT-DECORATION: none}
 A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 
 .aurora-cover{
-	position: absolute;
+	position: fixed;
 	overflow: hidden;
 	filter: alpha(opacity=30);
 	background-color: #000000; 
 	opacity: 0.3; 
-	mozopacity: 0.3
+	mozopacity: 0.3;
+	width:100%;
+	height:100%;
+	left:0;
+	top:0;
 }
 /**Item**/
 .item-clear{

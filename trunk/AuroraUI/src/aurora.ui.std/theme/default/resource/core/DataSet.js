@@ -513,7 +513,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         	var d = Ext.apply({}, r.data);
     		d['_id'] = r.id;
     		d['_status'] = 'delete';
-            p[k] = Ext.apply(d,this.spara)
+//            p[k] = Ext.apply(d,this.spara)
     	}
 //    	var p = [d];
 //    	for(var i=0;i<p.length;i++){
@@ -525,7 +525,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 var bd = $A.CmpManager.get(this.bindtarget);
                 opts = {record:bd.getCurrentRecord(),dataSet:this};
     		}
-	    	$A.request({url:this.submiturl, para:p, success:this.onRemoveSuccess, error:this.onSubmitError, scope:this, failure:this.onAjaxFailed,opts:opts});
+	    	$A.request({url:this.submiturl, para:p, ext:this.spara,success:this.onRemoveSuccess, error:this.onSubmitError, scope:this, failure:this.onAjaxFailed,opts:opts});
     	}
     
     },
@@ -1046,12 +1046,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 var f = this.fields[key];
                 if(f && f.type != 'dataset' && data[key]==='')data[key]=null;
             }
-            p[i] = Ext.apply(p[i],this.spara)
+//            p[i] = Ext.apply(p[i],this.spara)
         }
         
         //if(p.length > 0) {
 //            this.fireEvent("submit", this);
-            $A.request({url:this.submiturl, para:p, success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
+            $A.request({url:this.submiturl, para:p, ext:this.spara,success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
         //}
     },
     isAllReady:function(records){
