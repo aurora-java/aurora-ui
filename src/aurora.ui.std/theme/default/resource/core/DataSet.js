@@ -1030,6 +1030,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(!this.validate()){           
             return;
         }
+        this.fireBindDataSetEvent("submit",url,items);
         this.submiturl = url||this.submiturl;
         if(this.submiturl == '') return;
         var p = items;//this.getJsonData();
@@ -1062,7 +1063,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		if(!sf.isAllReady(sf.getSelected()))return;
 	        clearInterval(intervalId);
 	        var d = sf.getJsonData(true)
-	    	sf.fireBindDataSetEvent("submit",url,d);
 	        sf.doSubmit(url,d);
     	},10);
     },
@@ -1075,7 +1075,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		if(!sf.isAllReady(sf.getAll()))return;
 	    	clearInterval(intervalId);
 	    	var d = sf.getJsonData()
-	    	sf.fireBindDataSetEvent("submit",url,d);
 	    	sf.doSubmit(url,d);
     	},10);
     },
