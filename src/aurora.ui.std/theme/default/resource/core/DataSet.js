@@ -317,6 +317,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	        'reject',
 	        /**
              * @event submit
+             * 数据提交前事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+	        'beforesubmit',
+	        /**
+             * @event submit
              * 数据提交事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              * @param {String} url 提交的url.
@@ -1062,7 +1068,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var sf=this,intervalId=setInterval(function(){
     		if(!sf.isAllReady(sf.getSelected()))return;
 	        clearInterval(intervalId);
-	        var d = sf.getJsonData(true)
+	        this.fireEvent("beforesubmit",this);
+	        var d = sf.getJsonData(true);
 	        sf.doSubmit(url,d);
     	},10);
     },
@@ -1074,7 +1081,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var sf=this,intervalId=setInterval(function(){
     		if(!sf.isAllReady(sf.getAll()))return;
 	    	clearInterval(intervalId);
-	    	var d = sf.getJsonData()
+	    	this.fireEvent("beforesubmit",this);
+	    	var d = sf.getJsonData();
 	    	sf.doSubmit(url,d);
     	},10);
     },
