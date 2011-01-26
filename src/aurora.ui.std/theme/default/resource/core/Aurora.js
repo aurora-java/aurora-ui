@@ -202,10 +202,11 @@ $A.request = function(opt){
 		$A['_startTime'] = new Date();
 		$('HTTPWATCH_DATASET').create({'url':url,'request':Ext.util.JSON.encode({parameter:para})})
 	}
+	var data = Ext.apply({parameter:para},opt.ext);
 	Ext.Ajax.request({
 		url: url,
 		method: 'POST',
-		params:{_request_data:Ext.util.JSON.encode({parameter:para})},
+		params:{_request_data:Ext.util.JSON.encode(data)},
 		opts:opts,
 		success: function(response,options){
 			if($A.logWindow){
