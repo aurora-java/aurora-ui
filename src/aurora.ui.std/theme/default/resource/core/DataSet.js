@@ -1068,7 +1068,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var sf=this,intervalId=setInterval(function(){
     		if(!sf.isAllReady(sf.getSelected()))return;
 	        clearInterval(intervalId);
-	        sf.fireEvent("beforesubmit",this);
+	        sf.fireEvent("beforesubmit",sf);
 	        var d = sf.getJsonData(true);
 	        sf.doSubmit(url,d);
     	},10);
@@ -1081,7 +1081,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var sf=this,intervalId=setInterval(function(){
     		if(!sf.isAllReady(sf.getAll()))return;
 	    	clearInterval(intervalId);
-	    	sf.fireEvent("beforesubmit",this);
+	    	sf.fireEvent("beforesubmit",sf);
 	    	var d = sf.getJsonData();
 	    	sf.doSubmit(url,d);
     	},10);
