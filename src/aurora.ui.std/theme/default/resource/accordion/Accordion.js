@@ -122,15 +122,6 @@ $A.Accordion = Ext.extend($A.Component,{
 		    }
 		});		
     },
-    setWidth : function(w){
-    	if(this.width == w) return;
-    	var w = Math.max(w,this.stripheight);
-    	this.width = w;
-    	for(var i=0;i<this.accordions.length;i++){
-    		Ext.fly(this.strips[i]).setWidth(w);
-    		Ext.fly(this.bodys[i]).setWidth(w);
-    	}
-    },
     setHeight : function(h){
     	if(this.height == h) return;
     	var l=this.accordions.length,h = Math.max(h,this.stripheight*l);

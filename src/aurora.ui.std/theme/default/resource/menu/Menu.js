@@ -10,16 +10,12 @@ $A.MenuBar=Ext.extend($A.Component,{
 	constructor: function(config) {
 		this.isActive=false,this.needHide=false,this.children=[],this.selectIndex = null,this.altKeyAccess=false;
 		$A.MenuBar.superclass.constructor.call(this, config);
-		this.sequence = config.sequence||'sequence';
-		this.iconfield=config.iconfield||'icon';
-		this.handler=config.handler||'handler';
+		this.handlerfield=config.handlerfield||'handler';
 		this.menutype=config.menutype||'type';
 		this.checked=config.checked||'checked';
-		this.url=config.url||'url';
 	},
 	initComponent : function(config){
 		$A.MenuBar.superclass.initComponent.call(this,config);
-		this.container=this.wrap.child('ul.item-menu-bar');
 		if(config.focus){
 			Ext.fly(config.focus).set({'tabIndex':'-1'});
 			Ext.fly(config.focus).setStyle({'outline':'none'});
@@ -41,7 +37,7 @@ $A.MenuBar=Ext.extend($A.Component,{
 	    		Ext.fly(frame.contentWindow.document)[ou]('mousedown',this.onMouseDown,this);
 	    		Ext.fly(frame.contentWindow.document)[ou]('mouseup',this.onMouseUp,this);
 			}.createDelegate(this,[frames[i]]))
-			if(this.targetname&&this.targetname==frames[i].name)this.targetFrame=frames[i];
+			if(this.urltarget&&this.urltarget==frames[i].name)this.targetFrame=frames[i];
     	}
     },
     processDataSetLiestener: function(ou){
@@ -77,12 +73,12 @@ $A.MenuBar=Ext.extend($A.Component,{
     			Ext.apply(map[datas[i].get(this.idfield)],{type:types[1],checked:datas[i].get(this.checked)=="true"||false});
     			if(types[2])Ext.apply(map[datas[i].get(this.idfield)],{groupName:types[2]});
     		}
-    		if(datas[i].get(this.handler))Ext.apply(map[datas[i].get(this.idfield)],{listeners:{'mouseup':function(handler,record){return function(){window[handler].apply(window,Ext.toArray(arguments).concat(record))}}(datas[i].get(this.handler),datas[i])}});
-    		if(datas[i].get(this.url))Ext.apply(map[datas[i].get(this.idfield)],{listeners:{'submit':this.directURL.createDelegate(this,[datas[i].get(this.url),datas[i].get(this.displayfield)])}});
+    		if(datas[i].get(this.handlerfield))Ext.apply(map[datas[i].get(this.idfield)],{listeners:{'mouseup':function(handler,record){return function(){window[handler].apply(window,Ext.toArray(arguments).concat(record))}}(datas[i].get(this.handler),datas[i])}});
+    		if(datas[i].get(this.urlfield))Ext.apply(map[datas[i].get(this.idfield)],{listeners:{'submit':this.directURL.createDelegate(this,[datas[i].get(this.urlfield),datas[i].get(this.displayfield)])}});
     	}
     	for(var i=0;datas[i];i++){
     		var pid=datas[i].get(this.parentfield);
-    		if(pid==this.rootId||pid<=0)options.add(map[datas[i].get(this.idfield)]);
+    		if(pid==this.rootid||pid<=0)options.add(map[datas[i].get(this.idfield)]);
     		else{
     			if(!map[pid].options)map[pid].options=[];
     			map[pid].options.add(map[datas[i].get(this.idfield)]);
@@ -92,7 +88,7 @@ $A.MenuBar=Ext.extend($A.Component,{
     },
     directURL : function(url,title){
     	if(this.targetFrame)this.targetFrame.setAttribute('src',url+(url.match(/\?/)?"&":"?")+"randomnumber="+Math.floor(Math.random()*100000));
-    	else if(this.targetname)window.open(url,this.targetname);
+    	else if(this.urltarget)window.open(url,this.urltarget);
     	else new $A.Window({title:title,url:url,width:Ext.fly(document).child('html').getWidth()-100,height:Ext.fly(document).child('html').getHeight()-100})
     },
     sortOptions : function(o1,o2){
@@ -106,7 +102,7 @@ $A.MenuBar=Ext.extend($A.Component,{
 	onMouseDown : function(e){
 		if(this.selectIndex==null||this.children.length==0)return;
 		if(e.button==0){
-			if(this.container.contains(e.target))this.needHide=this.isActive;
+			if(this.wrap.contains(e.target))this.needHide=this.isActive;
 			if(this.isAncestor(e.target)){
 				this.isActive=true;
 				this.children[this.selectIndex].show();
@@ -129,7 +125,7 @@ $A.MenuBar=Ext.extend($A.Component,{
 	addMenus : function(options){
 		for(var i=0,j=this.children.length;i<options.length;i++){
 			var menu=null,_id=this.id+"-node"+j;
-			new Ext.Template(this.childTpl).append(this.container.dom,{id:_id});
+			new Ext.Template(this.childTpl).append(this.wrap.dom,{id:_id});
 			menu=new Aurora[options[i].options?'Menu':'MenuItem'](Ext.apply(options[i],{id:_id,parent:this,bar:this,index:j}));
 			options[i].record.menu=menu;
 			delete options[i].record;
@@ -137,14 +133,13 @@ $A.MenuBar=Ext.extend($A.Component,{
 		}
 	},
 	destroy : function(){
-		this.container.remove();
 		delete this.children;
 		delete this.isActive;
 		delete this.needHide;
 		$A.Menu.superclass.destroy.call(this);
 	},
 	isAncestor : function(el){
-		if(this.container.dom!=el&&this.container.contains(el))return true;
+		if(this.wrap.dom!=el&&this.wrap.contains(el))return true;
 		for (var i=0;i<this.children.length;i++) {
 			if (this.children[i].isAncestor&&this.children[i].isAncestor(el))return true;
 		}
