@@ -1,8 +1,6 @@
-<TABLE cellSpacing="0" cellPadding="0" id="${id}" class="${wrapClass}" style="border-top: 1px solid #CCCCCC;${style}">
-	<TBODY>
+<DIV id="${id}" class="${wrapClass}" style="width:${width}px;border-top: 1px solid #CCCCCC;${style}">
 		${accordions}
-	</TBODY>
-</TABLE>
+</DIV>
 <SCRIPT LANGUAGE="JavaScript">
 	new Aurora.Accordion(${config});
 </SCRIPT>
