@@ -16,7 +16,7 @@ $A.Tab = Ext.extend($A.Component,{
 		$A.Tab.superclass.initComponent.call(this, config);
 		this.head = this.wrap.child('td[atype=tab.strips]'); 
 		this.body = this.wrap.child('div[atype=tab.bodys]');
-		this.selectTab(config.select||0)
+		this.selectTab(config.selected||0)
 	},
 	processListener: function(ou){
     	$A.Tab.superclass.processListener.call(this,ou);
