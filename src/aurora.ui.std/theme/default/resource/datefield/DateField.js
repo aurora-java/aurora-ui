@@ -161,9 +161,12 @@ $A.DateField = Ext.extend($A.Component, {
 			arr.push((this.enablebesidedays=="both"||this.enablebesidedays=="next")?new Date(year, month, i,hour,minute,second):null);
 		}
 		//先清空内容再插入(ie的table不能用innerHTML)
-		while(this.body.dom.tBodies[0].firstChild){
-			this.body.dom.tBodies[0].removeChild(this.body.dom.tBodies[0].firstChild);
-		}
+		//while(this.body.dom.tBodies[0].firstChild){
+			//this.body.dom.tBodies[0].removeChild(this.body.dom.tBodies[0].firstChild);
+			//Ext.fly(this.body.dom.tBodies[0].firstChild).remove();
+		//}
+		Ext.fly(this.body.dom.tBodies[0]).remove();
+		this.body.dom.appendChild(document.createElement("tbody"));
 		//插入日期
 		var k=0;
 		while(arr.length){
