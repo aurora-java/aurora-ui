@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<sql-service trace="true">
-	<update>
-	    begin
-			DELETE EMP where EMPNO = ${@empno};
-		end;
-	</update>
-</sql-service>
