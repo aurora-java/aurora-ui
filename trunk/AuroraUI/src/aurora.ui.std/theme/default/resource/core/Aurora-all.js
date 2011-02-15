@@ -1612,7 +1612,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 移除数据.  
      * @param {Aurora.Record} record 需要移除的Record.
      */
-    remove : function(record){  
+    remove : function(record){
     	if(!record){
     		record = this.getCurrentRecord();
     	}
@@ -1642,7 +1642,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         	var d = Ext.apply({}, r.data);
     		d['_id'] = r.id;
     		d['_status'] = 'delete';
-//            p[k] = Ext.apply(d,this.spara)
+            p[k] = d
     	}
 //    	var p = [d];
 //    	for(var i=0;i<p.length;i++){
@@ -2815,6 +2815,11 @@ $A.Record.Field.prototype = {
     setLovUrl : function(m){
     	this.setPropertity("lovurl",m) 
     },
+    /**
+     * 设置Lov的查询参数
+     * @param {String} name
+     * @param {Object} value
+     */
     setLovPara : function(name,value){
         var p = this.getPropertity('lovpara');
         if(!p){
@@ -4252,8 +4257,10 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		}
 	},	
 	onDataSetLoad: function(){
-		this.rendered=false
-//		this.expand();//?? why expand?
+		this.rendered=false;
+		if(this.isExpanded()) {
+            this.expand();
+		}
 	},
 	onRender:function(){	
         if(!this.view){
