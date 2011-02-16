@@ -58,7 +58,8 @@ $A.NumberField = Ext.extend($A.TextField,{
     	$A.NumberField.superclass.onFocus.call(this,e);
     },
     parseValue : function(value){
-    	value = String(value) 
+    	value = String(value);
+		if(value.indexOf(",")!=-1)value=value.replace(/,/g,"");
     	if(!this.allownegative)value = value.replace('-','');
     	if(!this.allowdecimals)value = value.indexOf(".")==-1?value:value.substring(0,value.indexOf("."));
         value = parseFloat(value.replace(this.decimalSeparator, "."));
