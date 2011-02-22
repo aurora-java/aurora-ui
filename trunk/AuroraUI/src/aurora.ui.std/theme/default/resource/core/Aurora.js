@@ -665,8 +665,8 @@ $A.Masker = function(){
         	msg = msg||_lang['mask.loading'];
         	var el = Ext.get(el);
             var w = el.getWidth();
-            var h = el.getHeight();//display:none;
-            var p = '<div class="aurora-mask"  style="left:0px;top:0px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
+            var h = el.getHeight();//leftp:0px;top:0px; 是否引起resize?
+            var p = '<div class="aurora-mask"  style="left:-1000px;top:-1000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
             var masker = Ext.get(Ext.DomHelper.append(el.parent(),p));
             var zi = el.getStyle('z-index') == 'auto' ? 0 : el.getStyle('z-index');
             masker.setStyle('z-index', zi + 1);
