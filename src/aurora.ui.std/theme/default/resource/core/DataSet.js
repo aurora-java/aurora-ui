@@ -300,7 +300,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */ 
 	        'select',
 	        /**
-             * @event select
+             * @event unselect
              * 取消选择数据事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              * @param {Aurora.Record} record 取消选择的record.
@@ -316,7 +316,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */
 	        'reject',
 	        /**
-             * @event submit
+             * @event beforesubmit
              * 数据提交前事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              */
