@@ -20,14 +20,34 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	this.currentPage = this.wrap.child('div[atype=currentPage]');
     	this.pageInfo = this.wrap.child('div[atype=pageInfo]');//Ext.get(this.pageId);
     	this.navInfo = this.wrap.child('div[atype=displayInfo]');//Ext.get(this.infoId);
-    	this.pageInput.setValue(1)
+    	this.pageInput.setValue(1);
     	
+    	if(this.comboBoxId){
+    		var pageSize=[10,20,50,100];
+    		if(pageSize.indexOf(this.dataSet.pagesize)==-1){
+    			pageSize.unshift(this.dataSet.pagesize);
+    			pageSize.sort(function(a,b){return a-b});
+    		}
+    		var datas=[];
+    		while(Ext.isDefined(pageSize[0])){
+    			var ps=pageSize.shift();
+    			datas.push({'code':ps,'name':ps});
+    		}
+    		var dataset=new $A.DataSet({'datas':datas});
+	    	this.pageSizeInput = $(this.comboBoxId);
+	    	this.pageSizeInput.setOptions(dataset);
+	    	this.pageSizeInput.setValue(this.dataSet.pagesize);
+    		this.pageSizeInfo = this.wrap.child('div[atype=pageSizeInfo]');
+    	}
     	this.currentPage.update(_lang['toolbar.ctPage']);
     },
     processListener: function(ou){
     	$A.NavBar.superclass.processListener.call(this,ou);
     	this.dataSet[ou]('load', this.onLoad,this);
     	this.pageInput[ou]('keydown', this.onInputKeyPress, this);
+    	if(this.pageSizeInput){
+    		this.pageSizeInput[ou]('select', this.onInputSelect, this);
+    	}
     },
     initEvents : function(){
     	$A.NavBar.superclass.initEvents.call(this);    	
@@ -36,6 +56,9 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	this.pageInput.setValue(this.dataSet.currentPage);
     	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
     	this.navInfo.update(this.creatNavInfo());
+    	if(this.pageSizeInput){
+    		this.pageSizeInfo.update(_lang['toolbar.pageSize']);
+    	}
     },
     creatNavInfo : function(){
     	var from = ((this.dataSet.currentPage-1)*this.dataSet.pagesize+1);
@@ -57,5 +80,9 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     			}
     		}
     	}    	
+    },
+    onInputSelect : function(combo,value){
+    	this.dataSet.pagesize=value;
+    	this.dataSet.query();
     }
 })

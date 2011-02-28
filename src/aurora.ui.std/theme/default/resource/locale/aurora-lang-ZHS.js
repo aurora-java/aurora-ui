@@ -34,6 +34,7 @@ _lang['toolbar.total'] = '共';
 _lang['toolbar.page'] = '页';
 _lang['toolbar.item'] = ' 条';
 _lang['toolbar.visible'] = '显示';
+_lang['toolbar.pageSize'] = '条';
 
 _lang['window.loading'] = '正在加载...';
 _lang['window.error'] = '错误';
