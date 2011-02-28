@@ -104,9 +104,11 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	this.syncPopup();
     },
     syncPopup:function(){
-    	var xy = this.wrap.getXY();
-    	this.popup.moveTo(xy[0],xy[1]+23);
-    	this.shadow.moveTo(xy[0]+3,xy[1]+26);
+    	var xy = this.wrap.getXY(),
+    		H=this.popup.getHeight(),PH=this.wrap.getHeight(),BH=$A.getViewportHeight()-3,
+    		y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
+    	this.popup.moveTo(xy[0],y);
+    	this.shadow.moveTo(xy[0]+3,y+3);
     },
     onTriggerClick : function(){
     	if(this.readonly) return;

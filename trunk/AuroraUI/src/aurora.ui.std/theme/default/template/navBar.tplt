@@ -6,6 +6,7 @@
 		id:'${id}',
 		dataSet:'${dataset}',
 		inputId:'${inputid}',
+		comboBoxId:'${comboBoxId}',
 		width:${width}
 	});
 </SCRIPT>
