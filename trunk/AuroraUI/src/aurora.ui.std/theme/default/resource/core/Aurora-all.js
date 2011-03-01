@@ -5563,7 +5563,7 @@ $A.Lov = Ext.extend($A.TextField,{
     constructor: function(config) {
         this.isWinOpen = false;
         this.fetching = false;
-        this.keeperror = false;
+        this.fetchremote = true;
         this.context = config.context||'';
         $A.Lov.superclass.constructor.call(this, config);        
     },
@@ -5615,6 +5615,7 @@ $A.Lov = Ext.extend($A.TextField,{
         this.el.setStyle("width",(w-20)+"px");
     },
     onChange : function(e){
+    	if(this.fetchremote == true)
         this.fetchRecord();
     },
 //  onKeyDown : function(e){
@@ -5708,19 +5709,14 @@ $A.Lov = Ext.extend($A.TextField,{
         this.setRawValue(_lang['lov.query'])
         $A.request({url:url, para:p, success:function(res){
             var r = new $A.Record({});
-            var find = false;
             if(res.result.record){
                 var datas = [].concat(res.result.record);
                 if(datas.length>0){
                     var data = datas[0];
                     r = new $A.Record(data);
-                    find = true;
                 }
             }
             this.fetching = false;
-            if(!find && this.keeperror==true) {
-            	r.data[this.binder.name] =v;
-            }
             this.commit(r,record);
             record.isReady=true;
             $A.SideBar.enable = $A.slideBarEnable;
