@@ -38,6 +38,9 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 	    	this.pageSizeInput.setOptions(dataset);
 	    	this.pageSizeInput.setValue(this.dataSet.pagesize);
     		this.pageSizeInfo = this.wrap.child('div[atype=pageSizeInfo]');
+    		this.pageSizeInfo2 = this.wrap.child('div[atype=pageSizeInfo2]');
+    		this.pageSizeInfo.update(_lang['toolbar.pageSize']);
+    		this.pageSizeInfo2.update(_lang['toolbar.pageSize2']);
     	}
     	this.currentPage.update(_lang['toolbar.ctPage']);
     },
@@ -56,9 +59,6 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	this.pageInput.setValue(this.dataSet.currentPage);
     	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
     	this.navInfo.update(this.creatNavInfo());
-    	if(this.pageSizeInput){
-    		this.pageSizeInfo.update(_lang['toolbar.pageSize']);
-    	}
     },
     creatNavInfo : function(){
     	var from = ((this.dataSet.currentPage-1)*this.dataSet.pagesize+1);
