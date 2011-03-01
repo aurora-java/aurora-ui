@@ -30,9 +30,7 @@ $A.focusWindow;
 $A.defaultDateFormat="isoDate";
 
 /**
- * @method center
  * 将对象居中
- * @static
  * @param {Object/String} el Aurora组件对象或者是DOM对象或者是对象的ID字符串
  */
 $A.center = function(el){
@@ -58,9 +56,7 @@ $A.center = function(el){
 }
 
 /**
- * @method setTheme
  * 设置主题
- * @static
  * @param {String} theme 主题名
  */
 $A.setTheme = function(theme){
@@ -160,9 +156,7 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 }, this);
 
 /**
- * @method getCmp
  * 获取Aurora控件的对象，可以使用简写方式的$()方法
- * @static
  * @param {String} id Aurora控件的id
  */
 $ = $A.getCmp = function(id){
@@ -174,9 +168,7 @@ $ = $A.getCmp = function(id){
 }
 
 /**
- * @method setCookie
  * 设置cookie
- * @static
  * @param {String} name cookie名
  * @param {String} value cookie值
  */
@@ -185,9 +177,7 @@ $A.setCookie = function(name,value){
 }
 
 /**
- * @method getCookie
  * 根据cookie名获取cookie值
- * @static
  * @param {String} name cookie名
  */
 $A.getCookie = function(name){
@@ -197,9 +187,7 @@ $A.getCookie = function(name){
 }
 
 /**
- * @method getViewportHeight
  * 获取页面可视高度
- * @static
  * @return {Number} 页面可视高度
  */
 $A.getViewportHeight = function(){
@@ -211,9 +199,7 @@ $A.getViewportHeight = function(){
     }
 }
 /**
- * @method getViewportWidth
  * 获取页面可视宽度
- * @static
  * @return {Number} 页面可视宽度
  */
 $A.getViewportWidth = function() {
@@ -232,10 +218,8 @@ $A.getViewportWidth = function() {
 //}
 //$A.recordSize();
 /**
- * @method post
  * post的方式提交数据，同{@link Aurora.DataSet#post}
- * @static
- * @param {String} action 表单的action
+ * @param {String} action 提交的url地址
  * @param {Object} data 数据集合
  */
 $A.post = function(action,data){
@@ -250,10 +234,24 @@ $A.post = function(action,data){
     form.dom.submit();
 }
 /**
- * @method request
- * Ajax请求
- * @static
- * @param {Object} opt 参数表(url-请求地址,para-请求参数,scope-作用域,success-成功后的回调函数,error-错误后的回调函数,failure-失败后的回调函数)
+ * POST方式的Ajax请求
+ * <p>
+ * opt对象的属性:
+ * <div class="mdetail-params"><ul>
+ * <li><code>url</code>
+ * <div class="sub-desc">提交的url地址</div></li>
+ * <li><code>para</code>
+ * <div class="sub-desc">提交的参数</div></li>
+ * <li><code>scope</code>
+ * <div class="sub-desc">作用域</div></li>
+ * <li><code>success</code>
+ * <div class="sub-desc">成功的回调函数</div></li>
+ * <li><code>error</code>
+ * <div class="sub-desc">错误的回调函数</div></li>
+ * <li><code>failure</code>
+ * <div class="sub-desc">ajax调用失败的回调函数</div></li>
+ * </ul></div></p>
+ * @param {Object} opt 参数对象
  */
 $A.request = function(opt){
 	var url = opt.url,para = opt.para,successCall = opt.success,errorCall = opt.error,scope = opt.scope,failureCall = opt.failure;
@@ -982,9 +980,7 @@ $A.getRenderer = function(renderer){
     return rder;
 }
 /**
- * @method formatDate
- * 将日期转换成默认格式的字符串，默认格式是根据Aurora.defaultDateFormat来定义的
- * @static
+ * 将日期转换成默认格式的字符串，默认格式是根据Aurora.defaultDateFormat来定义的.如果没有特殊指定,默认格式为yyyy-mm-dd
  * @param {Date} date 转换的日期
  * @return {String}
  */
@@ -994,11 +990,9 @@ $A.formatDate = function(date){
 	return date;
 }
 /**
- * @method formatDateTime
  * 将日期转换成yyyy-mm-dd HH:MM:ss格式的字符串
- * @static
- * @param {Date} date 转换的日期
- * @return {String}
+ * @param {Date} date 需要转换的日期
+ * @return {String} 转换后的字符串
  */
 $A.formatDateTime = function(date){
 	if(!date)return '';
@@ -1006,9 +1000,8 @@ $A.formatDateTime = function(date){
 	return date;
 }
 /**
- * @method formatNumber
  * 将数值根据精度转换成带有千分位的字符串
- * @static
+ * 
  * @param {Number} value 数值
  * @param {Number} decimalprecision 小数点位数
  * @return {String}
@@ -1027,12 +1020,10 @@ $A.formatNumber = function(value,decimalprecision){
     return v;   
 }
 /**
- * @method removeNumberFormat
  * 将字符串的千分位去除
- * @static
  * @param {Number} value 数值
  * @param {String} rv 带有千分位的数值字符串
- * @return {Number}
+ * @return {Number} 数值
  */
 $A.removeNumberFormat = function(rv){
     rv = String(rv||'');
