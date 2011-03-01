@@ -34,7 +34,7 @@ _lang['toolbar.total'] = ' of ';
 _lang['toolbar.page'] = '';
 _lang['toolbar.item'] = ' ';
 _lang['toolbar.visible'] = 'Displaying ';
-_lang['toolbar.pageSize'] = 'per page';
+_lang['toolbar.pageSize'] = 'Per Page';
 _lang['toolbar.pageSize2'] = '';
 
 _lang['window.loading'] = 'Loading...';
