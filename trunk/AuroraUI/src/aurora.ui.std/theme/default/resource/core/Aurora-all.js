@@ -28,6 +28,11 @@ $A.onReady = Ext.onReady;
 $A.get = Ext.get;
 $A.focusWindow;
 $A.defaultDateFormat="isoDate";
+
+/**
+ * 将对象居中
+ * @param {Object/String} el Aurora组件对象或者是DOM对象或者是对象的ID字符串
+ */
 $A.center = function(el){
 	var ele;
 	if(typeof(el)=="string"){
@@ -50,6 +55,10 @@ $A.center = function(el){
     ele.moveTo(x,y);
 }
 
+/**
+ * 设置主题
+ * @param {String} theme 主题名
+ */
 $A.setTheme = function(theme){
 	if(theme) {
 		var exp  = new Date();   
@@ -145,6 +154,11 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 			break;
 	}	
 }, this);
+
+/**
+ * 获取Aurora控件的对象，可以使用简写方式的$()方法
+ * @param {String} id Aurora控件的id
+ */
 $ = $A.getCmp = function(id){
 	var cmp = $A.CmpManager.get(id)
 	if(cmp == null) {
@@ -152,14 +166,30 @@ $ = $A.getCmp = function(id){
 	}
 	return cmp;
 }
+
+/**
+ * 设置cookie
+ * @param {String} name cookie名
+ * @param {String} value cookie值
+ */
 $A.setCookie = function(name,value){
     document.cookie = name + "="+ escape (value);
 }
+
+/**
+ * 根据cookie名获取cookie值
+ * @param {String} name cookie名
+ */
 $A.getCookie = function(name){
     var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
      if(arr != null) return unescape(arr[2]); return null;
 
 }
+
+/**
+ * 获取页面可视高度
+ * @return {Number} 页面可视高度
+ */
 $A.getViewportHeight = function(){
     if(Ext.isIE){
         return Ext.isStrict ? document.documentElement.clientHeight :
@@ -168,6 +198,10 @@ $A.getViewportHeight = function(){
         return self.innerHeight;
     }
 }
+/**
+ * 获取页面可视宽度
+ * @return {Number} 页面可视宽度
+ */
 $A.getViewportWidth = function() {
     if(Ext.isIE){
         return Ext.isStrict ? document.documentElement.clientWidth :
@@ -183,6 +217,11 @@ $A.getViewportWidth = function() {
 //    document.cookie = "vh="+h;
 //}
 //$A.recordSize();
+/**
+ * post的方式提交数据，同{@link Aurora.DataSet#post}
+ * @param {String} action 提交的url地址
+ * @param {Object} data 数据集合
+ */
 $A.post = function(action,data){
     var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action});
     for(var key in data){
@@ -194,6 +233,26 @@ $A.post = function(action,data){
     }
     form.dom.submit();
 }
+/**
+ * POST方式的Ajax请求
+ * <p>
+ * opt对象的属性:
+ * <div class="mdetail-params"><ul>
+ * <li><code>url</code>
+ * <div class="sub-desc">提交的url地址</div></li>
+ * <li><code>para</code>
+ * <div class="sub-desc">提交的参数</div></li>
+ * <li><code>scope</code>
+ * <div class="sub-desc">作用域</div></li>
+ * <li><code>success</code>
+ * <div class="sub-desc">成功的回调函数</div></li>
+ * <li><code>error</code>
+ * <div class="sub-desc">错误的回调函数</div></li>
+ * <li><code>failure</code>
+ * <div class="sub-desc">ajax调用失败的回调函数</div></li>
+ * </ul></div></p>
+ * @param {Object} opt 参数对象
+ */
 $A.request = function(opt){
 	var url = opt.url,para = opt.para,successCall = opt.success,errorCall = opt.error,scope = opt.scope,failureCall = opt.failure;
 	var opts = Ext.apply({},opt.opts);
@@ -920,17 +979,33 @@ $A.getRenderer = function(renderer){
     }
     return rder;
 }
-
+/**
+ * 将日期转换成默认格式的字符串，默认格式是根据Aurora.defaultDateFormat来定义的.如果没有特殊指定,默认格式为yyyy-mm-dd
+ * @param {Date} date 转换的日期
+ * @return {String}
+ */
 $A.formatDate = function(date){
 	if(!date)return '';
 	if(date.format)return date.format($A.defaultDateFormat);
 	return date;
 }
+/**
+ * 将日期转换成yyyy-mm-dd HH:MM:ss格式的字符串
+ * @param {Date} date 需要转换的日期
+ * @return {String} 转换后的字符串
+ */
 $A.formatDateTime = function(date){
 	if(!date)return '';
 	if(date.format)return date.format('yyyy-mm-dd HH:MM:ss');
 	return date;
 }
+/**
+ * 将数值根据精度转换成带有千分位的字符串
+ * 
+ * @param {Number} value 数值
+ * @param {Number} decimalprecision 小数点位数
+ * @return {String}
+ */
 $A.formatNumber = function(value,decimalprecision){
 	if(value!==0&&(!value||isNaN(value)))return '';
 	if(decimalprecision||decimalprecision===0) value=Number(value).toFixed(decimalprecision);
@@ -944,6 +1019,12 @@ $A.formatNumber = function(value,decimalprecision){
     v = whole + sub;
     return v;   
 }
+/**
+ * 将字符串的千分位去除
+ * @param {Number} value 数值
+ * @param {String} rv 带有千分位的数值字符串
+ * @return {Number} 数值
+ */
 $A.removeNumberFormat = function(rv){
     rv = String(rv||'');
     while (rv.indexOf(',')!=-1) {
