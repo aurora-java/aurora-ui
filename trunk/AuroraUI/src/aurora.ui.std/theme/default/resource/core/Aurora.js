@@ -28,6 +28,13 @@ $A.onReady = Ext.onReady;
 $A.get = Ext.get;
 $A.focusWindow;
 $A.defaultDateFormat="isoDate";
+
+/**
+ * @method center
+ * 将对象居中
+ * @static
+ * @param {Object/String} el Aurora组件对象或者是DOM对象或者是对象的ID字符串
+ */
 $A.center = function(el){
 	var ele;
 	if(typeof(el)=="string"){
@@ -50,6 +57,12 @@ $A.center = function(el){
     ele.moveTo(x,y);
 }
 
+/**
+ * @method setTheme
+ * 设置主题
+ * @static
+ * @param {String} theme 主题名
+ */
 $A.setTheme = function(theme){
 	if(theme) {
 		var exp  = new Date();   
@@ -145,6 +158,13 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 			break;
 	}	
 }, this);
+
+/**
+ * @method getCmp
+ * 获取Aurora控件的对象，可以使用简写方式的$()方法
+ * @static
+ * @param {String} id Aurora控件的id
+ */
 $ = $A.getCmp = function(id){
 	var cmp = $A.CmpManager.get(id)
 	if(cmp == null) {
@@ -152,14 +172,36 @@ $ = $A.getCmp = function(id){
 	}
 	return cmp;
 }
+
+/**
+ * @method setCookie
+ * 设置cookie
+ * @static
+ * @param {String} name cookie名
+ * @param {String} value cookie值
+ */
 $A.setCookie = function(name,value){
     document.cookie = name + "="+ escape (value);
 }
+
+/**
+ * @method getCookie
+ * 根据cookie名获取cookie值
+ * @static
+ * @param {String} name cookie名
+ */
 $A.getCookie = function(name){
     var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
      if(arr != null) return unescape(arr[2]); return null;
 
 }
+
+/**
+ * @method getViewportHeight
+ * 获取页面可视高度
+ * @static
+ * @return {Number} 页面可视高度
+ */
 $A.getViewportHeight = function(){
     if(Ext.isIE){
         return Ext.isStrict ? document.documentElement.clientHeight :
@@ -168,6 +210,12 @@ $A.getViewportHeight = function(){
         return self.innerHeight;
     }
 }
+/**
+ * @method getViewportWidth
+ * 获取页面可视宽度
+ * @static
+ * @return {Number} 页面可视宽度
+ */
 $A.getViewportWidth = function() {
     if(Ext.isIE){
         return Ext.isStrict ? document.documentElement.clientWidth :
@@ -183,6 +231,13 @@ $A.getViewportWidth = function() {
 //    document.cookie = "vh="+h;
 //}
 //$A.recordSize();
+/**
+ * @method post
+ * post的方式提交数据，同{@link Aurora.DataSet#post}
+ * @static
+ * @param {String} action 表单的action
+ * @param {Object} data 数据集合
+ */
 $A.post = function(action,data){
     var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action});
     for(var key in data){
@@ -194,6 +249,12 @@ $A.post = function(action,data){
     }
     form.dom.submit();
 }
+/**
+ * @method request
+ * Ajax请求
+ * @static
+ * @param {Object} opt 参数表(url-请求地址,para-请求参数,scope-作用域,success-成功后的回调函数,error-错误后的回调函数,failure-失败后的回调函数)
+ */
 $A.request = function(opt){
 	var url = opt.url,para = opt.para,successCall = opt.success,errorCall = opt.error,scope = opt.scope,failureCall = opt.failure;
 	var opts = Ext.apply({},opt.opts);
@@ -920,17 +981,38 @@ $A.getRenderer = function(renderer){
     }
     return rder;
 }
-
+/**
+ * @method formatDate
+ * 将日期转换成默认格式的字符串，默认格式是根据Aurora.defaultDateFormat来定义的
+ * @static
+ * @param {Date} date 转换的日期
+ * @return {String}
+ */
 $A.formatDate = function(date){
 	if(!date)return '';
 	if(date.format)return date.format($A.defaultDateFormat);
 	return date;
 }
+/**
+ * @method formatDateTime
+ * 将日期转换成yyyy-mm-dd HH:MM:ss格式的字符串
+ * @static
+ * @param {Date} date 转换的日期
+ * @return {String}
+ */
 $A.formatDateTime = function(date){
 	if(!date)return '';
 	if(date.format)return date.format('yyyy-mm-dd HH:MM:ss');
 	return date;
 }
+/**
+ * @method formatNumber
+ * 将数值根据精度转换成带有千分位的字符串
+ * @static
+ * @param {Number} value 数值
+ * @param {Number} decimalprecision 小数点位数
+ * @return {String}
+ */
 $A.formatNumber = function(value,decimalprecision){
 	if(value!==0&&(!value||isNaN(value)))return '';
 	if(decimalprecision||decimalprecision===0) value=Number(value).toFixed(decimalprecision);
@@ -944,6 +1026,14 @@ $A.formatNumber = function(value,decimalprecision){
     v = whole + sub;
     return v;   
 }
+/**
+ * @method removeNumberFormat
+ * 将字符串的千分位去除
+ * @static
+ * @param {Number} value 数值
+ * @param {String} rv 带有千分位的数值字符串
+ * @return {Number}
+ */
 $A.removeNumberFormat = function(rv){
     rv = String(rv||'');
     while (rv.indexOf(',')!=-1) {
