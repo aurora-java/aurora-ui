@@ -26,7 +26,9 @@
 	<feature-attach elementName="fieldSet" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.FieldSet" />
 	<feature-attach elementName="box" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Box" />
 	<feature-attach elementName="vBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.VBox" />
+	<!-- 
 	<feature-attach elementName="dataSets" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.application.features.DataSetInit" />
+	 -->
 	<feature-attach elementName="autoForm" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.application.features.AutoForm" />
 	<feature-attach elementName="autoGrid" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.application.features.AutoGrid" />
 	<feature-attach elementName="tabPanel" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Tab" />
