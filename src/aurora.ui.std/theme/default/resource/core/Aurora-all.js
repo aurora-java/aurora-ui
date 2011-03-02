@@ -3979,7 +3979,7 @@ $A.TextField = Ext.extend($A.Field,{
             }else if(this.typecase == 'lower') {
             	window.clipboardData.setData('text',t.toLowerCase());
             }
-            setTimeout(function(){window.clipboardData.setData('text',t);},10);
+            setTimeout(function(){window.clipboardData.setData('text',t);},1);
     	}
     },
     onChange : function(e){
