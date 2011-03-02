@@ -15,8 +15,15 @@ $A.TextField = Ext.extend($A.Field,{
     },
     initEvents : function(){
     	$A.TextField.superclass.initEvents.call(this);   
+    },
+    processListener : function(ou){
+    	$A.TextField.superclass.processListener.call(this, ou);
     	if(this.typecase){
-    		this.el.on("paste", this.onPaste, this);
+    		if(!window.clipboardData){
+    			this.el[ou]("change", this.onChange, this);
+    		}else if(this.typecase){
+    			this.el[ou]("paste", this.onPaste, this);
+    		}
     	}
     },
     onPaste : function(e){	
@@ -27,14 +34,17 @@ $A.TextField = Ext.extend($A.Field,{
             }else if(this.typecase == 'lower') {
             	window.clipboardData.setData('text',t.toLowerCase());
             }
-    	}else{
-            e.stopEvent();
+            setTimeout(function(){window.clipboardData.setData('text',t);},10);
     	}
     },
-    destroy : function(){
-    	if(this.typecase){
-            this.el.un("paste", this.onPaste, this);
+    onChange : function(e){
+    	if(this.typecase == 'upper'){
+	    	this.setValue(this.getRawValue().toUpperCase());
+        }else if(this.typecase == 'lower') {
+        	this.setValue(this.getRawValue().toLowerCase());
         }
+    },
+    destroy : function(){
         $A.TextField.superclass.destroy.call(this);
     },
     isCapsLock: function(e){
@@ -53,7 +63,7 @@ $A.TextField = Ext.extend($A.Field,{
     	if(this.detectCapsLock) this.isCapsLock(e);
 		var keyCode = e.getKey();
 		var code = keyCode;
-		if(this.typecase){
+		if(this.typecase&&!e.ctrlKey){
         	if(this.typecase == 'upper'){
                 if(keyCode>=97 && keyCode<=122) code = keyCode - 32;
             }else if(this.typecase == 'lower') {
