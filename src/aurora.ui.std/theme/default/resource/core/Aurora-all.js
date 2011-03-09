@@ -5829,7 +5829,6 @@ $A.Lov = Ext.extend($A.TextField,{
 //    },
     showLovWindow : function(){        
         if(this.fetching||this.isWinOpen||this.readonly) return;
-        this.isWinOpen = true;
         
         var v = this.getRawValue();
         this.blur();
@@ -5842,6 +5841,7 @@ $A.Lov = Ext.extend($A.TextField,{
             url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovmodel+'&';
         }
         if(url) {
+	        this.isWinOpen = true;
             this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
             this.win.on('close',this.onWinClose,this);
         }
