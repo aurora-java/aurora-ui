@@ -202,6 +202,12 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .layout-th {
 	vertical-align:middle;
 }
+.layout-border {
+    background-color:#b5b8c8;
+}
+.layout-border tbody {
+    background-color:#ffffff;
+}
 .layout-th div { 
 	text-align:right;
 	padding-left:5px; 
