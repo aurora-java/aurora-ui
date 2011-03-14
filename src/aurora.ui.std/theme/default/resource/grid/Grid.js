@@ -186,7 +186,7 @@ $A.Grid = Ext.extend($A.Component,{
             ds[ou]('submit', this.onBeforSubmit, this);
             ds[ou]('submitfailed', this.onAfterSuccess, this);
             ds[ou]('submitsuccess', this.onAfterSuccess, this);
-            ds[ou]('beforeload', this.onBeforeLoad, this);
+            ds[ou]('query', this.onBeforeLoad, this);
             ds[ou]('load', this.onLoad, this);
             ds[ou]('loadfailed', this.onAjaxFailed, this);
             ds[ou]('valid', this.onValid, this);
