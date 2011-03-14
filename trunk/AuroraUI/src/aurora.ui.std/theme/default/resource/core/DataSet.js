@@ -251,6 +251,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */
 	        'clear',
 	        /**
+             * @event query
+             * 查询事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
+            'query',
+	        /**
              * @event beforeload
              * 准备加载数据事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
@@ -381,6 +387,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	        this.data.add(record);
         }
         if(this.sortInfo) this.sort();
+        
+        this.fireEvent("beforeload", this, this.data);
         
         var needFire = true;
         if(this.bindtarget && options){
@@ -959,7 +967,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //    				  + '&_rootpath=list'
     	var url = this.queryurl +(this.queryurl.indexOf('?') == -1?'?':'&') + para;
     	this.loading = true;
-    	this.fireEvent("beforeload", this);
+    	this.fireEvent("query", this);
 //    	this.fireBindDataSetEvent("beforeload", this);//主dataset无数据,子dataset一直loading
     	$A.request({url:url, para:q, success:this.onLoadSuccess, error:this.onLoadError, scope:this,failure:this.onAjaxFailed,opts:opts});
     },
@@ -1221,7 +1229,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		}
     	}else if(records.length == 0){
     		this.currentIndex  = 1
-    	}
+    	}    	
     	this.loading = false;
     	this.loadData(datas, total, options);
     	this.locate(this.currentIndex,true);

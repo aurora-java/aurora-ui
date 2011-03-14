@@ -153,6 +153,7 @@ $A.Lov = Ext.extend($A.TextField,{
         }
         $A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
+        if(Ext.isEmpty(v)) return;
         this.setRawValue(_lang['lov.query'])
         $A.request({url:url, para:p, success:function(res){
             var r = new $A.Record({});
