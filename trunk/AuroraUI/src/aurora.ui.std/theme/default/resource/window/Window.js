@@ -460,7 +460,7 @@ $A.showTypeMessage = function(title, msg,width,height,css,callback){
  * @param {int} height 高度
  * @return {Window} 窗口对象
  */
-$A.showComfirm = function(title, msg, okfun,cancelfun, width, height){
+$A.showConfirm = function(title, msg, okfun,cancelfun, width, height){
 	width = width||300;
 	height = height||100;
     var msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
