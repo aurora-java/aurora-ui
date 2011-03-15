@@ -16,6 +16,7 @@
 		<view-component elementName="menuBar" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="comboBox" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="lov" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+		<view-component elementName="multiLov" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
 		<view-component elementName="textField" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
 		<view-component elementName="passWord" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" defaultTemplate="textField.tplt"/>
 		<view-component elementName="numberField" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>

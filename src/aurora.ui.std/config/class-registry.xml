@@ -13,6 +13,7 @@
 	<feature-attach elementName="menuBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.MenuBar" />
 	<feature-attach elementName="comboBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ComboBox" />
 	<feature-attach elementName="lov" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Lov" />
+	<feature-attach elementName="multiLov" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Lov" />
 	<feature-attach elementName="textField" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.TextField" />
 	<feature-attach elementName="passWord" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.PassWord" />
 	<feature-attach elementName="numberField" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.NumberField" />
