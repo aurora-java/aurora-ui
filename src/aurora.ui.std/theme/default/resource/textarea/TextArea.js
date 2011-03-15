@@ -19,9 +19,10 @@ $A.TextArea = Ext.extend($A.Field,{
     initElements : function(){
     	this.el= this.wrap;
     },
-    setRawValue : function(v){
-        this.el.update(v === null || v === undefined ? '' : v);
-    }
+    onKeyDown : function(e){}
+//    ,setRawValue : function(v){
+//        this.el.update(v === null || v === undefined ? '' : v);
+//    }
 //    ,getRawValue : function(){
 //        var v = this.el.dom.innerHTML;
 //        if(v === this.emptytext || v === undefined){
