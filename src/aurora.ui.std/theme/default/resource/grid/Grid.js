@@ -132,7 +132,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     handleKeyDown : function(e){
         var key = e.getKey();
-        if(e.ctrlKey&&e.keyCode == 86){
+        if(e.ctrlKey&&e.keyCode == 86&&this.canpaste){
             var text = window.clipboardData.getData('text');
             if(text){
                 var columns = this.columns;
