@@ -5781,7 +5781,7 @@ $A.Lov = Ext.extend($A.TextField,{
     fetchRecord : function(){
         if(this.readonly == true) return;
         if(!Ext.isEmpty(this.lovurl)){
-            this.showLovWindow();
+//            this.showLovWindow();
             return;
         }
         this.fetching = true;

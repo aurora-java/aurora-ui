@@ -64,6 +64,7 @@ Ext.apply = function(o, c, defaults){
         isIE7 = isIE && check(/msie 7/),
         isIE8 = isIE && check(/msie 8/),
         isIE6 = isIE && !isIE7 && !isIE8,
+        isIE = (isIE && check(/msie 9/)) ? false : isIE,
         isGecko = !isWebKit && check(/gecko/),
         isGecko2 = isGecko && check(/rv:1\.8/),
         isGecko3 = isGecko && check(/rv:1\.9/),
