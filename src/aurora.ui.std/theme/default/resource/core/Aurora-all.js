@@ -1589,7 +1589,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		for(var key in this.fields){
     			var field = this.fields[key];
     			if(field){
-                    data[key] = this.processData(data[key],field)
+                    data[key] = this.processData(data,key,field)
     			}
     		}
     		var record = new $A.Record(data,datas[i].field);
@@ -2381,7 +2381,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 					var nv = data[k]
 					if(field == '_id' || field == '_status'||field=='__parameter_parsed__') continue;
 					if(f){
-					   nv = this.processData(nv,f);
+					   nv = this.processData(data,k,f);
 					}
 					if(ov != nv) {
 						if(fire){
@@ -2396,7 +2396,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //	       	r.commit();//挪到上面了,record.set的时候会触发update事件,重新渲染.有可能去判断isNew的状态
     	}
     },
-    processData: function(value,field){
+    processData: function(data,key,field){
+    	var value = data[key]
         var dt = field.getPropertity('datatype');
         dt = dt ? dt.toLowerCase() : '';
         var v = value;
@@ -2417,6 +2418,37 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             case 'int':
                 v = parseInt(v);
                 break;
+            case 'float':
+                v = parseFloat(v);
+                break;
+            case 'boolean':
+                v = v=="true";
+                break;
+        }
+        
+        //TODO:处理options的displayField
+        
+        var op = field.getPropertity('options');
+        var df = field.getPropertity('displayfield');
+        var vf = field.getPropertity('valuefield');
+        var mp = field.getPropertity('mapping')
+        if(df && vf && op && mp && !value){
+        	var rf;
+        	for(var i=0;i<mp.length;i++){
+                var map = mp[i];
+                if(vf == map.from){
+                	rf = map.to;
+                    break;
+                }
+            }
+            var rv = data[rf];
+            var options = $(op);
+            if(options && rv){
+                var r = options.find(vf,rv);
+                if(r){
+                    v = r.get(df);
+                }
+            }
         }
         return v;
     },    
