@@ -1230,7 +1230,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     remove: function(){
         var selected = this.dataset.getSelected();
-        if(selected.length >0) $A.showComfirm('确认','确认删除选择记录?',this.deleteSelectRows.createDelegate(this));     
+        if(selected.length >0) $A.showConfirm('确认','确认删除选择记录?',this.deleteSelectRows.createDelegate(this));     
     },
     destroy: function(){
         $A.Grid.superclass.destroy.call(this);
