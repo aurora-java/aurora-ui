@@ -27,6 +27,7 @@ $A.cmps = {};
 $A.onReady = Ext.onReady;
 $A.get = Ext.get;
 $A.focusWindow;
+$A.focusTab;
 $A.defaultDateFormat="isoDate";
 
 /**
@@ -71,6 +72,7 @@ $A.CmpManager = function(){
     return {
         put : function(id, cmp){
         	if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
+        	if($A.focusTab) $A.focusTab.cmps[id] = cmp;
         	if(!this.cache) this.cache = {};
         	if(this.cache[id] != null) {
 	        	alert("错误: ID为' " + id +" '的组件已经存在!");
@@ -860,6 +862,9 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
                             window.eval(jst);
                         }
                     }
+                    if(typeof callback == "function"){
+			                callback();
+			        }
                 }else{
                 	var js = jslink[loaded];
                     var s = document.createElement("script");
@@ -914,13 +919,14 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
                    window.eval(jst);
                 }
             }
+            if(typeof callback == "function"){
+	                callback();
+	        }
         }        
         var el = document.getElementById(id);
         if(el){Ext.removeNode(el);} 
 	    Ext.fly(dom).setStyle('display', 'block');
-	    if(typeof callback == "function"){
-                callback();
-        }
+	    
     });
     Ext.fly(dom).setStyle('display', 'none');
     dom.innerHTML = html.replace(/(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig, "").replace(/(?:<link.*?>)((\n|\r|.)*?)/ig, "");
