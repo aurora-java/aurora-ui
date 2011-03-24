@@ -7,6 +7,7 @@
  * @param {Object} config 配置对象. 
  */
 $A.Tab = Ext.extend($A.Component,{
+    sd:'scroll-disabled',
 	constructor: function(config){
 		this.intervalIds=[];
 		$A.Tab.superclass.constructor.call(this,config);
@@ -67,20 +68,20 @@ $A.Tab = Ext.extend($A.Component,{
 				sl=this.script.getScroll().left,sw=this.script.getWidth(),hw=this.head.getWidth();
 				tr=l+w-sl-sw,tl=sl-l;
 			if(tr>0){
-				this.scrollRight.removeClass('scroll-disabled');
-				this.scrollLeft.removeClass('scroll-disabled');
+				this.scrollRight.removeClass(this.sd);
+				this.scrollLeft.removeClass(this.sd);
 				this.script.scrollTo('left',sl+tr);
 			}else if(tl>0){
-				this.scrollLeft.removeClass('scroll-disabled');
+				this.scrollLeft.removeClass(this.sd);
 				this.script.scrollTo('left',sl-tl);
-				this.scrollRight.removeClass('scroll-disabled');
+				this.scrollRight.removeClass(this.sd);
 			}
 			if(sw+this.script.getScroll().left>=hw){
 				this.script.scrollTo('left',hw-sw);
-				this.scrollRight.addClass('scroll-disabled');
+				this.scrollRight.addClass(this.sd);
 			}else if(index==0){
 				this.script.scrollTo('left',0);
-				this.scrollLeft.addClass('scroll-disabled');
+				this.scrollLeft.addClass(this.sd);
 			}
 		}
 		if(activeBody){
@@ -140,12 +141,17 @@ $A.Tab = Ext.extend($A.Component,{
 	 */
 	closeTab : function(o){
 		var tab=this.getTab(o);
+        
 		if(!tab)return;
 		var strip=tab.strip,body=tab.body,index=tab.index;
 		if(!strip.child('div.tab-close')){
 			$A.showWarningMessage('警告','该Tab页无法被关闭!')
 			return;
 		}
+        if(this.activeBody == tab.body){
+            this.activeBody=null;
+            this.activeTab=null;
+        }
 		this.items.splice(index,1);
 		var width=this.head.getWidth()-strip.getWidth(),cmps=body.cmps;
 		this.head.setWidth(width);
@@ -156,8 +162,7 @@ $A.Tab = Ext.extend($A.Component,{
 		}
 		strip.remove();
 		body.remove();
-		this.activeBody=null;
-		this.activeTab=null;
+        
 		delete body.loaded;
 		setTimeout(function(){
         	for(var key in cmps){
@@ -197,17 +202,17 @@ $A.Tab = Ext.extend($A.Component,{
 	scrollTo : function(lr){
 		if(lr=='left'){
 			this.script.scrollTo('left',this.script.getScroll().left-this.scriptwidth);
-			this.scrollRight.removeClass('scroll-disabled');
+			this.scrollRight.removeClass(this.sd);
 			if(this.script.getScroll().left<=0){
-				this.scrollLeft.addClass('scroll-disabled');
+				this.scrollLeft.addClass(this.sd);
 				this.scrollLeft.replaceClass('tab-scroll-left-over','tab-scroll-left');
 				this.stopScroll();
 			}
 		}else if(lr=='right'){
 			this.script.scrollTo('left',this.script.getScroll().left+this.scriptwidth);
-			this.scrollLeft.removeClass('scroll-disabled');
+			this.scrollLeft.removeClass(this.sd);
 			if(this.script.getScroll().left+this.script.getWidth()>=this.head.getWidth()){
-				this.scrollRight.addClass('scroll-disabled');
+				this.scrollRight.addClass(this.sd);
 				this.scrollRight.replaceClass('tab-scroll-right-over','tab-scroll-right');
 				this.stopScroll();
 			}
@@ -238,14 +243,14 @@ $A.Tab = Ext.extend($A.Component,{
 		if(el.hasClass('tab-close')){
 			el.removeClass('tab-btn-over');
 			el.addClass('tab-btn-down');
-		}else if(el.hasClass('tab-scroll')&&!el.hasClass('scroll-disabled')){
+		}else if(el.hasClass('tab-scroll')&&!el.hasClass(this.sd)){
 			if(el.hasClass('tab-scroll-left-over'))sf.scrollTo('left');
 			else sf.scrollTo('right');
 			sf.scrollInterval=setInterval(function(){
-				if(el.hasClass('tab-scroll')&&!el.hasClass('scroll-disabled')){
+				if(el.hasClass('tab-scroll')&&!el.hasClass(this.sd)){
 					if(el.hasClass('tab-scroll-left-over'))sf.scrollTo('left');
 					else sf.scrollTo('right');
-					if(el.hasClass('scroll-disabled'))clearInterval(sf.scrollInterval)
+					if(el.hasClass(this.sd))clearInterval(sf.scrollInterval)
 				}
 			},100);
 		}else if(strip.hasClass('strip') && !strip.hasClass('active')){
@@ -256,34 +261,38 @@ $A.Tab = Ext.extend($A.Component,{
 		this.stopScroll();
 	},
 	onMouseOver : function(e){
-		var el=Ext.get(e.target),strip = el.parent();
-		if(el.hasClass('tab-close')){
-			el.show();
-			el.addClass('tab-btn-over');
-		}else if(el.hasClass('tab-scroll')&&!el.hasClass('scroll-disabled')){
-			if(el.hasClass('tab-scroll-left'))el.replaceClass('tab-scroll-left','tab-scroll-left-over');
-			else if(el.hasClass('tab-scroll-right'))el.replaceClass('tab-scroll-right','tab-scroll-right-over');
-		}else if(strip.hasClass('strip')){
-			el = strip.child('div.tab-close');
-			if(el){
-				if(this.currentBtn)this.currentBtn.hide();
-				this.currentBtn=el;el.show();
-			}
-		}
+		var el=Ext.get(e.target),strip = el.parent('.strip');
+        if(el.hasClass('tab-scroll')&&!el.hasClass(this.sd)){
+            if(el.hasClass('tab-scroll-left'))el.replaceClass('tab-scroll-left','tab-scroll-left-over');
+            else if(el.hasClass('tab-scroll-right'))el.replaceClass('tab-scroll-right','tab-scroll-right-over');
+        } else if(el.hasClass('tab-close')){
+            el.addClass('tab-btn-over');
+        }
+        if(strip){
+            var el = strip.child('div.tab-close');
+            if(el){
+                if(this.currentBtn)this.currentBtn.hide();
+                this.currentBtn=el;
+                el.show();
+            }            
+        }
 	},
 	onMouseOut : function(e){
-		var el=Ext.get(e.target),strip = el.parent();
-		if(el.hasClass('tab-close')){
-			el.removeClass('tab-btn-over');
-			el.removeClass('tab-btn-down');
-		}else if(el.hasClass('tab-scroll')&&!el.hasClass('scroll-disabled')){
-			this.stopScroll();
-			if(el.hasClass('tab-scroll-left-over'))el.replaceClass('tab-scroll-left-over','tab-scroll-left');
-			else if((el.hasClass('tab-scroll-right-over')))el.replaceClass('tab-scroll-right-over','tab-scroll-right');
-		}else if(strip.hasClass('strip')){
-			el = strip.child('div.tab-close');
-			if(el)el.hide();
-		}
+		var el=Ext.get(e.target),strip = el.parent('.strip');
+        if(el.hasClass('tab-scroll')&&!el.hasClass(this.sd)){
+            this.stopScroll();
+            if(el.hasClass('tab-scroll-left-over'))el.replaceClass('tab-scroll-left-over','tab-scroll-left');
+            else if((el.hasClass('tab-scroll-right-over')))el.replaceClass('tab-scroll-right-over','tab-scroll-right');
+        }else if(el.hasClass('tab-close')){
+            el.removeClass('tab-btn-over');
+            el.removeClass('tab-btn-down');
+        }
+        if(strip){
+            el = strip.child('div.tab-close');
+            if(el){
+                el.hide();
+            }            
+        }
 	},
 	showLoading : function(dom){
     	dom.update(_lang['tab.loading']);
@@ -334,12 +343,12 @@ $A.Tab = Ext.extend($A.Component,{
 			this.scrollRight.setStyle({'display':'block'});
 			this.script.setStyle('padding-left','1px');
 			var sl=this.script.getScroll().left,sw=this.script.getWidth(),hw=this.head.getWidth();
-			if(sl<=0)this.scrollLeft.addClass('scroll-disabled');
-			else this.scrollLeft.removeClass('scroll-disabled');
+			if(sl<=0)this.scrollLeft.addClass(this.sd);
+			else this.scrollLeft.removeClass(this.sd);
 			if(sl+sw>=hw){
-				if(!this.scrollRight.hasClass('scroll-disabled'))this.scrollRight.addClass('scroll-disabled');
+				if(!this.scrollRight.hasClass(this.sd))this.scrollRight.addClass(this.sd);
 				else this.script.scrollTo('left',hw-sw);
-			}else this.scrollRight.removeClass('scroll-disabled');
+			}else this.scrollRight.removeClass(this.sd);
     	}else{
 			this.scrollLeft.setStyle({'display':'none'});
 			this.scrollRight.setStyle({'display':'none'});
