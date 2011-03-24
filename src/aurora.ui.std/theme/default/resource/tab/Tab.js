@@ -309,6 +309,7 @@ $A.Tab = Ext.extend($A.Component,{
     },
     setWidth : function(w){
     	w = Math.max(w,2);
+    	if(this.width==w)return;
     	$A.Tab.superclass.setWidth.call(this, w);
     	this.body.setWidth(w-2);
     	this.script.setWidth(w-38);
@@ -335,6 +336,7 @@ $A.Tab = Ext.extend($A.Component,{
     },
     setHeight : function(h){
     	h = Math.max(h,25);
+    	if(this.height==h)return;
     	$A.Tab.superclass.setHeight.call(this, h);
     	this.body.setHeight(h-26);
     	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
