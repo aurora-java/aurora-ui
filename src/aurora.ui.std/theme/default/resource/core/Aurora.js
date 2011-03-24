@@ -71,13 +71,13 @@ $A.setTheme = function(theme){
 $A.CmpManager = function(){
     return {
         put : function(id, cmp){
-        	if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
-        	if($A.focusTab) $A.focusTab.cmps[id] = cmp;
         	if(!this.cache) this.cache = {};
         	if(this.cache[id] != null) {
 	        	alert("错误: ID为' " + id +" '的组件已经存在!");
 	        	return;
 	        }
+        	if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
+        	if($A.focusTab) $A.focusTab.cmps[id] = cmp;
         	this.cache[id]=cmp;
         	cmp.on('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
         	cmp.on('mouseout',$A.CmpManager.onCmpOut,$A.CmpManager);
