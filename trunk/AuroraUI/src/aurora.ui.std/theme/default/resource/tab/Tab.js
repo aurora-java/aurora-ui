@@ -126,6 +126,7 @@ $A.Tab = Ext.extend($A.Component,{
 			if(width>this.script.getWidth()){
 				this.scrollLeft.setStyle({'display':'block'});
 				this.scrollRight.setStyle({'display':'block'});
+				this.script.setStyle('padding-left','1px');
 			}
 			new Ext.Template(this.stripTpl).append(this.head.dom,{'prompt':prompt,'stripwidth':stripwidth});
 			new Ext.Template(this.bodyTpl).append(this.body.dom,{'bodywidth':this.body.getWidth(),'bodyheight':this.body.getHeight()});
@@ -150,6 +151,7 @@ $A.Tab = Ext.extend($A.Component,{
 		if(width <= this.script.getWidth()){
 			this.scrollLeft.setStyle({'display':'none'});
 			this.scrollRight.setStyle({'display':'none'});
+			this.script.setStyle('padding-left','0');
 		}
 		strip.remove();
 		body.remove();
@@ -322,6 +324,7 @@ $A.Tab = Ext.extend($A.Component,{
     	if(w-38<this.head.getWidth()){
 			this.scrollLeft.setStyle({'display':'block'});
 			this.scrollRight.setStyle({'display':'block'});
+			this.script.setStyle('padding-left','1px');
 			var sl=this.script.getScroll().left,sw=this.script.getWidth(),hw=this.head.getWidth();
 			if(sl<=0)this.scrollLeft.addClass('scroll-disabled');
 			else this.scrollLeft.removeClass('scroll-disabled');
@@ -332,6 +335,7 @@ $A.Tab = Ext.extend($A.Component,{
     	}else{
 			this.scrollLeft.setStyle({'display':'none'});
 			this.scrollRight.setStyle({'display':'none'});
+			this.script.setStyle('padding-left','0');
 			this.script.scrollTo('left',0);
     	}
     	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
