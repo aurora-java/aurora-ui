@@ -304,13 +304,17 @@ $A.Tab = Ext.extend($A.Component,{
 		    	var html = response.responseText;
 	    		sf.intervalIds[index]=setInterval(function(){
 	    			if(!$A.focusTab){
+				    	clearInterval(sf.intervalIds[index]);
 				    	sf.clearLoading(body);
 						$A.focusTab=body;
-				    	body.update(html,true,function(){
-				    		$A.focusTab=null;
-		                    sf.fireEvent('select', sf, index)
-				    	});
-				    	clearInterval(sf.intervalIds[index]);
+						try{
+					    	body.update(html,true,function(){
+					    		$A.focusTab=null;
+			                    sf.fireEvent('select', sf, index)
+					    	});
+						}catch(e){
+							$A.focusTab=null;
+						}
 	    			}
 		    	},10)
 		    }
