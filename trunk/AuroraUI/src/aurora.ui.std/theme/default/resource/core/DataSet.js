@@ -415,6 +415,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		if(dv && !data[field.name]){
     			dd[field.name] = dv;
     		}
+            this.processValueListField(dd,k,field);
     	}
     	var data = Ext.apply(data||{},dd);
     	var record = new $A.Record(data);
@@ -645,7 +646,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     /**
      * 返回指定record的位置
-     * @return {Number} record所在的位置
+     * @param {Aurora.Record} record
+     * @return {int}
      */
     indexOf : function(record){
         return this.data.indexOf(record);
@@ -1217,17 +1219,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         
         //TODO:处理options的displayField
-        
+        return this.processValueListField(data,v,field);
+    }, 
+    processValueListField : function(data,v, field){
         var op = field.getPropertity('options');
         var df = field.getPropertity('displayfield');
         var vf = field.getPropertity('valuefield');
         var mp = field.getPropertity('mapping')
-        if(df && vf && op && mp && !value){
-        	var rf;
-        	for(var i=0;i<mp.length;i++){
+        if(df && vf && op && mp && !v){
+            var rf;
+            for(var i=0;i<mp.length;i++){
                 var map = mp[i];
                 if(vf == map.from){
-                	rf = map.to;
+                    rf = map.to;
                     break;
                 }
             }
@@ -1241,7 +1245,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
         return v;
-    },    
+    },
     onSubmitError : function(res){
 //    	$A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
     	this.fireBindDataSetEvent('submitfailed', res);
@@ -1429,6 +1433,11 @@ $A.Record.prototype = {
     setDataSet : function(ds){
         this.ds = ds;
     },
+    /**
+     * 获取field对象
+     * @param {String} name
+     * @return {Aurora.Record.Field}
+     */
     getField : function(name){
     	return this.getMeta().getField(name);
     },
