@@ -39,7 +39,13 @@ $A.Tab = Ext.extend($A.Component,{
          * @param {Number} index 序号.
          */
 		'select',
-		'beforeadd'
+		/**
+         * @event beforeopen
+         * 选择事件.
+         * @param {Aurora.Tab} tab Tab对象.
+         * @param {Number} index 序号. 
+         */
+        'beforeopen'
 		);
 		
 	},
@@ -110,7 +116,7 @@ $A.Tab = Ext.extend($A.Component,{
 				this.selectTab(i);return;
 			}
 		}
-		var returnValue=this.fireEvent('beforeadd',this,i);
+		var returnValue=this.fireEvent('beforeopen',this,i);
 		if(returnValue!=false){
 			this.items.push({'ref':ref});
 			var stripwidth=$A.TextMetrics.measure(document.body,prompt).width+20;
@@ -135,7 +141,7 @@ $A.Tab = Ext.extend($A.Component,{
 		if(!tab)return;
 		var strip=tab.strip,body=tab.body,index=tab.index;
 		if(!strip.child('div.tab-close')){
-			alert('该Tab页无法被关闭')
+			$A.showWarningMessage('警告','该Tab页无法被关闭!')
 			return;
 		}
 		this.items.splice(index,1);
