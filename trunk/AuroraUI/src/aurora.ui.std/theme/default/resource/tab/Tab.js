@@ -8,6 +8,7 @@
  */
 $A.Tab = Ext.extend($A.Component,{
 	constructor: function(config){
+		this.intervalIds=[];
 		$A.Tab.superclass.constructor.call(this,config);
 	},
 	initComponent:function(config){
@@ -301,7 +302,7 @@ $A.Tab = Ext.extend($A.Component,{
 			url: url,
 		   	success: function(response, options){
 		    	var html = response.responseText;
-	    		sf.intervalId=setInterval(function(){
+	    		sf.intervalIds[index]=setInterval(function(){
 	    			if(!$A.focusTab){
 				    	sf.clearLoading(body);
 						$A.focusTab=body;
@@ -309,7 +310,7 @@ $A.Tab = Ext.extend($A.Component,{
 				    		$A.focusTab=null;
 		                    sf.fireEvent('select', sf, index)
 				    	});
-				    	clearInterval(sf.intervalId);
+				    	clearInterval(sf.intervalIds[index]);
 	    			}
 		    	},10)
 		    }
