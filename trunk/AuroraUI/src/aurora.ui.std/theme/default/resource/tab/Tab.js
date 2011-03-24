@@ -234,7 +234,7 @@ $A.Tab = Ext.extend($A.Component,{
         }
 	},
 	onMouseDown : function(e){
-		var el=Ext.get(e.target),strip = Ext.get(e.target.parentNode),sf=this;
+		var el=Ext.get(e.target),strip = el.parent(),sf=this;
 		if(el.hasClass('tab-close')){
 			el.removeClass('tab-btn-over');
 			el.addClass('tab-btn-down');
@@ -256,7 +256,7 @@ $A.Tab = Ext.extend($A.Component,{
 		this.stopScroll();
 	},
 	onMouseOver : function(e){
-		var el=Ext.get(e.target),strip = Ext.get(e.target.parentNode);
+		var el=Ext.get(e.target),strip = el.parent();
 		if(el.hasClass('tab-close')){
 			el.show();
 			el.addClass('tab-btn-over');
@@ -265,11 +265,14 @@ $A.Tab = Ext.extend($A.Component,{
 			else if(el.hasClass('tab-scroll-right'))el.replaceClass('tab-scroll-right','tab-scroll-right-over');
 		}else if(strip.hasClass('strip')){
 			el = strip.child('div.tab-close');
-			if(el)el.show();
+			if(el){
+				if(this.currentBtn)this.currentBtn.hide();
+				this.currentBtn=el;el.show();
+			}
 		}
 	},
 	onMouseOut : function(e){
-		var el=Ext.get(e.target),strip = Ext.get(e.target.parentNode);
+		var el=Ext.get(e.target),strip = el.parent();
 		if(el.hasClass('tab-close')){
 			el.removeClass('tab-btn-over');
 			el.removeClass('tab-btn-down');
