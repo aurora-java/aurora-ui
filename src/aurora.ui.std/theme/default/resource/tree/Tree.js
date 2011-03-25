@@ -43,6 +43,7 @@ $A.Tree = Ext.extend($A.Component,{
 		/**
          * @event click
          * 点击事件.
+         * @param {Aurora.Tree} Tree对象
          * @param {Aurora.Record} record 选中的Record对象
          * @param {Aurora.Tree.TreeNode} node 节点对象
          */
