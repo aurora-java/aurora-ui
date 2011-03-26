@@ -540,7 +540,8 @@ $A.showOkWindow = function(title, msg, width, height,callback){
                     if(callback)callback.call(this,cmp);
                     cmp.close()
                 });
-                btn.focus();
+                //btn.focus();
+                btn.focus.defer(10,btn);
 			});
 		}
 	}

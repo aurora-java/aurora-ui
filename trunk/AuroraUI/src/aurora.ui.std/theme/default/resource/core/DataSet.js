@@ -1189,7 +1189,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     processData: function(data,key,field){
-    	var value = data[key]
+    	var value = data[key];
+        if(!value)return;
         var dt = field.getPropertity('datatype');
         dt = dt ? dt.toLowerCase() : '';
         var v = value;
