@@ -2405,7 +2405,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     processData: function(data,key,field){
-    	var value = data[key]
+    	var value = data[key];
+        if(!value)return;
         var dt = field.getPropertity('datatype');
         dt = dt ? dt.toLowerCase() : '';
         var v = value;
@@ -4895,10 +4896,12 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 		if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
     		var date=new Date(parseInt(Ext.fly(e.target).getAttribute('_date')));
 	    	this.collapse();
+            this.processDate(date);
 	    	this.setValue(date);
 	    	this.fireEvent('select',this, date);
     	}
     },
+    processDate : function(d){},
     onBlur : function(e){
 		$A.DatePicker.superclass.onBlur.call(this,e);
 		if(!this.isExpanded()){
@@ -5033,19 +5036,27 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		this.minuteSpan.dom.oldValue = this.minuteSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].minutes);
 		this.secondSpan.dom.oldValue = this.secondSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].seconds);
 	},
-    collapse : function(){
-    	$A.DateTimePicker.superclass.collapse.call(this);
-    	if(this.getRawValue()){
-    		var d = this.selectDay;
-    		if(d){
-	    		d.setHours((el=this.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-	    		d.setMinutes((el=this.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-	    		d.setSeconds((el=this.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-    		}
-    		d.xtype = 'timestamp';
-    		this.setValue(d);
-    	}
+    processDate : function(d){
+        if(d){
+            d.setHours((el=this.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+            d.setMinutes((el=this.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+            d.setSeconds((el=this.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+        }
+        d.xtype = 'timestamp';
     }
+//    ,collapse : function(){
+//    	$A.DateTimePicker.superclass.collapse.call(this);
+//    	if(this.getRawValue()){
+//    		var d = this.selectDay;
+//    		if(d){
+//	    		d.setHours((el=this.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+//	    		d.setMinutes((el=this.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+//	    		d.setSeconds((el=this.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+//    		}
+//    		d.xtype = 'timestamp';
+//    		this.setValue(d);
+//    	}
+//    }
 });
 $A.ToolBar = Ext.extend($A.Component,{
 	constructor: function(config) {
@@ -5445,7 +5456,7 @@ $A.Window = Ext.extend($A.Component,{
         setTimeout(function(){
         	for(var key in sf.cmps){
         		var cmp = sf.cmps[key];
-        		if(cmp && cmp.destroy){
+        		if(cmp.destroy){
         			try{
         				cmp.destroy();
         			}catch(e){
@@ -5677,7 +5688,8 @@ $A.showOkWindow = function(title, msg, width, height,callback){
                     if(callback)callback.call(this,cmp);
                     cmp.close()
                 });
-                btn.focus();
+                //btn.focus();
+                btn.focus.defer(10,btn);
 			});
 		}
 	}

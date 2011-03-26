@@ -76,10 +76,12 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 		if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
     		var date=new Date(parseInt(Ext.fly(e.target).getAttribute('_date')));
 	    	this.collapse();
+            this.processDate(date);
 	    	this.setValue(date);
 	    	this.fireEvent('select',this, date);
     	}
     },
+    processDate : function(d){},
     onBlur : function(e){
 		$A.DatePicker.superclass.onBlur.call(this,e);
 		if(!this.isExpanded()){

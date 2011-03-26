@@ -52,17 +52,25 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		this.minuteSpan.dom.oldValue = this.minuteSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].minutes);
 		this.secondSpan.dom.oldValue = this.secondSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].seconds);
 	},
-    collapse : function(){
-    	$A.DateTimePicker.superclass.collapse.call(this);
-    	if(this.getRawValue()){
-    		var d = this.selectDay;
-    		if(d){
-	    		d.setHours((el=this.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-	    		d.setMinutes((el=this.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-	    		d.setSeconds((el=this.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
-    		}
-    		d.xtype = 'timestamp';
-    		this.setValue(d);
-    	}
+    processDate : function(d){
+        if(d){
+            d.setHours((el=this.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+            d.setMinutes((el=this.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+            d.setSeconds((el=this.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+        }
+        d.xtype = 'timestamp';
     }
+//    ,collapse : function(){
+//    	$A.DateTimePicker.superclass.collapse.call(this);
+//    	if(this.getRawValue()){
+//    		var d = this.selectDay;
+//    		if(d){
+//	    		d.setHours((el=this.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+//	    		d.setMinutes((el=this.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+//	    		d.setSeconds((el=this.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+//    		}
+//    		d.xtype = 'timestamp';
+//    		this.setValue(d);
+//    	}
+//    }
 });
