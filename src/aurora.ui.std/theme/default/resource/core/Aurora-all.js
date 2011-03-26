@@ -3916,7 +3916,28 @@ $A.Radio = Ext.extend($A.Component, {
     },
 	initEvents:function(){
 		$A.Radio.superclass.initEvents.call(this); 	
-		this.addEvents('click','keydown','enterdown');    
+		this.addEvents(
+		/**
+         * @event click
+         * 点击事件.
+         * @param {Aurora.Tree} Radio对象
+         * @param {Object} 当前选中的值
+         */
+		'click',
+		/**
+         * @event keydown
+         * 键盘事件.
+         * @param {Aurora.Tree} Radio对象
+         * @param {Event} 键盘事件对象
+         */
+		'keydown',
+		/**
+         * @event enterdown
+         * 回车事件.
+         * @param {Aurora.Tree} Radio对象
+         * @param {Event} 键盘事件对象
+         */
+		'enterdown');    
 	},
 	setValue:function(value,silent){
 		if(value=='')return;
