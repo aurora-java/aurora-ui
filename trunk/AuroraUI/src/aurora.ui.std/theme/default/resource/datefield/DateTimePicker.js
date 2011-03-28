@@ -47,8 +47,8 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		if (c != 8 && c!=9 && c!=37 && c!=39 && c != 46 && (c < 48 || c > 57 || e.shiftKey)) {
 			e.stopEvent();
 			return;
-		} else {
-			var date=new Date(this.getValue().getTime());
+		} else if(this.value&&this.value instanceof Date){
+			var date=new Date(this.value.getTime());
 			this.processDate(date);
 	    	this.setValue(date);
 	    	this.fireEvent('select',this, date);
