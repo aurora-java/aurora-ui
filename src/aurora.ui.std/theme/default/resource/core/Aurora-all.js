@@ -4711,7 +4711,7 @@ $A.DateField = Ext.extend($A.Component, {
 	},
     onMouseOver: function(e){
     	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
-    	if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
+    	if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttributeNS("",'_date') != '0'){
     		this.overTd = e.target; 
     		Ext.fly(this.overTd).addClass('dateover');
     	}
@@ -4914,8 +4914,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.shadow.setHeight(this.popup.getHeight());
     },
     onSelect: function(e){
-		if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttribute('_date') != '0'){
-    		var date=new Date(parseInt(Ext.fly(e.target).getAttribute('_date')));
+		if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttributeNS("",'_date') != '0'){
+    		var date=new Date(parseInt(Ext.fly(e.target).getAttributeNS("",'_date')));
 	    	this.collapse();
             this.processDate(date);
 	    	this.setValue(date);
