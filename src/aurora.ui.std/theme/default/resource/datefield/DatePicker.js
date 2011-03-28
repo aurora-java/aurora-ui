@@ -14,11 +14,14 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
 	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
+		this.initFormat();
     	this.initDateField();
     	this.initFooter();
 	},
+	initFormat : function(){
+		this.format=this.format||$A.defaultDateFormat;
+	},
     initDateField:function(){
-    	this.format=this.format||$A.defaultDateFormat;
     	this.popup.setStyle({'width':150*this.viewsize+'px'})
     	if(this.dateFields.length==0){
     		for(var i=0;i<this.viewsize;i++){

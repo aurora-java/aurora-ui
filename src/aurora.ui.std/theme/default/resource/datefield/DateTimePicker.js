@@ -7,6 +7,9 @@
  * @param {Object} config 配置对象. 
  */
 $A.DateTimePicker = Ext.extend($A.DatePicker,{
+	initFormat : function(){
+		this.format=this.format||$A.defaultDateTimeFormat;
+	},
 	initFooter : function(){
 		this.hourSpan = this.popup.child("input[atype=field.hour]");
     	this.minuteSpan = this.popup.child("input[atype=field.minute]");
@@ -17,12 +20,15 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
     	this.hourSpan[ou]("focus", this.onDateFocus, this);
 		this.hourSpan[ou]("blur", this.onDateBlur, this);
 		this.hourSpan[ou]("keydown", this.onDateKeyDown, this);
+		this.hourSpan[ou]("keyup", this.onDateKeyUp, this);
 		this.minuteSpan[ou]("focus", this.onDateFocus, this);
 		this.minuteSpan[ou]("blur", this.onDateBlur, this);
 		this.minuteSpan[ou]("keydown", this.onDateKeyDown, this);
+		this.minuteSpan[ou]("keyup", this.onDateKeyUp, this);
 		this.secondSpan[ou]("focus", this.onDateFocus, this);
 		this.secondSpan[ou]("blur", this.onDateBlur, this);
 		this.secondSpan[ou]("keydown", this.onDateKeyDown, this);
+		this.secondSpan[ou]("keyup", this.onDateKeyUp, this);
     },
     onDateKeyDown : function(e) {
 		var c = e.keyCode, el = e.target;
@@ -34,6 +40,18 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		} else if (c != 8 && c!=9 && c!=37 && c!=39 && c != 46 && (c < 48 || c > 57 || e.shiftKey)) {
 			e.stopEvent();
 			return;
+		}
+	},
+	onDateKeyUp : function(e){
+		var c = e.keyCode, el = e.target;
+		if (c != 8 && c!=9 && c!=37 && c!=39 && c != 46 && (c < 48 || c > 57 || e.shiftKey)) {
+			e.stopEvent();
+			return;
+		} else {
+			var date=new Date(this.getValue().getTime());
+			this.processDate(date);
+	    	this.setValue(date);
+	    	this.fireEvent('select',this, date);
 		}
 	},
     onDateFocus : function(e) {

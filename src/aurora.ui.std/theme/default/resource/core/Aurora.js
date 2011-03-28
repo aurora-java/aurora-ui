@@ -29,6 +29,7 @@ $A.get = Ext.get;
 $A.focusWindow;
 $A.focusTab;
 $A.defaultDateFormat="isoDate";
+$A.defaultDateTimeFormat="yyyy-mm-dd HH:MM:ss";
 
 /**
  * 将对象居中
@@ -1002,7 +1003,7 @@ $A.formatDate = function(date){
  */
 $A.formatDateTime = function(date){
 	if(!date)return '';
-	if(date.format)return date.format('yyyy-mm-dd HH:MM:ss');
+	if(date.format)return date.format($A.defaultDateTimeFormat);
 	return date;
 }
 /**
