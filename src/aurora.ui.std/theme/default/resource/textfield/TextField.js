@@ -38,6 +38,11 @@ $A.TextField = Ext.extend($A.Field,{
     	}
     },
     onChange : function(e){
+        var str = this.getRawValue();
+        if(this.isDbc(str)){
+            str = this.dbc2sbc(str);
+            this.setRawValue(str)
+        }
     	if(this.typecase == 'upper'){
 	    	this.setValue(this.getRawValue().toUpperCase());
         }else if(this.typecase == 'lower') {
@@ -84,5 +89,30 @@ $A.TextField = Ext.extend($A.Field,{
                 d.selectionEnd=d.selectionStart;
             }
     	}
+    },
+    isDbc : function(s){
+        var dbc = false;
+        for(var i=0;i<s.length;i++){
+            var c = s.charCodeAt(i);
+            if((c>65248)||(c==12288)) {
+                dbc = true
+                break;
+            }
+        }
+        return dbc;
+    },
+    dbc2sbc : function(str){
+        var result = '';
+        for(var i=0;i<str.length;i++){
+            code = str.charCodeAt(i);//获取当前字符的unicode编码
+            if (code >= 65281 && code <= 65373) {//在这个unicode编码范围中的是所有的英文字母已及各种字符
+                result += String.fromCharCode(str.charCodeAt(i) - 65248);//把全角字符的unicode编码转换为对应半角字符的unicode码                
+            } else if (code == 12288){//空格
+                result += String.fromCharCode(str.charCodeAt(i) - 12288 + 32);
+            } else {
+                result += str.charAt(i);
+            }
+        }
+        return result;
     }
 })
