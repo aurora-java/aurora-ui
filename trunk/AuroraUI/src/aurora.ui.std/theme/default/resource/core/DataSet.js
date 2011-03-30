@@ -39,7 +39,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.initEvents();
     	if(config.fields)this.initFields(config.fields)
     	if(config.datas && config.datas.length != 0) {
-    		this.loadData(config.datas);
+    		this.datas=config.datahead?this.convertData(config.datahead,config.datas):config.datas;
+    		this.loadData(this.datas);
     		//this.locate(this.currentIndex); //不确定有没有影响
     	}
     	if(config.autoquery === true) {
@@ -52,6 +53,17 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             if(this.data.length == 0)
             this.create();
     	}
+    },
+    convertData : function(head,datas){
+    	var nds=[];
+    	for(var i=0;i<datas.length;i++){
+    		var d=datas[i],nd={};
+	    	for(var j=0;j<head.length;j++){
+	    		nd[head[j]]=d[j];
+	    	}
+	    	nds.push(nd);
+    	}
+    	return nds;
     },
     destroy : function(){
     	if(this.bindtarget&&this.bindname){
