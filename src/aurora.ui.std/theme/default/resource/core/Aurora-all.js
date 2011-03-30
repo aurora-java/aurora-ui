@@ -1256,7 +1256,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.initEvents();
     	if(config.fields)this.initFields(config.fields)
     	if(config.datas && config.datas.length != 0) {
-    		this.loadData(config.datas);
+    		this.datas=config.datahead?this.convertData(config.datahead,config.datas):config.datas;
+    		this.loadData(this.datas);
     		//this.locate(this.currentIndex); //不确定有没有影响
     	}
     	if(config.autoquery === true) {
@@ -1269,6 +1270,17 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             if(this.data.length == 0)
             this.create();
     	}
+    },
+    convertData : function(head,datas){
+    	var nds=[];
+    	for(var i=0;i<datas.length;i++){
+    		var d=datas[i],nd={};
+	    	for(var j=0;j<head.length;j++){
+	    		nd[head[j]]=d[j];
+	    	}
+	    	nds.push(nd);
+    	}
+    	return nds;
     },
     destroy : function(){
     	if(this.bindtarget&&this.bindname){
@@ -3363,6 +3375,7 @@ $A.Field = Ext.extend($A.Component,{
     	this.clearInvalid();
     	this.initRequired(this.required);
     	this.initReadOnly(this.readonly);
+    	this.initMaxLength(this.maxlength);
     },
 //    onMouseOver : function(e){
 //    	$A.ToolTip.show(this.id, "测试");
@@ -3470,6 +3483,9 @@ $A.Field = Ext.extend($A.Component,{
     	}else{
     		this.wrap.removeClass(this.readOnlyCss);
     	}
+    },
+    initMaxLength : function(maxlength){
+    	this.el.dom.maxLength=maxlength;
     },
     applyEmptyText : function(){
         if(this.emptytext && this.getRawValue().length < 1){
@@ -4094,7 +4110,7 @@ $A.TextField = Ext.extend($A.Field,{
     	if(this.detectCapsLock) this.isCapsLock(e);
 		var keyCode = e.getKey();
 		var code = keyCode;
-		if(this.typecase&&!e.ctrlKey){
+		if(this.typecase&&!e.ctrlKey&&!this.readonly){
         	if(this.typecase == 'upper'){
                 if(keyCode>=97 && keyCode<=122) code = keyCode - 32;
             }else if(this.typecase == 'lower') {
@@ -4108,7 +4124,8 @@ $A.TextField = Ext.extend($A.Field,{
                 var d = this.el.dom
                 var rv = this.getRawValue();
                 var s = d.selectionStart;
-                var e = d.selectionEnd
+                var e = d.selectionEnd;
+                if(rv.length>=this.maxlength&&s==e)return;
                 rv = rv.substring(0,s) + v + rv.substring(e,rv.length);
                 this.setRawValue(rv)
                 d.selectionStart=s+1;
