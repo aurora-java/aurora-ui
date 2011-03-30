@@ -68,7 +68,7 @@ $A.TextField = Ext.extend($A.Field,{
     	if(this.detectCapsLock) this.isCapsLock(e);
 		var keyCode = e.getKey();
 		var code = keyCode;
-		if(this.typecase&&!e.ctrlKey){
+		if(this.typecase&&!e.ctrlKey&&!this.readonly){
         	if(this.typecase == 'upper'){
                 if(keyCode>=97 && keyCode<=122) code = keyCode - 32;
             }else if(this.typecase == 'lower') {
@@ -82,7 +82,8 @@ $A.TextField = Ext.extend($A.Field,{
                 var d = this.el.dom
                 var rv = this.getRawValue();
                 var s = d.selectionStart;
-                var e = d.selectionEnd
+                var e = d.selectionEnd;
+                if(rv.length>=this.maxlength&&s==e)return;
                 rv = rv.substring(0,s) + v + rv.substring(e,rv.length);
                 this.setRawValue(rv)
                 d.selectionStart=s+1;
