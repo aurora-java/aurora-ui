@@ -101,6 +101,7 @@ $A.Field = Ext.extend($A.Component,{
     	this.clearInvalid();
     	this.initRequired(this.required);
     	this.initReadOnly(this.readonly);
+    	this.initMaxLength(this.maxlength);
     },
 //    onMouseOver : function(e){
 //    	$A.ToolTip.show(this.id, "测试");
@@ -208,6 +209,9 @@ $A.Field = Ext.extend($A.Component,{
     	}else{
     		this.wrap.removeClass(this.readOnlyCss);
     	}
+    },
+    initMaxLength : function(maxlength){
+    	this.el.dom.maxLength=maxlength;
     },
     applyEmptyText : function(){
         if(this.emptytext && this.getRawValue().length < 1){
