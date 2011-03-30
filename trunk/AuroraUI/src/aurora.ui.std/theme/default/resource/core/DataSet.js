@@ -1189,36 +1189,35 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     processData: function(data,key,field){
-    	var value = data[key];
-        if(!value)return;
-        var dt = field.getPropertity('datatype');
-        dt = dt ? dt.toLowerCase() : '';
-        var v = value;
-        switch(dt){
-            case 'date':
-                v = $A.parseDate(v);
-                break;
-            case 'java.util.date':
-                v = $A.parseDate(v);
-                break;
-            case 'java.sql.date':
-                v = $A.parseDate(v);
-                break;
-            case 'java.sql.timestamp':
-                v = $A.parseDate(v);
-                v.xtype = 'timestamp';
-                break;
-            case 'int':
-                v = parseInt(v);
-                break;
-            case 'float':
-                v = parseFloat(v);
-                break;
-            case 'boolean':
-                v = v=="true";
-                break;
+    	var v = data[key];
+        if(v){
+            var dt = field.getPropertity('datatype');
+            dt = dt ? dt.toLowerCase() : '';
+            switch(dt){
+                case 'date':
+                    v = $A.parseDate(v);
+                    break;
+                case 'java.util.date':
+                    v = $A.parseDate(v);
+                    break;
+                case 'java.sql.date':
+                    v = $A.parseDate(v);
+                    break;
+                case 'java.sql.timestamp':
+                    v = $A.parseDate(v);
+                    v.xtype = 'timestamp';
+                    break;
+                case 'int':
+                    v = parseInt(v);
+                    break;
+                case 'float':
+                    v = parseFloat(v);
+                    break;
+                case 'boolean':
+                    v = v=="true";
+                    break;
+            }
         }
-        
         //TODO:处理options的displayField
         return this.processValueListField(data,v,field);
     }, 

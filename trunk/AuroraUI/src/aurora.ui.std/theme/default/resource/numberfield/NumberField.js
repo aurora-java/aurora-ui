@@ -48,7 +48,7 @@ $A.NumberField = Ext.extend($A.TextField,{
         return rv;
     },
     processValue : function(v){
-    	return this.fixPrecision(this.parseValue(v));
+        return this.parseValue(v);
     },
     onFocus : function(e) {
     	if(this.readonly) return;

@@ -2406,36 +2406,35 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	}
     },
     processData: function(data,key,field){
-    	var value = data[key];
-        if(!value)return;
-        var dt = field.getPropertity('datatype');
-        dt = dt ? dt.toLowerCase() : '';
-        var v = value;
-        switch(dt){
-            case 'date':
-                v = $A.parseDate(v);
-                break;
-            case 'java.util.date':
-                v = $A.parseDate(v);
-                break;
-            case 'java.sql.date':
-                v = $A.parseDate(v);
-                break;
-            case 'java.sql.timestamp':
-                v = $A.parseDate(v);
-                v.xtype = 'timestamp';
-                break;
-            case 'int':
-                v = parseInt(v);
-                break;
-            case 'float':
-                v = parseFloat(v);
-                break;
-            case 'boolean':
-                v = v=="true";
-                break;
+    	var v = data[key];
+        if(v){
+            var dt = field.getPropertity('datatype');
+            dt = dt ? dt.toLowerCase() : '';
+            switch(dt){
+                case 'date':
+                    v = $A.parseDate(v);
+                    break;
+                case 'java.util.date':
+                    v = $A.parseDate(v);
+                    break;
+                case 'java.sql.date':
+                    v = $A.parseDate(v);
+                    break;
+                case 'java.sql.timestamp':
+                    v = $A.parseDate(v);
+                    v.xtype = 'timestamp';
+                    break;
+                case 'int':
+                    v = parseInt(v);
+                    break;
+                case 'float':
+                    v = parseFloat(v);
+                    break;
+                case 'boolean':
+                    v = v=="true";
+                    break;
+            }
         }
-        
         //TODO:处理options的displayField
         return this.processValueListField(data,v,field);
     }, 
@@ -3435,7 +3434,9 @@ $A.Field = Ext.extend($A.Component,{
         this.applyEmptyText();
     },
     formatValue : function(v){
-    	return v;
+        var rder = null;
+        if(this.renderer) rder = $A.getRenderer(this.renderer);
+        return (rder!=null) ? rder.call(window,v) : v;
     },
     getRawValue : function(){
         var v = this.el.getValue();
@@ -3992,7 +3993,8 @@ $A.Radio = Ext.extend($A.Component, {
 			node.removeClass(this.rcc);
 			node.removeClass(this.ruc);
 			var value = Ext.fly(this.nodes[i]).getAttributeNS("","itemvalue");
-			if((i==0 && !this.value) || value === this.value){
+			//if((i==0 && !this.value) || value === this.value){
+			if(value === this.value){
 				this.readonly?node.addClass(this.rcc):node.addClass(this.ccs);				
 			}else{
 				this.readonly?node.addClass(this.ruc):node.addClass(this.ucs);		
@@ -4061,6 +4063,11 @@ $A.TextField = Ext.extend($A.Field,{
     	}
     },
     onChange : function(e){
+        var str = this.getRawValue();
+        if(this.isDbc(str)){
+            str = this.dbc2sbc(str);
+            this.setRawValue(str)
+        }
     	if(this.typecase == 'upper'){
 	    	this.setValue(this.getRawValue().toUpperCase());
         }else if(this.typecase == 'lower') {
@@ -4107,6 +4114,31 @@ $A.TextField = Ext.extend($A.Field,{
                 d.selectionEnd=d.selectionStart;
             }
     	}
+    },
+    isDbc : function(s){
+        var dbc = false;
+        for(var i=0;i<s.length;i++){
+            var c = s.charCodeAt(i);
+            if((c>65248)||(c==12288)) {
+                dbc = true
+                break;
+            }
+        }
+        return dbc;
+    },
+    dbc2sbc : function(str){
+        var result = '';
+        for(var i=0;i<str.length;i++){
+            code = str.charCodeAt(i);//获取当前字符的unicode编码
+            if (code >= 65281 && code <= 65373) {//在这个unicode编码范围中的是所有的英文字母已及各种字符
+                result += String.fromCharCode(str.charCodeAt(i) - 65248);//把全角字符的unicode编码转换为对应半角字符的unicode码                
+            } else if (code == 12288){//空格
+                result += String.fromCharCode(str.charCodeAt(i) - 12288 + 32);
+            } else {
+                result += str.charAt(i);
+            }
+        }
+        return result;
     }
 })
 /**
@@ -4159,7 +4191,7 @@ $A.NumberField = Ext.extend($A.TextField,{
         return rv;
     },
     processValue : function(v){
-    	return this.fixPrecision(this.parseValue(v));
+        return this.parseValue(v);
     },
     onFocus : function(e) {
     	if(this.readonly) return;
@@ -4857,12 +4889,18 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
 		this.initFormat();
-    	this.initDateField();
-    	this.initFooter();
+    	
 	},
 	initFormat : function(){
 		this.format=this.format||$A.defaultDateFormat;
 	},
+    initDatePicker : function(){
+        if(!this.inited){
+            this.initDateField();
+            this.initFooter();
+            this.inited = true;
+        }
+    },
     initDateField:function(){
     	this.popup.setStyle({'width':150*this.viewsize+'px'})
     	if(this.dateFields.length==0){
@@ -4942,6 +4980,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	return date;
     },
     expand : function(){
+        this.initDatePicker();
     	$A.DatePicker.superclass.expand.call(this);
     	this.selectDay = this.getValue();
 		this.predraw(this.selectDay);
@@ -5008,8 +5047,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	}
 });
 /**
- * @class Aurora.DatePicker
- * @extends Aurora.TriggerField
+ * @class Aurora.DateTimePicker
+ * @extends Aurora.DatePicker
  * <p>DatePicker组件.
  * @author njq.niu@hand-china.com
  * @constructor

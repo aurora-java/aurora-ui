@@ -1,6 +1,6 @@
 /**
- * @class Aurora.DatePicker
- * @extends Aurora.TriggerField
+ * @class Aurora.DateTimePicker
+ * @extends Aurora.DatePicker
  * <p>DatePicker组件.
  * @author njq.niu@hand-china.com
  * @constructor

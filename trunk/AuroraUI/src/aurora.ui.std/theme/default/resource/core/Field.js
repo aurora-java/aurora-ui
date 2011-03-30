@@ -173,7 +173,9 @@ $A.Field = Ext.extend($A.Component,{
         this.applyEmptyText();
     },
     formatValue : function(v){
-    	return v;
+        var rder = null;
+        if(this.renderer) rder = $A.getRenderer(this.renderer);
+        return (rder!=null) ? rder.call(window,v) : v;
     },
     getRawValue : function(){
         var v = this.el.getValue();

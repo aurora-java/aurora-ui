@@ -15,12 +15,18 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
 		this.initFormat();
-    	this.initDateField();
-    	this.initFooter();
+    	
 	},
 	initFormat : function(){
 		this.format=this.format||$A.defaultDateFormat;
 	},
+    initDatePicker : function(){
+        if(!this.inited){
+            this.initDateField();
+            this.initFooter();
+            this.inited = true;
+        }
+    },
     initDateField:function(){
     	this.popup.setStyle({'width':150*this.viewsize+'px'})
     	if(this.dateFields.length==0){
@@ -100,6 +106,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	return date;
     },
     expand : function(){
+        this.initDatePicker();
     	$A.DatePicker.superclass.expand.call(this);
     	this.selectDay = this.getValue();
 		this.predraw(this.selectDay);
