@@ -478,15 +478,14 @@ $A.Grid = Ext.extend($A.Component,{
                 var col = columns[i];
                 if(col.lock === true){
                     var td = document.createElement("td");
-                    td.recordid=''+record.id;
                     if(col.type == 'rowcheck') {
-                        Ext.fly(td).set({'atype':'grid.rowcheck'})
+                        Ext.fly(td).set({'recordid':record.id,'atype':'grid.rowcheck'})
                         td.className = 'grid-rowbox';
                     }else{
                         td.style.visibility=col.hidden === true ? 'hidden' : 'visible';
                         td.style.textAlign=col.align||'left';
                         if(!this.isFunctionCol(col)) td.dataindex=col.name;
-                        Ext.fly(td).set({'atype':'grid-cell'});           
+                        Ext.fly(td).set({'dataindex':col.name,'recordid':record.id,'atype':'grid-cell'});           
                     }
                     var cell = this.createCell(col,record, false);
                     td.innerHTML = cell;

@@ -1626,6 +1626,7 @@ $A.Record.Field.prototype = {
 	 */
 	setRequired : function(r){
 		this.setPropertity('required',r);
+        if(!r)this.record.validate(this.name);
 	},
 	/**
 	 * 当前Field是否必输.
