@@ -17,18 +17,16 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
     },
     processListener : function(ou){
     	$A.DateTimePicker.superclass.processListener.call(this,ou);
-    	this.hourSpan[ou]("focus", this.onDateFocus, this);
-		this.hourSpan[ou]("blur", this.onDateBlur, this);
-		this.hourSpan[ou]("keydown", this.onDateKeyDown, this);
-		this.hourSpan[ou]("keyup", this.onDateKeyUp, this);
-		this.minuteSpan[ou]("focus", this.onDateFocus, this);
-		this.minuteSpan[ou]("blur", this.onDateBlur, this);
-		this.minuteSpan[ou]("keydown", this.onDateKeyDown, this);
-		this.minuteSpan[ou]("keyup", this.onDateKeyUp, this);
-		this.secondSpan[ou]("focus", this.onDateFocus, this);
-		this.secondSpan[ou]("blur", this.onDateBlur, this);
-		this.secondSpan[ou]("keydown", this.onDateKeyDown, this);
-		this.secondSpan[ou]("keyup", this.onDateKeyUp, this);
+    	if(this.hourSpan){
+	    	this.hourSpan[ou]("focus", this.onDateFocus, this);
+			this.hourSpan[ou]("blur", this.onDateBlur, this);
+			this.minuteSpan[ou]("focus", this.onDateFocus, this);
+			this.minuteSpan[ou]("blur", this.onDateBlur, this);
+			this.secondSpan[ou]("focus", this.onDateFocus, this);
+			this.secondSpan[ou]("blur", this.onDateBlur, this);
+			this.hourSpan.parent()[ou]("keydown", this.onDateKeyDown, this);
+			this.hourSpan.parent()[ou]("keyup", this.onDateKeyUp, this);
+    	}
     },
     onDateKeyDown : function(e) {
 		var c = e.keyCode, el = e.target;
