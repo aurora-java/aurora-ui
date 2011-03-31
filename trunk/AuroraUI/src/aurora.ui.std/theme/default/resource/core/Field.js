@@ -211,6 +211,7 @@ $A.Field = Ext.extend($A.Component,{
     	}
     },
     initMaxLength : function(maxlength){
+    	if(maxlength)
     	this.el.dom.maxLength=maxlength;
     },
     applyEmptyText : function(){
