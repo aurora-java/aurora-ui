@@ -25,6 +25,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
             this.initDateField();
             this.initFooter();
             this.inited = true;
+            this.processListener('on');
         }
     },
     initDateField:function(){
