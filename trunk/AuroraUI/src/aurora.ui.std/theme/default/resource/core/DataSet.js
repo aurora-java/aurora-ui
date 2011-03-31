@@ -1474,7 +1474,7 @@ $A.Record.prototype = {
      * @param {Boolean} notDirty true 不改变record的dirty状态.
      */
 	set : function(name, value, notDirty){
-        if(!(this.data[name] == value||(Ext.isDate(this.data[name])&&Ext.isDate(value)&&this.data[name].getTime()==value.getTime()))){
+        if(!(this.data[name] === value||(Ext.isDate(this.data[name])&&Ext.isDate(value)&&this.data[name].getTime()==value.getTime()))){
         	if(!notDirty){
                 this.dirty = true;
                 if(!this.modified){
