@@ -59,6 +59,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	for(var i=0;i<datas.length;i++){
     		var d=datas[i],nd={};
 	    	for(var j=0;j<head.length;j++){
+                if(d[j])
 	    		nd[head[j]]=d[j];
 	    	}
 	    	nds.push(nd);
