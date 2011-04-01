@@ -2718,6 +2718,23 @@ $A.Record.prototype = {
     get : function(name){
         return this.data[name];
     },
+    /**
+     * 返回record的data对象.
+     * 可以通过obj.xx的方式获取数据
+     * @return {Object}
+     */
+    getObject : function(){
+        return Ext.apply({},thi.data);
+    },
+    /**
+     * 更新data数据.
+     * @param {Object} o
+     */
+    setObject : function(o){
+        for(var key in o){
+            this.set(key,o[key]);
+        }
+    },
     reject : function(silent){
         var m = this.modified;
         for(var n in m){
