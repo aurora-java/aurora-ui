@@ -479,6 +479,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.locate(index, true);
     },
     /**
+     * 获取当前Record的数据对象
+     * @return {Object}
+     */
+    getCurrentObject : function(){
+        return this.getCurrentRecord().getObject();
+    },
+    /**
      * 获取当前指针的Record. 
      * @return {Aurora.Record} 当前指针所处的Record
      */
