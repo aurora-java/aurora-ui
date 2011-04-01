@@ -1231,6 +1231,12 @@ $A.Grid = Ext.extend($A.Component,{
         var selected = this.dataset.getSelected();
         if(selected.length >0) $A.showConfirm('确认','确认删除选择记录?',this.deleteSelectRows.createDelegate(this));     
     },
+    clear: function(){
+        var selected = this.dataset.getSelected();
+    	while(selected[0]){
+    		this.dataset.removeLocal(selected[0]);
+    	}
+    },
     destroy: function(){
         $A.Grid.superclass.destroy.call(this);
         this.processDataSetLiestener('un');
