@@ -991,7 +991,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.loading = true;
     	this.fireEvent("query", this);
 //    	this.fireBindDataSetEvent("beforeload", this);//主dataset无数据,子dataset一直loading
-    	$A.request({url:url, para:q, success:this.onLoadSuccess, error:this.onLoadError, scope:this,failure:this.onAjaxFailed,opts:opts});
+    	$A.request({url:url, para:q, success:this.onLoadSuccess, error:this.onLoadError, scope:this,failure:this.onAjaxFailed,opts:opts,ext:opts?opts.ext:null});
     },
     /**
      * 判断当前数据集是否发生改变.
