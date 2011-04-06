@@ -1,6 +1,7 @@
 .item-radio-img,.grid-radio{
 	width:13px;
 	height:13px;
+	font-size:0;
     background-image: url(../radio/radio.gif);
 }
 .item-radio-img {
