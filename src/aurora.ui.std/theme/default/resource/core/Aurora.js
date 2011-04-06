@@ -30,6 +30,7 @@ $A.focusWindow;
 $A.focusTab;
 $A.defaultDateFormat="isoDate";
 $A.defaultDateTimeFormat="yyyy-mm-dd HH:MM:ss";
+$A.defaultChineseLength = 2;
 
 /**
  * 将对象居中

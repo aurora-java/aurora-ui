@@ -114,7 +114,7 @@ $A.Field = Ext.extend($A.Component,{
         this.fireEvent('keyup', this, e);
     },
     onKeyDown : function(e){
-        this.fireEvent('keydown', this, e);
+        this.fireEvent('keydown', this, e);        
         var keyCode = e.keyCode;
         if(keyCode == 13 || keyCode == 27) {
         	this.blur();
@@ -156,6 +156,24 @@ $A.Field = Ext.extend($A.Component,{
     	if(this.hasFocus){
 	        this.hasFocus = false;
 	        var rv = this.getRawValue();
+            var sb = [];
+            if(this.isOverMaxLength(rv)){
+                for (i = 0,k=0; i < rv.length;i++) {
+                    var cr = rv.charAt(i);
+                    var cl = cr.match(/[^\x00-\xff]/g);
+                    if (cl !=null && cl.length>0) {
+                        k=k+$A.defaultChineseLength;
+                    } else {
+                        k=k+1
+                    }
+                    if(k<=this.maxlength) {
+                        sb[sb.length] = cr
+                    }else{
+                        break;
+                    }
+                }
+                rv = sb.join('');
+            }
 	        rv = this.processValue(rv);
 //	        if(String(rv) !== String(this.startValue)){
 //	            this.fireEvent('change', this, rv, this.startValue);
@@ -209,6 +227,21 @@ $A.Field = Ext.extend($A.Component,{
     	}else{
     		this.wrap.removeClass(this.readOnlyCss);
     	}
+    },
+    isOverMaxLength : function(str){
+        if(!this.maxlength) return false;
+        var c = 0;
+        for (i = 0; i < str.length; i++) {
+            var cr = str.charAt(i);
+            var cl = cr.match(/[^\x00-\xff]/g);
+//            var st = escape(str.charAt(i));
+            if (cl !=null &&cl.length >0) {
+                c=c+$A.defaultChineseLength;
+            } else {
+                c=c+1;
+            }
+        }
+        return c > this.maxlength;
     },
     initMaxLength : function(maxlength){
     	if(maxlength)
