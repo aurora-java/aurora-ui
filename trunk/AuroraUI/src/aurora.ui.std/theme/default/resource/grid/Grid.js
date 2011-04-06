@@ -1237,6 +1237,31 @@ $A.Grid = Ext.extend($A.Component,{
     		this.dataset.removeLocal(selected[0]);
     	}
     },
+    _export : function(){
+    	var p={"ext":{"_column_config_":{}}},columns=[],parentMap={},
+    	_parentColumn=function(pcl,cl){
+    		var json=Ext.encode(pcl);
+    		var c=parentMap[json];
+    		if(!c)c={prompt:pcl.prompt};
+    		parentMap[json]=c;
+    		(c["column"]=c["column"]||[]).add(cl);
+    		if(pcl._parent){
+    			return _parentColumn(pcl._parent,c)
+    		}
+    		return c;
+    	};
+    	for(var i=0;i<this.columns.length;i++){
+    		var column=this.columns[i];
+    		if(!column.type){
+    			var c={prompt:column.prompt||this.dataset.getField(column.name).pro["prompt"]}
+    			if(column.width)c.width=column.width
+    			if(column.name)c.name=column.name
+	    		columns.add(column._parent?_parentColumn(column._parent,c):c);
+    		}
+    	}
+    	p["ext"]["_column_config_"]["column"]=columns;
+    	this.dataset.query(1,p);
+    },
     destroy: function(){
         $A.Grid.superclass.destroy.call(this);
         this.processDataSetLiestener('un');
