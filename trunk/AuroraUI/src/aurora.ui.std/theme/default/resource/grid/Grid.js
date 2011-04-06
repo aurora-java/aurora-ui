@@ -1260,6 +1260,9 @@ $A.Grid = Ext.extend($A.Component,{
     		}
     	}
     	p["ext"]["_column_config_"]["column"]=columns;
+    	p["ext"]["_generate_state"]=true;
+    	p["ext"]["_format"]="xls"
+
     	this.dataset.query(1,p);
     },
     destroy: function(){
