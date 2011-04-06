@@ -237,10 +237,12 @@ AuroraAdapter = {
         // Opacity
         if (params.opacity !== undefined) {
             if (!isSVGElement) {
-                el.setOpacity(parseInt(params.opacity), {
-                    duration: options.duration,
-                    callback: options.complete
-                });
+                //TODO:vincent.niu
+                Ext.fly(el).setOpacity(parseFloat(params.opacity))
+//                el.setOpacity(parseInt(params.opacity), {
+//                    duration: options.duration,
+//                    callback: options.complete
+//                });
             }
         }
 

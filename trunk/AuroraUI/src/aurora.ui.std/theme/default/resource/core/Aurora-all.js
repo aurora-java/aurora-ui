@@ -30,6 +30,7 @@ $A.focusWindow;
 $A.focusTab;
 $A.defaultDateFormat="isoDate";
 $A.defaultDateTimeFormat="yyyy-mm-dd HH:MM:ss";
+$A.defaultChineseLength = 2;
 
 /**
  * 将对象居中
@@ -3423,7 +3424,7 @@ $A.Field = Ext.extend($A.Component,{
         this.fireEvent('keyup', this, e);
     },
     onKeyDown : function(e){
-        this.fireEvent('keydown', this, e);
+        this.fireEvent('keydown', this, e);        
         var keyCode = e.keyCode;
         if(keyCode == 13 || keyCode == 27) {
         	this.blur();
@@ -3465,6 +3466,24 @@ $A.Field = Ext.extend($A.Component,{
     	if(this.hasFocus){
 	        this.hasFocus = false;
 	        var rv = this.getRawValue();
+            var sb = [];
+            if(this.isOverMaxLength(rv)){
+                for (i = 0,k=0; i < rv.length;i++) {
+                    var cr = rv.charAt(i);
+                    var cl = cr.match(/[^\x00-\xff]/g);
+                    if (cl !=null && cl.length>0) {
+                        k=k+$A.defaultChineseLength;
+                    } else {
+                        k=k+1
+                    }
+                    if(k<=this.maxlength) {
+                        sb[sb.length] = cr
+                    }else{
+                        break;
+                    }
+                }
+                rv = sb.join('');
+            }
 	        rv = this.processValue(rv);
 //	        if(String(rv) !== String(this.startValue)){
 //	            this.fireEvent('change', this, rv, this.startValue);
@@ -3518,6 +3537,21 @@ $A.Field = Ext.extend($A.Component,{
     	}else{
     		this.wrap.removeClass(this.readOnlyCss);
     	}
+    },
+    isOverMaxLength : function(str){
+        if(!this.maxlength) return false;
+        var c = 0;
+        for (i = 0; i < str.length; i++) {
+            var cr = str.charAt(i);
+            var cl = cr.match(/[^\x00-\xff]/g);
+//            var st = escape(str.charAt(i));
+            if (cl !=null &&cl.length >0) {
+                c=c+$A.defaultChineseLength;
+            } else {
+                c=c+1;
+            }
+        }
+        return c > this.maxlength;
     },
     initMaxLength : function(maxlength){
     	if(maxlength)
@@ -4161,7 +4195,8 @@ $A.TextField = Ext.extend($A.Field,{
                 var rv = this.getRawValue();
                 var s = d.selectionStart;
                 var e = d.selectionEnd;
-                if(rv.length>=this.maxlength&&s==e)return;
+//                if(rv.length>=this.maxlength&&s==e)return;
+                if(this.isOverMaxLength(rv) && s==e) return;
                 rv = rv.substring(0,s) + v + rv.substring(e,rv.length);
                 this.setRawValue(rv)
                 d.selectionStart=s+1;
