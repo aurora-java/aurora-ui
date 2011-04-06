@@ -3049,7 +3049,17 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     },
     initEvents : function(){
     	this.addEvents(
+        /**
+         * @event focus
+         * 获取焦点事件
+         * @param {Component} this 当前组件.
+         */
     	'focus',
+        /**
+         * @event blur
+         * 失去焦点事件
+         * @param {Component} this 当前组件.
+         */
     	'blur',
     	/**
          * @event change
