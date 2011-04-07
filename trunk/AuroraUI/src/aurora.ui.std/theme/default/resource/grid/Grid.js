@@ -207,6 +207,10 @@ $A.Grid = Ext.extend($A.Component,{
         }
         var sf = this;
         sf.dataset = ds;
+        if(ds.autopagesize===true){
+        	ds.pagesize=Math.round(this.ub.getHeight()/25);
+        	if(!ds.autoquery&&!ds.datas)ds.query();
+        }
         sf.processDataSetLiestener('on');
         this.onLoad();
 //        Ext.onReady(function(){
