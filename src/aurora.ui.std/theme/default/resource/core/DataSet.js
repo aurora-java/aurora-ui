@@ -25,6 +25,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.selectionmodel = config.selectionmodel||'multiple';
     	this.selectfunction = config.selectfunction;
     	this.autocount = config.autocount;
+    	this.autopagesize = config.autopagesize;
     	this.bindtarget = config.bindtarget;
     	this.bindname = config.bindname;
 		this.loading = false;
@@ -44,6 +45,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		//this.locate(this.currentIndex); //不确定有没有影响
     	}
     	if(config.autoquery === true) {
+    		this.autoquery=config.autoquery;
             var sf = this;
             Ext.onReady(function(){
                sf.query(); 
