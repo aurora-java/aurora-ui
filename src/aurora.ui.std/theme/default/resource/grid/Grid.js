@@ -1241,7 +1241,7 @@ $A.Grid = Ext.extend($A.Component,{
     	}
     },
     _export : function(){
-    	var p={"ext":{"_column_config_":{}}},columns=[],parentMap={},
+    	var p={"ext":{"parameter":{"_column_config_":{}}}},columns=[],parentMap={},
     	_parentColumn=function(pcl,cl){
     		var json=Ext.encode(pcl);
     		var c=parentMap[json];
@@ -1262,7 +1262,7 @@ $A.Grid = Ext.extend($A.Component,{
 	    		columns.add(column._parent?_parentColumn(column._parent,c):c);
     		}
     	}
-    	p["ext"]["_column_config_"]["column"]=columns;
+    	p["ext"]["parameter"]["_column_config_"]["column"]=columns;
     	p["ext"]["_generate_state"]=true;
     	p["ext"]["_format"]="xls"
 
