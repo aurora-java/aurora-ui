@@ -2,7 +2,6 @@ package aurora.tools;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -11,7 +10,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
 public class BuildAll {
@@ -22,7 +20,8 @@ public class BuildAll {
 	private static final String THEME_DIR = "src/aurora.ui.std/theme/";
 	private static final String DEFAULT_DIR = "default/resource/";
 
-	private static final String ZIP_FILE_NAME = "aurora-ui-std";
+	private static final String ZIP_STD = "aurora-ui-std";
+	private static final String ZIP_RESOURCE = "resource";
 
 	private List exceptFiles = new ArrayList();
 
@@ -102,25 +101,32 @@ public class BuildAll {
 	private void buildZip() throws IOException {
 		File direct = new File(RELEASE_DIR);
 		direct.mkdir();
-		String fileName = ZIP_FILE_NAME
-				+ new SimpleDateFormat("(yyyy.MM.dd HH.mm.ss)")
-						.format(new Date()) + ".zip";
-		File newFile = new File(direct, fileName);
-		FileOutputStream fos = new FileOutputStream(newFile);
-		ZipOutputStream zout = new ZipOutputStream(fos);
-		writeZip(new File(RELEASE_DIR, STD_DIR),zout);
-		writeZip(new File(RELEASE_DIR, RESOURCE_DIR),zout);
+		String fileName = ZIP_STD
+				+ new SimpleDateFormat("-yyyy.MM.dd").format(new Date())
+				+ ".zip";
+		ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(
+				new File(direct, fileName)));
+		writeZip(new File(RELEASE_DIR, STD_DIR), zout);
+		zout.finish();
+
+		fileName = ZIP_RESOURCE
+				+ new SimpleDateFormat("-yyyy.MM.dd").format(new Date())
+				+ ".zip";
+		zout = new ZipOutputStream(new FileOutputStream(new File(direct,
+				fileName)));
+		writeZip(new File(RELEASE_DIR, RESOURCE_DIR), zout);
 		zout.finish();
 	}
-	
-	private void writeZip(File file,ZipOutputStream zout) throws IOException{
+
+	private void writeZip(File file, ZipOutputStream zout) throws IOException {
 		File[] files = file.listFiles();
 		for (int i = 0; i < files.length; i++) {
-			if(files[i].isDirectory()){
-				writeZip(files[i],zout);
-			}else{
+			if (files[i].isDirectory()) {
+				writeZip(files[i], zout);
+			} else {
 				FileInputStream fis = new FileInputStream(files[i]);
-				zout.putNextEntry(new ZipEntry(files[i].getPath().substring(RELEASE_DIR.length())));
+				zout.putNextEntry(new ZipEntry(files[i].getPath().substring(
+						RELEASE_DIR.length())));
 				byte[] buf = new byte[1024];
 				int begin;
 				while ((begin = fis.read(buf)) != -1) {
