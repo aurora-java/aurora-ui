@@ -208,8 +208,7 @@ $A.Grid = Ext.extend($A.Component,{
         var sf = this;
         sf.dataset = ds;
         if(ds.autopagesize===true){
-        	ds.pagesize=Math.round(this.ub.getHeight()/25);
-        	if(!ds.autoquery&&!ds.datas)ds.query();
+        	ds.pagesize=Math.round((this.ub.getHeight()-16)/25);
         }
         sf.processDataSetLiestener('on');
         this.onLoad();
