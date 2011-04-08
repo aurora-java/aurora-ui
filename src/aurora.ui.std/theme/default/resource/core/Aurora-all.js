@@ -1243,6 +1243,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.selectionmodel = config.selectionmodel||'multiple';
     	this.selectfunction = config.selectfunction;
     	this.autocount = config.autocount;
+    	this.autopagesize = config.autopagesize;
     	this.bindtarget = config.bindtarget;
     	this.bindname = config.bindname;
 		this.loading = false;
@@ -2209,7 +2210,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.loading = true;
     	this.fireEvent("query", this);
 //    	this.fireBindDataSetEvent("beforeload", this);//主dataset无数据,子dataset一直loading
-    	$A.request({url:url, para:q, success:this.onLoadSuccess, error:this.onLoadError, scope:this,failure:this.onAjaxFailed,opts:opts});
+    	$A.request({url:url, para:q, success:this.onLoadSuccess, error:this.onLoadError, scope:this,failure:this.onAjaxFailed,opts:opts,ext:opts?opts.ext:null});
     },
     /**
      * 判断当前数据集是否发生改变.
@@ -5251,28 +5252,15 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	this.currentPage = this.wrap.child('div[atype=currentPage]');
     	this.pageInfo = this.wrap.child('div[atype=pageInfo]');//Ext.get(this.pageId);
     	this.navInfo = this.wrap.child('div[atype=displayInfo]');//Ext.get(this.infoId);
-    	this.pageInput.setValue(1);
-    	
+
     	if(this.comboBoxId){
-    		var pageSize=[10,20,50,100];
-    		if(pageSize.indexOf(this.dataSet.pagesize)==-1){
-    			pageSize.unshift(this.dataSet.pagesize);
-    			pageSize.sort(function(a,b){return a-b});
-    		}
-    		var datas=[];
-    		while(Ext.isDefined(pageSize[0])){
-    			var ps=pageSize.shift();
-    			datas.push({'code':ps,'name':ps});
-    		}
-    		var dataset=new $A.DataSet({'datas':datas});
-	    	this.pageSizeInput = $(this.comboBoxId);
-	    	this.pageSizeInput.setOptions(dataset);
-	    	this.pageSizeInput.setValue(this.dataSet.pagesize);
+    		this.pageSizeInput = $(this.comboBoxId);
     		this.pageSizeInfo = this.wrap.child('div[atype=pageSizeInfo]');
     		this.pageSizeInfo2 = this.wrap.child('div[atype=pageSizeInfo2]');
     		this.pageSizeInfo.update(_lang['toolbar.pageSize']);
     		this.pageSizeInfo2.update(_lang['toolbar.pageSize2']);
     	}
+    	this.pageInfo.update(_lang['toolbar.total'] + '&#160;&#160;' + _lang['toolbar.page']);
     	this.currentPage.update(_lang['toolbar.ctPage']);
     },
     processListener: function(ou){
@@ -5290,6 +5278,22 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	this.pageInput.setValue(this.dataSet.currentPage);
     	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
     	this.navInfo.update(this.creatNavInfo());
+    	if(this.pageSizeInput&&!this.pageSizeInput.optionDataSet){
+    		var pageSize=[10,20,50,100];
+    		if(pageSize.indexOf(this.dataSet.pagesize)==-1){
+    			pageSize.unshift(this.dataSet.pagesize);
+    			pageSize.sort(function(a,b){return a-b});
+    		}
+    		var datas=[];
+    		while(Ext.isDefined(pageSize[0])){
+    			var ps=pageSize.shift();
+    			datas.push({'code':ps,'name':ps});
+    		}
+    		var dataset=new $A.DataSet({'datas':datas});
+	    	this.pageSizeInput.setOptions(dataset);
+	    	this.pageSizeInput.setValue(this.dataSet.pagesize);
+
+    	}
     },
     creatNavInfo : function(){
     	var from = ((this.dataSet.currentPage-1)*this.dataSet.pagesize+1);

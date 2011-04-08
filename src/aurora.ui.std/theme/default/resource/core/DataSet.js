@@ -45,7 +45,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		//this.locate(this.currentIndex); //不确定有没有影响
     	}
     	if(config.autoquery === true) {
-    		this.autoquery=config.autoquery;
             var sf = this;
             Ext.onReady(function(){
                sf.query(); 

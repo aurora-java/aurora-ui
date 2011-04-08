@@ -293,6 +293,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .item-radio-img,.grid-radio{
 	width:13px;
 	height:13px;
+	font-size:0;
     background-image: url(../radio/radio.gif);
 }
 .item-radio-img {
@@ -723,7 +724,7 @@ button div {
 .nav-prepage div, .nav-prepage div, .nav-firstpage div, .nav-lastpage div, .nav-nextpage div, .nav-refresh div{
 	background-image:url(../toolbar/navigation.gif);
 }
-.grid-add div,.grid-delete div,.grid-save div,.grid-clear div{
+.grid-add div,.grid-delete div,.grid-save div,.grid-clear div,.grid-excel div{
 	background-image:url(../toolbar/toolbar_btn.gif);
 }
 .win-wrap {

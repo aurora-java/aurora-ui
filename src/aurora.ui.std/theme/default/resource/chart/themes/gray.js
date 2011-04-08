@@ -1,9 +1,9 @@
 /**
- * Gray theme for Highcharts JS
+ * Gray theme for $A.Charts JS
  * @author Torstein Hønsi
  */
 
-Highcharts.theme = {
+$A.Charts.theme = {
 	colors: ["#DDDF0D", "#7798BF", "#55BF3B", "#DF5353", "#aaeeee", "#ff0066", "#eeaaee", 
 		"#55BF3B", "#DF5353", "#7798BF", "#aaeeee"],
 	chart: {
@@ -161,4 +161,4 @@ Highcharts.theme = {
 };
 
 // Apply the theme
-var highchartsOptions = Highcharts.setOptions(Highcharts.theme);
+$A.Charts.setOptions($A.Charts.theme);
