@@ -16,16 +16,21 @@ public class BuildAll {
 	private static final String SRC_DIR = "src/";
 	private static final String STD_DIR = "aurora.ui.std/";
 	private static final String RESOURCE_DIR = "resource/";
-	private static final String RELEASE_DIR = "build/";
+	private static final String BUILD_DIR = "build/";
+	private static final String RELEASE_DIR = "release/";
 	private static final String THEME_DIR = "src/aurora.ui.std/theme/";
 	private static final String DEFAULT_DIR = "default/resource/";
 
 	private static final String ZIP_STD = "aurora-ui-std";
 	private static final String ZIP_RESOURCE = "resource";
 
+	private static final String DATE_FORMAT = "yyyy.MM.dd";
+	private String currentDate=null;
 	private List exceptFiles = new ArrayList();
 
 	public BuildAll() {
+		currentDate=new SimpleDateFormat(DATE_FORMAT).format(new Date());
+		
 		exceptFiles.add("core/ext-core.js");
 		exceptFiles.add("core/Aurora.js");
 		exceptFiles.add("core/DataSet.js");
@@ -67,6 +72,7 @@ public class BuildAll {
 		exceptFiles.add("grid/Grid.css");
 		exceptFiles.add("tab/Tab.css");
 		exceptFiles.add("upload/upload.css");
+		
 	}
 
 	public static void main(String[] args) {
@@ -75,6 +81,7 @@ public class BuildAll {
 			ba.buildSTD();
 			ba.buildResource();
 			ba.buildZip();
+			ba.delete();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -83,7 +90,7 @@ public class BuildAll {
 	private List buildSTD() throws IOException {
 		List files = new ArrayList();
 		File fromDir = new File(SRC_DIR + STD_DIR);
-		File toDir = new File(RELEASE_DIR + STD_DIR);
+		File toDir = new File(BUILD_DIR + STD_DIR);
 		toDir.mkdirs();
 		copyFiles(fromDir, toDir, false, false);
 		return files;
@@ -92,32 +99,46 @@ public class BuildAll {
 	private List buildResource() throws IOException {
 		List files = new ArrayList();
 		File fromDir = new File(THEME_DIR);
-		File toDir = new File(RELEASE_DIR + RESOURCE_DIR + STD_DIR);
+		File toDir = new File(BUILD_DIR + RESOURCE_DIR + STD_DIR);
 		toDir.mkdirs();
 		copyFiles(fromDir, toDir, true, true);
 		return files;
 	}
 
 	private void buildZip() throws IOException {
-		File direct = new File(RELEASE_DIR);
-		direct.mkdir();
-		String fileName = ZIP_STD
-				+ new SimpleDateFormat("-yyyy.MM.dd").format(new Date())
-				+ ".zip";
+		
+		File direct = new File(BUILD_DIR+RELEASE_DIR+currentDate);
+		direct.mkdirs();
+		String fileName = ZIP_STD+ "-" +currentDate + ".zip";
 		ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(
 				new File(direct, fileName)));
-		writeZip(new File(RELEASE_DIR, STD_DIR), zout);
+		writeZip(new File(BUILD_DIR, STD_DIR), zout);
 		zout.finish();
 
-		fileName = ZIP_RESOURCE
-				+ new SimpleDateFormat("-yyyy.MM.dd").format(new Date())
-				+ ".zip";
+		fileName = ZIP_RESOURCE+ "-" + currentDate + ".zip";
 		zout = new ZipOutputStream(new FileOutputStream(new File(direct,
 				fileName)));
-		writeZip(new File(RELEASE_DIR, RESOURCE_DIR), zout);
+		writeZip(new File(BUILD_DIR, RESOURCE_DIR), zout);
 		zout.finish();
 	}
 
+	private void delete(){
+		deleteAll(new File(BUILD_DIR + STD_DIR));
+		deleteAll(new File(BUILD_DIR + RESOURCE_DIR));
+	}
+	
+	private void deleteAll(File direct){
+		if(direct.isFile()){
+			direct.delete();
+		}else{
+			File[] files=direct.listFiles();
+			for(int i=0;i<files.length;i++){
+				deleteAll(files[i]);
+			}
+			direct.delete();
+		}
+	}
+	
 	private void writeZip(File file, ZipOutputStream zout) throws IOException {
 		File[] files = file.listFiles();
 		for (int i = 0; i < files.length; i++) {
@@ -126,7 +147,7 @@ public class BuildAll {
 			} else {
 				FileInputStream fis = new FileInputStream(files[i]);
 				zout.putNextEntry(new ZipEntry(files[i].getPath().substring(
-						RELEASE_DIR.length())));
+						BUILD_DIR.length())));
 				byte[] buf = new byte[1024];
 				int begin;
 				while ((begin = fis.read(buf)) != -1) {
