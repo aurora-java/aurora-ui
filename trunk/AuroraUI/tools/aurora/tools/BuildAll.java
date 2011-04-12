@@ -27,6 +27,7 @@ public class BuildAll {
 	private static final String DATE_FORMAT = "yyyy.MM.dd";
 	private String currentDate=null;
 	private List exceptFiles = new ArrayList();
+	private List exceptLocalFiles = new ArrayList();
 
 	public BuildAll() {
 		currentDate=new SimpleDateFormat(DATE_FORMAT).format(new Date());
@@ -73,6 +74,10 @@ public class BuildAll {
 		exceptFiles.add("tab/Tab.css");
 		exceptFiles.add("upload/upload.css");
 		
+		//local files
+		exceptLocalFiles.add("core/highcharts.src.js");
+		exceptLocalFiles.add("datefield/DateField_temp.js");
+		exceptLocalFiles.add("tab/tab_close2.gif");
 	}
 
 	public static void main(String[] args) {
@@ -185,7 +190,7 @@ public class BuildAll {
 						newDir.delete();
 					}
 				}
-			} else if (files[i].isFile() && (include || !includeFile(files[i]))) {
+			} else if (files[i].isFile() && !includeFile(files[i],exceptLocalFiles) && (include || !includeFile(files[i],exceptFiles))) {
 				File newFile = new File(toParent, files[i].getName());
 				FileInputStream fis = new FileInputStream(files[i]);
 				FileOutputStream fos = new FileOutputStream(newFile);
@@ -200,7 +205,7 @@ public class BuildAll {
 		}
 	}
 
-	private boolean includeFile(File file) {
+	private boolean includeFile(File file,List exceptFiles) {
 		Iterator it = exceptFiles.iterator();
 		while (it.hasNext()) {
 			if (new File(THEME_DIR + DEFAULT_DIR + (String) it.next())
