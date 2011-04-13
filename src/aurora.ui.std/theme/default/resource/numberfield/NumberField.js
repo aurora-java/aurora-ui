@@ -48,12 +48,11 @@ $A.NumberField = Ext.extend($A.TextField,{
         return rv;
     },
     processMaxLength : function(rv){
-    	var s=rv.split('.');
-    	return $A.NumberField.superclass.processMaxLength.call(this, s[0])+(s[1]?'.'+s[1]:''); 
+    	var s=rv.split('.'),isNegative=false;
+    	if(s[0].search(/-/)!=-1)isNegative=true;
+    	return (isNegative?'-':'')+$A.NumberField.superclass.processMaxLength.call(this, s[0].replace(/[-,]/g,''))+(s[1]?'.'+s[1]:''); 
     },
     initMaxLength : function(maxlength){
-    	if(maxlength)
-    	this.el.dom.maxLength=parseInt(maxlength)+(this.allowdecimals?this.decimalprecision+1:0);
     },
     processValue : function(v){
         return this.parseValue(v);
