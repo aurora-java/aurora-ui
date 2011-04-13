@@ -20,6 +20,8 @@ public class BuildAll {
 	private static final String RELEASE_DIR = "release/";
 	private static final String THEME_DIR = "src/aurora.ui.std/theme/";
 	private static final String DEFAULT_DIR = "default/resource/";
+	private static final String AURORA_DIR = "D:\\prj\\workspace\\aurora\\";
+	private static final String UNCERTAIN_DIR = "D:\\prj\\workspace\\uncertain\\";
 
 	private static final String ZIP_STD = "aurora-ui-std";
 	private static final String ZIP_RESOURCE = "resource";
@@ -75,9 +77,9 @@ public class BuildAll {
 		exceptFiles.add("upload/upload.css");
 		
 		//local files
-		exceptLocalFiles.add("core/highcharts.src.js");
-		exceptLocalFiles.add("datefield/DateField_temp.js");
-		exceptLocalFiles.add("tab/tab_close2.gif");
+//		exceptLocalFiles.add("core/highcharts.src.js");
+//		exceptLocalFiles.add("datefield/DateField_temp.js");
+//		exceptLocalFiles.add("tab/tab_close2.gif");
 	}
 
 	public static void main(String[] args) {
@@ -86,6 +88,7 @@ public class BuildAll {
 			ba.buildSTD();
 			ba.buildResource();
 			ba.buildZip();
+			//ba.buildJar();
 			ba.delete();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -126,7 +129,10 @@ public class BuildAll {
 		writeZip(new File(BUILD_DIR, RESOURCE_DIR), zout);
 		zout.finish();
 	}
-
+	private void buildJar() throws IOException{
+		String command="cmd /c jar cvf aurora-"+currentDate+".jar -C "+AURORA_DIR;
+		Runtime.getRuntime().exec(command);
+	}
 	private void delete(){
 		deleteAll(new File(BUILD_DIR + STD_DIR));
 		deleteAll(new File(BUILD_DIR + RESOURCE_DIR));

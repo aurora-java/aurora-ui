@@ -1,7 +1,6 @@
-Release ()
+Release (2011-04-13)
 ------------------------------------
 * 将组件的加载js修改为xxx-min.js
-* 增加Label至AuroraTagDocument
 
 
 Release (2011-04-12)
