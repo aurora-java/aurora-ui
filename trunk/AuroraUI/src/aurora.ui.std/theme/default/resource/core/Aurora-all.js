@@ -1952,7 +1952,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     select : function(r){
     	if(!this.selectable)return;
-    	if(typeof(r) == 'string') r = this.findById(r);
+    	if(typeof(r) == 'string'||typeof(r) == 'number') r = this.findById(r);
+        if(!r) return;
     	if(this.selected.indexOf(r) != -1)return;
     	if(!this.execSelectFunction(r))return;
     	if(this.selectionmodel == 'multiple'){
@@ -1972,7 +1973,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     unSelect : function(r){
     	if(!this.selectable)return;
-    	if(typeof(r) == 'string') r = this.findById(r);
+    	if(typeof(r) == 'string'||typeof(r) == 'number') r = this.findById(r);
+        if(!r) return;
     	if(this.selected.indexOf(r) == -1) return;
 		this.selected.remove(r);
 		this.fireEvent('unselect', this, r);
@@ -3467,24 +3469,7 @@ $A.Field = Ext.extend($A.Component,{
     	if(this.hasFocus){
 	        this.hasFocus = false;
 	        var rv = this.getRawValue();
-            var sb = [];
-            if(this.isOverMaxLength(rv)){
-                for (i = 0,k=0; i < rv.length;i++) {
-                    var cr = rv.charAt(i);
-                    var cl = cr.match(/[^\x00-\xff]/g);
-                    if (cl !=null && cl.length>0) {
-                        k=k+$A.defaultChineseLength;
-                    } else {
-                        k=k+1
-                    }
-                    if(k<=this.maxlength) {
-                        sb[sb.length] = cr
-                    }else{
-                        break;
-                    }
-                }
-                rv = sb.join('');
-            }
+           	rv = this.processMaxLength(rv);
 	        rv = this.processValue(rv);
 //	        if(String(rv) !== String(this.startValue)){
 //	            this.fireEvent('change', this, rv, this.startValue);
@@ -3493,6 +3478,27 @@ $A.Field = Ext.extend($A.Component,{
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
     	}
+    },
+    processMaxLength : function(rv){
+    	var sb = [];
+        if(this.isOverMaxLength(rv)){
+            for (i = 0,k=0; i < rv.length;i++) {
+                var cr = rv.charAt(i);
+                var cl = cr.match(/[^\x00-\xff]/g);
+                if (cl !=null && cl.length>0) {
+                    k=k+$A.defaultChineseLength;
+                } else {
+                    k=k+1
+                }
+                if(k<=this.maxlength) {
+                    sb[sb.length] = cr
+                }else{
+                    break;
+                }
+            }
+            return sb.join('');
+        }
+        return rv;
     },
     setValue : function(v, silent){
     	$A.Field.superclass.setValue.call(this,v, silent);
@@ -4279,6 +4285,13 @@ $A.NumberField = Ext.extend($A.TextField,{
     	var rv = this.fixPrecision(this.parseValue(v))        
         if(this.allowformat)rv = $A.formatNumber(rv);
         return rv;
+    },
+    processMaxLength : function(rv){
+    	var s=rv.split('.'),isNegative=false;
+    	if(s[0].search(/-/)!=-1)isNegative=true;
+    	return (isNegative?'-':'')+$A.NumberField.superclass.processMaxLength.call(this, s[0].replace(/[-,]/g,''))+(s[1]?'.'+s[1]:''); 
+    },
+    initMaxLength : function(maxlength){
     },
     processValue : function(v){
         return this.parseValue(v);
