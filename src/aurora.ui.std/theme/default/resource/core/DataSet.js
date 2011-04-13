@@ -734,7 +734,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     select : function(r){
     	if(!this.selectable)return;
-    	if(typeof(r) == 'string') r = this.findById(r);
+    	if(typeof(r) == 'string'||typeof(r) == 'number') r = this.findById(r);
+        if(!r) return;
     	if(this.selected.indexOf(r) != -1)return;
     	if(!this.execSelectFunction(r))return;
     	if(this.selectionmodel == 'multiple'){
@@ -754,7 +755,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     unSelect : function(r){
     	if(!this.selectable)return;
-    	if(typeof(r) == 'string') r = this.findById(r);
+    	if(typeof(r) == 'string'||typeof(r) == 'number') r = this.findById(r);
+        if(!r) return;
     	if(this.selected.indexOf(r) == -1) return;
 		this.selected.remove(r);
 		this.fireEvent('unselect', this, r);
