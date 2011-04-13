@@ -1259,7 +1259,8 @@ $A.Grid = Ext.extend($A.Component,{
     		if(!column.type&&forExport){
     			var c={prompt:column.prompt||this.dataset.getField(column.name).pro["prompt"]}
     			if(column.width)c.width=column.width;
-    			if(column.name)c.name=column.name;
+    			if(column.name)c.name=column.exportfield||column.name;
+    			c.align=column.align||"left";
     			var o=column._parent?_parentColumn(column._parent,c):c;
 	    		if(o)columns.add(o);
     		}
