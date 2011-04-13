@@ -86,13 +86,12 @@ defaultOptions.navigation = {
 };
 
 
-
 // Add the export related options
 defaultOptions.exporting = {
 	//enabled: true,
 	//filename: 'chart',
 	type: 'image/png',
-	url: '../exportchart',//TODO:EXPORT
+	url: '/exportchart',//TODO:EXPORT
 	width: 800,
 	buttons: {
 		exportButton: {

@@ -1,4 +1,7 @@
-//TODO:Aurora
+/**
+ * HighchartsAdapter -> AuroraAdapter
+ * 
+ */
 AuroraAdapter = {
 
     each: Ext.each,

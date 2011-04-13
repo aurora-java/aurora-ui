@@ -1,4 +1,6 @@
-
+/**
+ * Highcharts -> $A.Charts
+ */
 (function() {
 // encapsulated variables
 var doc = document,
@@ -3606,7 +3608,7 @@ var Renderer = hasSVG ? SVGRenderer : VMLRenderer;
  * @param {Function} callback Function to run when the chart has loaded
  */
 function Chart (options, callback) {
-    
+    $A.CmpManager.cache[options.id]=this;
     defaultXAxisOptions = merge(defaultXAxisOptions, defaultOptions.xAxis);
     defaultYAxisOptions = merge(defaultYAxisOptions, defaultOptions.yAxis);
     defaultOptions.xAxis = defaultOptions.yAxis = null;
@@ -7208,6 +7210,74 @@ function Chart (options, callback) {
             removeEvent(window, 'resize', reflow);
         });
     }
+    processDataSetLiestener = function(ou,obj){
+        var ds = obj.dataset;
+        if(ds){
+            ds[ou]('update', onRedraw, obj);
+            //ds[ou]('add', onRedraw, obj);
+            ds[ou]('load', onRedraw, obj);
+            ds[ou]('remove', onRedraw, obj);
+            ds[ou]('clear', onRedraw, obj);
+            ds[ou]('refresh',onRedraw,obj);
+        }
+    };
+    onRedraw = function(){
+        var series = this.series;
+        var ds = this.dataset;
+        var records = ds.getAll();
+        var sn = this.options.seriesName||('series-'+i);
+        var arr = [];
+        if(series) {
+            
+            for(var i=0,l=series.length;i<l;i++){
+                var ser = series[i];
+                //ser.remove(false);
+                var name = ser.name;
+                var record = ds.find(sn,name);
+                if(record!=null){
+                    arr[arr.length] = record;
+                    var categories = this.xAxis[0].categories;
+                    var data = [];                
+                    for(var j=0;j<categories.length;j++){
+                        var v = record.get(categories[j].toLowerCase());
+                        data[data.length] = v||'';
+                    }
+                    ser.setData(data,false);
+                }else{
+                    ser.remove(false)
+                }
+            }
+        }
+        
+        for(var k = 0,l=records.length;k<l;k++){
+            var record = records[k];
+            if(arr.indexOf(record)==-1){
+                var options = {                
+                    name:record.get(this.options.seriesName)||('series-'+i)
+                }
+                var categories = this.xAxis[0].categories;
+                var data = [];
+                for(var j=0;j<categories.length;j++){
+                    data[data.length] = record.get(categories[j].toLowerCase());
+                }
+                options['data'] = data;
+                this.addSeries(options,false)
+            }
+        }
+        
+        
+        
+        this.redraw(false)
+    };
+    bind = function(ds){
+        if(typeof(ds)==='string'){
+            ds = $(ds);
+            if(!ds) return;
+        }
+        this.dataset = ds;
+        processDataSetLiestener('on',this);
+        this.onRedraw();
+    };
     
     /**
      * Resize the chart to a given width and height
@@ -7507,9 +7577,10 @@ function Chart (options, callback) {
      * Clean up memory usage
      */
     function destroy() {
+        $A.CmpManager.remove(this.options.id);
         var i = series.length,
             parentNode = container && container.parentNode;
-        
+        processDataSetLiestener('un', this);
         // fire the chart.destoy event
         fireEvent(chart, 'destroy');
 
@@ -7653,6 +7724,8 @@ function Chart (options, callback) {
     chart.setTitle = setTitle;
     chart.showLoading = showLoading;    
     chart.pointCount = 0;
+    chart.bind = bind;
+    chart.onRedraw = onRedraw;
     /*
     if ($) $(function() {
         $container = $('#container');
