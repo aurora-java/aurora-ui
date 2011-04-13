@@ -1243,6 +1243,7 @@ $A.Grid = Ext.extend($A.Component,{
     _export : function(){
     	var p={"ext":{"parameter":{"_column_config_":{}}}},columns=[],parentMap={},
     	_parentColumn=function(pcl,cl){
+    		if(!(Ext.isDefined(pcl.forexport)?pcl.forexport:true))return null;
     		var json=Ext.encode(pcl);
     		var c=parentMap[json];
     		if(!c)c={prompt:pcl.prompt};
@@ -1254,12 +1255,13 @@ $A.Grid = Ext.extend($A.Component,{
     		return c;
     	};
     	for(var i=0;i<this.columns.length;i++){
-    		var column=this.columns[i];
-    		if(!column.type){
+    		var column=this.columns[i],forExport=Ext.isDefined(column.forexport)?column.forexport:true;
+    		if(!column.type&&forExport){
     			var c={prompt:column.prompt||this.dataset.getField(column.name).pro["prompt"]}
-    			if(column.width)c.width=column.width
-    			if(column.name)c.name=column.name
-	    		columns.add(column._parent?_parentColumn(column._parent,c):c);
+    			if(column.width)c.width=column.width;
+    			if(column.name)c.name=column.name;
+    			var o=column._parent?_parentColumn(column._parent,c):c;
+	    		if(o)columns.add(o);
     		}
     	}
     	p["ext"]["parameter"]["_column_config_"]["column"]=columns;
