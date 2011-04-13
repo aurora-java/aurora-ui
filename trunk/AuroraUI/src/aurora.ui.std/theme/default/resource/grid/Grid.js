@@ -1241,7 +1241,7 @@ $A.Grid = Ext.extend($A.Component,{
     	}
     },
     _export : function(){
-    	var p={"ext":{"parameter":{"_column_config_":{}}}},columns=[],parentMap={},
+    	var p={"parameter":{"_column_config_":{}}},columns=[],parentMap={},
     	_parentColumn=function(pcl,cl){
     		if(!(Ext.isDefined(pcl.forexport)?pcl.forexport:true))return null;
     		var json=Ext.encode(pcl);
@@ -1265,11 +1265,22 @@ $A.Grid = Ext.extend($A.Component,{
 	    		if(o)columns.add(o);
     		}
     	}
-    	p["ext"]["parameter"]["_column_config_"]["column"]=columns;
-    	p["ext"]["_generate_state"]=true;
-    	p["ext"]["_format"]="xls"
-
-    	this.dataset.query(1,p);
+    	p["parameter"]["_column_config_"]["column"]=columns;
+    	p["_generate_state"]=true;
+    	p["_format"]="xls"
+		var form = document.createElement("form");
+		form.target = "_blank";
+		form.method="post";
+		form.action = this.daraset.queryurl;
+		var s = document.createElement("input");
+		s.id = "_request_data";
+		s.type = 'hidden';
+		s.name = '_request_data';
+       	s.value = Ext.encode(p);
+       	form.appendChild(s);
+       	document.body.appendChild(form);
+       	form.submit();
+       	form.parentNode.removeChild(form);
     },
     destroy: function(){
         $A.Grid.superclass.destroy.call(this);
