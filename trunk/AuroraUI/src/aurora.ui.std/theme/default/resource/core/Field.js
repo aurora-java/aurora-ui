@@ -156,24 +156,7 @@ $A.Field = Ext.extend($A.Component,{
     	if(this.hasFocus){
 	        this.hasFocus = false;
 	        var rv = this.getRawValue();
-            var sb = [];
-            if(this.isOverMaxLength(rv)){
-                for (i = 0,k=0; i < rv.length;i++) {
-                    var cr = rv.charAt(i);
-                    var cl = cr.match(/[^\x00-\xff]/g);
-                    if (cl !=null && cl.length>0) {
-                        k=k+$A.defaultChineseLength;
-                    } else {
-                        k=k+1
-                    }
-                    if(k<=this.maxlength) {
-                        sb[sb.length] = cr
-                    }else{
-                        break;
-                    }
-                }
-                rv = sb.join('');
-            }
+           	rv = this.processMaxLength(rv);
 	        rv = this.processValue(rv);
 //	        if(String(rv) !== String(this.startValue)){
 //	            this.fireEvent('change', this, rv, this.startValue);
@@ -182,6 +165,27 @@ $A.Field = Ext.extend($A.Component,{
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
     	}
+    },
+    processMaxLength : function(rv){
+    	var sb = [];
+        if(this.isOverMaxLength(rv)){
+            for (i = 0,k=0; i < rv.length;i++) {
+                var cr = rv.charAt(i);
+                var cl = cr.match(/[^\x00-\xff]/g);
+                if (cl !=null && cl.length>0) {
+                    k=k+$A.defaultChineseLength;
+                } else {
+                    k=k+1
+                }
+                if(k<=this.maxlength) {
+                    sb[sb.length] = cr
+                }else{
+                    break;
+                }
+            }
+            return sb.join('');
+        }
+        return rv;
     },
     setValue : function(v, silent){
     	$A.Field.superclass.setValue.call(this,v, silent);
