@@ -1259,7 +1259,11 @@ $A.Grid = Ext.extend($A.Component,{
     		if(!column.type&&forExport){
     			var c={prompt:column.prompt||this.dataset.getField(column.name).pro["prompt"]}
     			if(column.width)c.width=column.width;
-    			if(column.name)c.name=column.exportfield||column.name;
+    			if(column.name){
+    				c.name=column.exportfield||column.name;
+					var field=this.dataset.getField(c.name);
+					c.dataType=field.pro["datatype"];
+    			}
     			c.align=column.align||"left";
     			var o=column._parent?_parentColumn(column._parent,c):c;
 	    		if(o)columns.add(o);
@@ -1269,7 +1273,7 @@ $A.Grid = Ext.extend($A.Component,{
     	p["_generate_state"]=true;
     	p["_format"]="xls"
 		var form = document.createElement("form");
-//		form.target = "_blank";
+		form.target = "_blank";
 		form.method="post";
 		form.action = this.dataset.queryurl;
 		var s = document.createElement("input");
