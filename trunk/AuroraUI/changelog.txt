@@ -7,6 +7,7 @@ Release ()
 * 修订grid新增数据无法选中的问题
 * 修改DataSet中create函数的breforeCreate事件
 * DataSet增加beforeLoadData函数,用于预处理数据
+* DataSet增加了validateSelf函数,用于校验dataset本身,不包含子dataset
 
 Release (2011-04-13)
 ------------------------------------
