@@ -29,10 +29,10 @@ var HC = $A.Charts,//TODO:AURORA
 	// Add language and get the defaultOptions
 	defaultOptions = HC.setOptions({
 		lang: {
-			downloadPNG: '导出成PNG',
-			downloadJPEG: '导出成JPEG',
-			downloadPDF: '导出成PDF',
-			downloadSVG: '导出成SVG',
+			downloadPNG: '导出成 PNG 格式',
+			downloadJPEG: '导出成 JPEG 格式',
+			downloadPDF: '导出成 PDF 格式',
+			downloadSVG: '导出成 SVG 格式',
 			exportButtonTitle: '导出图表',
 			printButtonTitle: '打印图表'
 		}
@@ -49,7 +49,7 @@ defaultOptions.navigation = {
 		padding: '0 5px',
 		background: NONE,
 		color: '#303030',
-		fontSize: hasTouch ? '14px' : '11px'
+		fontSize: hasTouch ? '14px' : '12px'
 	},
 	menuItemHoverStyle: {
 		background: '#4572A5',
