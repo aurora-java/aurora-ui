@@ -1246,6 +1246,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.autopagesize = config.autopagesize;
     	this.bindtarget = config.bindtarget;
     	this.bindname = config.bindname;
+        this.processfunction = config.processfunction;
 		this.loading = false;
     	this.qpara = {};
     	this.fields = {};
@@ -1599,8 +1600,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	return this.fields[name];
     },
     beforeLoadData : function(datas){
-        if(this.processdata) {
-            var fun = $A.getRenderer(this.processdata);
+        if(this.processfunction) {
+            var fun = $A.getRenderer(this.processfunction);
             if(fun){
                 return fun.call(window,datas);
             }
@@ -2081,10 +2082,17 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	this.goPage(this.totalPage);
     },
     /**
+     * 仅对dataset本身进行校验,不校验绑定的子dataset.
+     * @return {Boolean} valid 校验结果.
+     */
+    validateSelf : function(){
+        return this.validate(true,false)
+    },
+    /**
      * 对当前数据集进行校验.
      * @return {Boolean} valid 校验结果.
      */
-    validate : function(fire){
+    validate : function(fire,vc){
     	this.isValid = true;
     	var current = this.getCurrentRecord();
     	if(!current)return true;
@@ -2092,7 +2100,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		var dmap = {};
 		var hassub = false;
 		var unvalidRecord = null;
-					
+		
+        if(vc !== false)
     	for(var k in this.fields){
     		var field = this.fields[k];
     		if(field.type == 'dataset'){
@@ -2114,7 +2123,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 				}
 				if(this.isValid == false) {
 					if(hassub)break;
-				}else {
+				} else {
 					for(key in dmap){
 						var ds = dmap[key];
 						if(record.data[key]){
