@@ -7227,25 +7227,28 @@ function Chart (options, callback) {
         var records = ds.getAll();
         var sn = this.options.seriesName||('series-'+i);
         var arr = [];
+        var tmp = []
         if(series) {
-            
             for(var i=0,l=series.length;i<l;i++){
-                var ser = series[i];
-                //ser.remove(false);
-                var name = ser.name;
-                var record = ds.find(sn,name);
-                if(record!=null){
-                    arr[arr.length] = record;
-                    var categories = this.xAxis[0].categories;
-                    var data = [];                
-                    for(var j=0;j<categories.length;j++){
-                        var v = record.get(categories[j].toLowerCase());
-                        data[data.length] = v||'';
-                    }
-                    ser.setData(data,false);
-                }else{
-                    ser.remove(false)
-                }
+                tmp[i] = series[i];
+            }
+            for(var i=0,l=tmp.length;i<l;i++){
+                var ser = tmp[i];
+                ser.remove(false);
+//                var name = ser.name;
+//                var record = ds.find(sn,name);
+//                if(record!=null){
+//                    arr[arr.length] = record;
+//                    var categories = this.xAxis[0].categories;
+//                    var data = [];                
+//                    for(var j=0;j<categories.length;j++){
+//                        var v = record.get(categories[j].toLowerCase());
+//                        data[data.length] = v||'';
+//                    }
+//                    ser.setData(data,false);
+//                }else{
+//                    ser.remove(false)
+//                }
             }
         }
         
