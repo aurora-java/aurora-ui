@@ -1637,24 +1637,25 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	//TODO:grid已经实现服务端排序
     },
     create : function(data, valid){
-    	this.fireEvent("beforecreate", this);
-    	data = data||{}
-//    	if(valid !== false) if(!this.validCurrent())return;
-    	var dd = {};
-    	for(var k in this.fields){
-    		var field = this.fields[k];
-    		var dv = field.getPropertity('defaultvalue');
-    		if(dv && !data[field.name]){
-    			dd[field.name] = dv;
-    		}
-            this.processValueListField(dd,k,field);
+    	if(this.fireEvent("beforecreate", this)){
+	    	data = data||{}
+	//    	if(valid !== false) if(!this.validCurrent())return;
+	    	var dd = {};
+	    	for(var k in this.fields){
+	    		var field = this.fields[k];
+	    		var dv = field.getPropertity('defaultvalue');
+	    		if(dv && !data[field.name]){
+	    			dd[field.name] = dv;
+	    		}
+	            this.processValueListField(dd,k,field);
+	    	}
+	    	var data = Ext.apply(data||{},dd);
+	    	var record = new $A.Record(data);
+	        this.add(record); 
+	//        var index = (this.currentPage-1)*this.pagesize + this.data.length;
+	//        this.locate(index, true);
+	        return record;
     	}
-    	var data = Ext.apply(data||{},dd);
-    	var record = new $A.Record(data);
-        this.add(record); 
-//        var index = (this.currentPage-1)*this.pagesize + this.data.length;
-//        this.locate(index, true);
-        return record;
     },
     /**
      * 获取所有新创建的数据. 

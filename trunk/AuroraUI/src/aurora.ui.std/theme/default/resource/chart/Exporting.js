@@ -29,12 +29,12 @@ var HC = $A.Charts,//TODO:AURORA
 	// Add language and get the defaultOptions
 	defaultOptions = HC.setOptions({
 		lang: {
-			downloadPNG: 'Download PNG image',
-			downloadJPEG: 'Download JPEG image',
-			downloadPDF: 'Download PDF document',
-			downloadSVG: 'Download SVG vector image',
-			exportButtonTitle: 'Export to raster or vector image',
-			printButtonTitle: 'Print the chart'
+			downloadPNG: '导出成PNG',
+			downloadJPEG: '导出成JPEG',
+			downloadPDF: '导出成PDF',
+			downloadSVG: '导出成SVG',
+			exportButtonTitle: '导出图表',
+			printButtonTitle: '打印图表'
 		}
 	});
 
