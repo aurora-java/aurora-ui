@@ -1598,7 +1598,17 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     getField : function(name){
     	return this.fields[name];
     },
+    beforeLoadData : function(datas){
+        if(this.processdata) {
+            var fun = $A.getRenderer(this.processdata);
+            if(fun){
+                return fun.call(window,datas);
+            }
+        }
+        return datas;
+    },
     loadData : function(datas, num, options){
+        datas = this.beforeLoadData(datas);
         this.data = [];
         this.selected = [];
         if(num) {
