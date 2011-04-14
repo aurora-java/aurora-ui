@@ -1421,6 +1421,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @event beforecreate
              * 数据创建前事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @return ${Boolean} result 如果为true则新增一条记录,false则不新增直接返回
              */
     		'beforecreate',
     		/**
