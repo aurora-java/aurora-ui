@@ -5,6 +5,7 @@ Release ()
 * 修正numbeField的maxLength错误
 * Grid的Column上增加exportField属性，用于导出功能。
 * 修订grid新增数据无法选中的问题
+* 修改DataSet中create函数的breforeCreate事件
 
 Release (2011-04-13)
 ------------------------------------
