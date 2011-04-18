@@ -262,7 +262,7 @@ $A.Tab = Ext.extend($A.Component,{
 	},
 	onClick : function(e){
 		var el=Ext.get(e.target);
-		if(el.hasClass(this.tc))this.closeTab(el.parent().parent());
+		if(el.hasClass(this.tc))this.closeTab(el.parent('.strip'));
 	},
 	onMouseWheel : function(e){
 		var delta = e.getWheelDelta();
