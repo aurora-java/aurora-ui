@@ -21,6 +21,7 @@ $A.Tree = Ext.extend($A.Component,{
 	processListener: function(ou){
     	$A.Tree.superclass.processListener.call(this,ou);
     	this.wrap[ou]('click', this.onClick, this);
+    	this.wrap[ou]('dblclick', this.onDblclick, this);
     },
 	initEvents:function(){
 		$A.Tree.superclass.initEvents.call(this);
@@ -47,7 +48,15 @@ $A.Tree = Ext.extend($A.Component,{
          * @param {Aurora.Record} record 选中的Record对象
          * @param {Aurora.Tree.TreeNode} node 节点对象
          */
-		'click');
+		'click',
+		/**
+         * @event dblclick
+         * 双击事件.
+         * @param {Aurora.Tree} Tree对象
+         * @param {Aurora.Record} record 选中的Record对象
+         * @param {Aurora.Tree.TreeNode} node 节点对象
+         */
+		'dblclick');
 	},
 	destroy : function(){
 		$A.Tree.superclass.destroy.call(this);
@@ -119,6 +128,21 @@ $A.Tree = Ext.extend($A.Component,{
 		}else if(_type == 'checked'){
 			var node = this.nodeHash[elem.indexId];
 			node.onCheck();
+		}
+	},
+	onDblclick : function(event){
+		var elem = Ext.fly(event.target).findParent('td');
+		if(!elem)return;
+		var _type = elem['_type_'];
+		if(typeof(_type) === undefined){
+			return;
+		}
+		elem = Ext.fly(event.target).findParent('div.item-node');
+		if(_type == 'icon' || _type == 'text'){
+			var node = this.nodeHash[elem.indexId];
+			this.setFocusNode(node);
+			this.dataset.locate(this.dataset.indexOf(node.record)+1,true);
+			this.fireEvent('dblclick', this, node.record, node);
 		}
 	},
 	getRootNode : function(){

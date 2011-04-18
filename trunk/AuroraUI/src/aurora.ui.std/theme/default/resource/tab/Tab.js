@@ -112,11 +112,11 @@ $A.Tab = Ext.extend($A.Component,{
             this.fireEvent('select', this, index)
 		}
 	},
-	stripTpl:['<div class="strip unactive"  unselectable="on" onselectstart="return false;">'
+	stripTpl:['<div class="strip unactive"  unselectable="on" onselectstart="return false;"><div style="height:26px;width:{stripwidth2}px">'
 				,'<div class="strip-left"></div>',
 				'<div style="width:{stripwidth}px;" class="strip-center"><div class="tab-close"></div>{prompt}</div>',
 				'<div class="strip-right"></div>',
-			'</div>'],
+			'</div></div>'],
 	bodyTpl:'<div style="width:{bodywidth}px;height:{bodyheight}px;left:-10000px;top:-10000px;" class="tab"></div>',
 	/**
 	 * 打开一个指定引用地址的Tab页，如果该指定的引用地址的页面已经被打开，则选中该Tab页
@@ -142,7 +142,7 @@ $A.Tab = Ext.extend($A.Component,{
 				this.scrollRight.setStyle({'display':'block'});
 				this.script.setStyle('padding-left','1px');
 			}
-			new Ext.Template(this.stripTpl).append(this.head.dom,{'prompt':prompt,'stripwidth':stripwidth});
+			new Ext.Template(this.stripTpl).append(this.head.dom,{'prompt':prompt,'stripwidth':stripwidth,'stripwidth2':stripwidth+6});
 			new Ext.Template(this.bodyTpl).append(this.body.dom,{'bodywidth':this.body.getWidth(),'bodyheight':this.body.getHeight()});
 			this.selectTab(i);
 		}
@@ -275,7 +275,7 @@ $A.Tab = Ext.extend($A.Component,{
         }
 	},
 	onMouseDown : function(e){
-		var el=Ext.get(e.target),strip = el.parent(),sf=this;
+		var el=Ext.get(e.target),strip = el.parent('.strip'),sf=this;
 		if(el.hasClass(sf.tc)){
 			el.removeClass(sf.tbo);
 			el.addClass(sf.tbd);
