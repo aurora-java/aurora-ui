@@ -296,6 +296,16 @@ $A.Window = Ext.extend($A.Component,{
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
     	if(this.modal) $A.Cover.uncover(this.wrap);
+//        for(var key in this.cmps){
+//            var cmp = this.cmps[key];
+//            if(cmp.destroy){
+//                try{
+//                    cmp.destroy();
+//                }catch(e){
+//                    alert('销毁window出错: ' + e)
+//                }
+//            }
+//        }
     	$A.Window.superclass.destroy.call(this);
     	delete this.title;
     	delete this.head;

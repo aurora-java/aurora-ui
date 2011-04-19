@@ -1422,6 +1422,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @event beforecreate
              * 数据创建前事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Object} object 新增的数据对象.
              * @return ${Boolean} result 如果为true则新增一条记录,false则不新增直接返回
              */
     		'beforecreate',
@@ -1465,6 +1466,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @event beforeremove
              * 数据删除前.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Array} records 将要删除的数据集合
+             * @return ${Boolean} result 如果为true则删除一条记录,false则不删除直接返回
              */
             'beforeremove',
 	        /**
@@ -1649,8 +1652,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	//TODO:grid已经实现服务端排序
     },
     create : function(data, valid){
-    	if(this.fireEvent("beforecreate", this)){
-	    	data = data||{}
+    	data = data||{}
+    	if(this.fireEvent("beforecreate", this, data)){
 	//    	if(valid !== false) if(!this.validCurrent())return;
 	    	var dd = {};
 	    	for(var k in this.fields){
@@ -1749,18 +1752,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		record = this.getCurrentRecord();
     	}
     	if(!record)return;
-    	this.fireEvent("beforeremove", this);
     	var rs = [].concat(record);
-    	var rrs = [];
-    	for(var i=0;i<rs.length;i++){
-    		var r = rs[i]
-    		if(r.isNew){
-                this.removeLocal(r);
-    		}else{    		
-                rrs[rrs.length] = r;
-    		}
-    	}
-    	this.removeRemote(rrs);    	
+        if(this.fireEvent("beforeremove", this, rs)){
+        	var rrs = [];
+        	for(var i=0;i<rs.length;i++){
+        		var r = rs[i]
+        		if(r.isNew){
+                    this.removeLocal(r);
+        		}else{    		
+                    rrs[rrs.length] = r;
+        		}
+        	}
+        	this.removeRemote(rrs);
+        }
     },
     removeRemote: function(rs){    	
     	if(this.submiturl == '') return;
@@ -5653,6 +5657,16 @@ $A.Window = Ext.extend($A.Component,{
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
     	if(this.modal) $A.Cover.uncover(this.wrap);
+//        for(var key in this.cmps){
+//            var cmp = this.cmps[key];
+//            if(cmp.destroy){
+//                try{
+//                    cmp.destroy();
+//                }catch(e){
+//                    alert('销毁window出错: ' + e)
+//                }
+//            }
+//        }
     	$A.Window.superclass.destroy.call(this);
     	delete this.title;
     	delete this.head;
