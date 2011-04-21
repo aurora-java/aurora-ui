@@ -1267,7 +1267,16 @@ $A.Grid = Ext.extend($A.Component,{
     	}
     	p["parameter"]["_column_config_"]["column"]=columns;
     	p["_generate_state"]=true;
-    	p["_format"]="xls"
+    	p["_format"]="xls";
+    	if(this.dataset.qds)r = this.dataset.qds.getCurrentRecord();
+    	var q = {};
+    	if(r != null) Ext.apply(q, r.data);
+    	Ext.apply(q, this.dataset.qpara);
+    	for(var k in q){
+    	   var v = q[k];
+    	   if(Ext.isEmpty(v,false)) delete q[k];
+    	}
+    	Ext.apply(p.parameter,q)
 		var form = document.createElement("form");
 		form.target = "_blank";
 		form.method="post";
