@@ -7251,20 +7251,43 @@ function Chart (options, callback) {
 //                }
             }
         }
-        
-        for(var k = 0,l=records.length;k<l;k++){
-            var record = records[k];
-            if(arr.indexOf(record)==-1){
-                var options = {                
-                    name:record.get(this.options.seriesName)||('series-'+i)
+        var type = this.options.chart.type;
+        if(type == 'pie'){
+            var datas = [];
+            var options = {}
+            for(var k = 0,l=records.length;k<l;k++){
+                var record = records[k];
+                datas[datas.length] = [record.get('name'),record.get('value')]
+            }
+            options['data'] = datas;
+            this.addSeries(options,false)
+        }else{
+            for(var k = 0,l=records.length;k<l;k++){
+                var record = records[k];
+                if(arr.indexOf(record)==-1){
+                    var options = {                
+                        name:record.get(this.options.seriesName)||('series-'+i)
+                    }
+                    var categories = this.xAxis[0].categories;
+                    var data = [];
+                    //TODO:主要为了datatime考虑,有待改进
+                    if(categories) {
+                        for(var j=0;j<categories.length;j++){
+                            data[data.length] = record.get(categories[j].toLowerCase());
+                        }
+                    }else{
+                        var i = 0;
+                        for(var k in record.data){
+                            if(k == this.options.seriesName) continue;
+                            i++;
+                        }
+                        for(var j=0;j<i;j++){
+                            data[data.length] = record.get('_'+(j+1));
+                        }
+                    }
+                    options['data'] = data;
+                    this.addSeries(options,false)
                 }
-                var categories = this.xAxis[0].categories;
-                var data = [];
-                for(var j=0;j<categories.length;j++){
-                    data[data.length] = record.get(categories[j].toLowerCase());
-                }
-                options['data'] = data;
-                this.addSeries(options,false)
             }
         }
         
