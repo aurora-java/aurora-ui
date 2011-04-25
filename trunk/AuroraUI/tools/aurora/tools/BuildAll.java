@@ -58,6 +58,9 @@ public class BuildAll {
 		exceptFiles.add("lov/Lov.js");
 		exceptFiles.add("lov/MultiLov.js");
 		exceptFiles.add("textarea/TextArea.js");
+		exceptFiles.add("chart/Adapter.js");
+		exceptFiles.add("chart/Chart.js");
+		exceptFiles.add("chart/Exporting.js");
 
 		exceptFiles.add("core/Aurora.css");
 		exceptFiles.add("core/Aurora-all.css");
@@ -117,13 +120,13 @@ public class BuildAll {
 		
 		File direct = new File(BUILD_DIR+RELEASE_DIR+currentDate);
 		direct.mkdirs();
-		String fileName = ZIP_STD+ "-" +currentDate + ".zip";
+		String fileName = ZIP_STD+ ".zip";//+ "-" +currentDate 
 		ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(
 				new File(direct, fileName)));
 		writeZip(new File(BUILD_DIR, STD_DIR), zout);
 		zout.finish();
 
-		fileName = ZIP_RESOURCE+ "-" + currentDate + ".zip";
+		fileName = ZIP_RESOURCE+ ".zip";//+ "-" + currentDate 
 		zout = new ZipOutputStream(new FileOutputStream(new File(direct,
 				fileName)));
 		writeZip(new File(BUILD_DIR, RESOURCE_DIR), zout);
