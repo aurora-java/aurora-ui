@@ -67,7 +67,7 @@ $A.Table = Ext.extend($A.Component,{
 		var css=this.parseCss(this.renderRow(record,index));
 		tr.id=this.id+'-'+record.id;
 		tr.style.cssText=css.style;
-		tr.className=(index%2==0?"table-row-alt ":"")+css.cls;
+		tr.className=(index%2==1?"table-row-alt ":"")+css.cls;
 		for(var i=0,l=this.columns.length;i<l;i++){
 			this.createCell(tr,this.columns[i],record);
 		}
@@ -91,7 +91,9 @@ $A.Table = Ext.extend($A.Component,{
         if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get('required') == true){
             cls = cls + ' ' + this.nbcls
         }
-		var editor = this.getEditor(col,record),td=tr.insertCell(-1),cls=(editor!=''?'table-cell-editor':'');
+		var editor = this.getEditor(col,record),cls=(editor!=''?'table-cell-editor':''),td;
+		if(tr.tagName.toLowerCase()=='tr')td=tr.insertCell(-1);
+		else td=tr.parentNode
 		Ext.fly(td).set({'atype':'table-cell','recordid':record.id,'dataindex':col.name,'style':'text-align:'+(col.align||'left')+';visibility:visible;'});
 		td.innerHTML=this.cellTpl.applyTemplate({text:this.renderText(record,col,record.data[col.name]),cellcls:cls,name:col.name,recordid:record.id});
 	},
@@ -304,8 +306,8 @@ $A.Table = Ext.extend($A.Component,{
         return css ;
     },
     renderEditor : function(div,record,c,editor){
-    	var cell = this.createCell(c,record,false);
-    	div.parent().update(cell);
+    	this.createCell(div.dom,c,record);
+    	//div.parent().update(cell);
     },
     onClick : function(e) {
         var target = Ext.fly(e.target).findParent('td');
