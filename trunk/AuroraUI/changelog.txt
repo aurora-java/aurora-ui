@@ -3,6 +3,8 @@ Release ()
 * Tree增加dblclick事件
 * 修正了Tab在IE8下显示不正确
 * 修正导出功能遗漏了查询条件
+* 增加了DataSet的beforesubmit事件的判断
+* 修改chart组件
 
 Release (2011-04-15)
 ------------------------------------
