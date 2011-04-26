@@ -1651,6 +1651,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     sort : function(f, direction){
     	//TODO:grid已经实现服务端排序
     },
+    /**
+     * 创建一条记录
+     * @param {Object} data 数据对象
+     * @return {Aurora.Record} record 返回创建的record对象
+     */
     create : function(data, valid){
     	data = data||{}
     	if(this.fireEvent("beforecreate", this, data)){

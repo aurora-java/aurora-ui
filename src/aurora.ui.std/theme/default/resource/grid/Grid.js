@@ -388,6 +388,7 @@ $A.Grid = Ext.extend($A.Component,{
         $A.Masker.unmask(this.wb);
     },
     onMouseWheel : function(e){
+        if(this.editing == true) return;
     	var delta = e.getWheelDelta();
         if(delta > 0){
             this.dataset.pre();
@@ -736,8 +737,8 @@ $A.Grid = Ext.extend($A.Component,{
         if(!col)return;
         var record = this.dataset.getAt(row);
         if(!record)return;
-        if(record.id != this.selectedId);
-        this.selectRow(row);
+        this.editing = true;
+        if(record.id != this.selectedId) this.selectRow(row);
         this.focusColumn(name);
         var editor = this.getEditor(col,record);
         this.setEditor(name, editor);
@@ -839,6 +840,7 @@ $A.Grid = Ext.extend($A.Component,{
                 ed.isFireEvent = false;
                 ed.isHidden = true;
             }
+            this.editing = false;
         }
     },
     onEditorBlur : function(e){
