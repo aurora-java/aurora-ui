@@ -1470,7 +1470,8 @@ $A.Record.prototype = {
 		if(Ext.isEmpty(v) && field.get('required') == true){
 			this.valid[name] = _lang['dataset.validate.required'];
 			valid =  false;
-		}else{
+		}
+        if(valid == true){
 			var isvalid = true;
 			if(validator){
 				validator = window[validator];
