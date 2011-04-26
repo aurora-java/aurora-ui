@@ -98,7 +98,7 @@ $A.Line=Ext.extend($A.Graphics,{
     	this.root.appendChild(this.wrap);
     },
     initVMLElement : function(){
-    	this.wrap=new Ext.Template(this.vmlLine).append(this.root.dom,{
+    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
     		style:this.style,
     		from:this.x1+','+this.y1,
     		to:this.x2+','+this.y2,
@@ -107,7 +107,7 @@ $A.Line=Ext.extend($A.Graphics,{
     		strokeOpacity:this.strokeopacity||1
     	},true)
     },
-    vmlLine : ["<v:line style='{style}' from='{from}' to='{to}'>",
+    vmlTpl : ["<v:line style='{style}' from='{from}' to='{to}'>",
     	"<v:stroke color='{strokeColor}'  weight='{strokeWidth}px' opacity='{strokeOpacity}'/>",
     "</v:line>"]
 });	
@@ -126,17 +126,17 @@ $A.Polyline=Ext.extend($A.Graphics,{
     	this.root.appendChild(this.wrap);
     },
     initVMLElement : function(){
-    	this.wrap=new Ext.Template(this.vmlLine).append(this.root.dom,{
+    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
     		style:this.style,
     		points:this.points,
     		fillColor:this.fillcolor||'none',
-    		fillOpacity:this.fillopacity||'1',
+    		fillOpacity:this.fillopacity||(this.fillcolor||this.fillcolor=='none')?'0':'1',
     		strokeColor:this.strokecolor||'none',
-    		strokeWidth:this.strokewidth,
-    		strokeOpacity:this.strokeopacity||1
+    		strokeWidth:this.strokecolor?this.strokewidth:0,
+    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
     	},true)
     },
-    vmlLine : ["<v:polyline style='{style}' points='{points}'>",
+    vmlTpl : ["<v:polyline style='{style}' points='{points}'>",
     "<v:fill color='{fillColor}' opacity='{fillOpacity}'/>",
     "<v:stroke color='{strokeColor}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'/>",
     "</v:polyline>"]
@@ -156,23 +156,93 @@ $A.Oval=Ext.extend($A.Graphics,{
     	this.root.appendChild(this.wrap);
     },
     initVMLElement : function(){
-    	this.wrap=new Ext.Template(this.vmlLine).append(this.root.dom,{
+    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
     		style:this.style,
     		left:this.cx-this.rx,
     		top:this.cy-this.ry,
     		width:2*this.rx,
     		height:2*this.ry,
     		fillColor:this.fillcolor||'black',
-    		fillOpacity:this.fillopacity||'1',
+    		fillOpacity:this.fillcolor=='none'?'0':(this.fillopacity||'1'),
     		strokeColor:this.strokecolor||'none',
-    		strokeWidth:this.strokewidth,
-    		strokeOpacity:this.strokeopacity||1
+    		strokeWidth:this.strokecolor?this.strokewidth:0,
+    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
     	},true)
     },
-    vmlLine : ["<v:oval style='left:{left}px;top:{top}px;width:{width}px;height:{height}px;{style}'>",
+    vmlTpl : ["<v:oval style='left:{left}px;top:{top}px;width:{width}px;height:{height}px;{style}'>",
     "<v:fill color='{fillColor}' opacity='{fillOpacity}'/>",
     "<v:stroke color='{strokeColor}' weight='{strokeWidth}px' opacity='{strokeOpacity}'/>",
     "</v:oval>"]
-});	
+});
+
+$A.Rect=Ext.extend($A.Graphics,{
+	initSVGElement : function(){
+		this.wrap = newSVG("rect");
+    	this.wrap.dom.style.cssText=encodeStyle({
+    		'fill':this.fillcolor,
+    		'fill-opacity':this.fillopacity,
+    		'stroke':this.strokecolor,
+    		'stroke-width':this.strokewidth,
+    		'stroke-opacity':this.strokeopacity
+    	})+this.style;
+    	this.wrap.set({x:this.x,y:this.y,width:this.width,height:this.height});
+    	this.root.appendChild(this.wrap);
+    },
+    initVMLElement : function(){
+    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
+    		style:this.style,
+    		left:this.x,
+    		top:this.y,
+    		width:this.width,
+    		height:this.height,
+    		fillColor:this.fillcolor||'black',
+    		fillOpacity:this.fillopacity||'1',
+    		strokeColor:this.strokecolor||'none',
+    		strokeWidth:this.strokecolor?this.strokewidth:0,
+    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
+    	},true)
+    },
+    vmlTpl : ["<v:rect style='left:{left}px;top:{top}px;width:{width}px;height:{height}px;{style}'>",
+    "<v:fill color='{fillColor}' opacity='{fillOpacity}'/>",
+    "<v:stroke color='{strokeColor}' weight='{strokeWidth}px' opacity='{strokeOpacity}'/>",
+    "</v:rect>"]
+});
+
+$A.Path=Ext.extend($A.Graphics,{
+	initSVGElement : function(){
+		this.wrap = newSVG("path");
+    	this.wrap.dom.style.cssText=encodeStyle({
+    		'fill':this.fillcolor,
+    		'fill-opacity':this.fillopacity,
+    		'stroke':this.strokecolor,
+    		'stroke-width':this.strokewidth,
+    		'stroke-opacity':this.strokeopacity
+    	})+this.style;
+    	this.wrap.set({d:this.d});
+    	this.root.appendChild(this.wrap);
+    },
+    initVMLElement : function(){
+    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
+    		style:this.style,
+    		path:this.convertPath(this.d),
+    		//width:this.width||10,
+    		//height:this.height||10,
+    		left:this.left||0,
+    		top:this.top||0,
+    		fillColor:this.fillcolor||'black',
+    		fillOpacity:this.fillopacity||'1',
+    		strokeColor:this.strokecolor||'none',
+    		strokeWidth:this.strokecolor?this.strokewidth:0,
+    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
+    	},true)
+    },
+    convertPath : function(path){
+    	return path.replace(/M/g,'m').replace(/L/g,'l').replace(/Z/,'x')+' e';
+    },
+    vmlTpl : ["<v:shape coordsize='10,10' style='position:absolute;left:{left};top:{top};width:10px;height:10px;{style}' path='{path}'>",
+    "<v:fill color='{fillColor}' opacity='{fillOpacity}'/>",
+    "<v:stroke color='{strokeColor}' weight='{strokeWidth}px' opacity='{strokeOpacity}'/>",
+    "</v:shape>"]
+});
 
 })();
