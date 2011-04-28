@@ -107,6 +107,7 @@ $A.Path=Ext.extend($A.Graphics,{
     	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
     		style:this.style,
     		path:this.convertPath(this.d),
+    		zoom:this.zoom,
     		fillColor:this.fillcolor||'black',
     		fillOpacity:this.fillopacity||'1',
     		strokeColor:this.strokecolor||'none',
@@ -138,33 +139,28 @@ $A.Path=Ext.extend($A.Graphics,{
     			x+=p2[0];
     			y+=p2[1];
     		}
-    		var dx=Math.abs(x-p2[0]),dy=Math.abs(y-p2[1]),ry=rx*dy/dx;
+    		var dx=Math.abs(x-p2[0]),dy=Math.abs(y-p2[1]);
+    		rx=dx;ry=dy;
     		path.push(sw?'wa':'at');
     		if((sw^la)^x<p2[0]){
 				if(y<p2[1]){
 					l=p2[0];
 					t=p2[1]-ry;
-					r=p2[0]+rx*2;
-					b=p2[1]+ry;
 				}else{
 					l=p2[0]-rx;
 					t=p2[1];
-					r=p2[0]+rx;
-					b=p2[1]+ry*2;
 				}
     		}else{
     			if(y<p2[1]){
-					l=p2[0]-rx//-(rx-Math.sqrt(rx*rx-(ry-dy)));
+					l=p2[0]-rx;
 					t=p2[1]-ry*2;
-					r=p2[0]+rx;
-					b=p2[1];
 				}else{
 					l=p2[0]-rx*2;
 					t=p2[1]-ry;
-					r=p2[0];
-					b=p2[1]+ry;
 				}
     		}
+    		r=l+rx*2;
+			b=t+ry*2;
     		path.push(l,t,r,b,p2[0],p2[1],x,y);
     		p2=[x,y];
     	},
@@ -187,9 +183,8 @@ $A.Path=Ext.extend($A.Graphics,{
     	}
     	path.push('e');
     	return path.join(' ');
-    	//return path.toLowerCase().replace(/a/g,'at').replace(/m/g,'e m').replace(/z/,'x')+' e';
     },
-    vmlTpl : ["<v:shape coordsize='10,10' style='position:absolute;left:0;top:0;width:10px;height:10px;{style}' path='{path}'>",
+    vmlTpl : ["<v:shape coordsize='1,1' style='position:absolute;left:0;top:0;width:1px;height:1px;{style}' path='{path}'>",
     fill,stroke,"</v:shape>"]
 });
 
