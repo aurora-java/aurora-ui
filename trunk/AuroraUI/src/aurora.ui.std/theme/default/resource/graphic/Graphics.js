@@ -6,6 +6,7 @@ var DOC=document;
 	stroke = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'/>",
     pathReg = /\w|[\s\d-+.]*/g,
     numberReg = /[\d-+.]+/g,
+    
     firstUp = function(w){
     	return w.toLowerCase().replace(/^\S/,w.toUpperCase().charAt(0));
     },
@@ -85,12 +86,18 @@ $A.Graphics=Ext.extend($A.Component,{
     	this.fireEvent('click',this,e);
     },
 	createGElement : function(name,config){
-    	new $A[firstUp(name)](Ext.apply(config,{root:Ext.get(config.root)||this.root}));
-    	return this;
+    	return new $A[firstUp(name)](Ext.apply(config,{root:Ext.get(config.root)||this.root}));
+    },
+    setOpacity : function(o){
+    	
+    },
+    setStroke : function(config){
+    	
     }
 });
 
 $A.Path=Ext.extend($A.Graphics,{
+	zoom:10000,
 	initSVGElement : function(){
 		this.wrap = newSVG("path");
     	this.wrap.dom.style.cssText=encodeStyle({
@@ -116,26 +123,29 @@ $A.Path=Ext.extend($A.Graphics,{
     	},true)
     },
     convertPath : function(p){
-    	var arr=p.match(pathReg),p1=[0,0],p2=[0,0],path=[],
-    	f1=function(s,p){
+    	var arr=p.match(pathReg),p1=[0,0],p2=[0,0],path=[],sf=this,
+    	f1=function(s,isC){
     		var arr=Ext.isArray(s)?s:s.match(numberReg);
     		for(var i=0;i<arr.length;i++){
-    			p2[0]+=Number(arr[i]);
-    			p2[1]+=Number(arr[++i]);
-    			path=path.concat(p2);
+    			if(!isC||i/2%3==2){
+    				p2[0]+=f4(arr[i]);
+    				p2[1]+=f4(arr[++i]);
+    				path=path.concat(p2);
+    			}else{
+    				path=path.concat([p2[0]+f4(arr[i]),p2[1]+f4(arr[++i])]);
+    			}
     		}
-			if(p)p=[].concat(p2);
     	},
-    	f2=function(s,r){
+    	f2=function(s,re){
     		var arr=s.match(numberReg),
-    			rx=Number(arr[0]),
-    			ry=Number(arr[1]),
+    			rx=f4(arr[0]),
+    			ry=f4(arr[1]),
     			la=Number(arr[3]),//是否是大角度弧线
     			sw=Number(arr[4]),//是否是顺时针
-    			x=Number(arr[5]),
-    			y=Number(arr[6]),
+    			x=f4(arr[5]),
+    			y=f4(arr[6]),
     			l,t,r,b;
-    		if(r){
+    		if(re){
     			x+=p2[0];
     			y+=p2[1];
     		}
@@ -153,38 +163,51 @@ $A.Path=Ext.extend($A.Graphics,{
     		}else{
     			if(y<p2[1]){
 					l=p2[0]-rx;
-					t=p2[1]-ry*2;
+					t=p2[1]-(ry<<1);
 				}else{
-					l=p2[0]-rx*2;
+					l=p2[0]-(rx<<1);
 					t=p2[1]-ry;
 				}
     		}
-    		r=l+rx*2;
-			b=t+ry*2;
+    		r=l+(rx<<1);
+			b=t+(ry<<1);
     		path.push(l,t,r,b,p2[0],p2[1],x,y);
     		p2=[x,y];
     	},
     	f3=function(s){
     		var a=s.match(numberReg).slice(-2);
-    		return [Number(a[0]),Number(a[1])];
+    		return [f4(a[0]),f4(a[1])];
+    	},
+    	f4=function(n){
+    		return Math.floor(n*sf.zoom);
+    	},
+    	f5=function(s){
+    		for(var i=0,a=s.match(numberReg);i<a.length;i++){
+    			path.push(f4(a[i]))
+    		}
     	}
     	for(var i=0;i<arr.length;i++){
     		switch(arr[i]){
-    			case 'M': path.push('e');p1=f3(arr[i+1]);
+    			case 'M': p1=f3(arr[i+1]);
     			case 'C':
-    			case 'L': p2=f3(arr[i+1]);path.push(arr[i],arr[++i].trim());break;
-    			case 'm': path.push('e','M');f1(arr[++i],p1);break;
+    			case 'L': p2=f3(arr[i+1]);path.push(arr[i]);f5(arr[++i]);break;
+    			case 'm': path.push('M');f1(arr[++i]);p1=[].concat(p2);break;
+    			case 'c': path.push('C');f1(arr[++i],true);break;
     			case 'l': path.push('L');f1(arr[++i]);break;
+    			case 'h': path.push('L');f1(arr[++i]+" 0");break;
+    			case 'v': path.push('L');f1("0 "+f4(arr[++i]));break;
+    			case 'H': path.push('L');p2[0]=f4(arr[++i]);path.push(p2[0],p2[1]);break;
+    			case 'V': path.push('L');p2[1]=f4(arr[++i]);path.push(p2[0],p2[1]);break;
     			case 'A': f2(arr[++i]);break;
     			case 'a': f2(arr[++i],true);break;
     			case 'Z': 
-    			case 'z': path.push('x');p2=[].concat(p1);break;
+    			case 'z': path.push('X');p2=[].concat(p1);break;
     		}
     	}
-    	path.push('e');
+    	path.push('E');
     	return path.join(' ');
     },
-    vmlTpl : ["<v:shape coordsize='1,1' style='position:absolute;left:0;top:0;width:1px;height:1px;{style}' path='{path}'>",
+    vmlTpl : ["<v:shape coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;{style}' path='{path}'>",
     fill,stroke,"</v:shape>"]
 });
 
@@ -234,8 +257,8 @@ $A.Oval=Ext.extend($A.Graphics,{
     		style:this.style,
     		left:this.cx-this.rx,
     		top:this.cy-this.ry,
-    		width:2*this.rx,
-    		height:2*this.ry,
+    		width:this.rx<<1,
+    		height:this.ry<<1,
     		fillColor:this.fillcolor||'black',
     		fillOpacity:this.fillcolor=='none'?'0':(this.fillopacity||'1'),
     		strokeColor:this.strokecolor||'none',
@@ -259,14 +282,14 @@ $A.Rect = function(config){
 		ly = ry!=h/2,
 		d = ['M',l,t+(round?ry:0)];
 		if(round)d.push('A',rx,ry,0,0,1,l+rx,t);
-		if(lx)d.push('L',l+w-(round?rx:0),t);
+		if(lx)d.push('H',l+w-(round?rx:0));
 		if(round)d.push('A',rx,ry,0,0,1,l+w,t+ry);
-		if(ly)d.push('L',l+w,t+h-(round?ry:0));
+		if(ly)d.push('V',t+h-(round?ry:0));
 		if(round)d.push('A',rx,ry,0,0,1,l+w-rx,t+h);
-		if(lx)d.push('L',l+(round?rx:0),t+h);
+		if(lx)d.push('H',l+(round?rx:0));
 		if(round)d.push('A',rx,ry,0,0,1,l,t+h-ry);
 		if(ly)d.push('Z');
-	new $A.Path(Ext.apply(config,{d:d.join(' ')}));
+	return new $A.Path(Ext.apply(config,{d:d.join(' ')}));
 }
 
 $A.Diamond = function(config){
@@ -274,8 +297,6 @@ $A.Diamond = function(config){
 		t = Number(config.y)||0,
 		h = Number(config.height)||100,
 		w = Number(config.width)||200,
-//		r = Number(config.r)||0,
-//		round = r>0
 		d = ['M',
 			l,t+config.height/2,
 			'L',
@@ -283,6 +304,6 @@ $A.Diamond = function(config){
 			l+w,t+h/2,
 			l+w/2,t+h,
 			'Z'];
-	new $A.Path(Ext.apply(config,{d:d.join(' ')}));
+	return new $A.Path(Ext.apply(config,{d:d.join(' ')}));
 }
 })();
