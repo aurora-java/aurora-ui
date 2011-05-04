@@ -12,9 +12,6 @@ $A.Table = Ext.extend($A.Component,{
     ocor:'#ffe3a8',
     cecls:'table-cell-editor',
     nbcls:'item-notBlank',
-	constructor:function(config){
-		$A.Table.superclass.constructor.call(this,config);
-	},
 	initComponent:function(config){
 		$A.Table.superclass.initComponent.call(this,config);
 		this.tbody=this.wrap.child('tbody');
@@ -47,9 +44,6 @@ $A.Table = Ext.extend($A.Component,{
 //            ds[ou]('unselect', this.onUnSelect, this);
         }
     },
-	initEvents:function(){
-		$A.Table.superclass.initEvents.call(this);
-	},
 	bind:function(ds){
 		if(typeof(ds)==='string'){
             ds = $(ds);
@@ -61,6 +55,7 @@ $A.Table = Ext.extend($A.Component,{
 	},
 	initTemplate : function(){
         this.cellTpl = new Ext.Template('<div class="table-cell {cellcls}" id="'+this.id+'_{name}_{recordid}">{text}</div>');        
+    	this.cbTpl = new Ext.Template('<center><div class="{cellcls}" id="'+this.id+'_{name}_{recordid}"></div></center>');
     },
 	createRow:function(record,index){
 		var tr=this.tbody.dom.insertRow(-1);
@@ -86,6 +81,13 @@ $A.Table = Ext.extend($A.Component,{
 			this.emptyRow=null;
 		}
 	},
+	getCheckBoxStatus: function(record, name) {
+        var field = this.dataset.getField(name)
+        var cv = field.getPropertity('checkedvalue');
+        var uv = field.getPropertity('uncheckedvalue');
+        var value = record.data[name];
+        return (value && value == cv) ? 'item-ckb-c' : 'item-ckb-u';
+    },
 	createCell:function(tr,col,record){
 		var field = record.getMeta().getField(col.name);
         if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get('required') == true){
@@ -95,7 +97,12 @@ $A.Table = Ext.extend($A.Component,{
 		if(tr.tagName.toLowerCase()=='tr')td=tr.insertCell(-1);
 		else td=tr.parentNode
 		Ext.fly(td).set({'atype':'table-cell','recordid':record.id,'dataindex':col.name,'style':'text-align:'+(col.align||'left')+';visibility:visible;'});
-		td.innerHTML=this.cellTpl.applyTemplate({text:this.renderText(record,col,record.data[col.name]),cellcls:cls,name:col.name,recordid:record.id});
+		var edi = $A.CmpManager.get(editor);
+		if(edi && (edi instanceof $A.CheckBox)){
+			td.innerHTML=this.cbTpl.applyTemplate({cellcls:'grid-ckb ' + this.getCheckBoxStatus(record, col.name),name:col.name,recordid:record.id});
+		}else{
+			td.innerHTML=this.cellTpl.applyTemplate({text:this.renderText(record,col,record.data[col.name]),cellcls:cls,name:col.name,recordid:record.id});
+		}
 	},
 	/**
      * 设置当前行的编辑器.
