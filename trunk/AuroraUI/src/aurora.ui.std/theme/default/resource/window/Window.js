@@ -104,7 +104,7 @@ $A.Window = Ext.extend($A.Component,{
          * <p>监听函数返回值为false时，不执行关闭</p>
          * @param {Window} this 当前窗口.         * 
          */
-    	'close',
+    	'beforeclose',
     	/**
          * @event close
          * 窗口关闭事件.
