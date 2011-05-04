@@ -5468,6 +5468,13 @@ $A.Window = Ext.extend($A.Component,{
     	$A.Window.superclass.initEvents.call(this);
     	this.addEvents(
     	/**
+         * @event beforeclose
+         * 窗口关闭前的事件.
+         * <p>监听函数返回值为false时，不执行关闭</p>
+         * @param {Window} this 当前窗口.         * 
+         */
+    	'beforeclose',
+    	/**
          * @event close
          * 窗口关闭事件.
          * @param {Window} this 当前窗口.         * 
@@ -5655,9 +5662,11 @@ $A.Window = Ext.extend($A.Component,{
     	Ext.get(document.documentElement).un("mouseup", this.onCloseUp, this);
     },
     close : function(){
-    	$A.WindowManager.remove(this);
-    	this.destroy(); 
-    	this.fireEvent('close', this)
+    	if(this.fireEvent('beforeclose',this)){
+	    	$A.WindowManager.remove(this);
+	    	this.destroy(); 
+	    	this.fireEvent('close', this);
+    	}
     },
     destroy : function(){
     	$A.focusWindow = null;

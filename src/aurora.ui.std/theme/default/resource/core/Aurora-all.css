@@ -24,7 +24,7 @@ HTML {
 .ext-ie6{
 	font-size:12px;
 }
-div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, button, p, blockquote, th, td { margin:0; padding:0; }
+div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, button, p, blockquote{ margin:0; padding:0; }/*, th, td */
 fieldset, img { border:0; }
 ol, ul { list-style:none; }
 address, caption, cite, code, dfn, em, th, var { font-style:normal; font-weight:400; }
