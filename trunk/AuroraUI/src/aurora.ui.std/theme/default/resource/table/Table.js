@@ -14,13 +14,16 @@ $A.Table = Ext.extend($A.Component,{
     nbcls:'item-notBlank',
 	initComponent:function(config){
 		$A.Table.superclass.initComponent.call(this,config);
-		this.tbody=this.wrap.child('tbody');
-		this.fb=this.wrap.child('tfoot');
+		var wrap=this.wrap;
+		this.cb = wrap.child('div[atype=table.headcheck]');
+		this.tbody=wrap.child('tbody');
+		this.fb=wrap.child('tfoot');
 		this.initTemplate();
 	},
 	processListener:function(ou){
 		$A.Table.superclass.processListener.call(this,ou);
 		this.tbody[ou]('click',this.onClick, this);
+		if(this.cb)this.cb[ou]('click',this.onHeadClick,this);
 	},
 	processDataSetLiestener: function(ou){
         var ds = this.dataset;
@@ -40,8 +43,8 @@ $A.Table = Ext.extend($A.Component,{
 //            ds[ou]('refresh',this.onRefresh,this);
 //            ds[ou]('fieldchange', this.onFieldChange, this);
 //            ds[ou]('indexchange', this.onIndexChange, this);
-//            ds[ou]('select', this.onSelect, this);
-//            ds[ou]('unselect', this.onUnSelect, this);
+            ds[ou]('select', this.onSelect, this);
+            ds[ou]('unselect', this.onUnSelect, this);
         }
     },
 	bind:function(ds){
@@ -96,14 +99,96 @@ $A.Table = Ext.extend($A.Component,{
 		var editor = this.getEditor(col,record),cls=(editor!=''?'table-cell-editor':''),td;
 		if(tr.tagName.toLowerCase()=='tr')td=tr.insertCell(-1);
 		else td=tr.parentNode
-		Ext.fly(td).set({'atype':'table-cell','recordid':record.id,'dataindex':col.name,'style':'text-align:'+(col.align||'left')+';visibility:visible;'});
-		var edi = $A.CmpManager.get(editor);
-		if(edi && (edi instanceof $A.CheckBox)){
-			td.innerHTML=this.cbTpl.applyTemplate({cellcls:'grid-ckb ' + this.getCheckBoxStatus(record, col.name),name:col.name,recordid:record.id});
-		}else{
-			td.innerHTML=this.cellTpl.applyTemplate({text:this.renderText(record,col,record.data[col.name]),cellcls:cls,name:col.name,recordid:record.id});
+		var edi = $A.CmpManager.get(editor),xtype=col.type;
+		if(xtype == 'rowcheck'||xtype == 'rowradio'){
+	    	var readonly="";
+	    	if(!this.dataset.execSelectFunction(record))readonly="-readonly";
+	    	Ext.fly(td).set({'atype':xtype == 'rowcheck'?'table.rowcheck':'table.rowradio','recordid':record.id,'class':'table-rowbox'});
+	        td.innerHTML=this.cbTpl.applyTemplate({cellcls:xtype == 'rowcheck'?'table-ckb item-ckb'+readonly+'-u':'table-radio item-radio-img'+readonly+'-u',name:col.name,recordid:record.id});
+	    }else{
+			Ext.fly(td).set({'atype':'table-cell','recordid':record.id,'dataindex':col.name,'style':'text-align:'+(col.align||'left')+';visibility:visible;'});
+			if(edi && (edi instanceof $A.CheckBox)){
+				td.innerHTML=this.cbTpl.applyTemplate({cellcls:'table-ckb ' + this.getCheckBoxStatus(record, col.name),name:col.name,recordid:record.id});
+			}else{
+				td.innerHTML=this.cellTpl.applyTemplate({text:this.renderText(record,col,record.data[col.name]),cellcls:cls,name:col.name,recordid:record.id});
+			}
 		}
 	},
+	onSelect : function(ds,record){
+        var cb = Ext.get(this.id+'__'+record.id);
+        if(cb && this.selectable && this.selectionmodel=='multiple') {
+            this.setCheckBoxStatus(cb, true);
+        }else{
+            this.setRadioStatus(cb,true);
+        }
+    },
+    onUnSelect : function(ds,record){
+        var cb = Ext.get(this.id+'__'+record.id);
+        if(cb && this.selectable && this.selectionmodel=='multiple') {
+            this.setCheckBoxStatus(cb, false);
+        }else{
+            this.setRadioStatus(cb,false);
+        }
+    },
+    setRadioStatus: function(el, checked){
+        if(!checked){
+            el.removeClass('item-radio-img-c');
+            el.addClass('item-radio-img-u');
+        }else{
+            el.addClass('item-radio-img-c');
+            el.removeClass('item-radio-img-u');
+        }
+    },
+    setCheckBoxStatus: function(el, checked){
+        if(!checked){
+            el.removeClass('item-ckb-c');
+            el.addClass('item-ckb-u');
+        }else{
+            el.addClass('item-ckb-c');
+            el.removeClass('item-ckb-u');
+        }
+    },
+    setSelectDisable:function(el){
+    	if(this.selectable && this.selectionmodel=='multiple'){
+    		el.removeClass('item-ckb-c');
+    		el.removeClass('item-ckb-u');
+    		el.addClass('item-ckb-readonly-u');
+    	}else{
+    		el.removeClass('item-radio-img-c');
+    		el.removeClass('item-radio-img-u');
+    		el.addClass('item-radio-img-readonly-u');
+    	}
+    },
+    setSelectEnable:function(el){
+    	if(this.selectable && this.selectionmodel=='multiple'){
+    		el.removeClass('item-ckb-readonly-u');
+    		el.addClass('item-ckb-u');
+    	}else{
+    		el.removeClass('item-radio-img-readonly-u');
+    		el.addClass('item-radio-img-u');
+    	}	
+    },
+    setSelectStatus:function(record){
+    	if(this.dataset.selectfunction){
+	    	var cb = Ext.get(this.id+'__'+record.id);
+	    	if(!this.dataset.execSelectFunction(record)){
+	    		 this.dataset.unSelect(record);
+	    		 this.setSelectDisable(cb)
+	    	}else{
+	    		 this.setSelectEnable(cb);
+	    	}
+    	}
+    },
+     onHeadClick : function(e){
+            var cb = this.cb;
+            var checked = cb.hasClass('item-ckb-c');
+            this.setCheckBoxStatus(cb,!checked);
+            if(!checked){
+                this.dataset.selectAll();
+            }else{
+                this.dataset.unSelectAll();
+            }
+    },
 	/**
      * 设置当前行的编辑器.
      * 
@@ -328,6 +413,15 @@ $A.Table = Ext.extend($A.Component,{
                 this.showEditor(row,name);
                 this.fireEvent('cellclick', this, row, name, record);
                 this.fireEvent('rowclick', this, row, record);
+            }else if(atype=='table.rowcheck'){               
+                var cb = Ext.get(this.id+'__'+rid);
+                if(cb.hasClass('item-ckb-readonly-u'))return;
+                var checked = cb.hasClass('item-ckb-c');
+                (checked) ? this.dataset.unSelect(rid) : this.dataset.select(rid);
+            }else if(atype=='table.rowradio'){
+            	var cb = Ext.get(this.id+'__'+rid);
+                if(cb.hasClass('item-radio-img-readonly-u'))return;
+                this.dataset.select(rid);
             }
         }
     },
