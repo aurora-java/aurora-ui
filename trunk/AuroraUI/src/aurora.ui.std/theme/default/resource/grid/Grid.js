@@ -592,6 +592,7 @@ $A.Grid = Ext.extend($A.Component,{
         var urow = Ext.get(this.id+'$u-'+record.id);
         if(urow)urow.remove();
         $A.Masker.unmask(this.wb);
+        this.drawFootBar();
     },
     onClear : function(){
         
