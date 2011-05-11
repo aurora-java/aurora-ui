@@ -6,6 +6,7 @@ Release ()
 * 修正Grid复合表头为lock的情况下单选框和多选框显示错位
 * 修正IE7下Grid表头错位
 * 修正IE7下Grid在autoPageSize的情况下pagesize计算不正确
+* 修正TreeGrid在滚动时，子节点自动展开的问题
 
 Release (2011-04-27)
 ------------------------------------

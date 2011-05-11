@@ -96,9 +96,26 @@ $A.Tree = Ext.extend($A.Component,{
 			node.paintText();
 		}
 	},
-	onIndexChange:function(ds, record){
+	onIndexChange:function(ds, record , isNext){
 		var node = this.nodeHash[record.id];
-		if(node)this.setFocusNode(node);
+		if(node){
+			if(node.parentNode&&this.isAllParentExpand(node))
+				this.setFocusNode(node);
+			else{
+				var p = node.parentNode,record = this['get'+(isNext?'Next':'Previous')+'ExpandedNode'](p).record;
+				ds.locate(ds.getAll().indexOf(record)+1);
+			}
+		}
+	},
+	getNextExpandedNode:function(node){
+		return node.nextSibling||this.getNextExpandedNode(node.parentNode);
+	},
+	getPreviousExpandedNode:function(node){
+		return this.isAllParentExpand(node)?node:this.getPreviousExpandedNode(node.parentNode);
+	},
+	isAllParentExpand:function(node){
+		var p=node.parentNode;
+		return 	!p||(p.isExpand&&this.isAllParentExpand(p))
 	},
 	onClick : function(event){
 		var elem = Ext.fly(event.target).findParent('td');
