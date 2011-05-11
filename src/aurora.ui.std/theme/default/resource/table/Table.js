@@ -489,6 +489,7 @@ $A.Table = Ext.extend($A.Component,{
         var row = Ext.get(this.id+'-'+record.id);
         if(row)row.remove();
         this.selectTr=null;
+        this.drawFootBar();
     },
 	clearBody:function(){
 		while(this.tbody.dom.childNodes.length){
