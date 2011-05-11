@@ -4,6 +4,8 @@ Release ()
 * Table添加checkbox编辑器
 * Table添加单选框和多选框
 * 修正Grid复合表头为lock的情况下单选框和多选框显示错位
+* 修正IE7下Grid表头错位
+* 修正IE7下Grid在autoPageSize的情况下pagesize计算不正确
 
 Release (2011-04-27)
 ------------------------------------
