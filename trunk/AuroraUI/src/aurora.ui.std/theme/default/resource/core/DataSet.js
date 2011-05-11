@@ -710,7 +710,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
     },
-    processCurrentRow : function(){
+    processCurrentRow : function(inNext){
     	var r = this.getCurrentRecord();
     	for(var k in this.fields){
     		var field = this.fields[k];
@@ -722,10 +722,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     				ds.resetConfig();
     			}
     			ds.fireEvent('refresh',ds)
-    			ds.processCurrentRow();
+    			ds.processCurrentRow(inNext);
     		}
     	}
-    	if(r) this.fireEvent("indexchange", this, r);
+    	if(r) this.fireEvent("indexchange", this, r, inNext);
     },
     /**
      * 获取所有选择的数据.
@@ -803,7 +803,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	if(this.currentIndex == index && force !== true) return;
 //    	if(valid !== false) if(!this.validCurrent())return;
     	if(index <=0 || (index > this.totalCount + this.getNewRecrods().length))return;
-    	var lindex = index - (this.currentPage-1)*this.pagesize;
+    	var lindex = index - (this.currentPage-1)*this.pagesize,
+    		isNext = index > this.currentIndex;
     	if(this.data[lindex - 1]){
 	    	this.currentIndex = index;
     	}else{
@@ -816,7 +817,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 				return;
     		}
     	}
-    	this.processCurrentRow();
+    	this.processCurrentRow(isNext);
     },
     /**
      * 定位到某页.
