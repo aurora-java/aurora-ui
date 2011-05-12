@@ -389,12 +389,12 @@ $A.Grid = Ext.extend($A.Component,{
     },
     onMouseWheel : function(e){
         if(this.editing == true) return;
-    	var delta = e.getWheelDelta();
+    	var delta = e.getWheelDelta(),sf=this;
         if(delta > 0){
-            this.dataset.pre();
+            sf.dataset.pre();
             e.stopEvent();
         } else if(delta < 0){
-            this.dataset.next();
+            sf.dataset.next();
             e.stopEvent();
         }
     },
@@ -841,6 +841,7 @@ $A.Grid = Ext.extend($A.Component,{
                 ed.isFireEvent = false;
                 ed.isHidden = true;
             }
+            ed.blur();
             this.editing = false;
         }
     },
