@@ -8,6 +8,7 @@ Release ()
 * 修正IE7下Grid在autoPageSize的情况下pagesize计算不正确
 * 修正TreeGrid在滚动时，子节点自动展开的问题
 * 修正Table及Grid的footerRenderer在remove和clear的情况下没有触发效果的问题
+* 修正Grid在编辑状态下 滚动鼠标造成数据错位的问题
 
 Release (2011-04-27)
 ------------------------------------
