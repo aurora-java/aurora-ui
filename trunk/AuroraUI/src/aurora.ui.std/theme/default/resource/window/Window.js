@@ -158,6 +158,14 @@ $A.Window = Ext.extend($A.Component,{
         this.toFront();
         this.focus.defer(10,this);
     },
+    /**
+     * 移动窗口到指定位置.
+     * 
+     */
+    move: function(x,y){
+        this.wrap.moveTo(x,y);
+        this.shadow.moveTo(x+3,y+3)
+    },
     hasVScrollBar : function(){
     	var body=document[Ext.isStrict?'documentElement':'body'];
     	return body.scrollTop>0||body.scrollHeight>body.clientHeight;
@@ -516,7 +524,7 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     if(cmp == null) {
         var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok',_lang['window.button.ok']);
         var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel',_lang['window.button.cancel']);
-        cmp = new $A.Window({id:'aurora-msg-ok-cancel',title:title, height:height||100,width:width||300});
+        cmp = new $A.Window({id:'aurora-msg-ok-cancel',closeable:false,title:title, height:height||100,width:width||300});
         if(msg){
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
                 var okbtn = $("aurora-msg-ok");
@@ -550,7 +558,7 @@ $A.showOkWindow = function(title, msg, width, height,callback){
 	var cmp = $A.CmpManager.get('aurora-msg-ok');
 	if(cmp == null) {
 		var btnhtml = $A.Button.getTemplate('aurora-msg-yes',_lang['window.button.ok']);
-		cmp = new $A.Window({id:'aurora-msg-ok',title:title, height:height,width:width});
+		cmp = new $A.Window({id:'aurora-msg-ok',closeable:false,title:title, height:height,width:width});
 		if(msg){
 			cmp.body.update(msg+ '<center>'+btnhtml+'</center>',true,function(){
     			var btn = $("aurora-msg-yes");
