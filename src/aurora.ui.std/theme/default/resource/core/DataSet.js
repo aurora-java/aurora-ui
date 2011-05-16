@@ -318,6 +318,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */ 
             'indexchange',
             /**
+             * @event beforeselect
+             * 选择数据前事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Aurora.Record} record 选择的record.
+             */ 
+	        'beforeselect',
+            /**
              * @event select
              * 选择数据事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
@@ -754,15 +761,17 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(!r) return;
         if(this.selected.indexOf(r) != -1)return;
         if(!this.execSelectFunction(r))return;
-        if(this.selectionmodel == 'multiple'){
-            this.selected.add(r);
-            this.fireEvent('select', this, r);
-        }else{
-            var or = this.selected[0];
-            this.unSelect(or);
-            this.selected = []
-            this.selected.add(r);
-            this.fireEvent('select', this, r);
+        if(this.fireEvent("beforeselect",this,r)){
+	        if(this.selectionmodel == 'multiple'){
+	            this.selected.add(r);
+	            this.fireEvent('select', this, r);
+	        }else{
+	            var or = this.selected[0];
+	            this.unSelect(or);
+	            this.selected = []
+	            this.selected.add(r);
+	            this.fireEvent('select', this, r);
+	        }
         }
     },
     /**

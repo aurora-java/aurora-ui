@@ -10,6 +10,7 @@ Release ()
 * 修正Table及Grid的footerRenderer在remove和clear的情况下没有触发效果的问题
 * 修正Grid在编辑状态下 滚动鼠标造成数据错位的问题
 * 修正在弹出的Window下的Tab组件执行关闭标签后再关闭Window组件时发生的问题
+* 增加了DataSet的beforeselect事件
 
 Release (2011-04-27)
 ------------------------------------
