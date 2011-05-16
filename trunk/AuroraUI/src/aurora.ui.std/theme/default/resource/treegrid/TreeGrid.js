@@ -178,7 +178,9 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 			}
 		}
 		this.lockWidth = v;
-	}
+	},
+	onMouseWheel : function(e){
+    }
 });
 $A.Tree.TreeGridNode = Ext.extend($A.Tree.TreeNode, {
 			createNode : function(item) {
