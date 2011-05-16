@@ -11,7 +11,17 @@ $A.ImageCode = Ext.extend($A.Component,{
         this.wrap[ou]("click", this.onClick,  this);
     },
     onClick : function(){
+        if(this.enable == true)
     	this.refresh();
+    },
+    setEnable : function(isEnable){
+        if(isEnable == true){
+            this.enable = true;
+            this.refresh();
+        }else{
+            this.enable = false;
+            this.wrap.dom.src = "";
+        }
     },
     /**
      * 重新加载验证码
