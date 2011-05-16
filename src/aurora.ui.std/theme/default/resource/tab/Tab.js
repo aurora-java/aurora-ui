@@ -1,7 +1,7 @@
 /**
  * @class Aurora.Tab
  * @extends Aurora.Component
- * <p>Tab组件.
+ * Tab组件.
  * @author njq.niu@hand-china.com
  * @constructor
  * @param {Object} config 配置对象. 
@@ -177,10 +177,12 @@ $A.Tab = Ext.extend($A.Component,{
         
 		delete body.loaded;
 		setTimeout(function(){
+			var cmps2=$A.focusWindow?$A.focusWindow.cmps:{};
         	for(var key in cmps){
         		var cmp = cmps[key];
         		if(cmp.destroy){
         			try{
+    					delete cmps2[key];
         				cmp.destroy();
         			}catch(e){
         				alert('销毁window出错: ' + e)
