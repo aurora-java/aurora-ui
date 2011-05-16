@@ -96,7 +96,11 @@ $A.Tree = Ext.extend($A.Component,{
 			node.paintText();
 		}
 	},
-	onIndexChange:function(ds, record , isNext){
+	onIndexChange:function(ds, record){
+		var node = this.nodeHash[record.id];
+		if(node)this.setFocusNode(node);
+	},
+	/*onIndexChange:function(ds, record , isNext){
 		var node = this.nodeHash[record.id];
 		if(node){
 			if(node.parentNode&&this.isAllParentExpand(node))
@@ -116,7 +120,7 @@ $A.Tree = Ext.extend($A.Component,{
 	isAllParentExpand:function(node){
 		var p=node.parentNode;
 		return 	!p||(p.isExpand&&this.isAllParentExpand(p))
-	},
+	},*/
 	onClick : function(event){
 		var elem = Ext.fly(event.target).findParent('td');
 		if(!elem)return;
