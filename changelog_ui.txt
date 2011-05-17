@@ -1,0 +1,52 @@
+Release ()
+------------------------------------
+
+Release (2011-05-17)
+------------------------------------
+* Window组件新增beforeclose事件
+* Table添加checkbox编辑器
+* Table添加单选框和多选框
+* 修正Grid复合表头为lock的情况下单选框和多选框显示错位
+* 修正IE7下Grid表头错位
+* 修正IE7下Grid在autoPageSize的情况下pagesize计算不正确
+* 修正TreeGrid在滚动时，子节点自动展开的问题
+* 修正Table及Grid的footerRenderer在remove和clear的情况下没有触发效果的问题
+* 修正Grid在编辑状态下 滚动鼠标造成数据错位的问题
+* 修正在弹出的Window下的Tab组件执行关闭标签后再关闭Window组件时发生的问题
+* 增加了DataSet的beforeselect事件
+* 修订DataSet新增函数的一个bug
+
+Release (2011-04-27)
+------------------------------------
+* 修正了Table的editorFunction的一个BUG
+* 修正了Grid编辑时滚动滑轮导致的数据错误
+* 修改了Lov组件,当输入值为空的时候不在fetch
+
+Release (2011-04-25)
+------------------------------------
+* Tree增加dblclick事件
+* 修正了Tab在IE8下显示不正确
+* 修正导出功能遗漏了查询条件
+* 增加了DataSet的beforesubmit事件的判断
+* 修改chart组件
+
+Release (2011-04-15)
+------------------------------------
+* 增加remove函数中对beforeremove事件结果的判断
+* 修改breforeCreate事件的触发参数
+
+Release (2011-04-14)
+------------------------------------
+* Grid的Column上增加forExport属性，用于导出功能。
+* 修改radio的图片
+* 修正numbeField的maxLength错误
+* Grid的Column上增加exportField属性，用于导出功能。
+* 修订grid新增数据无法选中的问题
+* 修改DataSet中create函数的breforeCreate事件
+* DataSet增加beforeLoadData函数,用于预处理数据
+* DataSet增加了validateSelf函数,用于校验dataset本身,不包含子dataset
+
+Release (2011-04-13)
+------------------------------------
+* 将组件的加载js修改为xxx-min.js
+* 增加了导出的客户端脚本
