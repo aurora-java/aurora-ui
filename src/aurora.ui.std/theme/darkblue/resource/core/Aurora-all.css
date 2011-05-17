@@ -5,7 +5,7 @@
  * http://www.hand-china.com
  * 
  * author:牛佳庆
- * revision:$Rev: 2224 $
+ * revision:$Rev: 2549 $
  */
 html, body {
 	margin:0; 
@@ -24,7 +24,7 @@ HTML {
 .ext-ie6{
 	font-size:12px;
 }
-div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, button, p, blockquote{ margin:0; padding:0; }/*, th, td */
+div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, button, blockquote{ margin:0; padding:0; }/*, th, td p, */
 fieldset, img { border:0; }
 ol, ul { list-style:none; }
 address, caption, cite, code, dfn, em, th, var { font-style:normal; font-weight:400; }
@@ -266,7 +266,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     line-height:28px;
     height:30px;    
 }
-.item-ckb,.grid-ckb{
+.item-ckb,.grid-ckb,.table-ckb{
 	width:13px;
 	height:13px;
 	font-size:0pt;
@@ -290,7 +290,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .item-ckb-readonly-c {
 	background-position:-39px -13px;
 }
-.item-radio-img,.grid-radio{
+.item-radio-img,.grid-radio,.table-radio{
 	width:13px;
 	height:13px;
 	font-size:0;
