@@ -50,7 +50,7 @@ $A.Window = Ext.extend($A.Component,{
         this.fullScreen = false;
         this.modal = config.modal||true;
         this.cmps = {};
-        $A.focusWindow = null;
+//        $A.focusWindow = null;
         $A.Window.superclass.constructor.call(this,config);
     },
     initComponent : function(config){
@@ -220,7 +220,7 @@ $A.Window = Ext.extend($A.Component,{
 	    	this.shadow.setStyle('z-index', zindex+4);
 	    	if(this.modal) $A.Cover.cover(this.wrap);
     	}
-    	$A.focusWindow = this;    	
+//    	$A.focusWindow = this;    	
     },
     onMouseDown : function(e){
     	var sf = this; 
@@ -308,7 +308,7 @@ $A.Window = Ext.extend($A.Component,{
     	}
     },
     destroy : function(){
-    	$A.focusWindow = null;
+//    	$A.focusWindow = null;
     	var wrap = this.wrap;
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
@@ -415,7 +415,7 @@ $A.Window = Ext.extend($A.Component,{
 //	    		}
 //	    	}
 	    	sf.fireEvent('load',sf)
-    	});
+    	},this);
     }
 });
 /**
