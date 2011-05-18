@@ -177,12 +177,10 @@ $A.Tab = Ext.extend($A.Component,{
         
 		delete body.loaded;
 		setTimeout(function(){
-			var cmps2=$A.focusWindow?$A.focusWindow.cmps:{};
         	for(var key in cmps){
         		var cmp = cmps[key];
         		if(cmp.destroy){
         			try{
-    					delete cmps2[key];
         				cmp.destroy();
         			}catch(e){
         				alert('销毁window出错: ' + e)
@@ -191,6 +189,26 @@ $A.Tab = Ext.extend($A.Component,{
         	}
         },10)
 		this.selectTab(index);
+	},
+	destroy : function(){
+		var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
+    	for(var i=0;i<bodys.length;i++){
+    		var body = Ext.get(bodys[i]),
+    		cmps=body.cmps;
+    		if(cmps){
+	    		for(var key in cmps){
+	        		var cmp = cmps[key];
+	        		if(cmp.destroy){
+	        			try{
+	        				cmp.destroy();
+	        			}catch(e){
+	        				alert('销毁window出错: ' + e)
+	        			}
+	        		}
+	        	}
+    		}
+    	}
+		$A.Tab.superclass.destroy.call(this); 
 	},
 	/**
 	 * 将某个Tab页设为不可用。当TabItem有且仅有1个时，该方法无效果。
@@ -352,21 +370,21 @@ $A.Tab = Ext.extend($A.Component,{
 			url: url,
 		   	success: function(response, options){
 		    	var html = response.responseText;
-	    		sf.intervalIds[index]=setInterval(function(){
-	    			if(!$A.focusTab){
-				    	clearInterval(sf.intervalIds[index]);
+//	    		sf.intervalIds[index]=setInterval(function(){
+//	    			if(!$A.focusTab){
+//				    	clearInterval(sf.intervalIds[index]);
 				    	sf.clearLoading(body);
-						$A.focusTab=body;
-						try{
+//						$A.focusTab=body;
+//						try{
 					    	body.update(html,true,function(){
-					    		$A.focusTab=null;
+//					    		$A.focusTab=null;
 			                    sf.fireEvent('select', sf, index)
-					    	});
-						}catch(e){
-							$A.focusTab=null;
-						}
-	    			}
-		    	},10)
+					    	},body);
+//						}catch(e){
+//							$A.focusTab=null;
+//						}
+//	    			}
+//		    	},10)
 		    }
 		});		
     },
