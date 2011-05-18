@@ -80,7 +80,7 @@ $A.CmpManager = function(){
 	        }
             if(window['__host'])window['__host'].cmps[id] = cmp;
 //        	if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
-        	if($A.focusTab) $A.focusTab.cmps[id] = cmp;
+//        	if($A.focusTab) $A.focusTab.cmps[id] = cmp;
         	this.cache[id]=cmp;
         	cmp.on('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
         	cmp.on('mouseout',$A.CmpManager.onCmpOut,$A.CmpManager);
