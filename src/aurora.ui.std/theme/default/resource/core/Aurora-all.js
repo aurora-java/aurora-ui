@@ -26,7 +26,7 @@ $A.cache = {};
 $A.cmps = {};
 $A.onReady = Ext.onReady;
 $A.get = Ext.get;
-$A.focusWindow;
+//$A.focusWindow;
 $A.focusTab;
 $A.defaultDateFormat="isoDate";
 $A.defaultDateTimeFormat="yyyy-mm-dd HH:MM:ss";
@@ -78,7 +78,8 @@ $A.CmpManager = function(){
 	        	alert("错误: ID为' " + id +" '的组件已经存在!");
 	        	return;
 	        }
-        	if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
+            if(window['__host'])window['__host'].cmps[id] = cmp;
+//        	if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
         	if($A.focusTab) $A.focusTab.cmps[id] = cmp;
         	this.cache[id]=cmp;
         	cmp.on('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
@@ -766,7 +767,144 @@ Ext.util.JSON.encodeDate = function(o){
     r += '"';
     return r
 };
-Ext.Element.prototype.update = function(html, loadScripts, callback){
+$A.evalList = [];
+$A.evaling = false;
+$A.doEvalScript = function(){
+    $A.evaling = true;
+    var list = $A.evalList;
+    var o = list.shift();
+    if(!o) {
+        window['__host'] = null;
+        $A.evaling = false;
+        return;
+    }
+    var sf = o.sf, html=o.html, loadScripts=o.loadScripts, callback=o.callback, host=o.host;
+    var dom = sf.dom;
+    
+    if(host) window['__host'] = host;
+    var links = [];
+    var scripts = [];
+    var hd = document.getElementsByTagName("head")[0];
+    for(var i=0;i<hd.childNodes.length;i++){
+        var he = hd.childNodes[i];
+        if(he.tagName == 'LINK') {
+            links.push(he.href);
+        }else if(he.tagName == 'SCRIPT'){
+            scripts.push(he.src);
+        }
+    }
+    var jsre = /(?:<script([^>]*)?>)((\n|\r|.)*?)(?:<\/script>)/ig;
+    var jsSrcRe = /\ssrc=([\'\"])(.*?)\1/i;
+    
+    var cssre = /(?:<link([^>]*)?>)((\n|\r|.)*?)/ig;
+    var cssHreRe = /\shref=([\'\"])(.*?)\1/i;
+    
+    var cssm;
+    while(cssm = cssre.exec(html)){
+        var attrs = cssm[1];
+        var srcMatch = attrs ? attrs.match(cssHreRe) : false;
+        if(srcMatch && srcMatch[2]){
+            var included = false;
+            for(var i=0;i<links.length;i++){
+                var link = links[i];
+                if(link.indexOf(srcMatch[2]) != -1){
+                    included = true;
+                    break;
+                }
+            }
+            if(!included) {
+                var s = document.createElement("link");
+                s.type = 'text/css';
+                s.rel = 'stylesheet';
+                s.href = srcMatch[2];
+                hd.appendChild(s);
+            }
+        }
+    }
+    var match;
+    var jslink = [];
+    var jsscript = [];
+    while(match = jsre.exec(html)){
+        var attrs = match[1];
+        var srcMatch = attrs ? attrs.match(jsSrcRe) : false;
+        if(srcMatch && srcMatch[2]){
+            var included = false;
+            for(var i=0;i<scripts.length;i++){
+                var script = scripts[i];
+                if(script.indexOf(srcMatch[2]) != -1){
+                    included = true;
+                    break;
+                }
+            }
+            if(!included) {
+                jslink[jslink.length] = {
+                    src:srcMatch[2],
+                    type:'text/javascript'
+                }
+            } 
+        }else if(match[2] && match[2].length > 0){
+            jsscript[jsscript.length] = match[2];
+        }
+    }
+    var loaded = 0;
+    
+    var onReadOnLoad = function(){
+        var isready = Ext.isIE ? (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") : true;
+        if(isready) {
+            loaded ++;
+            if(loaded==jslink.length) {
+                for(j=0,k=jsscript.length;j<k;j++){
+                    var jst = jsscript[j];
+                    if(window.execScript) {
+                        window.execScript(jst);
+                    } else {
+                        window.eval(jst);
+                    }
+                }
+                if(typeof callback == "function"){
+                    callback();
+                }
+                var el = document.getElementById(id);
+                if(el){Ext.removeNode(el);} 
+                Ext.fly(dom).setStyle('display', 'block');
+                $A.doEvalScript();
+            }else{
+                var js = jslink[loaded];
+                var s = document.createElement("script");
+                s.src = js.src;
+                s.type = js.type;
+                s[Ext.isIE ? "onreadystatechange" : "onload"] = onReadOnLoad;
+                hd.appendChild(s);
+            }
+        }
+    }
+    
+    if(jslink.length > 0){
+        var js = jslink[0];
+        var s = document.createElement("script");
+        s.src = js.src;
+        s.type = js.type;
+        s[Ext.isIE ? "onreadystatechange" : "onload"] = onReadOnLoad;
+        hd.appendChild(s);
+    } else if(jslink.length ==0) {
+        for(j=0,k=jsscript.length;j<k;j++){
+            var jst = jsscript[j];
+            if(window.execScript) {
+               window.execScript(jst);
+            } else {
+               window.eval(jst);
+            }
+        }
+        if(typeof callback == "function"){
+                callback();
+        }
+        var el = document.getElementById(id);
+        if(el){Ext.removeNode(el);} 
+        Ext.fly(dom).setStyle('display', 'block');
+        $A.doEvalScript();
+    } 
+}
+Ext.Element.prototype.update = function(html, loadScripts, callback,host){
     if(typeof html == "undefined"){
         html = "";
     }
@@ -777,159 +915,23 @@ Ext.Element.prototype.update = function(html, loadScripts, callback){
         }
         return this;
     }
+    
     var id = Ext.id();
+    var sf = this;
     var dom = this.dom;
-
     html += '<span id="' + id + '"></span>';
     Ext.lib.Event.onAvailable(id, function(){
-    	var links = [];
-    	var scripts = [];
-        var hd = document.getElementsByTagName("head")[0];
-        for(var i=0;i<hd.childNodes.length;i++){
-        	var he = hd.childNodes[i];
-        	if(he.tagName == 'LINK') {
-        		links.push(he.href);
-        	}else if(he.tagName == 'SCRIPT'){
-        		scripts.push(he.src);
-        	}
-        }
-        var jsre = /(?:<script([^>]*)?>)((\n|\r|.)*?)(?:<\/script>)/ig;
-        var jsSrcRe = /\ssrc=([\'\"])(.*?)\1/i;
-        
-        var cssre = /(?:<link([^>]*)?>)((\n|\r|.)*?)/ig;
-        var cssHreRe = /\shref=([\'\"])(.*?)\1/i;
-		
-		var cssm;
-		while(cssm = cssre.exec(html)){
-			var attrs = cssm[1];
-			var srcMatch = attrs ? attrs.match(cssHreRe) : false;
-			if(srcMatch && srcMatch[2]){
-				var included = false;
-				for(var i=0;i<links.length;i++){
-					var link = links[i];
-					if(link.indexOf(srcMatch[2]) != -1){
-						included = true;
-						break;
-					}
-				}
-				if(!included) {
-                	var s = document.createElement("link");
-					s.type = 'text/css';
-					s.rel = 'stylesheet';
-                   	s.href = srcMatch[2];
-                   	hd.appendChild(s);
-                }
-			}
-		}
-        var match;
-        var jslink = [];
-        var jsscript = [];
-        while(match = jsre.exec(html)){
-            var attrs = match[1];
-            var srcMatch = attrs ? attrs.match(jsSrcRe) : false;
-            if(srcMatch && srcMatch[2]){
-            	var included = false;
-				for(var i=0;i<scripts.length;i++){
-					var script = scripts[i];
-					if(script.indexOf(srcMatch[2]) != -1){
-						included = true;
-						break;
-					}
-				}
-               	if(!included) {
-               		jslink[jslink.length] = {
-               			src:srcMatch[2],
-               			type:'text/javascript'
-               		}
-               	} 
-            }else if(match[2] && match[2].length > 0){
-            	jsscript[jsscript.length] = match[2];
-            }
-        }
-        var loaded = 0;
-        
-        
-        
-        
-        var onReadOnLoad = function(){
-            var isready = Ext.isIE ? (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") : true;
-            if(isready) {
-                loaded ++;
-                if(loaded==jslink.length) {
-                    for(j=0,k=jsscript.length;j<k;j++){
-                        var jst = jsscript[j];
-                        if(window.execScript) {
-                            window.execScript(jst);
-                        } else {
-                            window.eval(jst);
-                        }
-                    }
-                    if(typeof callback == "function"){
-			                callback();
-			        }
-                }else{
-                	var js = jslink[loaded];
-                    var s = document.createElement("script");
-                    s.src = js.src;
-                    s.type = js.type;
-                    s[Ext.isIE ? "onreadystatechange" : "onload"] = onReadOnLoad;
-                    hd.appendChild(s);
-                }
-            }
-        }
-        
-        if(jslink.length > 0){
-            var js = jslink[0];
-            var s = document.createElement("script");
-            s.src = js.src;
-            s.type = js.type;
-            s[Ext.isIE ? "onreadystatechange" : "onload"] = onReadOnLoad;
-            hd.appendChild(s);
-        }
-        
-        
-//        for(var i = 0,l=jslink.length;i<l;i++){
-//        	var js = jslink[i];
-//        	var s = document.createElement("script");
-//            s.src = js.src;
-//            s.type = js.type;
-//            s[Ext.isIE ? "onreadystatechange" : "onload"] = function(){
-//           	var isready = Ext.isIE ? (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") : true;
-//            	if(isready) {
-//            		alert(this.readyState + " " + Aurora.Tree)
-//	            	loaded ++;
-//	            	if(loaded==jslink.length) {
-//	                    for(j=0,k=jsscript.length;j<k;j++){
-//		                	var jst = jsscript[j];
-//		                	if(window.execScript) {
-//		                    	window.execScript(jst);
-//		                    } else {
-//		                    	window.eval(jst);
-//		                    }
-//		                }
-//	            	}
-//            	}
-//            };
-//			hd.appendChild(s);
-//        }
-        if(jslink.length ==0) {
-        	for(j=0,k=jsscript.length;j<k;j++){
-            	var jst = jsscript[j];
-            	if(window.execScript) {
-                   window.execScript(jst);
-                } else {
-                   window.eval(jst);
-                }
-            }
-            if(typeof callback == "function"){
-	                callback();
-	        }
-        }        
-        var el = document.getElementById(id);
-        if(el){Ext.removeNode(el);} 
-	    Ext.fly(dom).setStyle('display', 'block');
-	    
+        $A.evalList.push({
+            html:html,
+            loadScripts:loadScripts,
+            callback:callback,
+            host:host,
+            sf:sf
+        });
+        if(!$A.evaling)
+        $A.doEvalScript() 
     });
+    
     Ext.fly(dom).setStyle('display', 'none');
     dom.innerHTML = html.replace(/(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig, "").replace(/(?:<link.*?>)((\n|\r|.)*?)/ig, "");
     return this;
@@ -5432,7 +5434,7 @@ $A.Window = Ext.extend($A.Component,{
         this.fullScreen = false;
         this.modal = config.modal||true;
         this.cmps = {};
-        $A.focusWindow = null;
+//        $A.focusWindow = null;
         $A.Window.superclass.constructor.call(this,config);
     },
     initComponent : function(config){
@@ -5602,7 +5604,7 @@ $A.Window = Ext.extend($A.Component,{
 	    	this.shadow.setStyle('z-index', zindex+4);
 	    	if(this.modal) $A.Cover.cover(this.wrap);
     	}
-    	$A.focusWindow = this;    	
+//    	$A.focusWindow = this;    	
     },
     onMouseDown : function(e){
     	var sf = this; 
@@ -5690,7 +5692,7 @@ $A.Window = Ext.extend($A.Component,{
     	}
     },
     destroy : function(){
-    	$A.focusWindow = null;
+//    	$A.focusWindow = null;
     	var wrap = this.wrap;
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
@@ -5797,7 +5799,7 @@ $A.Window = Ext.extend($A.Component,{
 //	    		}
 //	    	}
 	    	sf.fireEvent('load',sf)
-    	});
+    	},this);
     }
 });
 /**

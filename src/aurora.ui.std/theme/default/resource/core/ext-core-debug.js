@@ -1508,7 +1508,8 @@ Ext.util.DelayedTask = function(fn, scope, args){
 
             if (tryAgain) {
                 startInterval();
-            } else {
+            //防止clearInterval之前又放入onAvailable,导致丢失不触发
+            } else if(onAvailStack.length == 0){
                 clearInterval(_interval);
                 _interval = null;
             }
