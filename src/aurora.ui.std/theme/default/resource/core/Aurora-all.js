@@ -27,7 +27,7 @@ $A.cmps = {};
 $A.onReady = Ext.onReady;
 $A.get = Ext.get;
 //$A.focusWindow;
-$A.focusTab;
+//$A.focusTab;
 $A.defaultDateFormat="isoDate";
 $A.defaultDateTimeFormat="yyyy-mm-dd HH:MM:ss";
 $A.defaultChineseLength = 2;
@@ -80,7 +80,7 @@ $A.CmpManager = function(){
 	        }
             if(window['__host'])window['__host'].cmps[id] = cmp;
 //        	if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
-        	if($A.focusTab) $A.focusTab.cmps[id] = cmp;
+//        	if($A.focusTab) $A.focusTab.cmps[id] = cmp;
         	this.cache[id]=cmp;
         	cmp.on('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
         	cmp.on('mouseout',$A.CmpManager.onCmpOut,$A.CmpManager);
