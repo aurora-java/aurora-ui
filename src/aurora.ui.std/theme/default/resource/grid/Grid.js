@@ -738,7 +738,6 @@ $A.Grid = Ext.extend($A.Component,{
         if(!col)return;
         var record = this.dataset.getAt(row);
         if(!record)return;
-        this.editing = true;
         if(record.id != this.selectedId) this.selectRow(row);
         this.focusColumn(name);
         var editor = this.getEditor(col,record);
@@ -771,6 +770,7 @@ $A.Grid = Ext.extend($A.Component,{
                     ed.bind(sf.dataset, name);
                     ed.render(record);
                     ed.focus();
+       				sf.editing = true;
 //                    ed.on('blur',sf.onEditorBlur, sf);
                     Ext.get(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
                 }
