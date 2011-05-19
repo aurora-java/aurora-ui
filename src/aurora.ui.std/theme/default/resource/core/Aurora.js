@@ -33,6 +33,16 @@ $A.defaultDateTimeFormat="yyyy-mm-dd HH:MM:ss";
 $A.defaultChineseLength = 2;
 
 /**
+ * 页面地址重定向
+ * @param {String} url
+ */
+$A.go=function(url){
+	if(!url)return;
+	var r=Math.round();
+	location.href=url+(url.indexOf('?')==-1?'?':'&')+'__r__='+r;
+}
+
+/**
  * 将对象居中
  * @param {Object/String} el Aurora组件对象或者是DOM对象或者是对象的ID字符串
  */
