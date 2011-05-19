@@ -27,7 +27,7 @@ $A.cmps = {};
 $A.onReady = Ext.onReady;
 $A.get = Ext.get;
 //$A.focusWindow;
-$A.focusTab;
+//$A.focusTab;
 $A.defaultDateFormat="isoDate";
 $A.defaultDateTimeFormat="yyyy-mm-dd HH:MM:ss";
 $A.defaultChineseLength = 2;

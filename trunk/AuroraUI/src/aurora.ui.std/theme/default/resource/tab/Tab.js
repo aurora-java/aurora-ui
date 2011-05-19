@@ -183,7 +183,7 @@ $A.Tab = Ext.extend($A.Component,{
         			try{
         				cmp.destroy();
         			}catch(e){
-        				alert('销毁window出错: ' + e)
+        				alert('销毁Tab出错: ' + e)
         			}
         		}
         	}
@@ -202,7 +202,7 @@ $A.Tab = Ext.extend($A.Component,{
 	        			try{
 	        				cmp.destroy();
 	        			}catch(e){
-	        				alert('销毁window出错: ' + e)
+	        				alert('销毁Tab出错: ' + e)
 	        			}
 	        		}
 	        	}
