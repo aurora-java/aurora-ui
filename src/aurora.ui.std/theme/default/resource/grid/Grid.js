@@ -587,10 +587,10 @@ $A.Grid = Ext.extend($A.Component,{
     },
     onRemove : function(ds,record,index){
         var lrow = Ext.get(this.id+'$l-'+record.id);
-        if(lrow)lrow.remove();
-        
+        if(lrow)lrow.remove();        
         var urow = Ext.get(this.id+'$u-'+record.id);
         if(urow)urow.remove();
+        this.clearDomRef();
         $A.Masker.unmask(this.wb);
         this.drawFootBar();
     },
