@@ -42,5 +42,6 @@
 	<feature-attach elementName="view-config" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.application.features.ViewConfig"/>
 	
 	<feature-attach elementName="graphic" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Graphic"/>
+    <feature-attach elementName="upload" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Upload"/>
 	
 </class-registry>

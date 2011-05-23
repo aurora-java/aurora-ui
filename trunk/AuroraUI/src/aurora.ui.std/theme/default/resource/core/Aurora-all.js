@@ -5620,7 +5620,6 @@ $A.Window = Ext.extend($A.Component,{
     	var sf = this; 
     	//e.stopEvent();
     	sf.toFront();
-    	sf.focus();
     	var xy = sf.wrap.getXY();
     	sf.relativeX=xy[0]-e.getPageX();
 		sf.relativeY=xy[1]-e.getPageY();
@@ -5630,6 +5629,7 @@ $A.Window = Ext.extend($A.Component,{
         this.proxy.show();
     	Ext.get(document.documentElement).on("mousemove", sf.onMouseMove, sf);
     	Ext.get(document.documentElement).on("mouseup", sf.onMouseUp, sf);
+        sf.focus();
     },
     onMouseUp : function(e){
     	var sf = this; 
@@ -5914,27 +5914,28 @@ $A.showConfirm = function(title, msg, okfun,cancelfun, width, height){
  * @return {Window} 窗口对象
  */
 $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
-    var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
-    if(cmp == null) {
-        var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok',_lang['window.button.ok']);
-        var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel',_lang['window.button.cancel']);
-        cmp = new $A.Window({id:'aurora-msg-ok-cancel',closeable:false,title:title, height:height||100,width:width||300});
+    //var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
+    //if(cmp == null) {
+        var id = Ext.id(),okid = 'aurora-msg-ok'+id,cancelid = 'aurora-msg-cancel'+id,
+        okbtnhtml = $A.Button.getTemplate(okid,_lang['window.button.ok']),
+        cancelbtnhtml = $A.Button.getTemplate(cancelid,_lang['window.button.cancel']),
+        cmp = new $A.Window({id:'aurora-msg-ok-cancel'+id,closeable:false,title:title, height:height||100,width:width||300});
         if(msg){
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
-                var okbtn = $("aurora-msg-ok");
-                var cancelbtn = $("aurora-msg-cancel");
-                cmp.cmps['aurora-msg-ok'] = okbtn;
-                cmp.cmps['aurora-msg-cancel'] = cancelbtn;
+                var okbtn = $(okid);
+                var cancelbtn = $(cancelid);
+                cmp.cmps[okid] = okbtn;
+                cmp.cmps[cancelid] = cancelbtn;
                 okbtn.on('click',function(){
                 	if(okfun)okfun.call(this,cmp);
                 });
                 cancelbtn.on('click',function(){
-                    cmp.close()
                 	if(cancelfun)cancelfun.call(this,cmp)
+                	else cmp.close();
                 });
             });
         }
-    }
+    //}
     return cmp;
 }
 /**
@@ -5949,23 +5950,24 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
  * @return {Window} 窗口对象
  */
 $A.showOkWindow = function(title, msg, width, height,callback){
-	var cmp = $A.CmpManager.get('aurora-msg-ok');
-	if(cmp == null) {
-		var btnhtml = $A.Button.getTemplate('aurora-msg-yes',_lang['window.button.ok']);
-		cmp = new $A.Window({id:'aurora-msg-ok',closeable:false,title:title, height:height,width:width});
+	//var cmp = $A.CmpManager.get('aurora-msg-ok');
+	//if(cmp == null) {
+		var id = Ext.id(),yesid = 'aurora-msg-yes'+id,
+		btnhtml = $A.Button.getTemplate(yesid,_lang['window.button.ok']),
+		cmp = new $A.Window({id:'aurora-msg-ok'+id,closeable:false,title:title, height:height,width:width});
 		if(msg){
 			cmp.body.update(msg+ '<center>'+btnhtml+'</center>',true,function(){
-    			var btn = $("aurora-msg-yes");
-                cmp.cmps['aurora-msg-yes'] = btn;
+    			var btn = $(yesid);
+                cmp.cmps[yesid] = btn;
                 btn.on('click',function(){
                     if(callback)callback.call(this,cmp);
-                    cmp.close()
+                    else cmp.close();
                 });
                 //btn.focus();
                 btn.focus.defer(10,btn);
 			});
 		}
-	}
+	//}
 	return cmp;
 }
 /**
@@ -5991,10 +5993,17 @@ $A.showUploadWindow = function(path,title,source_type,pkvalue,max_size,file_type
  * @param {Object} config 配置对象. 
  */
 $A.Lov = Ext.extend($A.TextField,{
+	selectedClass:'item-comboBox-selected',
+	viewClass:'item-comboBox-view',
     constructor: function(config) {
         this.isWinOpen = false;
         this.fetching = false;
         this.fetchremote = true;
+        this.needFetch = true;
+        this.autocompletesize = 2;
+        this.autocompletedelay = 500;
+        this.autocompletepagesize = 10;
+        this.maxHeight = 210;
         this.context = config.context||'';
         $A.Lov.superclass.constructor.call(this, config);        
     },
@@ -6007,8 +6016,19 @@ $A.Lov = Ext.extend($A.TextField,{
             this.lovservice = this.processParmater(this.lovservice);           
         }else if(!Ext.isEmpty(this.lovmodel)){
             this.lovmodel = this.processParmater(this.lovmodel);
-        }       
-        this.trigger = this.wrap.child('div[atype=triggerfield.trigger]'); 
+        }
+        if(this.autocomplete = this.autocomplete == "true"){
+        	if(!this.autocompletefield){
+        		var maps = this.getMapping(),name = this.binder.name;
+        		for(var i=0;i<maps.length;i++){
+        			if(maps[i].to == name)this.autocompletefield = maps[i].from;
+        		}
+        	}
+        	this.fetchremote = false;
+        	this.autocompleteview = new $A.Popup({});
+        	if(!this.optionDataSet)this.optionDataSet = new $A.DataSet({id:this.id+"_autocomplete_ds"})
+        }
+        this.trigger = this.wrap.child('div[atype=triggerfield.trigger]');
     },
     processParmater:function(url){
         var li = url.indexOf('?')
@@ -6046,9 +6066,184 @@ $A.Lov = Ext.extend($A.TextField,{
         this.el.setStyle("width",(w-20)+"px");
     },
     onChange : function(e){
-    	if(this.fetchremote == true)
-        this.fetchRecord();
+    	if(this.fetchremote == true||(this.autocomplete&&this.needFetch))
+			this.fetchRecord();
     },
+    onKeyUp : function(e){
+        this.fireEvent('keyup', this, e);
+        if(this.autocomplete){
+        	var v=this.getRawValue(),view=this.autocompleteview,code = e.keyCode;
+        	//if((code > 47 && code < 58) || (code > 64 && code < 91) || code == 8 || code == 46 || code == 13 || code == 32 || code == 16 || code == 17){
+	        if(code < 37 || code > 40){
+        		if(v.length >= this.autocompletesize){
+	        		var sf=this;
+	        		if(this.showCompleteId)clearTimeout(this.showCompleteId);
+	        		this.showCompleteId=setTimeout(function(){
+	        			var url;
+			        	if(!Ext.isEmpty(sf.lovservice)){
+				            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice;
+				        }else if(!Ext.isEmpty(sf.lovmodel)){
+				            url = sf.context + 'autocrud/'+sf.lovmodel+'/query';
+				        }
+				        sf.optionDataSet.setQueryUrl(url);
+				       	sf.pagesize=sf.autocompletepagesize;
+	        			sf.optionDataSet.setQueryParameter(sf.autocompletefield,'%'+v.trim()+'%');
+	        			view.show();
+	        			sf.optionDataSet.query();
+	        			delete sf.showCompleteId;
+	        		},this.autocompletedelay);
+	        	}else{
+	        		if(this.showCompleteId){
+	        			clearTimeout(this.showCompleteId);
+	        			delete this.showCompleteId;
+	        		}
+	        		if(view.isShow){
+	        			view.hide();
+	        			view.on('show',this.autoCompleteShow,this);
+	        		}
+	        	}
+        	}
+        }
+    },
+    onKeyDown : function(e){
+        this.fireEvent('keydown', this, e);        
+        var keyCode = e.keyCode;
+        if(keyCode == 13 || keyCode == 27 || keyCode == 9) {
+        	if(this.autocomplete)this.autocompleteview.hide();
+        	this.blur();
+        	if(keyCode == 13) {
+        		var sf = this;
+        		setTimeout(function(){
+        			sf.fireEvent('enterdown', sf, e)
+        		},5);
+        	}
+        }
+    },
+    onFocus : function(e){
+    	if(this.autocomplete){
+    		this.autocompleteview.bind(this.optionDataSet,this);
+    		this.autocompleteview.on('show',this.autoCompleteShow,this);
+    	}
+    	$A.Lov.superclass.onFocus.call(this,e);
+    },
+    onBlur : function(e){
+    	if(this.autocomplete){
+    		if(this.showCompleteId){
+    			clearTimeout(this.showCompleteId);
+    			delete this.showCompleteId;
+    		}
+    		this.autocompleteview.un('show',this.autoCompleteShow,this);
+    	}
+    	$A.Lov.superclass.onBlur.call(this,e);
+    },
+    autoCompleteShow : function(){
+    	this.needFetch = false;
+    	this.autoCompletePosition();
+    	var view = this.autocompleteview;
+    	view.addClass(this.viewClass);
+		view.update('<ul></ul>');
+		this.view=view.wrap.child('ul');
+    	view.on('beforerender',this.onQuery,this);
+		view.on('render',this.onRender,this);
+    	view.on('hide',this.autoCompleteHide,this);
+    },
+    autoCompleteHide : function(){
+    	this.needFetch = true;
+    	var view = this.autocompleteview;
+    	this.view.un('click', this.onViewClick,this);
+		this.view.un('mousemove',this.onViewMove,this);
+    	view.un('show',this.autoCompleteShow,this);
+    	view.un('beforerender',this.onQuery,this);
+    	view.un('render',this.onRender,this);
+    	view.un('hide',this.autoCompleteHide,this);
+    },
+    autoCompletePosition:function(){
+    	var xy = this.wrap.getXY(),
+    		H=this.autocompleteview.getHeight(),PH=this.wrap.getHeight(),BH=$A.getViewportHeight()-3,
+    		y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
+    	this.autocompleteview.moveTo(xy[0],y);
+    },
+    onViewClick:function(e,t){
+		if(t.tagName!='LI'){
+		    return;
+		}		
+		this.onSelect(t);
+		this.autocompleteview.hide();
+		this.focus();
+	},	
+	onViewMove:function(e,t){
+        var index = t.tabIndex;
+        this.selectItem(index);        
+	},
+	onSelect : function(target){
+		var index = target.tabIndex;
+		if(index==-1)return;
+		var record = this.optionDataSet.getAt(index);
+		this.commit(record);
+		this.needFetch=false;
+	},
+    onQuery : function(){
+    	this.view.update('<li>'+_lang['lov.query']+'</li>');
+    	this.view.un('click', this.onViewClick,this);
+		this.view.un('mousemove',this.onViewMove,this);
+    	this.correctViewSize();
+    },
+    onRender : function(){
+    	var datas = this.optionDataSet.getAll();
+		var l=datas.length;
+		var sb = [];
+		for(var i=0;i<l;i++){
+			var text = this.getRenderText(datas[i]);
+			sb.add('<li tabIndex="'+i+'">'+text+'</li>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
+		}
+		this.selectedIndex = null;
+		if(l!=0){
+			this.view.update(sb.join(''));	
+			this.correctViewSize();
+			this.view.on('mousemove',this.onViewMove,this);
+		}else{
+			this.view.update('<li>'+_lang['lov.notfound']+'</li>');	
+		}
+		this.view.on('click', this.onViewClick,this);
+    },
+    correctViewSize: function(){
+		var widthArray = [];
+		var mw = 150;
+		for(var i=0;i<this.view.dom.childNodes.length;i++){
+			var li=this.view.dom.childNodes[i];
+			var width=$A.TextMetrics.measure(li,li.innerHTML).width;
+			mw = Math.max(mw,width)||mw;
+		}
+		var lh = Math.min(this.autocompleteview.wrap.child('ul').getHeight()+2,this.maxHeight); 
+    	this.autocompleteview.setWidth(mw);
+		this.autocompleteview.setHeight(lh<20?20:lh);
+	},
+    selectItem:function(index){
+		if(Ext.isEmpty(index)){
+			return;
+		}	
+		var node = this.getNode(index);			
+		if(node && node.tabIndex!=this.selectedIndex){
+			if(!Ext.isEmpty(this.selectedIndex)){							
+				Ext.fly(this.getNode(this.selectedIndex)).removeClass(this.selectedClass);
+			}
+			this.selectedIndex=node.tabIndex;			
+			Ext.fly(node).addClass(this.selectedClass);					
+		}			
+	},
+	getNode:function(index){		
+		return this.view.dom.childNodes[index];
+	},
+    getRenderText : function(record){
+        var rder = $A.getRenderer(this.renderer);
+        var text = '&#160;';
+        if(rder){
+            text = rder.call(window,this,record);
+        }else{
+            text = record.get(this.autocompletefield);
+        }
+		return text;
+	},
 //  onKeyDown : function(e){
 //        if(e.getKey() == 13) {
 //          this.showLovWindow();
@@ -6117,7 +6312,7 @@ $A.Lov = Ext.extend($A.TextField,{
             return;
         }
         this.fetching = true;
-        var v = this.getRawValue();
+        var v = this.getRawValue(),url;
         
         if(!Ext.isEmpty(this.lovservice)){
             url = this.context + 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
@@ -6192,6 +6387,102 @@ $A.Lov = Ext.extend($A.TextField,{
             this.win.on('close',this.onWinClose,this);
         }
     }
+});
+
+$A.Popup = Ext.extend($A.Component,{
+	constructor : function(config) {
+		var id = 'aurora-item-popup',popup = $A.CmpManager.get(id);
+		if(popup)return popup;
+		config.id=id;
+        $A.Popup.superclass.constructor.call(this, config);
+    },
+    initComponent : function(config){
+        $A.Popup.superclass.initComponent.call(this,config);
+    	this.wrap = new Ext.Template(this.tpl).insertFirst(document.body,{width:this.width,height:this.height},true);
+    	this.shadow = new Ext.Template(this.shadowtpl).insertFirst(document.body,{width:this.width,height:this.height},true);
+    },
+    initEvents : function(){
+        $A.Popup.superclass.initEvents.call(this);
+        this.addEvents(
+        	'show',
+        	'hide',
+        	'beforerender',
+        	'render'
+        );
+    },
+    processDataSet: function(ou){
+		if(this.optionDataSet){
+            this.optionDataSet[ou]('load', this.onDataSetLoad, this);
+            this.optionDataSet[ou]('query', this.onDataSetQuery, this);
+		}
+	},
+	
+	onDataSetQuery : function(){
+		this.fireEvent('beforerender',this)
+	},
+	onDataSetLoad : function(){
+		this.fireEvent('render',this)
+	},
+	update : function(){
+		this.wrap.update.apply(this.wrap,Ext.toArray(arguments));
+	},
+    show : function(){
+    	if(!this.isShow){
+    		this.isShow=true;
+	    	this.fireEvent('show',this);
+	    	this.wrap.show();
+	    	this.shadow.show();
+	    	Ext.get(document).on('mousedown',this.trigger,this);
+    	}
+    },
+    trigger : function(e){
+    	if(!this.wrap.contains(e.target) && !this.wrap.contains(e.target) &&(!this.owner||!this.owner.wrap.contains(e.target))){ 
+    		this.hide();
+    	}
+    },
+    hide : function(e){
+    	if(this.isShow){
+    		this.isShow=false;
+	    	this.fireEvent('hide',this)
+	    	Ext.get(document).un('mousedown',this.trigger,this)
+	    	this.wrap.hide();
+	    	this.shadow.hide();
+    	}
+    },
+    moveTo : function(x,y){
+    	this.wrap.moveTo(x,y);
+    	this.shadow.moveTo(x+3,y+3);
+    },
+    setHeight : function(h){
+    	this.wrap.setHeight(h);
+    	this.shadow.setHeight(h);
+    },
+    setWidth : function(w){
+    	this.wrap.setWidth(w);
+    	this.shadow.setWidth(w);
+    },
+    getHeight : function(){
+    	return this.wrap.getHeight();
+    },
+    getWidth : function(){
+    	return this.wrap.getWidth();
+    },
+    addClass : function(className){
+		if(this.customClass == className)return;
+    	if(this.customClass)this.wrap.removeClass(this.customClass);
+    	this.customClass = className;
+    	this.wrap.addClass(this.customClass);
+    },
+    bind : function(ds,cmp){
+    	this.owner = cmp;
+    	if(this.optionDataSet != ds){
+    		this.processDataSet('un');
+    		this.optionDataSet = ds;
+			this.processDataSet('on');
+    	}
+    },
+    tpl : ['<div class="item-popup" style="visibility:hidden;background-color:#fff">','</div>'],
+    shadowtpl : ['<div class="item-shadow" style="visibility:hidden;">','</div>']
 });
 /**
  * @class Aurora.MultiLov
