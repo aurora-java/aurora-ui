@@ -520,27 +520,28 @@ $A.showConfirm = function(title, msg, okfun,cancelfun, width, height){
  * @return {Window} 窗口对象
  */
 $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
-    var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
-    if(cmp == null) {
-        var okbtnhtml = $A.Button.getTemplate('aurora-msg-ok',_lang['window.button.ok']);
-        var cancelbtnhtml = $A.Button.getTemplate('aurora-msg-cancel',_lang['window.button.cancel']);
-        cmp = new $A.Window({id:'aurora-msg-ok-cancel',closeable:false,title:title, height:height||100,width:width||300});
+    //var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
+    //if(cmp == null) {
+        var id = Ext.id(),okid = 'aurora-msg-ok'+id,cancelid = 'aurora-msg-cancel'+id,
+        okbtnhtml = $A.Button.getTemplate(okid,_lang['window.button.ok']),
+        cancelbtnhtml = $A.Button.getTemplate(cancelid,_lang['window.button.cancel']);
+        cmp = new $A.Window({id:'aurora-msg-ok-cancel'+id,closeable:false,title:title, height:height||100,width:width||300});
         if(msg){
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
-                var okbtn = $("aurora-msg-ok");
-                var cancelbtn = $("aurora-msg-cancel");
-                cmp.cmps['aurora-msg-ok'] = okbtn;
-                cmp.cmps['aurora-msg-cancel'] = cancelbtn;
+                var okbtn = $(okid);
+                var cancelbtn = $(cancelid);
+                cmp.cmps[okid] = okbtn;
+                cmp.cmps[cancelid] = cancelbtn;
                 okbtn.on('click',function(){
                 	if(okfun)okfun.call(this,cmp);
                 });
                 cancelbtn.on('click',function(){
-                    cmp.close()
                 	if(cancelfun)cancelfun.call(this,cmp)
+                	else cmp.close();
                 });
             });
         }
-    }
+    //}
     return cmp;
 }
 /**
@@ -555,23 +556,24 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
  * @return {Window} 窗口对象
  */
 $A.showOkWindow = function(title, msg, width, height,callback){
-	var cmp = $A.CmpManager.get('aurora-msg-ok');
-	if(cmp == null) {
-		var btnhtml = $A.Button.getTemplate('aurora-msg-yes',_lang['window.button.ok']);
-		cmp = new $A.Window({id:'aurora-msg-ok',closeable:false,title:title, height:height,width:width});
+	//var cmp = $A.CmpManager.get('aurora-msg-ok');
+	//if(cmp == null) {
+		var id = Ext.id(),yesid = 'aurora-msg-yes'+id,
+		btnhtml = $A.Button.getTemplate(yesid,_lang['window.button.ok']),
+		cmp = new $A.Window({id:'aurora-msg-ok'+id,closeable:false,title:title, height:height,width:width});
 		if(msg){
 			cmp.body.update(msg+ '<center>'+btnhtml+'</center>',true,function(){
-    			var btn = $("aurora-msg-yes");
-                cmp.cmps['aurora-msg-yes'] = btn;
+    			var btn = $(yesid);
+                cmp.cmps[yesid] = btn;
                 btn.on('click',function(){
                     if(callback)callback.call(this,cmp);
-                    cmp.close()
+                    else cmp.close();
                 });
                 //btn.focus();
                 btn.focus.defer(10,btn);
 			});
 		}
-	}
+	//}
 	return cmp;
 }
 /**
