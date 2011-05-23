@@ -25,15 +25,18 @@ function ${id}(){
                 file_id : file.id,
                 file_name : file.name,
                 file_size : file.size,
-                source_type: "${sourcetype}",
-                pkvalue : ${pkvalue},
+                table_name: "${sourcetype}",
+                table_pk_value : ${pkvalue},
                 percent : 0
             })
         },
-        upload_success_handler : function(file, serverData) {
+        upload_success_handler : function(file, serverData, responseReceived) {
+            
             var record = $$('${id}_ds').find('file_id', file.id);
             if (record) {
+                if(serverData != '') record.set('attachment_id',serverData);
                 record.set('status', 1);
+                record.commit();
             }
         },
         file_queue_error_handler : function(file, code, message) {
@@ -44,7 +47,6 @@ function ${id}(){
                         msg = '超出上传文件数量限制';
                         break;
                     case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT :
-                        debugger
                         msg = '超出上传文件大小限制! (不能超过' + window.formatFileSize(1024 * window.${id}.settings.file_size_limit)+ ')';
                         break;
                     case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE :
