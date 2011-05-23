@@ -3477,8 +3477,9 @@ $A.Field = Ext.extend($A.Component,{
     onKeyDown : function(e){
         this.fireEvent('keydown', this, e);        
         var keyCode = e.keyCode;
-        if(keyCode == 13 || keyCode == 27) {
-        	this.blur();
+        if(keyCode ==9 )e.stopEvent();
+        if(keyCode == 13 || keyCode == 27) {//13:enter  27:esc
+        	this.blur();//为了获取到新的值
         	if(keyCode == 13) {
         		var sf = this;
         		setTimeout(function(){
@@ -6074,7 +6075,7 @@ $A.Lov = Ext.extend($A.TextField,{
         if(this.autocomplete){
         	var v=this.getRawValue(),view=this.autocompleteview,code = e.keyCode;
         	//if((code > 47 && code < 58) || (code > 64 && code < 91) || code == 8 || code == 46 || code == 13 || code == 32 || code == 16 || code == 17){
-	        if(code < 37 || code > 40){
+	        if((code < 37 || code > 40)&&code != 13){
         		if(v.length >= this.autocompletesize){
 	        		var sf=this;
 	        		if(this.showCompleteId)clearTimeout(this.showCompleteId);
@@ -6108,15 +6109,28 @@ $A.Lov = Ext.extend($A.TextField,{
     onKeyDown : function(e){
         this.fireEvent('keydown', this, e);        
         var keyCode = e.keyCode;
-        if(keyCode == 13 || keyCode == 27 || keyCode == 9) {
+        if(keyCode == 13 ) {
+	    	if(this.selectedIndex != null){
+	    		this.blur();
+    			this.onSelect(this.selectedIndex);
+				this.autocompleteview.hide();
+    			this.focus();
+    		}else{
+    			this.autocompleteview.hide();
+	    		var sf = this;
+	    		setTimeout(function(){
+	    			sf.fireEvent('enterdown', sf, e)
+	    		},5);
+    		}
+        }else if(keyCode == 27 || keyCode == 9){
         	if(this.autocomplete)this.autocompleteview.hide();
         	this.blur();
-        	if(keyCode == 13) {
-        		var sf = this;
-        		setTimeout(function(){
-        			sf.fireEvent('enterdown', sf, e)
-        		},5);
-        	}
+        }else if(this.optionDataSet.getAll().length > 0){
+	        if(keyCode == 38){
+	        	this.selectItem(this.selectedIndex == null ? -1 : this.selectedIndex - 1);
+	        }else if(keyCode == 40){
+	        	this.selectItem(this.selectedIndex == null ? 0 : this.selectedIndex + 1);
+	        }
         }
     },
     onFocus : function(e){
@@ -6176,7 +6190,7 @@ $A.Lov = Ext.extend($A.TextField,{
         this.selectItem(index);        
 	},
 	onSelect : function(target){
-		var index = target.tabIndex;
+		var index = Ext.isNumber(target)?target:target.tabIndex;
 		if(index==-1)return;
 		var record = this.optionDataSet.getAt(index);
 		this.commit(record);
@@ -6222,7 +6236,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		if(Ext.isEmpty(index)){
 			return;
 		}	
-		var node = this.getNode(index);			
+		var node = this.getNode(index);	
 		if(node && node.tabIndex!=this.selectedIndex){
 			if(!Ext.isEmpty(this.selectedIndex)){							
 				Ext.fly(this.getNode(this.selectedIndex)).removeClass(this.selectedClass);
@@ -6231,11 +6245,14 @@ $A.Lov = Ext.extend($A.TextField,{
 			Ext.fly(node).addClass(this.selectedClass);					
 		}			
 	},
-	getNode:function(index){		
-		return this.view.dom.childNodes[index];
+	getNode:function(index){
+		var nodes = this.view.dom.childNodes,l = nodes.length;
+		if(index >= l) index =  index % l;
+		else if (index < 0) index = l + index % l;
+		return nodes[index];
 	},
     getRenderText : function(record){
-        var rder = $A.getRenderer(this.renderer);
+        var rder = $A.getRenderer(this.autocompleterenderer);
         var text = '&#160;';
         if(rder){
             text = rder.call(window,this,record);
@@ -6258,7 +6275,7 @@ $A.Lov = Ext.extend($A.TextField,{
         if(this.win) this.win.close();
 //        this.setRawValue('')
         var record = lr ? lr : this.record;
-        if(record){
+        if(record && r){
             var mapping = this.getMapping();
             for(var i=0;i<mapping.length;i++){
                 var map = mapping[i];
