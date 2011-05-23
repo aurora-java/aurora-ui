@@ -793,7 +793,8 @@ $A.Grid = Ext.extend($A.Component,{
         }
         //tab
         if(keyCode == 9){
-            //this.showNextEditor();
+            e.stopEvent();
+            this.showNextEditor();
         }
     },
     showNextEditor : function(){
