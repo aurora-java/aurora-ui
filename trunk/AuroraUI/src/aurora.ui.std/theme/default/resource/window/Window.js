@@ -226,7 +226,6 @@ $A.Window = Ext.extend($A.Component,{
     	var sf = this; 
     	//e.stopEvent();
     	sf.toFront();
-    	sf.focus();
     	var xy = sf.wrap.getXY();
     	sf.relativeX=xy[0]-e.getPageX();
 		sf.relativeY=xy[1]-e.getPageY();
@@ -236,6 +235,7 @@ $A.Window = Ext.extend($A.Component,{
         this.proxy.show();
     	Ext.get(document.documentElement).on("mousemove", sf.onMouseMove, sf);
     	Ext.get(document.documentElement).on("mouseup", sf.onMouseUp, sf);
+        sf.focus();
     },
     onMouseUp : function(e){
     	var sf = this; 
