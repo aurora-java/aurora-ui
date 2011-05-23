@@ -265,7 +265,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		return nodes[index];
 	},
     getRenderText : function(record){
-        var rder = $A.getRenderer(this.renderer);
+        var rder = $A.getRenderer(this.autocompleterenderer);
         var text = '&#160;';
         if(rder){
             text = rder.call(window,this,record);
