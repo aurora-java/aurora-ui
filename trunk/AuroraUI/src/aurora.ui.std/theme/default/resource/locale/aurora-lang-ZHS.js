@@ -23,6 +23,7 @@ _lang['grid.mask.loading'] = '正在查询数据...';
 _lang['grid.mask.submit'] = '正在提交数据...';
 
 _lang['lov.query'] = '正在查询...';
+_lang['lov.notfound'] = '未找到数据！';
 
 _lang['tab.loading'] = '正在加载,请稍后...';
 

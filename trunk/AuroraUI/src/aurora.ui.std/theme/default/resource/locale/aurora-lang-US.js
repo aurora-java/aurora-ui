@@ -23,6 +23,7 @@ _lang['grid.mask.loading'] = 'Loading...';
 _lang['grid.mask.submit'] = 'Submitting...';
 
 _lang['lov.query'] = 'Querying...';
+_lang['lov.notfound'] = 'Not Found!';
 
 _lang['tab.loading'] = 'Loading,please wait...';
 
