@@ -771,12 +771,70 @@ $A.Grid = Ext.extend($A.Component,{
                     ed.render(record);
                     ed.focus();
        				sf.editing = true;
+                    ed.on('keydown', sf.onEidtorKeyDown,sf);
 //                    ed.on('blur',sf.onEditorBlur, sf);
                     Ext.get(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
                 }
                 sf.fireEvent('editorshow', sf, ed, row, name, record);
             },1)
         }           
+    },
+    onEidtorKeyDown : function(editor,e){
+        var keyCode = e.keyCode;
+        //esc
+        if(keyCode == 27) {
+            editor.clearInvalid();
+            editor.render(editor.binder.ds.getCurrentRecord());
+            this.hideEditor();
+        }
+        //enter
+        if(keyCode == 13) {
+            this.showNextEditor();
+        }
+        //tab
+        if(keyCode == 9){
+            //this.showNextEditor();
+        }
+    },
+    showNextEditor : function(){
+        this.hideEditor();
+        if(this.currentEditor && this.currentEditor.editor){
+            var ed = this.currentEditor.editor,ds = ed.binder.ds,
+                fname = ed.binder.name,r = ed.record,
+                row = ds.data.indexOf(r),name=null;
+            if(row!=-1){
+                var cls = this.columns;
+                var start = 0;
+                for(var i = 0,l = cls.length; i<l; i++){
+                    if(cls[i].name == fname){
+                        start = i+1;
+                    }
+                }
+                for(var i = start,l = cls.length; i<l; i++){
+                    var col = cls[i];
+                    var editor = this.getEditor(col,r);
+                    if(editor!=''){
+                        name =  col.name;
+                        break;
+                    }
+                }
+                if(name){
+                    this.showEditor(row,name);
+                }else{
+                    var nr = ds.getAt(row+1);
+                    if(nr){
+                        for(var i = 0,l = cls.length; i<l; i++){
+                            var col = cls[i];
+                            var editor = this.getEditor(col,r);
+                            if(editor!=''){
+                                this.showEditor(row+1,col.name);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     },
     /**
      * 指定行获取焦点.
@@ -829,12 +887,13 @@ $A.Grid = Ext.extend($A.Component,{
     hideEditor : function(){
         if(this.currentEditor && this.currentEditor.editor){
             var ed = this.currentEditor.editor;
-            ed.un('blur',this.onEditorBlur, this);
+            //ed.un('blur',this.onEditorBlur, this);
             var needHide = true;
             if(ed.canHide){
                 needHide = ed.canHide();
             }
             if(needHide) {
+                ed.un('keydown', this.onEidtorKeyDown,this);
                 Ext.get(document.documentElement).un("mousedown", this.onEditorBlur, this);
                 var ed = this.currentEditor.editor;
                 ed.move(-10000,-10000);
