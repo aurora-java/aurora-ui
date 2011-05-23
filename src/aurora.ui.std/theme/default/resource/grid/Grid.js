@@ -81,6 +81,12 @@ $A.Grid = Ext.extend($A.Component,{
         $A.Grid.superclass.initEvents.call(this);
         this.addEvents(
         /**
+         * @event render
+         * grid渲染出数据后触发该事件
+         * @param {Aurora.Grid} grid 当前Grid组件.
+         */
+        'render',
+        /**
          * @event keydown
          * 键盘按下事件.
          * @param {Aurora.Grid} grid 当前Grid组件.
@@ -379,6 +385,7 @@ $A.Grid = Ext.extend($A.Component,{
 //        if(focus !== false) this.focus.defer(10,this);//获取数据后的获得焦点,会引起其他编辑器无法编辑
         this.drawFootBar();
         $A.Masker.unmask(this.wb);
+        this.fireEvent('render',this)
     },
     clearDomRef : function(){
     	this.selectlockTr = null;
