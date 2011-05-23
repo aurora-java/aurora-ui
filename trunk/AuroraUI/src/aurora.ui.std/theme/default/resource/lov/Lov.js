@@ -288,7 +288,7 @@ $A.Lov = Ext.extend($A.TextField,{
         if(this.win) this.win.close();
 //        this.setRawValue('')
         var record = lr ? lr : this.record;
-        if(record){
+        if(record && r){
             var mapping = this.getMapping();
             for(var i=0;i<mapping.length;i++){
                 var map = mapping[i];
