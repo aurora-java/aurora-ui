@@ -524,7 +524,7 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     //if(cmp == null) {
         var id = Ext.id(),okid = 'aurora-msg-ok'+id,cancelid = 'aurora-msg-cancel'+id,
         okbtnhtml = $A.Button.getTemplate(okid,_lang['window.button.ok']),
-        cancelbtnhtml = $A.Button.getTemplate(cancelid,_lang['window.button.cancel']);
+        cancelbtnhtml = $A.Button.getTemplate(cancelid,_lang['window.button.cancel']),
         cmp = new $A.Window({id:'aurora-msg-ok-cancel'+id,closeable:false,title:title, height:height||100,width:width||300});
         if(msg){
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
