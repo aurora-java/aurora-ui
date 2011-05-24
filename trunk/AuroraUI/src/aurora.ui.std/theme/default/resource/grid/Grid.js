@@ -816,6 +816,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     showNextEditor : function(){
         this.hideEditor();
+        var sf = this;
         if(this.currentEditor && this.currentEditor.editor){
             var callback = function(ed){
                 if(ed instanceof Aurora.Lov){

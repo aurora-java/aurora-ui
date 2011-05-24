@@ -6144,7 +6144,7 @@ $A.Lov = Ext.extend($A.TextField,{
     onKeyDown : function(e){
         if(this.isWinOpen)return;       
         var keyCode = e.keyCode;
-        if(this.autocomplete){
+        if(this.autocomplete && this.autocompleteview && this.autocompleteview.isShow){
             if(keyCode == 13 ) {
     	    	if(this.selectedIndex != null){
     	    		this.blur();
@@ -6168,8 +6168,9 @@ $A.Lov = Ext.extend($A.TextField,{
     	        	this.selectItem(this.selectedIndex == null ? 0 : this.selectedIndex + 1);
     	        }
             }
+        }else{
+            $A.Lov.superclass.onKeyDown.call(this,e);
         }
-        $A.Lov.superclass.onKeyDown.call(this,e);
     },
     onFocus : function(e){
     	if(this.autocomplete){
@@ -6323,7 +6324,7 @@ $A.Lov = Ext.extend($A.TextField,{
 //        else{
 //          this.setValue()
 //        }
-        this.focus();
+        
         this.fireEvent('commit', this, record, r)
     },
     getMapping: function(){
@@ -6349,9 +6350,9 @@ $A.Lov = Ext.extend($A.TextField,{
     onWinClose: function(){
         this.isWinOpen = false;
         this.win = null;
-        if(!Ext.isIE6 && !Ext.isIE7){
-            this.focus();//TODO:ie6 ie7 会死掉 
-        }
+//        if(!Ext.isIE6 && !Ext.isIE7){//TODO:不知什么地方会导致冲突,ie6 ie7 会死掉 
+            this.focus();
+//        }
     },
     getLovPara : function(){
         var para = Ext.apply({},this.para);
