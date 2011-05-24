@@ -45,7 +45,7 @@ $A.NumberField = Ext.extend($A.TextField,{
     formatValue : function(v){
     	var rv = this.fixPrecision(this.parseValue(v))        
         if(this.allowformat)rv = $A.formatNumber(rv);
-        return rv;
+        return $A.NumberField.superclass.formatValue.call(this,rv);
     },
     processMaxLength : function(rv){
     	var s=rv.split('.'),isNegative=false;
