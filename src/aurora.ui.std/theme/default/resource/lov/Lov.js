@@ -129,7 +129,7 @@ $A.Lov = Ext.extend($A.TextField,{
 				this.autocompleteview.hide();
     			this.focus();
     		}else{
-    			this.autocompleteview.hide();
+    			if(this.autocomplete)this.autocompleteview.hide();
 	    		var sf = this;
 	    		setTimeout(function(){
 	    			sf.fireEvent('enterdown', sf, e)
@@ -138,7 +138,7 @@ $A.Lov = Ext.extend($A.TextField,{
         }else if(keyCode == 27 || keyCode == 9){
         	if(this.autocomplete)this.autocompleteview.hide();
         	this.blur();
-        }else if(this.optionDataSet.getAll().length > 0){
+        }else if(this.autocomplete && this.optionDataSet.getAll().length > 0){
 	        if(keyCode == 38){
 	        	this.selectItem(this.selectedIndex == null ? -1 : this.selectedIndex - 1);
 	        }else if(keyCode == 40){
