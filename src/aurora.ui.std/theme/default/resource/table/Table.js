@@ -47,6 +47,51 @@ $A.Table = Ext.extend($A.Component,{
             ds[ou]('unselect', this.onUnSelect, this);
         }
     },
+    initEvents:function(){
+        $A.Table.superclass.initEvents.call(this);
+        this.addEvents(
+        /**
+         * @event render
+         * table渲染出数据后触发该事件
+         * @param {Aurora.Table} table 当前Table组件.
+         */
+        'render',
+        /**
+         * @event cellclick
+         * 单元格点击事件.
+         * @param {Aurora.Table} table 当前Table组件.
+         * @param {Number} row 行号.
+         * @param {String} 当前name.
+         * @param {Aurora.Record} record 鼠标点击所在单元格的Record对象.
+         */
+        'cellclick',
+        /**
+         * @event rowclick
+         * 行点击事件.
+         * @param {Aurora.Table} table 当前Table组件.
+         * @param {Number} row 行号.
+         * @param {Aurora.Record} record 鼠标点击所在行的Record对象.
+         */
+        'rowclick',
+        /**
+         * @event editorShow
+         * 编辑器显示后触发的事件.
+         * @param {Aurora.Table} table 当前Table组件.
+         * @param {Editor} grid 当前Editor组件.
+         * @param {Number} row 行号.
+         * @param {String} 当前name.
+         * @param {Aurora.Record} record 鼠标点击所在行的Record对象.
+         */
+        'editorshow',
+        /**
+         * @event nexteditorshow
+         * 切换下一个编辑器的事件.
+         * @param {Aurora.Table} table 当前table组件.
+         * @param {Number} row 行号.
+         * @param {String} 当前name.
+         */
+        'nexteditorshow');
+    },
 	bind:function(ds){
 		if(typeof(ds)==='string'){
             ds = $(ds);
@@ -256,6 +301,7 @@ $A.Table = Ext.extend($A.Component,{
                     ed.bind(sf.dataset, name);
                     ed.render(record);
                     ed.focus();
+                    ed.on('keydown', sf.onEidtorKeyDown,sf);
 //                    ed.on('blur',sf.onEditorBlur, sf);
                     Ext.fly(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
                     Ext.fly(window).on("resize", sf.positionEditor, sf);
@@ -263,6 +309,65 @@ $A.Table = Ext.extend($A.Component,{
                 sf.fireEvent('editorshow', sf, ed, row, name, record);
             },1)
         }           
+    },
+    onEidtorKeyDown : function(editor,e){
+        var keyCode = e.keyCode;
+        //esc
+        if(keyCode == 27) {
+            editor.clearInvalid();
+            editor.render(editor.binder.ds.getCurrentRecord());
+            this.hideEditor();
+        }
+        //enter
+        if(keyCode == 13) {
+            this.showNextEditor();
+        }
+        //tab
+        if(keyCode == 9){
+            e.stopEvent();
+            this.showNextEditor();
+        }
+    },
+    showNextEditor : function(){
+        this.hideEditor();
+        if(this.currentEditor && this.currentEditor.editor){
+            var ed = this.currentEditor.editor,ds = ed.binder.ds,
+                fname = ed.binder.name,r = ed.record,
+                row = ds.data.indexOf(r),name=null;
+            if(row!=-1){
+                var cls = this.columns;
+                var start = 0;
+                for(var i = 0,l = cls.length; i<l; i++){
+                    if(cls[i].name == fname){
+                        start = i+1;
+                    }
+                }
+                for(var i = start,l = cls.length; i<l; i++){
+                    var col = cls[i];
+                    var editor = this.getEditor(col,r);
+                    if(editor!=''){
+                        name =  col.name;
+                        break;
+                    }
+                }
+                if(name){
+                    this.showEditor(row,name);
+                }else{
+                    var nr = ds.getAt(row+1);
+                    if(nr){
+                        for(var i = 0,l = cls.length; i<l; i++){
+                            var col = cls[i];
+                            var editor = this.getEditor(col,r);
+                            if(editor!=''){
+                                this.showEditor(row+1,col.name);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            this.fireEvent('nexteditorshow',this, row, name);
+        }
     },
     positionEditor:function(){
     	var ed=this.currentEditor.editor,dom=this.focusdiv,xy = dom.getXY(),sf=this;
@@ -286,7 +391,7 @@ $A.Table = Ext.extend($A.Component,{
     hideEditor : function(){
         if(this.currentEditor && this.currentEditor.editor){
             var ed = this.currentEditor.editor;
-            ed.un('blur',this.onEditorBlur, this);
+//            ed.un('blur',this.onEditorBlur, this);
             var needHide = true;
             if(ed.canHide){
                 needHide = ed.canHide();
@@ -466,6 +571,7 @@ $A.Table = Ext.extend($A.Component,{
             this.createRow(this.dataset.getAt(i),i);
         }
         this.drawFootBar();
+        this.fireEvent('render',this)
 	},
 	onValid : function(ds, record, name, valid){
         var c = this.findColByName(name);
