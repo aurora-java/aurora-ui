@@ -120,31 +120,34 @@ $A.Lov = Ext.extend($A.TextField,{
         }
     },
     onKeyDown : function(e){
-        this.fireEvent('keydown', this, e);        
+        if(this.isWinOpen)return;       
         var keyCode = e.keyCode;
-        if(keyCode == 13 ) {
-	    	if(this.selectedIndex != null){
-	    		this.blur();
-    			this.onSelect(this.selectedIndex);
-				this.autocompleteview.hide();
-    			this.focus();
-    		}else{
-    			if(this.autocomplete)this.autocompleteview.hide();
-	    		var sf = this;
-	    		setTimeout(function(){
-	    			sf.fireEvent('enterdown', sf, e)
-	    		},5);
-    		}
-        }else if(keyCode == 27 || keyCode == 9){
-        	if(this.autocomplete)this.autocompleteview.hide();
-        	this.blur();
-        }else if(this.autocomplete && this.optionDataSet.getAll().length > 0){
-	        if(keyCode == 38){
-	        	this.selectItem(this.selectedIndex == null ? -1 : this.selectedIndex - 1);
-	        }else if(keyCode == 40){
-	        	this.selectItem(this.selectedIndex == null ? 0 : this.selectedIndex + 1);
-	        }
+        if(this.autocomplete){
+            if(keyCode == 13 ) {
+    	    	if(this.selectedIndex != null){
+    	    		this.blur();
+        			this.onSelect(this.selectedIndex);
+    				this.autocompleteview.hide();
+        			this.focus();
+        		}else{
+        			this.autocompleteview.hide();
+    	    		var sf = this;
+    	    		setTimeout(function(){
+    	    			sf.fireEvent('enterdown', sf, e)
+    	    		},5);
+        		}
+            }else if(keyCode == 27 || keyCode == 9){
+            	this.autocompleteview.hide();
+            	this.blur();
+            }else if(this.optionDataSet.getAll().length > 0){
+    	        if(keyCode == 38){
+    	        	this.selectItem(this.selectedIndex == null ? -1 : this.selectedIndex - 1);
+    	        }else if(keyCode == 40){
+    	        	this.selectItem(this.selectedIndex == null ? 0 : this.selectedIndex + 1);
+    	        }
+            }
         }
+        $A.Lov.superclass.onKeyDown.call(this,e);
     },
     onFocus : function(e){
     	if(this.autocomplete){
@@ -298,6 +301,7 @@ $A.Lov = Ext.extend($A.TextField,{
 //        else{
 //          this.setValue()
 //        }
+        this.focus();
         this.fireEvent('commit', this, record, r)
     },
     getMapping: function(){
@@ -323,7 +327,9 @@ $A.Lov = Ext.extend($A.TextField,{
     onWinClose: function(){
         this.isWinOpen = false;
         this.win = null;
-        if(!Ext.isIE6 && !Ext.isIE7)this.focus();//TODO:ie6 ie7 会死掉 
+        if(!Ext.isIE6 && !Ext.isIE7){
+            this.focus();//TODO:ie6 ie7 会死掉 
+        }
     },
     getLovPara : function(){
         var para = Ext.apply({},this.para);

@@ -747,7 +747,7 @@ $A.Grid = Ext.extend($A.Component,{
      * @param {Number} row 行号
      * @param {String} name 当前列的name.
      */
-    showEditor : function(row, name){       
+    showEditor : function(row, name,callback){       
         if(row == -1)return;
         var col = this.findColByName(name);
         if(!col)return;
@@ -764,10 +764,10 @@ $A.Grid = Ext.extend($A.Component,{
             var v = record.get(name);
             record.set(name, v == cv ? uv : cv);
         } else if(editor){
-            var dom = document.getElementById(this.id+'_'+name+'_'+record.id);
-            var xy = Ext.fly(dom).getXY();
             var sf = this;
             setTimeout(function(){
+                var dom = document.getElementById(sf.id+'_'+name+'_'+record.id);
+                var xy = Ext.fly(dom).getXY();
                 var v = record.get(name)
                 sf.currentEditor = {
                     record:record,
@@ -777,6 +777,7 @@ $A.Grid = Ext.extend($A.Component,{
                 };
                 var ed = sf.currentEditor.editor;
                 if(ed){
+//                    if(dom.parentNode==null)debugger
                     ed.setHeight(Ext.fly(dom.parentNode).getHeight()-5)
                     ed.setWidth(Ext.fly(dom.parentNode).getWidth()-7);
                     ed.isFireEvent = true;
@@ -789,6 +790,7 @@ $A.Grid = Ext.extend($A.Component,{
                     ed.on('keydown', sf.onEidtorKeyDown,sf);
 //                    ed.on('blur',sf.onEditorBlur, sf);
                     Ext.get(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
+                    if(callback)callback.call(window,ed)
                 }
                 sf.fireEvent('editorshow', sf, ed, row, name, record);
             },1)
@@ -815,6 +817,11 @@ $A.Grid = Ext.extend($A.Component,{
     showNextEditor : function(){
         this.hideEditor();
         if(this.currentEditor && this.currentEditor.editor){
+            var callback = function(ed){
+                if(ed instanceof Aurora.Lov){
+                    ed.showLovWindow();
+                }
+            }
             var ed = this.currentEditor.editor,ds = ed.binder.ds,
                 fname = ed.binder.name,r = ed.record,
                 row = ds.data.indexOf(r),name=null;
@@ -835,7 +842,7 @@ $A.Grid = Ext.extend($A.Component,{
                     }
                 }
                 if(name){
-                    this.showEditor(row,name);
+                    this.showEditor(row,name,callback);
                 }else{
                     var nr = ds.getAt(row+1);
                     if(nr){
@@ -843,7 +850,7 @@ $A.Grid = Ext.extend($A.Component,{
                             var col = cls[i];
                             var editor = this.getEditor(col,r);
                             if(editor!=''){
-                                this.showEditor(row+1,col.name);
+                                this.showEditor(row+1,col.name,callback);
                                 break;
                             }
                         }
