@@ -11,7 +11,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	blankOption:true,
 	rendered:false,
 	selectedClass:'item-comboBox-selected',	
-	currentNodeClass:'item-comboBox-current',
+	//currentNodeClass:'item-comboBox-current',
 	constructor : function(config) {
 		$A.ComboBox.superclass.constructor.call(this, config);		
 	},
@@ -77,21 +77,56 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		$A.ComboBox.superclass.expand.call(this);
 		var v = this.getValue();
 		this.currentIndex = this.getIndex(v);
-		if(!this.currentIndex) return;
+//		if(!this.currentIndex) return;
 		if (!Ext.isEmpty(v)) {				
 			if(this.selectedIndex)Ext.fly(this.getNode(this.selectedIndex)).removeClass(this.selectedClass);
 			var node = this.getNode(this.currentIndex);
-			if(node)Ext.fly(node).addClass(this.currentNodeClass);
+			if(node)Ext.fly(node).addClass(this.selectedClass);
 			this.selectedIndex = this.currentIndex;
 		}		
 	},
+    onKeyDown: function(e){
+        var current = Ext.isEmpty(this.selectedIndex) ? -1 : this.selectedIndex;
+        var keyCode = e.keyCode;
+        if(keyCode == 40||keyCode == 38) {
+            this.inKeyMode = true;
+            if(keyCode == 38){
+                current --;
+                if(current>=0){
+                    this.selectItem(current)
+                }            
+            }
+            if(keyCode == 40){
+                current ++;
+                if(current<this.view.dom.childNodes.length){
+                    this.selectItem(current)
+                }
+            }
+        }
+        if(this.inKeyMode && keyCode == 13){
+            this.inKeyMode = false;
+            var doms = this.view.dom.childNodes;
+            var se = null;
+            for(var i=0;i<doms.length;i++){
+                var t = doms[i];
+                if(Ext.fly(t).hasClass(this.selectedClass)){
+                    se = t;
+                    break;
+                }
+            }
+            if(se)this.onSelect(se);
+            this.collapse();
+        } else {
+            $A.ComboBox.superclass.onKeyDown.call(this,e);
+        }
+    },
 	/**
 	 * 收起下拉菜单.
 	 */
 	collapse:function(){
 		$A.ComboBox.superclass.collapse.call(this);
 		if(this.currentIndex!==undefined)
-		Ext.fly(this.getNode(this.currentIndex)).removeClass(this.currentNodeClass);		
+		Ext.fly(this.getNode(this.currentIndex)).removeClass(this.selectedClass);
 	},
 	clearOptions : function(){
 	   this.processDataSet('un');
@@ -160,13 +195,13 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		this.onSelect(t);
 		this.collapse();		
 	},	
-	onViewOver:function(e,t){
-		this.inKeyMode = false;
-	},
+//	onViewOver:function(e,t){
+//		this.inKeyMode = false;
+//	},
 	onViewMove:function(e,t){
-		if(this.inKeyMode){ // prevent key nav and mouse over conflicts
-            return;
-        }
+//		if(this.inKeyMode){ // prevent key nav and mouse over conflicts
+//            return;
+//        }
         var index = t.tabIndex;
         this.selectItem(index);        
 	},

@@ -128,7 +128,15 @@ $A.Grid = Ext.extend($A.Component,{
          * @param {String} 当前name.
          * @param {Aurora.Record} record 鼠标点击所在行的Record对象.
          */
-        'editorshow');
+        'editorshow',
+        /**
+         * @event nexteditorshow
+         * 切换下一个编辑器的事件.
+         * @param {Aurora.Grid} grid 当前Grid组件.
+         * @param {Number} row 行号.
+         * @param {String} 当前name.
+         */
+        'nexteditorshow');
     },
     syncScroll : function(){
         this.hideEditor();
@@ -842,6 +850,7 @@ $A.Grid = Ext.extend($A.Component,{
                     }
                 }
             }
+            this.fireEvent('nexteditorshow',this, row, name);
         }
     },
     /**
