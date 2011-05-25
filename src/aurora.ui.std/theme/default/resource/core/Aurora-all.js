@@ -4433,11 +4433,12 @@ $A.TriggerField = Ext.extend($A.TextField,{
 //    	}
     },
     onKeyDown: function(e){
-    	if(e.keyCode == 9 || e.keyCode == 27||e.keyCode == 13) {
-        	if(this.isExpanded()){
-	    		this.collapse();
-	    	}
-        }
+		switch(e.keyCode){
+    		case 9:
+    		case 13:
+    		case 27:if(this.isExpanded())this.collapse();break;
+    		case 40:if(!this.isExpanded())this.expand();
+		}
     	$A.TriggerField.superclass.onKeyDown.call(this,e);
     },
     isEventFromComponent:function(el){
@@ -4484,11 +4485,14 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	this.syncPopup();
     },
     syncPopup:function(){
-    	var xy = this.wrap.getXY(),
-    		H=this.popup.getHeight(),PH=this.wrap.getHeight(),BH=$A.getViewportHeight()-3,
-    		y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
-    	this.popup.moveTo(xy[0],y);
-    	this.shadow.moveTo(xy[0]+3,y+3);
+    	var xy=this.wrap.getXY(),
+			W=this.popup.getWidth(),H=this.popup.getHeight(),
+			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
+			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3,
+			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
+			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
+    	this.popup.moveTo(x,y);
+    	this.shadow.moveTo(x+3,y+3);
     },
     onTriggerClick : function(){
     	if(this.readonly) return;
@@ -4879,30 +4883,33 @@ $A.DateField = Ext.extend($A.Component, {
 				'<TBODY>',
 				'</TBODY>',
 			'</TABLE>'],
-	preMonthTpl:['<DIV class="item-dateField-pre" title="{pre}"></DIV>'],
-	nextMonthTpl:['<DIV class="item-dateField-next" title="{next}"></DIV>'],
+	preMonthTpl:['<DIV class="item-dateField-pre" title="{title}" onclick="$(\'{id}\').preMonth()"></DIV>'],
+	nextMonthTpl:['<DIV class="item-dateField-next" title="{title}" onclick="$(\'{id}\').nextMonth()"></DIV>'],
+	preYearTpl:['<DIV class="item-dateField-preYear" title="{title}" onclick="$(\'{id}\').preYear()"></DIV>'],
+	nextYearTpl:['<DIV class="item-dateField-nextYear" title="{title}" onclick="$(\'{id}\').nextYear()"></DIV>'],
     initComponent : function(config){
     	$A.DateField.superclass.initComponent.call(this, config);
     	if(this.height)this.rowHeight=(this.height-18*(Ext.isIE?3:2))/6;
         this.body = new Ext.Template(this.bodyTpl).append(this.wrap.dom,{sun:_lang['datefield.sun'],mon:_lang['datefield.mon'],tues:_lang['datefield.tues'],wed:_lang['datefield.wed'],thur:_lang['datefield.thur'],fri:_lang['datefield.fri'],sat:_lang['datefield.sat']},true);
         this.head=this.body.child(".item-dateField-caption").dom;
+        if(this.enableyearbtn=="both"||this.enableyearbtn=="pre")
+    		this.preMonthBtn = new Ext.Template(this.preYearTpl).append(this.head,{title:_lang['datefield.preYear'],id:this.id},true);
+    	if(this.enableyearbtn=="both"||this.enableyearbtn=="next")
+    		this.nextMonthBtn = new Ext.Template(this.nextYearTpl).append(this.head,{title:_lang['datefield.nextYear'],id:this.id},true);
         if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
-    		this.preMonthBtn = new Ext.Template(this.preMonthTpl).append(this.head,{pre:_lang['datefield.preMonth']},true);
+    		this.preMonthBtn = new Ext.Template(this.preMonthTpl).append(this.head,{title:_lang['datefield.preMonth'],id:this.id},true);
     	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
-    		this.nextMonthBtn = new Ext.Template(this.nextMonthTpl).append(this.head,{next:_lang['datefield.nextMonth']},true);
+    		this.nextMonthBtn = new Ext.Template(this.nextMonthTpl).append(this.head,{title:_lang['datefield.nextMonth'],id:this.id},true);
     	this.head.text=document.createElement('span');
     	this.head.appendChild(this.head.text);
     },
     processListener: function(ou){
     	$A.DateField.superclass.processListener.call(this,ou);
-    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
-    		this.preMonthBtn[ou]("click", this.preMonth, this);
-    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
-    		this.nextMonthBtn[ou]("click", this.nextMonth, this);
     	this.body[ou]('mousewheel',this.onMouseWheel,this);	
     	this.body[ou]("mouseover", this.onMouseOver, this);
     	this.body[ou]("mouseout", this.onMouseOut, this);
     	this.body[ou]("mouseup",this.onSelect,this);
+    	//this.body[ou]("keydown",this.onKeyDown,this);
     },
     initEvents : function(){
     	$A.DateField.superclass.initEvents.call(this);   	
@@ -4929,31 +4936,36 @@ $A.DateField = Ext.extend($A.Component, {
     	delete this.head;
 	},
 	onMouseWheel:function(e){
-		var delta = e.getWheelDelta();
-        if(delta > 0){
-            this.preMonth();
-            e.stopEvent();
-        }
-		if(delta < 0){
-            this.nextMonth();
-            e.stopEvent();
-        }
+        this[(e.getWheelDelta()>0?'pre':'next')+(e.ctrlKey?'Year':'Month')]();
+        e.stopEvent();
 	},
-    onMouseOver: function(e){
-    	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
-    	if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttributeNS("",'_date') != '0'){
-    		this.overTd = e.target; 
-    		Ext.fly(this.overTd).addClass('dateover');
+    onMouseOver: function(e,t){
+    	this.out();
+    	if(((t = Ext.fly(t)).hasClass('item-day')||(t = t.parent('.item-day'))) && t.getAttributeNS("",'_date') != '0'){
+    		$A.DateField.superclass.onMouseOver.call(this,e);
+			this.over(t);
     	}
     },
     onMouseOut: function(e){
-    	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
+    	$A.DateField.superclass.onMouseOut.call(this,e);
+    	this.out();
     },
-    onSelect:function(e){
-    	this.fireEvent("select",e);
+    over : function(t){
+    	t = t||this.body.child('td.item-day')
+    	this.overTd = t; 
+		t.addClass('dateover');
+    },
+    out : function(){
+    	if(this.overTd) {
+    		this.overTd.removeClass('dateover');
+    		this.overTd=null;
+    	}
+    },
+    onSelect:function(e,t){
+    	this.fireEvent("select",e,t);
     },
 	onSelectDay: function(o){
-		if(!Ext.fly(o).hasClass('onSelect'))Ext.fly(o).addClass('onSelect');
+		if(!o.hasClass('onSelect'))o.addClass('onSelect');
 	},
     /**
      * 当前月
@@ -5017,37 +5029,37 @@ $A.DateField = Ext.extend($A.Component, {
 			arr.push((this.enablebesidedays=="both"||this.enablebesidedays=="next")?new Date(year, month, i,hour,minute,second):null);
 		}
 		//先清空内容再插入(ie的table不能用innerHTML)
-		//while(this.body.dom.tBodies[0].firstChild){
-			//this.body.dom.tBodies[0].removeChild(this.body.dom.tBodies[0].firstChild);
-			//Ext.fly(this.body.dom.tBodies[0].firstChild).remove();
-		//}
-		Ext.fly(this.body.dom.tBodies[0]).remove();
-		this.body.dom.appendChild(document.createElement("tbody"));
+		var body = this.body.dom.tBodies[0];
+		while(body.firstChild){
+			Ext.fly(body.firstChild).remove();
+		}
 		//插入日期
 		var k=0;
 		while(arr.length){
 			//每个星期插入一个tr
-			var row = this.body.dom.tBodies[0].insertRow(-1);
-			if(this.rowHeight)row.style.height=this.rowHeight+"px";
-			if(k%2==0)row.className='week-alt';
+			var row = Ext.get(body.insertRow(-1));
+			row.set({'r_index':k});
+			if(k%2==0)row.addClass('week-alt');
+			if(this.rowHeight)row.setHeight(this.rowHeight);
 			k++;
 			//每个星期有7天
 			for(var i = 1; i <= 7; i++){
 				var d = arr.shift();
 				if(Ext.isDefined(d)){
-					var cell = row.insertCell(-1); 
+					var cell = Ext.get(row.dom.insertCell(-1)); 
 					if(d){
-						cell.className = date.getMonth()==d.getMonth()?"item-day":"item-day item-day-besides";
-						cell.innerHTML =this.renderCell(cell,d)||d.getDate();
+						cell.set({'c_index':i-1});
+						cell.addClass(date.getMonth()==d.getMonth()?"item-day":"item-day item-day-besides");
+						cell.update(this.renderCell(cell,d,d.getDate(),month)||d.getDate());
 						if(cell.disabled){
-							Ext.fly(cell).set({'_date':'0'});
-							Ext.fly(cell).addClass("item-day-disabled");
+							cell.set({'_date':'0'});
+							cell.addClass("item-day-disabled");
 						}else {
-							Ext.fly(cell).set({'_date':(''+d.getTime())});
-							if(this.format)Ext.fly(cell).set({'title':d.format(this.format)})
+							cell.set({'_date':(''+d.getTime())});
+							if(this.format)cell.set({'title':d.format(this.format)})
 						}
 						//判断是否今日
-						if(this.isSame(d, new Date())) cell.className = "onToday";
+						if(this.isSame(d, new Date())) cell.addClass("onToday");
 						//判断是否选择日期
 						if(this.selectDay && this.isSame(d, this.selectDay))this.onSelectDay(cell);
 					}
@@ -5055,8 +5067,9 @@ $A.DateField = Ext.extend($A.Component, {
 			}
 		}
 	},
-	renderCell:function(cell,date,text){
-		if(this.dayrenderer)$A.getRenderer(this.dayrenderer).call(this,cell,date,text);
+	renderCell:function(cell,date,day,currentMonth){
+		if(this.dayrenderer)
+			return $A.getRenderer(this.dayrenderer).call(this,cell,date,day,currentMonth);
 	},
 	/**
 	 * 判断是否同一日
@@ -5067,6 +5080,9 @@ $A.DateField = Ext.extend($A.Component, {
 	isSame: function(d1, d2) {
 		if(!d2.getFullYear||!d1.getFullYear)return false;
 		return (d1.getFullYear() == d2.getFullYear() && d1.getMonth() == d2.getMonth() && d1.getDate() == d2.getDate());
+	},
+	focus : function(){
+		this.body.focus();	
 	}
 });
 /**
@@ -5086,7 +5102,6 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
 		this.initFormat();
-    	
 	},
 	initFormat : function(){
 		this.format=this.format||$A.defaultDateFormat;
@@ -5104,18 +5119,34 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.popup.setStyle({'width':150*this.viewsize+'px'})
     	if(this.dateFields.length==0){
     		for(var i=0;i<this.viewsize;i++){
-	    		var cfg = {id:this.id+'_df'+i,height:130,enablemonthbtn:'none',enablebesidedays:'none',dayrenderer:this.dayrenderer,listeners:{"select":this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
+	    		var cfg = {
+	    			id:this.id+'_df'+i,
+	    			height:130,
+	    			enablemonthbtn:'none',
+	    			enablebesidedays:'none',
+	    			dayrenderer:this.dayrenderer,
+	    			listeners:{
+	    				"select":this.onSelect.createDelegate(this),
+	    				"draw":this.onDraw.createDelegate(this),
+	    				"mouseover":this.mouseOver.createDelegate(this),
+	    				"mouseout":this.mouseOut.createDelegate(this)
+	    			}
+	    		}
 		    	if(i==0){
 		    		if(this.enablebesidedays=="both"||this.enablebesidedays=="pre")
 		    			cfg.enablebesidedays="pre";
 		    		if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
 		    			cfg.enablemonthbtn="pre";
+		    		if(this.enableyearbtn=="both"||this.enableyearbtn=="pre")
+		    			cfg.enableyearbtn="pre";
 		    	}
 		    	if(i==this.viewsize-1){
 		    		if(this.enablebesidedays=="both"||this.enablebesidedays=="next")
 		    			cfg.enablebesidedays=cfg.enablebesidedays=="pre"?"both":"next";
 		    		if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
 		    			cfg.enablemonthbtn=cfg.enablemonthbtn=="pre"?"both":"next";
+		    		if(this.enableyearbtn=="both"||this.enableyearbtn=="next")
+		    			cfg.enableyearbtn=cfg.enableyearbtn=="pre"?"both":"next";
 		    	}else Ext.fly(this.id+'_df'+i).dom.style.cssText="border-right:1px solid #BABABA";
 		    	this.dateFields.add(new $A.DateField(cfg));
     		}
@@ -5138,25 +5169,131 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     processListener : function(ou){
     	$A.DatePicker.superclass.processListener.call(this,ou);
+    	this.el[ou]('click',this.mouseOut, this);
     	if(this.now)this.now[ou]("click", this.onSelect, this);
+    },
+    mouseOver: function(cmp,e){
+    	if(this.focusField)this.focusField.out();
+    	this.focusField = cmp
+    },
+    mouseOut: function(){
+    	if(this.focusField)this.focusField.out();
+    	this.focusField = null;
     },
     onKeyUp: function(e){
     	$A.DatePicker.superclass.onKeyUp.call(this,e);
-    	try{
-    		this.selectDay=this.getRawValue().parseDate(this.format);
-    		$A.Component.prototype.setValue.call(this,this.selectDay);
-    		this.predraw(this.selectDay);
-    	}catch(e){
+    	var c = e.keyCode;
+    	if(!e.isSpecialKey()||c==8||c==46){
+	    	try{
+	    		this.selectDay=this.getRawValue().parseDate(this.format);
+	    		$A.Component.prototype.setValue.call(this,this.selectDay);
+	    		this.predraw(this.selectDay);
+	    	}catch(e){
+	    	}
     	}
+    },
+    onKeyDown: function(e){
+    	if(this.focusField){
+	    	switch(e.keyCode){
+	    		case 37:this.goLeft(e);break;
+	    		case 38:this.goUp(e);break;
+	    		case 39:this.goRight(e);break;
+	    		case 40:this.goDown(e);break;
+	    		case 13:this.onSelect(e,this.focusField.overTd);
+	    		default:{
+					if(this.focusField)this.focusField.out();
+					this.focusField = null;
+	    		}
+	    	}
+   		}else {
+   			$A.DatePicker.superclass.onKeyDown.call(this,e);
+   			if(e.keyCode == 40){
+				this.focusField = this.dateFields[0];
+				this.focusField.over();
+   			}
+   		}
+    },
+    goLeft : function(e){
+    	var field = this.focusField;
+		var td = field.overTd,prev = td.prev('.item-day');
+		field.out();
+    	if(prev) {
+    		field.over(prev);
+    	}else{
+			var f = this.dateFields[this.dateFields.indexOf(field)-1],
+			index = td.parent().getAttributeNS('','r_index')
+			if(f){
+				this.focusField = f;
+			}else{
+				field.preMonth();
+				this.focusField = this.dateFields[this.dateFields.length-1];
+			}
+			var l = this.focusField.body.child('tr[r_index='+index+']').select('td.item-day')
+			this.focusField.over(l.item(l.getCount()-1));
+		}
+		e.stopEvent();
+    },
+    goUp : function(e){
+    	var field = this.focusField;
+		var td = field.overTd,prev = td.parent().prev(),index = td.getAttributeNS('','c_index'),t;
+		field.out();
+		if(prev)t = prev.child('td[c_index='+index+']');
+		if(t)field.over(t);
+		else {
+			var f = this.dateFields[this.dateFields.indexOf(field)-1];
+			if(f){
+				this.focusField = f;
+			}else{
+				field.preMonth();
+				this.focusField = this.dateFields[0];
+			}
+			var l = this.focusField.body.select('td[c_index='+index+']')
+			this.focusField.over(l.item(l.getCount()-1));
+		}
+    },
+    goRight : function(e){
+    	var field = this.focusField;
+		var td = field.overTd,next = td.next('.item-day'),parent = td.parent();
+		field.out();
+    	if(next) {
+    		field.over(next);
+    	}else{
+			var f = this.dateFields[this.dateFields.indexOf(field)+1];
+			if(f){
+				this.focusField = f;
+			}else{
+				field.nextMonth();
+				this.focusField = this.dateFields[0];
+			}
+			this.focusField.over(this.focusField.body.child('tr[r_index='+parent.getAttributeNS('','r_index')+']').child('td.item-day'));
+		}
+		e.stopEvent();
+    },
+    goDown : function(e){
+    	var field = this.focusField;
+		var td = field.overTd,next = td.parent().next(),t,index = td.getAttributeNS('','c_index');
+		field.out();
+		if(next)t = next.child('td[c_index='+index+']');
+		if(t)field.over(t);
+		else {
+			var f = this.dateFields[this.dateFields.indexOf(field)+1];
+			if(f){
+				this.focusField = f;
+			}else{
+				field.nextMonth();
+				this.focusField = this.dateFields[this.dateFields.length-1];
+			}
+			this.focusField.over(this.focusField.body.child('td[c_index='+index+']'));
+		}
     },
     onDraw : function(field){
     	if(this.dateFields.length>1)this.sysnDateField(field);
     	this.shadow.setWidth(this.popup.getWidth());
     	this.shadow.setHeight(this.popup.getHeight());
     },
-    onSelect: function(e){
-		if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttributeNS("",'_date') != '0'){
-    		var date=new Date(parseInt(Ext.fly(e.target).getAttributeNS("",'_date')));
+    onSelect: function(e,t){
+		if((Ext.fly(t).hasClass('item-day'))&& Ext.fly(t).getAttributeNS("",'_date') != '0'){
+    		var date=new Date(parseInt(Ext.fly(t).getAttributeNS("",'_date')));
 	    	this.collapse();
             this.processDate(date);
 	    	this.setValue(date);
@@ -5180,17 +5317,13 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     expand : function(){
         this.initDatePicker();
-    	$A.DatePicker.superclass.expand.call(this);
     	this.selectDay = this.getValue();
 		this.predraw(this.selectDay);
-    	var xy=this.wrap.getXY(),
-			W=this.popup.getWidth(),H=this.popup.getHeight(),
-			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
-			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3,
-			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
-			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
-    	this.popup.moveTo(x,y);
-    	this.shadow.moveTo(x+3,y+3);
+    	$A.DatePicker.superclass.expand.call(this);
+    },
+    collapse : function(){
+    	$A.DatePicker.superclass.collapse.call(this);
+    	this.focusField = null;
     },
     destroy : function(){
     	$A.DatePicker.superclass.destroy.call(this);
@@ -5226,23 +5359,6 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 			if(field!=this.dateFields[i])
 			this.dateFields[i].predraw(date,true);
 		}
-	},
-	preMonth : function(){
-		this.dateFields[0].preMonth();
-	},
-	nextMonth : function(){
-		this.dateFields[0].nextMonth();
-	},
-	onMouseWheel:function(e){
-		var delta = e.getWheelDelta();
-        if(delta > 0&&(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")){
-            this.preMonth();
-            e.stopEvent();
-        }
-		if(delta < 0&&(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")){
-            this.nextMonth();
-            e.stopEvent();
-        }
 	}
 });
 /**
@@ -6110,7 +6226,7 @@ $A.Lov = Ext.extend($A.TextField,{
         if(this.autocomplete){
         	var v=this.getRawValue(),view=this.autocompleteview,code = e.keyCode;
         	//if((code > 47 && code < 58) || (code > 64 && code < 91) || code == 8 || code == 46 || code == 13 || code == 32 || code == 16 || code == 17){
-	        if((code < 37 || code > 40)&&code != 13){
+	        if((code < 37 || code > 40)&&code != 13 && code !=27 && code != 9){
         		if(v.length >= this.autocompletesize){
 	        		var sf=this;
 	        		if(this.showCompleteId)clearTimeout(this.showCompleteId);
@@ -6212,9 +6328,12 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     autoCompletePosition:function(){
     	var xy = this.wrap.getXY(),
-    		H=this.autocompleteview.getHeight(),PH=this.wrap.getHeight(),BH=$A.getViewportHeight()-3,
-    		y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
-    	this.autocompleteview.moveTo(xy[0],y);
+			W=this.autocompleteview.getWidth(),H=this.autocompleteview.getHeight(),
+			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
+			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3,
+			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
+			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
+    	this.autocompleteview.moveTo(x,y);
     },
     onViewClick:function(e,t){
 		if(t.tagName!='LI'){
@@ -6270,6 +6389,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		var lh = Math.min(this.autocompleteview.wrap.child('ul').getHeight()+2,this.maxHeight); 
     	this.autocompleteview.setWidth(mw);
 		this.autocompleteview.setHeight(lh<20?20:lh);
+		this.autoCompletePosition();
 	},
     selectItem:function(index){
 		if(Ext.isEmpty(index)){
@@ -6350,9 +6470,12 @@ $A.Lov = Ext.extend($A.TextField,{
     onWinClose: function(){
         this.isWinOpen = false;
         this.win = null;
-//        if(!Ext.isIE6 && !Ext.isIE7){//TODO:不知什么地方会导致冲突,ie6 ie7 会死掉 
+        if(!Ext.isIE6 && !Ext.isIE7){//TODO:不知什么地方会导致冲突,ie6 ie7 会死掉 
             this.focus();
-//        }
+        }else{
+        	var sf = this;
+        	setTimeout(function(){sf.focus()},10)	
+        }
     },
     getLovPara : function(){
         var para = Ext.apply({},this.para);
