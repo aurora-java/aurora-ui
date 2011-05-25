@@ -777,7 +777,6 @@ $A.Grid = Ext.extend($A.Component,{
                 };
                 var ed = sf.currentEditor.editor;
                 if(ed){
-//                    if(dom.parentNode==null)debugger
                     ed.setHeight(Ext.fly(dom.parentNode).getHeight()-5)
                     ed.setWidth(Ext.fly(dom.parentNode).getWidth()-7);
                     ed.isFireEvent = true;

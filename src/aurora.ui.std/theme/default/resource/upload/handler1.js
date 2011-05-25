@@ -96,7 +96,6 @@ function fileQueuedError(file, code, message) {
 				msg = '超出上传文件数量限制';
 				break;
 			case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT :
-				debugger
 				msg = '超出上传文件大小限制! (不能超过'
 						+ window.formatFileSize(1024
 								* window.swfUpload.settings.file_size_limit)
