@@ -1,5 +1,5 @@
 <span id="${id}"> </span>
-<div style="height:1px;background-color:#666"> </div>
+<div style="height:1px;background-color:#666;font-size:0px"> </div>
 ${up_table}
 <SCRIPT LANGUAGE="JavaScript">
 function ${id}(){
