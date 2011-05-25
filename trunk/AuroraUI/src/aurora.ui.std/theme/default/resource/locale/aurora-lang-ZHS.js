@@ -55,5 +55,7 @@ _lang['datefield.fri'] = '五';
 _lang['datefield.sat'] = '六';
 _lang['datefield.preMonth'] = '上个月';
 _lang['datefield.nextMonth'] = '下个月';
+_lang['datefield.preYear'] = '上一年';
+_lang['datefield.nextYear'] = '下一年';
 
 _lang['datepicker.today'] = '今日';

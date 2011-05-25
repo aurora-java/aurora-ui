@@ -55,5 +55,7 @@ _lang['datefield.fri'] = 'Fri';
 _lang['datefield.sat'] = 'Sats';
 _lang['datefield.preMonth'] = 'Previous month';
 _lang['datefield.nextMonth'] = 'Next month';
+_lang['datefield.preYear'] = 'Previous year';
+_lang['datefield.nextYear'] = 'Next year';
 
 _lang['datepicker.today'] = 'Today';

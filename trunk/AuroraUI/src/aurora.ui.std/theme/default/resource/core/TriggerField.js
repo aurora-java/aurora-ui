@@ -53,6 +53,12 @@ $A.TriggerField = Ext.extend($A.TextField,{
 //    	}
     },
     onKeyDown: function(e){
+		switch(e.keyCode){
+    		case 9:
+    		case 13:
+    		case 27:if(this.isExpanded())this.collapse();break;
+    		case 40:if(!this.isExpanded())this.expand();
+		}
     	if(e.keyCode == 9 || e.keyCode == 27||e.keyCode == 13) {
         	if(this.isExpanded()){
 	    		this.collapse();
@@ -104,11 +110,14 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	this.syncPopup();
     },
     syncPopup:function(){
-    	var xy = this.wrap.getXY(),
-    		H=this.popup.getHeight(),PH=this.wrap.getHeight(),BH=$A.getViewportHeight()-3,
-    		y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
-    	this.popup.moveTo(xy[0],y);
-    	this.shadow.moveTo(xy[0]+3,y+3);
+    	var xy=this.wrap.getXY(),
+			W=this.popup.getWidth(),H=this.popup.getHeight(),
+			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
+			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3,
+			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
+			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
+    	this.popup.moveTo(x,y);
+    	this.shadow.moveTo(x+3,y+3);
     },
     onTriggerClick : function(){
     	if(this.readonly) return;
