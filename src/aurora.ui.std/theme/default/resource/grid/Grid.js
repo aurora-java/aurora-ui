@@ -1356,9 +1356,9 @@ $A.Grid = Ext.extend($A.Component,{
     	p["parameter"]["_column_config_"]["column"]=columns;
     	p["_generate_state"]=true;
     	p["_format"]="xls";
+    	var r,q = {};
     	if(this.dataset.qds)r = this.dataset.qds.getCurrentRecord();
-    	var q = {};
-    	if(r != null) Ext.apply(q, r.data);
+    	if(r) Ext.apply(q, r.data);
     	Ext.apply(q, this.dataset.qpara);
     	for(var k in q){
     	   var v = q[k];

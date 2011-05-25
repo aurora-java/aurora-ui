@@ -5,6 +5,7 @@ Release ()
 * 增加Lov的autoComplete功能
 * 修正各种弹出式消息框之间嵌套时的BUG，另外弹出式消息框如果定义了回调函数，点击按钮后不会关闭窗口，需要在回调函数中手动处理窗口关闭
 * 增加了grid,table的快速导航键
+* 修正了grid导出功能中 当没有querydataset或querydataset没有autoCreate时引发的错误
 
 Release (2011-05-17)
 ------------------------------------

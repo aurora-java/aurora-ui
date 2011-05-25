@@ -15,7 +15,6 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
 		this.initFormat();
-    	
 	},
 	initFormat : function(){
 		this.format=this.format||$A.defaultDateFormat;
@@ -33,18 +32,34 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.popup.setStyle({'width':150*this.viewsize+'px'})
     	if(this.dateFields.length==0){
     		for(var i=0;i<this.viewsize;i++){
-	    		var cfg = {id:this.id+'_df'+i,height:130,enablemonthbtn:'none',enablebesidedays:'none',dayrenderer:this.dayrenderer,listeners:{"select":this.onSelect.createDelegate(this),"draw":this.onDraw.createDelegate(this)}}
+	    		var cfg = {
+	    			id:this.id+'_df'+i,
+	    			height:130,
+	    			enablemonthbtn:'none',
+	    			enablebesidedays:'none',
+	    			dayrenderer:this.dayrenderer,
+	    			listeners:{
+	    				"select":this.onSelect.createDelegate(this),
+	    				"draw":this.onDraw.createDelegate(this),
+	    				"mouseover":this.mouseOver.createDelegate(this),
+	    				"mouseout":this.mouseOut.createDelegate(this)
+	    			}
+	    		}
 		    	if(i==0){
 		    		if(this.enablebesidedays=="both"||this.enablebesidedays=="pre")
 		    			cfg.enablebesidedays="pre";
 		    		if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
 		    			cfg.enablemonthbtn="pre";
+		    		if(this.enableyearbtn=="both"||this.enableyearbtn=="pre")
+		    			cfg.enableyearbtn="pre";
 		    	}
 		    	if(i==this.viewsize-1){
 		    		if(this.enablebesidedays=="both"||this.enablebesidedays=="next")
 		    			cfg.enablebesidedays=cfg.enablebesidedays=="pre"?"both":"next";
 		    		if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
 		    			cfg.enablemonthbtn=cfg.enablemonthbtn=="pre"?"both":"next";
+		    		if(this.enableyearbtn=="both"||this.enableyearbtn=="next")
+		    			cfg.enableyearbtn=cfg.enableyearbtn=="pre"?"both":"next";
 		    	}else Ext.fly(this.id+'_df'+i).dom.style.cssText="border-right:1px solid #BABABA";
 		    	this.dateFields.add(new $A.DateField(cfg));
     		}
@@ -67,25 +82,131 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     processListener : function(ou){
     	$A.DatePicker.superclass.processListener.call(this,ou);
+    	this.el[ou]('click',this.mouseOut, this);
     	if(this.now)this.now[ou]("click", this.onSelect, this);
+    },
+    mouseOver: function(cmp,e){
+    	if(this.focusField)this.focusField.out();
+    	this.focusField = cmp
+    },
+    mouseOut: function(){
+    	if(this.focusField)this.focusField.out();
+    	this.focusField = null;
     },
     onKeyUp: function(e){
     	$A.DatePicker.superclass.onKeyUp.call(this,e);
-    	try{
-    		this.selectDay=this.getRawValue().parseDate(this.format);
-    		$A.Component.prototype.setValue.call(this,this.selectDay);
-    		this.predraw(this.selectDay);
-    	}catch(e){
+    	var c = e.keyCode;
+    	if(!e.isSpecialKey()||c==8||c==46){
+	    	try{
+	    		this.selectDay=this.getRawValue().parseDate(this.format);
+	    		$A.Component.prototype.setValue.call(this,this.selectDay);
+	    		this.predraw(this.selectDay);
+	    	}catch(e){
+	    	}
     	}
+    },
+    onKeyDown: function(e){
+    	if(this.focusField){
+	    	switch(e.keyCode){
+	    		case 37:this.goLeft(e);break;
+	    		case 38:this.goUp(e);break;
+	    		case 39:this.goRight(e);break;
+	    		case 40:this.goDown(e);break;
+	    		case 13:this.onSelect(e,this.focusField.overTd);
+	    		default:{
+					if(this.focusField)this.focusField.out();
+					this.focusField = null;
+	    		}
+	    	}
+   		}else {
+   			$A.DatePicker.superclass.onKeyDown.call(this,e);
+   			if(e.keyCode == 40){
+				this.focusField = this.dateFields[0];
+				this.focusField.over();
+   			}
+   		}
+    },
+    goLeft : function(e){
+    	var field = this.focusField;
+		var td = field.overTd,prev = td.prev('.item-day');
+		field.out();
+    	if(prev) {
+    		field.over(prev);
+    	}else{
+			var f = this.dateFields[this.dateFields.indexOf(field)-1],
+			index = td.parent().getAttributeNS('','r_index')
+			if(f){
+				this.focusField = f;
+			}else{
+				field.preMonth();
+				this.focusField = this.dateFields[this.dateFields.length-1];
+			}
+			var l = this.focusField.body.child('tr[r_index='+index+']').select('td.item-day')
+			this.focusField.over(l.item(l.getCount()-1));
+		}
+		e.stopEvent();
+    },
+    goUp : function(e){
+    	var field = this.focusField;
+		var td = field.overTd,prev = td.parent().prev(),index = td.getAttributeNS('','c_index'),t;
+		field.out();
+		if(prev)t = prev.child('td[c_index='+index+']');
+		if(t)field.over(t);
+		else {
+			var f = this.dateFields[this.dateFields.indexOf(field)-1];
+			if(f){
+				this.focusField = f;
+			}else{
+				field.preMonth();
+				this.focusField = this.dateFields[0];
+			}
+			var l = this.focusField.body.select('td[c_index='+index+']')
+			this.focusField.over(l.item(l.getCount()-1));
+		}
+    },
+    goRight : function(e){
+    	var field = this.focusField;
+		var td = field.overTd,next = td.next('.item-day'),parent = td.parent();
+		field.out();
+    	if(next) {
+    		field.over(next);
+    	}else{
+			var f = this.dateFields[this.dateFields.indexOf(field)+1];
+			if(f){
+				this.focusField = f;
+			}else{
+				field.nextMonth();
+				this.focusField = this.dateFields[0];
+			}
+			this.focusField.over(this.focusField.body.child('tr[r_index='+parent.getAttributeNS('','r_index')+']').child('td.item-day'));
+		}
+		e.stopEvent();
+    },
+    goDown : function(e){
+    	var field = this.focusField;
+		var td = field.overTd,next = td.parent().next(),t,index = td.getAttributeNS('','c_index');
+		field.out();
+		if(next)t = next.child('td[c_index='+index+']');
+		if(t)field.over(t);
+		else {
+			var f = this.dateFields[this.dateFields.indexOf(field)+1];
+			if(f){
+				this.focusField = f;
+			}else{
+				field.nextMonth();
+				this.focusField = this.dateFields[this.dateFields.length-1];
+			}
+			this.focusField.over(this.focusField.body.child('td[c_index='+index+']'));
+		}
     },
     onDraw : function(field){
     	if(this.dateFields.length>1)this.sysnDateField(field);
     	this.shadow.setWidth(this.popup.getWidth());
     	this.shadow.setHeight(this.popup.getHeight());
     },
-    onSelect: function(e){
-		if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttributeNS("",'_date') != '0'){
-    		var date=new Date(parseInt(Ext.fly(e.target).getAttributeNS("",'_date')));
+    onSelect: function(e,t){
+		if((Ext.fly(t).hasClass('item-day'))&& Ext.fly(t).getAttributeNS("",'_date') != '0'){
+    		var date=new Date(parseInt(Ext.fly(t).getAttributeNS("",'_date')));
 	    	this.collapse();
             this.processDate(date);
 	    	this.setValue(date);
@@ -109,17 +230,13 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     expand : function(){
         this.initDatePicker();
-    	$A.DatePicker.superclass.expand.call(this);
     	this.selectDay = this.getValue();
 		this.predraw(this.selectDay);
-    	var xy=this.wrap.getXY(),
-			W=this.popup.getWidth(),H=this.popup.getHeight(),
-			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
-			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3,
-			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
-			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
-    	this.popup.moveTo(x,y);
-    	this.shadow.moveTo(x+3,y+3);
+    	$A.DatePicker.superclass.expand.call(this);
+    },
+    collapse : function(){
+    	$A.DatePicker.superclass.collapse.call(this);
+    	this.focusField = null;
     },
     destroy : function(){
     	$A.DatePicker.superclass.destroy.call(this);
@@ -155,22 +272,5 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 			if(field!=this.dateFields[i])
 			this.dateFields[i].predraw(date,true);
 		}
-	},
-	preMonth : function(){
-		this.dateFields[0].preMonth();
-	},
-	nextMonth : function(){
-		this.dateFields[0].nextMonth();
-	},
-	onMouseWheel:function(e){
-		var delta = e.getWheelDelta();
-        if(delta > 0&&(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")){
-            this.preMonth();
-            e.stopEvent();
-        }
-		if(delta < 0&&(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")){
-            this.nextMonth();
-            e.stopEvent();
-        }
 	}
 });

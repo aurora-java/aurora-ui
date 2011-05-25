@@ -190,9 +190,12 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     autoCompletePosition:function(){
     	var xy = this.wrap.getXY(),
-    		H=this.autocompleteview.getHeight(),PH=this.wrap.getHeight(),BH=$A.getViewportHeight()-3,
-    		y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
-    	this.autocompleteview.moveTo(xy[0],y);
+			W=this.autocompleteview.getWidth(),H=this.autocompleteview.getHeight(),
+			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
+			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3,
+			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
+			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
+    	this.autocompleteview.moveTo(x,y);
     },
     onViewClick:function(e,t){
 		if(t.tagName!='LI'){
@@ -248,6 +251,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		var lh = Math.min(this.autocompleteview.wrap.child('ul').getHeight()+2,this.maxHeight); 
     	this.autocompleteview.setWidth(mw);
 		this.autocompleteview.setHeight(lh<20?20:lh);
+		this.autoCompletePosition();
 	},
     selectItem:function(index){
 		if(Ext.isEmpty(index)){

@@ -23,30 +23,33 @@ $A.DateField = Ext.extend($A.Component, {
 				'<TBODY>',
 				'</TBODY>',
 			'</TABLE>'],
-	preMonthTpl:['<DIV class="item-dateField-pre" title="{pre}"></DIV>'],
-	nextMonthTpl:['<DIV class="item-dateField-next" title="{next}"></DIV>'],
+	preMonthTpl:['<DIV class="item-dateField-pre" title="{title}" onclick="$(\'{id}\').preMonth()"></DIV>'],
+	nextMonthTpl:['<DIV class="item-dateField-next" title="{title}" onclick="$(\'{id}\').nextMonth()"></DIV>'],
+	preYearTpl:['<DIV class="item-dateField-preYear" title="{title}" onclick="$(\'{id}\').preYear()"></DIV>'],
+	nextYearTpl:['<DIV class="item-dateField-nextYear" title="{title}" onclick="$(\'{id}\').nextYear()"></DIV>'],
     initComponent : function(config){
     	$A.DateField.superclass.initComponent.call(this, config);
     	if(this.height)this.rowHeight=(this.height-18*(Ext.isIE?3:2))/6;
         this.body = new Ext.Template(this.bodyTpl).append(this.wrap.dom,{sun:_lang['datefield.sun'],mon:_lang['datefield.mon'],tues:_lang['datefield.tues'],wed:_lang['datefield.wed'],thur:_lang['datefield.thur'],fri:_lang['datefield.fri'],sat:_lang['datefield.sat']},true);
         this.head=this.body.child(".item-dateField-caption").dom;
+        if(this.enableyearbtn=="both"||this.enableyearbtn=="pre")
+    		this.preMonthBtn = new Ext.Template(this.preYearTpl).append(this.head,{title:_lang['datefield.preYear'],id:this.id},true);
+    	if(this.enableyearbtn=="both"||this.enableyearbtn=="next")
+    		this.nextMonthBtn = new Ext.Template(this.nextYearTpl).append(this.head,{title:_lang['datefield.nextYear'],id:this.id},true);
         if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
-    		this.preMonthBtn = new Ext.Template(this.preMonthTpl).append(this.head,{pre:_lang['datefield.preMonth']},true);
+    		this.preMonthBtn = new Ext.Template(this.preMonthTpl).append(this.head,{title:_lang['datefield.preMonth'],id:this.id},true);
     	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
-    		this.nextMonthBtn = new Ext.Template(this.nextMonthTpl).append(this.head,{next:_lang['datefield.nextMonth']},true);
+    		this.nextMonthBtn = new Ext.Template(this.nextMonthTpl).append(this.head,{title:_lang['datefield.nextMonth'],id:this.id},true);
     	this.head.text=document.createElement('span');
     	this.head.appendChild(this.head.text);
     },
     processListener: function(ou){
     	$A.DateField.superclass.processListener.call(this,ou);
-    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
-    		this.preMonthBtn[ou]("click", this.preMonth, this);
-    	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
-    		this.nextMonthBtn[ou]("click", this.nextMonth, this);
     	this.body[ou]('mousewheel',this.onMouseWheel,this);	
     	this.body[ou]("mouseover", this.onMouseOver, this);
     	this.body[ou]("mouseout", this.onMouseOut, this);
     	this.body[ou]("mouseup",this.onSelect,this);
+    	//this.body[ou]("keydown",this.onKeyDown,this);
     },
     initEvents : function(){
     	$A.DateField.superclass.initEvents.call(this);   	
@@ -73,31 +76,36 @@ $A.DateField = Ext.extend($A.Component, {
     	delete this.head;
 	},
 	onMouseWheel:function(e){
-		var delta = e.getWheelDelta();
-        if(delta > 0){
-            this.preMonth();
-            e.stopEvent();
-        }
-		if(delta < 0){
-            this.nextMonth();
-            e.stopEvent();
-        }
+        this[(e.getWheelDelta()>0?'pre':'next')+(e.ctrlKey?'Year':'Month')]();
+        e.stopEvent();
 	},
-    onMouseOver: function(e){
-    	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
-    	if((Ext.fly(e.target).hasClass('item-day')||Ext.fly(e.target).hasClass('onToday')) && Ext.fly(e.target).getAttributeNS("",'_date') != '0'){
-    		this.overTd = e.target; 
-    		Ext.fly(this.overTd).addClass('dateover');
+    onMouseOver: function(e,t){
+    	this.out();
+    	if(((t = Ext.fly(t)).hasClass('item-day')||(t = t.parent('.item-day'))) && t.getAttributeNS("",'_date') != '0'){
+    		$A.DateField.superclass.onMouseOver.call(this,e);
+			this.over(t);
     	}
     },
     onMouseOut: function(e){
-    	if(this.overTd) Ext.fly(this.overTd).removeClass('dateover');
+    	$A.DateField.superclass.onMouseOut.call(this,e);
+    	this.out();
     },
-    onSelect:function(e){
-    	this.fireEvent("select",e);
+    over : function(t){
+    	t = t||this.body.child('td.item-day')
+    	this.overTd = t; 
+		t.addClass('dateover');
+    },
+    out : function(){
+    	if(this.overTd) {
+    		this.overTd.removeClass('dateover');
+    		this.overTd=null;
+    	}
+    },
+    onSelect:function(e,t){
+    	this.fireEvent("select",e,t);
     },
 	onSelectDay: function(o){
-		if(!Ext.fly(o).hasClass('onSelect'))Ext.fly(o).addClass('onSelect');
+		if(!o.hasClass('onSelect'))o.addClass('onSelect');
 	},
     /**
      * 当前月
@@ -161,37 +169,37 @@ $A.DateField = Ext.extend($A.Component, {
 			arr.push((this.enablebesidedays=="both"||this.enablebesidedays=="next")?new Date(year, month, i,hour,minute,second):null);
 		}
 		//先清空内容再插入(ie的table不能用innerHTML)
-		//while(this.body.dom.tBodies[0].firstChild){
-			//this.body.dom.tBodies[0].removeChild(this.body.dom.tBodies[0].firstChild);
-			//Ext.fly(this.body.dom.tBodies[0].firstChild).remove();
-		//}
-		Ext.fly(this.body.dom.tBodies[0]).remove();
-		this.body.dom.appendChild(document.createElement("tbody"));
+		var body = this.body.dom.tBodies[0];
+		while(body.firstChild){
+			Ext.fly(body.firstChild).remove();
+		}
 		//插入日期
 		var k=0;
 		while(arr.length){
 			//每个星期插入一个tr
-			var row = this.body.dom.tBodies[0].insertRow(-1);
-			if(this.rowHeight)row.style.height=this.rowHeight+"px";
-			if(k%2==0)row.className='week-alt';
+			var row = Ext.get(body.insertRow(-1));
+			row.set({'r_index':k});
+			if(k%2==0)row.addClass('week-alt');
+			if(this.rowHeight)row.setHeight(this.rowHeight);
 			k++;
 			//每个星期有7天
 			for(var i = 1; i <= 7; i++){
 				var d = arr.shift();
 				if(Ext.isDefined(d)){
-					var cell = row.insertCell(-1); 
+					var cell = Ext.get(row.dom.insertCell(-1)); 
 					if(d){
-						cell.className = date.getMonth()==d.getMonth()?"item-day":"item-day item-day-besides";
-						cell.innerHTML =this.renderCell(cell,d)||d.getDate();
+						cell.set({'c_index':i-1});
+						cell.addClass(date.getMonth()==d.getMonth()?"item-day":"item-day item-day-besides");
+						cell.update(this.renderCell(cell,d,d.getDate(),month)||d.getDate());
 						if(cell.disabled){
-							Ext.fly(cell).set({'_date':'0'});
-							Ext.fly(cell).addClass("item-day-disabled");
+							cell.set({'_date':'0'});
+							cell.addClass("item-day-disabled");
 						}else {
-							Ext.fly(cell).set({'_date':(''+d.getTime())});
-							if(this.format)Ext.fly(cell).set({'title':d.format(this.format)})
+							cell.set({'_date':(''+d.getTime())});
+							if(this.format)cell.set({'title':d.format(this.format)})
 						}
 						//判断是否今日
-						if(this.isSame(d, new Date())) cell.className = "onToday";
+						if(this.isSame(d, new Date())) cell.addClass("onToday");
 						//判断是否选择日期
 						if(this.selectDay && this.isSame(d, this.selectDay))this.onSelectDay(cell);
 					}
@@ -199,8 +207,9 @@ $A.DateField = Ext.extend($A.Component, {
 			}
 		}
 	},
-	renderCell:function(cell,date,text){
-		if(this.dayrenderer)$A.getRenderer(this.dayrenderer).call(this,cell,date,text);
+	renderCell:function(cell,date,day,currentMonth){
+		if(this.dayrenderer)
+			return $A.getRenderer(this.dayrenderer).call(this,cell,date,day,currentMonth);
 	},
 	/**
 	 * 判断是否同一日
@@ -211,5 +220,8 @@ $A.DateField = Ext.extend($A.Component, {
 	isSame: function(d1, d2) {
 		if(!d2.getFullYear||!d1.getFullYear)return false;
 		return (d1.getFullYear() == d2.getFullYear() && d1.getMonth() == d2.getMonth() && d1.getDate() == d2.getDate());
+	},
+	focus : function(){
+		this.body.focus();	
 	}
 });
