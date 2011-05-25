@@ -4,9 +4,8 @@ var DOC=document;
 	hasSVG = !!DOC.createElementNS && !!DOC.createElementNS(SVG_NS, "svg").createSVGRect,
 	fill = "<v:fill color='{fillColor}' opacity='{fillOpacity}'/>",
 	stroke = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'/>",
-    pathReg = /\w|[\s\d-+.]*/g,
+    pathReg = /\w|[\s\d-+.,]*/g,
     numberReg = /[\d-+.]+/g,
-    
     firstUp = function(w){
     	return w.toLowerCase().replace(/^\S/,w.toUpperCase().charAt(0));
     },
@@ -137,42 +136,45 @@ $A.Path=Ext.extend($A.Graphics,{
     		}
     	},
     	f2=function(s,re){
-    		var arr=s.match(numberReg),
-    			rx=f4(arr[0]),
-    			ry=f4(arr[1]),
-    			la=Number(arr[3]),//是否是大角度弧线
-    			sw=Number(arr[4]),//是否是顺时针
-    			x=f4(arr[5]),
-    			y=f4(arr[6]),
-    			l,t,r,b;
-    		if(re){
-    			x+=p2[0];
-    			y+=p2[1];
+    		var arr=s.match(numberReg);
+    		while(arr.length&&arr.length%7==0){
+	    		var	rx=f4(arr.shift()),
+	    			ry=f4(arr.shift()),
+	    			rr=f4(arr.shift()),
+	    			la=Number(arr.shift()),//是否是大角度弧线
+	    			sw=Number(arr.shift()),//是否是顺时针
+	    			x=f4(arr.shift()),
+	    			y=f4(arr.shift()),
+	    			l,t,r,b;
+	    		if(re){
+	    			x+=p2[0];
+	    			y+=p2[1];
+	    		}
+	    		var dx=Math.abs(x-p2[0]),dy=Math.abs(y-p2[1]);
+	    		rx=dx;ry=dy;
+	    		path.push(sw?'wa':'at');
+	    		if((sw^la)^x<p2[0]){
+					if(y<p2[1]){
+						l=p2[0];
+						t=p2[1]-ry;
+					}else{
+						l=p2[0]-rx;
+						t=p2[1];
+					}
+	    		}else{
+	    			if(y<p2[1]){
+						l=p2[0]-rx;
+						t=p2[1]-(ry<<1);
+					}else{
+						l=p2[0]-(rx<<1);
+						t=p2[1]-ry;
+					}
+	    		}
+	    		r=l+(rx<<1);
+				b=t+(ry<<1);
+	    		path.push(l,t,r,b,p2[0],p2[1],x,y);
+	    		p2=[x,y];
     		}
-    		var dx=Math.abs(x-p2[0]),dy=Math.abs(y-p2[1]);
-    		rx=dx;ry=dy;
-    		path.push(sw?'wa':'at');
-    		if((sw^la)^x<p2[0]){
-				if(y<p2[1]){
-					l=p2[0];
-					t=p2[1]-ry;
-				}else{
-					l=p2[0]-rx;
-					t=p2[1];
-				}
-    		}else{
-    			if(y<p2[1]){
-					l=p2[0]-rx;
-					t=p2[1]-(ry<<1);
-				}else{
-					l=p2[0]-(rx<<1);
-					t=p2[1]-ry;
-				}
-    		}
-    		r=l+(rx<<1);
-			b=t+(ry<<1);
-    		path.push(l,t,r,b,p2[0],p2[1],x,y);
-    		p2=[x,y];
     	},
     	f3=function(s){
     		var a=s.match(numberReg).slice(-2);
@@ -195,7 +197,7 @@ $A.Path=Ext.extend($A.Graphics,{
     			case 'c': path.push('C');f1(arr[++i],true);break;
     			case 'l': path.push('L');f1(arr[++i]);break;
     			case 'h': path.push('L');f1(arr[++i]+" 0");break;
-    			case 'v': path.push('L');f1("0 "+f4(arr[++i]));break;
+    			case 'v': path.push('L');f1("0 "+arr[++i]);break;
     			case 'H': path.push('L');p2[0]=f4(arr[++i]);path.push(p2[0],p2[1]);break;
     			case 'V': path.push('L');p2[1]=f4(arr[++i]);path.push(p2[0],p2[1]);break;
     			case 'A': f2(arr[++i]);break;
@@ -210,35 +212,11 @@ $A.Path=Ext.extend($A.Graphics,{
     vmlTpl : ["<v:shape coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;{style}' path='{path}'>",
     fill,stroke,"</v:shape>"]
 });
-
-$A.Line=Ext.extend($A.Graphics,{
-	initSVGElement : function(){
-		this.wrap = newSVG("polyline");
-    	this.wrap.dom.style.cssText=encodeStyle({
-    		'fill':(this.fillcolor||'none'),
-    		'fill-opacity':this.fillopacity,
-    		'stroke':this.strokecolor,
-    		'stroke-width':this.strokewidth,
-    		'stroke-opacity':this.strokeopacity
-    	})+this.style;
-    	this.wrap.set({points:this.points})
-    	this.root.appendChild(this.wrap);
-    },
-    initVMLElement : function(){
-    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
-    		style:this.style,
-    		points:this.points,
-    		fillColor:this.fillcolor||'none',
-    		fillOpacity:this.fillopacity||(this.fillcolor||this.fillcolor=='none')?'0':'1',
-    		strokeColor:this.strokecolor||'none',
-    		strokeWidth:this.strokecolor?this.strokewidth:0,
-    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
-    	},true)
-    },
-    vmlTpl : ["<v:polyline style='{style}' points='{points}'>",
-    fill,stroke,"</v:polyline>"]
-});	
-
+$A.Line = function(config){
+	var a= config.points.match(numberReg);
+	a.splice(2,0,"L");
+	return new $A.Path(Ext.apply(config,{d:["M"].concat(a).join(' ')}));
+}
 $A.Oval=Ext.extend($A.Graphics,{
 	initSVGElement : function(){
 		this.wrap = newSVG("ellipse");
