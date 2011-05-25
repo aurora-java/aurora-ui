@@ -88,7 +88,7 @@ $A.Lov = Ext.extend($A.TextField,{
         if(this.autocomplete){
         	var v=this.getRawValue(),view=this.autocompleteview,code = e.keyCode;
         	//if((code > 47 && code < 58) || (code > 64 && code < 91) || code == 8 || code == 46 || code == 13 || code == 32 || code == 16 || code == 17){
-	        if((code < 37 || code > 40)&&code != 13){
+	        if((code < 37 || code > 40)&&code != 13 && code !=27){
         		if(v.length >= this.autocompletesize){
 	        		var sf=this;
 	        		if(this.showCompleteId)clearTimeout(this.showCompleteId);
