@@ -355,8 +355,9 @@ Aurora.dateFormat = function () {
 	    	return !!String(masks[mask] || mask || masks["default"]).match(token);
         },
         _parseDate=function(string,mask,fun){
-        	for(var i=0,arr=mask.match(token),numbers=string.match(/\d+/g),value;i<arr.length;i++){
+        	for(var i=0,arr=mask.match(token),numbers=string.match(/\d+/g),value,index=0;i<arr.length;i++){
         		if(numbers.length==arr.length)value=numbers[i];
+        		else if(numbers.length == 1)value=parseInt(string.slice(index,index+=arr[i].length));
         		else value=parseInt(string.slice(index=mask.search(arr[i]),index+arr[i].length));
         		switch(arr[i]){
         			case "mm":;
@@ -497,12 +498,12 @@ Ext.applyIf(String.prototype, {
     }
 }); 
 $A.TextMetrics = function(){
-    var shared;
+    //var shared;
     return {
         measure : function(el, text, fixedWidth){
-            if(!shared){
-                shared = $A.TextMetrics.Instance(el, fixedWidth);
-            }
+            //if(!shared){
+              var shared = $A.TextMetrics.Instance(el, fixedWidth);
+            //}
             shared.bind(el);
             shared.setFixedWidth(fixedWidth || 'auto');
             return shared.getSize(text);
