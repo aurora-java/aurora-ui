@@ -3080,9 +3080,13 @@ var VMLElement = extendClass( SVGElement, {
             path = element.path;
             
         // the path is some mysterious string-like object that can be cast to a string
+    try{
         if (''+ element.path === '') {
             path = 'x';
         }
+    }catch(e){
+    	path = 'x';
+    }
             
         if (apply) {
             for (i = 1; i <= 3; i++) {
@@ -7221,7 +7225,7 @@ function Chart (options, callback) {
             ds[ou]('refresh',onRedraw,obj);
         }
     };
-    onRedraw = function(){
+ /*   onRedraw = function(){
         var series = this.series;
         var ds = this.dataset;
         var records = ds.getAll();
@@ -7294,6 +7298,51 @@ function Chart (options, callback) {
         
         
         this.redraw(false)
+    };*/
+    onRedraw = function(){
+    	var series = this.series,
+    		ds = this.dataset,
+    		records = ds.getAll(),
+    		type = this.options.chart.type;
+    		
+    	if(type == 'pie'){
+    		var datas = [],options = {};
+            for(var k = 0,l=records.length;k<l;k++){
+                var record = records[k];
+                datas[datas.length] = [record.get('name'),record.get('value')]
+            }
+            options['data'] = datas;
+            this.addSeries(options,false)
+    	}else{
+			for(var j=0;j<this.xAxis.length;j++){
+				var xAxis=this.xAxis[j],xAxisName = xAxis.options.name;
+				if(!xAxis.categories){
+					xAxis.categories=[];
+		    		for(var i=0;i<records.length;i++){
+						xAxis.categories.push(records[i].get(xAxisName)||'NaN')
+					}
+					xAxis.setCategories(xAxis.categories,true);
+				}
+	    	}
+			for(var j=0;j<this.yAxis.length;j++){
+				var yAxis=this.yAxis[j].options,yAxisNames = yAxis.name.split(',');
+				for(var k=0;k<yAxisNames.length;k++){
+					var yAxisName=yAxisNames[k],field=ds.getField(yAxisName),data=[],
+						options={
+							name:field.pro['prompt']||yAxisName,
+							type:field.pro['type']||optionsChart.type
+						};
+		    		for(var i=0;i<records.length;i++){
+						data.push(records[i].get(yAxisName)||0);
+					}
+					options['data']=data;
+					options['yAxis']=j;
+					this.addSeries(options,false);
+				}
+	    	}
+	    	
+    	}
+    	this.redraw(false)
     };
     bind = function(ds){
         if(typeof(ds)==='string'){

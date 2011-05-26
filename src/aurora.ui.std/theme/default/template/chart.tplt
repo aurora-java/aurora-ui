@@ -2,5 +2,7 @@
 <SCRIPT LANGUAGE="JavaScript">
         Aurora.Charts.getOptions().exporting.url = '${contextPath}/exportchart';
         new Aurora.Charts.Chart(${config});
-        $$('${id}').bind('${bindtarget}')
+        Aurora.onReady(function(){
+        	$$('${id}').bind('${bindtarget}')
+        });
 </SCRIPT>
