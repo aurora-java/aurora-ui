@@ -781,6 +781,7 @@ $A.Grid = Ext.extend($A.Component,{
                 if(ed){
                     ed.setHeight(Ext.fly(dom.parentNode).getHeight()-5)
                     ed.setWidth(Ext.fly(dom.parentNode).getWidth()-7);
+                    ed.isEditor = true;
                     ed.isFireEvent = true;
                     ed.isHidden = false;
                     ed.move(xy[0],xy[1]);
