@@ -116,7 +116,7 @@ $A.Field = Ext.extend($A.Component,{
     onKeyDown : function(e){
         this.fireEvent('keydown', this, e);        
         var keyCode = e.keyCode;
-        if(keyCode ==9 )e.stopEvent();
+        if(this.isEditor==true && keyCode == 9) e.stopEvent();
         if(keyCode == 13 || keyCode == 27) {//13:enter  27:esc
         	this.blur();//为了获取到新的值
         	if(keyCode == 13) {

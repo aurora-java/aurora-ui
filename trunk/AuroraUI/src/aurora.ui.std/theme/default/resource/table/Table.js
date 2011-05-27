@@ -296,6 +296,7 @@ $A.Table = Ext.extend($A.Component,{
                 var ed = sf.currentEditor.editor;
                 if(ed){
            			sf.positionEditor();
+                    ed.isEditor = true;
                     ed.isFireEvent = true;
                     ed.isHidden = false;
                     ed.bind(sf.dataset, name);

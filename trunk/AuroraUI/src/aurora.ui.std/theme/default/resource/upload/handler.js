@@ -55,6 +55,9 @@ function fileSizeRenderer(value, record, name) {
 	return formatFileSize(value)
 }
 function atmRenderer(value, record, name) {
+    var ds = record.ds;
+    var id = ds.id;
+    var upid = id.replaceAll('_ds','');
 	var c = 'status_upload';
 	var a = '<div class="atm2"> </div>';
 	var st = record.get('status');
@@ -65,8 +68,9 @@ function atmRenderer(value, record, name) {
 		c = 'status_error';
 		a = '<div class="atm1"> </div>'
 	}
-	var html = '<div class="' + c + '">' + a + '<div style="float:left">'
-			+ value + '</div>' + processPercent(record) + '</div>';
+    
+	var html = '<div class="' + c + '">' + a + '<div style="float:left"><a target="_self" href="'+window[upid+'_download_path']+'?attachment_id='+record.get('attachment_id')+'\">'
+			+ value + '</a></div>' + processPercent(record) + '</div>';
 	return html;
 }
 

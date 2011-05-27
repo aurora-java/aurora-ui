@@ -38,7 +38,7 @@ $A.defaultChineseLength = 2;
  */
 $A.go=function(url){
 	if(!url)return;
-	var r=Math.round();
+	var r=Math.random();
 	location.href=url+(url.indexOf('?')==-1?'?':'&')+'__r__='+r;
 }
 
@@ -355,8 +355,9 @@ Aurora.dateFormat = function () {
 	    	return !!String(masks[mask] || mask || masks["default"]).match(token);
         },
         _parseDate=function(string,mask,fun){
-        	for(var i=0,arr=mask.match(token),numbers=string.match(/\d+/g),value;i<arr.length;i++){
+        	for(var i=0,arr=mask.match(token),numbers=string.match(/\d+/g),value,index=0;i<arr.length;i++){
         		if(numbers.length==arr.length)value=numbers[i];
+        		else if(numbers.length == 1)value=parseInt(string.slice(index,index+=arr[i].length));
         		else value=parseInt(string.slice(index=mask.search(arr[i]),index+arr[i].length));
         		switch(arr[i]){
         			case "mm":;
@@ -497,12 +498,12 @@ Ext.applyIf(String.prototype, {
     }
 }); 
 $A.TextMetrics = function(){
-    var shared;
+    //var shared;
     return {
         measure : function(el, text, fixedWidth){
-            if(!shared){
-                shared = $A.TextMetrics.Instance(el, fixedWidth);
-            }
+            //if(!shared){
+              var shared = $A.TextMetrics.Instance(el, fixedWidth);
+            //}
             shared.bind(el);
             shared.setFixedWidth(fixedWidth || 'auto');
             return shared.getSize(text);
@@ -3477,7 +3478,7 @@ $A.Field = Ext.extend($A.Component,{
     onKeyDown : function(e){
         this.fireEvent('keydown', this, e);        
         var keyCode = e.keyCode;
-        if(keyCode ==9 )e.stopEvent();
+        if(this.isEditor==true && keyCode == 9) e.stopEvent();
         if(keyCode == 13 || keyCode == 27) {//13:enter  27:esc
         	this.blur();//为了获取到新的值
         	if(keyCode == 13) {

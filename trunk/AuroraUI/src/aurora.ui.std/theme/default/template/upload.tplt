@@ -1,11 +1,11 @@
 <span id="${id}"> </span>
 <div style="height:1px;background-color:#666;font-size:0px"> </div>
-${up_table}
 <SCRIPT LANGUAGE="JavaScript">
+window.${id}_download_path = '${downloadurl}';
 function ${id}(){
     var jsid = Aurora.getCookie('JSID');
     var settings = {
-        upload_url : '${context_path}/upload.svc?JSID='+jsid,
+        upload_url : '${uploadurl}?JSID='+jsid,
         flash_url : "${context_path}/resource/aurora.ui.std/default/upload/swfupload.swf"
     };
     Ext.apply(settings, {
@@ -138,3 +138,4 @@ function ${id}(){
 } 
 ${id}();
 </SCRIPT>
+${up_table}
