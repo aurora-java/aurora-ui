@@ -233,7 +233,7 @@ $A.Grid = Ext.extend($A.Component,{
     initTemplate : function(){
         this.rowTdTpl = new Ext.Template('<td atype="{atype}" class="grid-rowbox" recordid="{recordid}">');
         this.tdTpl = new Ext.Template('<td style="visibility:{visibility};text-align:{align}" dataindex="{name}" atype="grid-cell" recordid="{recordid}">');
-        this.cellTpl = new Ext.Template('<div class="grid-cell {cellcls}" style="width:{width}px" id="'+this.id+'_{name}_{recordid}">{text}</div>');        
+        this.cellTpl = new Ext.Template('<div class="grid-cell {cellcls}" style="width:{width}px" id="'+this.id+'_{name}_{recordid}" title="{title}">{text}</div>');        
         this.cbTpl = new Ext.Template('<center><div class="{cellcls}" id="'+this.id+'_{name}_{recordid}"></div></center>');
     },
     getCheckBoxStatus: function(record, name) {
@@ -290,12 +290,14 @@ $A.Grid = Ext.extend($A.Component,{
                 cls = cls + ' ' + this.nbcls
             }
             var sp = (cls.indexOf(this.cecls)!=-1) ? 5 : 2;
+            var t = this.renderText(record,col,record.data[col.name])
             data = Ext.apply(data,{
                 align:col.align||'left',
                 cellcls: cls,
 //                width:col.width-4,//-11
                 width:data.width-sp,//-11
-                text:this.renderText(record,col,record.data[col.name])
+                text:t,
+                title:String(t).replace(/<[^<>]*>/mg,'')
             })
             cellTpl =  this.cellTpl;
         }
