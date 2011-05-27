@@ -38,7 +38,7 @@ $A.defaultChineseLength = 2;
  */
 $A.go=function(url){
 	if(!url)return;
-	var r=Math.round();
+	var r=Math.random();
 	location.href=url+(url.indexOf('?')==-1?'?':'&')+'__r__='+r;
 }
 
