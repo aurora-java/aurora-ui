@@ -8,7 +8,16 @@
  */
 $A.DateField = Ext.extend($A.Component, {
 	bodyTpl:['<TABLE cellspacing="0">',
-				'<CAPTION class="item-dateField-caption"></CAPTION>',
+				'<CAPTION class="item-dateField-caption">',
+					'{preYearBtn}',
+					'{nextYearBtn}',
+					'{preMonthBtn}',
+					'{nextMonthBtn}',
+					'<SPAN>',
+						'<SPAN atype="item-year-span"></SPAN>',
+						'<SPAN atype="item-month-span"></SPAN>',
+					'</SPAN>',
+				'</CAPTION>',
 				'<THEAD class="item-dateField-head">',
 					'<TR>',
 						'<TD>{sun}</TD>',
@@ -23,25 +32,28 @@ $A.DateField = Ext.extend($A.Component, {
 				'<TBODY>',
 				'</TBODY>',
 			'</TABLE>'],
-	preMonthTpl:['<DIV class="item-dateField-pre" title="{title}" onclick="$(\'{id}\').preMonth()"></DIV>'],
-	nextMonthTpl:['<DIV class="item-dateField-next" title="{title}" onclick="$(\'{id}\').nextMonth()"></DIV>'],
-	preYearTpl:['<DIV class="item-dateField-preYear" title="{title}" onclick="$(\'{id}\').preYear()"></DIV>'],
-	nextYearTpl:['<DIV class="item-dateField-nextYear" title="{title}" onclick="$(\'{id}\').nextYear()"></DIV>'],
+	preMonthTpl:'<DIV class="item-dateField-pre" title="{preMonth}" onclick="$(\'{id}\').preMonth()"></DIV>',
+	nextMonthTpl:'<DIV class="item-dateField-next" title="{nextMonth}" onclick="$(\'{id}\').nextMonth()"></DIV>',
+	preYearTpl:'<DIV class="item-dateField-preYear" title="{preYear}" onclick="$(\'{id}\').preYear()"></DIV>',
+	nextYearTpl:'<DIV class="item-dateField-nextYear" title="{nextYear}" onclick="$(\'{id}\').nextYear()"></DIV>',
+	popupTpl:'<DIV class="item-popup" atype="date-popup" style="background-color:#fff;visibility:hidden"></DIV>',
     initComponent : function(config){
     	$A.DateField.superclass.initComponent.call(this, config);
     	if(this.height)this.rowHeight=(this.height-18*(Ext.isIE?3:2))/6;
-        this.body = new Ext.Template(this.bodyTpl).append(this.wrap.dom,{sun:_lang['datefield.sun'],mon:_lang['datefield.mon'],tues:_lang['datefield.tues'],wed:_lang['datefield.wed'],thur:_lang['datefield.thur'],fri:_lang['datefield.fri'],sat:_lang['datefield.sat']},true);
-        this.head=this.body.child(".item-dateField-caption").dom;
+    	var data = {sun:_lang['datefield.sun'],mon:_lang['datefield.mon'],tues:_lang['datefield.tues'],wed:_lang['datefield.wed'],thur:_lang['datefield.thur'],fri:_lang['datefield.fri'],sat:_lang['datefield.sat']}
         if(this.enableyearbtn=="both"||this.enableyearbtn=="pre")
-    		this.preMonthBtn = new Ext.Template(this.preYearTpl).append(this.head,{title:_lang['datefield.preYear'],id:this.id},true);
+        	data.preYearBtn = new Ext.Template(this.preYearTpl).apply({preYear:_lang['datefield.preYear'],id:this.id});
     	if(this.enableyearbtn=="both"||this.enableyearbtn=="next")
-    		this.nextMonthBtn = new Ext.Template(this.nextYearTpl).append(this.head,{title:_lang['datefield.nextYear'],id:this.id},true);
+    		data.nextYearBtn = new Ext.Template(this.nextYearTpl).apply({nextYear:_lang['datefield.nextYear'],id:this.id});
         if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
-    		this.preMonthBtn = new Ext.Template(this.preMonthTpl).append(this.head,{title:_lang['datefield.preMonth'],id:this.id},true);
+    		data.preMonthBtn = new Ext.Template(this.preMonthTpl).apply({preMonth:_lang['datefield.preMonth'],id:this.id});
     	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
-    		this.nextMonthBtn = new Ext.Template(this.nextMonthTpl).append(this.head,{title:_lang['datefield.nextMonth'],id:this.id},true);
-    	this.head.text=document.createElement('span');
-    	this.head.appendChild(this.head.text);
+    		data.nextMonthBtn = new Ext.Template(this.nextMonthTpl).apply({nextMonth:_lang['datefield.nextMonth'],id:this.id});
+        this.body = new Ext.Template(this.bodyTpl).append(this.wrap.dom,data,true);
+        this.yearSpan = this.body.child("span[atype=item-year-span]");
+        this.monthSpan = this.body.child("span[atype=item-month-span]");
+        this.popup = new Ext.Template(this.popupTpl).append(this.body.child('caption').dom,{},true);
+        //this.popup = new Ext.Template(this.popupTpl).append(this.wrap.dom,true);
     },
     processListener: function(ou){
     	$A.DateField.superclass.processListener.call(this,ou);
@@ -49,6 +61,8 @@ $A.DateField = Ext.extend($A.Component, {
     	this.body[ou]("mouseover", this.onMouseOver, this);
     	this.body[ou]("mouseout", this.onMouseOut, this);
     	this.body[ou]("mouseup",this.onSelect,this);
+    	this.yearSpan[ou]("click",this.onViewShow,this);
+    	this.monthSpan[ou]("click",this.onViewShow,this);
     	//this.body[ou]("keydown",this.onKeyDown,this);
     },
     initEvents : function(){
@@ -73,7 +87,6 @@ $A.DateField = Ext.extend($A.Component, {
 		delete this.preMonthBtn;
     	delete this.nextMonthBtn;
     	delete this.body;
-    	delete this.head;
 	},
 	onMouseWheel:function(e){
         this[(e.getWheelDelta()>0?'pre':'next')+(e.ctrlKey?'Year':'Month')]();
@@ -102,10 +115,44 @@ $A.DateField = Ext.extend($A.Component, {
     	}
     },
     onSelect:function(e,t){
-    	this.fireEvent("select",e,t);
+    	var td = Ext.get(t);
+    	if(td.parent('div[atype="date-popup"]')){
+    		this.onViewClick(e,td);
+    	}else{
+    		this.fireEvent("select",e,t);
+    	}
     },
 	onSelectDay: function(o){
 		if(!o.hasClass('onSelect'))o.addClass('onSelect');
+	},
+	onViewShow : function(e,t){
+		var span = Ext.get(t);
+		this.focusSpan = span;
+		if(span.getAttributeNS("","atype")=="item-year-span")
+			this.initView(this.year,100,true);
+		else
+			this.initView(7,80);
+		var xy = this.focusSpan.getXY(),H = this.focusSpan.getHeight();
+		this.popup.moveTo(xy[0],xy[1]+H);
+		Ext.get(document.documentElement).on("mousedown", this.viewBlur, this);
+		this.popup.show();
+	},
+	viewBlur : function(e,t){
+		if(!this.popup.contains(t) && !(this.focusSpan.contains(t)||this.focusSpan.dom==t)){    		
+    		Ext.get(document.documentElement).un("mousedown", this.viewBlur, this);
+    		this.popup.hide();
+        }
+	},
+	onViewClick : function(e,t){
+		if(t.hasClass('item-day')){
+			if(this.focusSpan.getAttributeNS("","atype")=="item-year-span")
+				this.year = t.getAttributeNS("",'_data');
+			else
+				this.month = t.getAttributeNS("",'_data');
+			this.year -- ;
+			this.nextYear();
+			this.popup.hide();
+		}
 	},
     /**
      * 当前月
@@ -155,7 +202,8 @@ $A.DateField = Ext.extend($A.Component, {
 	draw: function(date) {
 		//用来保存日期列表
 		var arr = [],year=date.getFullYear(),month=date.getMonth()+1,hour=date.getHours(),minute=date.getMinutes(),second=date.getSeconds();
-		this.head.text.innerHTML=year + _lang['datefield.year'] + month + _lang['datefield.month'];
+		this.yearSpan.update(year+_lang['datefield.year']);
+		this.monthSpan.update(month+_lang['datefield.month']);
 		//用当月第一天在一周中的日期值作为当月离第一天的天数,用上个月的最后天数补齐
 		for(var i = 1, firstDay = new Date(year, month - 1, 1).getDay(),lastDay = new Date(year, month - 1, 0).getDate(); i <= firstDay; i++){ 
 			arr.push((this.enablebesidedays=="both"||this.enablebesidedays=="pre")?new Date(year, month - 2, lastDay-firstDay+i,hour,minute,second):null);
@@ -221,7 +269,19 @@ $A.DateField = Ext.extend($A.Component, {
 		if(!d2.getFullYear||!d1.getFullYear)return false;
 		return (d1.getFullYear() == d2.getFullYear() && d1.getMonth() == d2.getMonth() && d1.getDate() == d2.getDate());
 	},
-	focus : function(){
-		this.body.focus();	
+	initView : function(num,width,isYear){
+		var html = ["<table cellspacing='0' cellpadding='0' width='100px'><tbody><tr><td width='50%'></td><td width='50%'></td></tr>"];
+		for(var i=0,rows = (isYear?5:6),year = num - rows,year2 = num;i<rows;i++){
+			html.push("<tr><td class='item-day' _data='"+year+"'>"+year+"</td><td class='item-day' _data='"+year2+"'>"+year2+"</td></tr>");
+			year += 1;year2 += 1;
+		}
+		html.push("</tbody></table>");
+		if(isYear){
+			html.push("<tfoot><div class='item-dateField-pre' onclick='$(\""+this.id+"\").initView("+(num-10)+","+width+",true)'></div>");
+			html.push("<div class='item-dateField-next' onclick='$(\""+this.id+"\").initView("+(num+10)+","+width+",true)'></div></tfoot>");
+		}
+		html.push("</table>");
+		this.popup.update(html.join(''));
+		this.popup.setWidth(width)
 	}
 });
