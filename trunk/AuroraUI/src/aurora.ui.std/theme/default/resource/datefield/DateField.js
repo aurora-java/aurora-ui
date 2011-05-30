@@ -131,7 +131,7 @@ $A.DateField = Ext.extend($A.Component, {
 		if(span.getAttributeNS("","atype")=="item-year-span")
 			this.initView(this.year,100,true);
 		else
-			this.initView(7,80);
+			this.initView(7,60);
 		var xy = this.focusSpan.getXY(),H = this.focusSpan.getHeight();
 		this.popup.moveTo(xy[0],xy[1]+H);
 		Ext.get(document.documentElement).on("mousedown", this.viewBlur, this);
@@ -213,7 +213,7 @@ $A.DateField = Ext.extend($A.Component, {
 			arr.push(new Date(year, month - 1, i,hour,minute,second)); 
 		}
 		//用下个月的前几天补齐6行
-		for(var i=1, monthDay = new Date(year, month, 0).getDay(),besideDays=7+(arr.length>5*7?0:7);i<besideDays-monthDay;i++){
+		for(var i=1, monthDay = new Date(year, month, 0).getDay(),besideDays=43-arr.length;i<besideDays;i++){
 			arr.push((this.enablebesidedays=="both"||this.enablebesidedays=="next")?new Date(year, month, i,hour,minute,second):null);
 		}
 		//先清空内容再插入(ie的table不能用innerHTML)
@@ -250,7 +250,7 @@ $A.DateField = Ext.extend($A.Component, {
 						if(this.isSame(d, new Date())) cell.addClass("onToday");
 						//判断是否选择日期
 						if(this.selectDay && this.isSame(d, this.selectDay))this.onSelectDay(cell);
-					}
+					}else cell.update('&#160;');
 				}
 			}
 		}
