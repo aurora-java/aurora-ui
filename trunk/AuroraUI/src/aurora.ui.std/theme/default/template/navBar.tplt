@@ -7,6 +7,8 @@
 		dataSet:'${dataset}',
 		inputId:'${inputid}',
 		comboBoxId:'${comboBoxId}',
-		width:${width}
+		width:${width},
+		type:'${navbartype}',
+		maxPageCount:${maxpagecount}
 	});
 </SCRIPT>
