@@ -14,8 +14,8 @@ $A.DateField = Ext.extend($A.Component, {
 					'{preMonthBtn}',
 					'{nextMonthBtn}',
 					'<SPAN>',
-						'<SPAN atype="item-year-span"></SPAN>',
-						'<SPAN atype="item-month-span"></SPAN>',
+						'<SPAN atype="item-year-span" style="margin-right:5px;cursor:pointer"></SPAN>',
+						'<SPAN atype="item-month-span" style="cursor:pointer"></SPAN>',
 					'</SPAN>',
 				'</CAPTION>',
 				'<THEAD class="item-dateField-head">',
@@ -36,7 +36,7 @@ $A.DateField = Ext.extend($A.Component, {
 	nextMonthTpl:'<DIV class="item-dateField-next" title="{nextMonth}" onclick="$(\'{id}\').nextMonth()"></DIV>',
 	preYearTpl:'<DIV class="item-dateField-preYear" title="{preYear}" onclick="$(\'{id}\').preYear()"></DIV>',
 	nextYearTpl:'<DIV class="item-dateField-nextYear" title="{nextYear}" onclick="$(\'{id}\').nextYear()"></DIV>',
-	popupTpl:'<DIV class="item-popup" atype="date-popup" style="background-color:#fff;visibility:hidden"></DIV>',
+	popupTpl:'<DIV class="item-popup" atype="date-popup" style="vertical-align: middle;background-color:#fff;visibility:hidden"></DIV>',
     initComponent : function(config){
     	$A.DateField.superclass.initComponent.call(this, config);
     	if(this.height)this.rowHeight=(this.height-18*(Ext.isIE?3:2))/6;
@@ -128,19 +128,24 @@ $A.DateField = Ext.extend($A.Component, {
 	onViewShow : function(e,t){
 		var span = Ext.get(t);
 		this.focusSpan = span;
+		var head = this.body.child('thead'),xy = head.getXY();
+		this.popup.moveTo(xy[0],xy[1]);
+		this.popup.setWidth(head.getWidth());
+		this.popup.setHeight(head.getHeight()+head.next().getHeight());
 		if(span.getAttributeNS("","atype")=="item-year-span")
 			this.initView(this.year,100,true);
 		else
 			this.initView(7,60);
-		var xy = this.focusSpan.getXY(),H = this.focusSpan.getHeight();
-		this.popup.moveTo(xy[0],xy[1]+H);
 		Ext.get(document.documentElement).on("mousedown", this.viewBlur, this);
 		this.popup.show();
 	},
+	onViewHide : function(){
+		Ext.get(document.documentElement).un("mousedown", this.viewBlur, this);
+		this.popup.hide();
+	},
 	viewBlur : function(e,t){
 		if(!this.popup.contains(t) && !(this.focusSpan.contains(t)||this.focusSpan.dom==t)){    		
-    		Ext.get(document.documentElement).un("mousedown", this.viewBlur, this);
-    		this.popup.hide();
+    		this.onViewHide();
         }
 	},
 	onViewClick : function(e,t){
@@ -151,7 +156,7 @@ $A.DateField = Ext.extend($A.Component, {
 				this.month = t.getAttributeNS("",'_data');
 			this.year -- ;
 			this.nextYear();
-			this.popup.hide();
+			this.onViewHide();
 		}
 	},
     /**
@@ -270,18 +275,20 @@ $A.DateField = Ext.extend($A.Component, {
 		return (d1.getFullYear() == d2.getFullYear() && d1.getMonth() == d2.getMonth() && d1.getDate() == d2.getDate());
 	},
 	initView : function(num,width,isYear){
-		var html = ["<table cellspacing='0' cellpadding='0' width='100px'><tbody><tr><td width='50%'></td><td width='50%'></td></tr>"];
+		var html = ["<table cellspacing='0' cellpadding='0' width='100%'><tr><td width='45%'></td><td width='10%'></td><td width='45%'></td></tr>"];
 		for(var i=0,rows = (isYear?5:6),year = num - rows,year2 = num;i<rows;i++){
-			html.push("<tr><td class='item-day' _data='"+year+"'>"+year+"</td><td class='item-day' _data='"+year2+"'>"+year2+"</td></tr>");
+			html.push("<tr><td class='item-day' _data='"+year+"'>"+year+"</td><td></td><td class='item-day' _data='"+year2+"'>"+year2+"</td></tr>");
 			year += 1;year2 += 1;
 		}
-		html.push("</tbody></table>");
+		html.push("");
 		if(isYear){
-			html.push("<tfoot><div class='item-dateField-pre' onclick='$(\""+this.id+"\").initView("+(num-10)+","+width+",true)'></div>");
-			html.push("<div class='item-dateField-next' onclick='$(\""+this.id+"\").initView("+(num+10)+","+width+",true)'></div></tfoot>");
+			html.push("<tr><td><div class='item-dateField-pre' onclick='$(\""+this.id+"\").initView("+(num-10)+","+width+",true)'></div></td>");
+			html.push("<td><div class='item-dateField-close' onclick='$(\""+this.id+"\").onViewHide()'></div></td>")
+			html.push("<td><div class='item-dateField-next' onclick='$(\""+this.id+"\").initView("+(num+10)+","+width+",true)'></div></td></tr>");
+		}else{
+			html.push("<td colspan='3' align='center'><div class='item-dateField-close' onclick='$(\""+this.id+"\").onViewHide()'></div></td>")
 		}
 		html.push("</table>");
 		this.popup.update(html.join(''));
-		this.popup.setWidth(width)
 	}
 });
