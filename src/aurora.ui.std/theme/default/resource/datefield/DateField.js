@@ -104,7 +104,7 @@ $A.DateField = Ext.extend($A.Component, {
     	this.out();
     },
     over : function(t){
-    	t = t||this.body.child('td.item-day')
+    	t = t||this.body.last().child('td.item-day')
     	this.overTd = t; 
 		t.addClass('dateover');
     },
