@@ -8,6 +8,7 @@ Release ()
 * 修正了grid导出功能中 当没有querydataset或querydataset没有autoCreate时引发的错误
 * 增加DateField,DatePicker及DateTimePicker的快捷导航功能
 * 增加DateField,DatePicker及DateTimePicker的年份和月份选择弹出框
+* 增加Grid的navBarType属性和maxPageCount属性，用来显示simple类型的navBar以及navBar最大显示页数。
 
 Release (2011-05-17)
 ------------------------------------

@@ -47,6 +47,9 @@
 	line-height:20px;
 	text-align:center;
 }
+.nav-label a,.nav-label b,.nav-label span{
+    margin: 3px;
+}
 .nav-prepage div, .nav-prepage div, .nav-firstpage div, .nav-lastpage div, .nav-nextpage div, .nav-refresh div{
 	background-image:url(../toolbar/navigation.gif);
 }
