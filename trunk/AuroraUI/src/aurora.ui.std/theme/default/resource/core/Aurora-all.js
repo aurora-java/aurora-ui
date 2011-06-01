@@ -259,6 +259,8 @@ $A.post = function(action,data){
  * <div class="sub-desc">提交的参数</div></li>
  * <li><code>scope</code>
  * <div class="sub-desc">作用域</div></li>
+ * <li><code>sync</code>
+ * <div class="sub-desc">是否异步,默认true</div></li> 
  * <li><code>success</code>
  * <div class="sub-desc">成功的回调函数</div></li>
  * <li><code>error</code>
@@ -282,6 +284,7 @@ $A.request = function(opt){
 		method: 'POST',
 		params:{_request_data:Ext.util.JSON.encode(data)},
 		opts:opts,
+        sync:opt.sync,
 		success: function(response,options){
 			if($A.logWindow){
 				var st = $A['_startTime'];
@@ -4869,7 +4872,16 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
  */
 $A.DateField = Ext.extend($A.Component, {
 	bodyTpl:['<TABLE cellspacing="0">',
-				'<CAPTION class="item-dateField-caption"></CAPTION>',
+				'<CAPTION class="item-dateField-caption">',
+					'{preYearBtn}',
+					'{nextYearBtn}',
+					'{preMonthBtn}',
+					'{nextMonthBtn}',
+					'<SPAN>',
+						'<SPAN atype="item-year-span" style="margin-right:5px;cursor:pointer"></SPAN>',
+						'<SPAN atype="item-month-span" style="cursor:pointer"></SPAN>',
+					'</SPAN>',
+				'</CAPTION>',
 				'<THEAD class="item-dateField-head">',
 					'<TR>',
 						'<TD>{sun}</TD>',
@@ -4884,25 +4896,28 @@ $A.DateField = Ext.extend($A.Component, {
 				'<TBODY>',
 				'</TBODY>',
 			'</TABLE>'],
-	preMonthTpl:['<DIV class="item-dateField-pre" title="{title}" onclick="$(\'{id}\').preMonth()"></DIV>'],
-	nextMonthTpl:['<DIV class="item-dateField-next" title="{title}" onclick="$(\'{id}\').nextMonth()"></DIV>'],
-	preYearTpl:['<DIV class="item-dateField-preYear" title="{title}" onclick="$(\'{id}\').preYear()"></DIV>'],
-	nextYearTpl:['<DIV class="item-dateField-nextYear" title="{title}" onclick="$(\'{id}\').nextYear()"></DIV>'],
+	preMonthTpl:'<DIV class="item-dateField-pre" title="{preMonth}" onclick="$(\'{id}\').preMonth()"></DIV>',
+	nextMonthTpl:'<DIV class="item-dateField-next" title="{nextMonth}" onclick="$(\'{id}\').nextMonth()"></DIV>',
+	preYearTpl:'<DIV class="item-dateField-preYear" title="{preYear}" onclick="$(\'{id}\').preYear()"></DIV>',
+	nextYearTpl:'<DIV class="item-dateField-nextYear" title="{nextYear}" onclick="$(\'{id}\').nextYear()"></DIV>',
+	popupTpl:'<DIV class="item-popup" atype="date-popup" style="vertical-align: middle;background-color:#fff;visibility:hidden"></DIV>',
     initComponent : function(config){
     	$A.DateField.superclass.initComponent.call(this, config);
     	if(this.height)this.rowHeight=(this.height-18*(Ext.isIE?3:2))/6;
-        this.body = new Ext.Template(this.bodyTpl).append(this.wrap.dom,{sun:_lang['datefield.sun'],mon:_lang['datefield.mon'],tues:_lang['datefield.tues'],wed:_lang['datefield.wed'],thur:_lang['datefield.thur'],fri:_lang['datefield.fri'],sat:_lang['datefield.sat']},true);
-        this.head=this.body.child(".item-dateField-caption").dom;
+    	var data = {sun:_lang['datefield.sun'],mon:_lang['datefield.mon'],tues:_lang['datefield.tues'],wed:_lang['datefield.wed'],thur:_lang['datefield.thur'],fri:_lang['datefield.fri'],sat:_lang['datefield.sat']}
         if(this.enableyearbtn=="both"||this.enableyearbtn=="pre")
-    		this.preMonthBtn = new Ext.Template(this.preYearTpl).append(this.head,{title:_lang['datefield.preYear'],id:this.id},true);
+        	data.preYearBtn = new Ext.Template(this.preYearTpl).apply({preYear:_lang['datefield.preYear'],id:this.id});
     	if(this.enableyearbtn=="both"||this.enableyearbtn=="next")
-    		this.nextMonthBtn = new Ext.Template(this.nextYearTpl).append(this.head,{title:_lang['datefield.nextYear'],id:this.id},true);
+    		data.nextYearBtn = new Ext.Template(this.nextYearTpl).apply({nextYear:_lang['datefield.nextYear'],id:this.id});
         if(this.enablemonthbtn=="both"||this.enablemonthbtn=="pre")
-    		this.preMonthBtn = new Ext.Template(this.preMonthTpl).append(this.head,{title:_lang['datefield.preMonth'],id:this.id},true);
+    		data.preMonthBtn = new Ext.Template(this.preMonthTpl).apply({preMonth:_lang['datefield.preMonth'],id:this.id});
     	if(this.enablemonthbtn=="both"||this.enablemonthbtn=="next")
-    		this.nextMonthBtn = new Ext.Template(this.nextMonthTpl).append(this.head,{title:_lang['datefield.nextMonth'],id:this.id},true);
-    	this.head.text=document.createElement('span');
-    	this.head.appendChild(this.head.text);
+    		data.nextMonthBtn = new Ext.Template(this.nextMonthTpl).apply({nextMonth:_lang['datefield.nextMonth'],id:this.id});
+        this.body = new Ext.Template(this.bodyTpl).append(this.wrap.dom,data,true);
+        this.yearSpan = this.body.child("span[atype=item-year-span]");
+        this.monthSpan = this.body.child("span[atype=item-month-span]");
+        this.popup = new Ext.Template(this.popupTpl).append(this.body.child('caption').dom,{},true);
+        //this.popup = new Ext.Template(this.popupTpl).append(this.wrap.dom,true);
     },
     processListener: function(ou){
     	$A.DateField.superclass.processListener.call(this,ou);
@@ -4910,6 +4925,8 @@ $A.DateField = Ext.extend($A.Component, {
     	this.body[ou]("mouseover", this.onMouseOver, this);
     	this.body[ou]("mouseout", this.onMouseOut, this);
     	this.body[ou]("mouseup",this.onSelect,this);
+    	this.yearSpan[ou]("click",this.onViewShow,this);
+    	this.monthSpan[ou]("click",this.onViewShow,this);
     	//this.body[ou]("keydown",this.onKeyDown,this);
     },
     initEvents : function(){
@@ -4934,7 +4951,6 @@ $A.DateField = Ext.extend($A.Component, {
 		delete this.preMonthBtn;
     	delete this.nextMonthBtn;
     	delete this.body;
-    	delete this.head;
 	},
 	onMouseWheel:function(e){
         this[(e.getWheelDelta()>0?'pre':'next')+(e.ctrlKey?'Year':'Month')]();
@@ -4952,7 +4968,7 @@ $A.DateField = Ext.extend($A.Component, {
     	this.out();
     },
     over : function(t){
-    	t = t||this.body.child('td.item-day')
+    	t = t||this.body.last().child('td.item-day')
     	this.overTd = t; 
 		t.addClass('dateover');
     },
@@ -4963,10 +4979,49 @@ $A.DateField = Ext.extend($A.Component, {
     	}
     },
     onSelect:function(e,t){
-    	this.fireEvent("select",e,t);
+    	var td = Ext.get(t);
+    	if(td.parent('div[atype="date-popup"]')){
+    		this.onViewClick(e,td);
+    	}else{
+    		this.fireEvent("select",e,t);
+    	}
     },
 	onSelectDay: function(o){
 		if(!o.hasClass('onSelect'))o.addClass('onSelect');
+	},
+	onViewShow : function(e,t){
+		var span = Ext.get(t);
+		this.focusSpan = span;
+		var head = this.body.child('thead'),xy = head.getXY();
+		this.popup.moveTo(xy[0],xy[1]);
+		this.popup.setWidth(head.getWidth());
+		this.popup.setHeight(head.getHeight()+head.next().getHeight());
+		if(span.getAttributeNS("","atype")=="item-year-span")
+			this.initView(this.year,100,true);
+		else
+			this.initView(7,60);
+		Ext.get(document.documentElement).on("mousedown", this.viewBlur, this);
+		this.popup.show();
+	},
+	onViewHide : function(){
+		Ext.get(document.documentElement).un("mousedown", this.viewBlur, this);
+		this.popup.hide();
+	},
+	viewBlur : function(e,t){
+		if(!this.popup.contains(t) && !(this.focusSpan.contains(t)||this.focusSpan.dom==t)){    		
+    		this.onViewHide();
+        }
+	},
+	onViewClick : function(e,t){
+		if(t.hasClass('item-day')){
+			if(this.focusSpan.getAttributeNS("","atype")=="item-year-span")
+				this.year = t.getAttributeNS("",'_data');
+			else
+				this.month = t.getAttributeNS("",'_data');
+			this.year -- ;
+			this.nextYear();
+			this.onViewHide();
+		}
 	},
     /**
      * 当前月
@@ -5016,7 +5071,8 @@ $A.DateField = Ext.extend($A.Component, {
 	draw: function(date) {
 		//用来保存日期列表
 		var arr = [],year=date.getFullYear(),month=date.getMonth()+1,hour=date.getHours(),minute=date.getMinutes(),second=date.getSeconds();
-		this.head.text.innerHTML=year + _lang['datefield.year'] + month + _lang['datefield.month'];
+		this.yearSpan.update(year+_lang['datefield.year']);
+		this.monthSpan.update(month+_lang['datefield.month']);
 		//用当月第一天在一周中的日期值作为当月离第一天的天数,用上个月的最后天数补齐
 		for(var i = 1, firstDay = new Date(year, month - 1, 1).getDay(),lastDay = new Date(year, month - 1, 0).getDate(); i <= firstDay; i++){ 
 			arr.push((this.enablebesidedays=="both"||this.enablebesidedays=="pre")?new Date(year, month - 2, lastDay-firstDay+i,hour,minute,second):null);
@@ -5026,7 +5082,7 @@ $A.DateField = Ext.extend($A.Component, {
 			arr.push(new Date(year, month - 1, i,hour,minute,second)); 
 		}
 		//用下个月的前几天补齐6行
-		for(var i=1, monthDay = new Date(year, month, 0).getDay(),besideDays=7+(arr.length>5*7?0:7);i<besideDays-monthDay;i++){
+		for(var i=1, monthDay = new Date(year, month, 0).getDay(),besideDays=43-arr.length;i<besideDays;i++){
 			arr.push((this.enablebesidedays=="both"||this.enablebesidedays=="next")?new Date(year, month, i,hour,minute,second):null);
 		}
 		//先清空内容再插入(ie的table不能用innerHTML)
@@ -5063,7 +5119,7 @@ $A.DateField = Ext.extend($A.Component, {
 						if(this.isSame(d, new Date())) cell.addClass("onToday");
 						//判断是否选择日期
 						if(this.selectDay && this.isSame(d, this.selectDay))this.onSelectDay(cell);
-					}
+					}else cell.update('&#160;');
 				}
 			}
 		}
@@ -5082,8 +5138,22 @@ $A.DateField = Ext.extend($A.Component, {
 		if(!d2.getFullYear||!d1.getFullYear)return false;
 		return (d1.getFullYear() == d2.getFullYear() && d1.getMonth() == d2.getMonth() && d1.getDate() == d2.getDate());
 	},
-	focus : function(){
-		this.body.focus();	
+	initView : function(num,width,isYear){
+		var html = ["<table cellspacing='0' cellpadding='0' width='100%'><tr><td width='45%'></td><td width='10%'></td><td width='45%'></td></tr>"];
+		for(var i=0,rows = (isYear?5:6),year = num - rows,year2 = num;i<rows;i++){
+			html.push("<tr><td class='item-day' _data='"+year+"'>"+year+"</td><td></td><td class='item-day' _data='"+year2+"'>"+year2+"</td></tr>");
+			year += 1;year2 += 1;
+		}
+		html.push("");
+		if(isYear){
+			html.push("<tr><td><div class='item-dateField-pre' onclick='$(\""+this.id+"\").initView("+(num-10)+","+width+",true)'></div></td>");
+			html.push("<td><div class='item-dateField-close' onclick='$(\""+this.id+"\").onViewHide()'></div></td>")
+			html.push("<td><div class='item-dateField-next' onclick='$(\""+this.id+"\").initView("+(num+10)+","+width+",true)'></div></td></tr>");
+		}else{
+			html.push("<td colspan='3' align='center'><div class='item-dateField-close' onclick='$(\""+this.id+"\").onViewHide()'></div></td>")
+		}
+		html.push("</table>");
+		this.popup.update(html.join(''));
 	}
 });
 /**
@@ -5472,59 +5542,103 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     initComponent : function(config){
     	$A.NavBar.superclass.initComponent.call(this, config);
     	this.dataSet = $(this.dataSet);
-    	this.pageInput = $(this.inputId);
-    	this.currentPage = this.wrap.child('div[atype=currentPage]');
-    	this.pageInfo = this.wrap.child('div[atype=pageInfo]');//Ext.get(this.pageId);
     	this.navInfo = this.wrap.child('div[atype=displayInfo]');//Ext.get(this.infoId);
-
-    	if(this.comboBoxId){
-    		this.pageSizeInput = $(this.comboBoxId);
-    		this.pageSizeInfo = this.wrap.child('div[atype=pageSizeInfo]');
-    		this.pageSizeInfo2 = this.wrap.child('div[atype=pageSizeInfo2]');
-    		this.pageSizeInfo.update(_lang['toolbar.pageSize']);
-    		this.pageSizeInfo2.update(_lang['toolbar.pageSize2']);
+    	if(this.type != "simple"){
+	    	this.pageInput = $(this.inputId);
+	    	this.currentPage = this.wrap.child('div[atype=currentPage]');
+	    	this.pageInfo = this.wrap.child('div[atype=pageInfo]');//Ext.get(this.pageId);
+	
+	    	if(this.comboBoxId){
+	    		this.pageSizeInput = $(this.comboBoxId);
+	    		this.pageSizeInfo = this.wrap.child('div[atype=pageSizeInfo]');
+	    		this.pageSizeInfo2 = this.wrap.child('div[atype=pageSizeInfo2]');
+	    		this.pageSizeInfo.update(_lang['toolbar.pageSize']);
+	    		this.pageSizeInfo2.update(_lang['toolbar.pageSize2']);
+	    	}
+	    	this.pageInfo.update(_lang['toolbar.total'] + '&#160;&#160;' + _lang['toolbar.page']);
+	    	this.currentPage.update(_lang['toolbar.ctPage']);
     	}
-    	this.pageInfo.update(_lang['toolbar.total'] + '&#160;&#160;' + _lang['toolbar.page']);
-    	this.currentPage.update(_lang['toolbar.ctPage']);
     },
     processListener: function(ou){
     	$A.NavBar.superclass.processListener.call(this,ou);
     	this.dataSet[ou]('load', this.onLoad,this);
-    	this.pageInput[ou]('keydown', this.onInputKeyPress, this);
-    	if(this.pageSizeInput){
-    		this.pageSizeInput[ou]('select', this.onInputSelect, this);
+    	if(this.type != "simple"){
+	    	this.pageInput[ou]('keydown', this.onInputKeyPress, this);
+	    	if(this.pageSizeInput){
+	    		this.pageSizeInput[ou]('select', this.onInputSelect, this);
+	    	}
     	}
     },
     initEvents : function(){
     	$A.NavBar.superclass.initEvents.call(this);    	
     },
     onLoad : function(){
-    	this.pageInput.setValue(this.dataSet.currentPage);
-    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
     	this.navInfo.update(this.creatNavInfo());
-    	if(this.pageSizeInput&&!this.pageSizeInput.optionDataSet){
-    		var pageSize=[10,20,50,100];
-    		if(pageSize.indexOf(this.dataSet.pagesize)==-1){
-    			pageSize.unshift(this.dataSet.pagesize);
-    			pageSize.sort(function(a,b){return a-b});
-    		}
-    		var datas=[];
-    		while(Ext.isDefined(pageSize[0])){
-    			var ps=pageSize.shift();
-    			datas.push({'code':ps,'name':ps});
-    		}
-    		var dataset=new $A.DataSet({'datas':datas});
-	    	this.pageSizeInput.setOptions(dataset);
-	    	this.pageSizeInput.setValue(this.dataSet.pagesize);
-
+    	if(this.type != "simple"){
+	    	this.pageInput.setValue(this.dataSet.currentPage);
+	    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
+	    	if(this.pageSizeInput&&!this.pageSizeInput.optionDataSet){
+	    		var pageSize=[10,20,50,100];
+	    		if(pageSize.indexOf(this.dataSet.pagesize)==-1){
+	    			pageSize.unshift(this.dataSet.pagesize);
+	    			pageSize.sort(function(a,b){return a-b});
+	    		}
+	    		var datas=[];
+	    		while(Ext.isDefined(pageSize[0])){
+	    			var ps=pageSize.shift();
+	    			datas.push({'code':ps,'name':ps});
+	    		}
+	    		var dataset=new $A.DataSet({'datas':datas});
+		    	this.pageSizeInput.setOptions(dataset);
+		    	this.pageSizeInput.setValue(this.dataSet.pagesize);
+	    	}
     	}
     },
     creatNavInfo : function(){
-    	var from = ((this.dataSet.currentPage-1)*this.dataSet.pagesize+1);
-    	var to = this.dataSet.currentPage*this.dataSet.pagesize;
-    	if(to>this.dataSet.totalCount) to = this.dataSet.totalCount;
-    	if(to==0) from =0;
-    	return _lang['toolbar.visible'] + from + ' - ' + to + ' '+ _lang['toolbar.total'] + this.dataSet.totalCount + _lang['toolbar.item'];
+    	if(this.type == "simple"){
+    		var html=[],ds=this.dataSet,currentPage=ds.currentPage,totalPage=ds.totalPage;
+    		if(totalPage){
+    			html.push('<span>共'+totalPage+'页</span>');
+    			html.push(currentPage == 1 ? '<span>首页</span>' : this.createAnchor('首页',1));
+    			html.push(currentPage == 1 ? '<span>上一页</span>' : this.createAnchor('上一页',currentPage-1));
+    			for(var i = 1 ; i < 4 && i < totalPage ; i++){
+    				html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
+    			}
+    			if(totalPage > this.maxPageCount){
+    				if(currentPage > 5)this.createSplit(html);
+    				for(var i = currentPage - 1;i < currentPage + 2 ;i++){
+    					if(i > 3 && i < totalPage - 2){
+    						html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
+    					}
+    				}
+    				if(currentPage < totalPage - 4)this.createSplit(html);
+    			}else if(totalPage > 6){
+    				for(var i = 4; i < totalPage - 2 ;i++){
+    					html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
+    				}
+    			}
+	    		for(var i = totalPage - 2 ; i < totalPage + 1; i++){
+	    			if(i > 3){
+    					html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
+	    			}
+    			}
+	    		html.push(currentPage == totalPage ? '<span>下一页</span>' : this.createAnchor('下一页',currentPage+1));
+    			html.push(currentPage == totalPage ? '<span>尾页</span>' : this.createAnchor('尾页',totalPage));
+    		}
+    		return html.join('');
+    	}else{
+	    	var from = ((this.dataSet.currentPage-1)*this.dataSet.pagesize+1);
+	    	var to = this.dataSet.currentPage*this.dataSet.pagesize;
+	    	if(to>this.dataSet.totalCount) to = this.dataSet.totalCount;
+	    	if(to==0) from =0;
+	    	return _lang['toolbar.visible'] + from + ' - ' + to + ' '+ _lang['toolbar.total'] + this.dataSet.totalCount + _lang['toolbar.item'];
+    	}
+    },
+    createAnchor : function(text,page){
+    	return '<a href="javascript:$(\''+this.dataSet.id+'\').goPage('+page+')">'+text+'</a>';
+    },
+    createSplit : function(html){
+    	html.push('<span>···</span>');
     },
     onInputKeyPress : function(input, e){
     	if(e.keyCode == 13){

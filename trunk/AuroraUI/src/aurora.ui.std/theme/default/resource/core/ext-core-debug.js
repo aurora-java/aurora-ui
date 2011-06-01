@@ -1938,11 +1938,11 @@ Ext.lib.Ajax = function() {
     }
     
     // private
-    function asyncRequest(method, uri, callback, postData) {
+    function asyncRequest(method, uri, callback, postData,sync) {
         var o = getConnectionObject() || null;
-
+		sync = Ext.isEmpty(sync) ? true : sync;
         if (o) {
-            o.conn.open(method, uri, true);
+            o.conn.open(method, uri, sync);//true
 
             if (pub.useDefaultXhrHeader) {                    
                 initHeader('X-Requested-With', pub.defaultXhrHeader);
@@ -2012,7 +2012,7 @@ Ext.lib.Ajax = function() {
                     data = xmlData || (!Ext.isPrimitive(jsonData) ? Ext.encode(jsonData) : jsonData);
                 }
             }                       
-            return asyncRequest(method || options.method || "POST", uri, cb, data);
+            return asyncRequest(method || options.method || "POST", uri, cb, data, options.sync);
         },
 
         serializeForm : function(form) {
