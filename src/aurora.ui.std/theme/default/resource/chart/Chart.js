@@ -7304,7 +7304,11 @@ function Chart (options, callback) {
     		ds = this.dataset,
     		records = ds.getAll(),
     		type = this.options.chart.type;
-    		
+    	if(series) {
+            for(var i=0,l=series.length;i<l;i++){
+                series[i].remove(false);
+            }
+        }
     	if(type == 'pie'){
     		var datas = [],options = {};
             for(var k = 0,l=records.length;k<l;k++){
@@ -7316,7 +7320,8 @@ function Chart (options, callback) {
     	}else{
 			for(var j=0;j<this.xAxis.length;j++){
 				var xAxis=this.xAxis[j],xAxisName = xAxis.options.name;
-				if(!xAxis.categories){
+				if(!xAxis.categories||this.xAxisFromData){
+					this.xAxisFromData = true;
 					xAxis.categories=[];
 		    		for(var i=0;i<records.length;i++){
 						xAxis.categories.push(records[i].get(xAxisName)||'NaN')
