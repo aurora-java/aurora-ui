@@ -72,7 +72,9 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	if(this.type == "simple"){
     		var html=[],ds=this.dataSet,currentPage=ds.currentPage,totalPage=ds.totalPage;
     		if(totalPage){
+    			html.push('<span>共'+totalPage+'页</span>');
     			html.push(currentPage == 1 ? '<span>首页</span>' : this.createAnchor('首页',1));
+    			html.push(currentPage == 1 ? '<span>上一页</span>' : this.createAnchor('上一页',currentPage-1));
     			for(var i = 1 ; i < 4 && i < totalPage ; i++){
     				html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
     			}
@@ -94,7 +96,8 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     					html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
 	    			}
     			}
-	    		html.push(currentPage == totalPage ? '<span>尾页</span>' : this.createAnchor('尾页',totalPage));
+	    		html.push(currentPage == totalPage ? '<span>下一页</span>' : this.createAnchor('下一页',currentPage+1));
+    			html.push(currentPage == totalPage ? '<span>尾页</span>' : this.createAnchor('尾页',totalPage));
     		}
     		return html.join('');
     	}else{
@@ -109,9 +112,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	return '<a href="javascript:$(\''+this.dataSet.id+'\').goPage('+page+')">'+text+'</a>';
     },
     createSplit : function(html){
-    	html.push('<span>·</span>')
-    	html.push('<span>·</span>')
-    	html.push('<span>·</span>')
+    	html.push('<span>···</span>');
     },
     onInputKeyPress : function(input, e){
     	if(e.keyCode == 13){

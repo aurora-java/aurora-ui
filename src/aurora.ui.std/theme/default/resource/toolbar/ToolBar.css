@@ -47,6 +47,10 @@
 	line-height:20px;
 	text-align:center;
 }
+.simple-navbar{
+	font-size: 12px;
+	background-image: none;
+}
 .nav-label a,.nav-label b,.nav-label span{
     margin: 3px;
 }
