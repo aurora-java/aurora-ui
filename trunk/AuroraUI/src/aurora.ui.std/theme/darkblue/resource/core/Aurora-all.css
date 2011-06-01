@@ -569,7 +569,6 @@ button div {
 	BACKGROUND: url(../core/itembar.gif) no-repeat 2px -20px;	
 }
 .item-dateField {
-	padding:1px;
 	background-color:#fff;
 	text-align:center;
 	width:100%;
@@ -633,6 +632,14 @@ button div {
 .item-dateField-next{
 	background-position: 0 -48px;
 	float: right;
+}
+.item-dateField-close {
+	background-image:url(../tab/tab_close.gif);
+	background-position: -11px -23px;
+	cursor:pointer;
+	width:11px;
+	height:11px;
+	font-size: 0;
 }
 .item-dateField-input{
 	margin:1px;
@@ -722,6 +729,13 @@ button div {
 	height:20px;
 	line-height:20px;
 	text-align:center;
+}
+.simple-navbar{
+	font-size: 12px;
+	background-image: none;
+}
+.nav-label a,.nav-label b,.nav-label span{
+    margin: 3px;
 }
 .nav-prepage div, .nav-prepage div, .nav-firstpage div, .nav-lastpage div, .nav-nextpage div, .nav-refresh div{
 	background-image:url(../toolbar/navigation.gif);
