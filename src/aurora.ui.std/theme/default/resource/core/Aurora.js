@@ -259,6 +259,8 @@ $A.post = function(action,data){
  * <div class="sub-desc">提交的参数</div></li>
  * <li><code>scope</code>
  * <div class="sub-desc">作用域</div></li>
+ * <li><code>sync</code>
+ * <div class="sub-desc">是否异步,默认true</div></li> 
  * <li><code>success</code>
  * <div class="sub-desc">成功的回调函数</div></li>
  * <li><code>error</code>
@@ -282,6 +284,7 @@ $A.request = function(opt){
 		method: 'POST',
 		params:{_request_data:Ext.util.JSON.encode(data)},
 		opts:opts,
+        sync:opt.sync,
 		success: function(response,options){
 			if($A.logWindow){
 				var st = $A['_startTime'];
