@@ -7709,15 +7709,13 @@ function Chart (options, callback) {
 
         // VML namespaces can't be added until after complete. Listening
         // for Perini's doScroll hack is not enough.
-        //var onreadystatechange = 'onreadystatechange';
+        var onreadystatechange = 'onreadystatechange';
         if (!hasSVG && win == win.top && doc.readyState != 'complete') {
-            //doc.attachEvent(onreadystatechange, function() {
-                //doc.detachEvent(onreadystatechange, firstRender);
-            Aurora.onReady(function(){
+            doc.attachEvent(onreadystatechange, function() {
+                doc.detachEvent(onreadystatechange, firstRender);
                 firstRender();
-            })
-            //});
-            //return;
+            });
+            return;
         }
         
         // create the container
