@@ -9,6 +9,7 @@ Release ()
 * 增加DateField,DatePicker及DateTimePicker的快捷导航功能
 * 增加DateField,DatePicker及DateTimePicker的年份和月份选择弹出框
 * 增加Grid的navBarType属性和maxPageCount属性，用来显示simple类型的navBar以及navBar最大显示页数。
+* 修正了Grid中类型为checkbox的column的editorfunction返回为空字符串时，该column不能显示只读状态的checkbox的问题。
 
 Release (2011-05-17)
 ------------------------------------

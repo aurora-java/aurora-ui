@@ -236,12 +236,12 @@ $A.Grid = Ext.extend($A.Component,{
         this.cellTpl = new Ext.Template('<div class="grid-cell {cellcls}" style="width:{width}px" id="'+this.id+'_{name}_{recordid}" title="{title}">{text}</div>');        
         this.cbTpl = new Ext.Template('<center><div class="{cellcls}" id="'+this.id+'_{name}_{recordid}"></div></center>');
     },
-    getCheckBoxStatus: function(record, name) {
+    getCheckBoxStatus: function(record, name ,readonly) {
         var field = this.dataset.getField(name)
         var cv = field.getPropertity('checkedvalue');
         var uv = field.getPropertity('uncheckedvalue');
         var value = record.data[name];
-        return (value && value == cv) ? 'item-ckb-c' : 'item-ckb-u';
+        return 'item-ckb-'+(readonly?'readonly-':'')+((value && value == cv) ? 'c' : 'u');
     },
     createTemplateData : function(col,record){
     	return {
@@ -257,6 +257,7 @@ $A.Grid = Ext.extend($A.Component,{
         var tdTpl = this.tdTpl;
         var cls = ''; //col.editor ? this.cecls : 
         var xtype = col.type;
+        var readonly;
         var editor = this.getEditor(col,record);
         if(editor!=''){
         	var edi = $A.CmpManager.get(editor);
@@ -267,9 +268,11 @@ $A.Grid = Ext.extend($A.Component,{
             }else{
                 cls = this.cecls;
             }
+        }else if(col.name && Ext.isDefined(record.getField(col.name).get('checkedvalue'))){
+    		xtype = 'cellcheck';
+    		readonly=true;
         }
         if(xtype == 'rowcheck'||xtype == 'rowradio'){
-        	var readonly="";
         	if(!this.dataset.execSelectFunction(record))readonly="-readonly"
             tdTpl = this.rowTdTpl;
             data = Ext.apply(data,{
@@ -281,7 +284,7 @@ $A.Grid = Ext.extend($A.Component,{
         }else if(xtype == 'cellcheck'){
             data = Ext.apply(data,{
                 align:'center',
-                cellcls: 'grid-ckb ' + this.getCheckBoxStatus(record, col.name) //+((cls=='') ? ' disabled ' : '' )
+                cellcls: 'grid-ckb ' + this.getCheckBoxStatus(record, col.name ,readonly) //+((cls=='') ? ' disabled ' : '' )
             })
             cellTpl =  this.cbTpl;
         }else{
