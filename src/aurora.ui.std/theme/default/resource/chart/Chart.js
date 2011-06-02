@@ -7320,8 +7320,7 @@ function Chart (options, callback) {
     	}else{
 			for(var j=0;j<this.xAxis.length;j++){
 				var xAxis=this.xAxis[j],xAxisName = xAxis.options.name;
-				if(!xAxis.categories||this.xAxisFromData){
-					this.xAxisFromData = true;
+				if(!xAxis.categories){
 					xAxis.categories=[];
 		    		for(var i=0;i<records.length;i++){
 						xAxis.categories.push(records[i].get(xAxisName)||'NaN')
@@ -7710,13 +7709,15 @@ function Chart (options, callback) {
 
         // VML namespaces can't be added until after complete. Listening
         // for Perini's doScroll hack is not enough.
-        var onreadystatechange = 'onreadystatechange';
+        //var onreadystatechange = 'onreadystatechange';
         if (!hasSVG && win == win.top && doc.readyState != 'complete') {
-            doc.attachEvent(onreadystatechange, function() {
-                doc.detachEvent(onreadystatechange, firstRender);
+            //doc.attachEvent(onreadystatechange, function() {
+                //doc.detachEvent(onreadystatechange, firstRender);
+            Aurora.onReady(function(){
                 firstRender();
-            });
-            return;
+            })
+            //});
+            //return;
         }
         
         // create the container
