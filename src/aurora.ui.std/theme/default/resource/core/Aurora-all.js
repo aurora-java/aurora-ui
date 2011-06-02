@@ -5601,7 +5601,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     			html.push('<span>共'+totalPage+'页</span>');
     			html.push(currentPage == 1 ? '<span>首页</span>' : this.createAnchor('首页',1));
     			html.push(currentPage == 1 ? '<span>上一页</span>' : this.createAnchor('上一页',currentPage-1));
-    			for(var i = 1 ; i < 4 && i < totalPage ; i++){
+    			for(var i = 1 ; i < 4 && i <= totalPage ; i++){
     				html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
     			}
     			if(totalPage > this.maxPageCount){
