@@ -1939,10 +1939,10 @@ Ext.lib.Ajax = function() {
     
     // private
     function asyncRequest(method, uri, callback, postData,sync) {
-        var o = getConnectionObject() || null;
-		sync = Ext.isEmpty(sync) ? true : sync;
+        var o = getConnectionObject() || null,
+        async = sync === true ? false : true;
         if (o) {
-            o.conn.open(method, uri, sync);//true
+            o.conn.open(method, uri, async);
 
             if (pub.useDefaultXhrHeader) {                    
                 initHeader('X-Requested-With', pub.defaultXhrHeader);
@@ -1956,12 +1956,13 @@ Ext.lib.Ajax = function() {
                 setHeader(o);
             }
 
-            handleReadyState(o, callback);
+            if(async)handleReadyState(o, callback);
             o.conn.send(postData || null);
+            if(!async)handleTransactionResponse(o, callback);
         }
         return o;
     }
-    
+
     // private
     function getConnectionObject() {
         var o;          
@@ -2014,7 +2015,6 @@ Ext.lib.Ajax = function() {
             }                       
             return asyncRequest(method || options.method || "POST", uri, cb, data, options.sync);
         },
-
         serializeForm : function(form) {
             var fElements = form.elements || (document.forms[form] || Ext.getDom(form)).elements,
                 hasSubmit = false,
