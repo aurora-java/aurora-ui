@@ -66,11 +66,19 @@ $A.Lov = Ext.extend($A.TextField,{
          * @param {Aurora.Record} r1 当前lov绑定的Record
          * @param {Aurora.Record} r2 选中的Record. 
          */
-        'commit');
+        'commit',
+        /**
+         * @event beforetriggerclick
+         * 点击弹出框按钮之前的事件。
+         * @param {Aurora.Lov} lov 当前Lov组件.
+         */
+        'beforetriggerclick');
     },
     onTriggerClick : function(e){
     	e.stopEvent();
-    	this.showLovWindow();
+    	if(this.fireEvent('beforetriggerclick',this)){
+    		this.showLovWindow();
+    	}
     },
     destroy : function(){
         $A.Lov.superclass.destroy.call(this);
@@ -153,6 +161,7 @@ $A.Lov = Ext.extend($A.TextField,{
     onFocus : function(e){
     	if(this.autocomplete){
     		this.autocompleteview.bind(this.optionDataSet,this);
+    		//this.wrap.appendChild(this.autocompleteview.wrap);
     		this.autocompleteview.on('show',this.autoCompleteShow,this);
     	}
     	$A.Lov.superclass.onFocus.call(this,e);
@@ -524,6 +533,11 @@ $A.Popup = Ext.extend($A.Component,{
     		this.optionDataSet = ds;
 			this.processDataSet('on');
     	}
+    },
+    destroy : function(){
+    	$A.Popup.superclass.destroy.call(this);
+    	this.processDataSet('un');
+    	delete this.shadow;
     },
     tpl : ['<div class="item-popup" style="visibility:hidden;background-color:#fff">','</div>'],
     shadowtpl : ['<div class="item-shadow" style="visibility:hidden;">','</div>']

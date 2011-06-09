@@ -6,6 +6,7 @@
 <TBODY>
 </TBODY>
 ${foots}
+${navbar}
 </TABLE>
 <SCRIPT LANGUAGE="JavaScript">
 	new Aurora.Table(${config});
