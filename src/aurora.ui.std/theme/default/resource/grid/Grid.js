@@ -687,8 +687,8 @@ $A.Grid = Ext.extend($A.Component,{
                 var record = this.dataset.findById(rid);
                 var row = this.dataset.indexOf(record);
                 var name = Ext.fly(target).getAttributeNS("","dataindex");
-                this.showEditor(row,name);
                 this.fireEvent('cellclick', this, row, name, record);
+                this.showEditor(row,name);
                 this.fireEvent('rowclick', this, row, record);
             }else if(atype=='grid.rowcheck'){               
                 var cb = Ext.get(this.id+'__'+rid);
@@ -847,6 +847,7 @@ $A.Grid = Ext.extend($A.Component,{
                     }
                 }
                 if(name){
+                    this.fireEvent('cellclick', this, row, name, r);
                     this.showEditor(row,name,callback);
                 }else{
                     var nr = ds.getAt(row+1);
@@ -855,6 +856,7 @@ $A.Grid = Ext.extend($A.Component,{
                             var col = cls[i];
                             var editor = this.getEditor(col,r);
                             if(editor!=''){
+                                this.fireEvent('cellclick', this, row+1, name, r);
                                 this.showEditor(row+1,col.name,callback);
                                 break;
                             }
