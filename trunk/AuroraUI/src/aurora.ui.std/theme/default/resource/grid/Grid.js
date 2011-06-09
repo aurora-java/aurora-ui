@@ -408,14 +408,13 @@ $A.Grid = Ext.extend($A.Component,{
         $A.Masker.unmask(this.wb);
     },
     onMouseWheel : function(e){
+        e.stopEvent();
         if(this.editing == true) return;
     	var delta = e.getWheelDelta(),sf=this;
         if(delta > 0){
             sf.dataset.pre();
-            e.stopEvent();
         } else if(delta < 0){
             sf.dataset.next();
-            e.stopEvent();
         }
     },
     focus: function(){    	
@@ -930,7 +929,6 @@ $A.Grid = Ext.extend($A.Component,{
                 ed.isFireEvent = false;
                 ed.isHidden = true;
             }
-            ed.blur();
             this.editing = false;
         }
     },

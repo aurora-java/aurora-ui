@@ -21,6 +21,7 @@
 	border-right:1px solid #cccccc;
 	padding:1px;
 }
+
 .table-cell{
 	padding-right:2px;	
 	text-indent:3px;
@@ -64,4 +65,12 @@
 .table-rowbox {
     border-right:1px solid #cccccc;
     background: url(../grid/row-box.gif) repeat-y;
+}
+.table-navbar{
+	border-top: none;
+}
+.table-navbar tbody td{
+    border-bottom: none;
+    border-right: none;
+    padding: 0;
 }

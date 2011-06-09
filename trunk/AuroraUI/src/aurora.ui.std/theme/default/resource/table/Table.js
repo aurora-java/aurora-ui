@@ -23,26 +23,30 @@ $A.Table = Ext.extend($A.Component,{
 	processListener:function(ou){
 		$A.Table.superclass.processListener.call(this,ou);
 		this.tbody[ou]('click',this.onClick, this);
+		this.tbody[ou]('mousewheel',this.onMouseWheel,this);
 		if(this.cb)this.cb[ou]('click',this.onHeadClick,this);
 	},
 	processDataSetLiestener: function(ou){
         var ds = this.dataset;
         if(ds){
-//       	ds[ou]('ajaxfailed', this.onAjaxFailed, this);
-//            ds[ou]('metachange', this.onRefresh, this);
+	       	ds[ou]('ajaxfailed', this.onAjaxFailed, this);
+            ds[ou]('metachange', this.onLoad, this);
             ds[ou]('update', this.onUpdate, this);
-//            ds[ou]('reject', this.onUpdate, this);
+            ds[ou]('reject', this.onUpdate, this);
             ds[ou]('add', this.onAdd, this);
-//            ds[ou]('submit', this.onBeforSubmit, this);
+            ds[ou]('submit', this.onBeforSubmit, this);
+            ds[ou]('submitfailed', this.onAfterSuccess, this);
+            ds[ou]('submitsuccess', this.onAfterSuccess, this);
+            ds[ou]('query', this.onBeforeLoad, this);
 			ds[ou]('load', this.onLoad, this);
-//			ds[ou]('loadfailed', this.onAjaxFailed, this);
+			ds[ou]('loadfailed', this.onAjaxFailed, this);
             ds[ou]('valid', this.onValid, this);
-//            ds[ou]('beforeremove', this.onBeforeRemove, this); 
+            ds[ou]('beforeremove', this.onBeforeRemove, this); 
             ds[ou]('remove', this.onRemove, this);
             ds[ou]('clear', this.onLoad, this);
-//            ds[ou]('refresh',this.onRefresh,this);
-//            ds[ou]('fieldchange', this.onFieldChange, this);
-//            ds[ou]('indexchange', this.onIndexChange, this);
+            ds[ou]('refresh',this.onLoad,this);
+            ds[ou]('fieldchange', this.onFieldChange, this);
+            ds[ou]('indexchange', this.onIndexChange, this);
             ds[ou]('select', this.onSelect, this);
             ds[ou]('unselect', this.onUnSelect, this);
         }
@@ -302,6 +306,7 @@ $A.Table = Ext.extend($A.Component,{
                     ed.bind(sf.dataset, name);
                     ed.render(record);
                     ed.focus();
+                    sf.editing = true;
                     ed.on('keydown', sf.onEidtorKeyDown,sf);
 //                    ed.on('blur',sf.onEditorBlur, sf);
                     Ext.fly(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
@@ -405,6 +410,7 @@ $A.Table = Ext.extend($A.Component,{
                 ed.isFireEvent = false;
                 ed.isHidden = true;
             }
+            this.editing = false;
         }
     },
         /**
@@ -439,8 +445,10 @@ $A.Table = Ext.extend($A.Component,{
                     return;
                 }
                 var v = fder.call(window,sf.dataset.data, name);
-                var t = sf.fb.child('td[dataindex='+name+']');
-                t.update(v)
+                if(!Ext.isEmpty(v)){
+		    		var t = sf.fb.child('td[dataindex='+name+']');
+	                t.update(v)
+                }
             }
     	});
     },
@@ -572,6 +580,7 @@ $A.Table = Ext.extend($A.Component,{
             this.createRow(this.dataset.getAt(i),i);
         }
         this.drawFootBar();
+        $A.Masker.unmask(this.wrap);
         this.fireEvent('render',this)
 	},
 	onValid : function(ds, record, name, valid){
@@ -596,6 +605,7 @@ $A.Table = Ext.extend($A.Component,{
         var row = Ext.get(this.id+'-'+record.id);
         if(row)row.remove();
         this.selectTr=null;
+        $A.Masker.unmask(this.wrap);
         this.drawFootBar();
     },
 	clearBody:function(){
@@ -603,9 +613,62 @@ $A.Table = Ext.extend($A.Component,{
 			this.tbody.dom.removeChild(this.tbody.dom.firstChild);
 		}
 	},
+	getDataIndex : function(rid){
+        var index = -1;
+        for(var i=0,l=this.dataset.data.length;i<l;i++){
+            var item = this.dataset.getAt(i);
+            if(item.id == rid){
+                index = i;
+                break;
+            }
+        }
+        return index;
+    },
     onEditorBlur : function(e){
         if(this.currentEditor && !this.currentEditor.editor.isEventFromComponent(e.target)) {           
             this.hideEditor();
         }
+    },
+    onMouseWheel : function(e){
+        e.stopEvent();
+        if(this.editing == true) return;
+    	var delta = e.getWheelDelta(),sf=this;
+        if(delta > 0){
+            sf.dataset.pre();
+        } else if(delta < 0){
+            sf.dataset.next();
+        }
+    },
+    onIndexChange:function(ds, r){
+        var index = this.getDataIndex(r.id);
+        if(index == -1)return;
+        if(r != this.selectRecord){
+            this.selectRow(index, false);
+        }
+    },
+    onFieldChange : function(ds, record, field, type, value){
+        switch(type){
+           case 'required':
+               var div = Ext.get(this.id+'_'+field.name+'_'+record.id);
+               if(div) {
+                   (value==true) ? div.addClass(this.nbcls) : div.removeClass(this.nbcls);
+               }
+               break;
+        }
+    },
+    onBeforeRemove : function(){
+        $A.Masker.mask(this.wrap,_lang['grid.mask.remove']);
+    },
+    onBeforeLoad : function(){
+        $A.Masker.mask(this.wrap,_lang['grid.mask.loading']);
+    },
+    onAfterSuccess : function(){
+        $A.Masker.unmask(this.wrap);
+    },
+    onBeforSubmit : function(ds){
+    	$A.Masker.mask(this.wrap,_lang['grid.mask.submit']);
+    },
+    onAjaxFailed : function(res,opt){
+        $A.Masker.unmask(this.wrap);
     }
 })
