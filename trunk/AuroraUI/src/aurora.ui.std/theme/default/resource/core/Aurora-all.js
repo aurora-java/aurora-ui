@@ -6194,11 +6194,12 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
                 cmp.cmps[okid] = okbtn;
                 cmp.cmps[cancelid] = cancelbtn;
                 okbtn.on('click',function(){
-                	if(okfun)okfun.call(this,cmp);
+                	if(okfun && okfun.call(this,cmp) === false)return;
+                	cmp.close();
                 });
                 cancelbtn.on('click',function(){
-                	if(cancelfun)cancelfun.call(this,cmp)
-                	else cmp.close();
+                	if(cancelfun && cancelfun.call(this,cmp) === false)return;
+                	cmp.close();
                 });
             });
         }
@@ -6227,8 +6228,8 @@ $A.showOkWindow = function(title, msg, width, height,callback){
     			var btn = $(yesid);
                 cmp.cmps[yesid] = btn;
                 btn.on('click',function(){
-                    if(callback)callback.call(this,cmp);
-                    else cmp.close();
+                    if(callback && callback.call(this,cmp) === false)return;
+                    cmp.close();
                 });
                 //btn.focus();
                 btn.focus.defer(10,btn);
