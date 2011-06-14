@@ -3,6 +3,7 @@
         <view-component elementName="template" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.TemplateRenderer" />
         <view-component elementName="html-page" builder="aurora.presentation.component.HtmlPage" />
         <view-component elementName="screen-include" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.ScreenInclude"  />
+        <view-component elementName="cached-part" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.CachedPart" />
         <view-component elementName="separator" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="textArea" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="tree" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
