@@ -3,6 +3,8 @@ Release ()
 * lov增加 beforetriggerclick事件
 * table增加navbar分页导航栏
 * 修改各种弹出式消息框组件的按钮为自动关闭，只有当回调函数的返回值为false时，窗口才不会被关闭。
+* 修改grid为单选的时候,自动locate到对应的record
+* 修订combox下拉框内容太长,在firefox下无法拖动滚动条的bug
 
 Release (2011-06-02)
 ------------------------------------
