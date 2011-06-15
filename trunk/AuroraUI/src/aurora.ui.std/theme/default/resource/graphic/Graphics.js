@@ -1,5 +1,5 @@
 (function(){
-var DOC=document;
+var DOC=document,
     SVG_NS = 'http://www.w3.org/2000/svg',
 	hasSVG = !!DOC.createElementNS && !!DOC.createElementNS(SVG_NS, "svg").createSVGRect,
 	fill = "<v:fill color='{fillColor}' opacity='{fillOpacity}'/>",
@@ -30,7 +30,7 @@ var DOC=document;
             css.push(';');
         }
         return css.join('');
-    }
+    };
 
 /**
  * @class Aurora.Graphics
@@ -49,6 +49,7 @@ $A.Graphics=Ext.extend($A.Component,{
 	initComponent : function(config){ 
 		$A.Graphics.superclass.initComponent.call(this,config);
 		this['init'+(hasSVG?'SVG':'VML')+'Element']();
+		if(this.title)this.setTitle(this.title)
     },
     initEvents : function(){
     	$A.Graphics.superclass.initEvents.call(this);
@@ -67,7 +68,7 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     initSVGElement : function(){
     	this.root = newSVG("svg");
-    	this.wrap.dom.appendChild(this.root.dom);
+    	this.wrap.appendChild(this.root);
     },
     initVMLElement : function(){
     	if (!DOC.namespaces.hcv) {
@@ -76,10 +77,11 @@ $A.Graphics=Ext.extend($A.Component,{
                 'v\\:roundrect,v\\:oval,v\\:image,v\\:polyline,v\\:line,v\\:group,v\\:fill,v\\:path,v\\:shape,v\\:stroke'+
                 '{ behavior:url(#default#VML); display: inline-block; } ';
         }
-        this.root = newVML("v:group");
-        this.root.setStyle({position:'relative',width:'100%',height:'100%'})
-        this.root.set({coordsize:this.width+','+this.height,CoordOrig:'0 50'})
-        this.wrap.dom.appendChild(this.root.dom);
+        this.root = this.wrap;
+        //this.root = newVML("v:group");
+        //this.root.setStyle({position:'relative',width:'100%',height:'100%'})
+        //this.root.set({coordsize:this.width+','+this.height,CoordOrig:'0 50'})
+        //this.wrap.dom.appendChild(this.root.dom);
     },
     onClick : function(e){
     	this.fireEvent('click',this,e);
@@ -87,10 +89,30 @@ $A.Graphics=Ext.extend($A.Component,{
 	createGElement : function(name,config){
     	return new $A[firstUp(name)](Ext.apply(config,{root:Ext.get(config.root)||this.root}));
     },
-    setOpacity : function(o){
+    bind : function(ds){
+    	this.dataset = $(ds);
     	
+    	this.onLoad();
     },
-    setStroke : function(config){
+    onLoad : function(){
+    	var graphics = this.dataset.getAll();
+    	graphics.sort(function(a,b){
+    		var at=a.get('type'),bt=b.get('type');
+    		if(at === 'line')return -1;
+    		else if(bt === 'line')return 1;
+    		else return 0;
+    	})
+    	for(var i = 0,l = graphics.length;i<l;i++){
+    		var g = graphics[i],type = g.get('type'),title = g.get('title'),config = Ext.util.JSON.decode((g.get('config')||'').toLowerCase());
+    		if(title) config.title = title;
+    		if(type)this.createGElement(type,config);
+    	}
+    },
+    setTitle : function(title){
+    	if(!this.text)this.text = new Text({x:this.titlex,y:this.titley,color:this.titlecolor,size:this.titlesize,root:this.root});
+    	this.text.setText(title);
+    },
+    setTitlePosition : function(){
     	
     }
 });
@@ -106,7 +128,23 @@ $A.Path=Ext.extend($A.Graphics,{
     		'stroke-width':this.strokewidth,
     		'stroke-opacity':this.strokeopacity
     	})+this.style;
-    	this.wrap.set({d:this.d});
+    	var config = {};
+    	if(this.startarrow || this.endarrow){
+    		var a = this.d.match(numberReg),l = a.length;
+	    	if(this.startarrow){
+	    		config['marker-start']='url(#start-arrow-'+this.strokecolor+'-'+this.startarrow+')';
+	    		var point = this.convertArrow(Number(a[0]),y1 = Number(a[1]), x2 = Number(a[2]),y2 = Number(a[3]));
+	    		this.d = this.d.replace(/[\d-+.]+\s+[\d-+.]+/,point.x+' '+point.y);
+	    	}
+	    	if(this.endarrow){
+	    		config['marker-end']='url(#end-arrow-'+this.strokecolor+'-'+this.endarrow+')';
+	    		var point = this.convertArrow(Number(a[l-2]),y1 = Number(a[l-1]), x2 = Number(a[l-4]),y2 = Number(a[l-3]));
+	    		this.d = this.d.replace(/([\d-+.]+\s+[\d-+.]+)[^\d]*$/,point.x+' '+point.y);
+	    	}
+    		new Arrow({color:this.strokecolor,strokewidth:this.strokewidth,endarrow:this.endarrow,startarrow:this.startarrow,root:this.root})
+    	}
+    	config.d=this.d;
+    	this.wrap.set(config);
     	this.root.appendChild(this.wrap);
     },
     initVMLElement : function(){
@@ -118,8 +156,23 @@ $A.Path=Ext.extend($A.Graphics,{
     		fillOpacity:this.fillopacity||'1',
     		strokeColor:this.strokecolor||'none',
     		strokeWidth:this.strokecolor?this.strokewidth:0,
-    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
+    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0,
+    		endArrow:this.endarrow,
+    		startArrow:this.startarrow
     	},true)
+    },
+    convertArrow : function(x1,y1,x2,y2){
+    	var dx = x1 - x2,dy = y1 - y2;
+    	if(dx == 0){
+			y1 += dy>0?-this.strokewidth:this.strokewidth;
+		}else if(dy == 0){
+			x1 += dx>0?-this.strokewidth:this.strokewidth;
+		}else{
+			var ll = Math.sqrt(dx*dx+dy*dy);
+			x1 = (ll-this.strokewidth)/ll*dx+x2;
+			y1 = (ll-this.strokewidth)/ll*dy+y2;
+		}
+		return {x:x1,y:y1};
     },
     convertPath : function(p){
     	var arr=p.match(pathReg),p1=[0,0],p2=[0,0],path=[],sf=this,
@@ -215,8 +268,11 @@ $A.Path=Ext.extend($A.Graphics,{
 $A.Line = function(config){
 	var a= config.points.match(numberReg);
 	a.splice(2,0,"L");
+	if(config.strokewidth == 1)config.strokewidth = 2;
+	config.fillcolor = 'none';
 	return new $A.Path(Ext.apply(config,{d:["M"].concat(a).join(' ')}));
 }
+
 $A.Oval=Ext.extend($A.Graphics,{
 	initSVGElement : function(){
 		this.wrap = newSVG("ellipse");
@@ -244,7 +300,7 @@ $A.Oval=Ext.extend($A.Graphics,{
     		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
     	},true)
     },
-    vmlTpl : ["<v:oval style='left:{left}px;top:{top}px;width:{width}px;height:{height}px;{style}'>",
+    vmlTpl : ["<v:oval style='position:absolute;left:{left}px;top:{top}px;width:{width}px;height:{height}px;{style}'>",
     fill,stroke,"</v:oval>"]
 });
 
@@ -283,5 +339,57 @@ $A.Diamond = function(config){
 			l+w/2,t+h,
 			'Z'];
 	return new $A.Path(Ext.apply(config,{d:d.join(' ')}));
+}
+var Text = Ext.extend($A.Graphics,{
+	initSVGElement : function(){
+		this.wrap = newSVG("text");
+    	this.wrap.dom.style.cssText=encodeStyle({
+    		'fill':this.color
+    	})+this.style;
+    	this.wrap.set({x:this.x,y:this.y+(this.size||11),'font-size':this.size||11});
+    	this.root.appendChild(this.wrap);
+    },
+    initVMLElement : function(){
+    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
+    		style:encodeStyle({'font-size':(this.size||11)+'px'})+this.style,
+    		left:this.x,
+    		top:this.y,
+    		color:this.color||'black'
+    	},true)
+    },
+    setText : function(text){
+    	if(hasSVG)this.wrap.dom.textContent = text;
+    	else this.wrap.update(text);
+    },
+    vmlTpl : "<span style='position:absolute;left:{left}px;top:{top}px;color:{color};{style}'></span>"
+});
+
+var Arrow = function(config){
+	var defs = config.root.child('defs');
+	if(!defs){
+		defs = newSVG('defs');
+		config.root.insertFirst(defs);
+	}
+	if(config.startarrow){
+		var color = config.color,id = 'start-arrow-'+color+'-'+config.startarrow;
+		var marker = Ext.get(id);
+		if(!marker){
+			marker = newSVG('marker');
+			marker.set({id:id,viewBox:'0 0 100 100',refX:40,refY:50,orient:'auto'});
+			defs.appendChild(marker);
+			new $A.Path({fillcolor:color,d:'M 100 0 L 0 50 L 100 100 L 66.66 50 z',root:marker});
+		}
+	}
+	if(config.endarrow){
+		var color = config.color,id = 'end-arrow-'+color+'-'+config.endarrow;
+		var marker = Ext.get(id);
+		if(!marker){
+			marker = newSVG('marker');
+			marker.set({id:id,viewBox:'0 0 100 100',refX:60,refY:50,orient:'auto'});
+			defs.appendChild(marker);
+			new $A.Path({fillcolor:color,d:'M 0 0 L 100 50 L 0 100 L 33.33 50 z',root:marker});
+		}
+	}
+	
 }
 })();
