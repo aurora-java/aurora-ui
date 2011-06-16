@@ -9,11 +9,15 @@ var DOC=document,
     firstUp = function(w){
     	return w.toLowerCase().replace(/^\S/,w.toUpperCase().charAt(0));
     },
-    newSVG = function(tag){
-    	return Ext.get(DOC.createElementNS(SVG_NS, tag));
+    newSVG = function(tag,id){
+    	var e = DOC.createElementNS(SVG_NS, tag);
+    	if(!Ext.isEmpty(id)) e.id = id;
+    	return Ext.get(e);
     },
-    newVML = function(vml){
-    	return Ext.get(DOC.createElement(vml));
+    newVML = function(vml,id){
+    	var e = DOC.createElement(vml);
+    	if(!Ext.isEmpty(id)) e.id = id;
+    	return Ext.get(e);
     },
     encodeStyle = function(prop,value){
     	var tmp,style,css=[];
@@ -48,6 +52,8 @@ $A.Graphics=Ext.extend($A.Component,{
 	},
 	initComponent : function(config){ 
 		$A.Graphics.superclass.initComponent.call(this,config);
+		this.fillcolor = this.convertColor(this.fillcolor);
+		this.strokecolor = this.convertColor(this.strokecolor);
 		this['init'+(hasSVG?'SVG':'VML')+'Element']();
 		if(this.title)this.setTitle(this.title)
     },
@@ -57,7 +63,9 @@ $A.Graphics=Ext.extend($A.Component,{
 	    	/**
 	         * @event click
 	         * 单击事件.
-	         * @param {Aurora.Tab} obj 组件对象.
+	         * @param {Aurora.Graphics} obj 图形对象.
+	         * @param {Aurora.DataSet} dataset 数据集对象.
+	         * @param {Aurora.Record} record 数据行对象.
 	         */
     		'click'
     	)
@@ -65,6 +73,8 @@ $A.Graphics=Ext.extend($A.Component,{
 	processListener: function(ou){
 		$A.Graphics.superclass.processListener.call(this,ou);
 		this.wrap[ou]('click',this.onClick,this,{preventDefault:true});
+		this.wrap[ou]('mouseover',this.onMouseOver,this,{preventDefault:true});
+		this.wrap[ou]('mouseout',this.onMouseOut,this,{preventDefault:true});
     },
     initSVGElement : function(){
     	this.root = newSVG("svg");
@@ -83,8 +93,26 @@ $A.Graphics=Ext.extend($A.Component,{
         //this.root.set({coordsize:this.width+','+this.height,CoordOrig:'0 50'})
         //this.wrap.dom.appendChild(this.root.dom);
     },
-    onClick : function(e){
-    	this.fireEvent('click',this,e);
+    onClick : function(e,t){
+    	var a = t.id.split('_'),id = a[1],record;
+    	if(this.dataset&&id)
+    		record = this.dataset.findById(id)
+    	if(a[0]&&id)t = $(a[0]+'_'+id);
+    	this.fireEvent('click',t,this.dataset,record);
+    },
+    onMouseOver : function(e,t){
+    	var a = t.id.split('_'),id = a[1],record;
+    	if(this.dataset&&id)
+    		record = this.dataset.findById(id)
+    	if(a[0]&&id)t = $(a[0]+'_'+id);
+    	this.fireEvent('mouseover',t,this.dataset,record);
+    },
+    onMouseOut : function(e,t){
+    	var a = t.id.split('_'),id = a[1],record;
+    	if(this.dataset&&id)
+    		record = this.dataset.findById(id)
+    	if(a[0]&&id)t = $(a[0]+'_'+id);
+    	this.fireEvent('mouseout',t,this.dataset,record);
     },
 	createGElement : function(name,config){
     	return new $A[firstUp(name)](Ext.apply(config,{root:Ext.get(config.root)||this.root}));
@@ -105,22 +133,31 @@ $A.Graphics=Ext.extend($A.Component,{
     	for(var i = 0,l = graphics.length;i<l;i++){
     		var g = graphics[i],type = g.get('type'),title = g.get('title'),config = Ext.util.JSON.decode((g.get('config')||'').toLowerCase());
     		if(title) config.title = title;
+    		config.id = this.id + "_" + g.id;
     		if(type)this.createGElement(type,config);
     	}
     },
-    setTitle : function(title){
-    	if(!this.text)this.text = new Text({x:this.titlex,y:this.titley,color:this.titlecolor,size:this.titlesize,root:this.root});
-    	this.text.setText(title);
+    convertColor :function(color){
+    	if(color && color.search(/rgb/i)!=-1){
+    		var c ="#";
+    		color.replace(/\d+/g,function(item){
+    			var n = Number(item).toString(16);
+    			c += (n.length == 1?"0":"") +n;
+    		})
+    		return c;
+    	}
+    	return color;
     },
-    setTitlePosition : function(){
-    	
+    setTitle : function(title){
+    	if(!this.text)this.text = new Text({id:this.id+'_title',x:this.titlex,y:this.titley,color:this.titlecolor,size:this.titlesize,root:this.root});
+    	this.text.setText(title);
     }
 });
 
 $A.Path=Ext.extend($A.Graphics,{
 	zoom:10000,
 	initSVGElement : function(){
-		this.wrap = newSVG("path");
+		this.wrap = newSVG("path",this.id);
     	this.wrap.dom.style.cssText=encodeStyle({
     		'fill':this.fillcolor,
     		'fill-opacity':this.fillopacity,
@@ -149,6 +186,7 @@ $A.Path=Ext.extend($A.Graphics,{
     },
     initVMLElement : function(){
     	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
+    		id:this.id,
     		style:this.style,
     		path:this.convertPath(this.d),
     		zoom:this.zoom,
@@ -262,7 +300,7 @@ $A.Path=Ext.extend($A.Graphics,{
     	path.push('E');
     	return path.join(' ');
     },
-    vmlTpl : ["<v:shape coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;{style}' path='{path}'>",
+    vmlTpl : ["<v:shape id='{id}' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;{style}' path='{path}'>",
     fill,stroke,"</v:shape>"]
 });
 $A.Line = function(config){
@@ -275,7 +313,7 @@ $A.Line = function(config){
 
 $A.Oval=Ext.extend($A.Graphics,{
 	initSVGElement : function(){
-		this.wrap = newSVG("ellipse");
+		this.wrap = newSVG("ellipse",this.id);
     	this.wrap.dom.style.cssText=encodeStyle({
     		'fill':this.fillcolor,
     		'fill-opacity':this.fillopacity,
@@ -288,6 +326,7 @@ $A.Oval=Ext.extend($A.Graphics,{
     },
     initVMLElement : function(){
     	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
+    		id:this.id,
     		style:this.style,
     		left:this.cx-this.rx,
     		top:this.cy-this.ry,
@@ -300,7 +339,7 @@ $A.Oval=Ext.extend($A.Graphics,{
     		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
     	},true)
     },
-    vmlTpl : ["<v:oval style='position:absolute;left:{left}px;top:{top}px;width:{width}px;height:{height}px;{style}'>",
+    vmlTpl : ["<v:oval id='{id}' style='position:absolute;left:{left}px;top:{top}px;width:{width}px;height:{height}px;{style}'>",
     fill,stroke,"</v:oval>"]
 });
 
@@ -342,7 +381,7 @@ $A.Diamond = function(config){
 }
 var Text = Ext.extend($A.Graphics,{
 	initSVGElement : function(){
-		this.wrap = newSVG("text");
+		this.wrap = newSVG("text",this.id);
     	this.wrap.dom.style.cssText=encodeStyle({
     		'fill':this.color
     	})+this.style;
@@ -351,6 +390,7 @@ var Text = Ext.extend($A.Graphics,{
     },
     initVMLElement : function(){
     	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
+    		id:this.id,
     		style:encodeStyle({'font-size':(this.size||11)+'px'})+this.style,
     		left:this.x,
     		top:this.y,
@@ -361,7 +401,7 @@ var Text = Ext.extend($A.Graphics,{
     	if(hasSVG)this.wrap.dom.textContent = text;
     	else this.wrap.update(text);
     },
-    vmlTpl : "<span style='position:absolute;left:{left}px;top:{top}px;color:{color};{style}'></span>"
+    vmlTpl : "<span id='{id}' style='position:absolute;left:{left}px;top:{top}px;color:{color};{style}'></span>"
 });
 
 var Arrow = function(config){
