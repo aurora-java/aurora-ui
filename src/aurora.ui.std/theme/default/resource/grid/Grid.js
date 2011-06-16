@@ -504,6 +504,9 @@ $A.Grid = Ext.extend($A.Component,{
                     if(col.type == 'rowcheck') {
                         Ext.fly(td).set({'recordid':record.id,'atype':'grid.rowcheck'})
                         td.className = 'grid-rowbox';
+                    }else if(col.type == 'rowradio'){
+                    	Ext.fly(td).set({'recordid':record.id,'atype':'grid.rowradio'})
+                        td.className = 'grid-rowbox';
                     }else{
                         td.style.visibility=col.hidden === true ? 'hidden' : 'visible';
                         td.style.textAlign=col.align||'left';
