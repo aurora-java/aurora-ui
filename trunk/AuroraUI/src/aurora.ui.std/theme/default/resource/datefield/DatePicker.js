@@ -94,6 +94,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.focusField = null;
     },
     onKeyUp: function(e){
+    	if(this.readonly)return;
     	$A.DatePicker.superclass.onKeyUp.call(this,e);
     	var c = e.keyCode;
     	if(!e.isSpecialKey()||c==8||c==46){
@@ -106,6 +107,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	}
     },
     onKeyDown: function(e){
+    	if(this.readonly)return;
     	if(this.focusField){
 	    	switch(e.keyCode){
 	    		case 37:this.goLeft(e);break;
@@ -120,7 +122,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	    	}
    		}else {
    			$A.DatePicker.superclass.onKeyDown.call(this,e);
-   			if(e.keyCode == 40 && !this.readonly){
+   			if(e.keyCode == 40){
 				this.focusField = this.dateFields[0];
 				this.focusField.over();
    			}
@@ -215,8 +217,9 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     processDate : function(d){},
     onBlur : function(e){
+    	if(this.readonly)return;
 		$A.DatePicker.superclass.onBlur.call(this,e);
-		if(!this.isExpanded()&&!this.readonly){
+		if(!this.isExpanded()){
 			try{
 				this.setValue(this.getRawValue().parseDate(this.format));
 			}catch(e){alert(e.message);
