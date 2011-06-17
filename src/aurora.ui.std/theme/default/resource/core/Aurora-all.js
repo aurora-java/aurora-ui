@@ -4441,7 +4441,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     		case 9:
     		case 13:
     		case 27:if(this.isExpanded())this.collapse();break;
-    		case 40:if(!this.isExpanded())this.expand();
+    		case 40:if(!this.isExpanded() && !this.readonly)this.expand();
 		}
     	$A.TriggerField.superclass.onKeyDown.call(this,e);
     },
@@ -4598,7 +4598,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
     onKeyDown: function(e){
         var current = Ext.isEmpty(this.selectedIndex) ? -1 : this.selectedIndex;
         var keyCode = e.keyCode;
-        if(keyCode == 40||keyCode == 38) {
+        if((keyCode == 40||keyCode == 38) && !this.readonly){
             this.inKeyMode = true;
             if(keyCode == 38){
                 current --;
@@ -5278,7 +5278,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	    	}
    		}else {
    			$A.DatePicker.superclass.onKeyDown.call(this,e);
-   			if(e.keyCode == 40){
+   			if(e.keyCode == 40 && !this.readonly){
 				this.focusField = this.dateFields[0];
 				this.focusField.over();
    			}
