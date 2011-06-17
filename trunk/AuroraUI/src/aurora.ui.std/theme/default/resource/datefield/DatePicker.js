@@ -100,6 +100,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	if(!e.isSpecialKey()||c==8||c==46){
 	    	try{
 	    		this.selectDay=this.getRawValue().parseDate(this.format);
+                this.wrapDate(this.selectDay);
 	    		$A.Component.prototype.setValue.call(this,this.selectDay);
 	    		this.predraw(this.selectDay);
 	    	}catch(e){
@@ -210,11 +211,12 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 		if((Ext.fly(t).hasClass('item-day'))&& Ext.fly(t).getAttributeNS("",'_date') != '0'){
     		var date=new Date(parseInt(Ext.fly(t).getAttributeNS("",'_date')));
 	    	this.collapse();
-            this.processDate(date);
+            this.processDate(date);            
 	    	this.setValue(date);
 	    	this.fireEvent('select',this, date);
     	}
     },
+    wrapDate : function(d){},
     processDate : function(d){},
     onBlur : function(e){
     	if(this.readonly)return;
@@ -222,7 +224,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 		if(!this.isExpanded()){
 			try{
                 var d = this.getRawValue().parseDate(this.format)
-                this.processDate(d)
+                this.wrapDate(d);
 				this.setValue(d);
 			}catch(e){alert(e.message);
 				this.setValue(null);
