@@ -661,7 +661,7 @@ $A.Grid = Ext.extend($A.Component,{
             this.setCheckBoxStatus(cb, true);
         }else{
             this.setRadioStatus(cb,true);
-            this.dataset.locate(this.dataset.indexOf(record) + 1)
+            this.dataset.locate((this.dataset.currentPage-1)*this.dataset.pagesize + this.dataset.indexOf(record) + 1)
         }
     },
     onUnSelect : function(ds,record){
