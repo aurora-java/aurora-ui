@@ -41,6 +41,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		$A.ComboBox.superclass.onTriggerClick.call(this);		
 	},
 	onBlur : function(e){
+        if(this.readonly)return;
 		$A.ComboBox.superclass.onBlur.call(this,e);
 		if(!this.isExpanded()) {
 			var raw = this.getRawValue();
