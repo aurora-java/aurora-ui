@@ -88,7 +88,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
     onKeyDown: function(e){
         var current = Ext.isEmpty(this.selectedIndex) ? -1 : this.selectedIndex;
         var keyCode = e.keyCode;
-        if(keyCode == 40||keyCode == 38) {
+        if((keyCode == 40||keyCode == 38) && !this.readonly){
             this.inKeyMode = true;
             if(keyCode == 38){
                 current --;

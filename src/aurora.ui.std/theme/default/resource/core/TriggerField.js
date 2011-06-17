@@ -57,7 +57,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     		case 9:
     		case 13:
     		case 27:if(this.isExpanded())this.collapse();break;
-    		case 40:if(!this.isExpanded())this.expand();
+    		case 40:if(!this.isExpanded() && !this.readonly)this.expand();
 		}
     	$A.TriggerField.superclass.onKeyDown.call(this,e);
     },
