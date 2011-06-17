@@ -5381,7 +5381,9 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 		$A.DatePicker.superclass.onBlur.call(this,e);
 		if(!this.isExpanded()){
 			try{
-				this.setValue(this.getRawValue().parseDate(this.format));
+                var d = this.getRawValue().parseDate(this.format)
+                this.processDate(d)
+				this.setValue(d);
 			}catch(e){alert(e.message);
 				this.setValue(null);
 			}
