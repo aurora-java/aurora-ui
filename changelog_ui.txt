@@ -1,5 +1,8 @@
 Release ()
 ------------------------------------
+
+Release (2011-06-17)
+------------------------------------
 * lov增加 beforetriggerclick事件
 * table增加navbar分页导航栏
 * 修改各种弹出式消息框组件的按钮为自动关闭，只有当回调函数的返回值为false时，窗口才不会被关闭。
@@ -7,6 +10,7 @@ Release ()
 * 修订combox下拉框内容太长,在firefox下无法拖动滚动条的bug
 * 修正Grid中新增行时，行首的单选按钮无法被选择的bug
 * 修正readonly情况下，DatePicker、DateTimePicker、ComboBox用快捷键[下]会打开下拉列表的BUG
+* 修订readonly情况下,combobox会触发update的bug
 
 Release (2011-06-02)
 ------------------------------------
