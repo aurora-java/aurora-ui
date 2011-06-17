@@ -6,6 +6,7 @@ Release ()
 * 修改grid为单选的时候,自动locate到对应的record
 * 修订combox下拉框内容太长,在firefox下无法拖动滚动条的bug
 * 修正Grid中新增行时，行首的单选按钮无法被选择的bug
+* 修正readonly情况下，DatePicker、DateTimePicker、ComboBox用快捷键[下]会打开下拉列表的BUG
 
 Release (2011-06-02)
 ------------------------------------

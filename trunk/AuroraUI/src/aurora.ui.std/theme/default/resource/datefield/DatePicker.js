@@ -120,7 +120,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	    	}
    		}else {
    			$A.DatePicker.superclass.onKeyDown.call(this,e);
-   			if(e.keyCode == 40){
+   			if(e.keyCode == 40 && !this.readonly){
 				this.focusField = this.dateFields[0];
 				this.focusField.over();
    			}
