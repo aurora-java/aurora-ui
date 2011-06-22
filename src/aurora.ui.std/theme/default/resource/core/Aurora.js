@@ -22,6 +22,8 @@ $A.fireWindowResize = function(){
 }
 if(Ext.isIE6)Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
 
+
+
 $A.cache = {};
 $A.cmps = {};
 $A.onReady = Ext.onReady;

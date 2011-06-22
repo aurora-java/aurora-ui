@@ -407,6 +407,7 @@ $A.Table = Ext.extend($A.Component,{
                 Ext.fly(window).un("resize", this.positionEditor, this);
                 var ed = this.currentEditor.editor;
                 ed.move(-10000,-10000);
+                ed.onBlur();
                 ed.isFireEvent = false;
                 ed.isHidden = true;
             }
@@ -625,7 +626,7 @@ $A.Table = Ext.extend($A.Component,{
         return index;
     },
     onEditorBlur : function(e){
-        if(this.currentEditor && !this.currentEditor.editor.isEventFromComponent(e.target)) {           
+        if(this.currentEditor && !this.currentEditor.editor.isEventFromComponent(e.target)) { 
             this.hideEditor();
         }
     },

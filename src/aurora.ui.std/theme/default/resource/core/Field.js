@@ -162,6 +162,7 @@ $A.Field = Ext.extend($A.Component,{
 //	        if(String(rv) !== String(this.startValue)){
 //	            this.fireEvent('change', this, rv, this.startValue);
 //	        } 
+            
 	        this.setValue(rv);
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
