@@ -309,7 +309,7 @@ $A.Tab = Ext.extend($A.Component,{
 					if(el.hasClass(sf.sd))clearInterval(sf.scrollInterval);
 				}
 			},100);
-		}else if(strip.hasClass('strip') && !strip.hasClass('active') && !strip.hasClass(sf.sd)){
+		}else if(strip && strip.hasClass('strip') && !strip.hasClass('active') && !strip.hasClass(sf.sd)){
 			sf.selectTab(strip);
 		}
 	},
