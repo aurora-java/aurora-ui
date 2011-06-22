@@ -932,6 +932,7 @@ $A.Grid = Ext.extend($A.Component,{
                 Ext.get(document.documentElement).un("mousedown", this.onEditorBlur, this);
                 var ed = this.currentEditor.editor;
                 ed.move(-10000,-10000);
+                ed.onBlur();
                 ed.isFireEvent = false;
                 ed.isHidden = true;
             }
@@ -939,7 +940,7 @@ $A.Grid = Ext.extend($A.Component,{
         }
     },
     onEditorBlur : function(e){
-        if(this.currentEditor && !this.currentEditor.editor.isEventFromComponent(e.target)) {           
+        if(this.currentEditor && !this.currentEditor.editor.isEventFromComponent(e.target)) {   
             this.hideEditor();
         }
     },

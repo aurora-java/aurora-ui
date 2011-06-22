@@ -22,6 +22,8 @@ $A.fireWindowResize = function(){
 }
 if(Ext.isIE6)Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
 
+
+
 $A.cache = {};
 $A.cmps = {};
 $A.onReady = Ext.onReady;
@@ -3527,6 +3529,7 @@ $A.Field = Ext.extend($A.Component,{
 //	        if(String(rv) !== String(this.startValue)){
 //	            this.fireEvent('change', this, rv, this.startValue);
 //	        } 
+            
 	        this.setValue(rv);
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
@@ -5521,7 +5524,7 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
     },
     wrapDate : function(d){
         d.xtype = 'timestamp';
-    },
+    }
 //    ,collapse : function(){
 //    	$A.DateTimePicker.superclass.collapse.call(this);
 //    	if(this.getRawValue()){
