@@ -1787,7 +1787,7 @@ Ext.lib.Ajax = function() {
         return {
             tId : tId,
             status : isAbort ? -1 : 0,
-            statusText : isAbort ? 'transaction aborted' : 'communication failure',
+            statusText : isAbort ? '服务器连接中断' : '网络连接中断', //'transaction aborted' : 'communication failure',
             isAbort: isAbort,
             isTimeout: isTimeout,
             argument : callbackArg
