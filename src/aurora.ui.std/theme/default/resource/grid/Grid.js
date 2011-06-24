@@ -844,10 +844,12 @@ $A.Grid = Ext.extend($A.Component,{
                 }
                 for(var i = start,l = cls.length; i<l; i++){
                     var col = cls[i];
-                    var editor = this.getEditor(col,r);
-                    if(editor!=''){
-                        name =  col.name;
-                        break;
+                    if(col.hidden != true){
+	                    var editor = this.getEditor(col,r);
+	                    if(editor!=''){
+	                        name =  col.name;
+	                        break;
+	                    }
                     }
                 }
                 if(name){
@@ -858,9 +860,9 @@ $A.Grid = Ext.extend($A.Component,{
                     if(nr){
                         for(var i = 0,l = cls.length; i<l; i++){
                             var col = cls[i];
-                            var editor = this.getEditor(col,r);
+                            var editor = this.getEditor(col,nr);
                             if(editor!=''){
-                                this.fireEvent('cellclick', this, row+1, name, r);
+                                this.fireEvent('cellclick', this, row+1, name, nr);
                                 this.showEditor(row+1,col.name,callback);
                                 break;
                             }
