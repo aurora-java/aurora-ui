@@ -5519,8 +5519,8 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
             d.setHours((el=this.hourSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
             d.setMinutes((el=this.minuteSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
             d.setSeconds((el=this.secondSpan.dom).value.match(/^[0-9]*$/)?el.value:el.oldValue);
+            this.wrapDate(d)
         }
-        wrapDate(d)
     },
     wrapDate : function(d){
         d.xtype = 'timestamp';
