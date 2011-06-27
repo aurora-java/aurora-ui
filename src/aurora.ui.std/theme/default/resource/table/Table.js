@@ -133,31 +133,42 @@ $A.Table = Ext.extend($A.Component,{
 			this.emptyRow=null;
 		}
 	},
-	getCheckBoxStatus: function(record, name) {
+	getCheckBoxStatus: function(record, name ,readonly) {
         var field = this.dataset.getField(name)
         var cv = field.getPropertity('checkedvalue');
         var uv = field.getPropertity('uncheckedvalue');
         var value = record.data[name];
-        return (value && value == cv) ? 'item-ckb-c' : 'item-ckb-u';
+        return 'item-ckb-'+(readonly?'readonly-':'')+((value && value == cv) ? 'c' : 'u');
     },
 	createCell:function(tr,col,record){
 		var field = record.getMeta().getField(col.name);
         if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get('required') == true){
             cls = cls + ' ' + this.nbcls
         }
-		var editor = this.getEditor(col,record),cls=(editor!=''?'table-cell-editor':''),td;
+		var editor = this.getEditor(col,record),xtype = col.type,readonly,cls,td;
 		if(tr.tagName.toLowerCase()=='tr')td=tr.insertCell(-1);
-		else td=tr.parentNode
-		var edi = $A.CmpManager.get(editor),xtype=col.type;
+		else td=Ext.fly(tr).parent('td').dom
+		if(editor!=''){
+        	var edi = $A.CmpManager.get(editor);
+            if(edi && (edi instanceof $A.CheckBox)){
+                xtype = 'cellcheck';
+                cls = '';
+            }else{
+                cls = 'table-cell-editor';
+            }
+        }else if(col.name && Ext.isDefined(record.getField(col.name).get('checkedvalue'))){
+    		xtype = 'cellcheck';
+    		readonly=true;
+        }
 		if(xtype == 'rowcheck'||xtype == 'rowradio'){
-	    	var readonly="";
 	    	if(!this.dataset.execSelectFunction(record))readonly="-readonly";
+	    	else readonly="";
 	    	Ext.fly(td).set({'atype':xtype == 'rowcheck'?'table.rowcheck':'table.rowradio','recordid':record.id,'class':'table-rowbox'});
 	        td.innerHTML=this.cbTpl.applyTemplate({cellcls:xtype == 'rowcheck'?'table-ckb item-ckb'+readonly+'-u':'table-radio item-radio-img'+readonly+'-u',name:col.name,recordid:record.id});
 	    }else{
 			Ext.fly(td).set({'atype':'table-cell','recordid':record.id,'dataindex':col.name,'style':'text-align:'+(col.align||'left')+';visibility:visible;'});
-			if(edi && (edi instanceof $A.CheckBox)){
-				td.innerHTML=this.cbTpl.applyTemplate({cellcls:'table-ckb ' + this.getCheckBoxStatus(record, col.name),name:col.name,recordid:record.id});
+			if(xtype == 'cellcheck'){
+				td.innerHTML=this.cbTpl.applyTemplate({cellcls:'table-ckb ' + this.getCheckBoxStatus(record, col.name ,readonly),name:col.name,recordid:record.id});
 			}else{
 				td.innerHTML=this.cellTpl.applyTemplate({text:this.renderText(record,col,record.data[col.name]),cellcls:cls,name:col.name,recordid:record.id});
 			}
@@ -269,7 +280,7 @@ $A.Table = Ext.extend($A.Component,{
      * @param {Number} row 行号
      * @param {String} name 当前列的name.
      */
-    showEditor : function(row, name){       
+    showEditor : function(row, name,callback){       
         if(row == -1)return;
         var col = this.findColByName(name);
         if(!col)return;
@@ -281,42 +292,60 @@ $A.Table = Ext.extend($A.Component,{
         //this.focusColumn(name);
         var editor = this.getEditor(col,record);
         this.setEditor(name, editor);
-        if(editor!='' && ($(editor) instanceof $A.CheckBox)){
-            var field = this.dataset.getField(name)
-            var cv = field.getPropertity('checkedvalue');
-            var uv = field.getPropertity('uncheckedvalue');
-            var v = record.get(name);
-            record.set(name, v == cv ? uv : cv);
-        } else if(editor){
-            var sf = this;
+        var sf = this;
+        if(sf.currentEditor){
+        	sf.currentEditor.editor.el.un('keydown', sf.onEidtorKeyDown,sf);
+    		var d = sf.currentEditor.focusCheckBox;
+    		if(d){
+    			d.setStyle('outline','none');
+    			sf.currentEditor.focusCheckBox = null;
+    		}
+    	}
+        if(editor!=''){
+        	var ed = $(editor);
             setTimeout(function(){
                 var v = record.get(name)
                 sf.currentEditor = {
                     record:record,
                     ov:v,
                     name:name,
-                    editor:$(editor)
+                    editor:ed
                 };
-                var ed = sf.currentEditor.editor;
-                if(ed){
+                var dom = Ext.get(sf.id+'_'+name+'_'+record.id);
+                var xy = dom.getXY();
+                ed.bind(sf.dataset, name);
+                ed.render(record);
+	        	if(ed instanceof $A.CheckBox){
+	        		ed.move(-1000,xy[1]+5);
+		        	ed.el.on('keydown', sf.onEidtorKeyDown,sf);
+		        	ed.onClick();
+		        	sf.currentEditor.focusCheckBox = dom;
+	        		dom.setStyle('outline','1px dotted blue');
+//		            var field = this.dataset.getField(name)
+//		            var cv = field.getPropertity('checkedvalue');
+//		            var uv = field.getPropertity('uncheckedvalue');
+//		            var v = record.get(name);
+//		            record.set(name, v == cv ? uv : cv);
+		        } else if(editor){
            			sf.positionEditor();
                     ed.isEditor = true;
                     ed.isFireEvent = true;
                     ed.isHidden = false;
-                    ed.bind(sf.dataset, name);
-                    ed.render(record);
+//                    ed.bind(sf.dataset, name);
+//                    ed.render(record);
                     ed.focus();
                     sf.editing = true;
-                    ed.on('keydown', sf.onEidtorKeyDown,sf);
+                    ed.el.on('keydown', sf.onEidtorKeyDown,sf);
 //                    ed.on('blur',sf.onEditorBlur, sf);
                     Ext.fly(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
                     Ext.fly(window).on("resize", sf.positionEditor, sf);
-                }
-                sf.fireEvent('editorshow', sf, ed, row, name, record);
+                    if(callback)callback.call(window,ed)
+	                sf.fireEvent('editorshow', sf, ed, row, name, record);
+		        }
             },1)
         }           
     },
-    onEidtorKeyDown : function(editor,e){
+    onEidtorKeyDown : function(e,editor){
         var keyCode = e.keyCode;
         //esc
         if(keyCode == 27) {
@@ -336,7 +365,13 @@ $A.Table = Ext.extend($A.Component,{
     },
     showNextEditor : function(){
         this.hideEditor();
+        var sf = this;
         if(this.currentEditor && this.currentEditor.editor){
+            var callback = function(ed){
+                if(ed instanceof Aurora.Lov){
+                    ed.showLovWindow();
+                }
+            }
             var ed = this.currentEditor.editor,ds = ed.binder.ds,
                 fname = ed.binder.name,r = ed.record,
                 row = ds.data.indexOf(r),name=null;
@@ -348,24 +383,79 @@ $A.Table = Ext.extend($A.Component,{
                         start = i+1;
                     }
                 }
+                var editor;
                 for(var i = start,l = cls.length; i<l; i++){
                     var col = cls[i];
-                    var editor = this.getEditor(col,r);
-                    if(editor!=''){
-                        name =  col.name;
-                        break;
+                    if(col.hidden !=true){
+	                    editor = this.getEditor(col,r);
+	                    if(editor!=''){
+	                        name =  col.name;
+	                        break;
+	                    }
                     }
                 }
+                if(sf.currentEditor){
+        			var d= sf.currentEditor.focusCheckBox;
+        			if(d){
+        				d.setStyle('outline','none');
+        				sf.currentEditor.focusCheckBox = null;
+        			}
+        		}
                 if(name){
-                    this.showEditor(row,name);
+                	var ed = $(editor);
+                	if(ed instanceof $A.CheckBox){
+                		sf.currentEditor = {
+		                    record:r,
+		                    ov:r.get(name),
+		                    name:name,
+		                    editor:ed
+		                };
+                		setTimeout(function(){
+	                		ed.bind(sf.dataset,name);
+	                		ed.render(r);
+	                		var dom = Ext.get(sf.id+'_'+name+'_'+r.id);
+	                		var xy = dom.getXY();
+	                		ed.move(-1000,xy[1])
+	                		ed.focus();
+	                		ed.el.on('keydown', sf.onEidtorKeyDown,sf);
+	                		sf.currentEditor.focusCheckBox = dom;
+	                		dom.setStyle('outline','1px dotted blue');
+                		},10)
+                	}else{
+	                    this.fireEvent('cellclick', this, row, name, r);
+	                    this.showEditor(row,name,callback);
+                	}
                 }else{
                     var nr = ds.getAt(row+1);
                     if(nr){
+                    	sf.selectRow(row+1);
                         for(var i = 0,l = cls.length; i<l; i++){
                             var col = cls[i];
-                            var editor = this.getEditor(col,r);
+                            var editor = this.getEditor(col,nr);
                             if(editor!=''){
-                                this.showEditor(row+1,col.name);
+                            	var ed = $(editor),name = col.name;
+                            	if(ed instanceof $A.CheckBox){
+			                		sf.currentEditor = {
+					                    record:nr,
+					                    ov:nr.get(name),
+					                    name:name,
+					                    editor:ed
+					                };
+			                		setTimeout(function(){
+				                		ed.bind(sf.dataset,name);
+				                		ed.render(nr);
+				                		var dom = Ext.get(sf.id+'_'+name+'_'+nr.id);
+				                		var xy = dom.getXY();
+				                		ed.move(-1000,xy[1])
+				                		ed.focus();
+				                		ed.el.on('keydown', sf.onEidtorKeyDown,sf);
+				                		sf.currentEditor.focusCheckBox = dom;
+				                		dom.setStyle('outline','1px dotted blue');
+			                		},10)
+			                	}else{
+	                                this.fireEvent('cellclick', this, row+1, name, nr);
+	                                this.showEditor(row+1,name,callback);
+			                	}
                                 break;
                             }
                         }
@@ -403,6 +493,7 @@ $A.Table = Ext.extend($A.Component,{
                 needHide = ed.canHide();
             }
             if(needHide) {
+            	ed.el.un('keydown', this.onEidtorKeyDown,this);
                 Ext.fly(document.documentElement).un("mousedown", this.onEditorBlur, this);
                 Ext.fly(window).un("resize", this.positionEditor, this);
                 var ed = this.currentEditor.editor;
