@@ -55,7 +55,7 @@ $A.CheckBox = Ext.extend($A.Component,{
 			this.checked = this.checked ? false : true;	
 			this.setValue(this.checked);
 			this.fireEvent('click', this, this.checked);
-			this.onFocus();
+			this.focus();
 		}
 	},
 	focus : function(){
