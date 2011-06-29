@@ -46,7 +46,7 @@ $A.CheckBox = Ext.extend($A.Component,{
     },
     onKeyDown : function(e){
     	var keyCode = e.keyCode;
-    	if(keyCode == 13){
+    	if(keyCode == 32){
     		this.onClick.call(this,e)
     	}
     },
