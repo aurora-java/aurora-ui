@@ -7,6 +7,7 @@ Release ()
 * 增加CheckBox获取焦点时的虚线框显示提示，同时增加快捷键，当聚焦时，按回车键能改变CheckBox的值
 * 修正Grid快捷定位在列编辑器为CheckBox时的BUG，并完善了Table的快捷定位功能
 * 修正了Table中类型为checkbox的column的editorfunction返回为空字符串时，该column不能显示只读状态的checkbox的问题。
+* 增加DataSet的Field的 lovAutoQuery属性，用来控制lov弹出框是否自动查询，默认为true
 
 Release (2011-06-17)
 ------------------------------------
