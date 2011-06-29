@@ -379,6 +379,8 @@ $A.Grid = Ext.extend($A.Component,{
         $A.Masker.mask(this.wb,_lang['grid.mask.remove']);
     },
     onBeforeLoad : function(){
+    	this.ub.scrollTo('left',0);
+    	this.uh.scrollTo('left',0);
         $A.Masker.mask(this.wb,_lang['grid.mask.loading']);
     },
     onBeforSubmit : function(ds){
