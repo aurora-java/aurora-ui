@@ -738,7 +738,11 @@ $A.Grid = Ext.extend($A.Component,{
         col.editor = editor;
         var div = Ext.get(this.id+'_'+name+'_'+this.selectRecord.id)
         if(div){
-            (editor == '') ? div.removeClass(this.cecls) : div.addClass(this.cecls)
+            if(editor == ''){
+            	div.removeClass(this.cecls)
+            }else if(!$(editor) instanceof $A.CheckBox){
+            	div.addClass(this.cecls)
+            }
         }
     },
     getEditor : function(col,record){
