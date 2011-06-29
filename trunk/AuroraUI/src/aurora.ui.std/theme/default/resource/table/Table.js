@@ -260,7 +260,11 @@ $A.Table = Ext.extend($A.Component,{
         col.editor = editor;
         this.focusdiv = Ext.get(this.id+'_'+name+'_'+this.selectRecord.id)
         if(this.focusdiv){
-            (editor == '') ? this.focusdiv.removeClass(this.cecls) : this.focusdiv.addClass(this.cecls)
+        	if(editor == ''){
+            	this.focusdiv.removeClass(this.cecls)
+            }else if(!$(editor) instanceof $A.CheckBox){
+            	this.focusdiv.addClass(this.cecls)
+            }
         }
     },
 	getEditor : function(col,record){
@@ -286,7 +290,7 @@ $A.Table = Ext.extend($A.Component,{
         if(!col)return;
         var record = this.dataset.getAt(row);
         if(!record)return;
-        if(record.id != this.selectedId);
+        if(record.id != this.selectedId)
         //this.selectRecord = record;
         this.selectRow(row);
         //this.focusColumn(name);
@@ -342,7 +346,7 @@ $A.Table = Ext.extend($A.Component,{
                     if(callback)callback.call(window,ed)
 	                sf.fireEvent('editorshow', sf, ed, row, name, record);
 		        }
-            },1)
+            },10)
         }           
     },
     onEidtorKeyDown : function(e,editor){
