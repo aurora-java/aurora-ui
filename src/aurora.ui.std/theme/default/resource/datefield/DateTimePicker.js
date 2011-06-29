@@ -77,6 +77,7 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
         }
     },
     wrapDate : function(d){
+        if(d)
         d.xtype = 'timestamp';
     }
 //    ,collapse : function(){

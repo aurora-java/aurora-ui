@@ -3960,6 +3960,9 @@ $A.CheckBox = Ext.extend($A.Component,{
 	},
 	processListener: function(ou){
     	this.wrap[ou]('click',this.onClick,this);
+    	this.el[ou]('keydown',this.onKeyDown,this);
+    	this.el[ou]('focus',this.onFocus,this)
+    	this.el[ou]('blur',this.onBlur,this)
     },
 	initEvents:function(){
 		$A.CheckBox.superclass.initEvents.call(this);  	
@@ -3976,12 +3979,30 @@ $A.CheckBox = Ext.extend($A.Component,{
     	$A.CheckBox.superclass.destroy.call(this);
     	delete this.el;
     },
+    onKeyDown : function(e){
+    	var keyCode = e.keyCode;
+    	if(keyCode == 32){
+    		this.onClick.call(this,e)
+    	}
+    },
 	onClick: function(event){
 		if(!this.readonly){
-			this.checked = this.checked ? false : true;				
+			this.checked = this.checked ? false : true;	
 			this.setValue(this.checked);
 			this.fireEvent('click', this, this.checked);
+			this.focus();
 		}
+	},
+	focus : function(){
+		this.el.focus();
+	},
+	onFocus : function(){
+		this.el.setStyle('outline','1px dotted blue')
+		this.fireEvent('focus',this);
+	},
+	onBlur : function(){
+		this.el.setStyle('outline','none')
+		this.fireEvent('blur',this);
 	},
 	setValue:function(v, silent){
 		if(typeof(v)==='boolean'){
@@ -5389,7 +5410,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
                 var d = this.getRawValue().parseDate(this.format)
                 this.wrapDate(d);
 				this.setValue(d);
-			}catch(e){alert(e.message);
+			}catch(e){
+                //alert(e.message);
 				this.setValue(null);
 			}
 		}
@@ -5523,6 +5545,7 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
         }
     },
     wrapDate : function(d){
+        if(d)
         d.xtype = 'timestamp';
     }
 //    ,collapse : function(){
@@ -6705,7 +6728,7 @@ $A.Lov = Ext.extend($A.TextField,{
         }
         if(url) {
 	        this.isWinOpen = true;
-            this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30), height:this.lovheight||400,width:this.lovwidth||400});
+            this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30)+"&lovautoquery="+this.lovautoquery, height:this.lovheight||400,width:this.lovwidth||400});
             this.win.on('close',this.onWinClose,this);
         }
     }
