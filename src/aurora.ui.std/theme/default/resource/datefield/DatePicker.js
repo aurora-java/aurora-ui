@@ -226,7 +226,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
                 var d = this.getRawValue().parseDate(this.format)
                 this.wrapDate(d);
 				this.setValue(d);
-			}catch(e){alert(e.message);
+			}catch(e){
+                //alert(e.message);
 				this.setValue(null);
 			}
 		}
