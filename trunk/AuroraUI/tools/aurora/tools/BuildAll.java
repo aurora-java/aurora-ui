@@ -34,21 +34,21 @@ public class BuildAll {
 	public BuildAll() {
 		currentDate=new SimpleDateFormat(DATE_FORMAT).format(new Date());
 		
-		exceptFiles.add("core/ext-core.js");
-		exceptFiles.add("core/Aurora.js");
-		exceptFiles.add("core/DataSet.js");
-		exceptFiles.add("core/Component.js");
-		exceptFiles.add("core/Field.js");
-		exceptFiles.add("core/Box.js");
-		exceptFiles.add("core/ImageCode.js");
-		exceptFiles.add("core/Label.js");
-		exceptFiles.add("core/Layout.js");
+		exceptFiles.add("base/ext-core.js");
+		exceptFiles.add("base/Aurora.js");
+		exceptFiles.add("base/DataSet.js");
+		exceptFiles.add("base/Component.js");
+		exceptFiles.add("base/Field.js");
+		exceptFiles.add("base/Box.js");
+		exceptFiles.add("base/ImageCode.js");
+		exceptFiles.add("base/Label.js");
+		exceptFiles.add("base/Layout.js");
 		exceptFiles.add("button/Button.js");
 		exceptFiles.add("checkbox/CheckBox.js");
 		exceptFiles.add("radio/Radio.js");
 		exceptFiles.add("textfield/TextField.js");
 		exceptFiles.add("numberfield/NumberField.js");
-		exceptFiles.add("core/TriggerField.js");
+		exceptFiles.add("base/TriggerField.js");
 		exceptFiles.add("combo/ComboBox.js");
 		exceptFiles.add("datefield/DateField.js");
 		exceptFiles.add("datefield/DatePicker.js");
@@ -62,8 +62,8 @@ public class BuildAll {
 		exceptFiles.add("chart/Chart.js");
 		exceptFiles.add("chart/Exporting.js");
 
-		exceptFiles.add("core/Aurora.css");
-		exceptFiles.add("core/Aurora-all.css");
+		exceptFiles.add("base/Aurora.css");
+		exceptFiles.add("base/Aurora-all.css");
 		exceptFiles.add("checkbox/CheckBox.css");
 		exceptFiles.add("radio/Radio.css");
 		exceptFiles.add("button/Button.css");
@@ -80,7 +80,7 @@ public class BuildAll {
 		exceptFiles.add("upload/upload.css");
 		
 		//local files
-//		exceptLocalFiles.add("core/highcharts.src.js");
+//		exceptLocalFiles.add("base/highcharts.src.js");
 //		exceptLocalFiles.add("datefield/DateField_temp.js");
 //		exceptLocalFiles.add("tab/tab_close2.gif");
 	}

@@ -17,8 +17,8 @@ public class PatchAll {
 	private static final String RES_DIR = "src/aurora.ui.std/theme/default/resource/";
 	private static final String THEME_DIR= "src/aurora.ui.std/theme/";
 	private static final String DEPLOY_DIR= "D:/WorkDevSpace/eclipse3.3/workspace/HAP/web/resource/aurora.ui.std/";//"resource/aurora.ui.std/";
-	private static final String AURORA_ALL= "core/Aurora-all.js";
-	private static final String CSS_ALL= "core/Aurora-all.css";
+	private static final String AURORA_ALL= "base/Aurora-all.js";
+	private static final String CSS_ALL= "base/Aurora-all.css";
 	
 	private static final String THEME_DARBLUE_DIR = "src/aurora.ui.std/theme/darkblue/resource/";
 	
@@ -28,29 +28,31 @@ public class PatchAll {
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception{
 		List list = new ArrayList();
-		list.add("core/Aurora.js");
-		list.add("core/DataSet.js"); 
-		list.add("core/Component.js");
-		list.add("core/Field.js");
-		list.add("core/Box.js");
-		list.add("core/ImageCode.js");
-		list.add("core/Label.js");
+		list.add("base/Aurora.js");
+		list.add("base/DataSet.js"); 
+		list.add("base/Component.js");
+		list.add("base/Field.js");
+		list.add("base/Box.js");
+		list.add("base/ImageCode.js");
+		list.add("base/Label.js");
 		list.add("button/Button.js");
 		list.add("checkbox/CheckBox.js");
 		list.add("radio/Radio.js");
 		list.add("textfield/TextField.js");
 		list.add("numberfield/NumberField.js");
-		list.add("core/TriggerField.js");
+		list.add("base/TriggerField.js");
 		list.add("combo/ComboBox.js");
 		list.add("datefield/DateField.js");
 		list.add("datefield/DatePicker.js");
+		list.add("datefield/DateTimePicker.js");
 		list.add("toolbar/ToolBar.js");
 		list.add("window/Window.js");
 		list.add("lov/Lov.js");
+		list.add("lov/MultiLov.js");
 		list.add("textarea/TextArea.js");
 		
 		List csslist = new ArrayList();
-		csslist.add("core/Aurora.css");
+		csslist.add("base/Aurora.css");
 		csslist.add("checkbox/CheckBox.css");
 		csslist.add("radio/Radio.css");
 		csslist.add("button/Button.css");
@@ -67,13 +69,22 @@ public class PatchAll {
 		List compressJs = new ArrayList();
 		compressJs.add(AURORA_ALL);
 		compressJs.add("grid/Grid.js");
+		compressJs.add("treegrid/TreeGrid.js");
+		compressJs.add("table/Table.js");
 		compressJs.add("tree/Tree.js");
-		compressJs.add("upload/upload.js");
+		compressJs.add("tab/Tab.js");
+//		compressJs.add("upload/upload.js");
+		compressJs.add("chart/Adapter.js");
+		compressJs.add("chart/Chart.js");
+		compressJs.add("chart/Exporting.js");
 		List compressCss = new ArrayList();
 		compressCss.add(CSS_ALL);
 		compressCss.add("grid/Grid.css");
+		compressCss.add("treegrid/TreeGrid.css");
+		compressCss.add("table/Table.css");
+		compressCss.add("tree/Tree.css");
 		compressCss.add("tab/Tab.css");
-		compressCss.add("upload/upload.css");
+//		compressCss.add("upload/upload.css");
 		
 		PatchAll pa = new PatchAll();
 		pa.patchAllFile(list,RES_DIR,AURORA_ALL);
@@ -170,8 +181,8 @@ public class PatchAll {
 	
 	public void mergeCss() throws IOException{
 		List csslist = new ArrayList();
-		csslist.add("core/Aurora-all.css");
-		csslist.add("core/Aurora-all-min.css");
+		csslist.add("base/Aurora-all.css");
+		csslist.add("base/Aurora-all-min.css");
 		csslist.add("grid/Grid.css");
 		csslist.add("grid/Grid-min.css");
 		csslist.add("tab/Tab.css");
