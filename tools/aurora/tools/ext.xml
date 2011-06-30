@@ -50,7 +50,16 @@
         -->
 
     <sources>
+    	<!--
         <source src="../../../src/aurora.ui.std/theme/default/resource" match="*.js"/>
+        -->
+        <source src="../../../src/aurora.ui.std/theme/default/resource/base/ext-core-debug.js"/>
+        <source src="../../../src/aurora.ui.std/theme/default/resource/base/Aurora-all.js"/>
+        <source src="../../../src/aurora.ui.std/theme/default/resource/grid/Grid.js"/>
+        <source src="../../../src/aurora.ui.std/theme/default/resource/menu/Menu-all.js"/>
+        <source src="../../../src/aurora.ui.std/theme/default/resource/tab/Tab.js"/>
+        <source src="../../../src/aurora.ui.std/theme/default/resource/table/Table.js"/>
+        <source src="../../../src/aurora.ui.std/theme/default/resource/treegrid/TreeGrid.js"/>
     </sources>
     <tags>
         <tag name="author" title="Author"/>
