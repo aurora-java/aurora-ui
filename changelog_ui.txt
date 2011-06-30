@@ -9,6 +9,8 @@ Release ()
 * 修正了Table中类型为checkbox的column的editorfunction返回为空字符串时，该column不能显示只读状态的checkbox的问题。
 * 增加DataSet的Field的 lovAutoQuery属性，用来控制lov弹出框是否自动查询，默认为true
 * 修正了IE8和IE9下的Grid组件，首先将滚动条 移动中间部位；输入查询条件，点击查询，使滚动条消失；点击重置按钮，再次查询，出现的错位现象。
+* 修正了NumberField小数截取，显示正常，后台的值没有被截取的BUG
+* 修正了Chrome下Window在页面滚动条处在非页面顶部时居中偏差的问题
 
 Release (2011-06-17)
 ------------------------------------
