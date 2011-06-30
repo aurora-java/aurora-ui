@@ -28,14 +28,15 @@ $A.Tab = Ext.extend($A.Component,{
 		this.scrollLeft = this.wrap.child('div[atype=scroll-left]');
 		this.scrollRight = this.wrap.child('div[atype=scroll-right]');
 		this.script = this.head.parent();
+		this.sp = this.script.parent();
 		this.selectTab(config.selected||0)
 	},
 	processListener: function(ou){
     	$A.Tab.superclass.processListener.call(this,ou);
-    	this.script.parent()[ou]('mousedown',this.onMouseDown, this);
-    	this.script.parent()[ou]('mouseup',this.onMouseUp, this);
-    	this.script.parent()[ou]('mouseover',this.onMouseOver, this);
-    	this.script.parent()[ou]('mouseout',this.onMouseOut, this);
+    	this.sp[ou]('mousedown',this.onMouseDown, this);
+    	this.sp[ou]('mouseup',this.onMouseUp, this);
+    	this.sp[ou]('mouseover',this.onMouseOver, this);
+    	this.sp[ou]('mouseout',this.onMouseOut, this);
     	this.script[ou]('click',this.onClick, this);
     	this.script[ou]('mousewheel',this.onMouseWheel, this);
     },
