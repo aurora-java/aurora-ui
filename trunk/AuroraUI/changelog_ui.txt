@@ -12,6 +12,7 @@ Release ()
 * 修正了NumberField小数截取，显示正常，后台的值没有被截取的BUG
 * 修正了Chrome下Window在页面滚动条处在非页面顶部时居中偏差的问题
 * 修正了IE7下，Window窗口下如果有Tab组件，关闭窗口会报错的问题
+* 修正了Chrome下Window移动时的BUG
 
 Release (2011-06-17)
 ------------------------------------

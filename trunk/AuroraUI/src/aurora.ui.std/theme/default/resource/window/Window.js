@@ -249,8 +249,8 @@ $A.Window = Ext.extend($A.Component,{
     },
     onMouseMove : function(e){
     	e.stopEvent();
-    	var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft;
-    	var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
+    	var sl = document[Ext.isStrict&&!Ext.isChrome?'documentElement':'body'].scrollLeft;
+    	var st = document[Ext.isStrict&&!Ext.isChrome?'documentElement':'body'].scrollTop;
     	var sw = sl + this.screenWidth;
     	var sh = st + this.screenHeight;
     	var tx = e.getPageX()+this.relativeX;
