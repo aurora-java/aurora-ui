@@ -1046,6 +1046,15 @@ $A.formatNumber = function(value,decimalprecision){
     return v;   
 }
 /**
+ * 将数值转换成带有千分位的字符串，并保留两位小数
+ * 
+ * @param {Number} value 数值
+ * @return {String}
+ */
+$A.formatMoney = function(v){
+    return $A.formatNumber(v,2)
+}
+/**
  * 将字符串的千分位去除
  * @param {Number} value 数值
  * @param {String} rv 带有千分位的数值字符串
