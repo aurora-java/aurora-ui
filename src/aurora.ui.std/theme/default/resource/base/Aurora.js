@@ -877,12 +877,12 @@ $A.doEvalScript = function(){
                         window.eval(jst);
                     }
                 }
-                if(typeof callback == "function"){
-                    callback();
-                }
                 var el = document.getElementById(id);
                 if(el){Ext.removeNode(el);} 
                 Ext.fly(dom).setStyle('display', 'block');
+                if(typeof callback == "function"){
+                    callback();
+                }
                 $A.doEvalScript();
             }else{
                 var js = jslink[loaded];
@@ -911,12 +911,12 @@ $A.doEvalScript = function(){
                window.eval(jst);
             }
         }
-        if(typeof callback == "function"){
-                callback();
-        }
         var el = document.getElementById(id);
         if(el){Ext.removeNode(el);} 
         Ext.fly(dom).setStyle('display', 'block');
+        if(typeof callback == "function"){
+                callback();
+        }
         $A.doEvalScript();
     } 
 }
