@@ -13,6 +13,7 @@ Release ()
 * 修正了Chrome下Window在页面滚动条处在非页面顶部时居中偏差的问题
 * 修正了IE7下，Window窗口下如果有Tab组件，关闭窗口会报错的问题
 * 修正了Chrome下Window移动时的BUG
+* 修正了在Window组件下取了id属性的DatePicker和DateTimePicker组件，在第二次打开同一Window后，点击该组件报的错误
 
 Release (2011-06-17)
 ------------------------------------

@@ -10,6 +10,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	nowTpl:['<DIV class="item-day" style="cursor:pointer" title="{title}">{now}</DIV>'],
 	constructor: function(config) {
 		this.dateFields = [];
+		this.cmps = {};
         $A.DatePicker.superclass.constructor.call(this,config);
     },
 	initComponent : function(config){
@@ -31,6 +32,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     initDateField:function(){
     	this.popup.setStyle({'width':150*this.viewsize+'px'})
     	if(this.dateFields.length==0){
+    		window['__host']=this;
     		for(var i=0;i<this.viewsize;i++){
 	    		var cfg = {
 	    			id:this.id+'_df'+i,
@@ -63,6 +65,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 		    	}else Ext.fly(this.id+'_df'+i).dom.style.cssText="border-right:1px solid #BABABA";
 		    	this.dateFields.add(new $A.DateField(cfg));
     		}
+    		window['__host']=null;
     	}
     },
     initFooter : function(){
@@ -250,6 +253,19 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	$A.DatePicker.superclass.destroy.call(this);
     	delete this.format;
     	delete this.viewsize;
+    	var sf = this;
+        setTimeout(function(){
+        	for(var key in sf.cmps){
+        		var cmp = sf.cmps[key];
+        		if(cmp.destroy){
+        			try{
+        				cmp.destroy();
+        			}catch(e){
+        				alert('销毁window出错: ' + e)
+        			}
+        		}
+        	}
+        },10)
 	},
 	predraw : function(date){
 		if(date && date instanceof Date){
