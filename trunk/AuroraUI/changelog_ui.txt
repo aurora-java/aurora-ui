@@ -16,6 +16,7 @@ Release ()
 * 修正了在Window组件下取了id属性的DatePicker和DateTimePicker组件，在第二次打开同一Window后，点击该组件报的错误
 * 增加Aurora.formatMoney方法
 * 修正Window组件的load事件下调用focus方法不能聚焦组件的问题
+* 修正了遨游3和Safari下的Window组件居中问题
 
 Release (2011-06-17)
 ------------------------------------
