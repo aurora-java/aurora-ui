@@ -17,6 +17,7 @@ Release ()
 * 增加Aurora.formatMoney方法
 * 修正Window组件的load事件下调用focus方法不能聚焦组件的问题
 * 修正了遨游3和Safari下的Window组件居中问题
+* 增加Lov的lovLabelWidth属性
 
 Release (2011-06-17)
 ------------------------------------
