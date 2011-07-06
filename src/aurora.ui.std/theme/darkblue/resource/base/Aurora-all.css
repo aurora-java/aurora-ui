@@ -542,7 +542,7 @@ button div {
 	text-align:right;
 }
 .item-comboButton {	
-	BACKGROUND: url(../core/itembar.gif) no-repeat 2px 0px;
+	BACKGROUND: url(../base/itembar.gif) no-repeat 2px 0px;
 }
 .item-comboBox-selected {
 	background-color: #dfeaf5;
@@ -566,7 +566,7 @@ button div {
 }
 */
 .item-dateButton {	
-	BACKGROUND: url(../core/itembar.gif) no-repeat 2px -20px;	
+	BACKGROUND: url(../base/itembar.gif) no-repeat 2px -20px;	
 }
 .item-dateField {
 	background-color:#fff;
@@ -836,7 +836,7 @@ button div {
     border-top:1px solid #ccc;
 }
 .item-lovButton {	
-	BACKGROUND: url(../core/itembar.gif) no-repeat 2px -42px;	
+	BACKGROUND: url(../base/itembar.gif) no-repeat 2px -42px;	
 }
 .item-textarea {
 	border:1px solid #cccccc;
@@ -866,7 +866,7 @@ button div {
     font-weight:bold;    
 }
 .item-lovButton {   
-    BACKGROUND: url(../core/itembar.gif) no-repeat 2px -38px;   
+    BACKGROUND: url(../base/itembar.gif) no-repeat 2px -38px;   
 }
 .week-alt {
     background-color:none;
