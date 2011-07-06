@@ -1,5 +1,5 @@
 .item-comboButton {	
-	BACKGROUND: url(../core/itembar.gif) no-repeat 2px 0px;
+	BACKGROUND: url(../base/itembar.gif) no-repeat 2px 0px;
 }
 .item-comboBox-selected {
 	background-color: #dfeaf5;

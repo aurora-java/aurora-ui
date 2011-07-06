@@ -179,7 +179,7 @@
     font-weight:bold;    
 }
 .item-lovButton {   
-    BACKGROUND: url(../core/itembar.gif) no-repeat 2px -38px;   
+    BACKGROUND: url(../base/itembar.gif) no-repeat 2px -38px;   
 }
 .week-alt {
     background-color:none;
