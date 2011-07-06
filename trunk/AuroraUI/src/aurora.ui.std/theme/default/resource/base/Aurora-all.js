@@ -190,7 +190,7 @@ $ = $A.getCmp = function(id){
  * @param {String} value cookie值
  */
 $A.setCookie = function(name,value){
-    document.cookie = name + "="+ escape (value);
+    document.cookie = name + "="+ escape (value) +';path = /' + location.pathname.match(/[^\/]+/);
 }
 
 /**
@@ -877,12 +877,12 @@ $A.doEvalScript = function(){
                         window.eval(jst);
                     }
                 }
-                if(typeof callback == "function"){
-                    callback();
-                }
                 var el = document.getElementById(id);
                 if(el){Ext.removeNode(el);} 
                 Ext.fly(dom).setStyle('display', 'block');
+                if(typeof callback == "function"){
+                    callback();
+                }
                 $A.doEvalScript();
             }else{
                 var js = jslink[loaded];
@@ -911,12 +911,12 @@ $A.doEvalScript = function(){
                window.eval(jst);
             }
         }
-        if(typeof callback == "function"){
-                callback();
-        }
         var el = document.getElementById(id);
         if(el){Ext.removeNode(el);} 
         Ext.fly(dom).setStyle('display', 'block');
+        if(typeof callback == "function"){
+                callback();
+        }
         $A.doEvalScript();
     } 
 }
@@ -5866,8 +5866,8 @@ $A.Window = Ext.extend($A.Component,{
     center: function(){
     	var screenWidth = $A.getViewportWidth();
     	var screenHeight = $A.getViewportHeight();
-    	var sl = document[Ext.isStrict&&!Ext.isChrome?'documentElement':'body'].scrollLeft;
-    	var st = document[Ext.isStrict&&!Ext.isChrome?'documentElement':'body'].scrollTop;
+    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
+    	var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
     	var x = sl+Math.max((screenWidth - this.width)/2,0);
     	var y = st+Math.max((screenHeight - this.height-(Ext.isIE?26:23))/2,0);
         this.shadow.setWidth(this.wrap.getWidth());
@@ -5973,8 +5973,8 @@ $A.Window = Ext.extend($A.Component,{
     },
     onMouseMove : function(e){
     	e.stopEvent();
-    	var sl = document[Ext.isStrict&&!Ext.isChrome?'documentElement':'body'].scrollLeft;
-    	var st = document[Ext.isStrict&&!Ext.isChrome?'documentElement':'body'].scrollTop;
+    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
+    	var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
     	var sw = sl + this.screenWidth;
     	var sh = st + this.screenHeight;
     	var tx = e.getPageX()+this.relativeX;
