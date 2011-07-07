@@ -188,10 +188,9 @@ $A.TreeGrid = Ext.extend($A.Grid, {
         	if(tree.isAllParentExpand(hash[datas[i].id]))n++;
         }
         $A.TreeGrid.superclass.focusRow.call(this,n);
+    },
+	onMouseWheel : function(e){
     }
-//	,
-//	onMouseWheel : function(e){
-//    }
 });
 $A.Tree.TreeGridNode = Ext.extend($A.Tree.TreeNode, {
 			createNode : function(item) {
