@@ -652,6 +652,7 @@ $A.Tree.TreeNode.prototype={
 	 * 展开
 	 */
 	expand : function(){
+		if(this.parentNode&&this.parentNode.isExpand == false)this.parentNode.expand();
 		if(!this.isLeaf()&&this.childNodes.length>0){
 			if(!this.isRoot())
 			this.record.set(this.getOwnerTree().expandfield,"Y");
