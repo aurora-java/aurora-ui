@@ -179,8 +179,30 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 		}
 		this.lockWidth = v;
 	},
-	onMouseWheel : function(e){
+	focusRow : function(row){
+        var r = 25,n=1;
+        var stop = this.ub.getScroll().top;
+        var tree = this.unlockTree;
+        var hash = tree.nodeHash;
+        var datas = this.dataset.data;
+        for(var i = 0 ; i<row ;i++){
+        	if(tree.isAllParentExpand(hash[datas[i].id])){
+        		n++
+        	}
+        }
+        if(n*r<stop){
+            this.ub.scrollTo('top',n*r-1)
+        }
+        if((n+1)*r>(stop+this.ub.getHeight())){//this.ub.dom.scrollHeight
+            var st = this.ub.dom.scrollWidth > this.ub.dom.clientWidth ? (n+1)*r-this.ub.getHeight() + 16 : (n+1)*r-this.ub.getHeight();
+            this.ub.scrollTo('top',st)
+        }
+        if(this.autofocus)
+        this.focus();
     }
+//	,
+//	onMouseWheel : function(e){
+//    }
 });
 $A.Tree.TreeGridNode = Ext.extend($A.Tree.TreeNode, {
 			createNode : function(item) {

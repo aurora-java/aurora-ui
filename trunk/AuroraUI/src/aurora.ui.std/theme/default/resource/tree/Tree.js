@@ -116,11 +116,11 @@ $A.Tree = Ext.extend($A.Component,{
 	},
 	getPreviousExpandedNode:function(node){
 		return this.isAllParentExpand(node)?node:this.getPreviousExpandedNode(node.parentNode);
-	},
+	},*/
 	isAllParentExpand:function(node){
 		var p=node.parentNode;
 		return 	!p||(p.isExpand&&this.isAllParentExpand(p))
-	},*/
+	},
 	onClick : function(event){
 		var elem = Ext.fly(event.target).findParent('td');
 		if(!elem)return;

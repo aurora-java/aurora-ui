@@ -6363,7 +6363,8 @@ el.un('click', this.handlerFn);
         return d[name];
     } : function(name, ns){
         var d = this.dom;//TODO:IE9
-        return (d.getAttributeNS) ?  d.getAttributeNS(ns, name) :(d.getAttribute(ns + ":" + name) || d.getAttribute(name) || d[name]);
+        //return (d.getAttributeNS) ?  d.getAttributeNS(ns, name) :(d.getAttribute(ns + ":" + name) || d.getAttribute(name) || d[name]);
+    	return (d.getAttributeNS ?  d.getAttributeNS(ns, name) :d.getAttribute(ns + ":" + name)) || d.getAttribute(name) || d[name];
     },
 
     /**
