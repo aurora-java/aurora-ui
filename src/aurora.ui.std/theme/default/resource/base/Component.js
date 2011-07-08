@@ -230,7 +230,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	}    	
     },
     onUpdate : function(ds, record, name, value){
-    	if(this.binder.ds == ds && this.record == record && this.binder.name == name && this.getValue() != value){
+    	if(this.binder.ds == ds && this.record == record && this.binder.name == name && this.getValue() !== value){
 	    	this.setValue(value, true);
     	}
     },
