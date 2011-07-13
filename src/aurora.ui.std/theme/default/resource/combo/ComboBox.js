@@ -288,8 +288,8 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //			this.view.un('mouseover',this.onViewOver,this);
 			this.view.un('mousemove',this.onViewMove,this);
 		}
-		delete this.view;
     	$A.ComboBox.superclass.destroy.call(this);
+		delete this.view;
 	},
 	getText : function() {		
 		return this.text;

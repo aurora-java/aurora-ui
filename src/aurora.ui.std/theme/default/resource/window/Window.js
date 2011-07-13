@@ -70,6 +70,8 @@ $A.Window = Ext.extend($A.Component,{
     	}
         sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
         sf.shadow = shadowTpl.insertFirst(document.body, {}, true);
+        sf.shadow.setWidth(sf.wrap.getWidth());
+        sf.shadow.setHeight(sf.wrap.getHeight());
         sf.focusEl = sf.wrap.child('a[atype=win.focus]')
     	sf.title = sf.wrap.child('div[atype=window.title]');
     	sf.head = sf.wrap.child('td[atype=window.head]');
@@ -77,10 +79,16 @@ $A.Window = Ext.extend($A.Component,{
         sf.closeBtn = sf.wrap.child('div[atype=window.close]');
         if(sf.draggable) sf.initDraggable();
         if(!sf.closeable)sf.closeBtn.hide();
-        sf.center();
+        if(Ext.isEmpty(config.x)||Ext.isEmpty(config.y)){
+            sf.center();
+        }else{
+            sf.move(config.x,config.y);
+            this.toFront();
+            this.focus.defer(10,this);
+        }
         if(sf.url){
         	sf.showLoading();       
-        	sf.load(sf.url,sf.params)
+        	sf.load(sf.url,config.params)
         }
     },
     processListener: function(ou){
@@ -146,15 +154,16 @@ $A.Window = Ext.extend($A.Component,{
     	var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
     	var x = sl+Math.max((screenWidth - this.width)/2,0);
     	var y = st+Math.max((screenHeight - this.height-(Ext.isIE?26:23))/2,0);
-        this.shadow.setWidth(this.wrap.getWidth());
-        this.shadow.setHeight(this.wrap.getHeight());
+//        this.shadow.setWidth(this.wrap.getWidth());
+//        this.shadow.setHeight(this.wrap.getHeight());
         if(this.fullScreen){
         	x=sl;y=st;
+            this.move(x,y,false);
         	this.shadow.moveTo(x,y)
         }else {
-            this.shadow.moveTo(x+3,y+3)
+            this.move(x,y)
         }
-        this.wrap.moveTo(x,y);
+//        this.wrap.moveTo(x,y);
         this.toFront();
         this.focus.defer(10,this);
     },
@@ -162,9 +171,9 @@ $A.Window = Ext.extend($A.Component,{
      * 移动窗口到指定位置.
      * 
      */
-    move: function(x,y){
+    move: function(x,y,m){
         this.wrap.moveTo(x,y);
-        this.shadow.moveTo(x+3,y+3)
+        if(!m)this.shadow.moveTo(x+3,y+3)
     },
     hasVScrollBar : function(){
     	var body=document[Ext.isStrict?'documentElement':'body'];
