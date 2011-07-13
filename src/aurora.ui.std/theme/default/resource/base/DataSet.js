@@ -828,7 +828,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     goPage : function(page){
         if(page >0) {
             this.gotoPage = page;
-            var go = (page-1)*this.pagesize + this.getNewRecrods().length +1;
+            var go = (page-1)*this.pagesize + 1;
+            var news = this.getAll().length-this.pagesize;
+            if(this.currentPage < page && news > 0)go+=news;
 //          var go = Math.max(0,page-2)*this.pagesize + this.data.length + 1;
             this.locate(go);
         }
