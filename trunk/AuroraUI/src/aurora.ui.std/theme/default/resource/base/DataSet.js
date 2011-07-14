@@ -1523,17 +1523,17 @@ $A.Record.prototype = {
      * @param {Boolean} notDirty true 不改变record的dirty状态.
      */
     set : function(name, value, notDirty){
-        if(!(this.data[name] === value||(Ext.isDate(this.data[name])&&Ext.isDate(value)&&this.data[name].getTime()==value.getTime()))){
+    	var old = this.data[name];
+        if(!(old === value||(Ext.isEmpty(old)&&Ext.isEmpty(value))||(Ext.isDate(old)&&Ext.isDate(value)&&old.getTime()==value.getTime()))){
             if(!notDirty){
                 this.dirty = true;
                 if(!this.modified){
                     this.modified = {};
                 }
                 if(typeof this.modified[name] == 'undefined'){
-                    this.modified[name] = this.data[name];
+                    this.modified[name] = old;
                 }
             }
-            var old = this.data[name];
             this.data[name] = value;
             if(!this.editing && this.ds) {
                 this.ds.afterEdit(this, name, value, old);
