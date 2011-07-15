@@ -190,7 +190,9 @@ $ = $A.getCmp = function(id){
  * @param {String} value cookie值
  */
 $A.setCookie = function(name,value){
-    document.cookie = name + "="+ escape (value) +';path = /' + location.pathname.match(/[^\/]+/)||'';
+    var pathname = location.pathname;
+    pathname = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+    document.cookie = name + "="+ escape (value) +';path = ' + pathname;
 }
 
 /**
