@@ -311,6 +311,7 @@ $A.Field = Ext.extend($A.Component,{
         }
     },
     setRawValue : function(v){
+        if(this.el.dom.value == (v === null || v === undefined ? '' : v)) return;
         return this.el.dom.value = (v === null || v === undefined ? '' : v);
     },
     reset : function(){
