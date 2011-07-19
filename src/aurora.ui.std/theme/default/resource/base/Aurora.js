@@ -364,11 +364,11 @@ Aurora.dateFormat = function () {
         _parseDate=function(string,mask,fun){
         	for(var i=0,arr=mask.match(token),numbers=string.match(/\d+/g),value,index=0;i<arr.length;i++){
         		if(numbers.length==arr.length)value=numbers[i];
-        		else if(numbers.length == 1)value=parseInt(string.slice(index,index+=arr[i].length));
+        		else if(numbers.length == 1)value=parseInt(string.slice(index,index+=arr[i].length),10);
         		else value=parseInt(string.slice(index=mask.search(arr[i]),index+arr[i].length));
         		switch(arr[i]){
         			case "mm":;
-        			case "m":value=value-1;break;
+        			case "m":value--;break;
         		}
         		fun(arr[i],value);
         	}
