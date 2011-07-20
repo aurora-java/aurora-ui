@@ -403,15 +403,19 @@ $A.Window = Ext.extend($A.Component,{
         }catch(e){}
         if(res && res.success == false){
         	if(res.error){
-        		$A.manager.fireEvent('ajaxfailed', $A.manager, options.url,options.para,res);
-                var st = res.error.stackTrace;
-                st = (st) ? st.replaceAll('\r\n','</br>') : '';
-                if(res.error.message) {
-                    var h = (st=='') ? 150 : 250;
-                    $A.showErrorMessage(_lang['window.error'], res.error.message+'</br>'+st,null,400,h);
+                if(res.error.code  && res.error.code == 'session_expired'){
+                            $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
                 }else{
-                    $A.showErrorMessage(_lang['window.error'], st,null,400,250);
-                }   
+            		$A.manager.fireEvent('ajaxfailed', $A.manager, options.url,options.para,res);
+                    var st = res.error.stackTrace;
+                    st = (st) ? st.replaceAll('\r\n','</br>') : '';
+                    if(res.error.message) {
+                        var h = (st=='') ? 150 : 250;
+                        $A.showErrorMessage(_lang['window.error'], res.error.message+'</br>'+st,null,400,h);
+                    }else{
+                        $A.showErrorMessage(_lang['window.error'], st,null,400,250);
+                    } 
+                }
             }
             return;
         }

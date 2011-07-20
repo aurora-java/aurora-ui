@@ -59,3 +59,5 @@ _lang['datefield.preYear'] = '上一年';
 _lang['datefield.nextYear'] = '下一年';
 
 _lang['datepicker.today'] = '今日';
+
+_lang['session.expired'] = '系统超时,请重新登陆';
