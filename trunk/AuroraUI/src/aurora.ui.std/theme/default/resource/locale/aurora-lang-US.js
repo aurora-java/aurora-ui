@@ -59,3 +59,5 @@ _lang['datefield.preYear'] = 'Previous year';
 _lang['datefield.nextYear'] = 'Next year';
 
 _lang['datepicker.today'] = 'Today';
+
+_lang['session.expired'] = 'Session expired, please login again!';

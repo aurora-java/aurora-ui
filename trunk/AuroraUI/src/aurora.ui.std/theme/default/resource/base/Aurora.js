@@ -283,7 +283,7 @@ $A.request = function(opt){
 		$('HTTPWATCH_DATASET').create({'url':url,'request':Ext.util.JSON.encode({parameter:para})})
 	}
 	var data = Ext.apply({parameter:para},opt.ext);
-	Ext.Ajax.request({
+	return Ext.Ajax.request({
 		url: url,
 		method: 'POST',
 		params:{_request_data:Ext.util.JSON.encode(data)},
@@ -311,16 +311,20 @@ $A.request = function(opt){
 				if(res && !res.success){
 					$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 					if(res.error){
-						var st = res.error.stackTrace;
-						st = (st) ? st.replaceAll('\r\n','</br>') : '';
-						if(res.error.message) {
-							var h = (st=='') ? 150 : 250;
-						    $A.showErrorMessage(_lang['ajax.error'], res.error.message+'</br>'+st,null,400,h);
-						}else{
-						    $A.showErrorMessage(_lang['ajax.error'], st,null,400,250);
-						}
-						if(errorCall)
-                        errorCall.call(scope, res, options);	
+                        if(res.error.code  && res.error.code == 'session_expired'){
+                            $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
+                        }else{
+    						var st = res.error.stackTrace;
+    						st = (st) ? st.replaceAll('\r\n','</br>') : '';
+    						if(res.error.message) {
+    							var h = (st=='') ? 150 : 250;
+    						    $A.showErrorMessage(_lang['ajax.error'], res.error.message+'</br>'+st,null,400,h);
+    						}else{
+    						    $A.showErrorMessage(_lang['ajax.error'], st,null,400,250);
+    						}
+    						if(errorCall)
+                            errorCall.call(scope, res, options);
+                        }
 					}								    						    
 				} else {
 					$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
