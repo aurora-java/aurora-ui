@@ -30,9 +30,8 @@ $A.NumberField = Ext.extend($A.TextField,{
     	$A.NumberField.superclass.initEvents.call(this);    	
     },
     onKeyPress : function(e){
-        var k = e.getKey();
-        //!Ext.isIE && (e.isSpecialKey() ||
-        if(e.isSpecialKey()){
+        var k = e.keyCode;
+        if((Ext.isGecko || Ext.isOpera) && (e.isSpecialKey() || k == 8 || k == 46)){//BACKSPACE or DELETE
             return;
         }
         var c = e.getCharCode();
