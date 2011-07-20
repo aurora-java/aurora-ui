@@ -957,11 +957,13 @@ Ext.Element.prototype.update = function(html, loadScripts, callback,host){
 
 Ext.EventObjectImpl.prototype['isSpecialKey'] = function(){
     var k = this.keyCode;
-    return (this.type == 'keypress' && this.ctrlKey) || k==8 || k== 46 || k == 9 || k == 13  || k == 40 || k == 27 || k == 44 ||
+//    return (this.type == 'keypress' && this.ctrlKey) || k==8 || k== 46 || k == 9 || k == 13  || k == 40 || k == 27 || k == 44 ||
+     return (this.type == 'keypress' && this.ctrlKey) || k == 9 || k == 13  || k == 40 || k == 27 ||
     (k == 16) || (k == 17) ||
     (k >= 18 && k <= 20) ||
     (k >= 33 && k <= 35) ||
-    (k >= 36 && k <= 39);
+    (k >= 36 && k <= 39) ||
+    (k >= 44 && k <= 45);
 }
 Ext.removeNode = Ext.isIE && !Ext.isIE8 ? function(){
     var d;
@@ -4370,9 +4372,8 @@ $A.NumberField = Ext.extend($A.TextField,{
     	$A.NumberField.superclass.initEvents.call(this);    	
     },
     onKeyPress : function(e){
-        var k = e.getKey();
-        //!Ext.isIE && (e.isSpecialKey() ||
-        if(e.isSpecialKey()){
+        var k = e.keyCode;
+        if((Ext.isGecko || Ext.isOpera) && (e.isSpecialKey() || k == 8 || k == 46)){//BACKSPACE or DELETE
             return;
         }
         var c = e.getCharCode();
