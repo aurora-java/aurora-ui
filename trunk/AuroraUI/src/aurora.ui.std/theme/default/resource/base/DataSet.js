@@ -946,8 +946,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         if(fire !== false) {
             $A.manager.fireEvent('valid', $A.manager, this, this.isValid);
+            if(!this.isValid) $A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.validate']);
         }
-        if(!this.isValid) $A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.validate']);
         return this.isValid;
     },
     /**
