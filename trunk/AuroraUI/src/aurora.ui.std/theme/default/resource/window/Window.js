@@ -99,7 +99,7 @@ $A.Window = Ext.extend($A.Component,{
     	   this.closeBtn[ou]("mouseout", this.onCloseOut,  this);
     	   this.closeBtn[ou]("mousedown", this.onCloseDown,  this);
     	}
-    	this.wrap[ou]("click", this.toFront, this);
+        if(!this.modal) this.wrap[ou]("click", this.toFront, this);
     	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
     	if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
     },
@@ -221,7 +221,6 @@ $A.Window = Ext.extend($A.Component,{
      * 
      */
     toFront : function(){ 
-        if(this.modal)return;
     	var myzindex = this.wrap.getStyle('z-index');
     	var zindex = $A.WindowManager.getZindex();
     	if(myzindex =='auto') myzindex = 0;
