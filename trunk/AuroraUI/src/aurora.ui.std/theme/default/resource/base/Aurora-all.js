@@ -5765,7 +5765,7 @@ $A.WindowManager = function(){
         		if(zd =='auto') zd = 0;
         		if(zd > zindex) zindex = zd;       		
         	}
-        	return zindex;
+        	return Number(zindex);
         }
     };
 }();
@@ -5956,6 +5956,7 @@ $A.Window = Ext.extend($A.Component,{
      * 
      */
     toFront : function(){ 
+        if(this.modal)return;
     	var myzindex = this.wrap.getStyle('z-index');
     	var zindex = $A.WindowManager.getZindex();
     	if(myzindex =='auto') myzindex = 0;
