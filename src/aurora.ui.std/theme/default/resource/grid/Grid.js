@@ -994,7 +994,7 @@ $A.Grid = Ext.extend($A.Component,{
      * 隐藏当前编辑器
      */
     hideEditor : function(){
-        if(this.currentEditor && this.currentEditor.editor){
+        if(this.currentEditor && this.currentEditor.editor && this.editing){
             var ed = this.currentEditor.editor;
             //ed.un('blur',this.onEditorBlur, this);
             var needHide = true;
