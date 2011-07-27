@@ -370,6 +370,28 @@ $A.Tab = Ext.extend($A.Component,{
     	Ext.Ajax.request({
 			url: url,
 		   	success: function(response, options){
+                var res;
+                try {
+                    res = Ext.decode(response.responseText);
+                }catch(e){}            
+                if(res && res.success == false){
+                    if(res.error){
+                        if(res.error.code  && res.error.code == 'session_expired'){
+                            $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
+                        }else{
+                            $A.manager.fireEvent('ajaxfailed', $A.manager, options.url,options.para,res);
+                            var st = res.error.stackTrace;
+                            st = (st) ? st.replaceAll('\r\n','</br>') : '';
+                            if(res.error.message) {
+                                var h = (st=='') ? 150 : 250;
+                                $A.showErrorMessage(_lang['window.error'], res.error.message+'</br>'+st,null,400,h);
+                            }else{
+                                $A.showErrorMessage(_lang['window.error'], st,null,400,250);
+                            } 
+                        }
+                    }
+                    return;
+                }
 		    	var html = response.responseText;
 //	    		sf.intervalIds[index]=setInterval(function(){
 //	    			if(!$A.focusTab){
