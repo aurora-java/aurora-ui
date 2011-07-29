@@ -404,7 +404,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         datas = this.beforeLoadData(datas);
         this.data = [];
         this.selected = [];
-        if(num) {
+        if(num && this.fetchall == false) {
             this.totalCount = num;
         }else{
             this.totalCount = datas.length;
