@@ -104,7 +104,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	    	try{
 	    		this.selectDay=this.getRawValue().parseDate(this.format);
                 this.wrapDate(this.selectDay);
-	    		$A.Component.prototype.setValue.call(this,this.selectDay);
+	    		$A.Component.prototype.setValue.call(this,this.selectDay||"");
 	    		this.predraw(this.selectDay);
 	    	}catch(e){
 	    	}
@@ -228,10 +228,10 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 			try{
                 var d = this.getRawValue().parseDate(this.format)
                 this.wrapDate(d);
-				this.setValue(d);
+				this.setValue(d||"");
 			}catch(e){
                 //alert(e.message);
-				this.setValue(null);
+				this.setValue("");
 			}
 		}
     },
