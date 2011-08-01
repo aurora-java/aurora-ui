@@ -192,7 +192,8 @@ $A.Tab = Ext.extend($A.Component,{
 		this.selectTab(index);
 	},
 	destroy : function(){
-		var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
+        var bodys = this.body.dom.children;
+//		var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
     	for(var i=0;i<bodys.length;i++){
     		var body = Ext.get(bodys[i]),
     		cmps=body.cmps;
@@ -235,7 +236,8 @@ $A.Tab = Ext.extend($A.Component,{
 		tab.strip.removeClass(this.sd);
 	},
 	getTab : function(o){
-		var bodys = Ext.DomQuery.select('div.tab',this.body.dom),strips = Ext.DomQuery.select('div.strip',this.head.dom),strip,body;
+		var bodys = this.body.dom.children,//Ext.DomQuery.select('div.tab',this.body.dom),
+        strips = this.head.dom.children;//Ext.DomQuery.select('div.strip',this.head.dom),strip,body;
 		if(Ext.isNumber(o)){
 			if(o<0)o+=strips.length;
 			o=Math.round(o);
@@ -434,7 +436,8 @@ $A.Tab = Ext.extend($A.Component,{
 			this.script.setStyle('padding-left','0');
 			this.script.scrollTo('left',0);
     	}
-    	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
+        var bodys = this.body.dom.children;
+//    	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
     	for(var i=0;i<bodys.length;i++){
     		var body = bodys[i];
     		Ext.fly(body).setWidth(w-4);
@@ -445,7 +448,8 @@ $A.Tab = Ext.extend($A.Component,{
     	if(this.height==h)return;
     	$A.Tab.superclass.setHeight.call(this, h);
     	this.body.setHeight(h-26);
-    	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
+        var bodys = this.body.dom.children;
+//    	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
     	for(var i=0;i<bodys.length;i++){
     		var body = bodys[i];
     		Ext.fly(body).setHeight(h-28);
