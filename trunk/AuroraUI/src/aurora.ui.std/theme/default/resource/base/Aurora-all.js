@@ -6059,16 +6059,16 @@ $A.Window = Ext.extend($A.Component,{
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
     	if(this.modal) $A.Cover.uncover(this.wrap);
-//        for(var key in this.cmps){
-//            var cmp = this.cmps[key];
-//            if(cmp.destroy){
-//                try{
-//                    cmp.destroy();
-//                }catch(e){
-//                    alert('销毁window出错: ' + e)
-//                }
-//            }
-//        }
+        for(var key in this.cmps){
+            var cmp = this.cmps[key];
+            if(cmp.destroy){
+                try{
+                    cmp.destroy();
+                }catch(e){
+                    alert('销毁window出错: ' + e)
+                }
+            }
+        }
     	$A.Window.superclass.destroy.call(this);
     	delete this.title;
     	delete this.head;
@@ -6077,19 +6077,19 @@ $A.Window = Ext.extend($A.Component,{
         delete this.proxy;
         wrap.remove();
         this.shadow.remove();
-        var sf = this;
-        setTimeout(function(){
-        	for(var key in sf.cmps){
-        		var cmp = sf.cmps[key];
-        		if(cmp.destroy){
-        			try{
-        				cmp.destroy();
-        			}catch(e){
-        				alert('销毁window出错: ' + e)
-        			}
-        		}
-        	}
-        },10)
+//        var sf = this;
+//        setTimeout(function(){
+//        	for(var key in sf.cmps){
+//        		var cmp = sf.cmps[key];
+//        		if(cmp.destroy){
+//        			try{
+//        				cmp.destroy();
+//        			}catch(e){
+//        				alert('销毁window出错: ' + e)
+//        			}
+//        		}
+//        	}
+//        },10)
     },
     /**
      * 窗口加载.
