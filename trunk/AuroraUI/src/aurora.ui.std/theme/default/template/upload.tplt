@@ -137,5 +137,6 @@ function ${id}(){
     window.${id} = new SWFUpload(settings);
 } 
 ${id}();
+new Aurora.Uploader(${config});
 </SCRIPT>
 ${up_table}
