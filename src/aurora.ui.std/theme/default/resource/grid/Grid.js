@@ -1009,8 +1009,8 @@ $A.Grid = Ext.extend($A.Component,{
                 ed.onBlur();
                 ed.isFireEvent = false;
                 ed.isHidden = true;
+                this.editing = false;
             }
-            this.editing = false;
         }
     },
     onEditorBlur : function(e){
