@@ -1093,12 +1093,14 @@ $A.Grid = Ext.extend($A.Component,{
             }
         }else if(atype=='grid.rowcheck'){
             var cb = target.child('div[atype=grid.headcheck]');
-            var checked = cb.hasClass('item-ckb-c');
-            this.setCheckBoxStatus(cb,!checked);
-            if(!checked){
-                this.dataset.selectAll();
-            }else{
-                this.dataset.unSelectAll();
+            if(cb){
+                var checked = cb.hasClass('item-ckb-c');
+                this.setCheckBoxStatus(cb,!checked);
+                if(!checked){
+                    this.dataset.selectAll();
+                }else{
+                    this.dataset.unSelectAll();
+                }
             }
         }
     },
@@ -1112,6 +1114,7 @@ $A.Grid = Ext.extend($A.Component,{
         }
     },
     setCheckBoxStatus: function(el, checked){
+        if(el)
         if(!checked){
             el.removeClass('item-ckb-c');
             el.addClass('item-ckb-u');
