@@ -1455,7 +1455,7 @@ $A.Grid = Ext.extend($A.Component,{
 		var form = document.createElement("form");
 		form.target = "_blank";
 		form.method="post";
-		form.action = this.dataset.queryurl;
+		form.action = this.dataset.queryurl+'?r='+Math.random();
 		var s = document.createElement("input");
 		s.id = "_request_data";
 		s.type = 'hidden';
