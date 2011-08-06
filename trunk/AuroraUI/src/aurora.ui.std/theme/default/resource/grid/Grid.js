@@ -825,12 +825,15 @@ $A.Grid = Ext.extend($A.Component,{
             },10)
         }           
     },
-    onEidtorKeyDown : function(e,editor){
+    onEidtorKeyDown : function(e){
         var keyCode = e.keyCode;
         //esc
         if(keyCode == 27) {
-            editor.clearInvalid();
-            editor.render(editor.binder.ds.getCurrentRecord());
+            if(this.currentEditor && this.currentEditor.editor){
+                var ed = this.currentEditor.editor
+                ed.clearInvalid();
+                ed.render(ed.binder.ds.getCurrentRecord());
+            }
             this.hideEditor();
         }
         //enter
