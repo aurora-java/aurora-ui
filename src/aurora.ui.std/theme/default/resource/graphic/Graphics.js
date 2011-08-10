@@ -4,11 +4,11 @@ var DOC=document,
     XLINK_NS = 'http://www.w3.org/1999/xlink',
 	hasSVG = !!DOC.createElementNS && !!DOC.createElementNS(SVG_NS, "svg").createSVGRect,
 	fill = "<v:fill color='{fillColor}' opacity='{fillOpacity}'/>",
-	stroke = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'/>",
+	stroke = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' type='{fillType}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'/>",
     pathReg = /\w|[\s\d-+.,]*/g,
     numberReg = /[\d-+.]+/g,
-    firstUp = function(w){
-    	return w.toLowerCase().replace(/^\S/,w.toUpperCase().charAt(0));
+    capitalize = function(w){
+    	return (w = w.trim()).toLowerCase().replace(/^./,w.charAt(0).toUpperCase());
     },
     newSVG = function(tag,id){
     	var e = DOC.createElementNS(SVG_NS, tag);
@@ -35,6 +35,32 @@ var DOC=document,
             css.push(';');
         }
         return css.join('');
+    },
+    convertColor = function(color){
+    	if(color && color.search(/rgb/i)!=-1){
+    		var c ="#";
+    		color.replace(/\d+/g,function(item){
+    			var n = Number(item).toString(16);
+    			c += (n.length == 1?"0":"") +n;
+    		})
+    		return c;
+    	}
+    	return color;
+    },
+    transform = function(){
+    	var dom,values=Ext.toArray(arguments);
+    	if(values.length&&Ext.isObject(values[0])){
+    		var el = values.shift();
+    		dom = el.dom || el;
+    	}else{
+	    	dom = this.wrap.dom;
+	    	if(dom.namespaceURI != SVG_NS){
+	    		dom = this.root.dom;
+	    	}
+    	}
+    	var transform = dom.getAttribute('transform');
+    	if(!transform)transform = 'translate(0,0) scale(0,0) rotate(0,0)';
+    	dom.setAttribute('transform',transform.replace(/\d+/ig,function($0){var v=values.shift();return Ext.isEmpty(v)?$0:v}))
     };
 
 /**
@@ -53,10 +79,10 @@ $A.Graphics=Ext.extend($A.Component,{
 	},
 	initComponent : function(config){ 
 		$A.Graphics.superclass.initComponent.call(this,config);
-		this.fillcolor = this.convertColor(this.fillcolor);
-		this.strokecolor = this.convertColor(this.strokecolor);
+		this.fillcolor = convertColor(this.fillcolor);
+		this.strokecolor = convertColor(this.strokecolor);
 		this['init'+(hasSVG?'SVG':'VML')+'Element']();
-		if(this.title)this.setTitle(this.title)
+		if(this.title)this.setTitle(this.title);
     },
     initEvents : function(){
     	$A.Graphics.superclass.initEvents.call(this);
@@ -68,7 +94,8 @@ $A.Graphics=Ext.extend($A.Component,{
 	         * @param {Aurora.DataSet} dataset 数据集对象.
 	         * @param {Aurora.Record} record 数据行对象.
 	         */
-    		'click'
+    		'click',
+    		'drop'
     	)
     },
 	processListener: function(ou){
@@ -76,6 +103,9 @@ $A.Graphics=Ext.extend($A.Component,{
 		this.wrap[ou]('click',this.onClick,this,{preventDefault:true});
 		this.wrap[ou]('mouseover',this.onMouseOver,this,{preventDefault:true});
 		this.wrap[ou]('mouseout',this.onMouseOut,this,{preventDefault:true});
+		if(this.dropto){
+			this.wrap[ou]('mousedown',this.onMouseDown,this)	
+		}
     },
     processDataSetLiestener:function(ou){
     	ds = this.dataset;
@@ -85,8 +115,10 @@ $A.Graphics=Ext.extend($A.Component,{
     	}
     },
     initSVGElement : function(){
-    	this.root = newSVG("svg");
-    	this.wrap.appendChild(this.root);
+    	this.svg = newSVG("svg");
+    	this.root = newSVG("g");
+    	this.wrap.appendChild(this.svg);
+    	this.svg.appendChild(this.root);
     },
     initVMLElement : function(){
     	if (!DOC.namespaces.hcv) {
@@ -95,7 +127,25 @@ $A.Graphics=Ext.extend($A.Component,{
                 'v\\:roundrect,v\\:oval,v\\:image,v\\:polyline,v\\:line,v\\:group,v\\:fill,v\\:path,v\\:shape,v\\:stroke'+
                 '{ behavior:url(#default#VML); display: inline-block; } ';
         }
-        this.root = this.wrap;
+        this.root = newVML("v:group");
+        this.root.setStyle({position:'absolute',width:'100%',height:'100%'})
+        this.root.set({coordsize:this.width+','+this.height})
+        this.wrap.appendChild(this.root);
+    },
+    initProxy : function(){//alert(this.wrap.dom.innerHTML)
+    	if(hasSVG){
+    		var clone = this.wrap.dom.cloneNode(true);
+    		clone.id = this.id + '_proxy';
+    		this.proxy = Ext.get(clone);
+	    	this.proxy.setStyle({'background-color':'transparent','border':'none'});
+    	}else{
+    		var clone = this.wrap.dom.cloneNode(false);
+    		clone.id = this.id + '_proxy';
+    		var vml = this.wrap.dom.innerHTML.replace(/^<\?xml[^\/]*\/>/i,'').replace(/id\=([\S]*)/img,"id=$1_proxy");
+    		this.proxy = new Ext.Template(vml).append(clone,{},true);
+    	}
+    	this.proxy.position('absolute');
+    	Ext.getBody().appendChild(this.proxy);
     },
     onClick : function(e,t){
     	var a = t.id.split('_'),id = a[1],record;
@@ -103,6 +153,55 @@ $A.Graphics=Ext.extend($A.Component,{
     		record = this.dataset.findById(id)
     	if(a[0]&&id)t = $(a[0]+'_'+id);
     	this.fireEvent('click',t,this.dataset,record);
+    },
+    onMouseDown : function(e){
+    	var xy = this.wrap.getXY();
+    	this.relativeX=xy[0]-e.getPageX();
+		this.relativeY=xy[1]-e.getPageY();
+		this.screenWidth = $A.getViewportWidth();
+        this.screenHeight = $A.getViewportHeight();
+    	if(this.dropto){
+	    	if(!this.dropEl)
+	    		this.dropEl = $(this.dropto);
+	    	if(!this.proxy)
+	    		this.initProxy();
+	    	this.proxy.moveTo(xy[0],xy[1]);
+    	}
+    	Ext.get(document).on('mousemove',this.onMouseMove,this);
+    	Ext.get(document).on('mouseup',this.onMouseUp,this);
+    },
+    onMouseMove : function(e){
+    	e.stopEvent();
+    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
+    	var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
+    	var sw = sl + this.screenWidth;
+    	var sh = st + this.screenHeight;
+    	var tx = e.getPageX()+this.relativeX;
+    	var ty = e.getPageY()+this.relativeY;
+    	if(tx<=sl) tx =sl;
+    	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
+    	if(ty<=st) ty =st;
+    	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
+    	this.proxy.moveTo(tx,ty);
+    },
+    onMouseUp : function(e){
+    	Ext.get(document).un('mousemove',this.onMouseMove,this);
+    	Ext.get(document).un('mouseup',this.onMouseUp,this);
+    	if(this.dropto){
+    		var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
+    		var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
+    		var xy = this.dropEl.wrap.getXY();
+    		var l = xy[0] - sl;
+    		var t = xy[1] - st;
+    		var r = l + this.dropEl.width;
+    		var b = t + this.dropEl.height;
+    		var ex = e.getPageX();
+    		var ey = e.getPageY()
+    		if(ex >= xy[0] && ey >= xy[1] && ex <= r && ey <= b){
+				this.dropEl.fireEvent('drop',this);
+    		}
+    	}
+    	this.proxy.moveTo(-1000,-1000);
     },
     onMouseOver : function(e,t){
     	var a = t.id.split('_'),id = a[1],record;
@@ -119,8 +218,7 @@ $A.Graphics=Ext.extend($A.Component,{
     	this.fireEvent('mouseout',t,this.dataset,record);
     },
     create : function(g){
-    	var type = g.get('type'),title = g.get('title'),config = Ext.util.JSON.decode((g.get('config')||'').toLowerCase());
-		if(title) config.title = title;
+    	var type = g.get('type'),config = Ext.util.JSON.decode('{'+(g.get('config')||'').toLowerCase()+'}');
 		config.id = this.id + "_" + g.id;
 		if(type)this.createGElement(type,config);
     },
@@ -158,25 +256,16 @@ $A.Graphics=Ext.extend($A.Component,{
     	}
     },
 	createGElement : function(name,config){
-    	return new pub[firstUp(name)](Ext.apply(config,{root:Ext.get(config.root)||this.root}));
-    },
-    convertColor :function(color){
-    	if(color && color.search(/rgb/i)!=-1){
-    		var c ="#";
-    		color.replace(/\d+/g,function(item){
-    			var n = Number(item).toString(16);
-    			c += (n.length == 1?"0":"") +n;
-    		})
-    		return c;
-    	}
-    	return color;
+    	return new pub[capitalize(name)](Ext.apply(config,{root:Ext.get(config.root)||this.root}));
     },
     setTitle : function(title){
     	if(!this.text)this.text = new pub.Text({id:this.id+'_title',x:this.titlex,y:this.titley,color:this.titlecolor,size:this.titlesize,root:this.root});
     	this.text.setText(title);
     },
+    transform : transform,
     destroy : function(){
     	this.wrap.remove();
+    	if(this.proxy)this.proxy.remove()
     	if(this.text)this.text.destroy();
     	$A.Graphics.superclass.destroy.call(this);
     	if(this.dataset)this.processDataSetLiestener('un');
@@ -329,6 +418,20 @@ var pub ={
 	    	}
 	    	path.push('E');
 	    	return path.join(' ');
+	    },
+	    onMouseMove : function(e){
+	    	e.stopEvent();
+	    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
+	    	var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
+	    	var sw = sl + this.screenWidth;
+	    	var sh = st + this.screenHeight;
+	    	var tx = e.getPageX()+this.relativeX;
+	    	var ty = e.getPageY()+this.relativeY;
+	    	if(tx<=sl) tx =sl;
+	    	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
+	    	if(ty<=st) ty =st;
+	    	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
+	    	this.proxy.moveTo(tx,ty);
 	    },
 	    vmlTpl : ["<v:shape id='{id}' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:pointer;{style}' path='{path}'>",
 	    fill,stroke,"</v:shape>"]
