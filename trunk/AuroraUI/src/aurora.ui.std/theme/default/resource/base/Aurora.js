@@ -976,8 +976,13 @@ Ext.removeNode = Ext.isIE && !Ext.isIE8 ? function(){
     return function(n){
         if(n && n.tagName != 'BODY'){
             (Ext.enableNestedListenerRemoval) ? Ext.EventManager.purgeElement(n, true) : Ext.EventManager.removeAll(n);
-            d = d || document.createElement('<div id="_removenode" style="position:absolute;display:none;left:-1000px;top:-1000px">');
-            if(!d.parentNode)document.appendChild(d);
+            if(!d){
+                d = document.createElement('div');
+                d.id = '_removenode';
+                d.style.cssText = 'position:absolute;display:none;left:-1000px;top:-1000px';
+            }
+//            d = d || document.createElement('<div id="_removenode" style="position:absolute;display:none;left:-1000px;top:-1000px">');
+            if(!d.parentNode)document.body.appendChild(d);
             d.appendChild(n);
             d.innerHTML = '';
             delete Ext.elCache[n.id];
