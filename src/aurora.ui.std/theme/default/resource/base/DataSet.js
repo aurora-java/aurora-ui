@@ -803,7 +803,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Number} index 指针位置.
      */
     locate : function(index, force){
-        if(this.currentIndex == index && force !== true) return;
+        if(this.currentIndex === index && force !== true) return;
 //      if(valid !== false) if(!this.validCurrent())return;
         if(index <=0 || (index > this.totalCount + this.getNewRecrods().length))return;
         var lindex = index - (this.currentPage-1)*this.pagesize;
