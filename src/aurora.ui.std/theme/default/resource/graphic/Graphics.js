@@ -318,7 +318,7 @@ var pub ={
 	    		path:this.convertPath(this.d),
 	    		zoom:this.zoom,
 	    		fillColor:this.fillcolor||'black',
-	    		fillOpacity:this.fillopacity||'1',
+	    		fillOpacity:(this.fillcolor=='none'||this.fillcolor=='transparent')?0:(this.fillopacity||'1'),
 	    		strokeColor:this.strokecolor||'none',
 	    		strokeWidth:this.strokecolor?this.strokewidth:0,
 	    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0,
@@ -476,41 +476,42 @@ var pub ={
 	    	this.el=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
 	    		id:this.id,
 	    		style:this.style,
-	    		left:0,
-	    		top:0,
 	    		width:this.rx<<1,
 	    		height:this.ry<<1,
 	    		fillColor:this.fillcolor||'black',
-	    		fillOpacity:this.fillcolor=='none'?'0':(this.fillopacity||'1'),
+	    		fillOpacity:(this.fillcolor=='none'||this.fillcolor=='transparent')?0:(this.fillopacity||1),
 	    		strokeColor:this.strokecolor||'none',
 	    		strokeWidth:this.strokecolor?this.strokewidth:0,
 	    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
 	    	},true)
 	    },
-	    vmlTpl : ["<v:oval id='{id}' style='position:absolute;left:{left}px;top:{top}px;width:{width}px;height:{height}px;cursor:poniter;{style}'>",
+	    vmlTpl : ["<v:oval id='{id}' style='position:absolute;left:0;top:0;width:{width}px;height:{height}px;cursor:poniter;{style}'>",
 	    fill,stroke,"</v:oval>"]
 	}),
 	Image : Ext.extend($A.Graphics,{
 		initSVGElement : function(){
 			this.wrap = newSVG("g",this.id);
-			this.el = newSVG("image",this.id);
+			if(this.x||this.y) transform(this.wrap,this.x,this.y);
+			this.el = newSVG("image",this.id+"_el");
 	    	this.el.dom.style.cssText=encodeStyle({
 	    		'stroke':this.strokecolor,
 	    		'stroke-width':this.strokewidth,
 	    		'stroke-opacity':this.strokeopacity
 	    	})+this.style;
 	    	this.el.dom.setAttributeNS(XLINK_NS,'xlink:href',this.src);
-	    	this.el.set({x:this.x,y:this.y,width:this.width,height:this.height});
+	    	this.el.set({x:0,y:0,width:this.width,height:this.height});
 	    	this.root.appendChild(this.wrap);
 	    	this.wrap.appendChild(this.el);
 	    },
 	    initVMLElement : function(){
-	    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
+	    	this.wrap = newVML("v:group");
+	    	this.wrap.setStyle({position:'absolute',width:this.width,height:this.height,left:this.x+'px',top:this.y+'px'});
+	        this.wrap.set({coordsize:this.width+','+this.height});
+	        this.root.appendChild(this.wrap);
+	    	this.wrap=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
 	    		id:this.id,
 	    		src:this.src,
 	    		style:this.style,
-	    		left:this.x,
-	    		top:this.y,
 	    		width:this.width,
 	    		height:this.height,
 	    		strokeColor:this.strokecolor||'none',
@@ -518,7 +519,7 @@ var pub ={
 	    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
 	    	},true)
 	    },
-	    vmlTpl : ["<v:image id='{id}' src='{src}' style='position:absolute;left:{left}px;top:{top}px;width:{width}px;height:{height}px;{style}'>",stroke,"</v:image>"]
+	    vmlTpl : ["<v:image id='{id}' src='{src}' style='position:absolute;left:0;top:0;width:{width}px;height:{height}px;{style}'>",stroke,"</v:image>"]
 	}),
 	Rect : function(config){
 		var h = Number(config.height)||200,
