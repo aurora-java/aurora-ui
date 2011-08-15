@@ -118,7 +118,6 @@ $A.Graphics=Ext.extend($A.Component,{
     initSVGElement : function(){
     	this.svg = newSVG("svg");
     	this.root = newSVG("g");
-    	this.svg.set({width:2000,height:2000})
     	this.wrap.appendChild(this.svg);
     	this.svg.appendChild(this.root);
     },
