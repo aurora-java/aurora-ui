@@ -474,7 +474,7 @@ var pub ={
 	    },
 	    initVMLElement : function(){
 	    	this.wrap = newVML("v:group");
-	        this.wrap.setStyle({position:'absolute',width:this.rx<<1,height:this.ry<<1,left:(this.cx-this.rx||0)+'px',top:(this.cy-this.ry||0)+'px'});
+	        this.wrap.setStyle({position:'absolute',width:this.rx<<1,height:this.ry<<1,left:this.x+'px',top:this.y+'px'});
 	        this.wrap.set({coordsize:(this.rx<<1)+','+(this.ry<<1)});
 	        this.root.appendChild(this.wrap);
 	    	this.el=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
