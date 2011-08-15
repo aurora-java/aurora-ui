@@ -112,6 +112,7 @@ $A.Graphics=Ext.extend($A.Component,{
     	if(ds){
 	    	ds[ou]('load', this.onLoad, this);
 	    	ds[ou]('update', this.onUpdate, this);
+	    	ds[ou]('add', this.onAdd, this);
     	}
     },
     initSVGElement : function(){
@@ -199,7 +200,7 @@ $A.Graphics=Ext.extend($A.Component,{
     		var ex = e.getPageX();
     		var ey = e.getPageY()
     		if(ex >= xy[0] && ey >= xy[1] && ex <= r && ey <= b){
-				this.dropEl.fireEvent('drop',this);
+				this.dropEl.fireEvent('drop',this,this.dataset,ex+this.relativeX-l,ey+this.relativeY-t);
     		}
     	}
     	this.proxy.moveTo(-1000,-1000);
@@ -245,6 +246,9 @@ $A.Graphics=Ext.extend($A.Component,{
     	for(var i = 0,l = graphics.length;i<l;i++){
     		this.create(graphics[i]);
     	}
+    },
+    onAdd : function(ds,record,index){
+    	this.create(record);
     },
     onUpdate : function(ds,record, name, value){
     	var el = $(this.id+'_'+record.id);
@@ -454,7 +458,7 @@ var pub ={
 	Oval:Ext.extend($A.Graphics,{
 		initSVGElement : function(){
 			this.wrap = newSVG("g",this.id);
-			if(this.cx||this.cy) transform(this.wrap,this.cx-this.rx,this.cy-this.ry);
+			if(this.x||this.y) transform(this.wrap,this.x,this.y);
 			this.el = newSVG("ellipse",this.id+"_el");
 	    	this.el.dom.style.cssText=encodeStyle({
 	    		'fill':this.fillcolor,
