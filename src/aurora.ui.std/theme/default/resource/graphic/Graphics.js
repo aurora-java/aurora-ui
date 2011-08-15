@@ -59,7 +59,7 @@ var DOC=document,
 	    	}
     	}
     	var transform = dom.getAttribute('transform');
-    	if(!transform)transform = 'translate(0,0) scale(0,0) rotate(0,0)';
+    	if(!transform)transform = 'translate(0,0) scale(1,1) rotate(0,0 0)';
     	dom.setAttribute('transform',transform.replace(/\d+/ig,function($0){var v=values.shift();return Ext.isEmpty(v)?$0:v}))
     };
 
@@ -128,9 +128,10 @@ $A.Graphics=Ext.extend($A.Component,{
                 '{ behavior:url(#default#VML); display: inline-block; } ';
         }
         this.root = newVML("v:group");
-        this.root.setStyle({position:'absolute',width:'100%',height:'100%'})
+        this.root.setStyle({position:'absolute',width:this.width,height:this.height})
         this.root.set({coordsize:this.width+','+this.height})
         this.wrap.appendChild(this.root);
+//        this.root = this.wrap;
     },
     initProxy : function(){//alert(this.wrap.dom.innerHTML)
     	if(hasSVG){
@@ -259,7 +260,7 @@ $A.Graphics=Ext.extend($A.Component,{
     	return new pub[capitalize(name)](Ext.apply(config,{root:Ext.get(config.root)||this.root}));
     },
     setTitle : function(title){
-    	if(!this.text)this.text = new pub.Text({id:this.id+'_title',x:this.titlex,y:this.titley,color:this.titlecolor,size:this.titlesize,root:this.root});
+    	if(!this.text)this.text = new pub.Text({id:this.id+'_title',dx:this.titlex,dy:this.titley,color:this.titlecolor,size:this.titlesize,root:this.wrap});
     	this.text.setText(title);
     },
     transform : transform,
@@ -275,8 +276,10 @@ var pub ={
 	Path:Ext.extend($A.Graphics,{
 		zoom:10000,
 		initSVGElement : function(){
-			this.wrap = newSVG("path",this.id);
-	    	this.wrap.dom.style.cssText=encodeStyle({
+			this.wrap = newSVG("g",this.id);
+			if(this.x||this.y) transform(this.wrap,this.x,this.y);
+			this.el = newSVG("path",this.id+'_el');
+	    	this.el.dom.style.cssText=encodeStyle({
 	    		'fill':this.fillcolor,
 	    		'fill-opacity':this.fillopacity,
 	    		'stroke':this.strokecolor,
@@ -300,11 +303,16 @@ var pub ={
 	    		new pub.Arrow({color:this.strokecolor,strokewidth:this.strokewidth,endarrow:this.endarrow,startarrow:this.startarrow,root:this.root})
 	    	}
 	    	config.d=this.d;
-	    	this.wrap.set(config);
+	    	this.el.set(config);
 	    	this.root.appendChild(this.wrap);
+	    	this.wrap.appendChild(this.el);
 	    },
 	    initVMLElement : function(){
-	    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
+	    	this.wrap = newVML("v:group");
+	        this.wrap.setStyle({position:'absolute',width:100,height:100,left:(this.x||0)+'px',top:(this.y||0)+'px'});
+	        this.wrap.set({coordsize:'100,100'});
+	        this.root.appendChild(this.wrap);
+	    	this.el=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
 	    		id:this.id,
 	    		style:this.style,
 	    		path:this.convertPath(this.d),
@@ -445,24 +453,31 @@ var pub ={
 	},
 	Oval:Ext.extend($A.Graphics,{
 		initSVGElement : function(){
-			this.wrap = newSVG("ellipse",this.id);
-	    	this.wrap.dom.style.cssText=encodeStyle({
+			this.wrap = newSVG("g",this.id);
+			if(this.cx||this.cy) transform(this.wrap,this.cx-this.rx,this.cy-this.ry);
+			this.el = newSVG("ellipse",this.id+"_el");
+	    	this.el.dom.style.cssText=encodeStyle({
 	    		'fill':this.fillcolor,
 	    		'fill-opacity':this.fillopacity,
-	    		'stroke':this.strokecolor,
+	    	 	'stroke':this.strokecolor,
 	    		'stroke-width':this.strokewidth,
 	    		'stroke-opacity':this.strokeopacity,
 	    		'cursor':'pointer'
 	    	})+this.style;
-	    	this.wrap.set({cx:this.cx,cy:this.cy,rx:this.rx,ry:this.ry});
+	    	this.el.set({cx:this.rx,cy:this.ry,rx:this.rx,ry:this.ry});
 	    	this.root.appendChild(this.wrap);
+	    	this.wrap.appendChild(this.el);
 	    },
 	    initVMLElement : function(){
-	    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
+	    	this.wrap = newVML("v:group");
+	        this.wrap.setStyle({position:'absolute',width:this.rx<<1,height:this.ry<<1,left:(this.cx-this.rx||0)+'px',top:(this.cy-this.ry||0)+'px'});
+	        this.wrap.set({coordsize:(this.rx<<1)+','+(this.ry<<1)});
+	        this.root.appendChild(this.wrap);
+	    	this.el=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
 	    		id:this.id,
 	    		style:this.style,
-	    		left:this.cx-this.rx,
-	    		top:this.cy-this.ry,
+	    		left:0,
+	    		top:0,
 	    		width:this.rx<<1,
 	    		height:this.ry<<1,
 	    		fillColor:this.fillcolor||'black',
@@ -477,15 +492,17 @@ var pub ={
 	}),
 	Image : Ext.extend($A.Graphics,{
 		initSVGElement : function(){
-			this.wrap = newSVG("image",this.id);
-	    	this.wrap.dom.style.cssText=encodeStyle({
+			this.wrap = newSVG("g",this.id);
+			this.el = newSVG("image",this.id);
+	    	this.el.dom.style.cssText=encodeStyle({
 	    		'stroke':this.strokecolor,
 	    		'stroke-width':this.strokewidth,
 	    		'stroke-opacity':this.strokeopacity
 	    	})+this.style;
-	    	this.wrap.dom.setAttributeNS(XLINK_NS,'xlink:href',this.src);
-	    	this.wrap.set({x:this.x,y:this.y,width:this.width,height:this.height});
+	    	this.el.dom.setAttributeNS(XLINK_NS,'xlink:href',this.src);
+	    	this.el.set({x:this.x,y:this.y,width:this.width,height:this.height});
 	    	this.root.appendChild(this.wrap);
+	    	this.wrap.appendChild(this.el);
 	    },
 	    initVMLElement : function(){
 	    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
@@ -504,56 +521,57 @@ var pub ={
 	    vmlTpl : ["<v:image id='{id}' src='{src}' style='position:absolute;left:{left}px;top:{top}px;width:{width}px;height:{height}px;{style}'>",stroke,"</v:image>"]
 	}),
 	Rect : function(config){
-		var l = Number(config.x)||0,
-			t = Number(config.y)||0,
-			h = Number(config.height)||200,
+		var h = Number(config.height)||200,
 			w = Number(config.width)||200,
 			rx = Math.min(Number(config.rx)||0,w/2),
 			ry = Math.min(Number(config.ry)||0,h/2),
 			round = rx>0&&ry>0,
 			lx = rx!=w/2,
 			ly = ry!=h/2,
-			d = ['M',l,t+(round?ry:0)];
-			if(round)d.push('A',rx,ry,0,0,1,l+rx,t);
-			if(lx)d.push('H',l+w-(round?rx:0));
-			if(round)d.push('A',rx,ry,0,0,1,l+w,t+ry);
-			if(ly)d.push('V',t+h-(round?ry:0));
-			if(round)d.push('A',rx,ry,0,0,1,l+w-rx,t+h);
-			if(lx)d.push('H',l+(round?rx:0));
-			if(round)d.push('A',rx,ry,0,0,1,l,t+h-ry);
+			d = ['M',0,round?ry:0];
+			if(round)d.push('A',rx,ry,0,0,1,rx,0);
+			if(lx)d.push('H',w-(round?rx:0));
+			if(round)d.push('A',rx,ry,0,0,1,w,ry);
+			if(ly)d.push('V',h-(round?ry:0));
+			if(round)d.push('A',rx,ry,0,0,1,w-rx,h);
+			if(lx)d.push('H',round?rx:0);
+			if(round)d.push('A',rx,ry,0,0,1,0,h-ry);
 			if(ly)d.push('Z');
 		return new pub.Path(Ext.apply(config,{d:d.join(' ')}));
 	},
 	Diamond : function(config){
-		var l = Number(config.x)||0,
-			t = Number(config.y)||0,
-			h = Number(config.height)||100,
+		var h = Number(config.height)||100,
 			w = Number(config.width)||200,
 			d = ['M',
-				l,t+config.height/2,
+				0,config.height/2,
 				'L',
-				l+w/2,t,
-				l+w,t+h/2,
-				l+w/2,t+h,
+				w/2,0,
+				w,h/2,
+				w/2,h,
 				'Z'];
 		return new pub.Path(Ext.apply(config,{d:d.join(' ')}));
 	},
 	Text : Ext.extend($A.Graphics,{
 		initSVGElement : function(){
+			var strokewidth = $(this.root.id).strokewidth||0,
+				size = this.size||11;
 			this.wrap = newSVG("text",this.id);
 	    	this.wrap.dom.style.cssText=encodeStyle({
 	    		'fill':this.color,
+	    		'font-size':size+'px',
+	    		'line-height':size+'px',
 	    		'cursor':'text'
 	    	})+this.style;
-	    	this.wrap.set({x:this.x,y:this.y+(this.size||11),'font-size':this.size||11});
+	    	this.wrap.set({dx:this.dx-strokewidth+1,dy:this.dy+size-strokewidth-2});
 	    	this.root.appendChild(this.wrap);
 	    },
 	    initVMLElement : function(){
+	    	var size = this.size||11;
 	    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
 	    		id:this.id,
-	    		style:encodeStyle({'font-size':(this.size||11)+'px'})+this.style,
-	    		left:this.x,
-	    		top:this.y,
+	    		style:encodeStyle({'line-height':size+'px','font-size':size+'px'})+this.style,
+	    		left:this.dx,
+	    		top:this.dy,
 	    		color:this.color||'black'
 	    	},true)
 	    },
