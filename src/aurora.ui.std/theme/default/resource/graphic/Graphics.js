@@ -200,7 +200,7 @@ $A.Graphics=Ext.extend($A.Component,{
     		var ex = e.getPageX();
     		var ey = e.getPageY()
     		if(ex >= xy[0] && ey >= xy[1] && ex <= r && ey <= b){
-				this.dropEl.fireEvent('drop',this,this.dataset,ex+this.relativeX-l,ey+this.relativeY-t);
+				this.dropEl.fireEvent('drop',this,this.dataset,ex+this.relativeX-l+(hasSVG?4:0),ey+this.relativeY-t+(hasSVG?4:0));
     		}
     	}
     	this.proxy.moveTo(-1000,-1000);
@@ -474,7 +474,7 @@ var pub ={
 	    },
 	    initVMLElement : function(){
 	    	this.wrap = newVML("v:group");
-	        this.wrap.setStyle({position:'absolute',width:this.rx<<1,height:this.ry<<1,left:this.x+'px',top:this.y+'px'});
+	        this.wrap.setStyle({position:'absolute',width:this.rx<<1,height:this.ry<<1,left:(this.x||0)+'px',top:(this.y||0)+'px'});
 	        this.wrap.set({coordsize:(this.rx<<1)+','+(this.ry<<1)});
 	        this.root.appendChild(this.wrap);
 	    	this.el=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
