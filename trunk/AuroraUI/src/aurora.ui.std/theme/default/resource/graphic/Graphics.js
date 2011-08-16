@@ -67,7 +67,7 @@ var DOC=document,
     	}
     	var transform = dom.getAttribute('transform');
     	if(!transform)transform = 'translate(0,0) scale(1,1) rotate(0,0 0)';
-    	dom.setAttribute('transform',transform.replace(/\d+/ig,function($0){var v=values.shift();return Ext.isEmpty(v)?$0:v}))
+    	dom.setAttribute('transform',transform.replace(/\(([-.\d]+)\)/g,'($1,$1)').replace(/[-.\d]+/ig,function($0){var v=values.shift();return Ext.isEmpty(v)?$0:v}))
     },
     setTopCmp = function(){
     	var z = 1,el;
@@ -194,23 +194,24 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     onMouseMove : function(e){
     	e.stopEvent();
-    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
-    	var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
-    	var sw = sl + this.screenWidth;
-    	var sh = st + this.screenHeight;
     	var tx = e.getPageX()+this.relativeX;
     	var ty = e.getPageY()+this.relativeY;
     	if(isSVG(this.wrap)){
     		var _xy = this.root.parent('div').getXY();
     		tx -= _xy[0];
     		ty -= _xy[1];
+	    	transform(this.proxy,tx,ty)
+    	}else{
+	    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
+	    	var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
+	    	var sw = sl + this.screenWidth;
+	    	var sh = st + this.screenHeight;
+	    	if(tx<=sl) tx =sl;
+	    	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
+	    	if(ty<=st) ty =st;
+	    	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
+	    	this.proxy.moveTo(tx,ty);
     	}
-    	if(tx<=sl) tx =sl;
-    	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
-    	if(ty<=st) ty =st;
-    	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
-    	this.proxy.moveTo(tx,ty);
-    	if(hasSVG)transform(this.proxy,tx,ty)
     },
     onMouseUp : function(e){
     	Ext.get(document).un('mousemove',this.onMouseMove,this);
@@ -312,8 +313,7 @@ $A.Graphics=Ext.extend($A.Component,{
     transform : transform,
     destroy : function(){
     	this.wrap.remove();
-    	if(this.proxy)this.proxy.remove()
-    	if(this.text)this.text.destroy();
+    	if(this.proxy && this.proxy!=this.wrap)this.proxy.remove()
     	$A.Graphics.superclass.destroy.call(this);
     	if(this.dataset)this.processDataSetLiestener('un');
     }
