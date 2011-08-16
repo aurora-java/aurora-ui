@@ -20,6 +20,13 @@ var DOC=document,
     	if(!Ext.isEmpty(id)) e.id = id;
     	return Ext.get(e);
     },
+    isSVG = function(el){
+    	if(hasSVG){
+	    	el = el.dom||el;
+	    	return el.namespaceURI == SVG_NS;
+    	}
+    	return false;
+    },
     encodeStyle = function(prop,value){
     	var tmp,style,css=[];
         if (!Ext.isObject(prop)) {
@@ -54,14 +61,24 @@ var DOC=document,
     		dom = el.dom || el;
     	}else{
 	    	dom = this.wrap.dom;
-	    	if(dom.namespaceURI != SVG_NS){
+    		if(!isSVG(dom)){
 	    		dom = this.root.dom;
-	    	}
+    		}
     	}
     	var transform = dom.getAttribute('transform');
     	if(!transform)transform = 'translate(0,0) scale(1,1) rotate(0,0 0)';
     	dom.setAttribute('transform',transform.replace(/\d+/ig,function($0){var v=values.shift();return Ext.isEmpty(v)?$0:v}))
-    };
+    },
+    setTopCmp = function(){
+    	var z = 1,el;
+    	return function(cmp){
+    		cmp = Ext.get(cmp);
+    		if(el!=cmp){
+				el = cmp;
+				el.setStyle('z-index',z++);
+    		}
+		}
+    }();
 
 /**
  * @class Aurora.Graphics
@@ -103,7 +120,7 @@ $A.Graphics=Ext.extend($A.Component,{
 		this.wrap[ou]('click',this.onClick,this,{preventDefault:true});
 		this.wrap[ou]('mouseover',this.onMouseOver,this,{preventDefault:true});
 		this.wrap[ou]('mouseout',this.onMouseOut,this,{preventDefault:true});
-		if(this.dropto){
+		if(this.dropto||this.moveable){
 			this.wrap[ou]('mousedown',this.onMouseDown,this)	
 		}
     },
@@ -168,7 +185,10 @@ $A.Graphics=Ext.extend($A.Component,{
 	    	if(!this.proxy)
 	    		this.initProxy();
 	    	this.proxy.moveTo(xy[0],xy[1]);
+    	}else{
+    		this.proxy = this.wrap;
     	}
+    	setTopCmp(this.proxy);
     	Ext.get(document).on('mousemove',this.onMouseMove,this);
     	Ext.get(document).on('mouseup',this.onMouseUp,this);
     },
@@ -180,11 +200,17 @@ $A.Graphics=Ext.extend($A.Component,{
     	var sh = st + this.screenHeight;
     	var tx = e.getPageX()+this.relativeX;
     	var ty = e.getPageY()+this.relativeY;
+    	if(isSVG(this.wrap)){
+    		var _xy = this.root.parent('div').getXY();
+    		tx -= _xy[0];
+    		ty -= _xy[1];
+    	}
     	if(tx<=sl) tx =sl;
     	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
     	if(ty<=st) ty =st;
     	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
     	this.proxy.moveTo(tx,ty);
+    	if(hasSVG)transform(this.proxy,tx,ty)
     },
     onMouseUp : function(e){
     	Ext.get(document).un('mousemove',this.onMouseMove,this);
@@ -202,8 +228,8 @@ $A.Graphics=Ext.extend($A.Component,{
     		if(ex >= xy[0] && ey >= xy[1] && ex <= r && ey <= b){
 				this.dropEl.fireEvent('drop',this,this.dataset,ex+this.relativeX-l+(hasSVG?4:0),ey+this.relativeY-t+(hasSVG?4:0));
     		}
+	    	this.proxy.moveTo(-1000,-1000);
     	}
-    	this.proxy.moveTo(-1000,-1000);
     },
     onMouseOver : function(e,t){
     	var a = t.id.split('_'),id = a[1],record;
@@ -228,14 +254,14 @@ $A.Graphics=Ext.extend($A.Component,{
 	            alert("未找到"+this.renderer+"方法!")
 	            return;
 	        }
-	        var v = fder.call(window,g,type);
+	        var v = fder.call(window,g,type,config);
 	        if(!Ext.isEmpty(v)){
 		        if(!Ext.isObject(v)){
-		        	v = Ext.util.JSON.decode('{'+String(v).replace(/^{|}$/g,'').toLowerCase()+'}');
+		        	v = '{'+String(v).replace(/^{|}$/g,'').toLowerCase()+'}';
 		        }else{
-		        	v = Ext.util.JSON.decode(Ext.util.JSON.encode(v).toLowerCase());
+		        	v = Ext.util.JSON.encode(v).toLowerCase();
 		        }
-		        Ext.apply(config,v);
+		        Ext.apply(config,Ext.util.JSON.decode(v));
 	        }
 		}
 		this.createGElement(config.type||type,config);
@@ -446,20 +472,6 @@ var pub ={
 	    	}
 	    	path.push('E');
 	    	return path.join(' ');
-	    },
-	    onMouseMove : function(e){
-	    	e.stopEvent();
-	    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
-	    	var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
-	    	var sw = sl + this.screenWidth;
-	    	var sh = st + this.screenHeight;
-	    	var tx = e.getPageX()+this.relativeX;
-	    	var ty = e.getPageY()+this.relativeY;
-	    	if(tx<=sl) tx =sl;
-	    	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
-	    	if(ty<=st) ty =st;
-	    	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
-	    	this.proxy.moveTo(tx,ty);
 	    },
 	    vmlTpl : ["<v:shape id='{id}' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:pointer;{style}' path='{path}'>",
 	    fill,stroke,"</v:shape>"]
