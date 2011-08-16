@@ -220,9 +220,25 @@ $A.Graphics=Ext.extend($A.Component,{
     	this.fireEvent('mouseout',t,this.dataset,record);
     },
     create : function(g){
-    	var type = g.get('type'),config = Ext.util.JSON.decode('{'+(g.get('config')||'').toLowerCase()+'}');
+    	var type = g.get('type'),config = Ext.util.JSON.decode('{'+(g.get('config')||'').replace(/^{|}$/g,'').toLowerCase()+'}');
 		config.id = this.id + "_" + g.id;
-		if(type)this.createGElement(type,config);
+		if(this.renderer){
+    	var fder = $A.getRenderer(this.renderer);
+	        if(fder == null){
+	            alert("未找到"+this.renderer+"方法!")
+	            return;
+	        }
+	        var v = fder.call(window,g,type);
+	        if(!Ext.isEmpty(v)){
+		        if(!Ext.isObject(v)){
+		        	v = Ext.util.JSON.decode('{'+String(v).replace(/^{|}$/g,'').toLowerCase()+'}');
+		        }else{
+		        	v = Ext.util.JSON.decode(Ext.util.JSON.encode(v).toLowerCase());
+		        }
+		        Ext.apply(config,v);
+	        }
+		}
+		this.createGElement(config.type||type,config);
     },
     clear : function(){
     	var el = this.root.dom;
