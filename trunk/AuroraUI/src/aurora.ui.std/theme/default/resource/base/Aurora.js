@@ -190,11 +190,18 @@ $ = $A.getCmp = function(id){
  * 设置cookie
  * @param {String} name cookie名
  * @param {String} value cookie值
+ * @param {Number} days 有效期(单位是天),默认是sessions
  */
-$A.setCookie = function(name,value){
+$A.setCookie = function(name,value,days){
     var pathname = location.pathname;
     pathname = pathname.substring(0, pathname.lastIndexOf('/') + 1);
-    document.cookie = name + "="+ escape (value) +';path = ' + pathname;
+    var exp = null;
+    if(days){
+        exp  = new Date();
+        exp.setTime(exp.getTime() + days*24*60*60*1000);
+    }
+    
+    document.cookie = name + "="+ escape (value) +';path = ' + pathname + ((exp) ? (';expires=' + exp.toGMTString()) : '');
 }
 
 /**
