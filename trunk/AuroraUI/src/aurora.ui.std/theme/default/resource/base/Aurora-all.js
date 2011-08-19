@@ -200,7 +200,6 @@ $A.setCookie = function(name,value,days){
         exp  = new Date();
         exp.setTime(exp.getTime() + days*24*60*60*1000);
     }
-    alert(name + "="+ escape (value) +';path = ' + pathname + ((exp) ? (';expires=' + exp.toGMTString()) : ''))
     document.cookie = name + "="+ escape (value) +';path = ' + pathname + ((exp) ? (';expires=' + exp.toGMTString()) : '');
 }
 
