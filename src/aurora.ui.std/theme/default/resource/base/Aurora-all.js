@@ -1055,10 +1055,10 @@ $A.formatDateTime = function(date){
  */
 $A.formatNumber = function(value,decimalprecision){
 	if(Ext.isEmpty(value))return '';
-	value = value.replace(/,/g,'');
+	value = String(value).replace(/,/g,'');
 	if(isNaN(value))return '';
 	if(decimalprecision||decimalprecision===0) value=Number(value).toFixed(decimalprecision);
-    var ps = String(value).split('.');
+    var ps = value.split('.');
     var sub = (ps.length==2)?'.'+ps[1]:'';
     var whole = ps[0];
     var r = /(\d+)(\d{3})/;
