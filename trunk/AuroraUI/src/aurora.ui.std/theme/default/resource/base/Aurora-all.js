@@ -1054,7 +1054,9 @@ $A.formatDateTime = function(date){
  * @return {String}
  */
 $A.formatNumber = function(value,decimalprecision){
-	if(value!==0&&(!value||isNaN(value)))return '';
+	if(Ext.isEmpty(value))return '';
+	value = value.replace(/,/g,'');
+	if(isNaN(value))return '';
 	if(decimalprecision||decimalprecision===0) value=Number(value).toFixed(decimalprecision);
     var ps = String(value).split('.');
     var sub = (ps.length==2)?'.'+ps[1]:'';
