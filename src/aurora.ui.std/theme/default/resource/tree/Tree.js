@@ -297,11 +297,12 @@ $A.Tree = Ext.extend($A.Component,{
 		return rtnode;
 	},
 	sortChildren : function(children,sequence){
-	   children.sort(function(a, b){
-            var n1 = a.record.get(sequence)||Number.MAX_VALUE;
-            var n2 = b.record.get(sequence)||Number.MAX_VALUE;
-            return parseFloat(n1)-parseFloat(n2);
-       });
+        children.sort();
+//	   children.sort(function(a, b){
+//            var n1 = a.record.get(sequence)||Number.MAX_VALUE;
+//            var n2 = b.record.get(sequence)||Number.MAX_VALUE;
+//            return parseFloat(n1)-parseFloat(n2);
+//       });
        for(var i=0;i<children.length;i++){
        	    var n = children[i];
        	    this.sortChildren(n.children,sequence)
