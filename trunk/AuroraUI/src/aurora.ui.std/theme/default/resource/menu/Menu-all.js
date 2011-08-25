@@ -132,7 +132,7 @@ $A.MenuBar=Ext.extend($A.Component,Ext.apply({
     	}
     	for(var i=0;datas[i];i++){
     		var pid=datas[i].get(this.parentfield);
-    		if(pid==this.rootid||pid<=0)options.add(map[datas[i].get(this.idfield)]);
+    		if(!pid||pid==this.rootid||pid<0)options.add(map[datas[i].get(this.idfield)]);
     		else{
     			if(!map[pid].options)map[pid].options=[];
     			map[pid].options.add(map[datas[i].get(this.idfield)]);
