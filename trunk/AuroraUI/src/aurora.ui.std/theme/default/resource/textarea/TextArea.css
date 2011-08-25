@@ -12,3 +12,6 @@
 .ext-ie6 .item-textarea{
 	font-size:12px;
 }
+.item-textarea.item-focus{
+	border:1px solid blue;
+}
