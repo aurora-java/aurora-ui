@@ -12,7 +12,7 @@ html, body {
 	padding:0;
 	background-color:#ffffff;
 }
-html, body,input, button {
+html, body,input, button , textarea {
 	font-family: 微软雅黑,宋体,sans-serif !important;/**/
     font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;/**/
     font-size:11px !important;

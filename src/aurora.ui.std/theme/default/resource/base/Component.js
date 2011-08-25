@@ -259,7 +259,8 @@ $A.Component = Ext.extend(Ext.util.Observable,{
             this.record.set(this.binder.name,v);
             if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
     	}
-    	if(ov!=v){
+    	//if(ov!=v){
+    	if(!(ov === v||(Ext.isEmpty(ov)&&Ext.isEmpty(v)))){
             this.fireEvent('change', this, v, ov);
     	}
     },
