@@ -105,7 +105,7 @@ var DOC=document,
  */
 $A.Graphics=Ext.extend($A.Component,{
 	constructor: function(config) {
-		this.root=config.root;
+		this.root = config.root;
 		this.top = config.top||this;
 		$A.Graphics.superclass.constructor.call(this,config);
 		return this;
@@ -114,7 +114,7 @@ $A.Graphics=Ext.extend($A.Component,{
 		$A.Graphics.superclass.initComponent.call(this,config);
 		this.fillcolor = convertColor(this.fillcolor);
 		this.strokecolor = convertColor(this.strokecolor);
-		this.initWrap();
+		if(!this.wrap)this['init'+(hasSVG?'SVG':'VML')+'Wrap']();
 		this['init'+(hasSVG?'SVG':'VML')+'Element']();
 		if(this.title)this.setTitle(this.title);
     },
@@ -131,7 +131,8 @@ $A.Graphics=Ext.extend($A.Component,{
     		'click',
     		'drop',
     		'move',
-    		'create'
+    		'create',
+    		'drawn'
     	)
     },
 	processListener: function(ou){
@@ -148,15 +149,17 @@ $A.Graphics=Ext.extend($A.Component,{
 	    	ds[ou]('update', this.onUpdate, this);
 	    	ds[ou]('add', this.onAdd, this);
 	    	ds[ou]('remove', this.onRemove, this);
+	    	ds[ou]('indexchange', this.onIndexChange, this);
     	}
     },
+    initSVGWrap : function(){},
+    initVMLWrap : function(){},
     initSVGElement : function(){
     	var svg = newSVG("svg");
     	this.root = newSVG("g");
     	this.wrap.appendChild(svg);
     	svg.appendChild(this.root);
     },
-    initWrap : function(){},
     initVMLElement : function(){
     	if (!DOC.namespaces.hcv) {
             DOC.namespaces.add('v', VML_NS);
@@ -175,19 +178,19 @@ $A.Graphics=Ext.extend($A.Component,{
     		var clone = this.wrap.dom.cloneNode(true);
     		clone.id = this.id + '_proxy';
     		this.proxy = Ext.get(clone);
-	    	this.proxy.setStyle({'background-color':'transparent','border':'none'});
     	}else{
     		var clone = this.wrap.dom.cloneNode(false);
     		clone.id = this.id + '_proxy';
+    		this.proxy = Ext.get(clone);
     		var vml = this.wrap.dom.innerHTML.replace(/^<\?xml[^\/]*\/>/i,'').replace(/id\=([\S]*)/img,"id=$1_proxy");
-    		this.proxy = new Ext.Template(vml).append(clone,{},true);
+    		new Ext.Template(vml).append(clone,{},true);
     	}
-    	this.proxy.position('absolute');
-    	Ext.getBody().appendChild(this.proxy);
+    	this.proxy.setStyle({'background-color':'transparent','border':'none','position':'absolute','z-index':'99999'});
+    	Ext.getBody().insertFirst(this.proxy);
     },
     onMouseDown : function(e,t){
     	this.fire('mousedown',e,t);
-    	this.focus(t);
+		this.focus(t);
     	if(this.top.canDrawLine){
     		if(this.top == this){
     			this.startLine(e);
@@ -212,7 +215,7 @@ $A.Graphics=Ext.extend($A.Component,{
 	    	}else{
 	    		this.proxy = this.wrap;
 	    	}
-	    	setTopCmp(this.proxy);
+	    	if(this.moveable)setTopCmp(this.proxy);
 	    	Ext.get(document).on('mousemove',this.onMouseMove,this);
 	    	Ext.get(document).on('mouseup',this.onMouseUp,this);
     	}
@@ -282,7 +285,6 @@ $A.Graphics=Ext.extend($A.Component,{
 				this.dropEl.fireEvent('drop',this.proxy,this.dataset,ex+this.relativeX-l+(hasSVG?4:0),ey+this.relativeY-t+(hasSVG?4:0));
     		}
 	    	this.proxy.moveTo(-1000,-1000);
-	    	this.blur();
     	}
     },
     onMouseOver : function(e,t){
@@ -355,33 +357,35 @@ $A.Graphics=Ext.extend($A.Component,{
 			Ext.fly(svg).set({'width':width,'height':height});
     	}
     },
+    moveTo :function(x,y){
+    	this.x = x;
+    	this.y = y;
+    	if(isSVG(this.wrap)){
+    		transform(this.wrap,x,y);
+    	}else{
+    		var xy = this.top.wrap.getXY();
+    		this.wrap.moveTo(xy[0]+x,xy[1]+y);
+    	}
+    },
     focus : function(t){
-    	this.blur(null,t)
     	t = this.fire('focus',null,t);
     	if(t){
-			this.focusItem = t;
-			if(t.editable){
+			if(this.focusItem)this.blur();
+	    	if(t.editable){
 				t.showEditor()
 			}
+			this.focusItem = t;
     	}else{
     		this.fireEvent('focus')
     	}
-    	var sf = this;
-    	if(this.focusItem){
-	    	setTimeout(function(){
-	    		Ext.get(document).on('mousedown',sf.blur,sf);
-	    	},1)
-    	}
     },
-    blur : function(e,t){
-    	if(!t||(this.focusItem && t.id.indexOf(this.focusItem.id) == -1)){
-    		Ext.get(document).un('mousedown',this.blur,this);
-    		if(this.focusItem.editable){
-				this.focusItem.hideEditor()
-			}
-    		this.fire('blur',null,this.focusItem);
-    		this.focusItem = null;
-    	}
+    blur : function(){
+    	var t = this.focusItem;
+    	if(t.editable){
+			t.hideEditor()
+		}
+		this.fire('blur',null,t);
+		this.focusItem = null;
     },
     startLine : function(e){
     	var _xy = this.top.wrap.getXY();
@@ -401,31 +405,14 @@ $A.Graphics=Ext.extend($A.Component,{
     	}
     },
     endLine : function(e){
+    	if(this.newline){
+    		this.focus($('_graphics_main_'+this.newline.id));
+    		this.fireEvent('drawn');
+    	}
     	this.drawLinePoints = null;
     	this.newline = null;
     	Ext.get(document).un('mousemove',this.drawLine,this);
 		Ext.get(document).un('mouseup',this.endLine,this);
-    },
-    showEditor : function(){
-    	if(this.editor){
-    		for(var i = 0,l = this.editor.length;i<l;i++){
-	    		this.editor[i].wrap.show();
-    		}
-    	}
-    },
-    hideEditor : function(){
-    	if(this.editor){
-    		for(var i = 0,l = this.editor.length;i<l;i++){
-    			this.editor[i].wrap.hide();
-    		}
-    	}
-    },
-    clearEditor : function(){
-    	if(this.editor){
-    		while(this.editor.length){
-    			this.editor.pop().destroy();
-    		}
-    	}
     },
     clear : function(){
     	var el = this.root.dom;
@@ -462,14 +449,52 @@ $A.Graphics=Ext.extend($A.Component,{
     	}
     	el.clearEditor();
     },
-    onUpdate : function(ds,record, name, value){
-    	var prev = Ext.fly(this.id+'_'+record.id).prev();
+    onIndexChange : function(ds,record){
+    	this.focus($(this.id + '_' +record.id));
+    },
+    onUpdate : function(ds,record, name, value,ov){
+    	var el = $(this.id+'_'+record.id);
+    	var config = convertConfig(record);
+    	for(var key in el.initConfig){
+    		if(key != 'dataset' && key != 'top' && key != 'root' && key != 'id'){
+	    		if(!key in config)delete el[key];
+	    		else el[key] = config[key];
+    		}
+    	}
+    	if(el.processConfig(config)==false){
+    		record.set(name,ov);
+    		return;
+    	}
+    	el.initConfig = config;
+    	el.processListener('un');
+    	var dom = el.wrap.dom;
+    	while(dom.firstChild){
+    		Ext.fly(dom.firstChild).remove();
+    	}
+    	el.initComponent(config);
+    	el.processListener('on');
+    	if(el.editor && el.points){
+    		var i = 0,eds = el.editor;
+			for(p = el.points,l=p.length;i<l;i++){
+				var ed = eds[i];
+				if(ed){
+					var rx = ed.rx,ry = ed.ry;
+					ed.moveTo(p[i][0]-rx,p[i][1]-ry);
+				}else{
+					el.createEditor(p[i][0],p[i][1]);
+				}
+			}
+			while(eds.length > i){
+				eds.pop().destroy();
+			}
+    	}
+    	/*var prev = Ext.fly(this.id+'_'+record.id).prev();
     	this.onRemove(null,record);
     	this.create(record);
     	if(prev){
     		if(this.title)Ext.fly(this.id+'_'+record.id+'_title').insertAfter(prev)
     		Ext.fly(this.id+'_'+record.id).insertAfter(prev)
-    	}
+    	}*/
     },
 	createGElement : function(name,config){
 		var el = new pub[capitalize(name)](Ext.apply(config,{root:Ext.get(config.root)||this.root,top:this}));
@@ -491,12 +516,13 @@ $A.Graphics=Ext.extend($A.Component,{
 var pub ={
 	Path:Ext.extend($A.Graphics,{
 		zoom:10000,
-		initWrap : function(){
-			if(hasSVG){
-				this.wrap = newSVG("g",this.id);
-			}else{
-				this.wrap = newVML("v:group");
-			}
+		initSVGWrap : function(){
+			this.wrap = newSVG("g",this.id);
+			this.root.appendChild(this.wrap);
+		},
+    	initVMLWrap : function(){
+	    	this.wrap = newVML("v:group");
+	    	this.root.appendChild(this.wrap);
 	    },
 		initSVGElement : function(){
 			if(this.x||this.y) {
@@ -531,7 +557,6 @@ var pub ={
 	    	}
 	    	config.d=this.d;
 	    	this.el.set(config);
-	    	this.root.appendChild(this.wrap);
 	    	this.wrap.appendChild(this.el);
 	    },
 	    initVMLElement : function(){
@@ -544,7 +569,6 @@ var pub ={
 	    	if(this.fillcolor=='transparent'||this.fillopacity==0)fill=false;
 	        this.wrap.setStyle({position:'absolute',width:100,height:100,left:(this.x||0)+'px',top:(this.y||0)+'px'});
 	        this.wrap.set({coordsize:'100,100'});
-	        this.root.appendChild(this.wrap);
 	    	this.el=new Ext.Template(this.getVmlTpl(stroke,fill,filled)).append(this.wrap.dom,{
 	    		id:this.id,
 	    		style:this.style,
@@ -660,6 +684,53 @@ var pub ={
 	    	path.push('E');
 	    	return path.join(' ');
 	    },
+	    createEditors : function(){
+	    	if(this.editable){
+				this.editor = [];
+				var points = this.points;
+				for(var i=0;i<points.length;i++){
+					var x = points[i][0],y = points[i][1];
+					this.createEditor(x,y);
+				}
+			}
+	    },
+	    createEditor : function(x,y){
+	    	var i = this.editor.length;
+	    	this.editor[i] = new pub.Oval({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':this.root,'top':this.top,'moveable':true});
+			this.editor[i].on('move',this.editorMove,this);
+	    },
+	    editorMove : function(el,ds,x,y){
+	    	var record = this.getRecord();
+			var config = convertConfig(record),points="";
+			for(var i=0,l=this.editor.length;i<l;i++){
+				var ed = this.editor[i];
+				points += (ed.x+ed.rx)+','+(ed.y+ed.ry)+" ";
+			}
+			config.points = points;
+			record.set('config',Ext.util.JSON.encode(config));
+   		},
+   		showEditor : function(){
+	    	if(this.editor){
+	    		for(var i = 0,l = this.editor.length;i<l;i++){
+	    			setTopCmp(this.editor[i].wrap);
+		    		this.editor[i].wrap.show();
+	    		}
+	    	}
+	    },
+	    hideEditor : function(){
+	    	if(this.editor){
+	    		for(var i = 0,l = this.editor.length;i<l;i++){
+	    			this.editor[i].wrap.hide();
+	    		}
+	    	}
+	    },
+	    clearEditor : function(){
+	    	if(this.editor){
+	    		while(this.editor.length){
+	    			this.editor.pop().destroy();
+	    		}
+	    	}
+	    },
 	    getVmlTpl : function(s,f,filled){
 	    	var tpl = ["<v:shape id='{id}' filled='"+filled+"' stroked='"+s+"' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:pointer;{style}' path='{path}'>"];
 	    	if(f)tpl.push(fill);
@@ -669,78 +740,39 @@ var pub ={
 	    }
 	}),
 	Line : function(config){
-		var a= config.points.match(numberReg);
-		var points = [];
-		for(var i = 0;i<a.length;i+=2){
-			points.push([a[i],a[i+1]]);
-		}
-		a.splice(2,0,"L");
-		if(config.strokewidth == 1)config.strokewidth = 2;
-		config.fillcolor = 'none';
-		var line = new pub.Path(Ext.apply(config,{d:["M"].concat(a).join(' ')}));
-		line.points = points;
-		if(config.editable){
-			line.editor = [];
-			for(var i=0;i<points.length;i++){
-				var x = points[i][0],y = points[i][1];
-				line.editor[i] = new pub.Oval({id:line.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':line.wrap,'top':config.top,'moveable':true});
-				line.editor[i].on('move',function(el,ds,x,y){
-					var record = line.getRecord();
-					var config = convertConfig(record),points="";
-					for(var i=0,l=line.editor.length;i<l;i++){
-						var ed = line.editor[i];
-						points += (ed.x+ed.rx)+','+(ed.y+ed.ry)+" ";
-					}
-					config.points = points;
-					record.set('config',Ext.util.JSON.encode(config));
-				},line)
+		function processConfig(config){
+			var a= config.points.match(numberReg),points = [];
+			if(!a)return false;
+			for(var i = 0;i<a.length;i+=2){
+				points.push([a[i],a[i+1]]);
 			}
+			if(points.length<2)return false;
+			a.splice(2,0,"L");
+			config.d = ["M"].concat(a).join(' ');
+			if(config.strokewidth < 3)config.strokewidth = 3;
+			config.fillcolor = 'none';
+			config.points = points;
 		}
+		if(processConfig(config)==false)return;
+		var line = new pub.Path(config);
+		line.processConfig = processConfig;
+		line.createEditors();
 		return line;
 	},
-	/*Oval:Ext.extend($A.Graphics,{
-		initSVGElement : function(){
-			this.wrap = newSVG("g",this.id);
-			if(this.x||this.y) transform(this.wrap,this.x,this.y);
-			this.el = newSVG("ellipse",this.id+"_el");
-	    	this.el.dom.style.cssText=encodeStyle({
-	    		'fill':this.fillcolor,
-	    		'fill-opacity':this.fillopacity,
-	    	 	'stroke':this.strokecolor,
-	    		'stroke-width':this.strokewidth,
-	    		'stroke-opacity':this.strokeopacity,
-	    		'cursor':'pointer'
-	    	})+this.style;
-	    	this.el.set({cx:this.rx,cy:this.ry,rx:this.rx,ry:this.ry});
-	    	this.root.appendChild(this.wrap);
-	    	this.wrap.appendChild(this.el);
-	    },
-	    initVMLElement : function(){
-	    	this.wrap = newVML("v:group");
-	        this.wrap.setStyle({position:'absolute',width:this.rx<<1,height:this.ry<<1,left:(this.x||0)+'px',top:(this.y||0)+'px'});
-	        this.wrap.set({coordsize:(this.rx<<1)+','+(this.ry<<1)});
-	        this.root.appendChild(this.wrap);
-	    	this.el=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
-	    		id:this.id,
-	    		style:this.style,
-	    		width:this.rx<<1,
-	    		height:this.ry<<1,
-	    		fillColor:this.fillcolor||'black',
-	    		fillOpacity:(this.fillcolor=='none'||this.fillcolor=='transparent')?0:(this.fillopacity||1),
-	    		strokeColor:this.strokecolor||'none',
-	    		strokeWidth:this.strokecolor?this.strokewidth:0,
-	    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
-	    	},true)
-	    },
-	    vmlTpl : ["<v:oval id='{id}' style='position:absolute;left:0;top:0;width:{width}px;height:{height}px;cursor:pointer;{style}'>",
-	    fill,stroke,"</v:oval>"]
-	}),*/
 	Oval:function(config){
-		config.height = config.height||config.ry*2;
-		config.width = config.width||config.rx*2;
-		config.ry = config.height/2;
-		config.rx = config.width/2;
-		return new pub.Rect(config);
+		var superProcessConfig = null;
+		function processConfig(config){
+			config.height = config.height||config.ry*2;
+			config.width = config.width||config.rx*2;
+			config.ry = config.height/2;
+			config.rx = config.width/2;
+			if(superProcessConfig)superProcessConfig(config);
+		}
+		processConfig(config);
+		var oval =  new pub.Rect(config);
+		superProcessConfig = oval.processConfig;
+		oval.processConfig = processConfig;
+		return oval;
 	},
 	Image : Ext.extend($A.Graphics,{
 		initSVGElement : function(){
@@ -776,7 +808,8 @@ var pub ={
 	    vmlTpl : ["<v:image id='{id}' src='{src}' style='position:absolute;left:0;top:0;width:{width}px;height:{height}px;{style}'>",stroke,"</v:image>"]
 	}),
 	Rect : function(config){
-		var h = Number(config.height)||200,
+		function processConfig(config){
+			var h = Number(config.height)||200,
 			w = Number(config.width)||200,
 			rx = Math.min(Number(config.rx)||0,w/2),
 			ry = Math.min(Number(config.ry)||0,h/2),
@@ -792,10 +825,16 @@ var pub ={
 			if(lx)d.push('H',round?rx:0);
 			if(round)d.push('A',rx,ry,0,0,1,0,h-ry);
 			if(ly)d.push('Z');
-		return new pub.Path(Ext.apply(config,{d:d.join(' ')}));
+			config.d = d.join(' ');
+		}
+		processConfig(config);
+		var rect = new pub.Path(config);
+		rect.processConfig = processConfig;
+		return rect;
 	},
 	Diamond : function(config){
-		var h = Number(config.height)||100,
+		function processConfig(config){
+			var h = Number(config.height)||100,
 			w = Number(config.width)||200,
 			d = ['M',
 				0,h/2,
@@ -804,7 +843,12 @@ var pub ={
 				w,h/2,
 				w/2,h,
 				'Z'];
-		return new pub.Path(Ext.apply(config,{d:d.join(' ')}));
+			config.d = d.join(' ');
+		}
+		processConfig(config);
+		var diamond = new pub.Path(config);
+		diamond.processConfig = processConfig;
+		return diamond;
 	},
 	Text : Ext.extend($A.Graphics,{
 		initSVGElement : function(){
