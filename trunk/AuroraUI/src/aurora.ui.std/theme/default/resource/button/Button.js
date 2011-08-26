@@ -106,10 +106,12 @@ $A.Button = Ext.extend($A.Component,{
     onMouseOver: function(e){
     	if(!this.disabled)
     	this.wrap.addClass(this.overCss);
+        $A.Button.superclass.onMouseOver.call(this,e);
     },
     onMouseOut: function(e){
     	if(!this.disabled)
     	this.wrap.removeClass(this.overCss);
+        $A.Button.superclass.onMouseOut.call(this,e);
     }
 });
 $A.Button.getTemplate = function(id,text,width){

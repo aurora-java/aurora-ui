@@ -1265,4 +1265,18 @@ $A.showValidTopMsg = function(ds) {
 //		}
 //	}
 //})
+$A.startCustomization = function(){
+    var cust = $A.CmpManager.get('_customization');
+    if(cust==null){
+        cust = new $A.Customization({id:'_customization'});    
+    }
+    cust.start();
+}
+$A.stopCustomization = function(){
+    var cust = $A.CmpManager.get('_customization');
+    if(cust!=null){
+        cust.stop();
+        $A.CmpManager.remove('_customization');
+    }
+}
 $A.setValidInfoType('tip'); 
