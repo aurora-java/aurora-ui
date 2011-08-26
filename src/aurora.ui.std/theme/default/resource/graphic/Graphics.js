@@ -1,6 +1,7 @@
 (function(){
 var DOC=document,
     SVG_NS = 'http://www.w3.org/2000/svg',
+    VML_NS = 'urn:schemas-microsoft-com:vml',
     XLINK_NS = 'http://www.w3.org/1999/xlink',
 	hasSVG = !!DOC.createElementNS && !!DOC.createElementNS(SVG_NS, "svg").createSVGRect,
 	fill = "<v:fill color='{fillColor}' opacity='{fillOpacity}'/>",
@@ -24,6 +25,13 @@ var DOC=document,
     	if(hasSVG){
 	    	el = el.dom||el;
 	    	return el.namespaceURI == SVG_NS;
+    	}
+    	return false;
+    },
+    isVML = function(el){
+    	if(!hasSVG){
+	    	el = el.dom||el;
+	    	return !!el.tagUrn && el.tagUrn == VML_NS;
     	}
     	return false;
     },
@@ -54,6 +62,9 @@ var DOC=document,
     	}
     	return color;
     },
+    convertConfig = function(record){
+    	return Ext.util.JSON.decode('{'+(record.get('config')||'').replace(/^{|}$/g,'').toLowerCase()+'}')
+    },
     transform = function(){
     	var dom,values=Ext.toArray(arguments);
     	if(values.length&&Ext.isObject(values[0])){
@@ -67,7 +78,8 @@ var DOC=document,
     	}
     	var transform = dom.getAttribute('transform');
     	if(!transform)transform = 'translate(0,0) scale(1,1) rotate(0,0 0)';
-    	dom.setAttribute('transform',transform.replace(/\(([-.\d]+)\)/g,'($1,$1)').replace(/[-.\d]+/ig,function($0){var v=values.shift();return Ext.isEmpty(v)?$0:v}))
+    	var t = transform.split('rotate');
+    	dom.setAttribute('transform',(t[0].replace(/\(([-.\d]+)\)/g,'($1,$1)')+'rotate'+t[1].replace(/\(([-.\d]+)\)/,'($1,0 0)')).replace(/[-.\d]+/g,function($0){var v=values.shift();return Ext.isEmpty(v)?$0:v}))
     },
     setTopCmp = function(){
     	var z = 1,el;
@@ -75,7 +87,10 @@ var DOC=document,
     		cmp = Ext.get(cmp);
     		if(el!=cmp){
 				el = cmp;
-				el.setStyle('z-index',z++);
+				if(isSVG(el))
+					el.parent().appendChild(el);
+				else
+					el.setStyle('z-index',z++);
     		}
 		}
     }();
@@ -91,6 +106,7 @@ var DOC=document,
 $A.Graphics=Ext.extend($A.Component,{
 	constructor: function(config) {
 		this.root=config.root;
+		this.top = config.top||this;
 		$A.Graphics.superclass.constructor.call(this,config);
 		return this;
 	},
@@ -98,6 +114,7 @@ $A.Graphics=Ext.extend($A.Component,{
 		$A.Graphics.superclass.initComponent.call(this,config);
 		this.fillcolor = convertColor(this.fillcolor);
 		this.strokecolor = convertColor(this.strokecolor);
+		this.initWrap();
 		this['init'+(hasSVG?'SVG':'VML')+'Element']();
 		if(this.title)this.setTitle(this.title);
     },
@@ -112,7 +129,9 @@ $A.Graphics=Ext.extend($A.Component,{
 	         * @param {Aurora.Record} record 数据行对象.
 	         */
     		'click',
-    		'drop'
+    		'drop',
+    		'move',
+    		'create'
     	)
     },
 	processListener: function(ou){
@@ -120,9 +139,7 @@ $A.Graphics=Ext.extend($A.Component,{
 		this.wrap[ou]('click',this.onClick,this,{preventDefault:true});
 		this.wrap[ou]('mouseover',this.onMouseOver,this,{preventDefault:true});
 		this.wrap[ou]('mouseout',this.onMouseOut,this,{preventDefault:true});
-		if(this.dropto||this.moveable){
-			this.wrap[ou]('mousedown',this.onMouseDown,this)	
-		}
+		this.wrap[ou]('mousedown',this.onMouseDown,this);
     },
     processDataSetLiestener:function(ou){
     	ds = this.dataset;
@@ -130,17 +147,19 @@ $A.Graphics=Ext.extend($A.Component,{
 	    	ds[ou]('load', this.onLoad, this);
 	    	ds[ou]('update', this.onUpdate, this);
 	    	ds[ou]('add', this.onAdd, this);
+	    	ds[ou]('remove', this.onRemove, this);
     	}
     },
     initSVGElement : function(){
-    	this.svg = newSVG("svg");
+    	var svg = newSVG("svg");
     	this.root = newSVG("g");
-    	this.wrap.appendChild(this.svg);
-    	this.svg.appendChild(this.root);
+    	this.wrap.appendChild(svg);
+    	svg.appendChild(this.root);
     },
+    initWrap : function(){},
     initVMLElement : function(){
     	if (!DOC.namespaces.hcv) {
-            DOC.namespaces.add('v', 'urn:schemas-microsoft-com:vml');
+            DOC.namespaces.add('v', VML_NS);
             DOC.createStyleSheet().cssText = 
                 'v\\:roundrect,v\\:oval,v\\:image,v\\:polyline,v\\:line,v\\:group,v\\:fill,v\\:path,v\\:shape,v\\:stroke'+
                 '{ behavior:url(#default#VML); display: inline-block; } ';
@@ -166,50 +185,84 @@ $A.Graphics=Ext.extend($A.Component,{
     	this.proxy.position('absolute');
     	Ext.getBody().appendChild(this.proxy);
     },
-    onClick : function(e,t){
-    	var a = t.id.split('_'),id = a[1],record;
-    	if(this.dataset&&id)
-    		record = this.dataset.findById(id)
-    	if(a[0]&&id)t = $(a[0]+'_'+id);
-    	this.fireEvent('click',t,this.dataset,record);
-    },
-    onMouseDown : function(e){
-    	var xy = this.wrap.getXY();
-    	this.relativeX=xy[0]-e.getPageX();
-		this.relativeY=xy[1]-e.getPageY();
-		this.screenWidth = $A.getViewportWidth();
-        this.screenHeight = $A.getViewportHeight();
-    	if(this.dropto){
-	    	if(!this.dropEl)
-	    		this.dropEl = $(this.dropto);
-	    	if(!this.proxy)
-	    		this.initProxy();
-	    	this.proxy.moveTo(xy[0],xy[1]);
-    	}else{
-    		this.proxy = this.wrap;
+    onMouseDown : function(e,t){
+    	this.fire('mousedown',e,t);
+    	this.focus(t);
+    	if(this.top.canDrawLine){
+    		if(this.top == this){
+    			this.startLine(e);
+    		}
+    	}else if(this.dropto||this.moveable){
+	    	var xy = this.wrap.getXY();
+	    	if(isSVG(this.wrap)){
+	    		var _xy = this.top.wrap.getXY();
+	    		xy[0] = this.x + _xy[0];
+	    		xy[1] = this.y + _xy[1];
+	    	}
+	    	this.relativeX=xy[0]-e.getPageX();
+			this.relativeY=xy[1]-e.getPageY();
+			this.screenWidth = $A.getViewportWidth();
+	        this.screenHeight = $A.getViewportHeight();
+	    	if(this.dropto){
+		    	if(!this.dropEl)
+		    		this.dropEl = $(this.dropto);
+		    	if(!this.proxy)
+		    		this.initProxy();
+		    	this.proxy.moveTo(xy[0],xy[1]);
+	    	}else{
+	    		this.proxy = this.wrap;
+	    	}
+	    	setTopCmp(this.proxy);
+	    	Ext.get(document).on('mousemove',this.onMouseMove,this);
+	    	Ext.get(document).on('mouseup',this.onMouseUp,this);
     	}
-    	setTopCmp(this.proxy);
-    	Ext.get(document).on('mousemove',this.onMouseMove,this);
-    	Ext.get(document).on('mouseup',this.onMouseUp,this);
     },
     onMouseMove : function(e){
     	e.stopEvent();
-    	var tx = e.getPageX()+this.relativeX;
-    	var ty = e.getPageY()+this.relativeY;
-    	if(isSVG(this.wrap)){
-    		var _xy = this.root.parent('div').getXY();
-    		tx -= _xy[0];
-    		ty -= _xy[1];
-	    	transform(this.proxy,tx,ty)
+    	var tx = e.getPageX()+this.relativeX,
+    		ty = e.getPageY()+this.relativeY,
+    		w = this.width||this.rx*2,
+    		h = this.height||this.ry*2,
+    		_xy,
+    		stroke = this.strokewidth||0,
+    		sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft,
+    		st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
+    	if(isSVG(this.wrap)||isVML(this.wrap)){
+    		var graphic = this.top.wrap,
+    			sw = graphic.getWidth(),
+    			sh = graphic.getHeight(),b=0;
+    		_xy = graphic.getXY();
+    		tx -=  _xy[0];
+    		ty -=  _xy[1];
+    		if(stroke && isVML(this.wrap)){
+    			b = 1 - stroke/2;
+    		}
+    		if(tx <= b) tx = b;
+    		else if(tx + this.width - b> sw - 2) tx = sw - 2 - this.width + b;
+    		if(ty <= b) ty = b;
+    		else if(ty + this.height - b> sh - 2) ty = sh - 2 - this.height + b;
+			this.x = tx;
+			this.y = ty;
+			if(this.moveable)this.fireEvent('move',this,this.dataset,tx - b,ty - b);
+    		if(isSVG(this.wrap)){
+    			if(stroke % 2 == 1){
+					tx += 0.5;
+					ty += 0.5;
+    			}
+				transform(this.proxy,tx,ty);
+			}else{
+				tx += _xy[0];
+	    		ty += _xy[1];
+	    		this.proxy.moveTo(tx,ty);
+			}
     	}else{
-	    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
-	    	var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
 	    	var sw = sl + this.screenWidth;
 	    	var sh = st + this.screenHeight;
-	    	if(tx<=sl) tx =sl;
-	    	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
-	    	if(ty<=st) ty =st;
-	    	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
+	    	if(tx < 0) tx = 0;
+	    	else if((tx+w) >= sw) tx = Math.max(sw - w,0);
+	    	if(ty < 0) ty = 0;
+	    	else if((ty+h) >= sh) ty = Math.max(sh - h,0);
+	    	if(this.moveable)this.fireEvent('move',this,this.dataset,tx,ty);
 	    	this.proxy.moveTo(tx,ty);
     	}
     },
@@ -217,38 +270,59 @@ $A.Graphics=Ext.extend($A.Component,{
     	Ext.get(document).un('mousemove',this.onMouseMove,this);
     	Ext.get(document).un('mouseup',this.onMouseUp,this);
     	if(this.dropto){
-    		var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
-    		var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
-    		var xy = this.dropEl.wrap.getXY();
-    		var l = xy[0] - sl;
-    		var t = xy[1] - st;
-    		var r = l + this.dropEl.width;
-    		var b = t + this.dropEl.height;
-    		var ex = e.getPageX();
-    		var ey = e.getPageY()
+    		var wrap = this.dropEl.wrap,
+    			xy = wrap.getXY(),
+    			l = xy[0],
+    			t = xy[1],
+    			r = l + wrap.getWidth(),
+    			b = t + wrap.getHeight(),
+    			ex = e.getPageX(),
+    			ey = e.getPageY();
     		if(ex >= xy[0] && ey >= xy[1] && ex <= r && ey <= b){
-				this.dropEl.fireEvent('drop',this,this.dataset,ex+this.relativeX-l+(hasSVG?4:0),ey+this.relativeY-t+(hasSVG?4:0));
+				this.dropEl.fireEvent('drop',this.proxy,this.dataset,ex+this.relativeX-l+(hasSVG?4:0),ey+this.relativeY-t+(hasSVG?4:0));
     		}
 	    	this.proxy.moveTo(-1000,-1000);
+	    	this.blur();
     	}
     },
     onMouseOver : function(e,t){
-    	var a = t.id.split('_'),id = a[1],record;
-    	if(this.dataset&&id)
-    		record = this.dataset.findById(id)
-    	if(a[0]&&id)t = $(a[0]+'_'+id);
-    	this.fireEvent('mouseover',t,this.dataset,record);
+    	this.fire('mouseover',e,t);
     },
     onMouseOut : function(e,t){
-    	var a = t.id.split('_'),id = a[1],record;
-    	if(this.dataset&&id)
-    		record = this.dataset.findById(id)
-    	if(a[0]&&id)t = $(a[0]+'_'+id);
-    	this.fireEvent('mouseout',t,this.dataset,record);
+    	this.fire('mouseout',e,t);
+    },
+    onClick : function(e,t){
+    	this.fire('click',e,t);
+    },
+    getRecord : function(){
+    	var a = this.id.match(/(.*)_(\d+)(_.*)*$/),id;
+    	if(a){
+    		id=a[2];
+	    	if(this.dataset)
+	    		return this.dataset.findById(id)
+    	}
+    },
+    fire : function(name,e,t){
+    	if(!t) return;
+    	var a = t.id.match(/(.*)_(\d+)(_.*)*$/),id,record;
+    	if(a){
+    		id = a[2];
+	    	if(id){
+		    	if(this.dataset)
+		    		record = this.dataset.findById(id)
+		    	if(a[1]){
+		    		t = $(a[1]+'_'+id);
+		    		this.fireEvent(name,e,t,this.dataset,record);
+		    		return t;
+		    	}
+	    	}
+    	}
+    	this.fireEvent(name,e,t);
     },
     create : function(g){
-    	var type = g.get('type'),config = Ext.util.JSON.decode('{'+(g.get('config')||'').replace(/^{|}$/g,'').toLowerCase()+'}');
+    	var type = g.get('type'),config = convertConfig(g);
 		config.id = this.id + "_" + g.id;
+		config.dataset = this.dataset;
 		if(this.renderer){
     	var fder = $A.getRenderer(this.renderer);
 	        if(fder == null){
@@ -266,6 +340,92 @@ $A.Graphics=Ext.extend($A.Component,{
 	        }
 		}
 		this.createGElement(config.type||type,config);
+    },
+    resizeSVG : function(){
+    	if(hasSVG){
+	    	var graphic = this.top.wrap;
+	    	var	_xy = graphic.getXY()
+	    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
+	    	var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
+	    	var g = this.root.dom;
+	    	var svg = g.ownerSVGElement;
+			var box = g.getBoundingClientRect();
+			var width = box.left - _xy[0] + box.width +sl;
+			var height = box.top - _xy[1] + box.height +st;
+			Ext.fly(svg).set({'width':width,'height':height});
+    	}
+    },
+    focus : function(t){
+    	this.blur(null,t)
+    	t = this.fire('focus',null,t);
+    	if(t){
+			this.focusItem = t;
+			if(t.editable){
+				t.showEditor()
+			}
+    	}else{
+    		this.fireEvent('focus')
+    	}
+    	var sf = this;
+    	if(this.focusItem){
+	    	setTimeout(function(){
+	    		Ext.get(document).on('mousedown',sf.blur,sf);
+	    	},1)
+    	}
+    },
+    blur : function(e,t){
+    	if(!t||(this.focusItem && t.id.indexOf(this.focusItem.id) == -1)){
+    		Ext.get(document).un('mousedown',this.blur,this);
+    		if(this.focusItem.editable){
+				this.focusItem.hideEditor()
+			}
+    		this.fire('blur',null,this.focusItem);
+    		this.focusItem = null;
+    	}
+    },
+    startLine : function(e){
+    	var _xy = this.top.wrap.getXY();
+		this.drawLinePoints = (e.getPageX() - _xy[0]) +','+(e.getPageY() - _xy[1]);
+		Ext.get(document).on('mousemove',this.drawLine,this);
+		Ext.get(document).on('mouseup',this.endLine,this);
+    },
+    drawLine : function(e){
+    	var _xy = this.top.wrap.getXY();
+    	var points = this.drawLinePoints + ' ' +(e.getPageX() - _xy[0]) +','+(e.getPageY() - _xy[1]);
+    	if(!this.newline){
+    		this.newline = this.dataset.create({'type':'line','config':'strokewidth:1,strokecolor:"#aaaaaa",strokeopacity:"1",titlecolor:"black",titlesize:14,titlex:0,titley:0,endarrow:"classic",points:"'+points+'",editable:true'});
+    	}else{
+    		var config = convertConfig(this.newline);
+    		config.points = points;
+    		this.newline.set('config',Ext.util.JSON.encode(config));
+    	}
+    },
+    endLine : function(e){
+    	this.drawLinePoints = null;
+    	this.newline = null;
+    	Ext.get(document).un('mousemove',this.drawLine,this);
+		Ext.get(document).un('mouseup',this.endLine,this);
+    },
+    showEditor : function(){
+    	if(this.editor){
+    		for(var i = 0,l = this.editor.length;i<l;i++){
+	    		this.editor[i].wrap.show();
+    		}
+    	}
+    },
+    hideEditor : function(){
+    	if(this.editor){
+    		for(var i = 0,l = this.editor.length;i<l;i++){
+    			this.editor[i].wrap.hide();
+    		}
+    	}
+    },
+    clearEditor : function(){
+    	if(this.editor){
+    		while(this.editor.length){
+    			this.editor.pop().destroy();
+    		}
+    	}
     },
     clear : function(){
     	var el = this.root.dom;
@@ -293,24 +453,34 @@ $A.Graphics=Ext.extend($A.Component,{
     onAdd : function(ds,record,index){
     	this.create(record);
     },
-    onUpdate : function(ds,record, name, value){
+    onRemove : function(ds,record,index){
     	var el = $(this.id+'_'+record.id);
-    	var prev = Ext.fly(el.id).prev();
     	el.destroy();
+    	if(el.text){
+    		el.text.destroy();
+    		el.text = null;
+    	}
+    	el.clearEditor();
+    },
+    onUpdate : function(ds,record, name, value){
+    	var prev = Ext.fly(this.id+'_'+record.id).prev();
+    	this.onRemove(null,record);
     	this.create(record);
     	if(prev){
-    		Ext.fly(this.id+'_'+record.id+'_title').insertAfter(prev)
+    		if(this.title)Ext.fly(this.id+'_'+record.id+'_title').insertAfter(prev)
     		Ext.fly(this.id+'_'+record.id).insertAfter(prev)
     	}
     },
 	createGElement : function(name,config){
-    	return new pub[capitalize(name)](Ext.apply(config,{root:Ext.get(config.root)||this.root}));
+		var el = new pub[capitalize(name)](Ext.apply(config,{root:Ext.get(config.root)||this.root,top:this}));
+    	this.fireEvent('create',this,el,name);
+    	//this.resizeSVG();
+    	return el;
     },
     setTitle : function(title){
-    	if(!this.text)this.text = new pub.Text({id:this.id+'_title',dx:this.titlex,dy:this.titley,color:this.titlecolor,size:this.titlesize,root:this.wrap});
+    	if(!this.text)this.text = new pub.Text({id:this.id+'_title',dx:this.titlex||0,dy:this.titley||0,color:this.titlecolor,size:this.titlesize,root:this.wrap});
     	this.text.setText(title);
     },
-    transform : transform,
     destroy : function(){
     	this.wrap.remove();
     	if(this.proxy && this.proxy!=this.wrap)this.proxy.remove()
@@ -321,9 +491,20 @@ $A.Graphics=Ext.extend($A.Component,{
 var pub ={
 	Path:Ext.extend($A.Graphics,{
 		zoom:10000,
+		initWrap : function(){
+			if(hasSVG){
+				this.wrap = newSVG("g",this.id);
+			}else{
+				this.wrap = newVML("v:group");
+			}
+	    },
 		initSVGElement : function(){
-			this.wrap = newSVG("g",this.id);
-			if(this.x||this.y) transform(this.wrap,this.x,this.y);
+			if(this.x||this.y) {
+				if(this.strokewidth&&this.strokewidth%2==1)
+					transform(this.wrap,this.x+0.5,this.y+0.5);
+				else
+					transform(this.wrap,this.x,this.y);
+			}
 			this.el = newSVG("path",this.id+'_el');
 	    	this.el.dom.style.cssText=encodeStyle({
 	    		'fill':this.fillcolor,
@@ -337,16 +518,16 @@ var pub ={
 	    	if(this.startarrow || this.endarrow){
 	    		var a = this.d.match(numberReg),l = a.length;
 		    	if(this.startarrow){
-		    		config['marker-start']='url(#start-arrow-'+this.strokecolor+'-'+this.startarrow+')';
+		    		config['marker-start']='url(#start-arrow-'+this.strokecolor+'-'+this.startarrow+'-'+(this.strokeopacity||1)*100+')';
 		    		var point = this.convertArrow(Number(a[0]),y1 = Number(a[1]), x2 = Number(a[2]),y2 = Number(a[3]));
 		    		this.d = this.d.replace(/[\d-+.]+\s+[\d-+.]+/,point.x+' '+point.y);
 		    	}
 		    	if(this.endarrow){
-		    		config['marker-end']='url(#end-arrow-'+this.strokecolor+'-'+this.endarrow+')';
+		    		config['marker-end']='url(#end-arrow-'+this.strokecolor+'-'+this.endarrow+'-'+(this.strokeopacity||1)*100+')';
 		    		var point = this.convertArrow(Number(a[l-2]),y1 = Number(a[l-1]), x2 = Number(a[l-4]),y2 = Number(a[l-3]));
 		    		this.d = this.d.replace(/([\d-+.]+\s+[\d-+.]+)[^\d]*$/,point.x+' '+point.y);
 		    	}
-	    		new pub.Arrow({color:this.strokecolor,strokewidth:this.strokewidth,endarrow:this.endarrow,startarrow:this.startarrow,root:this.root})
+	    		new pub.Arrow({color:this.strokecolor,width:this.strokewidth,opacity:this.strokeopacity,endarrow:this.endarrow,startarrow:this.startarrow,root:this.root})
 	    	}
 	    	config.d=this.d;
 	    	this.el.set(config);
@@ -354,20 +535,26 @@ var pub ={
 	    	this.wrap.appendChild(this.el);
 	    },
 	    initVMLElement : function(){
-	    	this.wrap = newVML("v:group");
+	    	var stroke=true,fill=true,filled=true;
+	    	if(Ext.isEmpty(this.strokewidth))this.strokewidth=1;
+	    	if(Ext.isEmpty(this.strokeopacity))this.strokeopacity=1;
+	    	if(!this.strokecolor||this.strokecolor=='none'||this.strokeopacity==0||this.strokewidth==0)stroke=false;
+	    	if(Ext.isEmpty(this.fillopacity))this.fillopacity=1;
+	    	if(this.fillcolor=='none')filled=false;
+	    	if(this.fillcolor=='transparent'||this.fillopacity==0)fill=false;
 	        this.wrap.setStyle({position:'absolute',width:100,height:100,left:(this.x||0)+'px',top:(this.y||0)+'px'});
 	        this.wrap.set({coordsize:'100,100'});
 	        this.root.appendChild(this.wrap);
-	    	this.el=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
+	    	this.el=new Ext.Template(this.getVmlTpl(stroke,fill,filled)).append(this.wrap.dom,{
 	    		id:this.id,
 	    		style:this.style,
 	    		path:this.convertPath(this.d),
 	    		zoom:this.zoom,
 	    		fillColor:this.fillcolor||'black',
-	    		fillOpacity:(this.fillcolor=='none'||this.fillcolor=='transparent')?0:(this.fillopacity||'1'),
-	    		strokeColor:this.strokecolor||'none',
-	    		strokeWidth:this.strokecolor?this.strokewidth:0,
-	    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0,
+	    		fillOpacity:this.fillopacity,
+	    		strokeColor:this.strokecolor == 'transparent'?'none':this.strokecolor,
+	    		strokeWidth:this.strokewidth,
+	    		strokeOpacity:this.strokecolor == 'transparent'?0:this.strokeopacity,
 	    		endArrow:this.endarrow,
 	    		startArrow:this.startarrow
 	    	},true)
@@ -473,17 +660,45 @@ var pub ={
 	    	path.push('E');
 	    	return path.join(' ');
 	    },
-	    vmlTpl : ["<v:shape id='{id}' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:pointer;{style}' path='{path}'>",
-	    fill,stroke,"</v:shape>"]
+	    getVmlTpl : function(s,f,filled){
+	    	var tpl = ["<v:shape id='{id}' filled='"+filled+"' stroked='"+s+"' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:pointer;{style}' path='{path}'>"];
+	    	if(f)tpl.push(fill);
+	    	if(s)tpl.push(stroke);
+	    	tpl.push("</v:shape>");
+	    	return tpl;
+	    }
 	}),
 	Line : function(config){
 		var a= config.points.match(numberReg);
+		var points = [];
+		for(var i = 0;i<a.length;i+=2){
+			points.push([a[i],a[i+1]]);
+		}
 		a.splice(2,0,"L");
 		if(config.strokewidth == 1)config.strokewidth = 2;
 		config.fillcolor = 'none';
-		return new pub.Path(Ext.apply(config,{d:["M"].concat(a).join(' ')}));
+		var line = new pub.Path(Ext.apply(config,{d:["M"].concat(a).join(' ')}));
+		line.points = points;
+		if(config.editable){
+			line.editor = [];
+			for(var i=0;i<points.length;i++){
+				var x = points[i][0],y = points[i][1];
+				line.editor[i] = new pub.Oval({id:line.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':line.wrap,'top':config.top,'moveable':true});
+				line.editor[i].on('move',function(el,ds,x,y){
+					var record = line.getRecord();
+					var config = convertConfig(record),points="";
+					for(var i=0,l=line.editor.length;i<l;i++){
+						var ed = line.editor[i];
+						points += (ed.x+ed.rx)+','+(ed.y+ed.ry)+" ";
+					}
+					config.points = points;
+					record.set('config',Ext.util.JSON.encode(config));
+				},line)
+			}
+		}
+		return line;
 	},
-	Oval:Ext.extend($A.Graphics,{
+	/*Oval:Ext.extend($A.Graphics,{
 		initSVGElement : function(){
 			this.wrap = newSVG("g",this.id);
 			if(this.x||this.y) transform(this.wrap,this.x,this.y);
@@ -517,9 +732,16 @@ var pub ={
 	    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
 	    	},true)
 	    },
-	    vmlTpl : ["<v:oval id='{id}' style='position:absolute;left:0;top:0;width:{width}px;height:{height}px;cursor:poniter;{style}'>",
+	    vmlTpl : ["<v:oval id='{id}' style='position:absolute;left:0;top:0;width:{width}px;height:{height}px;cursor:pointer;{style}'>",
 	    fill,stroke,"</v:oval>"]
-	}),
+	}),*/
+	Oval:function(config){
+		config.height = config.height||config.ry*2;
+		config.width = config.width||config.rx*2;
+		config.ry = config.height/2;
+		config.rx = config.width/2;
+		return new pub.Rect(config);
+	},
 	Image : Ext.extend($A.Graphics,{
 		initSVGElement : function(){
 			this.wrap = newSVG("g",this.id);
@@ -576,7 +798,7 @@ var pub ={
 		var h = Number(config.height)||100,
 			w = Number(config.width)||200,
 			d = ['M',
-				0,config.height/2,
+				0,h/2,
 				'L',
 				w/2,0,
 				w,h/2,
@@ -587,7 +809,7 @@ var pub ={
 	Text : Ext.extend($A.Graphics,{
 		initSVGElement : function(){
 			var strokewidth = $(this.root.id).strokewidth||0,
-				size = this.size||11;
+				size = this.size||14;
 			this.wrap = newSVG("text",this.id);
 	    	this.wrap.dom.style.cssText=encodeStyle({
 	    		'fill':this.color,
@@ -599,7 +821,7 @@ var pub ={
 	    	this.root.appendChild(this.wrap);
 	    },
 	    initVMLElement : function(){
-	    	var size = this.size||11;
+	    	var size = this.size||14;
 	    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
 	    		id:this.id,
 	    		style:encodeStyle({'line-height':size+'px','font-size':size+'px'})+this.style,
@@ -620,24 +842,25 @@ var pub ={
 			defs = newSVG('defs');
 			config.root.insertFirst(defs);
 		}
+		var color = config.color||'black',opacity = config.opacity||1;
 		if(config.startarrow){
-			var color = config.color,id = 'start-arrow-'+color+'-'+config.startarrow;
+			var id = 'start-arrow-'+color+'-'+config.startarrow+'-'+opacity*100;
 			var marker = Ext.get(id);
 			if(!marker){
 				marker = newSVG('marker');
 				marker.set({id:id,viewBox:'0 0 100 100',refX:40,refY:50,orient:'auto'});
 				defs.appendChild(marker);
-				new pub.Path({fillcolor:color,d:'M 100 0 L 0 50 L 100 100 L 66.66 50 z',root:marker});
+				new pub.Path({fillcolor:color,fillopacity:opacity,d:'M 100 0 L 0 50 L 100 100 L 66.66 50 z',root:marker});
 			}
 		}
 		if(config.endarrow){
-			var color = config.color,id = 'end-arrow-'+color+'-'+config.endarrow;
+			var id = 'end-arrow-'+color+'-'+config.endarrow+'-'+opacity*100;
 			var marker = Ext.get(id);
 			if(!marker){
 				marker = newSVG('marker');
 				marker.set({id:id,viewBox:'0 0 100 100',refX:60,refY:50,orient:'auto'});
 				defs.appendChild(marker);
-				new pub.Path({fillcolor:color,d:'M 0 0 L 100 50 L 0 100 L 33.33 50 z',root:marker});
+				new pub.Path({fillcolor:color,fillopacity:opacity,d:'M 0 0 L 100 50 L 0 100 L 33.33 50 z',root:marker});
 			}
 		}
 	}
