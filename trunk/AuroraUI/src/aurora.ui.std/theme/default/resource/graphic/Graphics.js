@@ -565,20 +565,20 @@ var pub ={
 	    	if(Ext.isEmpty(this.strokeopacity))this.strokeopacity=1;
 	    	if(!this.strokecolor||this.strokecolor=='none'||this.strokeopacity==0||this.strokewidth==0)stroke=false;
 	    	if(Ext.isEmpty(this.fillopacity))this.fillopacity=1;
-	    	if(this.fillcolor=='none')filled=false;
-	    	if(this.fillcolor=='transparent'||this.fillopacity==0)fill=false;
+	    	if(this.fillcolor=='none')fill=false;
+	    	if(this.fillcolor=='transparent')this.fillopacity=0;
 	        this.wrap.setStyle({position:'absolute',width:100,height:100,left:(this.x||0)+'px',top:(this.y||0)+'px'});
 	        this.wrap.set({coordsize:'100,100'});
-	    	this.el=new Ext.Template(this.getVmlTpl(stroke,fill,filled)).append(this.wrap.dom,{
+	    	this.el=new Ext.Template(this.getVmlTpl(stroke,fill)).append(this.wrap.dom,{
 	    		id:this.id,
 	    		style:this.style,
 	    		path:this.convertPath(this.d),
 	    		zoom:this.zoom,
 	    		fillColor:this.fillcolor||'black',
 	    		fillOpacity:this.fillopacity,
-	    		strokeColor:this.strokecolor == 'transparent'?'none':this.strokecolor,
+	    		strokeColor:this.strokecolor,
 	    		strokeWidth:this.strokewidth,
-	    		strokeOpacity:this.strokecolor == 'transparent'?0:this.strokeopacity,
+	    		strokeOpacity:this.strokeopacity,
 	    		endArrow:this.endarrow,
 	    		startArrow:this.startarrow
 	    	},true)
@@ -731,9 +731,9 @@ var pub ={
 	    		}
 	    	}
 	    },
-	    getVmlTpl : function(s,f,filled){
-	    	var tpl = ["<v:shape id='{id}' filled='"+filled+"' stroked='"+s+"' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:pointer;{style}' path='{path}'>"];
-	    	if(f)tpl.push(fill);
+	    getVmlTpl : function(s,f){
+	    	var tpl = ["<v:shape id='{id}' filled='"+f+"' stroked='"+s+"' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:pointer;{style}' path='{path}'>"];
+	    	tpl.push(fill);
 	    	if(s)tpl.push(stroke);
 	    	tpl.push("</v:shape>");
 	    	return tpl;
