@@ -27,6 +27,7 @@ $A.Radio = Ext.extend($A.Component, {
 //		this.select(this.selectIndex);
 	},	
 	processListener: function(ou){
+        $A.Radio.superclass.processListener.call(this, ou);
     	this.wrap[ou]('click',this.onClick,this);
     	this.wrap[ou]("keydown", this.onKeyDown, this);
     },
