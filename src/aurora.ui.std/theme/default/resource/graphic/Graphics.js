@@ -749,7 +749,7 @@ var pub ={
 			if(points.length<2)return false;
 			a.splice(2,0,"L");
 			config.d = ["M"].concat(a).join(' ');
-			if(config.strokewidth < 3)config.strokewidth = 3;
+			if(config.strokewidth == 1)config.strokewidth = 2;
 			config.fillcolor = 'none';
 			config.points = points;
 		}
