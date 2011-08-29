@@ -68,7 +68,11 @@ $A.Window = Ext.extend($A.Component,{
     		sf.marginheight=1;
     		sf.marginwidth=1;
     	}
-        sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
+        var urlAtt = '';
+        if(sf.url){
+            urlAtt = 'url="'+sf.url+'"';
+        }
+        sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,url:urlAtt}, true);
         sf.shadow = shadowTpl.insertFirst(document.body, {}, true);
         sf.shadow.setWidth(sf.wrap.getWidth());
         sf.shadow.setHeight(sf.wrap.getHeight());
@@ -188,7 +192,7 @@ $A.Window = Ext.extend($A.Component,{
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0">',
+            '<TABLE class="win-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0" {url}>',
 			'<TBODY>',
 			'<TR style="height:23px;" >',
 				'<TD class="win-caption">',
@@ -365,6 +369,7 @@ $A.Window = Ext.extend($A.Component,{
 //    	for(var key in cmps){
 //    		this.oldcmps[key] = cmps[key];
 //    	}
+        
     	Ext.Ajax.request({
 			url: url,
 			params:params||{},

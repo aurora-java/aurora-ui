@@ -100,6 +100,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this[ou]('load', this.onDataSetLoad, this);
         this[ou]('reject', bdp, this);
         ds[ou]('indexchange',this.onDataSetIndexChange, this);
+        ds[ou]('load',this.onBindDataSetLoad, this);
+        ds[ou]('clear',this.removeAll, this);
     },
     /**
      * 将组件绑定到某个DataSet的某个Field上.
@@ -120,6 +122,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             dataset:this
         });
         ds.fields[name] = field;
+    },
+    onBindDataSetLoad : function(ds,options){
+        if(ds.getAll().length == 0) this.removeAll();
     },
     onDataSetIndexChange : function(ds, record){
         if(!record.get(this.bindname) && record.isNew != true){
@@ -323,7 +328,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              * @param {Aurora.Record} record 选择的record.
              */ 
-	        'beforeselect',
+            'beforeselect',
             /**
              * @event select
              * 选择数据事件.
@@ -763,16 +768,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(this.selected.indexOf(r) != -1)return;
         if(!this.execSelectFunction(r))return;
         if(this.fireEvent("beforeselect",this,r)){
-	        if(this.selectionmodel == 'multiple'){
-	            this.selected.add(r);
-	            this.fireEvent('select', this, r);
-	        }else{
-	            var or = this.selected[0];
-	            this.unSelect(or);
-	            this.selected = []
-	            this.selected.add(r);
-	            this.fireEvent('select', this, r);
-	        }
+            if(this.selectionmodel == 'multiple'){
+                this.selected.add(r);
+                this.fireEvent('select', this, r);
+            }else{
+                var or = this.selected[0];
+                this.unSelect(or);
+                this.selected = []
+                this.selected.add(r);
+                this.fireEvent('select', this, r);
+            }
         }
     },
     /**
@@ -806,16 +811,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     locate : function(index, force){
         if(this.currentIndex === index && force !== true) return;
 //      if(valid !== false) if(!this.validCurrent())return;
-        if(index <=0 || (index > this.totalCount + this.getNewRecrods().length)){
-        	for(var k in this.fields){
-        		var field = this.fields[k];
-	            if(field.type == 'dataset'){
-	                var ds = field.pro['dataset'];
-	                ds.removeAll();
-	            }
-        	}
-        	return;
-        }
+        if(index <=0 || (index > this.totalCount + this.getNewRecrods().length))return;
         var lindex = index - (this.currentPage-1)*this.pagesize;
         if(this.data[lindex - 1]){
             this.currentIndex = index;
@@ -1534,7 +1530,7 @@ $A.Record.prototype = {
      * @param {Boolean} notDirty true 不改变record的dirty状态.
      */
     set : function(name, value, notDirty){
-    	var old = this.data[name];
+        var old = this.data[name];
         if(!(old === value||(Ext.isEmpty(old)&&Ext.isEmpty(value))||(Ext.isDate(old)&&Ext.isDate(value)&&old.getTime()==value.getTime()))){
             if(!notDirty){
                 this.dirty = true;
