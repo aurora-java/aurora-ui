@@ -521,6 +521,9 @@ var pub ={
 	    		'stroke-opacity':this.strokeopacity,
 	    		'cursor':'pointer'
 	    	})+this.style;
+	    	if(this.strokewidth && this.el.dom.style.stroke == ""){
+	    		this.el.dom.style.stroke = this.strokecolor = "black";
+	    	}
 	    	var config = {};
 	    	if(this.startarrow || this.endarrow){
 	    		var a = this.d.match(numberReg),l = a.length;
@@ -565,15 +568,15 @@ var pub ={
 	    	},true);
 	    },
 	    convertArrow : function(x1,y1,x2,y2){
-	    	var dx = x1 - x2,dy = y1 - y2;
+	    	var dx = x1 - x2,dy = y1 - y2,d = this.strokewidth*3/2;
 	    	if(dx == 0){
-				y1 += dy>0?-this.strokewidth:this.strokewidth;
+				y1 += dy>0?-d:d;
 			}else if(dy == 0){
-				x1 += dx>0?-this.strokewidth:this.strokewidth;
+				x1 += dx>0?-d:d;
 			}else{
 				var ll = Math.sqrt(dx*dx+dy*dy);
-				x1 = (ll-this.strokewidth)/ll*dx+x2;
-				y1 = (ll-this.strokewidth)/ll*dy+y2;
+				x1 = (ll-d)/ll*dx+x2;
+				y1 = (ll-d)/ll*dy+y2;
 			}
 			return {x:x1,y:y1};
 	    },
@@ -788,8 +791,7 @@ var pub ={
 			pub.Rect.processConfig(config);
 		}
 		pub.Oval.processConfig(config);
-		var oval =  new pub.Path(config);
-		return oval;
+		return new pub.Path(config);
 	},
 	Image : Ext.extend($A.Graphics,{
 		initSVGElement : function(){
@@ -904,7 +906,7 @@ var pub ={
 			var marker = Ext.get(id);
 			if(!marker){
 				marker = newSVG('marker');
-				marker.set({id:id,viewBox:'0 0 100 100',refX:40,refY:50,orient:'auto'});
+				marker.set({id:id,viewBox:'0 0 100 100',refX:50,refY:50,orient:'auto'});
 				defs.appendChild(marker);
 				new pub.Path({fillcolor:color,fillopacity:opacity,d:'M 100 0 L 0 50 L 100 100 L 66.66 50 z',root:marker});
 			}
@@ -914,7 +916,7 @@ var pub ={
 			var marker = Ext.get(id);
 			if(!marker){
 				marker = newSVG('marker');
-				marker.set({id:id,viewBox:'0 0 100 100',refX:60,refY:50,orient:'auto'});
+				marker.set({id:id,viewBox:'0 0 100 100',refX:50,refY:50,orient:'auto'});
 				defs.appendChild(marker);
 				new pub.Path({fillcolor:color,fillopacity:opacity,d:'M 0 0 L 100 50 L 0 100 L 33.33 50 z',root:marker});
 			}
