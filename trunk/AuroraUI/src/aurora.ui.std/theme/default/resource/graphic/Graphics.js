@@ -531,12 +531,13 @@ var pub ={
 			    	if(this.startarrow){
 			    		config['marker-start']='url(#start-arrow-'+this.strokecolor+'-'+this.startarrow+'-'+(this.strokeopacity||1)*100+')';
 			    		var point = this.convertArrow(Number(a[0]),y1 = Number(a[1]), x2 = Number(a[2]),y2 = Number(a[3]));
-			    		config.d = this.d.replace(/[\d-+.]+\s+[\d-+.]+/,point.x+' '+point.y);
+			    		a[0] = point.x;a[1] = point.y;
+			    		config.d = config.d.replace(/[\d-+.]+\s+[\d-+.]+/,point.x+' '+point.y);
 			    	}
 			    	if(this.endarrow){
 			    		config['marker-end']='url(#end-arrow-'+this.strokecolor+'-'+this.endarrow+'-'+(this.strokeopacity||1)*100+')';
 			    		var point = this.convertArrow(Number(a[l-2]),y1 = Number(a[l-1]), x2 = Number(a[l-4]),y2 = Number(a[l-3]));
-			    		config.d = this.d.replace(/([\d-+.]+\s+[\d-+.]+)[^\d]*$/,point.x+' '+point.y);
+			    		config.d = config.d.replace(/([\d-+.]+\s+[\d-+.]+)[^\d]*$/,point.x+' '+point.y);
 			    	}
 		    		new pub.Arrow({color:this.strokecolor,width:this.strokewidth,opacity:this.strokeopacity,endarrow:this.endarrow,startarrow:this.startarrow,root:this.root})
 		    	}
