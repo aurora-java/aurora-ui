@@ -1382,6 +1382,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this[ou]('load', this.onDataSetLoad, this);
         this[ou]('reject', bdp, this);
         ds[ou]('indexchange',this.onDataSetIndexChange, this);
+        ds[ou]('load',this.onBindDataSetLoad, this);
+        ds[ou]('clear',this.removeAll, this);
     },
     /**
      * 将组件绑定到某个DataSet的某个Field上.
@@ -1402,6 +1404,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             dataset:this
         });
         ds.fields[name] = field;
+    },
+    onBindDataSetLoad : function(ds,options){
+        if(ds.getAll().length == 0) this.removeAll();
     },
     onDataSetIndexChange : function(ds, record){
         if(!record.get(this.bindname) && record.isNew != true){
@@ -1605,7 +1610,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              * @param {Aurora.Record} record 选择的record.
              */ 
-	        'beforeselect',
+            'beforeselect',
             /**
              * @event select
              * 选择数据事件.
@@ -1966,6 +1971,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     removeAll : function(){
         this.currentIndex = 1;
+        this.totalCount = 0;
         this.data = [];
         this.selected = [];
         this.fireEvent("clear", this);
@@ -2044,16 +2050,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(this.selected.indexOf(r) != -1)return;
         if(!this.execSelectFunction(r))return;
         if(this.fireEvent("beforeselect",this,r)){
-	        if(this.selectionmodel == 'multiple'){
-	            this.selected.add(r);
-	            this.fireEvent('select', this, r);
-	        }else{
-	            var or = this.selected[0];
-	            this.unSelect(or);
-	            this.selected = []
-	            this.selected.add(r);
-	            this.fireEvent('select', this, r);
-	        }
+            if(this.selectionmodel == 'multiple'){
+                this.selected.add(r);
+                this.fireEvent('select', this, r);
+            }else{
+                var or = this.selected[0];
+                this.unSelect(or);
+                this.selected = []
+                this.selected.add(r);
+                this.fireEvent('select', this, r);
+            }
         }
     },
     /**
@@ -2806,7 +2812,7 @@ $A.Record.prototype = {
      * @param {Boolean} notDirty true 不改变record的dirty状态.
      */
     set : function(name, value, notDirty){
-    	var old = this.data[name];
+        var old = this.data[name];
         if(!(old === value||(Ext.isEmpty(old)&&Ext.isEmpty(value))||(Ext.isDate(old)&&Ext.isDate(value)&&old.getTime()==value.getTime()))){
             if(!notDirty){
                 this.dirty = true;
@@ -3377,7 +3383,8 @@ $A.Component = Ext.extend(Ext.util.Observable,{
             this.record.set(this.binder.name,v);
             if(Ext.isEmpty(v,true)) delete this.record.data[this.binder.name];
     	}
-    	if(ov!=v){
+    	//if(ov!=v){
+    	if(!(ov === v||(Ext.isEmpty(ov)&&Ext.isEmpty(v)))){
             this.fireEvent('change', this, v, ov);
     	}
     },
@@ -5835,7 +5842,11 @@ $A.Window = Ext.extend($A.Component,{
     		sf.marginheight=1;
     		sf.marginwidth=1;
     	}
-        sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height}, true);
+        var urlAtt = '';
+        if(sf.url){
+            urlAtt = 'url="'+sf.url+'"';
+        }
+        sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,url:urlAtt}, true);
         sf.shadow = shadowTpl.insertFirst(document.body, {}, true);
         sf.shadow.setWidth(sf.wrap.getWidth());
         sf.shadow.setHeight(sf.wrap.getHeight());
@@ -5955,7 +5966,7 @@ $A.Window = Ext.extend($A.Component,{
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0">',
+            '<TABLE class="win-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0" {url}>',
 			'<TBODY>',
 			'<TR style="height:23px;" >',
 				'<TD class="win-caption">',
@@ -6132,6 +6143,7 @@ $A.Window = Ext.extend($A.Component,{
 //    	for(var key in cmps){
 //    		this.oldcmps[key] = cmps[key];
 //    	}
+        
     	Ext.Ajax.request({
 			url: url,
 			params:params||{},
@@ -7127,8 +7139,23 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
         this.cover.on('mouseover',this.onCmpOut,this);
     },
     onClick : function(){
+        var path = window.location.pathname;
+        var str = path.indexOf('modules');
+        var screen_path = path.substring(str,path.length);
+        var screen = screen_path.substring(screen_path.lastIndexOf('/'), screen_path.length);
+        var parent = this.el.findParent('.win-wrap')
+        if(parent) {
+            var url = parent.getAttributeNS("","url");
+            if(url){
+                var li = url.lastIndexOf('/');
+                if(li != -1){
+                    url = url.substring(li,url.length);
+                    screen_path = screen_path.replaceAll(screen, url);
+                }
+            }
+        }
+        new Aurora.Window({id:'sys_customization_edit_window', url:'/hec/modules/sys/sys_customization_edit.screen?screen_path='+screen_path + '&id='+ this.cmp.id, title:'属性设置',height:530,width:780});        
         this.onCmpOut();
-        new Aurora.Window({id:'sys_customization_edit_window', url:'/hec/modules/sys/sys_customization_edit.screen', title:'属性设置',height:530,width:780});        
     },
     hideMask : function(){
         if(this.masker){
@@ -7142,8 +7169,8 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
         var screenWidth = Math.max(scrollWidth,Aurora.getViewportWidth());
         var screenHeight = Math.max(scrollHeight,Aurora.getViewportHeight());
         var st = (Ext.isIE6 ? 'position:absolute;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;':'')
-        var p = '<DIV class="aurora-cover" style="'+st+'" unselectable="on"></DIV>';
-//        var p = '<DIV class="aurora-cover" style="'+st+'filter: alpha(opacity=0);background-color: #fff;opacity: 0;mozopacity: 0;" unselectable="on"></DIV>';
+//        var p = '<DIV class="aurora-cover" style="'+st+'" unselectable="on"></DIV>';
+        var p = '<DIV class="aurora-cover" style="'+st+'filter: alpha(opacity=0);background-color: #fff;opacity: 0;mozopacity: 0;" unselectable="on"></DIV>';
         this.cover = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
         this.cover.setStyle('z-index', 9999);
     },
@@ -7171,11 +7198,11 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
         this.cmp = cmp;
         this.el = this.getEl(cmp);
         if(this.el){
-            this.backgroundcolor = this.el.getStyle('background-color');
-            this.currentPosition = this.el.getStyle('position');
+//            this.backgroundcolor = this.el.getStyle('background-color');
+//            this.currentPosition = this.el.getStyle('position');
             this.currentZIndex = this.el.getStyle('z-index');
-            this.el.setStyle('background-color','#fff')
-            this.el.setStyle('position','relative');
+//            this.el.setStyle('background-color','#fff')
+//            this.el.setStyle('position','relative');
             this.el.setStyle('z-index', 10000);
         }
         this.mask(this.el)
@@ -7183,9 +7210,9 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
     onCmpOut : function(e){
         this.isInSpotlight = false;
         if(this.el){
-            this.el.setStyle('position',this.currentPosition||'')
+//            this.el.setStyle('position',this.currentPosition||'')
             this.el.setStyle('z-index', this.currentZIndex);
-            this.el.setStyle('background-color', this.backgroundcolor||'');
+//            this.el.setStyle('background-color', this.backgroundcolor||'');
             this.el = null;
         }
         this.hideMask();
@@ -7193,6 +7220,7 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
         this.cmp = null;
     },
     stop : function(){
+        if(this.scanInterval) clearInterval(this.scanInterval)
         this.onCmpOut();
         var cmps = $A.CmpManager.getAll();
         for(var key in cmps){
@@ -7202,4 +7230,4 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
             }
         }
     }
-}); 
+});

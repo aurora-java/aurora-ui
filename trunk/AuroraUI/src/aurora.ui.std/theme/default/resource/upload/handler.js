@@ -27,7 +27,7 @@ function cancelUpload(did,id) {
 	}
 
 }
-function processPercent(record) {
+function processPercent(record,canDelete) {
     var ds = record.ds;
     var id = ds.id;
 	var percent = record.get('percent');
@@ -36,8 +36,8 @@ function processPercent(record) {
 	if (Ext.isEmpty(percent) || status == 1) {
 		html += '<div style="float:left;margin-left:10px;color:#808080">'
 				+ formatFileSize(record.get('file_size'))
-				+ '</div><a style="margin-left:5px;text-decoration:underline" href="javascript:deleteFileRecord(\''
-				+id +'\','+ record.id + ')">[删除]</a>';
+				+ '</div>'
+                + ((canDelete != false) ? '<a style="margin-left:5px;text-decoration:underline" href="javascript:deleteFileRecord(\''+id +'\','+ record.id + ')">[删除]</a>' : '');
 	} else if (percent == -1) {
 		html += '<div style="float:left;margin-left:10px;color:#FD99A8">已取消</div>';
 	} else {
@@ -54,7 +54,7 @@ function processPercent(record) {
 function fileSizeRenderer(value, record, name) {
 	return formatFileSize(value)
 }
-function atmRenderer(value, record, name) {
+function atmRenderer(value, record, name, canDelete) {
     var ds = record.ds;
     var id = ds.id;
     var upid = id.replaceAll('_ds','');
@@ -70,10 +70,12 @@ function atmRenderer(value, record, name) {
 	}
     
 	var html = '<div class="' + c + '">' + a + '<div style="float:left"><a target="_self" href="'+window[upid+'_download_path']+'?attachment_id='+record.get('attachment_id')+'\">'
-			+ value + '</a></div>' + processPercent(record) + '</div>';
+			+ value + '</a></div>' + processPercent(record,canDelete) + '</div>';
 	return html;
 }
-
+function atmNotDeleteRenderer(value, record, name) {
+    return atmRenderer(value,record,name,false)
+}
 // ------------------------------------
 /*
 function fileQueued(file) {
