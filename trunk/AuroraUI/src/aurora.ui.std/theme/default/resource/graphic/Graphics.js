@@ -115,8 +115,8 @@ $A.Graphics=Ext.extend($A.Component,{
 		this.fillcolor = convertColor(this.fillcolor);
 		this.strokecolor = convertColor(this.strokecolor);
 		if(!this.wrap)this['init'+(hasSVG?'SVG':'VML')+'Wrap']();
-		this['init'+(hasSVG?'SVG':'VML')+'Element']();
 		if(this.title)this.setTitle(this.title);
+		this['init'+(hasSVG?'SVG':'VML')+'Element']();
     },
     initEvents : function(){
     	$A.Graphics.superclass.initEvents.call(this);
@@ -226,48 +226,16 @@ $A.Graphics=Ext.extend($A.Component,{
     		ty = e.getPageY()+this.relativeY,
     		w = this.width||this.rx*2,
     		h = this.height||this.ry*2,
-    		_xy,
-    		stroke = this.strokewidth||0,
     		sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft,
-    		st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
-    	if(isSVG(this.wrap)||isVML(this.wrap)){
-    		var graphic = this.top.wrap,
-    			sw = graphic.getWidth(),
-    			sh = graphic.getHeight(),b=0;
-    		_xy = graphic.getXY();
-    		tx -=  _xy[0];
-    		ty -=  _xy[1];
-    		if(stroke && isVML(this.wrap)){
-    			b = 1 - stroke/2;
-    		}
-    		if(tx <= b) tx = b;
-    		else if(tx + this.width - b> sw - 2) tx = sw - 2 - this.width + b;
-    		if(ty <= b) ty = b;
-    		else if(ty + this.height - b> sh - 2) ty = sh - 2 - this.height + b;
-			this.x = tx;
-			this.y = ty;
-			if(this.moveable)this.fireEvent('move',this,this.dataset,tx - b,ty - b);
-    		if(isSVG(this.wrap)){
-    			if(stroke % 2 == 1){
-					tx += 0.5;
-					ty += 0.5;
-    			}
-				transform(this.proxy,tx,ty);
-			}else{
-				tx += _xy[0];
-	    		ty += _xy[1];
-	    		this.proxy.moveTo(tx,ty);
-			}
-    	}else{
-	    	var sw = sl + this.screenWidth;
-	    	var sh = st + this.screenHeight;
-	    	if(tx < 0) tx = 0;
-	    	else if((tx+w) >= sw) tx = Math.max(sw - w,0);
-	    	if(ty < 0) ty = 0;
-	    	else if((ty+h) >= sh) ty = Math.max(sh - h,0);
-	    	if(this.moveable)this.fireEvent('move',this,this.dataset,tx,ty);
-	    	this.proxy.moveTo(tx,ty);
-    	}
+			st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop,
+    		sw = sl + this.screenWidth,
+    		sh = st + this.screenHeight;
+    	if(tx < 0) tx = 0;
+    	else if((tx+w) >= sw) tx = Math.max(sw - w,0);
+    	if(ty < 0) ty = 0;
+    	else if((ty+h) >= sh) ty = Math.max(sh - h,0);
+    	if(this.moveable)this.fireEvent('move',this,this.dataset,tx,ty);
+    	this.proxy.moveTo(tx,ty);
     },
     onMouseUp : function(e){
     	Ext.get(document).un('mousemove',this.onMouseMove,this);
@@ -358,8 +326,6 @@ $A.Graphics=Ext.extend($A.Component,{
     	}
     },
     moveTo :function(x,y){
-    	this.x = x;
-    	this.y = y;
     	if(isSVG(this.wrap)){
     		transform(this.wrap,x,y);
     	}else{
@@ -453,23 +419,25 @@ $A.Graphics=Ext.extend($A.Component,{
     	this.focus($(this.id + '_' +record.id));
     },
     onUpdate : function(ds,record, name, value,ov){
-    	var el = $(this.id+'_'+record.id);
-    	var config = convertConfig(record);
-    	for(var key in el.initConfig){
-    		if(key != 'dataset' && key != 'top' && key != 'root' && key != 'id'){
-	    		if(!key in config)delete el[key];
-	    		else el[key] = config[key];
-    		}
-    	}
-    	if(el.processConfig(config)==false){
+    	var el = $(this.id+'_'+record.id),
+    		config = convertConfig(record);
+    		config.type = record.get('type');
+    	if(pub[capitalize(config.type)].processConfig(config)==false){
     		record.set(name,ov);
     		return;
     	}
+    	for(var key in el.initConfig){
+    		if(key != 'dataset' && key != 'top' && key != 'root' && key != 'id'){
+	    		if(!key in config)delete el[key];
+    		}
+    	}
+    	Ext.apply(el,config);
     	el.initConfig = config;
     	el.processListener('un');
-    	var dom = el.wrap.dom;
-    	while(dom.firstChild){
-    		Ext.fly(dom.firstChild).remove();
+    	el.el.remove()
+    	if(el.text){
+    		el.text.destroy();
+    		el.text = null;
     	}
     	el.initComponent(config);
     	el.processListener('on');
@@ -478,7 +446,13 @@ $A.Graphics=Ext.extend($A.Component,{
 			for(p = el.points,l=p.length;i<l;i++){
 				var ed = eds[i];
 				if(ed){
-					var rx = ed.rx,ry = ed.ry;
+					var rx = ed.width/2,ry = ed.height/2,stroke = ed.strokewidth;
+					ed.x = p[i][0]-rx;
+    				ed.y = p[i][1]-ry;
+					if(hasSVG && stroke % 2 ==1){
+						rx -= 0.5;
+						ry -= 0.5;
+					}
 					ed.moveTo(p[i][0]-rx,p[i][1]-ry);
 				}else{
 					el.createEditor(p[i][0],p[i][1]);
@@ -488,22 +462,29 @@ $A.Graphics=Ext.extend($A.Component,{
 				eds.pop().destroy();
 			}
     	}
-    	/*var prev = Ext.fly(this.id+'_'+record.id).prev();
-    	this.onRemove(null,record);
-    	this.create(record);
-    	if(prev){
-    		if(this.title)Ext.fly(this.id+'_'+record.id+'_title').insertAfter(prev)
-    		Ext.fly(this.id+'_'+record.id).insertAfter(prev)
-    	}*/
     },
 	createGElement : function(name,config){
-		var el = new pub[capitalize(name)](Ext.apply(config,{root:Ext.get(config.root)||this.root,top:this}));
+		var el = new pub[capitalize(name)](Ext.apply(config,{type:name,root:Ext.get(config.root)||this.root,top:this}));
     	this.fireEvent('create',this,el,name);
     	//this.resizeSVG();
     	return el;
     },
     setTitle : function(title){
-    	if(!this.text)this.text = new pub.Text({id:this.id+'_title',dx:this.titlex||0,dy:this.titley||0,color:this.titlecolor,size:this.titlesize,root:this.wrap});
+    	if(!this.text){
+			var x = this.titlex||0, y = this.titley||0,root = this.wrap;
+			if(isVML(this.wrap)){
+				if(this.type == 'line'){
+					x += this.x;
+					y += this.y;
+					root = this.top.wrap;
+				}else{
+					var strokewidth = this.strokewidth;
+					x += strokewidth/2;
+					y += strokewidth/2;
+				}
+			}
+    		this.text = new pub.Text({id:this.id+'_title',dx:x,dy:y,color:this.titlecolor,size:this.titlesize,root:root});
+    	}
     	this.text.setText(title);
     },
     destroy : function(){
@@ -521,7 +502,7 @@ var pub ={
 			this.root.appendChild(this.wrap);
 		},
     	initVMLWrap : function(){
-	    	this.wrap = newVML("v:group");
+	    	this.wrap = newVML("v:group",this.id);
 	    	this.root.appendChild(this.wrap);
 	    },
 		initSVGElement : function(){
@@ -557,7 +538,7 @@ var pub ={
 	    	}
 	    	config.d=this.d;
 	    	this.el.set(config);
-	    	this.wrap.appendChild(this.el);
+	    	this.wrap.insertFirst(this.el);
 	    },
 	    initVMLElement : function(){
 	    	var stroke=true,fill=true,filled=true;
@@ -569,8 +550,8 @@ var pub ={
 	    	if(this.fillcolor=='transparent')this.fillopacity=0;
 	        this.wrap.setStyle({position:'absolute',width:100,height:100,left:(this.x||0)+'px',top:(this.y||0)+'px'});
 	        this.wrap.set({coordsize:'100,100'});
-	    	this.el=new Ext.Template(this.getVmlTpl(stroke,fill)).append(this.wrap.dom,{
-	    		id:this.id,
+	    	this.el=new Ext.Template(this.getVmlTpl(stroke,fill)).insertFirst(this.wrap.dom,{
+	    		id:this.id+'_el',
 	    		style:this.style,
 	    		path:this.convertPath(this.d),
 	    		zoom:this.zoom,
@@ -581,7 +562,7 @@ var pub ={
 	    		strokeOpacity:this.strokeopacity,
 	    		endArrow:this.endarrow,
 	    		startArrow:this.startarrow
-	    	},true)
+	    	},true);
 	    },
 	    convertArrow : function(x1,y1,x2,y2){
 	    	var dx = x1 - x2,dy = y1 - y2;
@@ -696,7 +677,7 @@ var pub ={
 	    },
 	    createEditor : function(x,y){
 	    	var i = this.editor.length;
-	    	this.editor[i] = new pub.Oval({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':this.root,'top':this.top,'moveable':true});
+	    	this.editor[i] = new pub.Rect({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':this.root,'top':this.top,'moveable':true});
 			this.editor[i].on('move',this.editorMove,this);
 	    },
 	    editorMove : function(el,ds,x,y){
@@ -704,7 +685,7 @@ var pub ={
 			var config = convertConfig(record),points="";
 			for(var i=0,l=this.editor.length;i<l;i++){
 				var ed = this.editor[i];
-				points += (ed.x+ed.rx)+','+(ed.y+ed.ry)+" ";
+				points += (ed.x+5)+','+(ed.y+5)+" ";
 			}
 			config.points = points;
 			record.set('config',Ext.util.JSON.encode(config));
@@ -731,47 +712,83 @@ var pub ={
 	    		}
 	    	}
 	    },
+	    onMouseMove : function(e){
+	    	e.stopEvent();
+	    	var w = this.width||this.rx*2,
+	    		h = this.height||this.ry*2,
+	    		graphic = this.top.wrap,
+    			sw = graphic.getWidth(),
+    			sh = graphic.getHeight(),
+    			stroke = this.strokewidth||0,
+	    		_xy = graphic.getXY(),
+	    		tx = e.getPageX()+this.relativeX - _xy[0],
+	    		ty = e.getPageY()+this.relativeY - _xy[1],
+	    		b=0;
+    		if(stroke && isVML(this.wrap)){
+    			b = 1 - stroke/2;
+    		}
+    		if(tx <= b) tx = b;
+    		else if(tx + this.width - b> sw - 2) tx = sw - 2 - this.width + b;
+    		if(ty <= b) ty = b;
+    		else if(ty + this.height - b> sh - 2) ty = sh - 2 - this.height + b;
+			this.x = tx;
+			this.y = ty;
+			if(this.moveable)this.fireEvent('move',this,this.dataset,tx - b,ty - b);
+    		if(isSVG(this.wrap)){
+    			if(stroke % 2 == 1){
+					tx += 0.5;
+					ty += 0.5;
+    			}
+				transform(this.proxy,tx,ty);
+			}else{
+				tx += _xy[0];
+	    		ty += _xy[1];
+	    		this.proxy.moveTo(tx,ty);
+			}
+	    },
 	    getVmlTpl : function(s,f){
 	    	var tpl = ["<v:shape id='{id}' filled='"+f+"' stroked='"+s+"' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:pointer;{style}' path='{path}'>"];
-	    	tpl.push(fill);
+	    	if(f)tpl.push(fill);
 	    	if(s)tpl.push(stroke);
 	    	tpl.push("</v:shape>");
 	    	return tpl;
 	    }
 	}),
 	Line : function(config){
-		function processConfig(config){
+		pub.Line.processConfig = function(config){
 			var a= config.points.match(numberReg),points = [];
 			if(!a)return false;
-			for(var i = 0;i<a.length;i+=2){
+			for(var i = 0,l = a.length;i < l;i += 2){
 				points.push([a[i],a[i+1]]);
 			}
-			if(points.length<2)return false;
-			a.splice(2,0,"L");
-			config.d = ["M"].concat(a).join(' ');
+			if(points.length < 2)return false;
+			var x = points[0][0], y = points[0][1];
+			a = ["M",0,0,"L"];
+			for(var i = 1,l = points.length; i < l;i++){
+				a.push(points[i][0] - x,points[i][1] - y);
+			}
+			config.d = a.join(' ');
 			if(config.strokewidth == 1)config.strokewidth = 2;
 			config.fillcolor = 'none';
 			config.points = points;
+			config.x = Number(x);
+			config.y = Number(y);
 		}
-		if(processConfig(config)==false)return;
+		if(pub.Line.processConfig(config)==false)return;
 		var line = new pub.Path(config);
-		line.processConfig = processConfig;
 		line.createEditors();
 		return line;
 	},
 	Oval:function(config){
-		var superProcessConfig = null;
-		function processConfig(config){
+		pub.Oval.processConfig = function(config){
 			config.height = config.height||config.ry*2;
 			config.width = config.width||config.rx*2;
 			config.ry = config.height/2;
 			config.rx = config.width/2;
-			if(superProcessConfig)superProcessConfig(config);
+			pub.Rect.processConfig(config);
 		}
-		processConfig(config);
-		var oval =  new pub.Rect(config);
-		superProcessConfig = oval.processConfig;
-		oval.processConfig = processConfig;
+		pub.Oval.processConfig(config);
+		var oval =  new pub.Path(config);
 		return oval;
 	},
 	Image : Ext.extend($A.Graphics,{
@@ -808,7 +825,7 @@ var pub ={
 	    vmlTpl : ["<v:image id='{id}' src='{src}' style='position:absolute;left:0;top:0;width:{width}px;height:{height}px;{style}'>",stroke,"</v:image>"]
 	}),
 	Rect : function(config){
-		function processConfig(config){
+		pub.Rect.processConfig=function(config){
 			var h = Number(config.height)||200,
 			w = Number(config.width)||200,
 			rx = Math.min(Number(config.rx)||0,w/2),
@@ -827,13 +844,11 @@ var pub ={
 			if(ly)d.push('Z');
 			config.d = d.join(' ');
 		}
-		processConfig(config);
-		var rect = new pub.Path(config);
-		rect.processConfig = processConfig;
-		return rect;
+		pub.Rect.processConfig(config);
+		return new pub.Path(config);
 	},
 	Diamond : function(config){
-		function processConfig(config){
+		pub.Diamond.processConfig = function(config){
 			var h = Number(config.height)||100,
 			w = Number(config.width)||200,
 			d = ['M',
@@ -845,15 +860,12 @@ var pub ={
 				'Z'];
 			config.d = d.join(' ');
 		}
-		processConfig(config);
-		var diamond = new pub.Path(config);
-		diamond.processConfig = processConfig;
-		return diamond;
+		pub.Diamond.processConfig(config);
+		return new pub.Path(config);
 	},
 	Text : Ext.extend($A.Graphics,{
 		initSVGElement : function(){
-			var strokewidth = $(this.root.id).strokewidth||0,
-				size = this.size||14;
+			var size = this.size||14;
 			this.wrap = newSVG("text",this.id);
 	    	this.wrap.dom.style.cssText=encodeStyle({
 	    		'fill':this.color,
@@ -861,8 +873,8 @@ var pub ={
 	    		'line-height':size+'px',
 	    		'cursor':'text'
 	    	})+this.style;
-	    	this.wrap.set({dx:this.dx-strokewidth+1,dy:this.dy+size-strokewidth-2});
-	    	this.root.appendChild(this.wrap);
+	    	this.wrap.set({dx:this.dx+1,dy:this.dy+size-2});
+	    	this.root.insertFirst(this.wrap);
 	    },
 	    initVMLElement : function(){
 	    	var size = this.size||14;
