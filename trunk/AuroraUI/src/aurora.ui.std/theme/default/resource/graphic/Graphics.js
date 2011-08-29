@@ -521,25 +521,26 @@ var pub ={
 	    		'stroke-opacity':this.strokeopacity,
 	    		'cursor':'pointer'
 	    	})+this.style;
-	    	if(this.strokewidth && this.el.dom.style.stroke == ""){
-	    		this.el.dom.style.stroke = this.strokecolor = "black";
-	    	}
-	    	var config = {};
-	    	if(this.startarrow || this.endarrow){
-	    		var a = this.d.match(numberReg),l = a.length;
-		    	if(this.startarrow){
-		    		config['marker-start']='url(#start-arrow-'+this.strokecolor+'-'+this.startarrow+'-'+(this.strokeopacity||1)*100+')';
-		    		var point = this.convertArrow(Number(a[0]),y1 = Number(a[1]), x2 = Number(a[2]),y2 = Number(a[3]));
-		    		this.d = this.d.replace(/[\d-+.]+\s+[\d-+.]+/,point.x+' '+point.y);
+	    	var config = {d:this.d};
+	    	if(this.strokewidth){
+		    	if(!this.el.dom.style.stroke){
+		    		this.strokecolor = this.el.dom.style.stroke = "black";
 		    	}
-		    	if(this.endarrow){
-		    		config['marker-end']='url(#end-arrow-'+this.strokecolor+'-'+this.endarrow+'-'+(this.strokeopacity||1)*100+')';
-		    		var point = this.convertArrow(Number(a[l-2]),y1 = Number(a[l-1]), x2 = Number(a[l-4]),y2 = Number(a[l-3]));
-		    		this.d = this.d.replace(/([\d-+.]+\s+[\d-+.]+)[^\d]*$/,point.x+' '+point.y);
+		    	if(this.startarrow || this.endarrow){
+		    		var a = this.d.match(numberReg),l = a.length;
+			    	if(this.startarrow){
+			    		config['marker-start']='url(#start-arrow-'+this.strokecolor+'-'+this.startarrow+'-'+(this.strokeopacity||1)*100+')';
+			    		var point = this.convertArrow(Number(a[0]),y1 = Number(a[1]), x2 = Number(a[2]),y2 = Number(a[3]));
+			    		config.d = this.d.replace(/[\d-+.]+\s+[\d-+.]+/,point.x+' '+point.y);
+			    	}
+			    	if(this.endarrow){
+			    		config['marker-end']='url(#end-arrow-'+this.strokecolor+'-'+this.endarrow+'-'+(this.strokeopacity||1)*100+')';
+			    		var point = this.convertArrow(Number(a[l-2]),y1 = Number(a[l-1]), x2 = Number(a[l-4]),y2 = Number(a[l-3]));
+			    		config.d = this.d.replace(/([\d-+.]+\s+[\d-+.]+)[^\d]*$/,point.x+' '+point.y);
+			    	}
+		    		new pub.Arrow({color:this.strokecolor,width:this.strokewidth,opacity:this.strokeopacity,endarrow:this.endarrow,startarrow:this.startarrow,root:this.root})
 		    	}
-	    		new pub.Arrow({color:this.strokecolor,width:this.strokewidth,opacity:this.strokeopacity,endarrow:this.endarrow,startarrow:this.startarrow,root:this.root})
 	    	}
-	    	config.d=this.d;
 	    	this.el.set(config);
 	    	this.wrap.insertFirst(this.el);
 	    },
