@@ -684,6 +684,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     removeAll : function(){
         this.currentIndex = 1;
+        this.totalCount = 0;
         this.data = [];
         this.selected = [];
         this.fireEvent("clear", this);
@@ -805,7 +806,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     locate : function(index, force){
         if(this.currentIndex === index && force !== true) return;
 //      if(valid !== false) if(!this.validCurrent())return;
-        if(index <=0 || (index > this.totalCount + this.getNewRecrods().length))return;
+        if(index <=0 || (index > this.totalCount + this.getNewRecrods().length)){
+        	for(var k in this.fields){
+        		var field = this.fields[k];
+	            if(field.type == 'dataset'){
+	                var ds = field.pro['dataset'];
+	                ds.removeAll();
+	            }
+        	}
+        	return;
+        }
         var lindex = index - (this.currentPage-1)*this.pagesize;
         if(this.data[lindex - 1]){
             this.currentIndex = index;
