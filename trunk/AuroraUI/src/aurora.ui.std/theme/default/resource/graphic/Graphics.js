@@ -131,7 +131,6 @@ $A.Graphics=Ext.extend($A.Component,{
     		'click',
     		'drop',
     		'move',
-    		'create',
     		'drawn'
     	)
     },
@@ -234,7 +233,7 @@ $A.Graphics=Ext.extend($A.Component,{
     	else if((tx+w) >= sw) tx = Math.max(sw - w,0);
     	if(ty < 0) ty = 0;
     	else if((ty+h) >= sh) ty = Math.max(sh - h,0);
-    	if(this.moveable)this.fireEvent('move',this,this.dataset,tx,ty);
+    	if(this.moveable)this.fireEvent('move',this,this.top.dataset,tx,ty);
     	this.proxy.moveTo(tx,ty);
     },
     onMouseUp : function(e){
@@ -250,7 +249,7 @@ $A.Graphics=Ext.extend($A.Component,{
     			ex = e.getPageX(),
     			ey = e.getPageY();
     		if(ex >= xy[0] && ey >= xy[1] && ex <= r && ey <= b){
-				this.dropEl.fireEvent('drop',this.proxy,this.dataset,ex+this.relativeX-l+(hasSVG?4:0),ey+this.relativeY-t+(hasSVG?4:0));
+				this.dropEl.fireEvent('drop',this.proxy,this.top.dataset,ex+this.relativeX-l+(hasSVG?4:0),ey+this.relativeY-t+(hasSVG?4:0));
     		}
 	    	this.proxy.moveTo(-1000,-1000);
     	}
@@ -264,25 +263,18 @@ $A.Graphics=Ext.extend($A.Component,{
     onClick : function(e,t){
     	this.fire('click',e,t);
     },
-    getRecord : function(){
-    	var a = this.id.match(/(.*)_(\d+)(_.*)*$/),id;
-    	if(a){
-    		id=a[2];
-	    	if(this.dataset)
-	    		return this.dataset.findById(id)
-    	}
-    },
     fire : function(name,e,t){
     	if(!t) return;
-    	var a = t.id.match(/(.*)_(\d+)(_.*)*$/),id,record;
+    	var a = t.id.match(/(.*)_(\d+)(_.*)*$/),id,ds,record;
     	if(a){
     		id = a[2];
 	    	if(id){
-		    	if(this.dataset)
-		    		record = this.dataset.findById(id)
+	    		ds = this.top.dataset;
+		    	if(ds)
+		    		record = ds.findById(id)
 		    	if(a[1]){
 		    		t = $(a[1]+'_'+id);
-		    		this.fireEvent(name,e,t,this.dataset,record);
+		    		this.fireEvent(name,e,t,ds,record);
 		    		return t;
 		    	}
 	    	}
@@ -380,12 +372,6 @@ $A.Graphics=Ext.extend($A.Component,{
     	Ext.get(document).un('mousemove',this.drawLine,this);
 		Ext.get(document).un('mouseup',this.endLine,this);
     },
-    clear : function(){
-    	var el = this.root.dom;
-    	while(el.firstChild){
-    		Ext.fly(el.firstChild).remove();
-    	}
-    },
     bind : function(ds){
     	this.dataset = $(ds);
     	if(this.dataset)this.processDataSetLiestener('on');
@@ -465,7 +451,6 @@ $A.Graphics=Ext.extend($A.Component,{
     },
 	createGElement : function(name,config){
 		var el = new pub[capitalize(name)](Ext.apply(config,{type:name,root:Ext.get(config.root)||this.root,top:this}));
-    	this.fireEvent('create',this,el,name);
     	//this.resizeSVG();
     	return el;
     },
@@ -528,14 +513,16 @@ var pub ={
 		    	}
 		    	if(this.startarrow || this.endarrow){
 		    		var a = this.d.match(numberReg),l = a.length;
+		    		var id = '-' + this.strokecolor + '-' + (this.strokeopacity || 1) * 100;
+		    		if(Ext.isIE9) id += '-' + this.strokewidth;
 			    	if(this.startarrow){
-			    		config['marker-start']='url(#start-arrow-'+this.strokecolor+'-'+this.startarrow+'-'+(this.strokeopacity||1)*100+')';
+			    		config['marker-start'] = 'url(#start-arrow-' + this.startarrow + id + ')';
 			    		var point = this.convertArrow(Number(a[0]),y1 = Number(a[1]), x2 = Number(a[2]),y2 = Number(a[3]));
 			    		a[0] = point.x;a[1] = point.y;
 			    		config.d = config.d.replace(/[\d-+.]+\s+[\d-+.]+/,point.x+' '+point.y);
 			    	}
 			    	if(this.endarrow){
-			    		config['marker-end']='url(#end-arrow-'+this.strokecolor+'-'+this.endarrow+'-'+(this.strokeopacity||1)*100+')';
+			    		config['marker-end'] = 'url(#end-arrow-' + this.endarrow + id + ')';
 			    		var point = this.convertArrow(Number(a[l-2]),y1 = Number(a[l-1]), x2 = Number(a[l-4]),y2 = Number(a[l-3]));
 			    		config.d = config.d.replace(/([\d-+.]+\s+[\d-+.]+)[^\d]*$/,point.x+' '+point.y);
 			    	}
@@ -683,9 +670,9 @@ var pub ={
 	    createEditor : function(x,y){
 	    	var i = this.editor.length;
 	    	this.editor[i] = new pub.Rect({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':this.root,'top':this.top,'moveable':true});
-			this.editor[i].on('move',this.editorMove,this);
+			this.top.on('move',this.editorMove,this);
 	    },
-	    editorMove : function(el,ds,x,y){
+	    editorMove : function(el,ds,record,x,y){
 	    	var record = this.getRecord();
 			var config = convertConfig(record),points="";
 			for(var i=0,l=this.editor.length;i<l;i++){
@@ -738,7 +725,15 @@ var pub ={
     		else if(ty + this.height - b> sh - 2) ty = sh - 2 - this.height + b;
 			this.x = tx;
 			this.y = ty;
-			if(this.moveable)this.fireEvent('move',this,this.dataset,tx - b,ty - b);
+			if(this.moveable){
+				var ds = this.top.dataset;
+				var record = ds.getCurrentRecord();
+        		var config = convertConfig(record);
+        		config.x = tx - b;
+        		config.y = ty - b;
+        		record.data['config']=Ext.util.JSON.encode(config).replace(/^{|}$/g,'');
+				this.top.fireEvent('move',this,ds,record,config.x,config.y);
+			}
     		if(isSVG(this.wrap)){
     			if(stroke % 2 == 1){
 					tx += 0.5;
@@ -750,6 +745,14 @@ var pub ={
 	    		ty += _xy[1];
 	    		this.proxy.moveTo(tx,ty);
 			}
+	    },
+		getRecord : function(){
+	    	var a = this.id.match(/(.*)_(\d+)(_.*)*$/),id;
+	    	if(a){
+	    		id=a[2];
+		    	if(this.top.dataset)
+		    		return this.top.dataset.findById(id)
+	    	}
 	    },
 	    getVmlTpl : function(s,f){
 	    	var tpl = ["<v:shape id='{id}' filled='"+f+"' stroked='"+s+"' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:pointer;{style}' path='{path}'>"];
@@ -897,28 +900,35 @@ var pub ={
 	    vmlTpl : "<span id='{id}' style='position:absolute;left:{left}px;top:{top}px;color:{color};{style}'></span>"
 	}),
 	Arrow : function(config){
+		if(!config.startarrow && !config.endarrow )return;
 		var defs = config.root.child('defs');
 		if(!defs){
 			defs = newSVG('defs');
 			config.root.insertFirst(defs);
 		}
-		var color = config.color||'black',opacity = config.opacity||1;
+		var color = config.color||'black',opacity = config.opacity||1,width = config.width||2,
+			id = '-' + color + '-' + opacity * 100,vb = '0 0 100 100';
+		if(Ext.isIE9){
+			id += '-' + width;
+			var dt = width / 2 * Math.sqrt(5);
+			vb = -dt + " " + (-dt) + " " + (100 + 2 * dt) + " " + (100 + 2 * dt);
+		}
 		if(config.startarrow){
-			var id = 'start-arrow-'+color+'-'+config.startarrow+'-'+opacity*100;
-			var marker = Ext.get(id);
+			var sid = 'start-arrow-' + config.startarrow + id,
+				marker = Ext.get(sid);
 			if(!marker){
 				marker = newSVG('marker');
-				marker.set({id:id,viewBox:'0 0 100 100',refX:50,refY:50,orient:'auto'});
+				marker.set({id:sid,viewBox:vb,refX:50,refY:50,orient:'auto'});
 				defs.appendChild(marker);
 				new pub.Path({fillcolor:color,fillopacity:opacity,d:'M 100 0 L 0 50 L 100 100 L 66.66 50 z',root:marker});
 			}
 		}
 		if(config.endarrow){
-			var id = 'end-arrow-'+color+'-'+config.endarrow+'-'+opacity*100;
-			var marker = Ext.get(id);
+			var sid = 'end-arrow-' + config.endarrow + id,
+				marker = Ext.get(sid);
 			if(!marker){
 				marker = newSVG('marker');
-				marker.set({id:id,viewBox:'0 0 100 100',refX:50,refY:50,orient:'auto'});
+				marker.set({id:sid,viewBox:vb,refX:50,refY:50,orient:'auto'});
 				defs.appendChild(marker);
 				new pub.Path({fillcolor:color,fillopacity:opacity,d:'M 0 0 L 100 50 L 0 100 L 33.33 50 z',root:marker});
 			}
