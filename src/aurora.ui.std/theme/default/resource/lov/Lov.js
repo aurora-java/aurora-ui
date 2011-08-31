@@ -103,9 +103,9 @@ $A.Lov = Ext.extend($A.TextField,{
 	        		this.showCompleteId=setTimeout(function(){
 	        			var url;
 			        	if(!Ext.isEmpty(sf.lovservice)){
-				            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice +'&'+ Ext.urlEncode(this.getLovPara());
+				            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice +'&'+ Ext.urlEncode(sf.getLovPara());
 				        }else if(!Ext.isEmpty(sf.lovmodel)){
-				            url = sf.context + 'autocrud/'+sf.lovmodel+'/query?' + Ext.urlEncode(this.getLovPara());
+				            url = sf.context + 'autocrud/'+sf.lovmodel+'/query?' + Ext.urlEncode(sf.getLovPara());
 				        }
 				        sf.optionDataSet.setQueryUrl(url);
 				       	sf.pagesize=sf.autocompletepagesize;
