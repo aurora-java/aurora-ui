@@ -90,7 +90,10 @@ $A.CmpManager = function(){
 	        	alert("错误: ID为' " + id +" '的组件已经存在!");
 	        	return;
 	        }
-            if(window['__host'])window['__host'].cmps[id] = cmp;
+            if(window['__host']){
+                    window['__host'].cmps[id] = cmp;
+                    cmp['__host'] = window['__host'];
+            }
 //        	if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
 //        	if($A.focusTab) $A.focusTab.cmps[id] = cmp;
         	this.cache[id]=cmp;
@@ -137,6 +140,9 @@ $A.CmpManager = function(){
         },
         remove : function(id){
         	var cmp = this.cache[id];
+            if(cmp['__host'] && cmp['__host'].cmps){
+                delete cmp['__host'].cmps[id];        
+            }
         	cmp.un('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
         	cmp.un('mouseout',$A.CmpManager.onCmpOut,$A.CmpManager);
         	delete this.cache[id];
