@@ -69,6 +69,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         return nds;
     },
     destroy : function(){
+    	if(this.qtId){
+			Ext.Ajax.abort(this.qtId);
+		}
         if(this.bindtarget&&this.bindname){
             var bd = $A.CmpManager.get(this.bindtarget)
             if(bd)bd.clearBind();
