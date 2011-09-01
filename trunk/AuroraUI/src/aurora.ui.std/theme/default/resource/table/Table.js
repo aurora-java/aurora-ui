@@ -122,9 +122,9 @@ $A.Table = Ext.extend($A.Component,{
 	createEmptyRow:function(){
 		this.emptyRow=this.tbody.dom.insertRow(-1);
 		for(var i=0,l=this.columns.length;i<l;i++){
-			var td=this.emptyRow.insertCell(-1);
+			var td=this.emptyRow.insertCell(-1),col = this.columns[i];
 			td.innerHTML="&#160;";
-			Ext.fly(td).set({'atype':'table-cell','dataindex':this.columns[i].name,'style':'text-align:'+(this.columns[i].align||'left')+';visibility:visible;'});
+			Ext.fly(td).set({'atype':'table-cell','dataindex':col.name,'style':'text-align:'+(col.align||'left')+(col.hidden?';display:none;':';')});
 		}
 	},
 	removeEmptyRow:function(){
@@ -166,7 +166,7 @@ $A.Table = Ext.extend($A.Component,{
 	    	Ext.fly(td).set({'atype':xtype == 'rowcheck'?'table.rowcheck':'table.rowradio','recordid':record.id,'class':'table-rowbox'});
 	        td.innerHTML=this.cbTpl.applyTemplate({cellcls:xtype == 'rowcheck'?'table-ckb item-ckb'+readonly+'-u':'table-radio item-radio-img'+readonly+'-u',name:col.name,recordid:record.id});
 	    }else{
-			Ext.fly(td).set({'atype':'table-cell','recordid':record.id,'dataindex':col.name,'style':'text-align:'+(col.align||'left')+';visibility:visible;'});
+			Ext.fly(td).set({'atype':'table-cell','recordid':record.id,'dataindex':col.name,'style':'text-align:'+(col.align||'left')+(col.hidden?';display:none;':';')});
 			if(xtype == 'cellcheck'){
 				td.innerHTML=this.cbTpl.applyTemplate({cellcls:'table-ckb ' + this.getCheckBoxStatus(record, col.name ,readonly),name:col.name,recordid:record.id});
 			}else{
@@ -548,6 +548,45 @@ $A.Table = Ext.extend($A.Component,{
             }
     	});
     },
+    showColumn : function(name){
+        var col = this.findColByName(name);
+        if(col){
+            if(col.hidden === true){
+                delete col.hidden;
+                //this.setColumnSize(name, col.hiddenWidth);
+                //delete col.hiddenWidth;
+//              if(!Ext.isIE){
+                    var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
+                    for(var i=0,l=tds.length;i<l;i++){
+                        var td = tds[i];
+                        Ext.fly(td).setStyle('display','');
+                    }
+//              }
+            }
+        }   
+    },
+    /**
+     * 隐藏某列.
+     * 
+     * @param {String} name 列的name;
+     */
+    hideColumn : function(name){
+        var col = this.findColByName(name);
+        if(col){
+            if(col.hidden !== true){
+                //col.hiddenWidth = col.width;
+                //this.setColumnSize(name, 0, false);
+//              if(!Ext.isIE){
+                    var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
+                    for(var i=0,l=tds.length;i<l;i++){
+                        var td = tds[i];
+                        Ext.fly(td).setStyle('display','none');
+                    }
+//              }
+                col.hidden = true;
+            }
+        }       
+    },
     /**
      * 根据列的name获取列配置.
      * 
@@ -708,6 +747,7 @@ $A.Table = Ext.extend($A.Component,{
 		while(this.tbody.dom.childNodes.length){
 			this.tbody.dom.removeChild(this.tbody.dom.firstChild);
 		}
+		this.emptyRow = null;
 	},
 	getDataIndex : function(rid){
         var index = -1;
