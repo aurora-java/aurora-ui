@@ -81,6 +81,9 @@ $A.Lov = Ext.extend($A.TextField,{
     	}
     },
     destroy : function(){
+    	if(this.qtId){
+    		Ext.Ajax.abort(this.qtId);
+    	}
         $A.Lov.superclass.destroy.call(this);
     },
     setWidth: function(w){
@@ -392,7 +395,7 @@ $A.Lov = Ext.extend($A.TextField,{
             return;
         }
         this.setRawValue(_lang['lov.query'])
-        $A.request({url:url, para:p, success:function(res){
+        this.qtId = $A.request({url:url, para:p, success:function(res){
             var r = new $A.Record({});
             if(res.result.record){
                 var datas = [].concat(res.result.record);
