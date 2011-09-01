@@ -84,6 +84,9 @@ $A.Lov = Ext.extend($A.TextField,{
     	if(this.qtId){
     		Ext.Ajax.abort(this.qtId);
     	}
+    	if(this.optionDataSet){
+    		this.optionDataSet.destroy();
+    	}
         $A.Lov.superclass.destroy.call(this);
     },
     setWidth: function(w){
