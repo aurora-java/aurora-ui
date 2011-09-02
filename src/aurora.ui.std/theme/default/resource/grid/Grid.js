@@ -615,7 +615,7 @@ $A.Grid = Ext.extend($A.Component,{
         if(lrow)lrow.remove();        
         var urow = Ext.get(this.id+'$u-'+record.id);
         if(urow)urow.remove();
-        if(Ext.isIE7)this.syncScroll();
+        if(Ext.isIE||Ext.isIE9)this.syncScroll();
         this.clearDomRef();
         $A.Masker.unmask(this.wb);
         this.drawFootBar();
