@@ -4,6 +4,8 @@ Release ()
 * 修正了没有值的输入控件在使用setValue方法输入0时，不会触发change事件的问题。
 * 修正了子DataSet在父DataSet查询结果为空时没清除之前的查询结果的问题。
 * 新增Table隐藏列功能。
+* 修正Lov的autoComplete功能在Grid上的BUG。
+* 修正了IE下 Grid有滚动条的情况下，删除行时，选择框错位的BUG。
 
 Release (2011-08-16)
 ------------------------------------

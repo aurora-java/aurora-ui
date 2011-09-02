@@ -183,18 +183,19 @@ $A.Lov = Ext.extend($A.TextField,{
     	$A.Lov.superclass.onBlur.call(this,e);
     },
     autoCompleteShow : function(){
-    	this.needFetch = false;
     	this.autoCompletePosition();
     	var view = this.autocompleteview;
     	view.addClass(this.viewClass);
 		view.update('<ul></ul>');
 		this.view=view.wrap.child('ul');
+		this.view.on('click', this.onViewClick,this);
     	view.on('beforerender',this.onQuery,this);
 		view.on('render',this.onRender,this);
     	view.on('hide',this.autoCompleteHide,this);
     },
     autoCompleteHide : function(){
     	this.needFetch = true;
+		Ext.Ajax.abort(this.optionDataSet.qtId);
     	var view = this.autocompleteview;
     	this.view.un('click', this.onViewClick,this);
 		this.view.un('mousemove',this.onViewMove,this);
@@ -229,12 +230,10 @@ $A.Lov = Ext.extend($A.TextField,{
 		if(index==-1)return;
 		var record = this.optionDataSet.getAt(index);
 		this.commit(record);
-		this.needFetch=false;
 	},
     onQuery : function(){
-    	this.view.update('<li>'+_lang['lov.query']+'</li>');
-    	this.view.un('click', this.onViewClick,this);
-		this.view.un('mousemove',this.onViewMove,this);
+    	this.view.update('<li tabIndex="-1">'+_lang['lov.query']+'</li>');
+    	this.view.un('mousemove',this.onViewMove,this);
     	this.correctViewSize();
     },
     onRender : function(){
@@ -250,10 +249,10 @@ $A.Lov = Ext.extend($A.TextField,{
 			this.view.update(sb.join(''));	
 			this.correctViewSize();
 			this.view.on('mousemove',this.onViewMove,this);
+			this.needFetch=false;
 		}else{
-			this.view.update('<li>'+_lang['lov.notfound']+'</li>');	
+			this.view.update('<li tabIndex="-1">'+_lang['lov.notfound']+'</li>');	
 		}
-		this.view.on('click', this.onViewClick,this);
     },
     correctViewSize: function(){
 		var widthArray = [];
@@ -408,6 +407,7 @@ $A.Lov = Ext.extend($A.TextField,{
                 }
             }
             this.fetching = false;
+            this.setRawValue('');
             this.commit(r,record);
             record.isReady=true;
             $A.SideBar.enable = $A.slideBarEnable;
