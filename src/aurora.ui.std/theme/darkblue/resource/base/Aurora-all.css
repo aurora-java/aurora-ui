@@ -311,6 +311,15 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .item-radio-img-readonly-c {
 	background-position:-39px -13px;	
 }
+
+.item-radio-img-u .item-readonly {
+    background-position:-39px 0px;  
+}
+
+.item-radio-img-c .item-readonly{
+    background-position:-39px -13px;
+}
+
 .item-radio-lb{	
 	text-align:left;
 }

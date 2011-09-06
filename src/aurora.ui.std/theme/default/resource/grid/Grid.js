@@ -663,8 +663,10 @@ $A.Grid = Ext.extend($A.Component,{
         var cb = Ext.get(this.id+'__'+record.id);
         if(cb && this.selectable && this.selectionmodel=='multiple') {
             this.setCheckBoxStatus(cb, true);
+            this.setSelectStatus(record);
         }else{
             this.setRadioStatus(cb,true);
+            this.setSelectStatus(record);
             this.dataset.locate((this.dataset.currentPage-1)*this.dataset.pagesize + this.dataset.indexOf(record) + 1)
         }
     },
@@ -672,8 +674,10 @@ $A.Grid = Ext.extend($A.Component,{
         var cb = Ext.get(this.id+'__'+record.id);
         if(cb && this.selectable && this.selectionmodel=='multiple') {
             this.setCheckBoxStatus(cb, false);
+            this.setSelectStatus(record);
         }else{
             this.setRadioStatus(cb,false);
+            this.setSelectStatus(record);
         }
     },
     onDblclick : function(e){
@@ -700,12 +704,12 @@ $A.Grid = Ext.extend($A.Component,{
                 this.fireEvent('rowclick', this, row, record);
             }else if(atype=='grid.rowcheck'){               
                 var cb = Ext.get(this.id+'__'+rid);
-                if(cb.hasClass('item-ckb-readonly-u'))return;
+                if(cb.hasClass('item-ckb-readonly-u')||cb.hasClass('item-ckb-readonly-c'))return;
                 var checked = cb.hasClass('item-ckb-c');
                 (checked) ? this.dataset.unSelect(rid) : this.dataset.select(rid);
             }else if(atype=='grid.rowradio'){
             	var cb = Ext.get(this.id+'__'+rid);
-                if(cb.hasClass('item-radio-img-readonly-u'))return;
+                if(cb.hasClass('item-radio-img-readonly-u')||cb.hasClass('item-radio-img-readonly-c'))return;
                 this.dataset.select(rid);
             }
         }
@@ -1126,34 +1130,48 @@ $A.Grid = Ext.extend($A.Component,{
             el.removeClass('item-ckb-u');
         }
     },
-    setSelectDisable:function(el){
+    setSelectDisable:function(el,record){
     	if(this.selectable && this.selectionmodel=='multiple'){
     		el.removeClass('item-ckb-c');
     		el.removeClass('item-ckb-u');
-    		el.addClass('item-ckb-readonly-u');
+            if(this.dataset.selected.indexOf(record) == -1){
+                el.addClass('item-ckb-readonly-u');
+            }else{
+                el.addClass('item-ckb-readonly-c');
+            }
     	}else{
-    		el.removeClass('item-radio-img-c');
-    		el.removeClass('item-radio-img-u');
-    		el.addClass('item-radio-img-readonly-u');
+    		el.removeClass(['item-radio-img-c','item-radio-img-u','item-radio-img-readonly-c','item-radio-img-readonly-u']);
+            if(this.dataset.selected.indexOf(record) == -1){
+                el.addClass('item-radio-img-readonly-u');
+            }else{
+                el.addClass('item-radio-img-readonly-c');
+            }
     	}
     },
-    setSelectEnable:function(el){
+    setSelectEnable:function(el,record){
     	if(this.selectable && this.selectionmodel=='multiple'){
-    		el.removeClass('item-ckb-readonly-u');
-    		el.addClass('item-ckb-u');
+    		el.removeClass(['item-ckb-readonly-u','item-ckb-readonly-c']);
+            if(this.dataset.selected.indexOf(record) == -1){
+                el.addClass('item-ckb-u');
+            }else{
+                el.addClass('item-ckb-c');
+            }
     	}else{
-    		el.removeClass('item-radio-img-readonly-u');
-    		el.addClass('item-radio-img-u');
+            el.removeClass(['item-radio-img-u','item-radio-img-c','item-radio-img-readonly-u','item-radio-img-readonly-c']);
+    		if(this.dataset.selected.indexOf(record) == -1){
+                el.addClass('item-radio-img-u');
+            }else{
+                el.addClass('item-radio-img-c');
+            }
     	}	
     },
     setSelectStatus:function(record){
     	if(this.dataset.selectfunction){
 	    	var cb = Ext.get(this.id+'__'+record.id);
 	    	if(!this.dataset.execSelectFunction(record)){
-	    		 this.dataset.unSelect(record);
-	    		 this.setSelectDisable(cb)
+	    		 this.setSelectDisable(cb,record)
 	    	}else{
-	    		 this.setSelectEnable(cb);
+	    		 this.setSelectEnable(cb,record);
 	    	}
     	}
     },
