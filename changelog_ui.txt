@@ -6,6 +6,8 @@ Release ()
 * 新增Table隐藏列功能。
 * 修正Lov的autoComplete功能在Grid上的BUG。
 * 修正了IE下 Grid有滚动条的情况下，删除行时，选择框错位的BUG。
+* 新增工作流图形化。
+* 修正TriggerField的popup框在页面有scrollTop和scrollLeft的时候定位问题。
 
 Release (2011-08-16)
 ------------------------------------
