@@ -5,7 +5,7 @@ var DOC=document,
     XLINK_NS = 'http://www.w3.org/1999/xlink',
 	hasSVG = !!DOC.createElementNS && !!DOC.createElementNS(SVG_NS, "svg").createSVGRect,
 	fill = "<v:fill color='{fillColor}' opacity='{fillOpacity}'/>",
-	stroke = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' type='{fillType}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'/>",
+	stroke = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'/>",
     pathReg = /\w|[\s\d-+.,]*/g,
     numberReg = /[\d-+.]+/g,
     capitalize = function(w){
@@ -338,9 +338,9 @@ $A.Graphics=Ext.extend($A.Component,{
 					t.showEditor()
 				}
 				if(t.moveable){
-					if(hasSVG)t.el.setStyle('stroke-dasharray','4');
+					if(hasSVG)t.el.setStyle('stroke-dasharray',3*(t.strokewidth||1)+' '+4*(t.strokewidth||1));
 					else{
-						t.el.child('stroke').set({'dashstyle':'dash'});
+						t.el.child('stroke').dom['dashStyle']='dash';
 					}
 				}
 			}
@@ -358,7 +358,7 @@ $A.Graphics=Ext.extend($A.Component,{
 			if(t.moveable){
 				if(hasSVG)t.el.setStyle('stroke-dasharray','');
 				else{
-					t.el.child('stroke').set({'dashstyle':'none'});
+					t.el.child('stroke').dom['dashStyle']='none';
 				}
 			}
 			this.fire('blur',null,t);
