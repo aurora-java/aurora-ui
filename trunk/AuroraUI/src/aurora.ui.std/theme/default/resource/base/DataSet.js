@@ -749,6 +749,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     selectAll : function(){
         for(var i=0,l=this.data.length;i<l;i++){
+            if(!this.execSelectFunction(this.data[i]))continue;
             this.select(this.data[i]);
         }
     },
@@ -757,6 +758,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     unSelectAll : function(){
         for(var i=0,l=this.data.length;i<l;i++){
+            if(!this.execSelectFunction(this.data[i]))continue;
             this.unSelect(this.data[i]);
         }
     },
@@ -769,7 +771,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(typeof(r) == 'string'||typeof(r) == 'number') r = this.findById(r);
         if(!r) return;
         if(this.selected.indexOf(r) != -1)return;
-        if(!this.execSelectFunction(r))return;
+//        if(!this.execSelectFunction(r))return;
         if(this.fireEvent("beforeselect",this,r)){
             if(this.selectionmodel == 'multiple'){
                 this.selected.add(r);

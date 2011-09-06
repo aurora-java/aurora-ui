@@ -1357,6 +1357,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         return nds;
     },
     destroy : function(){
+    	if(this.qtId){
+			Ext.Ajax.abort(this.qtId);
+		}
         if(this.bindtarget&&this.bindname){
             var bd = $A.CmpManager.get(this.bindtarget)
             if(bd)bd.clearBind();
@@ -2034,6 +2037,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     selectAll : function(){
         for(var i=0,l=this.data.length;i<l;i++){
+            if(!this.execSelectFunction(this.data[i]))continue;
             this.select(this.data[i]);
         }
     },
@@ -2042,6 +2046,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     unSelectAll : function(){
         for(var i=0,l=this.data.length;i<l;i++){
+            if(!this.execSelectFunction(this.data[i]))continue;
             this.unSelect(this.data[i]);
         }
     },
@@ -2054,7 +2059,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(typeof(r) == 'string'||typeof(r) == 'number') r = this.findById(r);
         if(!r) return;
         if(this.selected.indexOf(r) != -1)return;
-        if(!this.execSelectFunction(r))return;
+//        if(!this.execSelectFunction(r))return;
         if(this.fireEvent("beforeselect",this,r)){
             if(this.selectionmodel == 'multiple'){
                 this.selected.add(r);
@@ -6472,6 +6477,12 @@ $A.Lov = Ext.extend($A.TextField,{
     	}
     },
     destroy : function(){
+    	if(this.qtId){
+    		Ext.Ajax.abort(this.qtId);
+    	}
+    	if(this.optionDataSet){
+    		this.optionDataSet.destroy();
+    	}
         $A.Lov.superclass.destroy.call(this);
     },
     setWidth: function(w){
@@ -6568,18 +6579,19 @@ $A.Lov = Ext.extend($A.TextField,{
     	$A.Lov.superclass.onBlur.call(this,e);
     },
     autoCompleteShow : function(){
-    	this.needFetch = false;
     	this.autoCompletePosition();
     	var view = this.autocompleteview;
     	view.addClass(this.viewClass);
 		view.update('<ul></ul>');
 		this.view=view.wrap.child('ul');
+		this.view.on('click', this.onViewClick,this);
     	view.on('beforerender',this.onQuery,this);
 		view.on('render',this.onRender,this);
     	view.on('hide',this.autoCompleteHide,this);
     },
     autoCompleteHide : function(){
     	this.needFetch = true;
+		Ext.Ajax.abort(this.optionDataSet.qtId);
     	var view = this.autocompleteview;
     	this.view.un('click', this.onViewClick,this);
 		this.view.un('mousemove',this.onViewMove,this);
@@ -6614,12 +6626,10 @@ $A.Lov = Ext.extend($A.TextField,{
 		if(index==-1)return;
 		var record = this.optionDataSet.getAt(index);
 		this.commit(record);
-		this.needFetch=false;
 	},
     onQuery : function(){
-    	this.view.update('<li>'+_lang['lov.query']+'</li>');
-    	this.view.un('click', this.onViewClick,this);
-		this.view.un('mousemove',this.onViewMove,this);
+    	this.view.update('<li tabIndex="-1">'+_lang['lov.query']+'</li>');
+    	this.view.un('mousemove',this.onViewMove,this);
     	this.correctViewSize();
     },
     onRender : function(){
@@ -6635,10 +6645,10 @@ $A.Lov = Ext.extend($A.TextField,{
 			this.view.update(sb.join(''));	
 			this.correctViewSize();
 			this.view.on('mousemove',this.onViewMove,this);
+			this.needFetch=false;
 		}else{
-			this.view.update('<li>'+_lang['lov.notfound']+'</li>');	
+			this.view.update('<li tabIndex="-1">'+_lang['lov.notfound']+'</li>');	
 		}
-		this.view.on('click', this.onViewClick,this);
     },
     correctViewSize: function(){
 		var widthArray = [];
@@ -6783,7 +6793,7 @@ $A.Lov = Ext.extend($A.TextField,{
             return;
         }
         this.setRawValue(_lang['lov.query'])
-        $A.request({url:url, para:p, success:function(res){
+        this.qtId = $A.request({url:url, para:p, success:function(res){
             var r = new $A.Record({});
             if(res.result.record){
                 var datas = [].concat(res.result.record);
@@ -6793,6 +6803,7 @@ $A.Lov = Ext.extend($A.TextField,{
                 }
             }
             this.fetching = false;
+            this.setRawValue('');
             this.commit(r,record);
             record.isReady=true;
             $A.SideBar.enable = $A.slideBarEnable;
