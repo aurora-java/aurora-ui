@@ -45,7 +45,8 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
                 }
             }
         }
-        new Aurora.Window({id:'sys_customization_edit_window', url:'/hec/modules/sys/sys_customization_edit.screen?screen_path='+screen_path + '&id='+ this.cmp.id, title:'属性设置',height:530,width:780});        
+//        new Aurora.Window({id:'sys_customization_edit_window', url:'/hec/modules/sys/sys_customization_edit.screen?screen_path='+screen_path + '&id='+ this.cmp.id, title:'属性设置',height:530,width:780});        
+        new Aurora.Window({id:'sys_customization_window', url:'/hec/modules/sys/sys_customization_window.screen?screen_path='+screen_path + '&id='+ this.cmp.id, title:'个性化设置',height:170,width:400});
         this.onCmpOut();
     },
     hideMask : function(){
