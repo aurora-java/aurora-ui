@@ -167,8 +167,8 @@ $A.Graphics=Ext.extend($A.Component,{
                 '{ behavior:url(#default#VML); display: inline-block; } ';
         }
         this.root = newVML("v:group");
-        this.root.setStyle({position:'absolute',width:this.width,height:this.height})
-        this.root.set({coordsize:this.width+','+this.height})
+        this.root.setStyle({position:'absolute',width:100,height:100})
+        this.root.set({coordsize:'100,100'})
         this.wrap.appendChild(this.root);
 //        this.root = this.wrap;
     },
@@ -379,7 +379,7 @@ $A.Graphics=Ext.extend($A.Component,{
     	var _xy = this.wrap.getXY();
     	var x1 = this.drawLinePoints[0], y1 = this.drawLinePoints[1],
     		x2 = e.getPageX() - _xy[0],y2 = e.getPageY() - _xy[1],
-    		dx = x2 - x1,dy = y2 - y1,d = 8;
+    		dx = x2 - x1,dy = y2 - y1,d = 10;
 		if(dx == 0){
 			y2 += dy>0?-d:d;
 		}else if(dy == 0){
@@ -405,7 +405,7 @@ $A.Graphics=Ext.extend($A.Component,{
     	if(this.newline){
     		var el = this.getGElement(t);
     		if(!el){
-    			ds.remove(this.newline);
+    			this.dataset.remove(this.newline);
     		}else{
     			var r = el.record,table_id = r.get(this.tableidfield)|| r.get('table_id'),config = convertConfig(this.newline);
 	    		config.to = table_id;
@@ -426,7 +426,8 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     onLoad : function(){
     	this.clear();
-    	var graphics = this.dataset.getAll();
+    	var ds = this.dataset,
+    		graphics = ds.getAll();
     	graphics.sort(function(a,b){
     		var at=a.get('type'),bt=b.get('type');
     		if(at === 'line')return -1;
@@ -448,6 +449,7 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     onRemove : function(ds,record,index){
     	var el = $(this.id+'_'+record.id);
+    	if(this.focusItem == el)this.focusItem = null;
     	el.destroy();
     },
     onIndexChange : function(ds,record){
@@ -504,6 +506,7 @@ $A.Graphics=Ext.extend($A.Component,{
     clear : function(){
     	while(this.cmps.length){
     		this.cmps.pop().destroy();
+    		this.focusItem = null;
     	}
     },
     destroy : function(){
@@ -893,8 +896,8 @@ var pub ={
 	    },
 	    initVMLElement : function(){
 	    	this.wrap = newVML("v:group");
-	    	this.wrap.setStyle({position:'absolute',width:this.width,height:this.height,left:this.x+'px',top:this.y+'px'});
-	        this.wrap.set({coordsize:this.width+','+this.height});
+	    	this.wrap.setStyle({position:'absolute',width:100,height:100,left:this.x+'px',top:this.y+'px'});
+	        this.wrap.set({coordsize:'100,100'});
 	        this.root.appendChild(this.wrap);
 	    	this.wrap=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
 	    		id:this.id,
