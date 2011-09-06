@@ -107,6 +107,7 @@ $A.Graphics=Ext.extend($A.Component,{
 	constructor: function(config) {
 		this.root = config.root;
 		this.top = config.top||this;
+		this.cmps = [];
 		$A.Graphics.superclass.constructor.call(this,config);
 		return this;
 	},
@@ -115,7 +116,6 @@ $A.Graphics=Ext.extend($A.Component,{
 		this.fillcolor = convertColor(this.fillcolor);
 		this.strokecolor = convertColor(this.strokecolor);
 		if(!this.wrap)this['init'+(hasSVG?'SVG':'VML')+'Wrap']();
-		if(this.title)this.setTitle(this.title);
 		this['init'+(hasSVG?'SVG':'VML')+'Element']();
     },
     initEvents : function(){
@@ -190,10 +190,8 @@ $A.Graphics=Ext.extend($A.Component,{
     onMouseDown : function(e,t){
     	this.fire('mousedown',e,t);
 		this.focus(t);
-    	if(this.top.canDrawLine){
-    		if(this.top == this){
-    			this.startLine(e);
-    		}
+    	if(this.candrawline){
+			this.startLine(e,t);
     	}else if(this.dropto||this.moveable){
 	    	var xy = this.wrap.getXY();
 	    	if(isSVG(this.wrap)){
@@ -263,21 +261,27 @@ $A.Graphics=Ext.extend($A.Component,{
     onClick : function(e,t){
     	this.fire('click',e,t);
     },
-    fire : function(name,e,t){
-    	if(!t) return;
+    getGElement : function(t){
     	var a = t.id.match(/(.*)_(\d+)(_.*)*$/),id,ds,record;
     	if(a){
     		id = a[2];
 	    	if(id){
-	    		ds = this.top.dataset;
+	    		ds = this.dataset;
 		    	if(ds)
 		    		record = ds.findById(id)
 		    	if(a[1]){
 		    		t = $(a[1]+'_'+id);
-		    		this.fireEvent(name,e,t,ds,record);
-		    		return t;
 		    	}
+		    	return {el:t,record:record}
 	    	}
+    	}
+    },
+    fire : function(name,e,t){
+    	if(!t) return;
+    	var el = this.getGElement(t);
+    	if(el){
+    		this.fireEvent(name,e,el.el,this.dataset,el.record);
+    		return el.el;
     	}
     	this.fireEvent(name,e,t);
     },
@@ -301,7 +305,7 @@ $A.Graphics=Ext.extend($A.Component,{
 		        Ext.apply(config,Ext.util.JSON.decode(v));
 	        }
 		}
-		this.createGElement(config.type||type,config);
+		this.cmps.push(this.createGElement(config.type||type,config));
     },
     resizeSVG : function(){
     	if(hasSVG){
@@ -329,8 +333,16 @@ $A.Graphics=Ext.extend($A.Component,{
     	t = this.fire('focus',null,t);
     	if(t){
 			if(this.focusItem)this.blur();
-	    	if(t.editable){
-				t.showEditor()
+			if(this.editable){
+		    	if(t.editable){
+					t.showEditor()
+				}
+				if(t.moveable){
+					if(hasSVG)t.el.setStyle('stroke-dasharray','4');
+					else{
+						t.el.child('stroke').set({'dashstyle':'dash'});
+					}
+				}
 			}
 			this.focusItem = t;
     	}else{
@@ -339,45 +351,81 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     blur : function(){
     	var t = this.focusItem;
-    	if(t.editable){
-			t.hideEditor()
-		}
-		this.fire('blur',null,t);
-		this.focusItem = null;
+    	if(t){
+	    	if(t.editable){
+				t.hideEditor()
+			}
+			if(t.moveable){
+				if(hasSVG)t.el.setStyle('stroke-dasharray','');
+				else{
+					t.el.child('stroke').set({'dashstyle':'none'});
+				}
+			}
+			this.fire('blur',null,t);
+			this.focusItem = null;
+    	}
     },
-    startLine : function(e){
-    	var _xy = this.top.wrap.getXY();
-		this.drawLinePoints = (e.getPageX() - _xy[0]) +','+(e.getPageY() - _xy[1]);
-		Ext.get(document).on('mousemove',this.drawLine,this);
-		Ext.get(document).on('mouseup',this.endLine,this);
+    startLine : function(e,t){
+    	var el = this.getGElement(t);
+    	if(el){
+	    	var _xy = this.wrap.getXY();
+			this.startEl = el;
+			this.drawLinePoints = [e.getPageX() - _xy[0],e.getPageY() - _xy[1]];
+			Ext.get(document).on('mousemove',this.drawLine,this);
+			Ext.get(document).on('mouseup',this.endLine,this);
+    	}
     },
     drawLine : function(e){
-    	var _xy = this.top.wrap.getXY();
-    	var points = this.drawLinePoints + ' ' +(e.getPageX() - _xy[0]) +','+(e.getPageY() - _xy[1]);
+    	var _xy = this.wrap.getXY();
+    	var x1 = this.drawLinePoints[0], y1 = this.drawLinePoints[1],
+    		x2 = e.getPageX() - _xy[0],y2 = e.getPageY() - _xy[1],
+    		dx = x2 - x1,dy = y2 - y1,d = 8;
+		if(dx == 0){
+			y2 += dy>0?-d:d;
+		}else if(dy == 0){
+			x2 += dx>0?-d:d;
+		}else{
+			var ll = Math.sqrt(dx*dx+dy*dy);
+			x2 = (ll-d)/ll*dx+x1;
+			y2 = (ll-d)/ll*dy+y1;
+		}
+    	var points = x1 + ',' + y1  + ' ' + Math.round(x2) + ',' + Math.round(y2);
     	if(!this.newline){
-    		this.newline = this.dataset.create({'type':'line','config':'strokewidth:1,strokecolor:"#aaaaaa",strokeopacity:"1",titlecolor:"black",titlesize:14,titlex:0,titley:0,endarrow:"classic",points:"'+points+'",editable:true'});
+    		var r = this.startEl.record,table_id = r.get(this.tableidfield)|| r.get('table_id');
+    		this.newline = this.dataset.create({'type':'line','config':'strokewidth:1,strokecolor:"#aaaaaa",strokeopacity:"1",titlecolor:"black",titlesize:14,titlex:0,titley:0,endarrow:"classic",points:"'+points+'",editable:true'+(Ext.isEmpty(table_id)?'':(',from:'+table_id))});
     	}else{
     		var config = convertConfig(this.newline);
     		config.points = points;
     		this.newline.set('config',Ext.util.JSON.encode(config));
     	}
     },
-    endLine : function(e){
-    	if(this.newline){
-    		this.focus($('_graphics_main_'+this.newline.id));
-    		this.fireEvent('drawn');
-    	}
-    	this.drawLinePoints = null;
-    	this.newline = null;
+    endLine : function(e,t){
     	Ext.get(document).un('mousemove',this.drawLine,this);
 		Ext.get(document).un('mouseup',this.endLine,this);
+    	if(this.newline){
+    		var el = this.getGElement(t);
+    		if(!el){
+    			ds.remove(this.newline);
+    		}else{
+    			var r = el.record,table_id = r.get(this.tableidfield)|| r.get('table_id'),config = convertConfig(this.newline);
+	    		config.to = table_id;
+	    		this.newline.set('config',Ext.util.JSON.encode(config));
+	    		this.focus($('_graphics_main_'+this.newline.id));
+	    		this.fireEvent('drawn');
+    		}
+    	}
+    	delete this.drawLinePoints;
+    	delete this.newline;
+    	delete this.startEl;
     },
-    bind : function(ds){
+    bind : function(ds,name){
     	this.dataset = $(ds);
+    	this.tableidfield = name||'node_id';
     	if(this.dataset)this.processDataSetLiestener('on');
     	this.onLoad();
     },
     onLoad : function(){
+    	this.clear();
     	var graphics = this.dataset.getAll();
     	graphics.sort(function(a,b){
     		var at=a.get('type'),bt=b.get('type');
@@ -386,6 +434,12 @@ $A.Graphics=Ext.extend($A.Component,{
     		else return 0;
     	})
     	for(var i = 0,l = graphics.length;i<l;i++){
+    		var r = graphics[i],
+    			type = r.get('type')
+    		if(!type){
+    			r.data['type'] = 'rect';
+    			r.isNew = true;
+    		}
     		this.create(graphics[i]);
     	}
     },
@@ -395,11 +449,6 @@ $A.Graphics=Ext.extend($A.Component,{
     onRemove : function(ds,record,index){
     	var el = $(this.id+'_'+record.id);
     	el.destroy();
-    	if(el.text){
-    		el.text.destroy();
-    		el.text = null;
-    	}
-    	el.clearEditor();
     },
     onIndexChange : function(ds,record){
     	this.focus($(this.id + '_' +record.id));
@@ -420,11 +469,8 @@ $A.Graphics=Ext.extend($A.Component,{
     	Ext.apply(el,config);
     	el.initConfig = config;
     	el.processListener('un');
-    	el.el.remove()
-    	if(el.text){
-    		el.text.destroy();
-    		el.text = null;
-    	}
+    	el.el.remove();
+    	if(el.text)el.text.remove();
     	el.initComponent(config);
     	el.processListener('on');
     	if(el.editor && el.points){
@@ -448,29 +494,17 @@ $A.Graphics=Ext.extend($A.Component,{
 				eds.pop().destroy();
 			}
     	}
+    	this.focus(el);
     },
 	createGElement : function(name,config){
 		var el = new pub[capitalize(name)](Ext.apply(config,{type:name,root:Ext.get(config.root)||this.root,top:this}));
     	//this.resizeSVG();
     	return el;
     },
-    setTitle : function(title){
-    	if(!this.text){
-			var x = this.titlex||0, y = this.titley||0,root = this.wrap;
-			if(isVML(this.wrap)){
-				if(this.type == 'line'){
-					x += this.x;
-					y += this.y;
-					root = this.top.wrap;
-				}else{
-					var strokewidth = this.strokewidth;
-					x += strokewidth/2;
-					y += strokewidth/2;
-				}
-			}
-    		this.text = new pub.Text({id:this.id+'_title',dx:x,dy:y,color:this.titlecolor,size:this.titlesize,root:root});
+    clear : function(){
+    	while(this.cmps.length){
+    		this.cmps.pop().destroy();
     	}
-    	this.text.setText(title);
     },
     destroy : function(){
     	this.wrap.remove();
@@ -531,6 +565,20 @@ var pub ={
 	    	}
 	    	this.el.set(config);
 	    	this.wrap.insertFirst(this.el);
+	    	
+	    	if(this.title){
+	    		var x = this.titlex||0, y = this.titley||0,size = this.titlesize||14;
+				this.text = newSVG("text",this.id+'_title');
+		    	this.text.dom.style.cssText=encodeStyle({
+		    		'fill':this.titlecolor,
+		    		'font-size':size+'px',
+		    		'line-height':size+'px',
+		    		'cursor':'pointer'
+		    	});
+		    	this.text.set({dx:x+1,dy:y+size-2});
+		    	this.text.dom.textContent = this.title;
+		    	this.wrap.appendChild(this.text);
+	    	}
 	    },
 	    initVMLElement : function(){
 	    	var stroke=true,fill=true,filled=true;
@@ -555,6 +603,27 @@ var pub ={
 	    		endArrow:this.endarrow,
 	    		startArrow:this.startarrow
 	    	},true);
+	    	
+	    	if(this.title){
+	    		var x = this.titlex||0, y = this.titley||0,size = this.titlesize||14,root = this.wrap;
+				if(this.type == 'line'){
+					x += this.x;
+					y += this.y;
+					root = this.top.wrap;
+				}else{
+					var strokewidth = this.strokewidth;
+					x += strokewidth/2;
+					y += strokewidth/2;
+				}
+		    	this.text=new Ext.Template(this.titleVmlTpl).append(root.dom,{
+		    		id:this.id+'_title',
+		    		style:encodeStyle({'line-height':size+'px','font-size':size+'px'}),
+		    		left:x,
+		    		top:y,
+		    		color:this.titlecolor||'black'
+		    	},true)
+		    	this.text.update(this.title);
+	    	}
 	    },
 	    convertArrow : function(x1,y1,x2,y2){
 	    	var dx = x1 - x2,dy = y1 - y2,d = this.strokewidth*3/2;
@@ -666,11 +735,11 @@ var pub ={
 					this.createEditor(x,y);
 				}
 			}
+			this.top.on('move',this.editorMove,this);
 	    },
 	    createEditor : function(x,y){
 	    	var i = this.editor.length;
-	    	this.editor[i] = new pub.Rect({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':this.root,'top':this.top,'moveable':true});
-			this.top.on('move',this.editorMove,this);
+	    	this.editor[i] = new pub.Oval({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':this.root,'top':this.top,'moveable':true});
 	    },
 	    editorMove : function(el,ds,record,x,y){
 	    	var record = this.getRecord();
@@ -703,6 +772,34 @@ var pub ={
 	    			this.editor.pop().destroy();
 	    		}
 	    	}
+	    	this.editor = null;
+	    	this.top.un('move',this.editorMove,this);
+	    },
+	    onMouseDown : function(e,t){
+	    	if(this.top.editable && !this.top.candrawline &&(this.dropto || this.moveable)){
+		    	var xy = this.wrap.getXY();
+		    	if(isSVG(this.wrap)){
+		    		var _xy = this.top.wrap.getXY();
+		    		xy[0] = this.x + _xy[0];
+		    		xy[1] = this.y + _xy[1];
+		    	}
+		    	this.relativeX=xy[0]-e.getPageX();
+				this.relativeY=xy[1]-e.getPageY();
+				this.screenWidth = $A.getViewportWidth();
+		        this.screenHeight = $A.getViewportHeight();
+		    	if(this.dropto){
+			    	if(!this.dropEl)
+			    		this.dropEl = $(this.dropto);
+			    	if(!this.proxy)
+			    		this.initProxy();
+			    	this.proxy.moveTo(xy[0],xy[1]);
+		    	}else{
+		    		this.proxy = this.wrap;
+		    	}
+		    	if(this.moveable)setTopCmp(this.proxy);
+		    	Ext.get(document).on('mousemove',this.onMouseMove,this);
+		    	Ext.get(document).on('mouseup',this.onMouseUp,this);
+	    	}
 	    },
 	    onMouseMove : function(e){
 	    	e.stopEvent();
@@ -732,6 +829,7 @@ var pub ={
         		config.x = tx - b;
         		config.y = ty - b;
         		record.data['config']=Ext.util.JSON.encode(config).replace(/^{|}$/g,'');
+        		record.dirty = true;
 				this.top.fireEvent('move',this,ds,record,config.x,config.y);
 			}
     		if(isSVG(this.wrap)){
@@ -754,47 +852,27 @@ var pub ={
 		    		return this.top.dataset.findById(id)
 	    	}
 	    },
+	    destroy : function(){
+	    	this.clearEditor();
+	    	pub.Path.superclass.destroy.call(this);
+	    },
 	    getVmlTpl : function(s,f){
 	    	var tpl = ["<v:shape id='{id}' filled='"+f+"' stroked='"+s+"' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:pointer;{style}' path='{path}'>"];
 	    	if(f)tpl.push(fill);
 	    	if(s)tpl.push(stroke);
 	    	tpl.push("</v:shape>");
 	    	return tpl;
-	    }
+	    },
+	    titleVmlTpl : "<span id='{id}' style='position:absolute;left:{left}px;top:{top}px;color:{color};cursor:pointer;white-space:nowrap;{style}'></span>"
 	}),
 	Line : function(config){
-		pub.Line.processConfig = function(config){
-			var a= config.points.match(numberReg),points = [];
-			if(!a)return false;
-			for(var i = 0,l = a.length;i < l;i += 2){
-				points.push([a[i],a[i+1]]);
-			}
-			if(points.length < 2)return false;
-			var x = points[0][0], y = points[0][1];
-			a = ["M",0,0,"L"];
-			for(var i = 1,l = points.length; i < l;i++){
-				a.push(points[i][0] - x,points[i][1] - y);
-			}
-			config.d = a.join(' ');
-			if(config.strokewidth == 1)config.strokewidth = 2;
-			config.fillcolor = 'none';
-			config.points = points;
-			config.x = Number(x);
-			config.y = Number(y);
-		}
 		if(pub.Line.processConfig(config)==false)return;
 		var line = new pub.Path(config);
 		line.createEditors();
+		line.hideEditor();
 		return line;
 	},
 	Oval:function(config){
-		pub.Oval.processConfig = function(config){
-			config.height = config.height||config.ry*2;
-			config.width = config.width||config.rx*2;
-			config.ry = config.height/2;
-			config.rx = config.width/2;
-			pub.Rect.processConfig(config);
-		}
 		pub.Oval.processConfig(config);
 		return new pub.Path(config);
 	},
@@ -832,72 +910,47 @@ var pub ={
 	    vmlTpl : ["<v:image id='{id}' src='{src}' style='position:absolute;left:0;top:0;width:{width}px;height:{height}px;{style}'>",stroke,"</v:image>"]
 	}),
 	Rect : function(config){
-		pub.Rect.processConfig=function(config){
-			var h = Number(config.height)||200,
-			w = Number(config.width)||200,
-			rx = Math.min(Number(config.rx)||0,w/2),
-			ry = Math.min(Number(config.ry)||0,h/2),
-			round = rx>0&&ry>0,
-			lx = rx!=w/2,
-			ly = ry!=h/2,
-			d = ['M',0,round?ry:0];
-			if(round)d.push('A',rx,ry,0,0,1,rx,0);
-			if(lx)d.push('H',w-(round?rx:0));
-			if(round)d.push('A',rx,ry,0,0,1,w,ry);
-			if(ly)d.push('V',h-(round?ry:0));
-			if(round)d.push('A',rx,ry,0,0,1,w-rx,h);
-			if(lx)d.push('H',round?rx:0);
-			if(round)d.push('A',rx,ry,0,0,1,0,h-ry);
-			if(ly)d.push('Z');
-			config.d = d.join(' ');
-		}
 		pub.Rect.processConfig(config);
 		return new pub.Path(config);
 	},
 	Diamond : function(config){
-		pub.Diamond.processConfig = function(config){
-			var h = Number(config.height)||100,
-			w = Number(config.width)||200,
-			d = ['M',
-				0,h/2,
-				'L',
-				w/2,0,
-				w,h/2,
-				w/2,h,
-				'Z'];
-			config.d = d.join(' ');
-		}
 		pub.Diamond.processConfig(config);
 		return new pub.Path(config);
 	},
 	Text : Ext.extend($A.Graphics,{
+		initSVGWrap : function(){
+			this.wrap = newSVG("g",this.id);
+			this.root.appendChild(this.wrap);
+		},
+    	initVMLWrap : function(){
+	    	this.wrap = newVML("v:group",this.id);
+	    	this.root.appendChild(this.wrap);
+	    },
 		initSVGElement : function(){
 			var size = this.size||14;
-			this.wrap = newSVG("text",this.id);
-	    	this.wrap.dom.style.cssText=encodeStyle({
+			this.el = newSVG("text",this.id+'_el');
+	    	this.el.dom.style.cssText=encodeStyle({
 	    		'fill':this.color,
 	    		'font-size':size+'px',
 	    		'line-height':size+'px',
 	    		'cursor':'text'
 	    	})+this.style;
-	    	this.wrap.set({dx:this.dx+1,dy:this.dy+size-2});
-	    	this.root.insertFirst(this.wrap);
+	    	this.el.set({dx:this.dx+1,dy:this.dy+size-2});
+	    	this.el.dom.textContent = this.text;
+	    	this.wrap.appendChild(this.el);
 	    },
 	    initVMLElement : function(){
 	    	var size = this.size||14;
-	    	this.wrap=new Ext.Template(this.vmlTpl).append(this.root.dom,{
-	    		id:this.id,
+	    	this.el=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
+	    		id:this.id+'_el',
 	    		style:encodeStyle({'line-height':size+'px','font-size':size+'px'})+this.style,
 	    		left:this.dx,
 	    		top:this.dy,
 	    		color:this.color||'black'
 	    	},true)
+	    	this.el.update(this.text);
 	    },
-	    setText : function(text){
-	    	if(hasSVG)this.wrap.dom.textContent = text;
-	    	else this.wrap.update(text);
-	    },
-	    vmlTpl : "<span id='{id}' style='position:absolute;left:{left}px;top:{top}px;color:{color};{style}'></span>"
+	    vmlTpl : "<span id='{id}' style='position:absolute;left:{left}px;top:{top}px;color:{color};white-space:nowrap;{style}'></span>"
 	}),
 	Arrow : function(config){
 		if(!config.startarrow && !config.endarrow )return;
@@ -934,5 +987,62 @@ var pub ={
 			}
 		}
 	}
+}
+pub.Line.processConfig = function(config){
+	var a= config.points.match(numberReg),points = [];
+	if(!a)return false;
+	for(var i = 0,l = a.length;i < l;i += 2){
+		points.push([a[i],a[i+1]]);
+	}
+	if(points.length < 2)return false;
+	var x = points[0][0], y = points[0][1];
+	a = ["M",0,0,"L"];
+	for(var i = 1,l = points.length; i < l;i++){
+		a.push(points[i][0] - x,points[i][1] - y);
+	}
+	config.d = a.join(' ');
+	if(config.strokewidth == 1)config.strokewidth = 2;
+	config.fillcolor = 'none';
+	config.points = points;
+	config.x = Number(x);
+	config.y = Number(y);
+}
+pub.Rect.processConfig=function(config){
+	var h = Number(config.height)||200,
+	w = Number(config.width)||200,
+	rx = Math.min(Number(config.rx)||0,w/2),
+	ry = Math.min(Number(config.ry)||0,h/2),
+	round = rx>0&&ry>0,
+	lx = rx!=w/2,
+	ly = ry!=h/2,
+	d = ['M',0,round?ry:0];
+	if(round)d.push('A',rx,ry,0,0,1,rx,0);
+	if(lx)d.push('H',w-(round?rx:0));
+	if(round)d.push('A',rx,ry,0,0,1,w,ry);
+	if(ly)d.push('V',h-(round?ry:0));
+	if(round)d.push('A',rx,ry,0,0,1,w-rx,h);
+	if(lx)d.push('H',round?rx:0);
+	if(round)d.push('A',rx,ry,0,0,1,0,h-ry);
+	if(ly)d.push('Z');
+	config.d = d.join(' ');
+}
+pub.Oval.processConfig = function(config){
+	config.height = config.height||config.ry*2;
+	config.width = config.width||config.rx*2;
+	config.ry = config.height/2;
+	config.rx = config.width/2;
+	pub.Rect.processConfig(config);
+}
+pub.Diamond.processConfig = function(config){
+	var h = Number(config.height)||100,
+	w = Number(config.width)||200,
+	d = ['M',
+		0,h/2,
+		'L',
+		w/2,0,
+		w,h/2,
+		w/2,h,
+		'Z'];
+	config.d = d.join(' ');
 }
 })();
