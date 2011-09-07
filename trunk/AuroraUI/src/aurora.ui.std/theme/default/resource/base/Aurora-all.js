@@ -4583,12 +4583,16 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	this.syncPopup();
     },
     syncPopup:function(){
-    	var xy=this.wrap.getXY(),
+    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft,
+    		st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop,
+    		xy = this.wrap.getXY(),
+    		_x = xy[0] - sl,
+    		_y = xy[1] - st,
 			W=this.popup.getWidth(),H=this.popup.getHeight(),
 			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
 			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3,
-			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
-			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
+			x=((_x+W)>BW?((BW-W)<0?_x:(BW-W)):_x)+sl;
+			y=((_y+PH+H)>BH?((_y-H)<0?(_y+PH):(_y-H)):(_y+PH))+st;
     	this.popup.moveTo(x,y);
     	this.shadow.moveTo(x+3,y+3);
     },
