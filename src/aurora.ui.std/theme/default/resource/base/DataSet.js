@@ -1484,7 +1484,9 @@ $A.Record.prototype = {
         var v = this.get(name);
         var field = this.getMeta().getField(name)
         var validator = field.get('validator');
-        if(Ext.isEmpty(v) && field.get('required') == true){
+        var vv = v;
+        if(v&&v.trim) vv = v.trim();
+        if(Ext.isEmpty(vv) && field.get('required') == true){
             this.valid[name] = _lang['dataset.validate.required'];
             valid =  false;
         }
