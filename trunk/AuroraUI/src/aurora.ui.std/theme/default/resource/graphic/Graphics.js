@@ -3,11 +3,13 @@ var DOC=document,
     SVG_NS = 'http://www.w3.org/2000/svg',
     VML_NS = 'urn:schemas-microsoft-com:vml',
     XLINK_NS = 'http://www.w3.org/1999/xlink',
-	hasSVG = !!DOC.createElementNS && !!DOC.createElementNS(SVG_NS, "svg").createSVGRect,
-	fill = "<v:fill color='{fillColor}' opacity='{fillOpacity}'/>",
-	stroke = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'/>",
+	hasSVG = !Ext.isIE9 && !!DOC.createElementNS && !!DOC.createElementNS(SVG_NS, "svg").createSVGRect,
+	fill = "<v:fill color='{fillColor}' opacity='{fillOpacity}'></v:fill>",
+	stroke = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'></v:stroke>",
+    shadow = "<v:shadow on='t' opacity='0.5' offset='3px,3px'></v:shadow>",
     pathReg = /\w|[\s\d-+.,]*/g,
     numberReg = /[\d-+.]+/g,
+    screenWidth,screenHeight,
     capitalize = function(w){
     	return (w = w.trim()).toLowerCase().replace(/^./,w.charAt(0).toUpperCase());
     },
@@ -113,9 +115,6 @@ $A.Graphics=Ext.extend($A.Component,{
 	},
 	initComponent : function(config){ 
 		$A.Graphics.superclass.initComponent.call(this,config);
-		this.fillcolor = convertColor(this.fillcolor);
-		this.strokecolor = convertColor(this.strokecolor);
-		if(!this.wrap)this['init'+(hasSVG?'SVG':'VML')+'Wrap']();
 		this['init'+(hasSVG?'SVG':'VML')+'Element']();
     },
     initEvents : function(){
@@ -151,8 +150,6 @@ $A.Graphics=Ext.extend($A.Component,{
 	    	ds[ou]('indexchange', this.onIndexChange, this);
     	}
     },
-    initSVGWrap : function(){},
-    initVMLWrap : function(){},
     initSVGElement : function(){
     	var svg = newSVG("svg");
     	this.root = newSVG("g");
@@ -163,11 +160,11 @@ $A.Graphics=Ext.extend($A.Component,{
     	if (!DOC.namespaces.hcv) {
             DOC.namespaces.add('v', VML_NS);
             DOC.createStyleSheet().cssText = 
-                'v\\:roundrect,v\\:oval,v\\:image,v\\:polyline,v\\:line,v\\:group,v\\:fill,v\\:path,v\\:shape,v\\:stroke'+
+                'v\\:shadow,v\\:roundrect,v\\:oval,v\\:image,v\\:polyline,v\\:line,v\\:group,v\\:fill,v\\:path,v\\:shape,v\\:stroke'+
                 '{ behavior:url(#default#VML); display: inline-block; } ';
         }
         this.root = newVML("v:group");
-        this.root.setStyle({position:'absolute',width:100,height:100})
+        this.root.setStyle({position:'absolute',width:100+'px',height:100+'px'})
         this.root.set({coordsize:'100,100'})
         this.wrap.appendChild(this.root);
 //        this.root = this.wrap;
@@ -189,32 +186,34 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     onMouseDown : function(e,t){
     	this.fire('mousedown',e,t);
-		this.focus(t);
     	if(this.candrawline){
 			this.startLine(e,t);
-    	}else if(this.dropto||this.moveable){
-	    	var xy = this.wrap.getXY();
-	    	if(isSVG(this.wrap)){
-	    		var _xy = this.top.wrap.getXY();
-	    		xy[0] = this.x + _xy[0];
-	    		xy[1] = this.y + _xy[1];
+    	}else {
+			this.focus(t);
+    		if(this.dropto||this.moveable){
+		    	var xy = this.wrap.getXY();
+		    	if(isSVG(this.wrap)){
+		    		var _xy = this.top.wrap.getXY();
+		    		xy[0] = this.x + _xy[0];
+		    		xy[1] = this.y + _xy[1];
+		    	}
+		    	this.relativeX=xy[0]-e.getPageX();
+				this.relativeY=xy[1]-e.getPageY();
+				screenWidth = $A.getViewportWidth();
+		        screenHeight = $A.getViewportHeight();
+		    	if(this.dropto){
+			    	if(!this.dropEl)
+			    		this.dropEl = $(this.dropto);
+			    	if(!this.proxy)
+			    		this.initProxy();
+			    	this.proxy.moveTo(xy[0],xy[1]);
+		    	}else{
+		    		this.proxy = this.wrap;
+		    	}
+		    	if(this.moveable)setTopCmp(this.proxy);
+		    	Ext.get(document).on('mousemove',this.onMouseMove,this);
+		    	Ext.get(document).on('mouseup',this.onMouseUp,this);
 	    	}
-	    	this.relativeX=xy[0]-e.getPageX();
-			this.relativeY=xy[1]-e.getPageY();
-			this.screenWidth = $A.getViewportWidth();
-	        this.screenHeight = $A.getViewportHeight();
-	    	if(this.dropto){
-		    	if(!this.dropEl)
-		    		this.dropEl = $(this.dropto);
-		    	if(!this.proxy)
-		    		this.initProxy();
-		    	this.proxy.moveTo(xy[0],xy[1]);
-	    	}else{
-	    		this.proxy = this.wrap;
-	    	}
-	    	if(this.moveable)setTopCmp(this.proxy);
-	    	Ext.get(document).on('mousemove',this.onMouseMove,this);
-	    	Ext.get(document).on('mouseup',this.onMouseUp,this);
     	}
     },
     onMouseMove : function(e){
@@ -225,8 +224,8 @@ $A.Graphics=Ext.extend($A.Component,{
     		h = this.height||this.ry*2,
     		sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft,
 			st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop,
-    		sw = sl + this.screenWidth,
-    		sh = st + this.screenHeight;
+    		sw = sl + screenWidth,
+    		sh = st + screenHeight;
     	if(tx < 0) tx = 0;
     	else if((tx+w) >= sw) tx = Math.max(sw - w,0);
     	if(ty < 0) ty = 0;
@@ -340,7 +339,15 @@ $A.Graphics=Ext.extend($A.Component,{
 				if(t.moveable){
 					if(hasSVG)t.el.setStyle('stroke-dasharray',3*(t.strokewidth||1)+' '+4*(t.strokewidth||1));
 					else{
-						t.el.child('stroke').dom['dashStyle']='dash';
+						var stroke;
+						if(Ext.isIE9)
+							for(var i = 0,all = t.el.dom.children,l=all.length;i<l;i++){
+								if(all[i].tagName.toLowerCase() == 'v:stroke')
+									stroke = all[i];
+							}
+						else
+							stroke = t.el.child('stroke').dom;
+						stroke.dashStyle='dash';
 					}
 				}
 			}
@@ -358,7 +365,15 @@ $A.Graphics=Ext.extend($A.Component,{
 			if(t.moveable){
 				if(hasSVG)t.el.setStyle('stroke-dasharray','');
 				else{
-					t.el.child('stroke').dom['dashStyle']='none';
+					var stroke;
+					if(Ext.isIE9)
+						for(var i = 0,all = t.el.dom.children,l=all.length;i<l;i++){
+							if(all[i].tagName.toLowerCase() == 'v:stroke')
+								stroke = all[i];
+						}
+					else
+						stroke = t.el.child('stroke').dom;
+					stroke.dashStyle='none';
 				}
 			}
 			this.fire('blur',null,t);
@@ -483,7 +498,7 @@ $A.Graphics=Ext.extend($A.Component,{
 					var rx = ed.width/2,ry = ed.height/2,stroke = ed.strokewidth;
 					ed.x = p[i][0]-rx;
     				ed.y = p[i][1]-ry;
-					if(hasSVG && stroke % 2 ==1){
+					if(hasSVG && stroke % 2 ==1&&el.shadow){
 						rx -= 0.5;
 						ry -= 0.5;
 					}
@@ -519,6 +534,12 @@ $A.Graphics=Ext.extend($A.Component,{
 var pub ={
 	Path:Ext.extend($A.Graphics,{
 		zoom:10000,
+		initComponent : function(config){ 
+			this.fillcolor = convertColor(this.fillcolor);
+			this.strokecolor = convertColor(this.strokecolor);
+			if(!this.wrap)this['init'+(hasSVG?'SVG':'VML')+'Wrap']();
+			pub.Path.superclass.initComponent.call(this,config);
+	    },
 		initSVGWrap : function(){
 			this.wrap = newSVG("g",this.id);
 			this.root.appendChild(this.wrap);
@@ -529,7 +550,7 @@ var pub ={
 	    },
 		initSVGElement : function(){
 			if(this.x||this.y) {
-				if(this.strokewidth&&this.strokewidth%2==1)
+				if(this.strokewidth&&this.strokewidth%2==1&&!this.shadow)
 					transform(this.wrap,this.x+0.5,this.y+0.5);
 				else
 					transform(this.wrap,this.x,this.y);
@@ -566,6 +587,39 @@ var pub ={
 		    		new pub.Arrow({color:this.strokecolor,width:this.strokewidth,opacity:this.strokeopacity,endarrow:this.endarrow,startarrow:this.startarrow,root:this.root})
 		    	}
 	    	}
+	    	
+	    	if(this.shadow){
+	    		var fid = 'graphics-filter-shadow'
+	    		if(!Ext.get(fid)){
+	    			var defs = this.root.child('defs');
+					if(!defs){
+						defs = newSVG('defs');
+						this.root.insertFirst(defs);
+					}
+	    			var filter = newSVG('filter',fid);
+	    			filter.set({'x':-0.25,'y':-0.25,'width':1.5,'height':1.5,'color-interpolation-filters':'sRGB'});
+	    			defs.appendChild(filter);
+	    			var feGaussianBlur = newSVG('feGaussianBlur');
+	    			feGaussianBlur.set({'result':'blur','stdDeviation':1,'in':'SourceAlpha'});
+	    			var feColorMatrix = newSVG('feColorMatrix');
+	    			feColorMatrix.set({'values':'1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.2 0 ','type':'matrix','result':'bluralpha'});
+	    			var feOffset = newSVG('feOffset');
+	    			feOffset.set({'result':'offsetBlur','dx':3,'dy':3,'in':'bluralpha'});
+	    			var feMerge = newSVG('feMerge');
+	    			filter.appendChild(feGaussianBlur);
+	    			filter.appendChild(feColorMatrix);
+	    			filter.appendChild(feOffset);
+	    			filter.appendChild(feMerge);
+	    			var feMergeNode1 = newSVG('feMergeNode');
+	    			feMergeNode1.set({'in':'offsetBlur'});
+	    			var feMergeNode2 = newSVG('feMergeNode');
+	    			feMergeNode2.set({'in':'SourceGraphic'});
+	    			feMerge.appendChild(feMergeNode1);
+	    			feMerge.appendChild(feMergeNode2);
+	    		}
+	    		this.el.setStyle({'filter':'url(#'+fid+')'});
+	    	}
+	    	
 	    	this.el.set(config);
 	    	this.wrap.insertFirst(this.el);
 	    	
@@ -582,6 +636,8 @@ var pub ={
 		    	this.text.dom.textContent = this.title;
 		    	this.wrap.appendChild(this.text);
 	    	}
+	    	
+	    	
 	    },
 	    initVMLElement : function(){
 	    	var stroke=true,fill=true,filled=true;
@@ -591,9 +647,9 @@ var pub ={
 	    	if(Ext.isEmpty(this.fillopacity))this.fillopacity=1;
 	    	if(this.fillcolor=='none')fill=false;
 	    	if(this.fillcolor=='transparent')this.fillopacity=0;
-	        this.wrap.setStyle({position:'absolute',width:100,height:100,left:(this.x||0)+'px',top:(this.y||0)+'px'});
+	        this.wrap.setStyle({position:'absolute',width:100+'px',height:100+'px',left:(this.x||0)+'px',top:(this.y||0)+'px'});
 	        this.wrap.set({coordsize:'100,100'});
-	    	this.el=new Ext.Template(this.getVmlTpl(stroke,fill)).insertFirst(this.wrap.dom,{
+	    	this.el=new Ext.Template(this.getVmlTpl(stroke,fill,this.shadow)).insertFirst(this.wrap.dom,{
 	    		id:this.id+'_el',
 	    		style:this.style,
 	    		path:this.convertPath(this.d),
@@ -788,8 +844,6 @@ var pub ={
 		    	}
 		    	this.relativeX=xy[0]-e.getPageX();
 				this.relativeY=xy[1]-e.getPageY();
-				this.screenWidth = $A.getViewportWidth();
-		        this.screenHeight = $A.getViewportHeight();
 		    	if(this.dropto){
 			    	if(!this.dropEl)
 			    		this.dropEl = $(this.dropto);
@@ -836,7 +890,7 @@ var pub ={
 				this.top.fireEvent('move',this,ds,record,config.x,config.y);
 			}
     		if(isSVG(this.wrap)){
-    			if(stroke % 2 == 1){
+    			if(stroke % 2 == 1&&!this.shadow){
 					tx += 0.5;
 					ty += 0.5;
     			}
@@ -859,10 +913,11 @@ var pub ={
 	    	this.clearEditor();
 	    	pub.Path.superclass.destroy.call(this);
 	    },
-	    getVmlTpl : function(s,f){
+	    getVmlTpl : function(s,f,sd){
 	    	var tpl = ["<v:shape id='{id}' filled='"+f+"' stroked='"+s+"' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:pointer;{style}' path='{path}'>"];
 	    	if(f)tpl.push(fill);
 	    	if(s)tpl.push(stroke);
+	    	if(sd)tpl.push(shadow);
 	    	tpl.push("</v:shape>");
 	    	return tpl;
 	    },
@@ -896,7 +951,7 @@ var pub ={
 	    },
 	    initVMLElement : function(){
 	    	this.wrap = newVML("v:group");
-	    	this.wrap.setStyle({position:'absolute',width:100,height:100,left:this.x+'px',top:this.y+'px'});
+	    	this.wrap.setStyle({position:'absolute',width:100+'px',height:100+'px',left:this.x+'px',top:this.y+'px'});
 	        this.wrap.set({coordsize:'100,100'});
 	        this.root.appendChild(this.wrap);
 	    	this.wrap=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
@@ -973,8 +1028,8 @@ var pub ={
 			var sid = 'start-arrow-' + config.startarrow + id,
 				marker = Ext.get(sid);
 			if(!marker){
-				marker = newSVG('marker');
-				marker.set({id:sid,viewBox:vb,refX:50,refY:50,orient:'auto'});
+				marker = newSVG('marker',sid);
+				marker.set({viewBox:vb,refX:50,refY:50,orient:'auto'});
 				defs.appendChild(marker);
 				new pub.Path({fillcolor:color,fillopacity:opacity,d:'M 100 0 L 0 50 L 100 100 L 66.66 50 z',root:marker});
 			}
@@ -983,8 +1038,8 @@ var pub ={
 			var sid = 'end-arrow-' + config.endarrow + id,
 				marker = Ext.get(sid);
 			if(!marker){
-				marker = newSVG('marker');
-				marker.set({id:sid,viewBox:vb,refX:50,refY:50,orient:'auto'});
+				marker = newSVG('marker',sid);
+				marker.set({viewBox:vb,refX:50,refY:50,orient:'auto'});
 				defs.appendChild(marker);
 				new pub.Path({fillcolor:color,fillopacity:opacity,d:'M 0 0 L 100 50 L 0 100 L 33.33 50 z',root:marker});
 			}
