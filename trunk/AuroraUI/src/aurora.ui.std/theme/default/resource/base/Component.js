@@ -29,6 +29,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     processListener: function(ou){
     	this.processMouseOverOut(ou)
         if(this.marginwidth||this.marginheight) {
+        	this.windowResizeListener();
             Ext.EventManager[ou](window, "resize", this.windowResizeListener,this);
         }
     },
