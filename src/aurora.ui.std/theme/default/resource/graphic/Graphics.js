@@ -698,6 +698,8 @@ var pub ={
 			return {x:x1,y:y1};
 	    },
 	    convertPath : function(p){
+	    	if(this.oldPath && this.oldPath === p)return this.oldConvertPath;
+	    	this.oldPath = p;
 	    	var arr=p.match(pathReg),p1=[0,0],p2=[0,0],path=[],sf=this,
 	    	f1=function(s,isC){
 	    		var arr=Ext.isArray(s)?s:s.match(numberReg);
@@ -783,7 +785,8 @@ var pub ={
 	    		}
 	    	}
 	    	path.push('E');
-	    	return path.join(' ');
+	    	this.oldConvertPath = path.join(' ');
+	    	return this.oldConvertPath;
 	    },
 	    createEditors : function(){
 	    	if(this.editable){
