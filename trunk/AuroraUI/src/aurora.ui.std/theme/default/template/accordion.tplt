@@ -9,7 +9,7 @@
         height:${height},
         columns:${columns}
     });
-    $$('${id}').bind('${bindtarget}');
+    $('${id}').bind('${bindtarget}');
     ${events}
 </SCRIPT>
 ${editors}

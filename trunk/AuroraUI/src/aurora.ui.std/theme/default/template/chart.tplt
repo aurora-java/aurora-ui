@@ -3,7 +3,7 @@
         Aurora.Charts.getOptions().exporting.url = '${contextPath}/exportchart';
         new Aurora.Charts.Chart(${config},
 	        function(){
-	        	$$('${id}').bind('${bindtarget}');
+	        	$('${id}').bind('${bindtarget}');
 	        }
         );
 </SCRIPT>
