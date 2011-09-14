@@ -186,7 +186,7 @@ $A.Lov = Ext.extend($A.TextField,{
     	this.autoCompletePosition();
     	var view = this.autocompleteview;
     	view.addClass(this.viewClass);
-		view.update('<ul></ul>');
+		view.update('<ul tabIndex="-1"></ul>');
 		this.view=view.wrap.child('ul');
 		this.view.on('click', this.onViewClick,this);
     	view.on('beforerender',this.onQuery,this);
@@ -214,6 +214,8 @@ $A.Lov = Ext.extend($A.TextField,{
     	this.autocompleteview.moveTo(x,y);
     },
     onViewClick:function(e,t){
+    	t = Ext.fly(t);
+		t = (t.parent('LI')||t).dom;
 		if(t.tagName!='LI'){
 		    return;
 		}		
@@ -222,8 +224,9 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.focus();
 	},	
 	onViewMove:function(e,t){
-        var index = t.tabIndex;
-        this.selectItem(index);        
+		t = Ext.fly(t);
+		t = t.parent('LI')||t;
+        this.selectItem(t.dom.tabIndex);        
 	},
 	onSelect : function(target){
 		var index = Ext.isNumber(target)?target:target.tabIndex;
@@ -268,7 +271,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.autoCompletePosition();
 	},
     selectItem:function(index){
-		if(Ext.isEmpty(index)){
+		if(Ext.isEmpty(index)||index < 0){
 			return;
 		}	
 		var node = this.getNode(index);	
