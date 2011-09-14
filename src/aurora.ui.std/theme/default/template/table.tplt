@@ -10,6 +10,6 @@ ${navbar}
 </TABLE>
 <SCRIPT LANGUAGE="JavaScript">
 	new Aurora.Table(${config});
-	$$('${id}').bind('${bindtarget}');
+	$('${id}').bind('${bindtarget}');
 </SCRIPT>
 ${editors}

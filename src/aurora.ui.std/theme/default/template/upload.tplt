@@ -21,7 +21,7 @@ function ${id}(){
         file_size_limit: ${filesize}, //默认单位是KB,0表示无限制
         file_types:'${filetype}',
         file_queued_handler : function(file){
-            $$('${id}_ds').create({
+            $('${id}_ds').create({
                 file_id : file.id,
                 file_name : file.name,
                 file_size : file.size,
@@ -32,7 +32,7 @@ function ${id}(){
         },
         upload_success_handler : function(file, serverData, responseReceived) {
             
-            var record = $$('${id}_ds').find('file_id', file.id);
+            var record = $('${id}_ds').find('file_id', file.id);
             if (record) {
                 if(serverData != '') record.set('attachment_id',serverData);
                 record.set('status', 1);
@@ -76,7 +76,7 @@ function ${id}(){
         upload_progress_handler : function(file, bytesLoaded, bytesTotal) {
             try {
                 var percent = Math.ceil((bytesLoaded / bytesTotal) * 100);
-                var record = $$('${id}_ds').find('file_id', file.id);
+                var record = $('${id}_ds').find('file_id', file.id);
                 if (record) {
                     record.set('percent', percent);
                 }
@@ -127,7 +127,7 @@ function ${id}(){
             }
             if (msg) {
                 Aurora.showErrorMessage('错误', msg);
-                var record = $$('${id}_ds').find('file_id', file.id);
+                var record = $('${id}_ds').find('file_id', file.id);
                 if (record) {
                     record.set('status', 0);
                 }

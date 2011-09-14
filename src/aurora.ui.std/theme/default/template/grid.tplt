@@ -24,7 +24,7 @@
 </TABLE>
 <SCRIPT LANGUAGE="JavaScript">
 	new Aurora.Grid(${config});
-	$$('${id}').bind('${bindtarget}');
+	$('${id}').bind('${bindtarget}');
 	${events}
 </SCRIPT>
 ${editors}
