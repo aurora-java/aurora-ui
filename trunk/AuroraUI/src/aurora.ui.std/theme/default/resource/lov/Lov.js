@@ -186,9 +186,8 @@ $A.Lov = Ext.extend($A.TextField,{
     	this.autoCompletePosition();
     	var view = this.autocompleteview;
     	view.addClass(this.viewClass);
-		view.update('<ul tabIndex="-1"></ul>');
-		this.view=view.wrap.child('ul');
-		this.view.on('click', this.onViewClick,this);
+		view.update('');
+		view.wrap.on('click', this.onViewClick,this);
     	view.on('beforerender',this.onQuery,this);
 		view.on('render',this.onRender,this);
     	view.on('hide',this.autoCompleteHide,this);
@@ -197,8 +196,8 @@ $A.Lov = Ext.extend($A.TextField,{
     	this.needFetch = true;
 		Ext.Ajax.abort(this.optionDataSet.qtId);
     	var view = this.autocompleteview;
-    	this.view.un('click', this.onViewClick,this);
-		this.view.un('mousemove',this.onViewMove,this);
+    	view.wrap.un('click', this.onViewClick,this);
+		view.wrap.un('mousemove',this.onViewMove,this);
     	view.un('show',this.autoCompleteShow,this);
     	view.un('beforerender',this.onQuery,this);
     	view.un('render',this.onRender,this);
@@ -215,8 +214,8 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     onViewClick:function(e,t){
     	t = Ext.fly(t);
-		t = (t.parent('LI')||t).dom;
-		if(t.tagName!='LI'){
+		t = (t.parent('TR')||t).dom;
+		if(t.tagName!='TR'){
 		    return;
 		}		
 		this.onSelect(t);
@@ -225,7 +224,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	},	
 	onViewMove:function(e,t){
 		t = Ext.fly(t);
-		t = t.parent('LI')||t;
+		t = t.parent('TR')||t;
         this.selectItem(t.dom.tabIndex);        
 	},
 	onSelect : function(target){
@@ -235,39 +234,38 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.commit(record);
 	},
     onQuery : function(){
-    	this.view.update('<li tabIndex="-1">'+_lang['lov.query']+'</li>');
-    	this.view.un('mousemove',this.onViewMove,this);
+    	var view = this.autocompleteview;
+    	view.update('<table cellspacing="0" cellpadding="2"><tr tabIndex="-1"><td>'+_lang['lov.query']+'</td></tr></table>');
+    	view.wrap.un('mousemove',this.onViewMove,this);
     	this.correctViewSize();
     },
     onRender : function(){
     	var datas = this.optionDataSet.getAll();
-		var l=datas.length;
-		var sb = [];
-		for(var i=0;i<l;i++){
-			var text = this.getRenderText(datas[i]);
-			sb.add('<li tabIndex="'+i+'">'+text+'</li>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
-		}
+		var l=datas.length,view = this.autocompleteview;
+		var sb = ['<table cellspacing="0" cellpadding="2">'];
 		this.selectedIndex = null;
-		if(l!=0){
-			this.view.update(sb.join(''));	
-			this.correctViewSize();
-			this.view.on('mousemove',this.onViewMove,this);
-			this.needFetch=false;
+		if(l==0){
+			sb.add('<tr tabIndex="-1">'+_lang['lov.notfound']+'</tr></table>');
+			view.update(sb.join(''));
 		}else{
-			this.view.update('<li tabIndex="-1">'+_lang['lov.notfound']+'</li>');	
+			for(var i=0;i<l;i++){
+				var text = this.getRenderText(datas[i]);
+				sb.add('<tr tabIndex="'+i+'">'+text+'</tr>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
+			}
+			sb.add('</table>');
+			view.update(sb.join(''));	
+			this.correctViewSize();
+			view.wrap.on('mousemove',this.onViewMove,this);
+			this.needFetch=false;
 		}
     },
     correctViewSize: function(){
-		var widthArray = [];
-		var mw = 150;
-		for(var i=0;i<this.view.dom.childNodes.length;i++){
-			var li=this.view.dom.childNodes[i];
-			var width=$A.TextMetrics.measure(li,li.innerHTML).width;
-			mw = Math.max(mw,width)||mw;
-		}
-		var lh = Math.min(this.autocompleteview.wrap.child('ul').getHeight()+2,this.maxHeight); 
-    	this.autocompleteview.setWidth(mw);
-		this.autocompleteview.setHeight(lh<20?20:lh);
+		var widthArray = [],view = this.autocompleteview,table = view.wrap.child('table');
+		if(table.getWidth() < 150)table.setWidth(150);
+		var lh = Math.min(table.getHeight()+2,this.maxHeight); 
+		view.setHeight(lh<20?20:lh);
+		var mw = view.wrap.getWidth();
+    	view.setWidth(mw);
 		this.autoCompletePosition();
 	},
     selectItem:function(index){
@@ -284,7 +282,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		}			
 	},
 	getNode:function(index){
-		var nodes = this.view.dom.childNodes,l = nodes.length;
+		var nodes = this.autocompleteview.wrap.select('tr').elements,l = nodes.length;
 		if(index >= l) index =  index % l;
 		else if (index < 0) index = l + index % l;
 		return nodes[index];
@@ -295,7 +293,7 @@ $A.Lov = Ext.extend($A.TextField,{
         if(rder){
             text = rder.call(window,this,record);
         }else{
-            text = record.get(this.autocompletefield);
+            text = '<td>'+record.get(this.autocompletefield)+'</td>';
         }
 		return text;
 	},
@@ -521,7 +519,7 @@ $A.Popup = Ext.extend($A.Component,{
     	this.shadow.setHeight(h);
     },
     setWidth : function(w){
-    	this.wrap.setWidth(w);
+    	//this.wrap.setWidth(w);
     	this.shadow.setWidth(w);
     },
     getHeight : function(){
@@ -549,6 +547,6 @@ $A.Popup = Ext.extend($A.Component,{
     	this.processDataSet('un');
     	delete this.shadow;
     },
-    tpl : ['<div class="item-popup" style="visibility:hidden;background-color:#fff">','</div>'],
+    tpl : ['<div tabIndex="-1" class="item-popup" style="visibility:hidden;background-color:#fff;">','</div>'],
     shadowtpl : ['<div class="item-shadow" style="visibility:hidden;">','</div>']
 });
