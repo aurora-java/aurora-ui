@@ -29,7 +29,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     processListener: function(ou){
     	this.processMouseOverOut(ou)
         if(this.marginwidth||this.marginheight) {
-        	this.windowResizeListener();//TODO:以后修改服务端component,去掉自身尺寸的判断
+//        	this.windowResizeListener();//TODO:以后修改服务端component,去掉自身尺寸的判断
             Ext.EventManager[ou](window, "resize", this.windowResizeListener,this);
         }
     },

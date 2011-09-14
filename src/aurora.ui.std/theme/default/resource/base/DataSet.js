@@ -144,7 +144,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     onDataSetLoad : function(ds,options){
         var record;
-        if(options){
+        if(options && options.opts && options.opts.record){
             record = options.opts.record;
         }else{
             var bt = $A.CmpManager.get(this.bindtarget);

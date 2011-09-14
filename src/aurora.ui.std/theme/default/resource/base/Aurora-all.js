@@ -1432,7 +1432,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     onDataSetLoad : function(ds,options){
         var record;
-        if(options){
+        if(options && options.opts && options.opts.record){
             record = options.opts.record;
         }else{
             var bt = $A.CmpManager.get(this.bindtarget);
@@ -3166,6 +3166,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     processListener: function(ou){
     	this.processMouseOverOut(ou)
         if(this.marginwidth||this.marginheight) {
+//        	this.windowResizeListener();//TODO:以后修改服务端component,去掉自身尺寸的判断
             Ext.EventManager[ou](window, "resize", this.windowResizeListener,this);
         }
     },
@@ -6588,9 +6589,8 @@ $A.Lov = Ext.extend($A.TextField,{
     	this.autoCompletePosition();
     	var view = this.autocompleteview;
     	view.addClass(this.viewClass);
-		view.update('<ul></ul>');
-		this.view=view.wrap.child('ul');
-		this.view.on('click', this.onViewClick,this);
+		view.update('');
+		view.wrap.on('click', this.onViewClick,this);
     	view.on('beforerender',this.onQuery,this);
 		view.on('render',this.onRender,this);
     	view.on('hide',this.autoCompleteHide,this);
@@ -6599,8 +6599,8 @@ $A.Lov = Ext.extend($A.TextField,{
     	this.needFetch = true;
 		Ext.Ajax.abort(this.optionDataSet.qtId);
     	var view = this.autocompleteview;
-    	this.view.un('click', this.onViewClick,this);
-		this.view.un('mousemove',this.onViewMove,this);
+    	view.wrap.un('click', this.onViewClick,this);
+		view.wrap.un('mousemove',this.onViewMove,this);
     	view.un('show',this.autoCompleteShow,this);
     	view.un('beforerender',this.onQuery,this);
     	view.un('render',this.onRender,this);
@@ -6616,7 +6616,9 @@ $A.Lov = Ext.extend($A.TextField,{
     	this.autocompleteview.moveTo(x,y);
     },
     onViewClick:function(e,t){
-		if(t.tagName!='LI'){
+    	t = Ext.fly(t);
+		t = (t.parent('TR')||t).dom;
+		if(t.tagName!='TR'){
 		    return;
 		}		
 		this.onSelect(t);
@@ -6624,8 +6626,9 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.focus();
 	},	
 	onViewMove:function(e,t){
-        var index = t.tabIndex;
-        this.selectItem(index);        
+		t = Ext.fly(t);
+		t = t.parent('TR')||t;
+        this.selectItem(t.dom.tabIndex);        
 	},
 	onSelect : function(target){
 		var index = Ext.isNumber(target)?target:target.tabIndex;
@@ -6634,43 +6637,42 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.commit(record);
 	},
     onQuery : function(){
-    	this.view.update('<li tabIndex="-1">'+_lang['lov.query']+'</li>');
-    	this.view.un('mousemove',this.onViewMove,this);
+    	var view = this.autocompleteview;
+    	view.update('<table cellspacing="0" cellpadding="2"><tr tabIndex="-1"><td>'+_lang['lov.query']+'</td></tr></table>');
+    	view.wrap.un('mousemove',this.onViewMove,this);
     	this.correctViewSize();
     },
     onRender : function(){
     	var datas = this.optionDataSet.getAll();
-		var l=datas.length;
-		var sb = [];
-		for(var i=0;i<l;i++){
-			var text = this.getRenderText(datas[i]);
-			sb.add('<li tabIndex="'+i+'">'+text+'</li>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
-		}
+		var l=datas.length,view = this.autocompleteview;
+		var sb = ['<table cellspacing="0" cellpadding="2">'];
 		this.selectedIndex = null;
-		if(l!=0){
-			this.view.update(sb.join(''));	
-			this.correctViewSize();
-			this.view.on('mousemove',this.onViewMove,this);
-			this.needFetch=false;
+		if(l==0){
+			sb.add('<tr tabIndex="-1">'+_lang['lov.notfound']+'</tr></table>');
+			view.update(sb.join(''));
 		}else{
-			this.view.update('<li tabIndex="-1">'+_lang['lov.notfound']+'</li>');	
+			for(var i=0;i<l;i++){
+				var text = this.getRenderText(datas[i]);
+				sb.add('<tr tabIndex="'+i+'">'+text+'</tr>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
+			}
+			sb.add('</table>');
+			view.update(sb.join(''));	
+			this.correctViewSize();
+			view.wrap.on('mousemove',this.onViewMove,this);
+			this.needFetch=false;
 		}
     },
     correctViewSize: function(){
-		var widthArray = [];
-		var mw = 150;
-		for(var i=0;i<this.view.dom.childNodes.length;i++){
-			var li=this.view.dom.childNodes[i];
-			var width=$A.TextMetrics.measure(li,li.innerHTML).width;
-			mw = Math.max(mw,width)||mw;
-		}
-		var lh = Math.min(this.autocompleteview.wrap.child('ul').getHeight()+2,this.maxHeight); 
-    	this.autocompleteview.setWidth(mw);
-		this.autocompleteview.setHeight(lh<20?20:lh);
+		var widthArray = [],view = this.autocompleteview,table = view.wrap.child('table');
+		if(table.getWidth() < 150)table.setWidth(150);
+		var lh = Math.min(table.getHeight()+2,this.maxHeight); 
+		view.setHeight(lh<20?20:lh);
+		var mw = view.wrap.getWidth();
+    	view.setWidth(mw);
 		this.autoCompletePosition();
 	},
     selectItem:function(index){
-		if(Ext.isEmpty(index)){
+		if(Ext.isEmpty(index)||index < 0){
 			return;
 		}	
 		var node = this.getNode(index);	
@@ -6683,7 +6685,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		}			
 	},
 	getNode:function(index){
-		var nodes = this.view.dom.childNodes,l = nodes.length;
+		var nodes = this.autocompleteview.wrap.select('tr').elements,l = nodes.length;
 		if(index >= l) index =  index % l;
 		else if (index < 0) index = l + index % l;
 		return nodes[index];
@@ -6694,7 +6696,7 @@ $A.Lov = Ext.extend($A.TextField,{
         if(rder){
             text = rder.call(window,this,record);
         }else{
-            text = record.get(this.autocompletefield);
+            text = '<td>'+record.get(this.autocompletefield)+'</td>';
         }
 		return text;
 	},
@@ -6920,7 +6922,7 @@ $A.Popup = Ext.extend($A.Component,{
     	this.shadow.setHeight(h);
     },
     setWidth : function(w){
-    	this.wrap.setWidth(w);
+    	//this.wrap.setWidth(w);
     	this.shadow.setWidth(w);
     },
     getHeight : function(){
@@ -6948,7 +6950,7 @@ $A.Popup = Ext.extend($A.Component,{
     	this.processDataSet('un');
     	delete this.shadow;
     },
-    tpl : ['<div class="item-popup" style="visibility:hidden;background-color:#fff">','</div>'],
+    tpl : ['<div tabIndex="-1" class="item-popup" style="visibility:hidden;background-color:#fff;">','</div>'],
     shadowtpl : ['<div class="item-shadow" style="visibility:hidden;">','</div>']
 });
 /**
@@ -7179,7 +7181,7 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
             }
         }
         var context_path = path.substring(0,str);
-//        new Aurora.Window({id:'sys_customization_edit_window', url:'/hec/modules/sys/sys_customization_edit.screen?screen_path='+screen_path + '&id='+ this.cmp.id, title:'属性设置',height:530,width:780});        
+       
         new Aurora.Window({id:'sys_customization_window', url:context_path + 'modules/sys/sys_customization_window.screen?screen_path='+screen_path + '&id='+ this.cmp.id, title:'个性化设置',height:170,width:400});
         this.onCmpOut();
     },
