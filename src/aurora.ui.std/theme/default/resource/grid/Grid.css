@@ -28,6 +28,9 @@
     border-right:1px solid #cccccc;
     background: url(../grid/row-box.gif) repeat-y;
 }
+.grid-rownumber {
+    background-color:#ededed;
+}
 .grid-rowbox center {
     height:17px;
     padding-top:5px;
