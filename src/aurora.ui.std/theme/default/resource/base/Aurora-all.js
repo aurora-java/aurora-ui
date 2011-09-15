@@ -1032,6 +1032,12 @@ $A.getRenderer = function(renderer){
     }
     return rder;
 }
+$A.RowNumberRenderer = function(value,record,name){
+    if(record && record.ds){
+        var ds = record.ds;
+        return (ds.currentPage-1)*ds.pagesize + ds.indexOf(record) + 1;
+    }
+}
 /**
  * 将日期转换成默认格式的字符串，默认格式是根据Aurora.defaultDateFormat来定义的.如果没有特殊指定,默认格式为yyyy-mm-dd
  * @param {Date} date 转换的日期
