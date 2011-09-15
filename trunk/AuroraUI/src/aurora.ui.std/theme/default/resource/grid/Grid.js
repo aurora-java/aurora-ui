@@ -232,6 +232,8 @@ $A.Grid = Ext.extend($A.Component,{
     },
     initTemplate : function(){
         this.rowTdTpl = new Ext.Template('<td atype="{atype}" class="grid-rowbox" recordid="{recordid}">');
+        this.rowNumTdTpl = new Ext.Template('<td style="text-align:{align}" class="grid-rownumber" atype="grid-rownumber" recordid="{recordid}">');
+        this.rowNumCellTpl = new Ext.Template('<div style="width:{width}px" id="'+this.id+'_{name}_{recordid}">{text}</div>');
         this.tdTpl = new Ext.Template('<td style="visibility:{visibility};text-align:{align}" dataindex="{name}" atype="grid-cell" recordid="{recordid}">');
         this.cellTpl = new Ext.Template('<div class="grid-cell {cellcls}" style="width:{width}px" id="'+this.id+'_{name}_{recordid}" title="{title}">{text}</div>');        
         this.cbTpl = new Ext.Template('<center><div class="{cellcls}" id="'+this.id+'_{name}_{recordid}"></div></center>');
@@ -289,6 +291,7 @@ $A.Grid = Ext.extend($A.Component,{
             })
             cellTpl =  this.cbTpl;
         }else{
+            
             var field = record.getMeta().getField(col.name);
             if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get('required') == true){
                 cls = cls + ' ' + this.nbcls
@@ -304,6 +307,10 @@ $A.Grid = Ext.extend($A.Component,{
                 title:String(t).replace(/<[^<>]*>/mg,'')
             })
             cellTpl =  this.cellTpl;
+            if(xtype == 'rownumber') {
+                tdTpl = this.rowNumTdTpl;
+                cellTpl = this.rowNumCellTpl;
+            }
         }
         var sb = [];
         if(includTd)sb.add(tdTpl.applyTemplate(data));
@@ -514,7 +521,10 @@ $A.Grid = Ext.extend($A.Component,{
                         td.style.visibility=col.hidden === true ? 'hidden' : 'visible';
                         td.style.textAlign=col.align||'left';
                         if(!this.isFunctionCol(col)) td.dataindex=col.name;
-                        Ext.fly(td).set({'dataindex':col.name,'recordid':record.id,'atype':'grid-cell'});           
+                        Ext.fly(td).set({'dataindex':col.name,'recordid':record.id,'atype':'grid-cell'}); 
+                        if(col.type == 'rownumber') {
+                            td.className = 'grid-rownumber';
+                        }
                     }
                     var cell = this.createCell(col,record, false);
                     td.innerHTML = cell;
@@ -702,6 +712,10 @@ $A.Grid = Ext.extend($A.Component,{
                 this.fireEvent('cellclick', this, row, name, record);
                 this.showEditor(row,name);
                 this.fireEvent('rowclick', this, row, record);
+            }else if (atype == 'grid-rownumber'){
+                var record = this.dataset.findById(rid);
+                var row = this.dataset.indexOf(record);
+                if(record.id != this.selectedId) this.selectRow(row);
             }else if(atype=='grid.rowcheck'){               
                 var cb = Ext.get(this.id+'__'+rid);
                 if(cb.hasClass('item-ckb-readonly-u')||cb.hasClass('item-ckb-readonly-c'))return;
