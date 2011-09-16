@@ -10,6 +10,8 @@ Release ()
 * 修正TriggerField的popup框在页面有scrollTop和scrollLeft的时候定位问题。
 * 工作流图形增加shadow属性。
 * 改进Lov的autoComplete功能，能够通过autoCompleteRenderer来支持显示多列。
+* 改进checkbox显示居上的问题。
+* 将Window的可移动范围扩展至窗口外部
 
 Release (2011-08-16)
 ------------------------------------
