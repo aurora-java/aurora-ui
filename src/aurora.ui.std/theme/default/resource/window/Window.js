@@ -268,10 +268,10 @@ $A.Window = Ext.extend($A.Component,{
     	var sh = st + this.screenHeight;
     	var tx = e.getPageX()+this.relativeX;
     	var ty = e.getPageY()+this.relativeY;
-    	if(tx<=sl) tx =sl;
-    	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
-    	if(ty<=st) ty =st;
-    	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
+//    	if(tx<=sl) tx =sl;
+//    	if((tx+this.width)>= (sw-3)) tx = sw - this.width - 3;
+//    	if(ty<=st) ty =st;
+//    	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
     	this.proxy.moveTo(tx,ty);
     },
     showLoading : function(){
