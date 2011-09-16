@@ -7,7 +7,7 @@
  * @param {Object} config 配置对象. 
  */
 $A.Lov = Ext.extend($A.TextField,{
-	selectedClass:'item-comboBox-selected',
+	selectedClass:'autocomplete-selected',
 	viewClass:'item-comboBox-view',
     constructor: function(config) {
         this.isWinOpen = false;
@@ -17,7 +17,7 @@ $A.Lov = Ext.extend($A.TextField,{
         this.autocompletesize = 2;
         this.autocompletedelay = 500;
         this.autocompletepagesize = 10;
-        this.maxHeight = 210;
+        this.maxHeight = 240;
         this.context = config.context||'';
         $A.Lov.superclass.constructor.call(this, config);        
     },
@@ -229,35 +229,46 @@ $A.Lov = Ext.extend($A.TextField,{
 	},
 	onSelect : function(target){
 		var index = Ext.isNumber(target)?target:target.tabIndex;
-		if(index==-1)return;
+		if(index<-1){
+			if(!this.needFetch)this.fetchRecord();
+			return;
+		}
 		var record = this.optionDataSet.getAt(index);
 		this.commit(record);
 	},
     onQuery : function(){
     	var view = this.autocompleteview;
-    	view.update('<table cellspacing="0" cellpadding="2"><tr tabIndex="-1"><td>'+_lang['lov.query']+'</td></tr></table>');
+    	view.update('<table cellspacing="0" cellpadding="2"><tr tabIndex="-2"><td>'+_lang['lov.query']+'</td></tr></table>');
     	view.wrap.un('mousemove',this.onViewMove,this);
     	this.correctViewSize();
     },
     onRender : function(){
     	var datas = this.optionDataSet.getAll();
 		var l=datas.length,view = this.autocompleteview;
-		var sb = ['<table cellspacing="0" cellpadding="2">'];
+		var sb = ['<table class="autocomplete" cellspacing="0" cellpadding="2">'];
 		this.selectedIndex = null;
 		if(l==0){
-			sb.add('<tr tabIndex="-1">'+_lang['lov.notfound']+'</tr></table>');
+			sb.add('<tr tabIndex="-2"><td>'+_lang['lov.notfound']+'</td></tr></table>');
 			view.update(sb.join(''));
 		}else{
+			var displayFields = this.binder.ds.getField(this.binder.name).getPropertity('displayFields');
+            if(displayFields && displayFields.length){
+            	sb.add('<tr tabIndex="-2" class="autocomplete-head">');
+            	for(var i = 0,ll = displayFields.length;i < ll;i++){
+            		sb.add('<td>'+displayFields[i].prompt+'</td>');
+            	}
+				sb.add('</tr>');
+            }
 			for(var i=0;i<l;i++){
-				var text = this.getRenderText(datas[i]);
-				sb.add('<tr tabIndex="'+i+'">'+text+'</tr>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
+				var text = this.getRenderText(datas[i],displayFields);
+				sb.add('<tr tabIndex="'+i+'"'+(i%2==1?' class="autocomplete-row-alt"':'')+'>'+text+'</tr>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
 			}
 			sb.add('</table>');
 			view.update(sb.join(''));	
-			this.correctViewSize();
 			view.wrap.on('mousemove',this.onViewMove,this);
 			this.needFetch=false;
 		}
+		this.correctViewSize();
     },
     correctViewSize: function(){
 		var widthArray = [],view = this.autocompleteview,table = view.wrap.child('table');
@@ -269,7 +280,7 @@ $A.Lov = Ext.extend($A.TextField,{
 		this.autoCompletePosition();
 	},
     selectItem:function(index){
-		if(Ext.isEmpty(index)||index < 0){
+		if(Ext.isEmpty(index)||index < -1){
 			return;
 		}	
 		var node = this.getNode(index);	
@@ -282,18 +293,25 @@ $A.Lov = Ext.extend($A.TextField,{
 		}			
 	},
 	getNode:function(index){
-		var nodes = this.autocompleteview.wrap.select('tr').elements,l = nodes.length;
+		var nodes = this.autocompleteview.wrap.select('tr[tabindex!=-2]').elements,l = nodes.length;
 		if(index >= l) index =  index % l;
 		else if (index < 0) index = l + index % l;
 		return nodes[index];
 	},
-    getRenderText : function(record){
+    getRenderText : function(record,displayFields){
         var rder = $A.getRenderer(this.autocompleterenderer);
         var text = '&#160;';
         if(rder){
             text = rder.call(window,this,record);
         }else{
-            text = '<td>'+record.get(this.autocompletefield)+'</td>';
+        	if(displayFields){
+            	text = '';
+            	for(var i = 0,l = displayFields.length;i < l;i++){
+            		text += '<td>'+record.get(displayFields[i].name)+'</td>';
+            	}
+            }else{
+            	text = '<td>'+record.get(this.autocompletefield)+'</td>';
+            }
         }
 		return text;
 	},
@@ -547,6 +565,6 @@ $A.Popup = Ext.extend($A.Component,{
     	this.processDataSet('un');
     	delete this.shadow;
     },
-    tpl : ['<div tabIndex="-1" class="item-popup" style="visibility:hidden;background-color:#fff;">','</div>'],
+    tpl : ['<div tabIndex="-2" class="item-popup" style="visibility:hidden;background-color:#fff;">','</div>'],
     shadowtpl : ['<div class="item-shadow" style="visibility:hidden;">','</div>']
 });

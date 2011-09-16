@@ -1,3 +1,24 @@
 .item-lovButton {	
 	BACKGROUND: url(../base/itembar.gif) no-repeat 2px -42px;	
 }
+.autocomplete-head {
+	
+	background: url(../grid/grid_bg.gif) repeat-x;
+	color: #055A78;
+	text-align: center;
+}
+.autocomplete td {
+	border-right: 1px solid #CCCCCC;
+	border-bottom: 1px solid #CCCCCC;
+}
+.autocomplete-head td {
+	border-color:#FFFFFF #CCCCCC #CCCCCC #FFFFFF;
+	border-style: solid;
+	border-width: 1px;
+}
+.autocomplete-row-alt {
+	background-color:#EDEDED;
+}
+.autocomplete-selected {
+	background-color:#DFEAF5;
+}
