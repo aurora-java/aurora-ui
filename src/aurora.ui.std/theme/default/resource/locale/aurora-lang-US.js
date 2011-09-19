@@ -37,6 +37,8 @@ _lang['toolbar.item'] = ' ';
 _lang['toolbar.visible'] = 'Displaying ';
 _lang['toolbar.pageSize'] = 'Per Page';
 _lang['toolbar.pageSize2'] = '';
+_lang['toolbar.maxPageSize'] = 'The max count of records per page is ';
+_lang['toolbar.errormsg'] = 'Invalid input';
 
 _lang['window.loading'] = 'Loading...';
 _lang['window.error'] = 'Error';

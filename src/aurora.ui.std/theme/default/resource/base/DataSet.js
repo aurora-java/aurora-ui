@@ -17,7 +17,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.pageid = config.pageid;
         this.spara = {};
         this.selected = [];
+        this.maxpagesize = config.maxpagesize || 500;
         this.pagesize = config.pagesize || 10;
+        if(this.pagesize > this.maxpagesize) 
+        	this.pagesize = this.maxpagesize;
         this.submiturl = config.submiturl || '';
         this.queryurl = config.queryurl || '';
         this.fetchall = config.fetchall||false;

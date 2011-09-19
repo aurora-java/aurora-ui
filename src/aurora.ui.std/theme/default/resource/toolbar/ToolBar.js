@@ -122,9 +122,13 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	}
     },
     onPageSizeChange : function(el,value,oldvalue){
+    	var max = this.dataSet.maxpagesize;
     	if(isNaN(value) || value<=0){
-    		el.setValue(oldvalue)
-    	}else if(this.dataSet.pagesize!=value){
+    		el.setValue(oldvalue);
+    	}else if(value > max){
+			$A.showMessage(_lang['toolbar.errormsg'],_lang['toolbar.maxPageSize']+max+_lang['toolbar.item'],null,240);
+			el.setValue(oldvalue);
+		}else if(this.dataSet.pagesize!=value){
 	    	this.dataSet.pagesize=Math.round(value);
 	    	this.dataSet.query();
     	}

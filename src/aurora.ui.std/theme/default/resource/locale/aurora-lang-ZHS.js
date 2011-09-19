@@ -37,6 +37,8 @@ _lang['toolbar.item'] = ' 条';
 _lang['toolbar.visible'] = '显示';
 _lang['toolbar.pageSize'] = '每页显示';
 _lang['toolbar.pageSize2'] = '条';
+_lang['toolbar.maxPageSize'] = '每页显示数最大为';
+_lang['toolbar.errormsg'] = '输入有误';
 
 _lang['window.loading'] = '正在加载...';
 _lang['window.error'] = '错误';

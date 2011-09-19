@@ -13,6 +13,7 @@ Release ()
 * 改进checkbox显示居上的问题。
 * 将Window的可移动范围扩展至窗口外部
 * 改进了NavBar的每页显示数的ComboBox可手动输入。
+* 增加DataSet的maxPageSize属性，用于设置查询的分页大小的最大值，来限制navBar中的分页输入框的输入上限
 
 Release (2011-08-16)
 ------------------------------------
