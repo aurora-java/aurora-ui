@@ -37,10 +37,10 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	$A.NavBar.superclass.processListener.call(this,ou);
     	this.dataSet[ou]('load', this.onLoad,this);
     	if(this.type != "simple"){
-	    	this.pageInput[ou]('keydown', this.onInputKeyPress, this);
-	    	if(this.pageSizeInput){
-	    		this.pageSizeInput[ou]('select', this.onInputSelect, this);
-	    	}
+    		this.pageInput[ou]('change', this.onPageChange, this);
+    		if(this.pageSizeInput){
+    			this.pageSizeInput[ou]('change', this.onPageSizeChange, this);
+    		}
     	}
     },
     initEvents : function(){
@@ -114,22 +114,19 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     createSplit : function(html){
     	html.push('<span>···</span>');
     },
-    onInputKeyPress : function(input, e){
-    	if(e.keyCode == 13){
-    		var page = parseInt(input.getRawValue());
-    		if(isNaN(page)){
-    			input.setValue(this.dataSet.currentPage);
-    		}else{
-    			if(page>0 && page<=this.dataSet.totalPage) {
-    				this.dataSet.goPage(page);
-    			}else{
-    				input.setValue(this.dataSet.currentPage);
-    			}
-    		}
-    	}    	
+    onPageChange : function(el,value,oldvalue){
+    	if(isNaN(value) || value<=0 || value>this.dataSet.totalPage){
+    		el.setValue(oldvalue)
+    	}else if(this.dataSet.currentPage!=value){
+	    	this.dataSet.goPage(value);
+    	}
     },
-    onInputSelect : function(combo,value){
-    	this.dataSet.pagesize=value;
-    	this.dataSet.query();
+    onPageSizeChange : function(el,value,oldvalue){
+    	if(isNaN(value) || value<=0){
+    		el.setValue(oldvalue)
+    	}else if(this.dataSet.pagesize!=value){
+	    	this.dataSet.pagesize=Math.round(value);
+	    	this.dataSet.query();
+    	}
     }
 })

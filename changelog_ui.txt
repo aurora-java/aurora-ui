@@ -12,6 +12,7 @@ Release ()
 * 改进Lov的autoComplete功能，能够通过autoCompleteRenderer来支持显示多列。
 * 改进checkbox显示居上的问题。
 * 将Window的可移动范围扩展至窗口外部
+* 改进了NavBar的每页显示数的ComboBox可手动输入。
 
 Release (2011-08-16)
 ------------------------------------

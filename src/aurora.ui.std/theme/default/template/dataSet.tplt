@@ -1,3 +1,4 @@
+<textarea id="${id}_hiddenbox" style="display:none"></textarea>
 <script>
 new Aurora.DataSet(${config});
 ${validscript}
