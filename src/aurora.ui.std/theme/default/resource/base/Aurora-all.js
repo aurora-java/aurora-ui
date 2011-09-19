@@ -1624,6 +1624,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * 选择数据前事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              * @param {Aurora.Record} record 选择的record.
+             * @return ${Boolean} result 如果为false则中断选择动作
              */ 
             'beforeselect',
             /**
@@ -1653,6 +1654,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @event beforesubmit
              * 数据提交前事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @return ${Boolean} result 如果为false则中断提交请求
              */
             'beforesubmit',
             /**
