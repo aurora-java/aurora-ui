@@ -45,11 +45,15 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		$A.ComboBox.superclass.onBlur.call(this,e);
 		if(!this.isExpanded()) {
 			var raw = this.getRawValue();
-			var record = this.getRecordByDisplay(raw);
-			if(record != null){
-				this.setValue(record.get(this.displayfield));				
+			if(this.editable){
+				this.setValue(raw)
 			}else{
-				this.setValue('');
+				var record = this.getRecordByDisplay(raw);
+				if(record != null){
+					this.setValue(record.get(this.displayfield));				
+				}else{
+					this.setValue('');
+				}
 			}
 		}
     },
@@ -325,7 +329,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 				if(mapping){//TODO: v是空的时候?
 					for(var i=0;i<mapping.length;i++){
 						var map = mapping[i];
-    					var vl = record ? record.get(map.from) : '';
+    					var vl = record ? record.get(map.from) : (this.editable?raw:'');
 //    					var vl = record ? (record.get(map.from)||'') : '';
 //    					if(vl!=''){
     					if(!Ext.isEmpty(vl,true)){

@@ -190,12 +190,12 @@ $A.Field = Ext.extend($A.Component,{
         return rv;
     },
     setValue : function(v, silent){
-    	$A.Field.superclass.setValue.call(this,v, silent);
     	if(this.emptytext && this.el && v !== undefined && v !== null && v !== ''){
             this.wrap.removeClass(this.emptyTextCss);
         }
         this.setRawValue(this.formatValue((v === null || v === undefined ? '' : v)));
         this.applyEmptyText();
+    	$A.Field.superclass.setValue.call(this,v, silent);
     },
     formatValue : function(v){
         var rder = null;
