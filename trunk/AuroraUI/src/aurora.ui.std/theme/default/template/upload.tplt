@@ -4,8 +4,9 @@
 window.${id}_download_path = '${downloadurl}';
 function ${id}(){
     var jsid = Aurora.getCookie('JSID');
+    var jsessionid = Aurora.getCookie('JSESSIONID');
     var settings = {
-        upload_url : '${uploadurl}?JSID='+jsid,
+        upload_url : '${uploadurl};jsessionid='+jsessionid,//TODO:仅仅通过tomcat测试,需要验证其他应用服务器
         flash_url : "${context_path}/resource/aurora.ui.std/default/upload/swfupload.swf"
     };
     Ext.apply(settings, {
