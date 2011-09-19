@@ -233,7 +233,7 @@ $A.Grid = Ext.extend($A.Component,{
     initTemplate : function(){
         this.rowTdTpl = new Ext.Template('<td atype="{atype}" class="grid-rowbox" recordid="{recordid}">');
         this.rowNumTdTpl = new Ext.Template('<td style="text-align:{align}" class="grid-rownumber" atype="grid-rownumber" recordid="{recordid}">');
-        this.rowNumCellTpl = new Ext.Template('<div style="width:{width}px" id="'+this.id+'_{name}_{recordid}">{text}</div>');
+        this.rowNumCellTpl = new Ext.Template('<div style="width:{width}px">{text}</div>');
         this.tdTpl = new Ext.Template('<td style="visibility:{visibility};text-align:{align}" dataindex="{name}" atype="grid-cell" recordid="{recordid}">');
         this.cellTpl = new Ext.Template('<div class="grid-cell {cellcls}" style="width:{width}px" id="'+this.id+'_{name}_{recordid}" title="{title}">{text}</div>');        
         this.cbTpl = new Ext.Template('<center><div class="{cellcls}" id="'+this.id+'_{name}_{recordid}"></div></center>');

@@ -109,7 +109,8 @@ $A.Lov = Ext.extend($A.TextField,{
 	        		this.showCompleteId=setTimeout(function(){
 	        			var url;
 			        	if(!Ext.isEmpty(sf.lovservice)){
-				            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice +'&'+ Ext.urlEncode(sf.getLovPara());
+//				            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice +'&'+ Ext.urlEncode(sf.getLovPara());
+                            url = sf.context + 'autocrud/'+sf.lovservice+'/query?' + Ext.urlEncode(sf.getLovPara());
 				        }else if(!Ext.isEmpty(sf.lovmodel)){
 				            url = sf.context + 'autocrud/'+sf.lovmodel+'/query?' + Ext.urlEncode(sf.getLovPara());
 				        }
@@ -392,7 +393,8 @@ $A.Lov = Ext.extend($A.TextField,{
         var v = this.getRawValue(),url;
         
         if(!Ext.isEmpty(this.lovservice)){
-            url = this.context + 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
+//            url = this.context + 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
+            url = this.context + 'autocrud/'+this.lovservice+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
         }else if(!Ext.isEmpty(this.lovmodel)){
             url = this.context + 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
         }
@@ -455,7 +457,8 @@ $A.Lov = Ext.extend($A.TextField,{
         if(!Ext.isEmpty(this.lovurl)){
             url = this.lovurl+'?' + Ext.urlEncode(this.getLovPara()) + '&';
         }else if(!Ext.isEmpty(this.lovservice)){
-            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';           
+//            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';
+            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovservice+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';
         }else if(!Ext.isEmpty(this.lovmodel)){
             url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovmodel+'&';
         }
