@@ -6,7 +6,7 @@ function ${id}(){
     var jsid = Aurora.getCookie('JSID');
     var jsessionid = Aurora.getCookie('JSESSIONID');
     var settings = {
-        upload_url : '${uploadurl};jsessionid='+jsessionid,
+        upload_url : '${uploadurl};jsessionid='+jsessionid+'?JSID='+jsid,
         flash_url : "${context_path}/resource/aurora.ui.std/default/upload/swfupload.swf"
     };
     Ext.apply(settings, {
