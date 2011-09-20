@@ -1311,7 +1311,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.pageid = config.pageid;
         this.spara = {};
         this.selected = [];
+        this.maxpagesize = config.maxpagesize || 500;
         this.pagesize = config.pagesize || 10;
+        if(this.pagesize > this.maxpagesize) 
+        	this.pagesize = this.maxpagesize;
         this.submiturl = config.submiturl || '';
         this.queryurl = config.queryurl || '';
         this.fetchall = config.fetchall||false;
@@ -3635,12 +3638,12 @@ $A.Field = Ext.extend($A.Component,{
         return rv;
     },
     setValue : function(v, silent){
-    	$A.Field.superclass.setValue.call(this,v, silent);
     	if(this.emptytext && this.el && v !== undefined && v !== null && v !== ''){
             this.wrap.removeClass(this.emptyTextCss);
         }
         this.setRawValue(this.formatValue((v === null || v === undefined ? '' : v)));
         this.applyEmptyText();
+    	$A.Field.superclass.setValue.call(this,v, silent);
     },
     formatValue : function(v){
         var rder = null;
@@ -4664,11 +4667,15 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		$A.ComboBox.superclass.onBlur.call(this,e);
 		if(!this.isExpanded()) {
 			var raw = this.getRawValue();
-			var record = this.getRecordByDisplay(raw);
-			if(record != null){
-				this.setValue(record.get(this.displayfield));				
+			if(this.editable){
+				this.setValue(raw)
 			}else{
-				this.setValue('');
+				var record = this.getRecordByDisplay(raw);
+				if(record != null){
+					this.setValue(record.get(this.displayfield));				
+				}else{
+					this.setValue('');
+				}
 			}
 		}
     },
@@ -4944,7 +4951,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 				if(mapping){//TODO: v是空的时候?
 					for(var i=0;i<mapping.length;i++){
 						var map = mapping[i];
-    					var vl = record ? record.get(map.from) : '';
+    					var vl = record ? record.get(map.from) : (this.editable?raw:'');
 //    					var vl = record ? (record.get(map.from)||'') : '';
 //    					if(vl!=''){
     					if(!Ext.isEmpty(vl,true)){
@@ -5702,10 +5709,10 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	$A.NavBar.superclass.processListener.call(this,ou);
     	this.dataSet[ou]('load', this.onLoad,this);
     	if(this.type != "simple"){
-	    	this.pageInput[ou]('keydown', this.onInputKeyPress, this);
-	    	if(this.pageSizeInput){
-	    		this.pageSizeInput[ou]('select', this.onInputSelect, this);
-	    	}
+    		this.pageInput[ou]('change', this.onPageChange, this);
+    		if(this.pageSizeInput){
+    			this.pageSizeInput[ou]('change', this.onPageSizeChange, this);
+    		}
     	}
     },
     initEvents : function(){
@@ -5779,23 +5786,24 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     createSplit : function(html){
     	html.push('<span>···</span>');
     },
-    onInputKeyPress : function(input, e){
-    	if(e.keyCode == 13){
-    		var page = parseInt(input.getRawValue());
-    		if(isNaN(page)){
-    			input.setValue(this.dataSet.currentPage);
-    		}else{
-    			if(page>0 && page<=this.dataSet.totalPage) {
-    				this.dataSet.goPage(page);
-    			}else{
-    				input.setValue(this.dataSet.currentPage);
-    			}
-    		}
-    	}    	
+    onPageChange : function(el,value,oldvalue){
+    	if(isNaN(value) || value<=0 || value>this.dataSet.totalPage){
+    		el.setValue(oldvalue)
+    	}else if(this.dataSet.currentPage!=value){
+	    	this.dataSet.goPage(value);
+    	}
     },
-    onInputSelect : function(combo,value){
-    	this.dataSet.pagesize=value;
-    	this.dataSet.query();
+    onPageSizeChange : function(el,value,oldvalue){
+    	var max = this.dataSet.maxpagesize;
+    	if(isNaN(value) || value<=0){
+    		el.setValue(oldvalue);
+    	}else if(value > max){
+			$A.showMessage(_lang['toolbar.errormsg'],_lang['toolbar.maxPageSize']+max+_lang['toolbar.item'],null,240);
+			el.setValue(oldvalue);
+		}else if(this.dataSet.pagesize!=value){
+	    	this.dataSet.pagesize=Math.round(value);
+	    	this.dataSet.query();
+    	}
     }
 })
 $A.WindowManager = function(){
@@ -6519,11 +6527,12 @@ $A.Lov = Ext.extend($A.TextField,{
 	        		if(this.showCompleteId)clearTimeout(this.showCompleteId);
 	        		this.showCompleteId=setTimeout(function(){
 	        			var url;
+                        var lp = Ext.urlEncode(this.getLovPara())
 			        	if(!Ext.isEmpty(sf.lovservice)){
 //				            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice +'&'+ Ext.urlEncode(sf.getLovPara());
-                            url = sf.context + 'autocrud/'+sf.lovservice+'/query?' + Ext.urlEncode(sf.getLovPara());
+                            url = sf.context + 'autocrud/'+sf.lovservice+'/query' + (!Ext.isEmpty(lp) ? '?' + lp : '');
 				        }else if(!Ext.isEmpty(sf.lovmodel)){
-				            url = sf.context + 'autocrud/'+sf.lovmodel+'/query?' + Ext.urlEncode(sf.getLovPara());
+				            url = sf.context + 'autocrud/'+sf.lovmodel+'/query' + (!Ext.isEmpty(lp) ? '?' + lp : '');
 				        }
 				        sf.optionDataSet.setQueryUrl(url);
 				       	sf.pagesize=sf.autocompletepagesize;
@@ -6865,13 +6874,15 @@ $A.Lov = Ext.extend($A.TextField,{
         var v = this.getRawValue();
         this.blur();
         var url;
+        var lp = Ext.urlEncode(this.getLovPara())
         if(!Ext.isEmpty(this.lovurl)){
             url = this.lovurl+'?' + Ext.urlEncode(this.getLovPara()) + '&';
         }else if(!Ext.isEmpty(this.lovservice)){
+            
 //            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';
-            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovservice+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';
+            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovservice+'/query'+ (!Ext.isEmpty(lp) ? '?' + lp : ''))+'&service='+this.lovservice+'&';
         }else if(!Ext.isEmpty(this.lovmodel)){
-            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovmodel+'&';
+            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query'+ (!Ext.isEmpty(lp) ? '?' + lp : ''))+'&service='+this.lovmodel+'&';
         }
         if(url) {
 	        this.isWinOpen = true;

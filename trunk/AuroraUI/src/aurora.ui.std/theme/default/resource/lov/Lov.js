@@ -108,11 +108,12 @@ $A.Lov = Ext.extend($A.TextField,{
 	        		if(this.showCompleteId)clearTimeout(this.showCompleteId);
 	        		this.showCompleteId=setTimeout(function(){
 	        			var url;
+                        var lp = Ext.urlEncode(this.getLovPara())
 			        	if(!Ext.isEmpty(sf.lovservice)){
 //				            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice +'&'+ Ext.urlEncode(sf.getLovPara());
-                            url = sf.context + 'autocrud/'+sf.lovservice+'/query?' + Ext.urlEncode(sf.getLovPara());
+                            url = sf.context + 'autocrud/'+sf.lovservice+'/query' + (!Ext.isEmpty(lp) ? '?' + lp : '');
 				        }else if(!Ext.isEmpty(sf.lovmodel)){
-				            url = sf.context + 'autocrud/'+sf.lovmodel+'/query?' + Ext.urlEncode(sf.getLovPara());
+				            url = sf.context + 'autocrud/'+sf.lovmodel+'/query' + (!Ext.isEmpty(lp) ? '?' + lp : '');
 				        }
 				        sf.optionDataSet.setQueryUrl(url);
 				       	sf.pagesize=sf.autocompletepagesize;
@@ -454,13 +455,15 @@ $A.Lov = Ext.extend($A.TextField,{
         var v = this.getRawValue();
         this.blur();
         var url;
+        var lp = Ext.urlEncode(this.getLovPara())
         if(!Ext.isEmpty(this.lovurl)){
             url = this.lovurl+'?' + Ext.urlEncode(this.getLovPara()) + '&';
         }else if(!Ext.isEmpty(this.lovservice)){
+            
 //            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';
-            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovservice+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';
+            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovservice+'/query'+ (!Ext.isEmpty(lp) ? '?' + lp : ''))+'&service='+this.lovservice+'&';
         }else if(!Ext.isEmpty(this.lovmodel)){
-            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovmodel+'&';
+            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query'+ (!Ext.isEmpty(lp) ? '?' + lp : ''))+'&service='+this.lovmodel+'&';
         }
         if(url) {
 	        this.isWinOpen = true;
