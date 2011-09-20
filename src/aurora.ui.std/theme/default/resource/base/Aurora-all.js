@@ -5787,7 +5787,9 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	html.push('<span>···</span>');
     },
     onPageChange : function(el,value,oldvalue){
-    	if(isNaN(value) || value<=0 || value>this.dataSet.totalPage){
+    	if(this.dataSet.totalPage == 0){
+    		el.setValue(1);
+    	}else if(isNaN(value) || value<=0 || value>this.dataSet.totalPage){
     		el.setValue(oldvalue)
     	}else if(this.dataSet.currentPage!=value){
 	    	this.dataSet.goPage(value);
@@ -7208,20 +7210,20 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
         var path = window.location.pathname;
         var str = path.indexOf('modules');
         var screen_path = path.substring(str,path.length);
-        var screen = screen_path.substring(screen_path.lastIndexOf('/'), screen_path.length);
+        var screen = screen_path.substring(screen_path.lastIndexOf('/')+1, screen_path.length);
         var parent = this.el.findParent('.win-wrap')
         if(parent) {
             var url = parent.getAttributeNS("","url");
             if(url){
+                url = url.split('?')[0];
                 var li = url.lastIndexOf('/');
                 if(li != -1){
                     url = url.substring(li,url.length);
-                    screen_path = screen_path.replaceAll(screen, url);
                 }
+                screen_path = screen_path.replaceAll(screen, url);
             }
         }
         var context_path = path.substring(0,str);
-       
         new Aurora.Window({id:'sys_customization_window', url:context_path + 'modules/sys/sys_customization_window.screen?screen_path='+screen_path + '&id='+ this.cmp.id, title:'个性化设置',height:170,width:400});
         this.onCmpOut();
     },
