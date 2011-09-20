@@ -115,7 +115,9 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	html.push('<span>···</span>');
     },
     onPageChange : function(el,value,oldvalue){
-    	if(isNaN(value) || value<=0 || value>this.dataSet.totalPage){
+    	if(this.dataSet.totalPage == 0){
+    		el.setValue(1);
+    	}else if(isNaN(value) || value<=0 || value>this.dataSet.totalPage){
     		el.setValue(oldvalue)
     	}else if(this.dataSet.currentPage!=value){
 	    	this.dataSet.goPage(value);
