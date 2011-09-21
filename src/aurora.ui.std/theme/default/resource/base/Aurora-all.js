@@ -6755,8 +6755,8 @@ $A.Lov = Ext.extend($A.TextField,{
         if(record && r){
             var mapping = this.getMapping();
             for(var i=0;i<mapping.length;i++){
-                var map = mapping[i];
-                record.set(map.to,r.get(map.from)||'');
+                var map = mapping[i], from = r.get(map.from);
+                record.set(map.to,Ext.isEmpty(from)?'':from);
             }
         }
 //        else{
