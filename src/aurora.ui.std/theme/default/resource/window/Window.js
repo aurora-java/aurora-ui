@@ -491,7 +491,7 @@ $A.showErrorMessage = function(title,msg,callback,width,height){
 }
 
 $A.showTypeMessage = function(title, msg,width,height,css,callback){
-	var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
+	var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-60)+'px;">'+msg+'</div></div>';
 	return $A.showOkWindow(title, msg, width, height,callback);	
 } 
 /**
@@ -508,7 +508,7 @@ $A.showTypeMessage = function(title, msg,width,height,css,callback){
 $A.showConfirm = function(title, msg, okfun,cancelfun, width, height){
 	width = width||300;
 	height = height||100;
-    var msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
+    var msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-60)+'px;">'+msg+'</div></div>';
     return $A.showOkCancelWindow(title, msg, okfun,cancelfun, width, height);  	
 }
 //$A.hideWindow = function(){
