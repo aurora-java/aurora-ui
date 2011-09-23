@@ -1495,9 +1495,10 @@ $A.Grid = Ext.extend($A.Component,{
     	}
     	Ext.apply(p.parameter,q)
 		var form = document.createElement("form");
-		form.target = "_blank";
+		form.target = "_export_window";
 		form.method="post";
 		form.action = sf.dataset.queryurl+'?r='+Math.random();
+		var iframe = Ext.get('_export_window')||new Ext.Template('<iframe id ="_export_window" name="_export_window" style="position:absolute;left:-1000px;top:-1000px;width:1px;height:1px;display:none"></iframe>').insertFirst(document.body,{},true)
 		var s = document.createElement("input");
 		s.id = "_request_data";
 		s.type = 'hidden';
@@ -1506,7 +1507,7 @@ $A.Grid = Ext.extend($A.Component,{
        	form.appendChild(s);
        	document.body.appendChild(form);
        	form.submit();
-       	form.parentNode.removeChild(form);	
+       	Ext.fly(form).remove();	
     },
     destroy: function(){
         $A.Grid.superclass.destroy.call(this);
