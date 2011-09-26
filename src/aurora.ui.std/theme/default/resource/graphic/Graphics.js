@@ -419,7 +419,7 @@ $A.Graphics=Ext.extend($A.Component,{
 		Ext.get(document).un('mouseup',this.endLine,this);
     	if(this.newline){
     		var el = this.getGElement(t);
-    		if(!el){
+    		if(!el||el.el == this.startEl.el||el.record == this.newline){
     			this.dataset.remove(this.newline);
     		}else{
     			var r = el.record,table_id = r.get(this.tableidfield)|| r.get('table_id'),config = convertConfig(this.newline);
