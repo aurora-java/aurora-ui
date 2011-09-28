@@ -868,27 +868,31 @@ var pub ={
 	    	this.editors = null;
 	    },
 	    onMouseDown : function(e,t){
-	    	if(this.top.editable && !this.top.candrawline &&(this.dropto || this.moveable)){
-		    	var xy = this.wrap.getXY();
-		    	if(isSVG(this.wrap)){
-		    		var _xy = this.top.wrap.getXY();
-		    		xy[0] = this.x + _xy[0];
-		    		xy[1] = this.y + _xy[1];
+	    	if(this.top.editable && !this.top.candrawline){
+	    		if(this.dropto || this.moveable){
+			    	var xy = this.wrap.getXY();
+			    	if(isSVG(this.wrap)){
+			    		var _xy = this.top.wrap.getXY();
+			    		xy[0] = this.x + _xy[0];
+			    		xy[1] = this.y + _xy[1];
+			    	}
+			    	this.relativeX=xy[0]-e.getPageX();
+					this.relativeY=xy[1]-e.getPageY();
+			    	if(this.dropto){
+				    	if(!this.dropEl)
+				    		this.dropEl = $(this.dropto);
+				    	if(!this.proxy)
+				    		this.initProxy();
+				    	this.proxy.moveTo(xy[0],xy[1]);
+			    	}else{
+			    		this.proxy = this.wrap;
+			    	}
+			    	if(this.moveable)setTopCmp(this.proxy);
+			    	Ext.get(document).on('mousemove',this.onMouseMove,this);
+			    	Ext.get(document).on('mouseup',this.onMouseUp,this);
+		    	}else if(this.editable){
+		    		setTopCmp(this.wrap);
 		    	}
-		    	this.relativeX=xy[0]-e.getPageX();
-				this.relativeY=xy[1]-e.getPageY();
-		    	if(this.dropto){
-			    	if(!this.dropEl)
-			    		this.dropEl = $(this.dropto);
-			    	if(!this.proxy)
-			    		this.initProxy();
-			    	this.proxy.moveTo(xy[0],xy[1]);
-		    	}else{
-		    		this.proxy = this.wrap;
-		    	}
-		    	setTopCmp(this.proxy);
-		    	Ext.get(document).on('mousemove',this.onMouseMove,this);
-		    	Ext.get(document).on('mouseup',this.onMouseUp,this);
 	    	}
 	    },
 	    onMouseMove : function(e){
