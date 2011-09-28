@@ -425,12 +425,7 @@ $A.Graphics=Ext.extend($A.Component,{
     			var r = el.record,table_id = r.get(this.tableidfield)|| r.get('table_id'),config = convertConfig(this.newline);
 	    		config.to = table_id;
 	    		this.newline.set('config',Ext.util.JSON.encode(config));
-	    		var line = $(this.id+'_'+this.newline.id);
-	    		this.focus(line);
-	    		var eds = line.editors;
-	    		this.startEl.el.lineEditors.push(eds[0]);
-	    		el.el.lineEditors.push(eds[1]);
-	    		eds[1].toGraphic = el.el;
+	    		this.focus($(this.id+'_'+this.newline.id));
 	    		this.fireEvent('drawn');
     		}
     	}
@@ -450,8 +445,8 @@ $A.Graphics=Ext.extend($A.Component,{
     		graphics = ds.getAll();
     	graphics.sort(function(a,b){
     		var at=a.get('type'),bt=b.get('type');
-    		if(at === 'line')return -1;
-    		else if(bt === 'line')return 1;
+    		if(at === 'line')return 1;
+    		else if(bt === 'line')return -1;
     		else return 0;
     	})
     	for(var i = 0,l = graphics.length;i<l;i++){
@@ -497,11 +492,11 @@ $A.Graphics=Ext.extend($A.Component,{
     	el.processListener('on');
     	if(el.editors && el.points){
     		var i = 0,eds = el.editors;
-    		var te = eds[eds.length-1],has = !!te.toGraphic;
+    		var te = eds[eds.length-1],has = !!te.bindEl;
     		if(has){
-	    		var les = te.toGraphic.lineEditors;
+	    		var les = te.bindEl.lineEditors;
 	    		les.splice(les.indexOf(te),1);
-	    		delete te.toGraphic;
+	    		delete te.bindEl;
     		}
 			for(p = el.points,l=p.length;i<l;i++){
 				var ed = eds[i];
@@ -523,7 +518,7 @@ $A.Graphics=Ext.extend($A.Component,{
 				ed.un('move',el.editorMove,el);
 				ed.destroy();
 			}
-			if(has)les.push(eds[eds.length-1]);
+			el.bindEditor(el.to);
     	}
     	//this.focus(el);
     },
@@ -814,12 +809,28 @@ var pub ={
 					var x = points[i][0],y = points[i][1];
 					this.createEditor(x,y);
 				}
+				this.bindEditor(this.from,true);
+				this.bindEditor(this.to);
+			}
+	    },
+	    bindEditor : function(id,isFrom){
+	    	if(!Ext.isEmpty(id)){
+		    	var eds = this.editors,ds = this.top.dataset;
+				var tr = ds.find(this.tableidfield||'table_id',id);
+				var el = $(this.top.id+"_"+tr.id);
+				if(el){
+					var ed = eds[isFrom?0:eds.length-1];
+					if(!isFrom){
+						ed.bindEl = el;
+					}
+	    			el.lineEditors.add(ed);
+    			}
 			}
 	    },
 	    createEditor : function(x,y){
-	    	var i = this.editors.length;
-	    	this.editors[i] = new pub.Oval({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':this.root,'top':this.top,'moveable':true});
-	    	this.editors[i].on('move',this.editorMove,this);
+	    	var eds = this.editors,i = eds.length;
+	    	eds[i] = new pub.Oval({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':this.root,'top':this.top,'moveable':true});
+	    	eds[i].on('move',this.editorMove,this);
 	    },
 	    editorMove : function(el,ds,record,x,y){
 	    	var record = this.getRecord();
@@ -875,7 +886,7 @@ var pub ={
 		    	}else{
 		    		this.proxy = this.wrap;
 		    	}
-		    	if(this.moveable)setTopCmp(this.proxy);
+		    	setTopCmp(this.proxy);
 		    	Ext.get(document).on('mousemove',this.onMouseMove,this);
 		    	Ext.get(document).on('mouseup',this.onMouseUp,this);
 	    	}
