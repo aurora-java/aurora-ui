@@ -230,7 +230,7 @@ $A.Graphics=Ext.extend($A.Component,{
     	else if((tx+w) >= sw) tx = Math.max(sw - w,0);
     	if(ty < 0) ty = 0;
     	else if((ty+h) >= sh) ty = Math.max(sh - h,0);
-    	if(this.moveable)this.fireEvent('move',this,this.top.dataset,tx,ty);
+    	if(this.moveable)this.fireEvent('move',this,this.dataset,null,tx,ty);
     	this.proxy.moveTo(tx,ty);
     },
     onMouseUp : function(e){
@@ -265,7 +265,7 @@ $A.Graphics=Ext.extend($A.Component,{
     	if(a){
     		id = a[2];
 	    	if(id){
-	    		ds = this.dataset;
+	    		ds = this.top.dataset;
 		    	if(ds)
 		    		record = ds.findById(id)
 		    	if(a[1]){
@@ -287,7 +287,7 @@ $A.Graphics=Ext.extend($A.Component,{
     create : function(g){
     	var type = g.get('type'),config = convertConfig(g);
 		config.id = this.id + "_" + g.id;
-		config.dataset = this.dataset;
+		//config.dataset = this.dataset;
 		if(this.renderer){
     	var fder = $A.getRenderer(this.renderer);
 	        if(fder == null){
@@ -334,7 +334,7 @@ $A.Graphics=Ext.extend($A.Component,{
 			if(this.focusItem)this.blur();
 			if(this.editable){
 		    	if(t.editable){
-					t.showEditor()
+					t.showEditors()
 				}
 				if(t.moveable){
 					if(hasSVG)t.el.setStyle('stroke-dasharray',3*(t.strokewidth||1)+' '+4*(t.strokewidth||1));
@@ -360,7 +360,7 @@ $A.Graphics=Ext.extend($A.Component,{
     	var t = this.focusItem;
     	if(t){
 	    	if(t.editable){
-				t.hideEditor()
+				t.hideEditors()
 			}
 			if(t.moveable){
 				if(hasSVG)t.el.setStyle('stroke-dasharray','');
@@ -425,7 +425,12 @@ $A.Graphics=Ext.extend($A.Component,{
     			var r = el.record,table_id = r.get(this.tableidfield)|| r.get('table_id'),config = convertConfig(this.newline);
 	    		config.to = table_id;
 	    		this.newline.set('config',Ext.util.JSON.encode(config));
-	    		this.focus($('_graphics_main_'+this.newline.id));
+	    		var line = $(this.id+'_'+this.newline.id);
+	    		this.focus(line);
+	    		var eds = line.editors;
+	    		this.startEl.el.lineEditors.push(eds[0]);
+	    		el.el.lineEditors.push(eds[1]);
+	    		eds[1].toGraphic = el.el;
 	    		this.fireEvent('drawn');
     		}
     	}
@@ -490,8 +495,14 @@ $A.Graphics=Ext.extend($A.Component,{
     	if(el.text)el.text.remove();
     	el.initComponent(config);
     	el.processListener('on');
-    	if(el.editor && el.points){
-    		var i = 0,eds = el.editor;
+    	if(el.editors && el.points){
+    		var i = 0,eds = el.editors;
+    		var te = eds[eds.length-1],has = !!te.toGraphic;
+    		if(has){
+	    		var les = te.toGraphic.lineEditors;
+	    		les.splice(les.indexOf(te),1);
+	    		delete te.toGraphic;
+    		}
 			for(p = el.points,l=p.length;i<l;i++){
 				var ed = eds[i];
 				if(ed){
@@ -508,10 +519,13 @@ $A.Graphics=Ext.extend($A.Component,{
 				}
 			}
 			while(eds.length > i){
-				eds.pop().destroy();
+				var ed = eds.pop();
+				ed.un('move',el.editorMove,el);
+				ed.destroy();
 			}
+			if(has)les.push(eds[eds.length-1]);
     	}
-    	this.focus(el);
+    	//this.focus(el);
     },
 	createGElement : function(name,config){
 		var el = new pub[capitalize(name)](Ext.apply(config,{type:name,root:Ext.get(config.root)||this.root,top:this}));
@@ -534,7 +548,8 @@ $A.Graphics=Ext.extend($A.Component,{
 var pub ={
 	Path:Ext.extend($A.Graphics,{
 		zoom:10000,
-		initComponent : function(config){ 
+		initComponent : function(config){
+			this.lineEditors = [];
 			this.fillcolor = convertColor(this.fillcolor);
 			this.strokecolor = convertColor(this.strokecolor);
 			if(!this.wrap)this['init'+(hasSVG?'SVG':'VML')+'Wrap']();
@@ -684,6 +699,9 @@ var pub ={
 		    	this.text.update(this.title);
 	    	}
 	    },
+	    processListener: function(ou){
+			pub.Path.superclass.processListener.call(this,ou);
+	    },
 	    convertArrow : function(x1,y1,x2,y2){
 	    	var dx = x1 - x2,dy = y1 - y2,d = this.strokewidth*3/2;
 	    	if(dx == 0){
@@ -790,52 +808,53 @@ var pub ={
 	    },
 	    createEditors : function(){
 	    	if(this.editable){
-				this.editor = [];
+				this.editors = [];
 				var points = this.points;
 				for(var i=0;i<points.length;i++){
 					var x = points[i][0],y = points[i][1];
 					this.createEditor(x,y);
 				}
 			}
-			this.top.on('move',this.editorMove,this);
 	    },
 	    createEditor : function(x,y){
-	    	var i = this.editor.length;
-	    	this.editor[i] = new pub.Oval({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':this.root,'top':this.top,'moveable':true});
+	    	var i = this.editors.length;
+	    	this.editors[i] = new pub.Oval({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':this.root,'top':this.top,'moveable':true});
+	    	this.editors[i].on('move',this.editorMove,this);
 	    },
 	    editorMove : function(el,ds,record,x,y){
 	    	var record = this.getRecord();
 			var config = convertConfig(record),points="";
-			for(var i=0,l=this.editor.length;i<l;i++){
-				var ed = this.editor[i];
+			for(var i=0,l=this.editors.length;i<l;i++){
+				var ed = this.editors[i];
 				points += (ed.x+5)+','+(ed.y+5)+" ";
 			}
 			config.points = points;
 			record.set('config',Ext.util.JSON.encode(config));
    		},
-   		showEditor : function(){
-	    	if(this.editor){
-	    		for(var i = 0,l = this.editor.length;i<l;i++){
-	    			setTopCmp(this.editor[i].wrap);
-		    		this.editor[i].wrap.show();
+   		showEditors : function(){
+	    	if(this.editors){
+	    		for(var i = 0,l = this.editors.length;i<l;i++){
+	    			setTopCmp(this.editors[i].wrap);
+		    		this.editors[i].wrap.show();
 	    		}
 	    	}
 	    },
-	    hideEditor : function(){
-	    	if(this.editor){
-	    		for(var i = 0,l = this.editor.length;i<l;i++){
-	    			this.editor[i].wrap.hide();
+	    hideEditors : function(){
+	    	if(this.editors){
+	    		for(var i = 0,l = this.editors.length;i<l;i++){
+	    			this.editors[i].wrap.hide();
 	    		}
 	    	}
 	    },
-	    clearEditor : function(){
-	    	if(this.editor){
-	    		while(this.editor.length){
-	    			this.editor.pop().destroy();
+	    clearEditors : function(){
+	    	if(this.editors){
+	    		while(this.editors.length){
+	    			var ed = this.editors.pop();
+	    			ed.un('move',this.editorMove,this);
+	    			ed.destroy();
 	    		}
 	    	}
-	    	this.editor = null;
-	    	this.top.un('move',this.editorMove,this);
+	    	this.editors = null;
 	    },
 	    onMouseDown : function(e,t){
 	    	if(this.top.editable && !this.top.candrawline &&(this.dropto || this.moveable)){
@@ -880,17 +899,19 @@ var pub ={
     		else if(tx + this.width - b> sw - 2) tx = sw - 2 - this.width + b;
     		if(ty <= b) ty = b;
     		else if(ty + this.height - b> sh - 2) ty = sh - 2 - this.height + b;
-			this.x = tx;
-			this.y = ty;
+    		var x = this.x,y = this.y;
+			this.x = Math.round(tx - b);
+			this.y = Math.round(ty - b);
 			if(this.moveable){
 				var ds = this.top.dataset;
 				var record = ds.getCurrentRecord();
         		var config = convertConfig(record);
-        		config.x = tx - b;
-        		config.y = ty - b;
+        		config.x = this.x;
+        		config.y = this.y;
         		record.data['config']=Ext.util.JSON.encode(config).replace(/^{|}$/g,'');
         		record.dirty = true;
-				this.top.fireEvent('move',this,ds,record,config.x,config.y);
+				this.fireEvent('move',this,ds,record,config.x - b,config.y - b);
+				this.top.fireEvent('move',this,ds,record,config.x - b,config.y - b);
 			}
     		if(isSVG(this.wrap)){
     			if(stroke % 2 == 1&&!this.shadow){
@@ -903,6 +924,13 @@ var pub ={
 	    		ty += _xy[1];
 	    		this.proxy.moveTo(tx,ty);
 			}
+			var dx = this.x - x;dy = this.y - y; 
+			for(var i = 0,l = this.lineEditors.length;i<l;i++){
+				var ed = this.lineEditors[i];
+				ed.x += dx;ed.y += dy; 
+				ed.moveTo(ed.x,ed.y);
+				ed.fireEvent('move');
+			}
 	    },
 		getRecord : function(){
 	    	var a = this.id.match(/(.*)_(\d+)(_.*)*$/),id;
@@ -913,7 +941,7 @@ var pub ={
 	    	}
 	    },
 	    destroy : function(){
-	    	this.clearEditor();
+	    	this.clearEditors();
 	    	pub.Path.superclass.destroy.call(this);
 	    },
 	    getVmlTpl : function(s,f,sd){
@@ -924,13 +952,13 @@ var pub ={
 	    	tpl.push("</v:shape>");
 	    	return tpl;
 	    },
-	    titleVmlTpl : "<span id='{id}' style='position:absolute;left:{left}px;top:{top}px;color:{color};cursor:pointer;white-space:nowrap;{style}'></span>"
+	    titleVmlTpl : "<span id='{id}' unselectable='on'  onselectstart='return false;' style='position:absolute;left:{left}px;top:{top}px;color:{color};cursor:pointer;white-space:nowrap;{style}'></span>"
 	}),
 	Line : function(config){
 		if(pub.Line.processConfig(config)==false)return;
 		var line = new pub.Path(config);
 		line.createEditors();
-		line.hideEditor();
+		line.hideEditors();
 		return line;
 	},
 	Oval:function(config){
