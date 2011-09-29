@@ -9479,7 +9479,8 @@ Series.prototype = {
         if (ignoreHiddenSeries) {
             chart.isDirtyBox = true;
         }
-        if (redraw !== false) {
+        //if (redraw !== false) {
+        if (redraw) {
             chart.redraw();
         }
         
