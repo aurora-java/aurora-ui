@@ -11,6 +11,9 @@
  * @author 牛佳庆
  * @singleton
  */
+ 
+Ext.Ajax.timeout = 300000;
+
 $A = Aurora = {version: '1.0',revision:'$Rev$'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){
@@ -1311,13 +1314,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.pageid = config.pageid;
         this.spara = {};
         this.selected = [];
-        this.maxpagesize = config.maxpagesize || 500;
+        this.maxpagesize = config.maxpagesize || 1000;
         this.pagesize = config.pagesize || 10;
         if(this.pagesize > this.maxpagesize) 
         	this.pagesize = this.maxpagesize;
         this.submiturl = config.submiturl || '';
         this.queryurl = config.queryurl || '';
         this.fetchall = config.fetchall||false;
+        this.totalcountfield = config.totalcountfield || 'totalCount';
         this.selectable = config.selectable||false;
         this.selectionmodel = config.selectionmodel||'multiple';
         this.selectfunction = config.selectfunction;
@@ -1714,9 +1718,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(num && this.fetchall == false) {
             this.totalCount = num;
         }else{
-            this.totalCount = datas.length;
+            //this.totalCount = datas.length;
         }
-        this.totalPage = Math.ceil(this.totalCount/this.pagesize)
+        this.totalPage = Math.ceil(this.totalCount/this.pagesize);
+        
         for(var i = 0, len = datas.length; i < len; i++){
             var data = datas[i].data||datas[i];
             for(var key in this.fields){
@@ -2113,9 +2118,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Number} index 指针位置.
      */
     locate : function(index, force){
-        if(this.currentIndex === index && force !== true) return;
+        if(this.autocount && this.currentIndex === index && force !== true) return;
+        //对于没有autcount的,判断最后一页
+        if(!this.autocount && index > ((this.currentPage-1)*this.pagesize + this.data.length) && this.data.length < this.pagesize) return;
 //      if(valid !== false) if(!this.validCurrent())return;
-        if(index <=0 || (index > this.totalCount + this.getNewRecrods().length))return;
+        if(index<=0)return;
+        if(index <=0 || (this.autocount && (index > this.totalCount + this.getNewRecrods().length)))return;
         var lindex = index - (this.currentPage-1)*this.pagesize;
         if(this.data[lindex - 1]){
             this.currentIndex = index;
@@ -2178,7 +2186,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     /**
      * 向后移动一页.
      */
-    nextPage : function(){
+    nextPage : function(){        
         this.goPage(this.currentPage +1);
     },
     /**
@@ -2625,7 +2633,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(res == null) return;
         if(!res.result.record) res.result.record = [];
         var records = [].concat(res.result.record);
-        var total = res.result.totalCount;
+        //var total = res.result.totalCount;
+        var total = res.result[this.totalcountfield]
         var datas = [];
         if(records.length > 0){
             for(var i=0,l=records.length;i<l;i++){
@@ -2639,6 +2648,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }       
         this.loading = false;
         this.loadData(datas, total, options);
+        if(datas.length != 0)
         this.locate(this.currentIndex,true);
         
         $A.SideBar.enable = $A.slideBarEnable;
@@ -5689,7 +5699,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	$A.NavBar.superclass.initComponent.call(this, config);
     	this.dataSet = $(this.dataSet);
     	this.navInfo = this.wrap.child('div[atype=displayInfo]');//Ext.get(this.infoId);
-    	if(this.type != "simple"){
+    	if(this.type != "simple" && this.type != "tiny"){
 	    	this.pageInput = $(this.inputId);
 	    	this.currentPage = this.wrap.child('div[atype=currentPage]');
 	    	this.pageInfo = this.wrap.child('div[atype=pageInfo]');//Ext.get(this.pageId);
@@ -5708,7 +5718,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     processListener: function(ou){
     	$A.NavBar.superclass.processListener.call(this,ou);
     	this.dataSet[ou]('load', this.onLoad,this);
-    	if(this.type != "simple"){
+    	if(this.type != "simple" && this.type != "tiny"){
     		this.pageInput[ou]('change', this.onPageChange, this);
     		if(this.pageSizeInput){
     			this.pageSizeInput[ou]('change', this.onPageSizeChange, this);
@@ -5720,7 +5730,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     },
     onLoad : function(){
     	this.navInfo.update(this.creatNavInfo());
-    	if(this.type != "simple"){
+    	if(this.type != "simple" && this.type != "tiny"){
 	    	this.pageInput.setValue(this.dataSet.currentPage);
 	    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
 	    	if(this.pageSizeInput&&!this.pageSizeInput.optionDataSet){
@@ -5771,6 +5781,13 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 	    		html.push(currentPage == totalPage ? '<span>下一页</span>' : this.createAnchor('下一页',currentPage+1));
     			html.push(currentPage == totalPage ? '<span>尾页</span>' : this.createAnchor('尾页',totalPage));
     		}
+    		return html.join('');
+    	}else if(this.type == 'tiny'){
+    		var html=[],ds=this.dataSet,currentPage=ds.currentPage;
+    		html.push(currentPage == 1 ? '<span>首页</span>' : this.createAnchor('首页',1));
+			html.push(currentPage == 1 ? '<span>上一页</span>' : this.createAnchor('上一页',currentPage-1));
+    		html.push(this.createAnchor('下一页',currentPage+1));
+    		html.push('<span>第'+currentPage+'页</span>');
     		return html.join('');
     	}else{
 	    	var from = ((this.dataSet.currentPage-1)*this.dataSet.pagesize+1);
@@ -6301,7 +6318,7 @@ $A.showErrorMessage = function(title,msg,callback,width,height){
 }
 
 $A.showTypeMessage = function(title, msg,width,height,css,callback){
-	var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
+	var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
 	return $A.showOkWindow(title, msg, width, height,callback);	
 } 
 /**
@@ -6318,7 +6335,7 @@ $A.showTypeMessage = function(title, msg,width,height,css,callback){
 $A.showConfirm = function(title, msg, okfun,cancelfun, width, height){
 	width = width||300;
 	height = height||100;
-    var msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-58)+'px;">'+msg+'</div></div>';
+    var msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
     return $A.showOkCancelWindow(title, msg, okfun,cancelfun, width, height);  	
 }
 //$A.hideWindow = function(){
@@ -7218,7 +7235,7 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
                 url = url.split('?')[0];
                 var li = url.lastIndexOf('/');
                 if(li != -1){
-                    url = url.substring(li,url.length);
+                    url = url.substring(li+1,url.length);
                 }
                 screen_path = screen_path.replaceAll(screen, url);
             }

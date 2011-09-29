@@ -41,7 +41,7 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
                 url = url.split('?')[0];
                 var li = url.lastIndexOf('/');
                 if(li != -1){
-                    url = url.substring(li,url.length);
+                    url = url.substring(li+1,url.length);
                 }
                 screen_path = screen_path.replaceAll(screen, url);
             }
