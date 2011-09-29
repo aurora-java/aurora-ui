@@ -24,6 +24,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.submiturl = config.submiturl || '';
         this.queryurl = config.queryurl || '';
         this.fetchall = config.fetchall||false;
+        this.totalcountfield = config.totalcountfield || 'totalCount';
         this.selectable = config.selectable||false;
         this.selectionmodel = config.selectionmodel||'multiple';
         this.selectfunction = config.selectfunction;
@@ -420,9 +421,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(num && this.fetchall == false) {
             this.totalCount = num;
         }else{
-            this.totalCount = datas.length;
+            //this.totalCount = datas.length;
         }
-        this.totalPage = Math.ceil(this.totalCount/this.pagesize)
+        this.totalPage = Math.ceil(this.totalCount/this.pagesize);
+        
         for(var i = 0, len = datas.length; i < len; i++){
             var data = datas[i].data||datas[i];
             for(var key in this.fields){
@@ -819,9 +821,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Number} index 指针位置.
      */
     locate : function(index, force){
-        if(this.currentIndex === index && force !== true) return;
+        if(this.autocount && this.currentIndex === index && force !== true) return;
+        //对于没有autcount的,判断最后一页
+        if(!this.autocount && index > ((this.currentPage-1)*this.pagesize + this.data.length) && this.data.length < this.pagesize) return;
 //      if(valid !== false) if(!this.validCurrent())return;
-        if(index <=0 || (index > this.totalCount + this.getNewRecrods().length))return;
+        if(index<=0)return;
+        if(index <=0 || (this.autocount && (index > this.totalCount + this.getNewRecrods().length)))return;
         var lindex = index - (this.currentPage-1)*this.pagesize;
         if(this.data[lindex - 1]){
             this.currentIndex = index;
@@ -884,7 +889,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     /**
      * 向后移动一页.
      */
-    nextPage : function(){
+    nextPage : function(){        
         this.goPage(this.currentPage +1);
     },
     /**
@@ -1331,7 +1336,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(res == null) return;
         if(!res.result.record) res.result.record = [];
         var records = [].concat(res.result.record);
-        var total = res.result.totalCount;
+        //var total = res.result.totalCount;
+        var total = res.result[this.totalcountfield]
         var datas = [];
         if(records.length > 0){
             for(var i=0,l=records.length;i<l;i++){
@@ -1345,6 +1351,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }       
         this.loading = false;
         this.loadData(datas, total, options);
+        if(datas.length != 0)
         this.locate(this.currentIndex,true);
         
         $A.SideBar.enable = $A.slideBarEnable;

@@ -11,6 +11,9 @@
  * @author 牛佳庆
  * @singleton
  */
+ 
+Ext.Ajax.timeout = 300000;
+
 $A = Aurora = {version: '1.0',revision:'$Rev$'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){

@@ -15,6 +15,7 @@
 	position:absolute;
 	left:-10000px;
 	top:-10000px;
+	overflow: auto;
 }
 .item-tab-strip{
 	float: left;
@@ -25,7 +26,7 @@
 .item-tab-body {
 	border:1px solid #cccccc;
 	position:relative;
-	overflow:auto;
+	overflow:hide;
 	background-color:#fff;
 }
 .active{
