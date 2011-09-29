@@ -17,7 +17,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	$A.NavBar.superclass.initComponent.call(this, config);
     	this.dataSet = $(this.dataSet);
     	this.navInfo = this.wrap.child('div[atype=displayInfo]');//Ext.get(this.infoId);
-    	if(this.type != "simple"){
+    	if(this.type != "simple" && this.type != "tiny"){
 	    	this.pageInput = $(this.inputId);
 	    	this.currentPage = this.wrap.child('div[atype=currentPage]');
 	    	this.pageInfo = this.wrap.child('div[atype=pageInfo]');//Ext.get(this.pageId);
@@ -36,7 +36,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     processListener: function(ou){
     	$A.NavBar.superclass.processListener.call(this,ou);
     	this.dataSet[ou]('load', this.onLoad,this);
-    	if(this.type != "simple"){
+    	if(this.type != "simple" && this.type != "tiny"){
     		this.pageInput[ou]('change', this.onPageChange, this);
     		if(this.pageSizeInput){
     			this.pageSizeInput[ou]('change', this.onPageSizeChange, this);
@@ -48,7 +48,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     },
     onLoad : function(){
     	this.navInfo.update(this.creatNavInfo());
-    	if(this.type != "simple"){
+    	if(this.type != "simple" && this.type != "tiny"){
 	    	this.pageInput.setValue(this.dataSet.currentPage);
 	    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
 	    	if(this.pageSizeInput&&!this.pageSizeInput.optionDataSet){
@@ -99,6 +99,13 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 	    		html.push(currentPage == totalPage ? '<span>下一页</span>' : this.createAnchor('下一页',currentPage+1));
     			html.push(currentPage == totalPage ? '<span>尾页</span>' : this.createAnchor('尾页',totalPage));
     		}
+    		return html.join('');
+    	}else if(this.type == 'tiny'){
+    		var html=[],ds=this.dataSet,currentPage=ds.currentPage;
+    		html.push(currentPage == 1 ? '<span>首页</span>' : this.createAnchor('首页',1));
+			html.push(currentPage == 1 ? '<span>上一页</span>' : this.createAnchor('上一页',currentPage-1));
+    		html.push(this.createAnchor('下一页',currentPage+1));
+    		html.push('<span>第'+currentPage+'页</span>');
     		return html.join('');
     	}else{
 	    	var from = ((this.dataSet.currentPage-1)*this.dataSet.pagesize+1);
