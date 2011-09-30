@@ -223,7 +223,7 @@ AuroraAdapter = {
             }
 
             // Transform
-        } else if (params.translateX && params.translateY) {
+        } else if (!Ext.isEmpty(params.translateX) && !Ext.isEmpty(params.translateY)) {
             if (isSVGElement) {
                 if (Ext.isIE) {
                     eli.attr('transform', 'translate(' + params.translateX + ',' + params.translateY + ' )');
