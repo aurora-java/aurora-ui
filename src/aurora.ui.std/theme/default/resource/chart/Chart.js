@@ -6060,8 +6060,14 @@ function Chart (options, callback) {
                             point: hoverPoint
                         }));
                         
+                        //by Hugh 2011/9/30
+                        var recordIndex = hoverPoint.series.data.indexOf(hoverPoint),record;
+                        if(recordIndex!=-1 && chart.dataset){
+                        	record = chart.dataset.data[recordIndex];
+                        }
+                        
                         // the point click event
-                        hoverPoint.firePointEvent('click', e);
+                        hoverPoint.firePointEvent('click', [e ,record]);
                     
                     } else { 
                         extend(e, getMouseCoordinates(e));
@@ -7773,11 +7779,23 @@ function Chart (options, callback) {
     if (optionsChart.reflow !== false) {
         addEvent(chart, 'load', initReflow);
     }
-    
+    //TODO
     // Chart event handlers
     if (chartEvents) {
-        for (eventType in chartEvents) { 
-            addEvent(chart, eventType, chartEvents[eventType]);
+        for (eventType in chartEvents) {
+        	if(eventType == 'pointclick'){
+        		options.plotOptions.
+        			series={
+				        cursor: 'pointer',
+				        point: {
+				           events: {
+				              click:chartEvents[eventType]
+				           }
+				        }
+				     }		
+        	}else{
+	            addEvent(chart, eventType, chartEvents[eventType]);
+        	}
         }
     }
     

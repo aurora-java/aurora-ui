@@ -108,12 +108,22 @@ AuroraAdapter = {
             type: event,
             target: el
         }
-        Ext.apply(o, eventArguments)
-
+        if(Ext.isArray(eventArguments) && eventArguments.length){
+        	Ext.apply(o, eventArguments[0])
+        }else{
+        	Ext.apply(o, eventArguments)
+        }
         // if fireEvent is not available on the object, there hasn't been added
         // any events to it above
         if (el.fireEvent) {
-            el.fireEvent(event, o);
+            var fire = 'el.fireEvent(event, o';
+            if(eventArguments){
+	            for(var i = 1 ,l = eventArguments.length;i<l;i++){
+	            	fire += ',eventArguments['+i+']';
+	            }
+            }
+            fire+=')';
+            eval(fire);
         }
 
         // fire the default if it is passed and it is not prevented above
