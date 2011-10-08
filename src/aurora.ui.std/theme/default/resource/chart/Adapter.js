@@ -236,7 +236,8 @@ AuroraAdapter = {
         } else if (!Ext.isEmpty(params.translateX) && !Ext.isEmpty(params.translateY)) {
             if (isSVGElement) {
                 if (Ext.isIE) {
-                    eli.attr('transform', 'translate(' + params.translateX + ',' + params.translateY + ' )');
+                	Ext.fly(eli.element).setStyle({'left':params.translateX-eli.translateX,'top':params.translateY-eli.translateY})
+                    //eli.attr('transform', 'translate(' + params.translateX + ',' + params.translateY + ' )');
                 } else {
                     eli.element.setAttributeNS(null, 'transform', 'translate(' + params.translateX + ',' + params.translateY + ' )');
                 }
