@@ -92,22 +92,23 @@ $A.Accordion = Ext.extend($A.Component,{
 		}
 	},
 	showLoading : function(dom){
-    	Ext.fly(dom).update(_lang['accordion.loading']);
-    	Ext.fly(dom).setStyle('text-align','center');
-    	Ext.fly(dom).setStyle('line-height',5);
+    	dom.update(_lang['accordion.loading']);
+    	dom.setStyle('text-align','center');
+    	dom.setStyle('line-height',5);
     },
     clearLoading : function(dom){
-    	Ext.fly(dom).update('');
-    	Ext.fly(dom).setStyle('text-align','');
-    	Ext.fly(dom).setStyle('line-height','');
+    	dom.update('');
+    	dom.setStyle('text-align','');
+    	dom.setStyle('line-height','');
     },
 	load : function(index){
-		var url=this.items[index].ref, dom=this.bodys[index];
+		var url=this.items[index].ref, dom=Ext.get(this.bodys[index]);
 		if(!url||dom.isLoaded){
 			this.fireEvent('select', this, index);
 			return;
 		}
 		dom.isLoaded=true;
+		dom.cmps={};
        	url=url+(url.indexOf('?') !=-1?'&':'?')+'_vw='+this.width+'&_vh='+(this.height-Ext.fly(this.strips[0]).getHeight());
 		this.showLoading(dom);
 		var sf = this;
@@ -116,9 +117,9 @@ $A.Accordion = Ext.extend($A.Component,{
 		   	success: function(response, options){
 		    	sf.clearLoading(dom);
 		    	var html = response.responseText;		    	
-		    	Ext.fly(dom).update(html,true,function(){
+		    	dom.update(html,true,function(){
                     sf.fireEvent('select', sf, index);
-		    	});
+		    	},dom);
 		    }
 		});		
     },
@@ -132,5 +133,25 @@ $A.Accordion = Ext.extend($A.Component,{
     	for(var i=0;i<this.selectedItems.length;i++){
     		this.selectedItems[i].setHeight(this.singlemode?(h-this.stripheight*(l-1)):(h/l));
     	}
-    }
+    },
+    destroy : function(){
+        var bodys = this.bodys;
+    	for(var i=0;i<bodys.length;i++){
+    		var body = Ext.get(bodys[i]),
+    		cmps=body.cmps;
+    		if(cmps){
+	    		for(var key in this.cmps){
+		            var cmp = this.cmps[key];
+	        		if(cmp.destroy){
+	        			try{
+	        				cmp.destroy();
+	        			}catch(e){
+	        				alert('销毁Accordion出错: ' + e)
+	        			}
+	        		}
+	        	}
+    		}
+    	}
+		$A.Tab.superclass.destroy.call(this); 
+	}
 });
