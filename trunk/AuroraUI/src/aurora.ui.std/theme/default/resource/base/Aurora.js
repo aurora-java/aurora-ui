@@ -12,7 +12,7 @@
  * @singleton
  */
  
-Ext.Ajax.timeout = 300000;
+Ext.Ajax.timeout = 1800000;
 
 $A = Aurora = {version: '1.0',revision:'$Rev$'};
 //$A.firstFire = false;
