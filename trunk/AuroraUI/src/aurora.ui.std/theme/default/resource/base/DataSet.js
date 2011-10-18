@@ -1319,7 +1319,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
             var rv = data[rf];
             var options = $(op);
-            if(options && rv){
+            if(options && !Ext.isEmpty(rv)){
                 var r = options.find(vf,rv);
                 if(r){
                     v = r.get(df);
