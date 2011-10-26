@@ -532,8 +532,8 @@ $A.TextMetrics = function(){
             //if(!shared){
               var shared = $A.TextMetrics.Instance(el, fixedWidth);
             //}
-            shared.bind(el);
-            shared.setFixedWidth(fixedWidth || 'auto');
+            //shared.bind(el);
+            //shared.setFixedWidth(fixedWidth || 'auto');
             return shared.getSize(text);
         }
     };
@@ -775,8 +775,9 @@ $A.Masker = function(){
             masker.setStyle('z-index', zi + 1);
             masker.setXY(el.getXY());
             var sp = masker.child('span');
-            var size = $A.TextMetrics.measure(sp,msg);
-            sp.setLeft((w-size.width - 45)/2)
+            //var size = $A.TextMetrics.measure(sp,msg);
+            //sp.setLeft((w-size.width - 45)/2)
+            sp.setLeft((w-sp.getWidth() - 45)/2)
             $A.Masker.container[el.id] = masker;
         },
         unmask : function(el){
