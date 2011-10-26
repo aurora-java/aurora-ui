@@ -189,7 +189,14 @@ $A.Graphics=Ext.extend($A.Component,{
     	if(this.candrawline){
 			this.startLine(e,t);
     	}else {
-			this.focus(t);
+    		if(this.dataset){
+	    		var el = this.getGElement(t);
+	    		if(el && el.record){
+	    			this.dataset.locate(this.dataset.getAll().indexOf(el.record)+1);
+	    		}
+    		}else{
+    			this.focus(t)
+    		}
     		if(this.dropto||this.moveable){
 		    	var xy = this.wrap.getXY();
 		    	if(isSVG(this.wrap)){
@@ -543,8 +550,11 @@ $A.Graphics=Ext.extend($A.Component,{
 var pub ={
 	Path:Ext.extend($A.Graphics,{
 		zoom:10000,
-		initComponent : function(config){
+		constructor: function(config) {
 			this.lineEditors = [];
+			return pub.Path.superclass.constructor.call(this,config);
+		}, 
+		initComponent : function(config){
 			this.fillcolor = convertColor(this.fillcolor);
 			this.strokecolor = convertColor(this.strokecolor);
 			if(!this.wrap)this['init'+(hasSVG?'SVG':'VML')+'Wrap']();
@@ -820,9 +830,7 @@ var pub ={
 				var el = $(this.top.id+"_"+tr.id);
 				if(el){
 					var ed = eds[isFrom?0:eds.length-1];
-					if(!isFrom){
-						ed.bindEl = el;
-					}
+					ed.bindEl = el;
 	    			el.lineEditors.add(ed);
     			}
 			}
@@ -860,7 +868,10 @@ var pub ={
 	    clearEditors : function(){
 	    	if(this.editors){
 	    		while(this.editors.length){
-	    			var ed = this.editors.pop();
+	    			var ed = this.editors.pop(),el = ed.bindEl;
+	    			if(el && el.lineEditors){
+	    				el.lineEditors.remove(ed);
+	    			}
 	    			ed.un('move',this.editorMove,this);
 	    			ed.destroy();
 	    		}
