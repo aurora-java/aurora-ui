@@ -108,7 +108,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	        		if(this.showCompleteId)clearTimeout(this.showCompleteId);
 	        		this.showCompleteId=setTimeout(function(){
 	        			var url;
-                        var lp = Ext.urlEncode(this.getLovPara())
+                        var lp = Ext.urlEncode(sf.getLovPara())
 			        	if(!Ext.isEmpty(sf.lovservice)){
 //				            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice +'&'+ Ext.urlEncode(sf.getLovPara());
                             url = sf.context + 'autocrud/'+sf.lovservice+'/query' + (!Ext.isEmpty(lp) ? '?' + lp : '');
