@@ -134,7 +134,8 @@ $A.Field = Ext.extend($A.Component,{
 //      this.fireEvent("keydown", this, e);
 //    },
     onFocus : function(e){
-        (Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
+        //(Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
+    	this.select();
     	if(this.readonly) return;
         if(!this.hasFocus){
             this.hasFocus = true;
