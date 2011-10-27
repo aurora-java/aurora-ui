@@ -17,6 +17,7 @@ html, body,input, button , textarea {
     font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;/**/
     font-size:11px !important;
     font-size:12px;
+    outline:none;
 }
 HTML {
     border: none;
