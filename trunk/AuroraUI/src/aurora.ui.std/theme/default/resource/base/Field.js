@@ -40,6 +40,7 @@ $A.Field = Ext.extend($A.Component,{
     	this.el[ou]("keyup", this.onKeyUp, this);
         this.el[ou]("keydown", this.onKeyDown, this);
         this.el[ou]("keypress", this.onKeyPress, this);
+        this.el[ou]("mouseup", this.onMouseUp, this);
 //        this.el[ou]("mouseover", this.onMouseOver, this);
 //        this.el[ou]("mouseout", this.onMouseOut, this);
     },
@@ -149,6 +150,9 @@ $A.Field = Ext.extend($A.Component,{
 	        this.wrap.addClass(this.focusCss);
             this.fireEvent("focus", this);
         }
+    },
+    onMouseUp : function(e){
+    	e.stopEvent();
     },
     processValue : function(v){
     	return v;
