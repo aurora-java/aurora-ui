@@ -152,7 +152,9 @@ $A.Field = Ext.extend($A.Component,{
         }
     },
     onMouseUp : function(e){
-    	e.stopEvent();
+    	if(this.isSelect)
+    		e.stopEvent();
+    	this.isSelect = false;
     },
     processValue : function(v){
     	return v;
@@ -314,6 +316,7 @@ $A.Field = Ext.extend($A.Component,{
                 range.select();
             }
         }
+        this.isSelect = true;
     },
     setRawValue : function(v){
         if(this.el.dom.value === (v === null || v === undefined ? '' : v)) return;
