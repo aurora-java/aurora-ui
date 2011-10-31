@@ -1499,7 +1499,6 @@ $A.Grid = Ext.extend($A.Component,{
 		form.method="post";
 		var url = sf.dataset.queryurl;
 		if(url)form.action = url + (url.indexOf('?') == -1 ? '?' : '&')+'r='+Math.random();
-		alert(form.action)
 		var iframe = Ext.get('_export_window')||new Ext.Template('<iframe id ="_export_window" name="_export_window" style="position:absolute;left:-1000px;top:-1000px;width:1px;height:1px;display:none"></iframe>').insertFirst(document.body,{},true)
 		var s = document.createElement("input");
 		s.id = "_request_data";
