@@ -34,7 +34,7 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
         var str = path.indexOf('modules');
         var screen_path = path.substring(str,path.length);
         var screen = screen_path.substring(screen_path.lastIndexOf('/')+1, screen_path.length);
-        var parent = this.el.findParent('.win-wrap')
+        var parent = this.el.parent('.win-wrap')
         if(parent) {
             var url = parent.getAttributeNS("","url");
             if(url){

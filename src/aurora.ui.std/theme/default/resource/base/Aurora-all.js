@@ -532,8 +532,8 @@ $A.TextMetrics = function(){
             //if(!shared){
               var shared = $A.TextMetrics.Instance(el, fixedWidth);
             //}
-            shared.bind(el);
-            shared.setFixedWidth(fixedWidth || 'auto');
+            //shared.bind(el);
+            //shared.setFixedWidth(fixedWidth || 'auto');
             return shared.getSize(text);
         }
     };
@@ -775,8 +775,9 @@ $A.Masker = function(){
             masker.setStyle('z-index', zi + 1);
             masker.setXY(el.getXY());
             var sp = masker.child('span');
-            var size = $A.TextMetrics.measure(sp,msg);
-            sp.setLeft((w-size.width - 45)/2)
+            //var size = $A.TextMetrics.measure(sp,msg);
+            //sp.setLeft((w-size.width - 45)/2)
+            sp.setLeft((w-sp.getWidth() - 45)/2)
             $A.Masker.container[el.id] = masker;
         },
         unmask : function(el){
@@ -2616,7 +2617,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
             var rv = data[rf];
             var options = $(op);
-            if(options && rv){
+            if(options && !Ext.isEmpty(rv)){
                 var r = options.find(vf,rv);
                 if(r){
                     v = r.get(df);
@@ -3498,6 +3499,7 @@ $A.Field = Ext.extend($A.Component,{
     	this.el[ou]("keyup", this.onKeyUp, this);
         this.el[ou]("keydown", this.onKeyDown, this);
         this.el[ou]("keypress", this.onKeyPress, this);
+        this.el[ou]("mouseup", this.onMouseUp, this);
 //        this.el[ou]("mouseover", this.onMouseOver, this);
 //        this.el[ou]("mouseout", this.onMouseOut, this);
     },
@@ -3592,7 +3594,8 @@ $A.Field = Ext.extend($A.Component,{
 //      this.fireEvent("keydown", this, e);
 //    },
     onFocus : function(e){
-        (Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
+        //(Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
+    	this.select();
     	if(this.readonly) return;
         if(!this.hasFocus){
             this.hasFocus = true;
@@ -3606,6 +3609,11 @@ $A.Field = Ext.extend($A.Component,{
 	        this.wrap.addClass(this.focusCss);
             this.fireEvent("focus", this);
         }
+    },
+    onMouseUp : function(e){
+    	if(this.isSelect)
+    		e.stopEvent();
+    	this.isSelect = false;
     },
     processValue : function(v){
     	return v;
@@ -3767,6 +3775,7 @@ $A.Field = Ext.extend($A.Component,{
                 range.select();
             }
         }
+        this.isSelect = true;
     },
     setRawValue : function(v){
         if(this.el.dom.value === (v === null || v === undefined ? '' : v)) return;
@@ -6546,7 +6555,7 @@ $A.Lov = Ext.extend($A.TextField,{
 	        		if(this.showCompleteId)clearTimeout(this.showCompleteId);
 	        		this.showCompleteId=setTimeout(function(){
 	        			var url;
-                        var lp = Ext.urlEncode(this.getLovPara())
+                        var lp = Ext.urlEncode(sf.getLovPara())
 			        	if(!Ext.isEmpty(sf.lovservice)){
 //				            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice +'&'+ Ext.urlEncode(sf.getLovPara());
                             url = sf.context + 'autocrud/'+sf.lovservice+'/query' + (!Ext.isEmpty(lp) ? '?' + lp : '');
@@ -7228,7 +7237,7 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
         var str = path.indexOf('modules');
         var screen_path = path.substring(str,path.length);
         var screen = screen_path.substring(screen_path.lastIndexOf('/')+1, screen_path.length);
-        var parent = this.el.findParent('.win-wrap')
+        var parent = this.el.parent('.win-wrap')
         if(parent) {
             var url = parent.getAttributeNS("","url");
             if(url){
