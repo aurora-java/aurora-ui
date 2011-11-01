@@ -1110,8 +1110,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 var item = d[k];
                 if(item && item.xtype == 'dataset'){
                 	if(item.data.length > 0){
-	                    //var ds = new $A.DataSet({});//$(item.id);
-	                    var ds = item.data[0].ds;
+	                    var ds = new $A.DataSet({});//$(item.id);
+	                    ds.fields = item.data[0].ds.fields;
                     	ds.reConfig(item)
 	                    isAdd = isAdd == false ? ds.isModified() :isAdd;
                 	}
