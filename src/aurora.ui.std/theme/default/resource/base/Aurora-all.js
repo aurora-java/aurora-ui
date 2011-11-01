@@ -2407,9 +2407,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             for(var k in r.data){
                 var item = d[k];
                 if(item && item.xtype == 'dataset'){
-                    var ds = new $A.DataSet({});//$(item.id);
-                    ds.reConfig(item)
-                    isAdd = isAdd == false ? ds.isModified() :isAdd;
+                	if(item.data.length > 0){
+	                    var ds = new $A.DataSet({});//$(item.id);
+	                    ds.fields = item.data[0].ds.fields;
+                    	ds.reConfig(item)
+	                    isAdd = isAdd == false ? ds.isModified() :isAdd;
+                	}
                     d[k] = ds.getJsonData();
                 }
             }
@@ -2531,7 +2534,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         this.fireBindDataSetEvent('submitsuccess',res);
     },
-    commitRecords : function(datas,fire){
+    commitRecords : function(datas,fire,record){
         //this.resetConfig();
         for(var i=0,l=datas.length;i<l;i++){
             var data = datas[i];
@@ -2546,7 +2549,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                     var ds = f.pro['dataset'];
                     ds.reConfig(r.data[f.name]);
                     if(data[k].record) {
-                        ds.commitRecords([].concat(data[k].record), this.getCurrentRecord() == r);                     
+                        ds.commitRecords([].concat(data[k].record),this.getCurrentRecord() === r && fire, r);                     
                     }
                 }else{
                     var ov = r.get(field);
@@ -2561,6 +2564,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                             r.set(field,nv, true);
                         }else{
                             r.data[field] = nv;
+	                    	if(record)record.data[this.bindname]=this.getConfig();
                         }
                     }
                 }
