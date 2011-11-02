@@ -1295,4 +1295,58 @@ $A.stopCustomization = function(){
         $A.CmpManager.remove('_customization');
     }
 }
+$A.formatMoneyUpper = function(v){
+    return $A.moneyUpper(v);
+}
+$A.moneyUpper = function(mnum){
+	mnum = Math.abs(mnum);
+	var unitArray = [["元", "万", "亿"], ["仟", "", "拾", "佰"],["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"]];
+	totalarray = new Array();
+
+	totalarray = mnum.toString().split(".");
+	if (totalarray.length == 1) {
+		totalarray[1] = "00"
+	} else if (totalarray[1].length == 1) {
+		totalarray[1] += '0';
+	}
+	integerpart = new Array();
+	decimalpart = new Array();
+	var strout = "";
+	for (var i = 0; i < totalarray[0].length; i++) {
+		integerpart[i] = totalarray[0].charAt(i);
+	}
+	for (var i = 0; i < totalarray[1].length; i++) {
+		decimalpart[i] = totalarray[1].charAt(i);
+	}
+	for (var i = 0; i < integerpart.length; i++) {
+		var strTemp = (integerpart.length - i - 1) % 4 == 0
+				? unitArray[0][parseInt((integerpart.length - i) / 4)]
+				: (integerpart[i] == 0)
+						? ""
+						: unitArray[1][((integerpart.length - i) % 4)]
+		strout = strout + unitArray[2][integerpart[i]] + strTemp;
+	}
+	strout = strout.replace(new RegExp(/零+/g), "零");
+	strout = strout.replace("零万", "万");
+	strout = strout.replace("零亿", "亿");
+	strout = strout.replace("零元", "元");
+	strout = strout.replace("亿万", "亿");
+	var strdec = ""
+	if (decimalpart[0] == 0 && decimalpart[1] == 0) {
+		strdec = "整";
+	} else {
+		if (decimalpart[0] == 0) {
+			strdec = "零"
+		} else {
+			strdec = unitArray[2][decimalpart[0]] + '角';
+		}
+		if (decimalpart[1] != 0) {
+			strdec += unitArray[2][decimalpart[1]] + '分';
+		}
+	}
+	strout += strdec;
+	if (mnum < 0)
+		strout = "负" + strout;
+	return strout;
+}
 $A.setValidInfoType('tip'); 
