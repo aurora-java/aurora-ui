@@ -102,6 +102,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //        this[ou]('beforecreate', this.beforeCreate, this);//TODO:有待测试
         this[ou]('add', bdp, this);
         this[ou]('remove', bdp, this);
+        this[ou]('select', this.onDataSetSelect, this);
         this[ou]('update', bdp, this);
         this[ou]('clear', bdp, this);
         this[ou]('load', this.onDataSetLoad, this);
@@ -146,6 +147,28 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             this.refreshBindDataSet(bt.getCurrentRecord(),this.getConfig())
         }
     },
+    onDataSetSelect : function(ds,record){
+        var bt = $A.CmpManager.get(this.bindtarget);
+        if(bt){
+            var datas = bt.data;
+            var found = false;
+            for(var i = 0;i<datas.length;i++){
+                var dr = datas[i];
+                var dc = dr.get(this.bindname);
+                if(dc){
+                    for(var j = 0;j<dc.data.length;j++){
+                        var r = dc.data[j];
+                        if(r.id == record.id){
+                            dc.selected = this.selected;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(found) break;
+                }
+            }
+        }
+    },
     onDataSetLoad : function(ds,options){
         var record;
         if(options && options.opts && options.opts.record){
@@ -159,7 +182,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     refreshBindDataSet: function(record,config){
         if(!record)return;
-        record.set(this.bindname,config,true)//this.getConfig()
+        //record.set(this.bindname,config,true)//this.getConfig()
+        record.data[this.bindname] = config;
+
 //      for(var k in this.fields){
 //          var field = this.fields[k];
 //          if(field.type == 'dataset'){  
@@ -738,7 +763,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 }else{
                     ds.resetConfig();
                 }
-                ds.fireEvent('refresh',ds)
+                ds.fireEvent('refresh',ds);
                 ds.processCurrentRow();
             }
         }
@@ -841,6 +866,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
         this.processCurrentRow();
+        if(this.selectionmodel == 'single') this.select(this.getAt(index-1));
     },
     /**
      * 定位到某页.
@@ -1357,7 +1383,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.loadData(datas, total, options);
         if(datas.length != 0)
         this.locate(this.currentIndex,true);
-        
         $A.SideBar.enable = $A.slideBarEnable;
         
     },

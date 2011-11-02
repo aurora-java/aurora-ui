@@ -483,14 +483,17 @@ $A.Grid = Ext.extend($A.Component,{
         return isOver;
     },
     onRefresh : function(){
-        this.onLoad(false)
+        this.onLoad(false);
+        for(var i=0;i<this.dataset.selected.length;i++){
+            this.onSelect(this.dataset, this.dataset.selected[i]);
+        }
     },
     onIndexChange:function(ds, r){
         var index = this.getDataIndex(r.id);
         if(index == -1)return;
-        if(r != this.selectRecord){
+        //if(r != this.selectRecord){
             this.selectRow(index, false);
-        }
+        //}
     },
     isFunctionCol: function(c){
         return c.type == 'rowcheck' || c.type == 'rowradio'
@@ -670,8 +673,10 @@ $A.Grid = Ext.extend($A.Component,{
         return index;
     },
     onSelect : function(ds,record){
+        if(!record)return;
         var cb = Ext.get(this.id+'__'+record.id);
-        if(cb && this.selectable && this.selectionmodel=='multiple') {
+        if(cb)
+        if(this.selectable && this.selectionmodel=='multiple') {
             this.setCheckBoxStatus(cb, true);
             this.setSelectStatus(record);
         }else{
@@ -681,8 +686,10 @@ $A.Grid = Ext.extend($A.Component,{
         }
     },
     onUnSelect : function(ds,record){
+        if(!record)return;
         var cb = Ext.get(this.id+'__'+record.id);
-        if(cb && this.selectable && this.selectionmodel=='multiple') {
+        if(cb)
+        if(this.selectable && this.selectionmodel=='multiple') {
             this.setCheckBoxStatus(cb, false);
             this.setSelectStatus(record);
         }else{
