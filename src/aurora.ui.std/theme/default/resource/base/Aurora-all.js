@@ -1295,6 +1295,63 @@ $A.stopCustomization = function(){
         $A.CmpManager.remove('_customization');
     }
 }
+/**
+ * 将数字金额转换成大写金额.
+ * 
+ * @param {Number} amount 金额
+ * @return {String} 大写金额
+ */
+$A.convertMoney = function(mnum){
+	mnum = Math.abs(mnum);
+	var unitArray = [["元", "万", "亿"], ["仟", "", "拾", "佰"],["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"]];
+	totalarray = new Array();
+
+	totalarray = mnum.toString().split(".");
+	if (totalarray.length == 1) {
+		totalarray[1] = "00"
+	} else if (totalarray[1].length == 1) {
+		totalarray[1] += '0';
+	}
+	integerpart = new Array();
+	decimalpart = new Array();
+	var strout = "";
+	for (var i = 0; i < totalarray[0].length; i++) {
+		integerpart[i] = totalarray[0].charAt(i);
+	}
+	for (var i = 0; i < totalarray[1].length; i++) {
+		decimalpart[i] = totalarray[1].charAt(i);
+	}
+	for (var i = 0; i < integerpart.length; i++) {
+		var strTemp = (integerpart.length - i - 1) % 4 == 0
+				? unitArray[0][parseInt((integerpart.length - i) / 4)]
+				: (integerpart[i] == 0)
+						? ""
+						: unitArray[1][((integerpart.length - i) % 4)]
+		strout = strout + unitArray[2][integerpart[i]] + strTemp;
+	}
+	strout = strout.replace(new RegExp(/零+/g), "零");
+	strout = strout.replace("零万", "万");
+	strout = strout.replace("零亿", "亿");
+	strout = strout.replace("零元", "元");
+	strout = strout.replace("亿万", "亿");
+	var strdec = ""
+	if (decimalpart[0] == 0 && decimalpart[1] == 0) {
+		strdec = "整";
+	} else {
+		if (decimalpart[0] == 0) {
+			strdec = "零"
+		} else {
+			strdec = unitArray[2][decimalpart[0]] + '角';
+		}
+		if (decimalpart[1] != 0) {
+			strdec += unitArray[2][decimalpart[1]] + '分';
+		}
+	}
+	strout += strdec;
+	if (mnum < 0)
+		strout = "负" + strout;
+	return strout;
+}
 $A.setValidInfoType('tip'); 
 /**
  * @class Aurora.DataSet
@@ -1315,6 +1372,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.pageid = config.pageid;
         this.spara = {};
         this.selected = [];
+        this.sorttype = config.sorttype||'remote';
         this.maxpagesize = config.maxpagesize || 1000;
         this.pagesize = config.pagesize || 10;
         if(this.pagesize > this.maxpagesize) 
@@ -1761,7 +1819,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             record.setDataSet(this);
             this.data.add(record);
         }
-        if(this.sortInfo) this.sort();
+//        if(this.sortInfo) this.sort();
         
         this.fireEvent("beforeload", this, this.data);
         
@@ -1777,7 +1835,23 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.fireEvent("load", this, options);
     },
     sort : function(f, direction){
-        //TODO:grid已经实现服务端排序
+        if(this.getAll().length==0)return;
+        if(this.sorttype == 'remote'){
+            if(direction=='') {
+                delete this.qpara['ORDER_FIELD'];
+                delete this.qpara['ORDER_TYPE'];
+            }else{
+                this.setQueryParameter('ORDER_FIELD', f);
+                this.setQueryParameter('ORDER_TYPE', direction);            
+            }
+            this.query();
+        }else{
+            this.data.sort(function(a, b){
+                var rs = a.get(f) > b.get(f)
+                return (direction == 'desc' ? (rs ? -1 : 1) : (rs ? 1 : -1));
+            })
+            this.fireEvent('refresh',this);
+        }
     },
     /**
      * 创建一条记录

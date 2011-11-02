@@ -17,6 +17,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.pageid = config.pageid;
         this.spara = {};
         this.selected = [];
+        this.sorttype = config.sorttype||'remote';
         this.maxpagesize = config.maxpagesize || 1000;
         this.pagesize = config.pagesize || 10;
         if(this.pagesize > this.maxpagesize) 
@@ -463,7 +464,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             record.setDataSet(this);
             this.data.add(record);
         }
-        if(this.sortInfo) this.sort();
+//        if(this.sortInfo) this.sort();
         
         this.fireEvent("beforeload", this, this.data);
         
@@ -479,7 +480,23 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.fireEvent("load", this, options);
     },
     sort : function(f, direction){
-        //TODO:grid已经实现服务端排序
+        if(this.getAll().length==0)return;
+        if(this.sorttype == 'remote'){
+            if(direction=='') {
+                delete this.qpara['ORDER_FIELD'];
+                delete this.qpara['ORDER_TYPE'];
+            }else{
+                this.setQueryParameter('ORDER_FIELD', f);
+                this.setQueryParameter('ORDER_TYPE', direction);            
+            }
+            this.query();
+        }else{
+            this.data.sort(function(a, b){
+                var rs = a.get(f) > b.get(f)
+                return (direction == 'desc' ? (rs ? -1 : 1) : (rs ? 1 : -1));
+            })
+            this.fireEvent('refresh',this);
+        }
     },
     /**
      * 创建一条记录
