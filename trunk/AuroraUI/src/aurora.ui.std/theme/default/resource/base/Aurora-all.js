@@ -1407,6 +1407,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this[ou]('reject', bdp, this);
         ds[ou]('indexchange',this.onDataSetIndexChange, this);
         ds[ou]('load',this.onBindDataSetLoad, this);
+        ds[ou]('remove',this.onBindDataSetLoad, this);
         ds[ou]('clear',this.removeAll, this);
     },
     /**
