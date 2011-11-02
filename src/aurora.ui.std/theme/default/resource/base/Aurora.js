@@ -1295,10 +1295,13 @@ $A.stopCustomization = function(){
         $A.CmpManager.remove('_customization');
     }
 }
-$A.formatMoneyUpper = function(v){
-    return $A.moneyUpper(v);
-}
-$A.moneyUpper = function(mnum){
+/**
+ * 将数字金额转换成大写金额.
+ * 
+ * @param {Number} amount 金额
+ * @return {String} 大写金额
+ */
+$A.convertMoney = function(mnum){
 	mnum = Math.abs(mnum);
 	var unitArray = [["元", "万", "亿"], ["仟", "", "拾", "佰"],["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"]];
 	totalarray = new Array();
