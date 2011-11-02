@@ -1096,7 +1096,9 @@ $A.Grid = Ext.extend($A.Component,{
                     return;
             	}
                 var d = target.child('div');
-                this.dataset.setQueryParameter('ORDER_FIELD', index);
+                var of = index;
+                var ot = '';
+//                this.dataset.setQueryParameter('ORDER_FIELD', index);
                 if(this.currentSortTarget){
                     var cst = Ext.fly(this.currentSortTarget)
                     cst.removeClass(['grid-asc','grid-desc']);
@@ -1106,18 +1108,21 @@ $A.Grid = Ext.extend($A.Component,{
                     col.sorttype = 'desc'
                     d.removeClass('grid-asc');
                     d.addClass('grid-desc');
-                    this.dataset.setQueryParameter('ORDER_TYPE', 'desc');
+                    ot = 'desc';
+//                    this.dataset.setQueryParameter('ORDER_TYPE', 'desc');
                 } else if(col.sorttype == 'desc'){
                     col.sorttype = 'asc';
                     d.removeClass('grid-desc');
                     d.addClass('grid-asc');
-                    this.dataset.setQueryParameter('ORDER_TYPE', 'asc');
+                    ot = 'asc';
+//                    this.dataset.setQueryParameter('ORDER_TYPE', 'asc');
                 }else {
                     col.sorttype = '';
                     d.removeClass(['grid-desc','grid-asc']);
-                    delete this.dataset.qpara['ORDER_TYPE'];
+//                    delete this.dataset.qpara['ORDER_TYPE'];
                 }
-                if(this.dataset.getAll().length!=0)this.dataset.query();
+//                if(this.dataset.getAll().length!=0)this.dataset.query();
+                this.dataset.sort(of,ot);
             }
         }else if(atype=='grid.rowcheck'){
             var cb = target.child('div[atype=grid.headcheck]');
