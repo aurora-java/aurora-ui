@@ -47,6 +47,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(config.fields)this.initFields(config.fields)
         if(config.datas && config.datas.length != 0) {
             this.datas=config.datahead?this.convertData(config.datahead,config.datas):config.datas;
+            this.autocount = false;
             this.loadData(this.datas);
             //this.locate(this.currentIndex); //不确定有没有影响
         }
@@ -241,10 +242,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             'ajaxfailed',
             /**
              * @event beforecreate
-             * 数据创建前事件.
+             * 数据创建前事件.返回true则新增一条记录,false则不新增直接返回
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              * @param {Object} object 新增的数据对象.
-             * @return ${Boolean} result 如果为true则新增一条记录,false则不新增直接返回
              */
             'beforecreate',
             /**
@@ -285,10 +285,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             'remove',
             /**
              * @event beforeremove
-             * 数据删除前.
+             * 数据删除前.如果为true则删除一条记录,false则不删除直接返回
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              * @param {Array} records 将要删除的数据集合
-             * @return ${Boolean} result 如果为true则删除一条记录,false则不删除直接返回
              */
             'beforeremove',
             /**
@@ -358,10 +357,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             'indexchange',
             /**
              * @event beforeselect
-             * 选择数据前事件.
+             * 选择数据前事件. 返回true表示可以选中,false表示不能选中
              * @param {Aurora.DataSet} dataSet 当前DataSet.
              * @param {Aurora.Record} record 选择的record.
-             * @return ${Boolean} result 如果为false则中断选择动作
              */ 
             'beforeselect',
             /**
@@ -389,9 +387,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             'reject',
             /**
              * @event beforesubmit
-             * 数据提交前事件.
+             * 数据提交前事件.如果为false则中断提交请求
              * @param {Aurora.DataSet} dataSet 当前DataSet.
-             * @return ${Boolean} result 如果为false则中断提交请求
              */
             'beforesubmit',
             /**
