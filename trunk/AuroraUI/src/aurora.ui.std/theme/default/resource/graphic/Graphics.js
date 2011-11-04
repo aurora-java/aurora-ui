@@ -656,7 +656,7 @@ var pub ={
 		    	this.text.dom.textContent = this.title;
 		    	this.wrap.appendChild(this.text);
 	    	}
-	    	
+	    	this.wrap.set({'title':this.info});
 	    	
 	    },
 	    initVMLElement : function(){
@@ -703,6 +703,7 @@ var pub ={
 		    	},true)
 		    	this.text.update(this.title);
 	    	}
+	    	this.wrap.set({'title':this.info});
 	    },
 	    processListener: function(ou){
 			pub.Path.superclass.processListener.call(this,ou);
