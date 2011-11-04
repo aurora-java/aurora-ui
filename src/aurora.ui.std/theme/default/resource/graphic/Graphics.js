@@ -656,8 +656,18 @@ var pub ={
 		    	this.text.dom.textContent = this.title;
 		    	this.wrap.appendChild(this.text);
 	    	}
-	    	this.wrap.set({'title':this.info||''});
-	    	
+	    	if(this.info){
+	    		if(!this.infoEl){
+		    		this.infoEl = newSVG('title');
+		    		this.wrap.appendChild(this.infoEl)
+	    		}
+		    	this.infoEl.dom.textContent = this.info;
+	    	}else{
+	    		if(this.infoEl){
+	    			this.infoEl.remove();
+	    			this.infoEl = null;
+	    		}
+	    	}
 	    },
 	    initVMLElement : function(){
 	    	var stroke=true,fill=true,filled=true;
