@@ -325,10 +325,12 @@ $A.request = function(opt){
 					$A.showErrorMessage(_lang['ajax.error'], _lang['ajax.error.format']);
 					return;
 				}
+                
 				if(res && !res.success){
 					$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 					if(res.error){
-                        if(res.error.code  && res.error.code == 'session_expired'){
+                        if(res.error.code  && (res.error.code == 'session_expired' || res.error.code == 'login_required')){
+                            //$A.manager.fireEvent('timeout', $A.manager);
                             $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
                         }else{
     						var st = res.error.stackTrace;
@@ -339,9 +341,9 @@ $A.request = function(opt){
     						}else{
     						    $A.showErrorMessage(_lang['ajax.error'], st,null,400,250);
     						}
-    						if(errorCall)
-                            errorCall.call(scope, res, options);
                         }
+						if(errorCall)
+                        errorCall.call(scope, res, options);
 					}								    						    
 				} else {
 					$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
@@ -1583,6 +1585,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         c.currentIndex = this.currentIndex;
         c.totalCount = this.totalCount;
         c.totalPage = this.totalPage;
+        c.fields = this.fields;
         return c;
     },
     initEvents : function(){
@@ -2337,7 +2340,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 if(this.isValid == false) {
                     if(hassub)break;
                 } else {
-                    for(key in dmap){
+                    for(var key in dmap){
                         var ds = dmap[key];
                         if(record.data[key]){
                             ds.reConfig(record.data[key]);
@@ -2505,13 +2508,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             for(var k in r.data){
                 var item = d[k];
                 if(item && item.xtype == 'dataset'){
-                	if(item.data.length > 0){
+                	//if(item.data.length > 0){
 	                    var ds = new $A.DataSet({});//$(item.id);
-	                    ds.fields = item.data[0].ds.fields;
+	                    //ds.fields = item.data[0].ds.fields;
                     	ds.reConfig(item)
 	                    isAdd = isAdd == false ? ds.isModified() :isAdd;
-                	}
-                    d[k] = ds.getJsonData();
+	                    d[k] = ds.getJsonData();
+                	//}
                 }
             }
             if(isAdd||selected){
@@ -3294,8 +3297,10 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         }
     },
     processMouseOverOut : function(ou){
-        this.wrap[ou]("mouseover", this.onMouseOver, this);
-        this.wrap[ou]("mouseout", this.onMouseOut, this);
+        if(this.wrap){
+            this.wrap[ou]("mouseover", this.onMouseOver, this);
+            this.wrap[ou]("mouseout", this.onMouseOut, this);
+        }
     },
     initEvents : function(){
     	this.addEvents(
