@@ -228,6 +228,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         c.currentIndex = this.currentIndex;
         c.totalCount = this.totalCount;
         c.totalPage = this.totalPage;
+        c.fields = this.fields;
         return c;
     },
     initEvents : function(){
@@ -1150,13 +1151,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             for(var k in r.data){
                 var item = d[k];
                 if(item && item.xtype == 'dataset'){
-                	if(item.data.length > 0){
+                	//if(item.data.length > 0){
 	                    var ds = new $A.DataSet({});//$(item.id);
-	                    ds.fields = item.data[0].ds.fields;
+	                    //ds.fields = item.data[0].ds.fields;
                     	ds.reConfig(item)
 	                    isAdd = isAdd == false ? ds.isModified() :isAdd;
 	                    d[k] = ds.getJsonData();
-                	}
+                	//}
                 }
             }
             if(isAdd||selected){
