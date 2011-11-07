@@ -34,8 +34,10 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         }
     },
     processMouseOverOut : function(ou){
-        this.wrap[ou]("mouseover", this.onMouseOver, this);
-        this.wrap[ou]("mouseout", this.onMouseOut, this);
+        if(this.wrap){
+            this.wrap[ou]("mouseover", this.onMouseOver, this);
+            this.wrap[ou]("mouseout", this.onMouseOut, this);
+        }
     },
     initEvents : function(){
     	this.addEvents(

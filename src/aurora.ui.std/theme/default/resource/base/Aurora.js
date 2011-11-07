@@ -325,10 +325,12 @@ $A.request = function(opt){
 					$A.showErrorMessage(_lang['ajax.error'], _lang['ajax.error.format']);
 					return;
 				}
+                
 				if(res && !res.success){
 					$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 					if(res.error){
-                        if(res.error.code  && res.error.code == 'session_expired'){
+                        if(res.error.code  && (res.error.code == 'session_expired' || res.error.code == 'login_required')){
+                            //$A.manager.fireEvent('timeout', $A.manager);
                             $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
                         }else{
     						var st = res.error.stackTrace;
@@ -339,9 +341,9 @@ $A.request = function(opt){
     						}else{
     						    $A.showErrorMessage(_lang['ajax.error'], st,null,400,250);
     						}
-    						if(errorCall)
-                            errorCall.call(scope, res, options);
                         }
+						if(errorCall)
+                        errorCall.call(scope, res, options);
 					}								    						    
 				} else {
 					$A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
