@@ -982,7 +982,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 if(this.isValid == false) {
                     if(hassub)break;
                 } else {
-                    for(key in dmap){
+                    for(var key in dmap){
                         var ds = dmap[key];
                         if(record.data[key]){
                             ds.reConfig(record.data[key]);
@@ -1155,8 +1155,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	                    ds.fields = item.data[0].ds.fields;
                     	ds.reConfig(item)
 	                    isAdd = isAdd == false ? ds.isModified() :isAdd;
+	                    d[k] = ds.getJsonData();
                 	}
-                    d[k] = ds.getJsonData();
                 }
             }
             if(isAdd||selected){
