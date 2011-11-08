@@ -991,8 +991,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                             if(!ds.validate(false)) {
                                 this.isValid = false;
                                 unvalidRecord = record;
-                            }
-                            ds.reConfig(current.data[key]);//循环校验完毕后,重新定位到当前行
+                            }else
+                            	ds.reConfig(current.data[key]);//循环校验完毕后,重新定位到当前行
                         }
                     }
                     
