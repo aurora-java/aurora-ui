@@ -106,6 +106,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this[ou]('remove', bdp, this);
         this[ou]('select', this.onDataSetSelect, this);
         this[ou]('update', bdp, this);
+        this[ou]('indexchange', bdp, this);
         this[ou]('clear', bdp, this);
         this[ou]('load', this.onDataSetLoad, this);
         this[ou]('reject', bdp, this);
@@ -1009,7 +1010,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         if(fire !== false) {
             $A.manager.fireEvent('valid', $A.manager, this, this.isValid);
-            if(!this.isValid) $A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.validate']);
+           // if(!this.isValid) $A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.validate']);
         }
         return this.isValid;
     },
