@@ -1463,6 +1463,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this[ou]('remove', bdp, this);
         this[ou]('select', this.onDataSetSelect, this);
         this[ou]('update', bdp, this);
+        this[ou]('indexchange', bdp, this);
         this[ou]('clear', bdp, this);
         this[ou]('load', this.onDataSetLoad, this);
         this[ou]('reject', bdp, this);
@@ -2347,8 +2348,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                             if(!ds.validate(false)) {
                                 this.isValid = false;
                                 unvalidRecord = record;
-                            }
-                            ds.reConfig(current.data[key]);//循环校验完毕后,重新定位到当前行
+                            }else
+                            	ds.reConfig(current.data[key]);//循环校验完毕后,重新定位到当前行
                         }
                     }
                     
@@ -4021,6 +4022,41 @@ $A.Label = Ext.extend($A.Component,{
     		value = rder.call(window,value,record, name);
 	    }
 	    this.wrap.update(value);
+    }
+});
+/**
+ * @class Aurora.Link
+ * @extends Aurora.Component
+ * <p>Link组件.
+ * @author njq.niu@hand-china.com
+ * @constructor 
+ */
+$A.Link = Ext.extend($A.Component,{
+    params: {},
+    constructor: function(config) {
+        this.url = config.url || "";
+        $A.Link.superclass.constructor.call(this, config);
+    },
+    processListener: function(ou){
+    },
+    reset : function(){
+        this.params = {};
+    },
+    set : function(name,value){
+        this.params[name]=value;
+    },
+    get : function(name){
+        return this.params[name];
+    },
+    getUrl : function(){
+        var url;
+        var pr = Ext.urlEncode(this.params);
+        if(Ext.isEmpty(pr)){
+            url = this.url;
+        }else{
+            url = this.url +(this.url.indexOf('?') == -1?'?':'&') + Ext.urlEncode(this.params);
+        } 
+        return url;
     }
 });
 /**
