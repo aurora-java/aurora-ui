@@ -70,7 +70,7 @@ $A.Tree = Ext.extend($A.Component,{
 //			ds[ou]('metachange', this.onRefresh, this);
 //	    	ds[ou]('add', this.onAdd, this);
 //	    	ds[ou]('valid', this.onValid, this);
-//	    	ds[ou]('remove', this.onRemove, this);
+	    	ds[ou]('remove', this.onRemove, this);
 //	    	ds[ou]('clear', this.onLoad, this);
 //	    	ds[ou]('refresh',this.onRefresh,this);
 //	    	ds[ou]('fieldchange', this.onFieldChange, this);
@@ -88,6 +88,39 @@ $A.Tree = Ext.extend($A.Component,{
             sf.onLoad();
         })
 	},
+    onRemove : function(ds,record){
+        var node = this.getNodeById(record.id)
+        if(node){
+            var parent = node.parentNode;
+            if(parent){
+                this.focusNode = (this.focusNode == parent ? null : this.focusNode);
+                this.unregisterNode(node,true);
+                parent.removeChild(node);
+                var index = -1;
+                for(var i=0;i<parent.data.children.length;i++){
+                    var item = parent.data.children[i];
+                    if(item.record.id == record.id){
+                        index = i;
+                        break;
+                    }
+                }
+                if(index != -1){
+                    var data = parent.data;
+                    data.children.remove(parent.data.children[index]);
+                    var ds = record.ds;
+                    if(data.children[index-1]&&data.children[index-1].record) {
+                        ds.locate(ds.indexOf(data.children[index-1].record)+1);
+                    }else {
+                        if(data.children[index]&&data.children[index].record) {
+                            ds.locate(ds.indexOf(data.children[index].record)+1);
+                        }else{
+                            ds.locate(ds.indexOf(parent.record)+1);
+                        }
+                    }
+                }
+            }
+        }
+    },
 	onUpdate : function(ds, record, name, value){
 		if(this.parentfield == name || name == this.sequencefield){
 			this.onLoad();
@@ -188,8 +221,13 @@ $A.Tree = Ext.extend($A.Component,{
 	registerNode : function(node){
 		this.nodeHash[node.id] = node;
 	},
-	unregisterNode : function(node){
+	unregisterNode : function(node, unRegisterChildren){
 		delete this.nodeHash[node.id];
+        if(unRegisterChildren){
+            for(var i=0;i<node.children;i++){
+                this.unregisterNode(node.children[i],unRegisterChildren);
+            }
+        }
 	},
 	/**
 	 * 设置节点焦点
@@ -680,6 +718,7 @@ $A.Tree.TreeNode.prototype={
 	 */
 	unselect : function(){
 		this.isSelect = false;
+        if(this.getOwnerTree())
 		this.getOwnerTree().onNodeUnSelect(this.els);
 //		this.els['text'].style.backgroundColor='';
 	},
