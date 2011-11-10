@@ -675,7 +675,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
     },
-    removeLocal: function(record,count){
+    removeLocal: function(record,count,isLocate){
         $A.removeInvalidReocrd(this.id, record)
         var index = this.data.indexOf(record);      
         if(index == -1)return;
@@ -686,6 +686,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //          this.removeAll();
 //          return;
 //        }
+        if(isLocate)
         if(this.data.length != 0){
             var lindex = this.currentIndex - (this.currentPage-1)*this.pagesize;
             if(lindex<0)return;

@@ -330,7 +330,7 @@ $A.request = function(opt){
 					$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 					if(res.error){
                         if(res.error.code  && (res.error.code == 'session_expired' || res.error.code == 'login_required')){
-                            //$A.manager.fireEvent('timeout', $A.manager);
+                            $A.manager.fireEvent('timeout', $A.manager);
                             $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
                         }else{
     						var st = res.error.stackTrace;
@@ -2032,7 +2032,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
     },
-    removeLocal: function(record,count){
+    removeLocal: function(record,count,isLocate){
         $A.removeInvalidReocrd(this.id, record)
         var index = this.data.indexOf(record);      
         if(index == -1)return;
@@ -2043,6 +2043,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //          this.removeAll();
 //          return;
 //        }
+        if(isLocate)
         if(this.data.length != 0){
             var lindex = this.currentIndex - (this.currentPage-1)*this.pagesize;
             if(lindex<0)return;
@@ -5660,17 +5661,19 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     processDate : function(d){},
     onBlur : function(e){
     	if(this.readonly)return;
-		$A.DatePicker.superclass.onBlur.call(this,e);
-		if(!this.isExpanded()){
-			try{
-                var d = this.getRawValue().parseDate(this.format)
-                this.wrapDate(d);
-				this.setValue(d||"");
-			}catch(e){
-                //alert(e.message);
-				this.setValue("");
+    	if(this.hasFocus){
+			$A.DatePicker.superclass.onBlur.call(this,e);
+			if(!this.isExpanded()){
+				try{
+	                var d = this.getRawValue().parseDate(this.format)
+	                this.wrapDate(d);
+					this.setValue(d||"");
+				}catch(e){
+	                //alert(e.message);
+					this.setValue("");
+				}
 			}
-		}
+    	}
     },
     formatValue : function(date){
     	if(date instanceof Date)return date.format(this.format);
