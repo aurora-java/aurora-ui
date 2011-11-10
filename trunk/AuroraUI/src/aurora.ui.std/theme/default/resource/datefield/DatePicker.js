@@ -223,17 +223,19 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     processDate : function(d){},
     onBlur : function(e){
     	if(this.readonly)return;
-		$A.DatePicker.superclass.onBlur.call(this,e);
-		if(!this.isExpanded()){
-			try{
-                var d = this.getRawValue().parseDate(this.format)
-                this.wrapDate(d);
-				this.setValue(d||"");
-			}catch(e){
-                //alert(e.message);
-				this.setValue("");
+    	if(this.hasFocus){
+			$A.DatePicker.superclass.onBlur.call(this,e);
+			if(!this.isExpanded()){
+				try{
+	                var d = this.getRawValue().parseDate(this.format)
+	                this.wrapDate(d);
+					this.setValue(d||"");
+				}catch(e){
+	                //alert(e.message);
+					this.setValue("");
+				}
 			}
-		}
+    	}
     },
     formatValue : function(date){
     	if(date instanceof Date)return date.format(this.format);
