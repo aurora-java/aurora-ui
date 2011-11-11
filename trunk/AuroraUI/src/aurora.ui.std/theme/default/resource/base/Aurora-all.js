@@ -2032,7 +2032,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
     },
-    removeLocal: function(record,count,isLocate){
+    removeLocal: function(record,count,notLocate){
         $A.removeInvalidReocrd(this.id, record)
         var index = this.data.indexOf(record);      
         if(index == -1)return;
@@ -2043,7 +2043,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //          this.removeAll();
 //          return;
 //        }
-        if(isLocate)
+        if(!notLocate)
         if(this.data.length != 0){
             var lindex = this.currentIndex - (this.currentPage-1)*this.pagesize;
             if(lindex<0)return;
@@ -4826,20 +4826,22 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
 	onBlur : function(e){
         if(this.readonly)return;
-		$A.ComboBox.superclass.onBlur.call(this,e);
-		if(!this.isExpanded()) {
-			var raw = this.getRawValue();
-			if(this.editable){
-				this.setValue(raw)
-			}else{
-				var record = this.getRecordByDisplay(raw);
-				if(record != null){
-					this.setValue(record.get(this.displayfield));				
+        if(this.hasFocus){
+			$A.ComboBox.superclass.onBlur.call(this,e);
+			if(!this.isExpanded()) {
+				var raw = this.getRawValue();
+				if(this.editable){
+					this.setValue(raw)
 				}else{
-					this.setValue('');
+					var record = this.getRecordByDisplay(raw);
+					if(record != null){
+						this.setValue(record.get(this.displayfield));				
+					}else{
+						this.setValue('');
+					}
 				}
 			}
-		}
+        }
     },
     getRecordByDisplay: function(name){
     	if(!this.optionDataSet)return null;
