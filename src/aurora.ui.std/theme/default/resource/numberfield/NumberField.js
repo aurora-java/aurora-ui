@@ -52,6 +52,8 @@ $A.NumberField = Ext.extend($A.TextField,{
     	return (isNegative?'-':'')+$A.NumberField.superclass.processMaxLength.call(this, s[0].replace(/[-,]/g,''))+(s[1]?'.'+s[1]:''); 
     },
     initMaxLength : function(maxlength){
+    	if(maxlength && !this.allowdecimals)
+    		this.el.dom.maxLength=maxlength;
     },
     processValue : function(v){
         return this.parseValue(v);
