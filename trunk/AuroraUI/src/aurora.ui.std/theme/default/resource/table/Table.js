@@ -23,7 +23,9 @@ $A.Table = Ext.extend($A.Component,{
 	processListener:function(ou){
 		$A.Table.superclass.processListener.call(this,ou);
 		this.tbody[ou]('click',this.onClick, this);
-		this.tbody[ou]('mousewheel',this.onMouseWheel,this);
+		if(this.canwheel){
+			this.tbody[ou]('mousewheel',this.onMouseWheel,this);
+		}
 		if(this.cb)this.cb[ou]('click',this.onHeadClick,this);
 	},
 	processDataSetLiestener: function(ou){
