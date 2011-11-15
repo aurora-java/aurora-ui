@@ -70,7 +70,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     initFooter : function(){
     	if(!this.now)this.now=new Ext.Template(this.nowTpl).append(this.popup.child("div.item-dateField-foot").dom,{now:_lang['datepicker.today'],title:new Date().format(this.format)},true);;
-    	this.now.set({"_date":new Date().getTime()});
+    	var now = new Date();
+    	this.now.set({"_date":new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0).getTime()});
     },
     initEvents : function(){
     	$A.DatePicker.superclass.initEvents.call(this);
