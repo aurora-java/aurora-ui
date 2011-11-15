@@ -78,9 +78,6 @@ $A.MultiLov = Ext.extend($A.Lov,{
     },
     processValue : function(v){
     	this.localvalues=[];
-    	if(this.optionDataSet){
-	    	this.optionDataSet.removeAll();
-    	}
     	if(!v)return '';
     	var values=v.split(';'),rv="",records=[];
     	for(var i=0;i<values.length;i++){
@@ -95,6 +92,9 @@ $A.MultiLov = Ext.extend($A.Lov,{
     			}
 	    		rv+=this.quote+vs+this.quote+",";
     		}
+    	}
+    	if(this.optionDataSet){
+	    	this.optionDataSet.removeAll();
     	}
     	for(var i=0;i<records.length;i++){
     		this.optionDataSet.add(records[i]);
