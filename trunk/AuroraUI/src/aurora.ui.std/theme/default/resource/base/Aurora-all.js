@@ -1802,8 +1802,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.data = [];
         this.selected = [];
         if(num && this.fetchall == false) {
-            this.totalPage = Math.ceil(this.totalCount/this.pagesize);
             this.totalCount = num;
+            this.totalPage = Math.ceil(this.totalCount/this.pagesize);
         }else{
             this.totalCount = datas.length;
             this.totalPage = 1;
@@ -7254,9 +7254,6 @@ $A.MultiLov = Ext.extend($A.Lov,{
     },
     processValue : function(v){
     	this.localvalues=[];
-    	if(this.optionDataSet){
-	    	this.optionDataSet.removeAll();
-    	}
     	if(!v)return '';
     	var values=v.split(';'),rv="",records=[];
     	for(var i=0;i<values.length;i++){
@@ -7271,6 +7268,9 @@ $A.MultiLov = Ext.extend($A.Lov,{
     			}
 	    		rv+=this.quote+vs+this.quote+",";
     		}
+    	}
+    	if(this.optionDataSet){
+	    	this.optionDataSet.removeAll();
     	}
     	for(var i=0;i<records.length;i++){
     		this.optionDataSet.add(records[i]);
