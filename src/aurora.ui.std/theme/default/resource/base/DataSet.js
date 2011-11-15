@@ -445,8 +445,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.data = [];
         this.selected = [];
         if(num && this.fetchall == false) {
-            this.totalPage = Math.ceil(this.totalCount/this.pagesize);
             this.totalCount = num;
+            this.totalPage = Math.ceil(this.totalCount/this.pagesize);
         }else{
             this.totalCount = datas.length;
             this.totalPage = 1;
