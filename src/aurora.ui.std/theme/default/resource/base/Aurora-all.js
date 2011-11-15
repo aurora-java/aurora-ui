@@ -1802,11 +1802,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.data = [];
         this.selected = [];
         if(num && this.fetchall == false) {
+            this.totalPage = Math.ceil(this.totalCount/this.pagesize);
             this.totalCount = num;
         }else{
             this.totalCount = datas.length;
+            this.totalPage = 1;
         }
-        this.totalPage = Math.ceil(this.totalCount/this.pagesize);
+        
         
         for(var i = 0, len = datas.length; i < len; i++){
             var data = datas[i].data||datas[i];
@@ -2222,6 +2224,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     locate : function(index, force){
         if(this.autocount && this.currentIndex === index && force !== true) return;
+        if(this.fetchall == true && index > ((this.currentPage-1)*this.pagesize + this.data.length)) return;
         //对于没有autcount的,判断最后一页
         if(!this.autocount && index > ((this.currentPage-1)*this.pagesize + this.data.length) && this.data.length < this.pagesize) return;
 //      if(valid !== false) if(!this.validCurrent())return;
@@ -4625,6 +4628,8 @@ $A.NumberField = Ext.extend($A.TextField,{
     	return (isNegative?'-':'')+$A.NumberField.superclass.processMaxLength.call(this, s[0].replace(/[-,]/g,''))+(s[1]?'.'+s[1]:''); 
     },
     initMaxLength : function(maxlength){
+    	if(maxlength && !this.allowdecimals)
+    		this.el.dom.maxLength=maxlength;
     },
     processValue : function(v){
         return this.parseValue(v);
@@ -5510,7 +5515,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     initFooter : function(){
     	if(!this.now)this.now=new Ext.Template(this.nowTpl).append(this.popup.child("div.item-dateField-foot").dom,{now:_lang['datepicker.today'],title:new Date().format(this.format)},true);;
-    	this.now.set({"_date":new Date().getTime()});
+    	var now = new Date();
+    	this.now.set({"_date":new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0).getTime()});
     },
     initEvents : function(){
     	$A.DatePicker.superclass.initEvents.call(this);
