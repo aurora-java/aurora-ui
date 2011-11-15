@@ -445,11 +445,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.data = [];
         this.selected = [];
         if(num && this.fetchall == false) {
+            this.totalPage = Math.ceil(this.totalCount/this.pagesize);
             this.totalCount = num;
         }else{
             this.totalCount = datas.length;
+            this.totalPage = 1;
         }
-        this.totalPage = Math.ceil(this.totalCount/this.pagesize);
+        
         
         for(var i = 0, len = datas.length; i < len; i++){
             var data = datas[i].data||datas[i];
@@ -865,6 +867,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     locate : function(index, force){
         if(this.autocount && this.currentIndex === index && force !== true) return;
+        if(this.fetchall == true && index > ((this.currentPage-1)*this.pagesize + this.data.length)) return;
         //对于没有autcount的,判断最后一页
         if(!this.autocount && index > ((this.currentPage-1)*this.pagesize + this.data.length) && this.data.length < this.pagesize) return;
 //      if(valid !== false) if(!this.validCurrent())return;
