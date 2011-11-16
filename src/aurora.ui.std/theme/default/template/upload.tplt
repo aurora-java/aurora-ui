@@ -11,7 +11,7 @@ function ${id}(){
     };
     Ext.apply(settings, {
         button_placeholder_id: "${id}",
-        post_params: {"source_type" : "${sourcetype}","pkvalue":${pkvalue},"JSID":jsid},
+        post_params: {"source_type" : "${sourcetype}","pkvalue":${pkvalue},"JSID":jsid||''},
         button_width: "${buttonwidth}",
         button_height: "23",
         button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
