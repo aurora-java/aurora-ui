@@ -1543,6 +1543,7 @@ $A.Record.prototype = {
     },
     validate : function(name){
         var valid = true;
+        var oldValid = this.valid[name];
         var v = this.get(name);
         var field = this.getMeta().getField(name)
         var validator = field.get('validator');
@@ -1563,8 +1564,8 @@ $A.Record.prototype = {
                 }
             }
         }
-        if(valid==true) delete this.valid[name];
-        this.ds.onRecordValid(this,name,valid);
+        if(valid==true)delete this.valid[name];
+        if((oldValid||this.valid[name])&& oldValid != this.valid[name])this.ds.onRecordValid(this,name,valid);
         return valid;
     },
     setDataSet : function(ds){
