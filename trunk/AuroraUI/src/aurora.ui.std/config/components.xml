@@ -39,6 +39,7 @@
         <view-component elementName="switch" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Switch" />
         <view-component elementName="repeater" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Repeater" />
         <view-component elementName="htmlInclude" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.HTMLInclude" />
+        <view-component elementName="comment" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="screenBody" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ScreenBody" />
         <view-component elementName="chart" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="graphic" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
