@@ -1,0 +1,12 @@
+<div class="${wrapClass}" id="${id}" style="width:${width}px;${style}">
+	<div class="comment-title"><span atype="count">${length}</span>条评论</div>
+	<div class="comment-content">${list}</div>
+	<div class="comment-post">
+		<div class="comment-post-title">发表评论</div>
+		<div class="comment-post-txt">${txt}</div>
+		<div class="comment-post-btn">${btn}</div>
+	</div>
+</div>
+<script>
+	new $A.Comment(${config});
+</script>

@@ -1,0 +1,48 @@
+.item-comment {
+	background-color: #F7F7F7;
+	padding-bottom: 15px;
+}
+
+.comment-title {
+	background: url("../toolbar/toolbar_bg.gif") repeat-x scroll 0 0
+		transparent;
+	color: #055A78;
+	height: 25px;
+	line-height: 25px;
+	padding-left: 5px;
+	border: 1px solid #CCCCCC;
+}
+
+.comment-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.comment-li {
+	margin: 0;
+	padding: 15px 10px;
+	line-height: 140%;
+	border-bottom: 1px dashed #CCCCCC;
+}
+
+.comment-nick {
+	color: #818181;
+}
+
+.comment-post {
+	padding: 0 10px;
+}
+
+.comment-txt,.comment-bar,.comment-post,.comment-post-txt,.comment-post-btn
+	{
+	margin-top: 15px;
+}
+.comment-txt{
+	white-space: pre-wrap;
+	*white-space: pre;
+	*word-wrap: break-word;
+}
+.comment-post-title {
+	border-bottom: 2px solid #D4D4D4;
+}
