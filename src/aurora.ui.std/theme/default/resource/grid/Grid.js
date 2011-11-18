@@ -214,6 +214,8 @@ $A.Grid = Ext.extend($A.Component,{
             ds[ou]('indexchange', this.onIndexChange, this);
             ds[ou]('select', this.onSelect, this);
             ds[ou]('unselect', this.onUnSelect, this);
+            ds[ou]('selectall', this.onSelectAll, this);
+            ds[ou]('unselectall', this.onUnSelectAll, this);
         }
     },
     bind : function(ds){
@@ -677,27 +679,51 @@ $A.Grid = Ext.extend($A.Component,{
     onSelect : function(ds,record){
         if(!record)return;
         var cb = Ext.get(this.id+'__'+record.id);
-        if(cb)
-        if(this.selectable && this.selectionmodel=='multiple') {
-            this.setCheckBoxStatus(cb, true);
-            this.setSelectStatus(record);
-        }else{
-            this.setRadioStatus(cb,true);
-            this.setSelectStatus(record);
-            this.dataset.locate((this.dataset.currentPage-1)*this.dataset.pagesize + this.dataset.indexOf(record) + 1)
+        if(cb){
+	        if(this.selectable && this.selectionmodel=='multiple') {
+	            this.setCheckBoxStatus(cb, true);
+	            this.setSelectStatus(record);
+	        }else{
+	            this.setRadioStatus(cb,true);
+	            this.setSelectStatus(record);
+	            this.dataset.locate((this.dataset.currentPage-1)*this.dataset.pagesize + this.dataset.indexOf(record) + 1)
+	        }
         }
     },
     onUnSelect : function(ds,record){
         if(!record)return;
         var cb = Ext.get(this.id+'__'+record.id);
-        if(cb)
-        if(this.selectable && this.selectionmodel=='multiple') {
-            this.setCheckBoxStatus(cb, false);
-            this.setSelectStatus(record);
-        }else{
-            this.setRadioStatus(cb,false);
-            this.setSelectStatus(record);
+        if(cb){
+	        if(this.selectable && this.selectionmodel=='multiple') {
+	            this.setCheckBoxStatus(cb, false);
+	            this.setSelectStatus(record);
+	        }else{
+	            this.setRadioStatus(cb,false);
+	            this.setSelectStatus(record);
+	        }
         }
+    },
+    onSelectAll : function(){
+    	this.clearChecked();
+    	this.isSelectAll = true;
+    	this.isUnSelectAll = false;
+    	this.wrap.addClass('grid-select-all');
+    },
+    onUnSelectAll : function(){
+    	this.clearChecked();
+    	this.isSelectAll = false;
+    	this.isUnSelectAll = true;
+    	this.wrap.removeClass('grid-select-all');
+    },
+    clearChecked : function(){
+    	var ckbs = this.wrap.select('.item-ckb-self');
+    	if(ckbs){
+    		ckbs.removeClass('item-ckb-self');
+    		for(var i = 0,els = ckbs.elements,l = els.length;i<l;i++){
+    			var child = Ext.fly(els[i]).child('.item-ckb-c');
+    			if(child)child.replaceClass('item-ckb-c','item-ckb-u');
+    		}
+    	}
     },
     onDblclick : function(e){
         var target = Ext.fly(e.target).findParent('td[atype=grid-cell]');
@@ -728,6 +754,13 @@ $A.Grid = Ext.extend($A.Component,{
             }else if(atype=='grid.rowcheck'){               
                 var cb = Ext.get(this.id+'__'+rid);
                 if(cb.hasClass('item-ckb-readonly-u')||cb.hasClass('item-ckb-readonly-c'))return;
+                if(this.isSelectAll && !cb.parent('item-ckb-self')){
+                	cb.replaceClass('item-ckb-u','item-ckb-c');	
+                }
+				if(this.isUnselectAll && !cb.parent('item-ckb-self')){
+            		cb.replaceClass('item-ckb-c','item-ckb-u');	
+                }
+                Ext.fly(cb.findParent('.grid-rowbox')).addClass('item-ckb-self');
                 var checked = cb.hasClass('item-ckb-c');
                 (checked) ? this.dataset.unSelect(rid) : this.dataset.select(rid);
             }else if(atype=='grid.rowradio'){

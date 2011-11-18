@@ -8,6 +8,15 @@
 	float:left;
 	margin-top: 4px;
 }
+.grid-select-all .item-ckb-u,.grid-select-all .item-ckb-c{
+	background-position:0 -13px;
+}
+.grid-select-all .item-ckb-self .item-ckb-u{
+	background-position:0px 0px;
+}
+.grid-select-all .item-ckb-self .item-ckb-c{
+	background-position:0px -13px;
+}
 .item-ckb-u {
 	background-position:0px 0px;	
 }
