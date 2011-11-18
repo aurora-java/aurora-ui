@@ -4,12 +4,21 @@ $A.Comment = Ext.extend($A.Component, {
 			"<div class='comment-txt'>{content}</div>", "</div>",
 			"<div class='comment-bar'><a href='javascript:$(\"{id}\").remove(\"{commentid}\")'>删除</a></div>", "</div>",
 			"</li>"],
+	maskTpl : [
+		"<div class='comment-login-mask' >",
+		"<div unselectable='on' class='comment-mask'></div>",
+		"<div unselectable='on' class='comment-login'><p>匿名用户不能发表评论</p><p><a>登录</a> | <a href='{registerurl}'>注册</a></p></div>",
+		"</div>"
+	],
 	initComponent : function(config) {
 		$A.Comment.superclass.initComponent.call(this, config);
 		this.txt = $(this.id + "_txt");
 		this.count = this.wrap.child("span[atype=count]");
 		this.content = this.wrap.child("div.comment-content");
 		this.list = this.content.child("ol.comment-list");
+		if(this.registerurl){
+			this.cover();
+		}
 	},
 	post : function() {
 		var textarea = this.txt;
@@ -79,5 +88,15 @@ $A.Comment = Ext.extend($A.Component, {
 	},
 	onPostFailure : function() {
 		$A.Masker.unmask(this.wrap);
+	},
+	cover : function(){
+		this.loginMasker = new Ext.Template(this.maskTpl).append(this.wrap.query('.comment-post-txt')[0],{'registerurl':this.registerurl},true);
+		var width = this.txt.wrap.getWidth(),height = this.txt.wrap.getHeight(),
+			login = this.loginMasker.child('.comment-login');
+		this.loginMasker.setWidth(width);
+		this.loginMasker.setHeight(height);
+		var xy = this.txt.wrap.getXY();
+		this.loginMasker.moveTo(xy[0],xy[1]);
+		login.moveTo(xy[0]+(width-login.getWidth())/2,xy[1]+(height-login.getHeight())/2);
 	}
 })
