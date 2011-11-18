@@ -7,7 +7,7 @@ $A.Comment = Ext.extend($A.Component, {
 	maskTpl : [
 		"<div class='comment-login-mask' >",
 		"<div unselectable='on' class='comment-mask'></div>",
-		"<div unselectable='on' class='comment-login'><p>匿名用户不能发表评论</p><p><a>登录</a> | <a href='{registerurl}'>注册</a></p></div>",
+		"<div unselectable='on' class='comment-login' style='font-size:14px;'><p>匿名用户不能发表评论</p><p><a >登录</a> | <a href='{registerurl}'>注册</a></p></div>",
 		"</div>"
 	],
 	initComponent : function(config) {
@@ -96,7 +96,7 @@ $A.Comment = Ext.extend($A.Component, {
 		this.loginMasker.setWidth(width);
 		this.loginMasker.setHeight(height);
 		var xy = this.txt.wrap.getXY();
-		this.loginMasker.moveTo(xy[0],xy[1]);
+		//this.loginMasker.moveTo(xy[0],xy[1]);
 		login.moveTo(xy[0]+(width-login.getWidth())/2,xy[1]+(height-login.getHeight())/2);
 	}
 })

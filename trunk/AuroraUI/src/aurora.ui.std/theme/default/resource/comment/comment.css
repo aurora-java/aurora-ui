@@ -25,7 +25,9 @@
 .comment-nick {
 	color: #818181;
 }
-
+.comment-post-txt {
+    position:relative;
+}
 .comment-txt,.comment-bar,.comment-post,.comment-post-txt,.comment-post-btn
 	{
 	margin-top: 10px;
@@ -40,18 +42,18 @@
 }
 .comment-login-mask {
 	position: absolute;
+	top:0px;
+	left:0px;
 }
 .comment-login-mask .comment-mask{
 	width: 100%;
 	height: 100%;
-	opacity:0.2;
-	filter: alpha(opacity = 20);
-	background-color: #000000;
 }
 .comment-login-mask .comment-login{
-	padding:25px;
+	width:200px;
+	padding:20px;
 	position: absolute;
 	background: #ffffff;
-	border: 1px solid #000000;
+	border: 1px solid #808080;
 	text-align: center;
 }
