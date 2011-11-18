@@ -11,7 +11,7 @@ $A.Comment = Ext.extend($A.Component, {
 	maskTpl : [
 			"<div class='comment-login-mask' >",
 			"<div unselectable='on' class='comment-mask'></div>",
-			"<div unselectable='on' class='comment-login' style='font-size:14px;'><p>匿名用户不能发表评论</p><p><a href='javascript:$(\"{id}\").login()'>登录</a> | <a href='javascript:$(\"{id}\").register()'>注册</a></p></div>",
+			"<div unselectable='on' class='comment-login'><p>匿名用户不能发表评论</p><p><a href='javascript:$(\"{id}\").login()'>登录</a> | <a href='javascript:$(\"{id}\").register()'>注册</a></p></div>",
 			"</div>"],
 	initComponent : function(config) {
 		$A.Comment.superclass.initComponent.call(this, config);
@@ -56,18 +56,18 @@ $A.Comment = Ext.extend($A.Component, {
 	remove : function(commentId) {
 		var sf = this;
 		$A.showConfirm("删除", "是否确定删除？", function() {
-					$A.Masker.mask(sf.wrap, "正在删除...");
-					$A.request({
-								url : sf.submiturl + "/delete",
-								para : {
-									"comment_id" : commentId
-								},
-								success : sf.onRemoveSuccess,
-								failure : sf.onPostFailure,
-								error : sf.onPostFailure,
-								scope : sf
-							})
-				});
+			$A.Masker.mask(sf.wrap, "正在删除...");
+			$A.request({
+				url : sf.submiturl + "/delete",
+				para : {
+					"comment_id" : commentId
+				},
+				success : sf.onRemoveSuccess,
+				failure : sf.onPostFailure,
+				error : sf.onPostFailure,
+				scope : sf
+			})
+		});
 	},
 	onPostSuccess : function(res) {
 		this.txt.setValue('');
@@ -77,13 +77,13 @@ $A.Comment = Ext.extend($A.Component, {
 			this.list = this.content.child("ol.comment-list")
 		}
 		new Ext.Template(this.tpl).append(this.list.dom, {
-					"author" : this.username,
-					"date" : new Date().format("yyyy年mm月dd日 HH:MM"),
-					"content" : r["content"].replace(/&/mg, "&amp;").replace(
-							/</mg, "&lt;").replace(/>/mg, "&gt;"),
-					"id" : this.id,
-					"commentid" : r["comment_id"]
-				});
+			"author" : this.username,
+			"date" : new Date().format("yyyy年mm月dd日 HH:MM"),
+			"content" : r["content"].replace(/&/mg, "&amp;").replace(
+					/</mg, "&lt;").replace(/>/mg, "&gt;"),
+			"id" : this.id,
+			"commentid" : r["comment_id"]
+		});
 		this.count.update(Number(this.count.dom.innerHTML) + 1);
 		$A.Masker.unmask(this.wrap);
 	},
@@ -103,6 +103,9 @@ $A.Comment = Ext.extend($A.Component, {
 	cover : function() {
 		this.loginMasker = new Ext.Template(this.maskTpl).append(this.wrap
 				.query('.comment-post-txt')[0], {'id':this.id}, true);
+		var width = this.txt.wrap.getWidth(),height = this.txt.wrap.getHeight(),
+			xy = this.txt.wrap.getXY(),login = this.loginMasker.child('.comment-login');
+		login.moveTo(xy[0] + (width - login.getWidth())/2,xy[1] + (height - login.getHeight())/2);
 	},
 	login : function(){
 		this.fireEvent('login',this);

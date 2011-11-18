@@ -52,12 +52,11 @@
 	height: 100%;
 }
 .comment-login-mask .comment-login{
-	left:33%;
-	top:10%;
 	width:200px;
 	padding:20px;
 	position: absolute;
 	background: #ffffff;
 	border: 1px solid #808080;
 	text-align: center;
+	font-size:14px;
 }
