@@ -1,24 +1,34 @@
 $A.Comment = Ext.extend($A.Component, {
-	tpl : ["<li id='{id}_{commentid}' class='comment-li'>", "<div>", "<div class='comment-nick'>",
+	tpl : [
+			"<li id='{id}_{commentid}' class='comment-li'>",
+			"<div>",
+			"<div class='comment-nick'>",
 			"<cite>{author}</cite> <span>留言于：{date}</span></div>",
-			"<div class='comment-txt'>{content}</div>", "</div>",
-			"<div class='comment-bar'><a href='javascript:$(\"{id}\").remove(\"{commentid}\")'>删除</a></div>", "</div>",
-			"</li>"],
+			"<div class='comment-txt'>{content}</div>",
+			"</div>",
+			"<div class='comment-bar'><a href='javascript:$(\"{id}\").remove(\"{commentid}\")'>删除</a></div>",
+			"</div>", "</li>"],
 	maskTpl : [
-		"<div class='comment-login-mask' >",
-		"<div unselectable='on' class='comment-mask'></div>",
-		"<div unselectable='on' class='comment-login' style='font-size:14px;'><p>匿名用户不能发表评论</p><p><a >登录</a> | <a href='{registerurl}'>注册</a></p></div>",
-		"</div>"
-	],
+			"<div class='comment-login-mask' >",
+			"<div unselectable='on' class='comment-mask'></div>",
+			"<div unselectable='on' class='comment-login' style='font-size:14px;'><p>匿名用户不能发表评论</p><p><a href='javascript:$(\"{id}\").login()'>登录</a> | <a href='javascript:$(\"{id}\").register()'>注册</a></p></div>",
+			"</div>"],
 	initComponent : function(config) {
 		$A.Comment.superclass.initComponent.call(this, config);
 		this.txt = $(this.id + "_txt");
 		this.count = this.wrap.child("span[atype=count]");
 		this.content = this.wrap.child("div.comment-content");
 		this.list = this.content.child("ol.comment-list");
-		if(this.registerurl){
+		if (!this.username) {
 			this.cover();
 		}
+	},
+	processListener : function(ou){
+		$A.Comment.superclass.processListener.call(this, ou);
+	},
+	initEvents : function(){
+		$A.Comment.superclass.initEvents.call(this);
+		this.addEvents('register','login');
 	},
 	post : function() {
 		var textarea = this.txt;
@@ -43,21 +53,21 @@ $A.Comment = Ext.extend($A.Component, {
 			scope : this
 		})
 	},
-	remove : function(commentId){
+	remove : function(commentId) {
 		var sf = this;
-		$A.showConfirm("删除","是否确定删除？",function(){
-			$A.Masker.mask(sf.wrap, "正在删除...");
-			$A.request({
-				url : sf.submiturl + "/delete",
-				para : {
-					"comment_id" : commentId
-				},
-				success : sf.onRemoveSuccess,
-				failure : sf.onPostFailure,
-				error : sf.onPostFailure,
-				scope : sf
-			})
-		});
+		$A.showConfirm("删除", "是否确定删除？", function() {
+					$A.Masker.mask(sf.wrap, "正在删除...");
+					$A.request({
+								url : sf.submiturl + "/delete",
+								para : {
+									"comment_id" : commentId
+								},
+								success : sf.onRemoveSuccess,
+								failure : sf.onPostFailure,
+								error : sf.onPostFailure,
+								scope : sf
+							})
+				});
 	},
 	onPostSuccess : function(res) {
 		this.txt.setValue('');
@@ -67,20 +77,21 @@ $A.Comment = Ext.extend($A.Component, {
 			this.list = this.content.child("ol.comment-list")
 		}
 		new Ext.Template(this.tpl).append(this.list.dom, {
-			"author" : this.username,
-			"date" : new Date().format("yyyy年mm月dd日 HH:MM"),
-			"content" : r["content"].replace(/&/mg,"&amp;").replace(/</mg,"&lt;").replace(/>/mg,"&gt;"),
-			"id" : this.id,
-			"commentid" : r["comment_id"]
-		});
-		this.count.update(Number(this.count.dom.innerHTML)+1);
+					"author" : this.username,
+					"date" : new Date().format("yyyy年mm月dd日 HH:MM"),
+					"content" : r["content"].replace(/&/mg, "&amp;").replace(
+							/</mg, "&lt;").replace(/>/mg, "&gt;"),
+					"id" : this.id,
+					"commentid" : r["comment_id"]
+				});
+		this.count.update(Number(this.count.dom.innerHTML) + 1);
 		$A.Masker.unmask(this.wrap);
 	},
-	onRemoveSuccess : function(res){
+	onRemoveSuccess : function(res) {
 		var id = this.id + "_" + res.result["comment_id"];
-		this.count.update(Number(this.count.dom.innerHTML)-1);
+		this.count.update(Number(this.count.dom.innerHTML) - 1);
 		Ext.get(id).remove();
-		if(null == this.content.child("li")){
+		if (null == this.content.child("li")) {
 			this.content.update("<p class='comment-li'>暂时没有评论。</p>");
 			this.list = null;
 		}
@@ -89,14 +100,14 @@ $A.Comment = Ext.extend($A.Component, {
 	onPostFailure : function() {
 		$A.Masker.unmask(this.wrap);
 	},
-	cover : function(){
-		this.loginMasker = new Ext.Template(this.maskTpl).append(this.wrap.query('.comment-post-txt')[0],{'registerurl':this.registerurl},true);
-		var width = this.txt.wrap.getWidth(),height = this.txt.wrap.getHeight(),
-			login = this.loginMasker.child('.comment-login');
-		this.loginMasker.setWidth(width);
-		this.loginMasker.setHeight(height);
-		var xy = this.txt.wrap.getXY();
-		//this.loginMasker.moveTo(xy[0],xy[1]);
-		login.moveTo(xy[0]+(width-login.getWidth())/2,xy[1]+(height-login.getHeight())/2);
+	cover : function() {
+		this.loginMasker = new Ext.Template(this.maskTpl).append(this.wrap
+				.query('.comment-post-txt')[0], {'id':this.id}, true);
+	},
+	login : function(){
+		this.fireEvent('login',this);
+	},
+	register : function(){
+		this.fireEvent('register',this);
 	}
 })
