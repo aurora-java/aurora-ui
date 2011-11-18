@@ -402,6 +402,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     preLoad : function(){},
     onLoad : function(){
+    	this.wrap.removeClass('grid-select-all');
     	this.clearDomRef();
     	this.preLoad();
         var cb = Ext.fly(this.wrap).child('div[atype=grid.headcheck]');
@@ -521,6 +522,9 @@ $A.Grid = Ext.extend($A.Component,{
                     if(col.type == 'rowcheck') {
                         Ext.fly(td).set({'recordid':record.id,'atype':'grid.rowcheck'})
                         td.className = 'grid-rowbox';
+                        if(this.isSelectAll){
+                        	td.className += ' item-ckb-self';
+                        }
                     }else if(col.type == 'rowradio'){
                     	Ext.fly(td).set({'recordid':record.id,'atype':'grid.rowradio'})
                         td.className = 'grid-rowbox';
@@ -754,10 +758,10 @@ $A.Grid = Ext.extend($A.Component,{
             }else if(atype=='grid.rowcheck'){               
                 var cb = Ext.get(this.id+'__'+rid);
                 if(cb.hasClass('item-ckb-readonly-u')||cb.hasClass('item-ckb-readonly-c'))return;
-                if(this.isSelectAll && !cb.parent('item-ckb-self')){
+                if(this.isSelectAll && !cb.parent('.item-ckb-self')){
                 	cb.replaceClass('item-ckb-u','item-ckb-c');	
                 }
-				if(this.isUnselectAll && !cb.parent('item-ckb-self')){
+				if(this.isUnselectAll && !cb.parent('.item-ckb-self')){
             		cb.replaceClass('item-ckb-c','item-ckb-u');	
                 }
                 Ext.fly(cb.findParent('.grid-rowbox')).addClass('item-ckb-self');
