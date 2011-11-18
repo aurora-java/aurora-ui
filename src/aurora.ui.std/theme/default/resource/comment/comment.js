@@ -23,13 +23,6 @@ $A.Comment = Ext.extend($A.Component, {
 			this.cover();
 		}
 	},
-	processListener : function(ou){
-		$A.Comment.superclass.processListener.call(this, ou);
-	},
-	initEvents : function(){
-		$A.Comment.superclass.initEvents.call(this);
-		this.addEvents('register','login');
-	},
 	post : function() {
 		var textarea = this.txt;
 		var txt = textarea.value;
@@ -108,9 +101,9 @@ $A.Comment = Ext.extend($A.Component, {
 		login.moveTo(xy[0] + (width - login.getWidth())/2,xy[1] + (height - login.getHeight())/2);
 	},
 	login : function(){
-		this.fireEvent('login',this);
+		this.loginhandler.call(window);
 	},
 	register : function(){
-		this.fireEvent('register',this);
+		this.registerhandler.call(window);
 	}
 })
