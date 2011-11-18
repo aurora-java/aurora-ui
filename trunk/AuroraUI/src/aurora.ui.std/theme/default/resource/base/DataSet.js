@@ -379,6 +379,18 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */
             'unselect',
             /**
+             * @event selectall
+             * 选择数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */ 
+            'selectall',
+            /**
+             * @event unselectall
+             * 取消选择数据事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+            'unselectall',
+            /**
              * @event reject
              * 数据重置事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
@@ -802,8 +814,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     selectAll : function(){
         for(var i=0,l=this.data.length;i<l;i++){
             if(!this.execSelectFunction(this.data[i]))continue;
-            this.select(this.data[i]);
+            this.select(this.data[i],true);
         }
+        this.fireEvent('selectall', this , this.selected);
     },
     /**
      * 取消所有选择.
@@ -811,14 +824,15 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     unSelectAll : function(){
         for(var i=0,l=this.data.length;i<l;i++){
             if(!this.execSelectFunction(this.data[i]))continue;
-            this.unSelect(this.data[i]);
+            this.unSelect(this.data[i],true);
         }
+        this.fireEvent('unselectall', this , this.selected);
     },
     /**
      * 选择某个record.
      * @param {Aurora.Record} record 需要选择的record.
      */
-    select : function(r){
+    select : function(r,notFire){
         if(!this.selectable)return;
         if(typeof(r) == 'string'||typeof(r) == 'number') r = this.findById(r);
         if(!r) return;
@@ -827,7 +841,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(this.fireEvent("beforeselect",this,r)){
             if(this.selectionmodel == 'multiple'){
                 this.selected.add(r);
-                this.fireEvent('select', this, r);
+                if(!notFire)this.fireEvent('select', this, r);
             }else{
                 var or = this.selected[0];
                 this.unSelect(or);
@@ -841,13 +855,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 取消选择某个record.
      * @param {Aurora.Record} record 需要取消选择的record.
      */
-    unSelect : function(r){
+    unSelect : function(r,notFire){
         if(!this.selectable)return;
         if(typeof(r) == 'string'||typeof(r) == 'number') r = this.findById(r);
         if(!r) return;
         if(this.selected.indexOf(r) == -1) return;
         this.selected.remove(r);
-        this.fireEvent('unselect', this, r);
+        if(!notFire)this.fireEvent('unselect', this, r);
     },
     execSelectFunction:function(r){
         if(this.selectfunction){
