@@ -192,7 +192,7 @@ $A.Window = Ext.extend($A.Component,{
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap" style="width:{width}px;" cellSpacing="0" cellPadding="0" border="0" {url}>',
+            '<TABLE class="win-wrap" style="left:-1000px;top:-1000px;width:{width}px;" cellSpacing="0" cellPadding="0" border="0" {url}>',
 			'<TBODY>',
 			'<TR style="height:23px;" >',
 				'<TD class="win-caption">',
