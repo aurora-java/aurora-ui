@@ -1,26 +1,22 @@
-.item-comment {
-	background-color: #F7F7F7;
-	padding-bottom: 15px;
+.comments {
+	background-color: #F4F4F4;
+	padding: 10px;
 }
-
-.comment-title {
-	background: url("../toolbar/toolbar_bg.gif") repeat-x scroll 0 0
-		transparent;
-	color: #055A78;
-	height: 25px;
-	line-height: 25px;
-	padding-left: 5px;
-	border: 1px solid #CCCCCC;
+.comments h3 {
+    font-family:Tahoma, Arial, Verdana;
+    font-size:16px;
+    color:#222222;
 }
 
 .comment-list {
+	background-color:#fff;
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
 .comment-li {
-	margin: 0;
+	margin: 5px;
 	padding: 15px 10px;
 	line-height: 140%;
 	border-bottom: 1px dashed #CCCCCC;
@@ -30,13 +26,9 @@
 	color: #818181;
 }
 
-.comment-post {
-	padding: 0 10px;
-}
-
 .comment-txt,.comment-bar,.comment-post,.comment-post-txt,.comment-post-btn
 	{
-	margin-top: 15px;
+	margin-top: 10px;
 }
 .comment-txt{
 	white-space: pre-wrap;
