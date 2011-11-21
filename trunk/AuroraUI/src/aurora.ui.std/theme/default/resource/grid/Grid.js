@@ -683,6 +683,7 @@ $A.Grid = Ext.extend($A.Component,{
     onSelect : function(ds,record,isSelectAll){
         if(!record||isSelectAll)return;
         var cb = Ext.get(this.id+'__'+record.id);
+        Ext.fly(cb.findParent('.grid-rowbox')).addClass('item-ckb-self');
         if(cb){
 	        if(this.selectable && this.selectionmodel=='multiple') {
 	            this.setCheckBoxStatus(cb, true);
@@ -697,6 +698,7 @@ $A.Grid = Ext.extend($A.Component,{
     onUnSelect : function(ds,record,isSelectAll){
         if(!record||isSelectAll)return;
         var cb = Ext.get(this.id+'__'+record.id);
+        Ext.fly(cb.findParent('.grid-rowbox')).addClass('item-ckb-self');
         if(cb){
 	        if(this.selectable && this.selectionmodel=='multiple') {
 	            this.setCheckBoxStatus(cb, false);
@@ -764,7 +766,6 @@ $A.Grid = Ext.extend($A.Component,{
 				if(this.isUnselectAll && !cb.parent('.item-ckb-self')){
             		cb.replaceClass('item-ckb-c','item-ckb-u');	
                 }
-                Ext.fly(cb.findParent('.grid-rowbox')).addClass('item-ckb-self');
                 var checked = cb.hasClass('item-ckb-c');
                 (checked) ? this.dataset.unSelect(rid) : this.dataset.select(rid);
             }else if(atype=='grid.rowradio'){
