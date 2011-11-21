@@ -680,8 +680,8 @@ $A.Grid = Ext.extend($A.Component,{
         }
         return index;
     },
-    onSelect : function(ds,record){
-        if(!record)return;
+    onSelect : function(ds,record,isSelectAll){
+        if(!record||isSelectAll)return;
         var cb = Ext.get(this.id+'__'+record.id);
         if(cb){
 	        if(this.selectable && this.selectionmodel=='multiple') {
@@ -694,8 +694,8 @@ $A.Grid = Ext.extend($A.Component,{
 	        }
         }
     },
-    onUnSelect : function(ds,record){
-        if(!record)return;
+    onUnSelect : function(ds,record,isSelectAll){
+        if(!record||isSelectAll)return;
         var cb = Ext.get(this.id+'__'+record.id);
         if(cb){
 	        if(this.selectable && this.selectionmodel=='multiple') {
