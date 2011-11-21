@@ -2189,7 +2189,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 选择某个record.
      * @param {Aurora.Record} record 需要选择的record.
      */
-    select : function(r,notFire){
+    select : function(r,isSelectAll){
         if(!this.selectable)return;
         if(typeof(r) == 'string'||typeof(r) == 'number') r = this.findById(r);
         if(!r) return;
@@ -2198,7 +2198,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(this.fireEvent("beforeselect",this,r)){
             if(this.selectionmodel == 'multiple'){
                 this.selected.add(r);
-                if(!notFire)this.fireEvent('select', this, r);
+                this.fireEvent('select', this, r , isSelectAll);
             }else{
                 var or = this.selected[0];
                 this.unSelect(or);
@@ -2212,13 +2212,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 取消选择某个record.
      * @param {Aurora.Record} record 需要取消选择的record.
      */
-    unSelect : function(r,notFire){
+    unSelect : function(r,isSelectAll){
         if(!this.selectable)return;
         if(typeof(r) == 'string'||typeof(r) == 'number') r = this.findById(r);
         if(!r) return;
         if(this.selected.indexOf(r) == -1) return;
         this.selected.remove(r);
-        if(!notFire)this.fireEvent('unselect', this, r);
+        this.fireEvent('unselect', this, r , isSelectAll);
     },
     execSelectFunction:function(r){
         if(this.selectfunction){
