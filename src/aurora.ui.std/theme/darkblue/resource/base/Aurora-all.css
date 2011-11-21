@@ -277,7 +277,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	float:left;
 	margin-top: 4px;
 }
-.grid-select-all .item-ckb-u,.grid-select-all .item-ckb-c{
+.grid-select-all .grid-rowbox .item-ckb-u,.grid-select-all .grid-rowbox .item-ckb-c{
 	background-position:0 -13px;
 }
 .grid-select-all .item-ckb-self .item-ckb-u{
