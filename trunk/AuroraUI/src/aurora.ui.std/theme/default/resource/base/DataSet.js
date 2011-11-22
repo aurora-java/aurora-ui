@@ -46,9 +46,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.initEvents();
         if(config.fields)this.initFields(config.fields)
         if(config.datas && config.datas.length != 0) {
-            this.datas=config.datahead?this.convertData(config.datahead,config.datas):config.datas;
+            var datas=config.datahead?this.convertData(config.datahead,config.datas):config.datas;
             this.autocount = false;
-            this.loadData(this.datas);
+            this.loadData(datas);
             //this.locate(this.currentIndex); //不确定有没有影响
         }
         if(config.autoquery === true) {
@@ -475,7 +475,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
             var record = new $A.Record(data,datas[i].field);
             record.setDataSet(this);
-            this.data.add(record);
+            this.data.push(record);
         }
 //        if(this.sortInfo) this.sort();
         
@@ -548,7 +548,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         for(var k = 0,l=records.length;k<l;k++){
             var record = records[k];
             if(record.isNew == true){
-                news.add(record);
+                news.push(record);
             }
         }
         return news;
@@ -846,7 +846,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 var or = this.selected[0];
                 this.unSelect(or);
                 this.selected = []
-                this.selected.add(r);
+                this.selected.push(r);
                 this.fireEvent('select', this, r);
             }
         }
@@ -1537,13 +1537,13 @@ $A.Record.prototype = {
         var names = [];
         for(var k in df){
             if(df[k].type !='dataset')
-            names.add(k);
+            names.push(k);
         }
         
         for(var k in rf){
             if(names.indexOf(k) == -1){
                 if(rf[k].type !='dataset')
-                names.add(k);
+                names.push(k);
             }
         }
         for(var i=0,l=names.length;i<l;i++){
