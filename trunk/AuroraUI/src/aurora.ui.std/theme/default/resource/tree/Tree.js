@@ -747,8 +747,9 @@ $A.Tree.TreeNode.prototype={
 		}else{
 			this.checked=checked;
 		}
-		if(!this.isRoot())
-        this.record.set(this.getOwnerTree().checkfield, (this.checked==1||this.checked==2) ? "Y" : "N");
+		if(this.isRoot() && this.showRoot == false){}else{
+            this.record.set(this.getOwnerTree().checkfield, (this.checked==1||this.checked==2) ? "Y" : "N");
+        }
 		this.paintCheckboxImg();
 	},
 	setCheck : function(cked){
