@@ -61,7 +61,7 @@ $A.Grid = Ext.extend($A.Component,{
         this.wrap[ou]("mouseover", this.onMouseOver, this);
         this.wrap[ou]("mouseout", this.onMouseOut, this);
         this.wrap[ou]('click',this.focus,this);
-        if(!this.canwheel === false){
+        if(!(this.canwheel === false)){
         	this.wb[ou]('mousewheel',this.onMouseWheel,this);
         }
         this.fs[ou](Ext.isOpera ? "keypress" : "keydown", this.handleKeyDown,  this);
