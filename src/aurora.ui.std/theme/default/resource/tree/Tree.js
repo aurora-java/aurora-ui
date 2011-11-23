@@ -108,30 +108,32 @@ $A.Tree = Ext.extend($A.Component,{
         if(node){
             var parent = node.parentNode;
             if(parent){
-                this.focusNode = (this.focusNode == parent ? null : this.focusNode);
+                //this.focusNode = (this.focusNode == parent ? null : this.focusNode);
                 this.unregisterNode(node,true);
                 parent.removeChild(node);
-                var index = -1;
-                for(var i=0;i<parent.data.children.length;i++){
-                    var item = parent.data.children[i];
-                    if(item.record.id == record.id){
-                        index = i;
-                        break;
-                    }
-                }
-                if(index != -1){
-                    var data = parent.data;
-                    data.children.remove(parent.data.children[index]);
-                    var ds = record.ds;
-                    if(data.children[index-1]&&data.children[index-1].record) {
-                        ds.locate(ds.indexOf(data.children[index-1].record)+1);
-                    }else {
-                        if(data.children[index]&&data.children[index].record) {
-                            ds.locate(ds.indexOf(data.children[index].record)+1);
-                        }else{
-                            ds.locate(ds.indexOf(parent.record)+1);
-                        }
-                    }
+                if(!this.focusNode || this.focusNode === node){
+	                var index = -1;
+	                for(var i=0;i<parent.data.children.length;i++){
+	                    var item = parent.data.children[i];
+	                    if(item.record.id == record.id){
+	                        index = i;
+	                        break;
+	                    }
+	                }
+	                if(index != -1){
+	                    var data = parent.data;
+	                    data.children.remove(parent.data.children[index]);
+	                    var ds = record.ds;
+	                    if(data.children[index-1]&&data.children[index-1].record) {
+	                        ds.locate(ds.indexOf(data.children[index-1].record)+1);
+	                    }else {
+	                        if(data.children[index]&&data.children[index].record) {
+	                            ds.locate(ds.indexOf(data.children[index].record)+1);
+	                        }else{
+	                            ds.locate(ds.indexOf(parent.record)+1);
+	                        }
+	                    }
+	                }
                 }
             }
         }
