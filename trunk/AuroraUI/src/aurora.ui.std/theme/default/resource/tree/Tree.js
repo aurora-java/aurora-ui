@@ -100,7 +100,7 @@ $A.Tree = Ext.extend($A.Component,{
 				break;
 			}
 		}
-		if(!pnode)return;
+		if(!pnode)pnode = this.root;
 		pnode.appendChild(this.createTreeNode(this.createNode(record)));
 	},
     onRemove : function(ds,record){
