@@ -19,6 +19,8 @@ Release ()
 * 修正Chart组件在IE8以下版本，点击饼图不会移动的问题。
 * 容器布局增加labelSeparator属性，用来显示prompt后面的符号，默认":"。
 * Grid和Table组件增加属性canWheel,用来设定能否通过滚轮进行换行。
+* ComboBox增加属性fetchRecord，控制手动输入的结果是否强制和record集做匹配
+* Field增加editable属性，控制输入控件是否可输入，该属性和readonly区别在与readonly下的lov和combobox的按钮无法点击
 
 Release (2011-08-16)
 ------------------------------------

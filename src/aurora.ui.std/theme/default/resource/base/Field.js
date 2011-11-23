@@ -101,6 +101,7 @@ $A.Field = Ext.extend($A.Component,{
     initStatus : function(){
     	this.clearInvalid();
     	this.initRequired(this.required);
+    	this.initEditable(this.editable);
     	this.initReadOnly(this.readonly);
     	this.initMaxLength(this.maxlength);
     },
@@ -230,6 +231,9 @@ $A.Field = Ext.extend($A.Component,{
     	}else{
     		this.wrap.removeClass(this.requiredCss);
     	}
+    },
+    initEditable : function(editable){
+    	this.el.dom.readOnly = editable === false;
     },
     initReadOnly : function(readonly){
     	if(this.currentReadOnly == readonly)return;
