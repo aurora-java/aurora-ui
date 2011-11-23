@@ -233,6 +233,8 @@ $A.Field = Ext.extend($A.Component,{
     	}
     },
     initEditable : function(editable){
+    	if(this.currentEditable == editable)return;
+    	this.currentEditable = editable;
     	this.el.dom.readOnly = editable === false;
     },
     initReadOnly : function(readonly){
