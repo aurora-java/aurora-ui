@@ -68,7 +68,7 @@ $A.Tree = Ext.extend($A.Component,{
 	    	ds[ou]('load', this.onLoad, this);
 	    	ds[ou]('indexchange', this.onIndexChange, this);
 //			ds[ou]('metachange', this.onRefresh, this);
-//	    	ds[ou]('add', this.onAdd, this);
+	    	ds[ou]('add', this.onAdd, this);
 //	    	ds[ou]('valid', this.onValid, this);
 	    	ds[ou]('remove', this.onRemove, this);
 //	    	ds[ou]('clear', this.onLoad, this);
@@ -87,6 +87,21 @@ $A.Tree = Ext.extend($A.Component,{
     	Ext.onReady(function(){
             sf.onLoad();
         })
+	},
+	onAdd : function(ds,record){
+		var records = this.dataset.getAll();
+		var pid = record.get(this.parentfield);
+		if(Ext.isEmpty(pid))return;
+		var pnode;
+		for(var i = 0,l=records.length;i<l;i++){
+			var r = records[i];
+			if(r.get(this.idfield) === pid){
+				pnode = this.getNodeById(r.id);
+				break;
+			}
+		}
+		if(!pnode)return;
+		pnode.appendChild(this.createTreeNode(this.createNode(record)));
 	},
     onRemove : function(ds,record){
         var node = this.getNodeById(record.id)
