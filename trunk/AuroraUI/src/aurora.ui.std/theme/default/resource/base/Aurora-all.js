@@ -3686,8 +3686,8 @@ $A.Field = Ext.extend($A.Component,{
     initStatus : function(){
     	this.clearInvalid();
     	this.initRequired(this.required);
-    	this.initEditable(this.editable);
     	this.initReadOnly(this.readonly);
+    	this.initEditable(this.editable);
     	this.initMaxLength(this.maxlength);
     },
 //    onMouseOver : function(e){
@@ -3818,9 +3818,7 @@ $A.Field = Ext.extend($A.Component,{
     	}
     },
     initEditable : function(editable){
-    	if(this.currentEditable == editable)return;
-    	this.currentEditable = editable;
-    	this.el.dom.readOnly = editable === false;
+    	this.el.dom.readOnly = this.readonly? true :(editable === false);
     },
     initReadOnly : function(readonly){
     	if(this.currentReadOnly == readonly)return;
