@@ -191,7 +191,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			mw = Math.max(mw,width)||mw;
 		}
 		this.popup.setWidth(mw);
-		var lh = Math.min(this.popup.child('ul').getHeight()+2,this.maxHeight); 
+		var lh = Math.min(this.popup.child('ul').getHeight()+4,this.maxHeight); 
 		this.popup.setHeight(lh<20?20:lh);
     	this.shadow.setWidth(mw);
     	this.shadow.setHeight(lh<20?20:lh);
