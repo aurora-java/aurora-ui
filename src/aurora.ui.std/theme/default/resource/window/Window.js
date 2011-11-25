@@ -83,7 +83,7 @@ $A.Window = Ext.extend($A.Component,{
         sf.closeBtn = sf.wrap.child('div[atype=window.close]');
         if(sf.draggable) sf.initDraggable();
         if(!sf.closeable)sf.closeBtn.hide();
-        if(Ext.isEmpty(config.x)||Ext.isEmpty(config.y)){
+        if(Ext.isEmpty(config.x)||Ext.isEmpty(config.y)||sf.fullScreen){
             sf.center();
         }else{
             sf.move(config.x,config.y);
@@ -162,7 +162,7 @@ $A.Window = Ext.extend($A.Component,{
 //        this.shadow.setHeight(this.wrap.getHeight());
         if(this.fullScreen){
         	x=sl;y=st;
-            this.move(x,y,false);
+            this.move(x,y,true);
         	this.shadow.moveTo(x,y)
         }else {
             this.move(x,y)
