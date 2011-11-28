@@ -143,5 +143,8 @@ $A.MultiLov = Ext.extend($A.Lov,{
             this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30)+"&innergridwidth="+Math.round(((this.lovwidth||400)-90)/2), height:this.lovheight||400,width:this.lovwidth||400});
             this.win.on('close',this.onWinClose,this);
         }
+    },
+    destroy : function(){
+        $A.Lov.superclass.destroy.call(this);
     }
 });
