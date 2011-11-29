@@ -4999,7 +4999,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			mw = Math.max(mw,width)||mw;
 		}
 		this.popup.setWidth(mw);
-		var lh = Math.min(this.popup.child('ul').getHeight()+2,this.maxHeight); 
+		var lh = Math.min(this.popup.child('ul').getHeight()+4,this.maxHeight); 
 		this.popup.setHeight(lh<20?20:lh);
     	this.shadow.setWidth(mw);
     	this.shadow.setHeight(lh<20?20:lh);
@@ -6091,7 +6091,7 @@ $A.Window = Ext.extend($A.Component,{
         sf.closeBtn = sf.wrap.child('div[atype=window.close]');
         if(sf.draggable) sf.initDraggable();
         if(!sf.closeable)sf.closeBtn.hide();
-        if(Ext.isEmpty(config.x)||Ext.isEmpty(config.y)){
+        if(Ext.isEmpty(config.x)||Ext.isEmpty(config.y)||sf.fullScreen){
             sf.center();
         }else{
             sf.move(config.x,config.y);
@@ -6170,7 +6170,7 @@ $A.Window = Ext.extend($A.Component,{
 //        this.shadow.setHeight(this.wrap.getHeight());
         if(this.fullScreen){
         	x=sl;y=st;
-            this.move(x,y,false);
+            this.move(x,y,true);
         	this.shadow.moveTo(x,y)
         }else {
             this.move(x,y)
@@ -7338,6 +7338,9 @@ $A.MultiLov = Ext.extend($A.Lov,{
             this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30)+"&innergridwidth="+Math.round(((this.lovwidth||400)-90)/2), height:this.lovheight||400,width:this.lovwidth||400});
             this.win.on('close',this.onWinClose,this);
         }
+    },
+    destroy : function(){
+        $A.Lov.superclass.destroy.call(this);
     }
 });
 /**
