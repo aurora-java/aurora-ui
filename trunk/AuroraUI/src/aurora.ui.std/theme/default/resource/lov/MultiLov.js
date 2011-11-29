@@ -50,10 +50,10 @@ $A.MultiLov = Ext.extend($A.Lov,{
     },
     commit:function(ds,lr){
         if(this.win) this.win.close();
-        var record = lr ? lr : this.record;
+        var record = lr ? lr : this.record,
+        	records=ds.getAll(),from="";
         if(record){
     		this.optionDataSet=ds;
-            var records=ds.getAll(),from="";
 	    	for(var j=0;j<records.length;j++){
 	        	if(records[j].get(this.valuefield)){
 	        		var v=records[j].get(this.valuefield);
