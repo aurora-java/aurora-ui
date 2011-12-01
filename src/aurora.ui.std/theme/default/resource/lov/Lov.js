@@ -386,10 +386,6 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     fetchRecord : function(){
         if(this.readonly == true) return;
-        if(!Ext.isEmpty(this.lovurl)){
-//            this.showLovWindow();
-            return;
-        }
         this.fetching = true;
         var v = this.getRawValue(),url;
         
@@ -412,7 +408,7 @@ $A.Lov = Ext.extend($A.TextField,{
         }
         $A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
-        if(Ext.isEmpty(v)) {
+        if(Ext.isEmpty(v) || !Ext.isEmpty(this.lovurl)) {
             this.fetching = false;
             record.isReady=true;
             $A.SideBar.enable = $A.slideBarEnable;
