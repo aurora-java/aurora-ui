@@ -7005,10 +7005,6 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     fetchRecord : function(){
         if(this.readonly == true) return;
-        if(!Ext.isEmpty(this.lovurl)){
-//            this.showLovWindow();
-            return;
-        }
         this.fetching = true;
         var v = this.getRawValue(),url;
         
@@ -7031,7 +7027,7 @@ $A.Lov = Ext.extend($A.TextField,{
         }
         $A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
-        if(Ext.isEmpty(v)) {
+        if(Ext.isEmpty(v) || !Ext.isEmpty(this.lovurl)) {
             this.fetching = false;
             record.isReady=true;
             $A.SideBar.enable = $A.slideBarEnable;
@@ -7245,10 +7241,10 @@ $A.MultiLov = Ext.extend($A.Lov,{
     },
     commit:function(ds,lr){
         if(this.win) this.win.close();
-        var record = lr ? lr : this.record;
+        var record = lr ? lr : this.record,
+        	records=ds.getAll(),from="";
         if(record){
     		this.optionDataSet=ds;
-            var records=ds.getAll(),from="";
 	    	for(var j=0;j<records.length;j++){
 	        	if(records[j].get(this.valuefield)){
 	        		var v=records[j].get(this.valuefield);
@@ -7335,7 +7331,7 @@ $A.MultiLov = Ext.extend($A.Lov,{
         }
         if(url) {
 	        this.isWinOpen = true;
-            this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30)+"&innergridwidth="+Math.round(((this.lovwidth||400)-90)/2), height:this.lovheight||400,width:this.lovwidth||400});
+            this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30)+"&innergridwidth="+Math.round(((this.lovwidth||400)-90)/2)+"&lovautoquery="+this.lovautoquery+"&lovlabelwidth="+this.lovlabelwidth, height:this.lovheight||400,width:this.lovwidth||400});
             this.win.on('close',this.onWinClose,this);
         }
     },
