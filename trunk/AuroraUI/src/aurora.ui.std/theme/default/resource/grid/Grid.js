@@ -403,6 +403,7 @@ $A.Grid = Ext.extend($A.Component,{
     preLoad : function(){},
     onLoad : function(){
     	this.wrap.removeClass('grid-select-all');
+    	this.isSelectAll = false;
     	this.clearDomRef();
     	this.preLoad();
         var cb = Ext.fly(this.wrap).child('div[atype=grid.headcheck]');
