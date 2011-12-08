@@ -21,6 +21,11 @@ _lang['dataset.validate.required'] = 'The current fields is required!';
 _lang['grid.mask.remove'] = 'Deleting...';
 _lang['grid.mask.loading'] = 'Loading...';
 _lang['grid.mask.submit'] = 'Submitting...';
+_lang['grid.remove.confirm'] = 'Confirm';
+_lang['grid.remove.confirmMsg'] = 'Are you sure to delete the selected records';
+_lang['grid.export.confirm'] = 'Export confirm';
+_lang['grid.export.confirmMsg'] = 'The export process may take a long time, continue?';
+_lang['grid.export.config'] = 'Select the columns you want to export';
 
 _lang['lov.query'] = 'Querying...';
 _lang['lov.notfound'] = 'Not Found!';

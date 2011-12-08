@@ -8,7 +8,7 @@
  * revision:$Rev$
  */
  
-.item-grid-wrap {
+.item-grid-wrap, .item-export-wrap {
     background-color: #ffffff;
     border:1px solid #cccccc;/*a4bed4*/
 }
@@ -167,4 +167,22 @@
 }
 .row-selected {
     background-color:#dfeaf5;
+}
+.export-hc {
+	border-right:1px solid #cccccc;
+	border-bottom:1px solid #cccccc;
+	color: #055a78;	
+	padding:0px;
+	text-align:center;
+	height: 25px;
+	background: url(../grid/grid_bg.gif) repeat-x;
+}
+.item-export-wrap tbody td {
+    border-bottom: 1px solid #CCCCCC;
+    border-right: 1px solid #CCCCCC;
+    padding: 1px;
+}
+.item-export-wrap td div {
+    overflow: hidden;
+    white-space: nowrap;
 }

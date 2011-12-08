@@ -1495,7 +1495,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     remove: function(){
         var selected = this.dataset.getSelected();
-        if(selected.length >0) $A.showConfirm('确认','确认删除选择记录?',this.deleteSelectRows.createDelegate(this));     
+        if(selected.length >0) $A.showConfirm(_lang['grid.remove.confirm'],_lang['grid.remove.confirmMsg'],this.deleteSelectRows.createDelegate(this));     
     },
     clear: function(){
         var selected = this.dataset.getSelected();
@@ -1504,11 +1504,46 @@ $A.Grid = Ext.extend($A.Component,{
     	}
     },
     _export : function(){
-    	var sf = this;
-    	$A.showConfirm('导出确认','导出过程可能需要花费很长时间，是否继续？',function(win){
-	    	sf.doExport();
-	       	win.close();
-    	});
+    	this.showExportConfirm();
+    },
+    showExportConfirm :function(){
+    	var sf = this,id = this.id + '_export',
+    		msg = ['<div class="item-export-wrap" style="margin:15px;width:270px" id="'+id+'">',
+    				'<div class="grid-uh" atype="grid.uh" style="width: 270px; -moz-user-select: none; text-align: left; height: 25px; cursor: default;" onselectstart="return false;" unselectable="on">',
+    				'<table width="244" cellSpacing="0" cellPadding="0" border="0"><tbody><tr height="25px">',
+					'<td class="export-hc" style="width:22px;"></td>',
+					'<td class="export-hc" style="width:222px;" atype="grid-type">列名</td>',
+					'</tr></tbody></table></div>',
+					'<div style="overflow:auto;height:205px;"><table cellSpacing="0" cellPadding="0" border="0"><tbody>'];
+			for(var i=0,l=this.columns.length;i<l;i++){
+				var c = this.columns[i],
+				prompt = this.wrap.child('td.grid-hc[dataindex='+c.name+'] div').dom.innerHTML;
+				msg.push('<tr',i%2==0?'':' class="row-alt"','><td class="grid-rowbox" style="width:22px;" rowid="',i,'" atype="export.rowcheck"><center><div id="',this.id,'__',i,'" class="grid-ckb item-ckb-',c.forexport === false?'u':'c','"></div></center></td><td><div class="grid-cell" style="width:220px">',prompt,'</div></td></tr>');	
+			}
+			msg.push('</tbody></table></div></div>');
+    	var window = $A.showOkCancelWindow(_lang['grid.export.config'],msg.join(''),function(){
+    		$A.showConfirm(_lang['grid.export.confirm'],_lang['grid.export.confirmMsg'],function(win){
+		    	sf.doExport();
+		       	win.close();
+		       	window.body.un('click',sf.onExportClick,sf);
+		       	window.close();
+	    	});
+	    	return false;
+    	},null,null,300);
+    	window.body.on('click',this.onExportClick,this);
+    },
+    onExportClick : function(e,t){
+    	var target = Ext.fly(t).findParent('td');
+        if(target){
+            var atype = target.getAttributeNS("","atype");
+            if(atype=='export.rowcheck'){               
+	            var rid =target.getAttributeNS("","rowid"),
+	            cb = Ext.get(this.id+'__'+rid),
+                checked = cb.hasClass('item-ckb-c');
+                this.setCheckBoxStatus(cb, !checked);
+                this.columns[rid].forexport = !checked;
+            }
+        }
     },
     doExport : function(){
     	var p={"parameter":{"_column_config_":{}}},columns=[],parentMap={},sf = this,
