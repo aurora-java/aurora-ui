@@ -22,6 +22,7 @@ Release ()
 * ComboBox增加属性fetchRecord，控制手动输入的结果是否强制和record集做匹配
 * Field增加editable属性，控制输入控件是否可输入，该属性和readonly区别在与readonly下的lov和combobox的按钮无法点击
 * MultiLov增加lovAutoQuery和lovLabelWidth属性
+* Grid导出增加预览导出列功能
 
 Release (2011-08-16)
 ------------------------------------
