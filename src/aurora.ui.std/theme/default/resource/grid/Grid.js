@@ -1517,7 +1517,7 @@ $A.Grid = Ext.extend($A.Component,{
 					'<div style="overflow:auto;height:205px;"><table cellSpacing="0" cellPadding="0" border="0"><tbody>'];
 			for(var i=0,l=this.columns.length;i<l;i++){
 				var c = this.columns[i],
-				prompt = this.wrap.child('td.grid-hc[dataindex='+c.name+'] div').dom.innerHTML;
+				prompt = c.name?this.wrap.child('td.grid-hc[dataindex='+c.name+'] div').dom.innerHTML:c.prompt;
 				msg.push('<tr',i%2==0?'':' class="row-alt"','><td class="grid-rowbox" style="width:22px;" rowid="',i,'" atype="export.rowcheck"><center><div id="',this.id,'__',i,'" class="grid-ckb item-ckb-',c.forexport === false?'u':'c','"></div></center></td><td><div class="grid-cell" style="width:220px">',prompt,'</div></td></tr>');	
 			}
 			msg.push('</tbody></table></div></div>');
