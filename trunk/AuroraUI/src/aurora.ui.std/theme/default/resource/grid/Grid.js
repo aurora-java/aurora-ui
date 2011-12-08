@@ -1512,7 +1512,7 @@ $A.Grid = Ext.extend($A.Component,{
     				'<div class="grid-uh" atype="grid.uh" style="width: 270px; -moz-user-select: none; text-align: left; height: 25px; cursor: default;" onselectstart="return false;" unselectable="on">',
     				'<table width="244" cellSpacing="0" cellPadding="0" border="0"><tbody><tr height="25px">',
 					'<td class="export-hc" style="width:22px;"></td>',
-					'<td class="export-hc" style="width:222px;" atype="grid-type">列名</td>',
+					'<td class="export-hc" style="width:222px;" atype="grid-type">',_lang['grid.export.column'],'</td>',
 					'</tr></tbody></table></div>',
 					'<div style="overflow:auto;height:205px;"><table cellSpacing="0" cellPadding="0" border="0"><tbody>'];
 			for(var i=0,l=this.columns.length;i<l;i++){
