@@ -26,6 +26,7 @@ _lang['grid.remove.confirmMsg'] = 'Are you sure to delete the selected records';
 _lang['grid.export.confirm'] = 'Export confirm';
 _lang['grid.export.confirmMsg'] = 'The export process may take a long time, continue?';
 _lang['grid.export.config'] = 'Select the columns you want to export';
+_lang['grid.export.column'] = 'Column name';
 
 _lang['lov.query'] = 'Querying...';
 _lang['lov.notfound'] = 'Not Found!';
