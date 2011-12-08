@@ -1511,7 +1511,7 @@ $A.Grid = Ext.extend($A.Component,{
     		msg = ['<div class="item-export-wrap" style="margin:15px;width:270px" id="'+id+'">',
     				'<div class="grid-uh" atype="grid.uh" style="width: 270px; -moz-user-select: none; text-align: left; height: 25px; cursor: default;" onselectstart="return false;" unselectable="on">',
     				'<table cellSpacing="0" cellPadding="0" border="0"><tbody><tr height="25px">',
-					'<td class="export-hc" style="width:22px;" atype="export.headcheck"><center><div class="grid-ckb item-ckb-','u','"></div></center></td>',
+					'<td class="export-hc" style="width:22px;" atype="export.rowcheck"><center><div atype="export.headcheck" class="grid-ckb item-ckb-','u','"></div></center></td>',
 					'<td class="export-hc" style="width:222px;" atype="grid-type">',_lang['grid.export.column'],'</td>',
 					'</tr></tbody></table></div>',
 					'<div style="overflow:auto;height:200px;"><table cellSpacing="0" cellPadding="0" border="0"><tbody>'],
@@ -1539,21 +1539,20 @@ $A.Grid = Ext.extend($A.Component,{
     	var target =Ext.fly(Ext.fly(t).findParent('td'));
         if(target){
             var atype = target.getAttributeNS("","atype");
+            var rid =target.getAttributeNS("","rowid");
             if(atype=='export.rowcheck'){               
-	            var rid =target.getAttributeNS("","rowid"),
-	            cb = target.child('div'),
+	            var cb = target.child('div'),
                 checked = cb.hasClass('item-ckb-c');
                 this.setCheckBoxStatus(cb, !checked);
-                this.columns[rid].forexport = !checked;
-            }else if(atype=='export.headcheck'){
-            	var cb = target.child('div'),
-            	checked = cb.hasClass('item-ckb-c');
-            	this.setCheckBoxStatus(cb, !checked);
-            	var cbs = this.exportwindow.body.query('td[atype=export.rowcheck] div');
-            	for(var i = 0,l=cbs.length;i<l;i++){
-            		this.setCheckBoxStatus(Ext.fly(cbs[i]), !checked);
-            		this.columns[i].forexport = !checked;
-            	}
+                var _atype = cb.getAttributeNS("","atype");
+                if(_atype=='export.headcheck'){
+                	var cbs = this.exportwindow.body.query('td[atype=export.rowcheck] div[atype!=export.headcheck]');
+	            	for(var i = 0,l=cbs.length;i<l;i++){
+	            		this.setCheckBoxStatus(Ext.fly(cbs[i]), !checked);
+	            		this.columns[i].forexport = !checked;
+	            	}
+                }else
+                	this.columns[rid].forexport = !checked;
             }
         }
     },
