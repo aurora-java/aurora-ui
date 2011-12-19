@@ -72,7 +72,10 @@ $A.Tab = Ext.extend($A.Component,{
 			return;
 		}
 		var activeStrip = tab.strip,activeBody = tab.body;
-		index=tab.index;
+		index=tab.index;		
+		//add by shengbo.huang @2011/12/19
+		this.selectedIndex=index;	
+		//end
 		if(activeStrip){
 			if(this.activeTab)this.activeTab.replaceClass('active','unactive');
 			this.activeTab = activeStrip;
@@ -112,7 +115,7 @@ $A.Tab = Ext.extend($A.Component,{
 		}else{
             this.fireEvent('select', this, index)
 		}
-	},
+	},	
 	stripTpl:['<div class="strip unactive"  unselectable="on" onselectstart="return false;"><div style="height:26px;width:{stripwidth2}px">'
 				,'<div class="strip-left"></div>',
 				'<div style="width:{stripwidth}px;" class="strip-center"><div class="tab-close"></div>{prompt}</div>',
