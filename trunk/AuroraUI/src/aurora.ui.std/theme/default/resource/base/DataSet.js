@@ -293,6 +293,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */
             'beforeremove',
             /**
+             * @event afterremove
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+            'afterremove',
+            /**
              * @event update
              * 数据更新事件.
              * "update", this, record, name, value
@@ -687,6 +692,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                     this.removeLocal(this.findById(data['_id']),true); 
                 }
             }
+            this.fireEvent('afterremove',this);
         }
     },
     removeLocal: function(record,count,notLocate){
@@ -880,7 +886,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Number} index 指针位置.
      */
     locate : function(index, force){
-        if(this.autocount && this.currentIndex === index && force !== true) return;
+        if(this.currentIndex === index && force !== true) return;
         if(this.fetchall == true && index > ((this.currentPage-1)*this.pagesize + this.data.length)) return;
         //对于没有autcount的,判断最后一页
         if(!this.autocount && index > ((this.currentPage-1)*this.pagesize + this.data.length) && this.data.length < this.pagesize) return;
