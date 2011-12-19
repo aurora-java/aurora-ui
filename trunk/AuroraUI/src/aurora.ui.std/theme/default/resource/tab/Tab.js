@@ -73,9 +73,7 @@ $A.Tab = Ext.extend($A.Component,{
 		}
 		var activeStrip = tab.strip,activeBody = tab.body;
 		index=tab.index;		
-		//add by shengbo.huang @2011/12/19
-		this.selectedIndex=index;	
-		//end
+		this.selectedIndex=index;			
 		if(activeStrip){
 			if(this.activeTab)this.activeTab.replaceClass('active','unactive');
 			this.activeTab = activeStrip;
