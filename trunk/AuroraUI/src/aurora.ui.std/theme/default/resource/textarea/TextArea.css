@@ -2,7 +2,7 @@
 	border:1px solid #cccccc;
 	resize: none;
 	padding:2px;
-	
+	overflow-y:auto;
 	/*
 	font-size:11px;
 	font-family: sans-serif !important;
