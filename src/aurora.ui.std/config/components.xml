@@ -30,6 +30,7 @@
         <view-component elementName="fieldSet" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.FieldSet" />
         <view-component elementName="vBox" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.VBox" />
         <view-component elementName="hBox" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.HBox" />
+        <view-component elementName="screenToolBar" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ScreenToolBar" />
         <view-component elementName="dataSet" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="grid" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
         <view-component elementName="table" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
