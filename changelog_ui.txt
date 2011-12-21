@@ -24,6 +24,7 @@ Release ()
 * MultiLov增加lovAutoQuery和lovLabelWidth属性
 * Grid导出增加预览导出列功能
 * DataSet增加aterremove事件
+* DataSet的submit和submitSelected方法增加第二个参数fields，用于提交部分fields。
 
 Release (2011-08-16)
 ------------------------------------
