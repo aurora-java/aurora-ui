@@ -981,6 +981,7 @@ SWFUpload.Console.writeLine = function (message) {
 $A.Uploader = Ext.extend($A.Component,{
     initEvents: function(){},
     destroy : function(){
+        $A.Uploader.superclass.destroy.call(this);
         var sobj = window[this.id];
         if(sobj){
            //sobj.dispose();
