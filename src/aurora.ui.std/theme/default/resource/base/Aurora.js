@@ -657,11 +657,15 @@ $A.SideBar = function(){
                 var p = '<div class="item-slideBar">'+msg+'</div>';
                 this.bar = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
                 this.bar.setStyle('z-index', 999999);
-                this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
+                var screenWidth = $A.getViewportWidth();
+                var x = Math.max(0,(screenWidth - this.bar.getWidth())/2);
+                this.bar.setX(x);
+                this.bar.fadeIn();
+//                this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
                     setTimeout(function(){
                        sf.hide();
                     }, 2000);            
-                },'easeOut','run');
+//                },'easeOut','run');
             }
         },
         hide : function(){
@@ -669,6 +673,7 @@ $A.SideBar = function(){
                 parent.hideSideBar()
             }else{
                 if(this.bar) {
+                    Ext.fly(this.bar).fadeOut();
                     Ext.fly(this.bar).remove();
                     this.bar = null;
                 }

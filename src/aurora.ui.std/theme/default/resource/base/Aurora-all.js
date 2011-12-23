@@ -657,11 +657,15 @@ $A.SideBar = function(){
                 var p = '<div class="item-slideBar">'+msg+'</div>';
                 this.bar = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
                 this.bar.setStyle('z-index', 999999);
-                this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
+                var screenWidth = $A.getViewportWidth();
+                var x = Math.max(0,(screenWidth - this.bar.getWidth())/2);
+                this.bar.setX(x);
+                this.bar.fadeIn();
+//                this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
                     setTimeout(function(){
                        sf.hide();
                     }, 2000);            
-                },'easeOut','run');
+//                },'easeOut','run');
             }
         },
         hide : function(){
@@ -669,6 +673,7 @@ $A.SideBar = function(){
                 parent.hideSideBar()
             }else{
                 if(this.bar) {
+                    Ext.fly(this.bar).fadeOut();
                     Ext.fly(this.bar).remove();
                     this.bar = null;
                 }
@@ -2520,7 +2525,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 以json格式返回当前数据集.
      * @return {Object} json 返回的json对象.
      */
-    getJsonData : function(selected){
+    getJsonData : function(selected,fields){
         var datas = [];
         var items = this.data;
         if(selected) items = this.getSelected();
@@ -2531,16 +2536,20 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             d['_id'] = r.id;
             d['_status'] = r.isNew ? 'insert' : 'update';
             for(var k in r.data){
-                var item = d[k];
-                if(item && item.xtype == 'dataset'){
-                	//if(item.data.length > 0){
-	                    var ds = new $A.DataSet({});//$(item.id);
-	                    //ds.fields = item.data[0].ds.fields;
-                    	ds.reConfig(item)
-	                    isAdd = isAdd == false ? ds.isModified() :isAdd;
-	                    d[k] = ds.getJsonData();
-                	//}
-                }
+            	if(fields && fields.indexOf(k)==-1){
+            		delete d[k];
+            	}else{
+	                var item = d[k];
+	                if(item && item.xtype == 'dataset'){
+	                	//if(item.data.length > 0){
+		                    var ds = new $A.DataSet({});//$(item.id);
+		                    //ds.fields = item.data[0].ds.fields;
+	                    	ds.reConfig(item)
+		                    isAdd = isAdd == false ? ds.isModified() :isAdd;
+		                    d[k] = ds.getJsonData();
+	                	//}
+	                }
+            	}
             }
             if(isAdd||selected){
                 datas.push(d);              
@@ -2580,13 +2589,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     /**
      * 提交选中数据.
      * @param {String} url(可选) 提交的url.
+     * @param {Array} fields(可选) 根据选定的fields提交.
      */
-    submitSelected : function(url){
+    submitSelected : function(url,fields){
         var sf=this,intervalId=setInterval(function(){
             if(!sf.isAllReady(sf.getSelected()))return;
             clearInterval(intervalId);
             if(sf.fireEvent("beforesubmit",sf)){
-                var d = sf.getJsonData(true);
+                var d = sf.getJsonData(true,fields);
                 sf.doSubmit(url,d);
             }
         },10);
@@ -2594,13 +2604,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     /**
      * 提交数据.
      * @param {String} url(可选) 提交的url.
+     * @param {Array} fields(可选) 根据选定的fields提交.
      */
-    submit : function(url){
+    submit : function(url,fields){
         var sf=this,intervalId=setInterval(function(){
             if(!sf.isAllReady(sf.getAll()))return;
             clearInterval(intervalId);
             if(sf.fireEvent("beforesubmit",sf)){
-                var d = sf.getJsonData();
+                var d = sf.getJsonData(false,fields);
                 sf.doSubmit(url,d);
             }
         },10);
