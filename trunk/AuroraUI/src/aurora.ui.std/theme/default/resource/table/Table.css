@@ -32,7 +32,8 @@
 .table-cell-editor {
 	border:1px solid #bababa;
 	margin:0;
-	height:20px;
+	height:100%;
+	min-height:20px;
 }
 .table-foot {
 	overflow: hidden;  
