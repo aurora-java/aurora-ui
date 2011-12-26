@@ -98,7 +98,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         }
     },
     isEventFromComponent:function(el){
-    	return this.wrap.contains(el)
+    	return this.wrap.contains(el)||this.wrap.dom === (el.dom?el.dom:el);
     },
     move: function(x,y){
 		this.wrap.setX(x);
