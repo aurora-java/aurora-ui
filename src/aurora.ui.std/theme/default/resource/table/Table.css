@@ -27,7 +27,9 @@
 	text-indent:3px;
 	line-height:20px;
 	height:100%;
-	text-overflow:ellipsis;
+	white-space: pre-wrap;
+	*white-space: pre;
+	*word-wrap: break-word;
 }
 .table-cell-editor {
 	border:1px solid #bababa;

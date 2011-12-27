@@ -904,7 +904,9 @@ $A.Grid = Ext.extend($A.Component,{
         }
         //enter
         if(keyCode == 13) {
-            this.showNextEditor();
+        	if(!(this.currentEditor && this.currentEditor.editor && this.currentEditor.editor instanceof $A.TextArea)){
+	            this.showNextEditor();
+        	}
         }
         //tab
         if(keyCode == 9){
