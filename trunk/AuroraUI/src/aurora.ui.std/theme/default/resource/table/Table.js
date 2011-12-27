@@ -380,6 +380,7 @@ $A.Table = Ext.extend($A.Component,{
         }
         //enter
         if(keyCode == 13) {
+        	if(!editor instanceof $A.TextArea)
             this.showNextEditor();
         }
         //tab
