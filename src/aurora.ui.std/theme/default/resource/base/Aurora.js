@@ -31,7 +31,7 @@ $A.cache = {};
 $A.cmps = {};
 $A.onReady = function(fn, scope, options){
 	if(window['__host']){
-		$A.loadEvent = new Ext.util.Event();
+		if(!$A.loadEvent)$A.loadEvent = new Ext.util.Event();
 		$A.loadEvent.addListener(fn, scope, options);
 	}else{
 		Ext.onReady(fn, scope, options);
@@ -832,6 +832,7 @@ $A.doEvalScript = function(){
         window['__host'] = null;
         $A.evaling = false;
         $A.loadEvent.fire();
+        $A.loadEvent = null;
         return;
     }
     var sf = o.sf, html=o.html, loadScripts=o.loadScripts, callback=o.callback, host=o.host;
