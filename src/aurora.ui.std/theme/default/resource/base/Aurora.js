@@ -29,7 +29,15 @@ if(Ext.isIE6)Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
 
 $A.cache = {};
 $A.cmps = {};
-$A.onReady = Ext.onReady;
+$A.onReady = function(fn, scope, options){
+	if(window['__host']){
+		$A.loadEvent = new Ext.util.Event();
+		$A.loadEvent.addListener(fn, scope, options);
+	}else{
+		Ext.onReady(fn, scope, options);
+	}
+}//Ext.onReady;
+
 $A.get = Ext.get;
 //$A.focusWindow;
 //$A.focusTab;
@@ -823,6 +831,7 @@ $A.doEvalScript = function(){
     if(!o) {
         window['__host'] = null;
         $A.evaling = false;
+        $A.loadEvent.fire();
         return;
     }
     var sf = o.sf, html=o.html, loadScripts=o.loadScripts, callback=o.callback, host=o.host;

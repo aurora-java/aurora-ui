@@ -53,7 +53,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         if(config.autoquery === true) {
             var sf = this;
-            Ext.onReady(function(){
+            $A.onReady(function(){
                sf.query(); 
             });
         }
