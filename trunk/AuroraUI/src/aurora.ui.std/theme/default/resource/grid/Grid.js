@@ -350,7 +350,8 @@ $A.Grid = Ext.extend($A.Component,{
     	
     },
     renderText : function(record,col,value){
-        var renderer = col.renderer;
+        value = $A.escapeHtml(String(value));
+    	var renderer = col.renderer;
         if(renderer){//&&!Ext.isEmpty(value)  去掉对value是否为空的判断
             var rder = $A.getRenderer(renderer);
             if(rder == null){
@@ -594,7 +595,7 @@ $A.Grid = Ext.extend($A.Component,{
             	this.renderEditor(div,record,c,editor);
             }else{
             	//考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
-                var text =  this.renderText(record,c, $A.escapeHtml(value));
+                var text =  this.renderText(record,c,value);
                 div.update(text);
             }
         }
@@ -609,7 +610,7 @@ $A.Grid = Ext.extend($A.Component,{
                         this.renderEditor(ediv,record, c, editor);
             		}
                     if(c.renderer){
-                        var text =  this.renderText(record,c, $A.escapeHtml(record.get(c.name)));
+                        var text =  this.renderText(record,c, record.get(c.name));
                         ediv.update(text);
                     }
                 }
