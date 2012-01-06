@@ -1372,6 +1372,13 @@ $A.convertMoney = function(mnum){
 	return strout;
 }
 $A.setValidInfoType('tip'); 
+
+$A.escapeHtml = function(str){
+	if(Ext.isEmpty(str))
+		return str;
+	return String(str).replace(/&/gm,'&amp;')
+	.replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
+}
 /**
  * @class Aurora.DataSet
  * @extends Ext.util.Observable
