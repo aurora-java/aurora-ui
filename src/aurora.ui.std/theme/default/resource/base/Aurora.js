@@ -831,8 +831,10 @@ $A.doEvalScript = function(){
     if(!o) {
         window['__host'] = null;
         $A.evaling = false;
-        $A.loadEvent.fire();
-        $A.loadEvent = null;
+        if($A.loadEvent){
+        	$A.loadEvent.fire();
+	        $A.loadEvent = null;
+        }
         return;
     }
     var sf = o.sf, html=o.html, loadScripts=o.loadScripts, callback=o.callback, host=o.host;
