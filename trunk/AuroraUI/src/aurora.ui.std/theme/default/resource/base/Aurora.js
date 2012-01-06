@@ -1372,3 +1372,8 @@ $A.convertMoney = function(mnum){
 	return strout;
 }
 $A.setValidInfoType('tip'); 
+
+$A.escapeHtml = function(str){
+	return str.replace(/&/gm,'&amp;')
+	.replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
+}
