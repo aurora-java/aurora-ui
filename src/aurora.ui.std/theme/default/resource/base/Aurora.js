@@ -1374,8 +1374,8 @@ $A.convertMoney = function(mnum){
 $A.setValidInfoType('tip'); 
 
 $A.escapeHtml = function(str){
-	if(typeof(str) == 'undefined' || str == null)
-		return '';
+	if(Ext.isEmpty(str))
+		return str;
 	return String(str).replace(/&/gm,'&amp;')
 	.replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
 }
