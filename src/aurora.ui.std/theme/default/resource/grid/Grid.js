@@ -350,7 +350,7 @@ $A.Grid = Ext.extend($A.Component,{
     	
     },
     renderText : function(record,col,value){
-        value = $A.escapeHtml(String(value));
+        value = $A.escapeHtml(value);
     	var renderer = col.renderer;
         if(renderer){//&&!Ext.isEmpty(value)  去掉对value是否为空的判断
             var rder = $A.getRenderer(renderer);
