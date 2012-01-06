@@ -586,7 +586,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     onUpdate : function(ds,record, name, value){
         this.setSelectStatus(record);
-        var div = Ext.get(this.id+'_'+name+'_'+record.id);
+        var div = Ext.get(this.id+'_'+name+'_'+record.id);              
         if(div){
             var c = this.findColByName(name);
             var editor = this.getEditor(c,record);            
@@ -594,7 +594,9 @@ $A.Grid = Ext.extend($A.Component,{
             	this.renderEditor(div,record,c,editor);
             }else{
             	//考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
-                var text =  this.renderText(record,c, value);
+                var text =  this.renderText(record,c, value
+                		.replace(/&/gm,'&amp;').replace(/</gm,'&lt;')
+                		.replace(/>/gm,'&gt;'));
                 div.update(text);
             }
         }
