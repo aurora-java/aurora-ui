@@ -7063,11 +7063,13 @@ $A.Lov = Ext.extend($A.TextField,{
         
         if(!Ext.isEmpty(this.lovservice)){
 //            url = this.context + 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
-            url = this.context + 'autocrud/'+this.lovservice+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
+            url = this.context + 'autocrud/'+this.lovservice+'/query?pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
         }else if(!Ext.isEmpty(this.lovmodel)){
-            url = this.context + 'autocrud/'+this.lovmodel+'/query?pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
+            url = this.context + 'autocrud/'+this.lovmodel+'/query?pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
         }
         var record = this.record;
+        if(record == null && this.binder)
+        	record = this.binder.ds.create({},false);
         record.isReady=false;
         var p = {};
         var mapping = this.getMapping();
@@ -7090,10 +7092,14 @@ $A.Lov = Ext.extend($A.TextField,{
         this.qtId = $A.request({url:url, para:p, success:function(res){
             var r = new $A.Record({});
             if(res.result.record){
-                var datas = [].concat(res.result.record);
-                if(datas.length>0){
-                    var data = datas[0];
-                    r = new $A.Record(data);
+                var datas = [].concat(res.result.record),l = datas.length;
+                if(l>0){
+                	if(this.fetchsingle && l>1){
+                		$A.showWarningMessage(_lang['lov.warn'],_lang['lov.warn.msg']);
+                	}else{
+	                    var data = datas[0];
+	                    r = new $A.Record(data);
+                	}
                 }
             }
             this.fetching = false;
