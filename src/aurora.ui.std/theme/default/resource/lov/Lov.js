@@ -309,10 +309,12 @@ $A.Lov = Ext.extend($A.TextField,{
         	if(displayFields){
             	text = '';
             	for(var i = 0,l = displayFields.length;i < l;i++){
-            		text += '<td>'+record.get(displayFields[i].name)+'</td>';
+            		var v = record.get(displayFields[i].name);
+            		text += '<td>'+(Ext.isEmpty(v)?'&#160;':v)+'</td>';
             	}
             }else{
-            	text = '<td>'+record.get(this.autocompletefield)+'</td>';
+            	var v = record.get(this.autocompletefield);
+            	text = '<td>'+(Ext.isEmpty(v)?'&#160;':v)+'</td>';
             }
         }
 		return text;
@@ -423,7 +425,37 @@ $A.Lov = Ext.extend($A.TextField,{
                 var datas = [].concat(res.result.record),l = datas.length;
                 if(l>0){
                 	if(this.fetchsingle && l>1){
-                		$A.showWarningMessage(_lang['lov.warn'],_lang['lov.warn.msg']);
+                		var sb=['<table class="autocomplete" cellspacing="0" cellpadding="2">'],
+                			displayFields = this.binder.ds.getField(this.binder.name).getPropertity('displayFields');
+            			if(displayFields && displayFields.length){
+            				sb.add('<tr tabIndex="-2" class="autocomplete-head">');
+			            	for(var i = 0,ll = displayFields.length;i < ll;i++){
+			            		sb.add('<td>'+displayFields[i].prompt+'</td>');
+			            	}
+							sb.add('</tr>');
+            			}
+            			for(var i=0;i<l;i++){
+							var text = this.getRenderText(new $A.Record(datas[i]),displayFields);
+							sb.add('<tr tabIndex="'+i+'"'+(i%2==1?' class="autocomplete-row-alt"':'')+'>'+text+'</tr>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
+						}
+						sb.add('</table>');
+						var div = new Ext.Template('<div style="position:absolute;left:0;top:0">{sb}</div>').append(document.body,{'sb':sb.join('')},true),
+							xy = this.el.getXY(),
+                			cmp = new $A.Window({id:this.id+'_fetchmulti',closeable:true,title:'请选择', height:div.getHeight(),width:Math.max(div.getWidth(),200),x:xy[0],y:xy[1]+this.el.getHeight()});
+                		this.autocompleteview = {};
+                		(this.autocompleteview.wrap = cmp.body).update(sb.join(''));
+                		div.remove();
+                		cmp.body.child('table').setWidth('100%')
+                		cmp.body.on('mousemove',this.onViewMove,this);
+                		cmp.body.on('dblclick',function(e,t){
+							t = Ext.fly(t).parent('TR');
+							var index = t.dom.tabIndex;
+							if(index<-1)return;
+							var record = new $A.Record(datas[index]);
+							this.commit(record);
+							this.autocompleteview = null;
+							cmp.close();
+                		},this);
                 	}else{
 	                    var data = datas[0];
 	                    r = new $A.Record(data);
