@@ -30,8 +30,7 @@ _lang['grid.export.column'] = 'Column name';
 
 _lang['lov.query'] = 'Querying...';
 _lang['lov.notfound'] = 'Not Found!';
-_lang['lov.warn'] = 'Warning';
-_lang['lov.warn.msg'] = 'Operation terminated! The fetch records more than one!';
+_lang['lov.info'] = 'Please choose';
 
 _lang['tab.loading'] = 'Loading,please wait...';
 
