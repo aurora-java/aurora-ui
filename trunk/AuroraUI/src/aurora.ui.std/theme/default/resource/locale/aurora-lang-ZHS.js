@@ -30,8 +30,7 @@ _lang['grid.export.column'] = '列名';
 
 _lang['lov.query'] = '正在查询...';
 _lang['lov.notfound'] = '未找到数据！';
-_lang['lov.warn'] = '警告';
-_lang['lov.warn.msg'] = '操作终止！取得的数据超过1条！';
+_lang['lov.info'] = '请选择';
 
 _lang['tab.loading'] = '正在加载,请稍后...';
 
