@@ -1,51 +1,52 @@
 <package>
     <components>
-        <view-component elementName="template" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.TemplateRenderer" />
+        <view-component elementName="template" category="Template" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.TemplateRenderer" />
         <view-component elementName="html-page" builder="aurora.presentation.component.HtmlPage" />
-        <view-component elementName="screen-include" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.ScreenInclude"  />
+        <view-component elementName="screen-include" category="Template" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.ScreenInclude"  />
         <view-component elementName="cached-part" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.CachedPart" />
         <view-component elementName="separator" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="textArea" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="tree" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="treeGrid" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="label" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="imageCode" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="button" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="checkBox" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="radio" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="navBar" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
-        <view-component elementName="toolBar" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="menuBar" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="comboBox" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="lov" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="multiLov" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
-        <view-component elementName="textField" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="passWord" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" defaultTemplate="textField.tplt"/>
-        <view-component elementName="numberField" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
-        <view-component elementName="dateField" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="datePicker" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="dateTimePicker" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="box" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Box" />
-        <view-component elementName="form" nameSpace="http://www.aurora-framework.org/application"  builder="aurora.presentation.component.std.Form" />
-        <view-component elementName="fieldSet" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.FieldSet" />
-        <view-component elementName="vBox" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.VBox" />
-        <view-component elementName="hBox" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.HBox" />
-        <view-component elementName="screenToolBar" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ScreenToolBar" />
-        <view-component elementName="dataSet" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="grid" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
-        <view-component elementName="table" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
-        <view-component elementName="dataSets" nameSpace="http://www.aurora-framework.org/application" builder="aurora.application.features.DataSetInit" />
-        <view-component elementName="tabPanel" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="accordionPanel" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="switch" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Switch" />
-        <view-component elementName="freeMarker" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.FreeMarkerTemplate" />
-        <view-component elementName="repeater" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Repeater" />
-        <view-component elementName="htmlInclude" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.HTMLInclude" />
+        <view-component elementName="textArea" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="tree" category="Tree" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="treeGrid" category="Grid" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="label" category="View" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="imageCode" category="View" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="button" category="Button" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="checkBox" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="radio" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="navBar" category="Navigation" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
+        <view-component elementName="toolBar" category="Navigation" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="menuBar" category="Navigation" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="comboBox" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="lov" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="multiLov" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
+        <view-component elementName="textField" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="passWord" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" defaultTemplate="textField.tplt"/>
+        <view-component elementName="numberField" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
+        <view-component elementName="dateField" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="datePicker" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="dateTimePicker" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="box" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Box" />
+        <view-component elementName="form" category="Layout" nameSpace="http://www.aurora-framework.org/application"  builder="aurora.presentation.component.std.Form" />
+        <view-component elementName="fieldSet" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.FieldSet" />
+        <view-component elementName="vBox" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.VBox" />
+        <view-component elementName="hBox" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.HBox" />
+        <view-component elementName="screenToolBar" category="Navigation" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ScreenToolBar" />
+        <view-component elementName="dataSet" category="Data" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="grid" category="Grid" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
+        <view-component elementName="table" category="Grid" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
+        <view-component elementName="dataSets" category="Data" nameSpace="http://www.aurora-framework.org/application" builder="aurora.application.features.DataSetInit" />
+        <view-component elementName="tabPanel" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="accordionPanel" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="switch" category="Template" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Switch" />
+        <view-component elementName="freeMarker" category="Template" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.FreeMarkerTemplate" />
+        <view-component elementName="repeater" category="Template" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Repeater" />
+        <view-component elementName="htmlInclude" category="Template" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.HTMLInclude" />
         <view-component elementName="comment" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="screenBody" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ScreenBody" />
-        <view-component elementName="chart" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="graphic" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
-        <view-component elementName="upload" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="screenBody" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ScreenBody" />
+        <view-component elementName="chart" category="Chart" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="graphic" category="Chart" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="upload" category="Input" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="link" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="sendBox" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
     </components>
 </package>

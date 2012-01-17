@@ -49,4 +49,5 @@
 	<feature-attach elementName="graphic" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Graphic"/>
     <feature-attach elementName="upload" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Upload"/>
 	<feature-attach elementName="link" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Link"/>
+	<feature-attach elementName="sendBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.SendBox"/>
 </class-registry>
