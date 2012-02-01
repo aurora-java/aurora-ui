@@ -180,7 +180,7 @@ $A.Lov = Ext.extend($A.TextField,{
     			clearTimeout(this.showCompleteId);
     			delete this.showCompleteId;
     		}
-    		this.autocompleteview.un('show',this.autoCompleteShow,this);
+    		(this.tempview||this.autocompleteview).un('show',this.autoCompleteShow,this);
     	}
     	$A.Lov.superclass.onBlur.call(this,e);
     },
@@ -440,9 +440,15 @@ $A.Lov = Ext.extend($A.TextField,{
 						}
 						sb.add('</table>');
 						var div = new Ext.Template('<div style="position:absolute;left:0;top:0">{sb}</div>').append(document.body,{'sb':sb.join('')},true),
-							xy = this.el.getXY(),
-                			cmp = new $A.Window({id:this.id+'_fetchmulti',closeable:true,title:'请选择', height:div.getHeight(),width:Math.max(div.getWidth(),200),x:xy[0],y:xy[1]+this.el.getHeight()});
-                		this.autocompleteview = {};
+                			cmp = new $A.Window({id:this.id+'_fetchmulti',closeable:true,title:'请选择', height:Math.max(div.getHeight(),300),width:Math.max(div.getWidth(),200)});
+                		cmp.on('close',function(){
+                			if(this.tempview){
+	                			this.autocompleteview = this.tempview;
+	                			delete this.tempview;
+                			}else this.autocompleteview = null;
+                		},this);
+                		if(this.autocompleteview)this.tempview = this.autocompleteview;
+            			this.autocompleteview = {};
                 		(this.autocompleteview.wrap = cmp.body).update(sb.join(''));
                 		div.remove();
                 		cmp.body.child('table').setWidth('100%')
@@ -451,9 +457,8 @@ $A.Lov = Ext.extend($A.TextField,{
 							t = Ext.fly(t).parent('TR');
 							var index = t.dom.tabIndex;
 							if(index<-1)return;
-							var record = new $A.Record(datas[index]);
-							this.commit(record);
-							this.autocompleteview = null;
+							var r2 = new $A.Record(datas[index]);
+							this.commit(r2,record);
 							cmp.close();
                 		},this);
                 	}else{
