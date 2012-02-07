@@ -17,6 +17,7 @@
 	<feature-attach elementName="textField" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.TextField" />
 	<feature-attach elementName="passWord" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.PassWord" />
 	<feature-attach elementName="numberField" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.NumberField" />
+	<feature-attach elementName="spinner" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Spinner" />
 	<feature-attach elementName="dateField" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.DateField" />
 	<feature-attach elementName="datePicker" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.DatePicker" />
 	<feature-attach elementName="dateTimePicker" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.DateTimePicker" />
