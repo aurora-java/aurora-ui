@@ -1,0 +1,38 @@
+.item-spinner {
+	padding-right: 3px;
+	padding-left: 0px;
+	text-align: right;
+}
+
+.item-spinner-btn {
+	border-width: 0;
+	cursor: pointer;
+	float: left
+}
+
+.item-spinner-btn div {
+	height: 10px;
+	width: 20px;
+	-moz-user-select: none;
+	background-image: url('../spinner/spinner.gif');
+}
+
+.item-spinner-minus {
+	background-position: 0 -10px;
+}
+
+.item-spinner-plus.spinner-over {
+	background-position: -20px 0;
+}
+
+.item-spinner-minus.spinner-over {
+	background-position: -20px -10px;
+}
+
+.item-spinner-plus.spinner-select {
+	background-position: -40px 0;
+}
+
+.item-spinner-minus.spinner-select {
+	background-position: -40px -10px;
+}
