@@ -40,6 +40,7 @@ public class PatchAll {
 		list.add("radio/Radio.js");
 		list.add("textfield/TextField.js");
 		list.add("numberfield/NumberField.js");
+		list.add("spinner/Spinner.js");
 		list.add("base/TriggerField.js");
 		list.add("combo/ComboBox.js");
 		list.add("datefield/DateField.js");
@@ -58,6 +59,7 @@ public class PatchAll {
 		csslist.add("button/Button.css");
 		csslist.add("textfield/TextField.css");
 		csslist.add("numberfield/NumberField.css");
+		csslist.add("spinner/Spinner.css");
 		csslist.add("combo/ComboBox.css");
 		csslist.add("datefield/DateField.css");
 		csslist.add("toolbar/ToolBar.css");
