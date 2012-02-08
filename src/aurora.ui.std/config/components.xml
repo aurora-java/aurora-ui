@@ -35,7 +35,7 @@
         <view-component elementName="dataSet" category="Data" description="数据源组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="grid" category="Grid" description="表格Grid组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
         <view-component elementName="table" category="Grid" description="表格Table组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
-        <view-component elementName="dataSets" category="Data" nameSpace="http://www.aurora-framework.org/application" builder="aurora.application.features.DataSetInit" />
+        <view-component elementName="dataSets" nameSpace="http://www.aurora-framework.org/application" builder="aurora.application.features.DataSetInit" />
         <view-component elementName="tabPanel" category="Layout" description="标签页组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="accordionPanel" category="Layout" description="accordion组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="switch" category="Template" description="switch标签" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Switch" />
