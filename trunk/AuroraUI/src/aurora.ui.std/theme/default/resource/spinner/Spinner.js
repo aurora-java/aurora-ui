@@ -72,6 +72,7 @@ $A.Spinner = Ext.extend($A.TextField,{
     	});
     },
     goStep : function(isPlus,callback,callback2){
+    	if(this.readonly)return;
     	var n = Ext.isEmpty(this.tempValue) ? Number(this.getValue()||0) : this.tempValue;
     	n += isPlus ? this.step : -this.step;
     	var mod = this.toFixed(this.toFixed(n - this.min)%this.step);
