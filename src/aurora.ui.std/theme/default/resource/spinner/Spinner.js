@@ -37,26 +37,19 @@ $A.Spinner = Ext.extend($A.TextField,{
     	var target = Ext.fly(t);
     	target.addClass('spinner-select');
 		var rv = Number(this.getValue()),
-			isPlus = target.hasClass('item-spinner-plus'),
-    		sf = this;
+			isPlus = target.hasClass('item-spinner-plus');
 		if(isNaN(rv))rv = 0;
-		rv = this.goStep(rv,isPlus);
-		if(rv <= this.max && rv >= this.min){
-	    	this.setRawValue(rv);
-	    	this.tempValue = rv;
+		this.goStep(rv,isPlus,function(rv){
+			var sf = this;
 	    	this.intervalId = setInterval(function(){
 		    	clearInterval(sf.intervalId);
 	    		sf.intervalId = setInterval(function(){
-	    			rv = sf.goStep(rv,isPlus);
-	    			if(rv <= sf.max && rv >= sf.min){
-		    			sf.setRawValue(rv);
-		    			sf.tempValue = rv;
-	    			}else{
-				    	clearInterval(sf.intervalId);
-	    			}
+	    			rv = sf.goStep(rv,isPlus,null,function(){
+	    				clearInterval(sf.intervalId);
+	    			});
 	    		},40);
-	    	},500);
-		}
+	    	},500);			
+		});
     },
     onBtnMouseUp : function(e,t){
     	clearInterval(this.intervalId);
@@ -64,10 +57,34 @@ $A.Spinner = Ext.extend($A.TextField,{
     	this.setValue(this.tempValue);
     	delete this.intervalId;
     },
-    goStep : function(n,isPlus){
+    /**
+     * 递增
+     */
+    plus : function(){
+    	this.goStep(this.getValue(),true,function(n){
+    		this.setValue(n);
+    	});
+    },
+    /**
+     * 递减
+     */
+    minus : function(){
+    	this.goStep(this.getValue(),false,function(n){
+    		this.setValue(n);
+    	});
+    },
+    goStep : function(n,isPlus,callback,callback2){
     	n += isPlus ? this.step : -this.step;
     	var mod = this.toFixed(this.toFixed(n - this.min)%this.step);
-    	return this.toFixed(n - (mod == this.step ? 0 : mod));
+    	n = this.toFixed(n - (mod == this.step ? 0 : mod));
+    	if(n <= this.max && n >= this.min){
+    		this.setRawValue(n);
+	    	this.tempValue = n;
+    		if(callback)callback.call(this,n);
+    	}else{
+    		if(callback2)callback2.call(this,n)
+    	}
+    	return n;
     },
     toFixed : function(n){
     	return Number(n.toFixed(this.decimalprecision));

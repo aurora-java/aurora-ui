@@ -1076,6 +1076,22 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     setSubmitParameter : function(para, value){
         this.spara[para] = value;
     },
+	/**
+	 * 等待ds中的所有record都ready后执行回调函数
+	 * @param {String} isAll 判断所有的record还是选中的record
+	 * @param {Function} callback 回调函数
+	 * @param {Object} scope 回调函数的作用域
+	 */
+    wait : function(isAll,callback,scope){
+    	var records = isAll ? this.getAll() : this.getSelected(),
+			intervalId = setInterval(function(){
+		        for(var i = 0;i < records.length;i++){
+		            if(!records[i].isReady)return;
+		        }
+		        clearInterval(intervalId);
+		        if(callback)callback.call(scope||window);
+		    },10);
+    },
     /**
      * 查询数据.
      * @param {Number} page(可选) 查询的页数.
@@ -1086,12 +1102,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(!this.queryurl) return;
         if(this.qds) {
             if(this.qds.getCurrentRecord() == null) this.qds.create();
-            var sf=this,intervalId=setInterval(function(){
-                if(!sf.qds.getCurrentRecord().isReady)return;
-                clearInterval(intervalId);
-                if(!sf.qds.validate()) return;
-                sf.doQuery(page,opts);
-            },10);
+            this.qds.wait(true,function(){
+	    		if(!this.qds.validate()) return;
+                this.doQuery(page,opts);
+	    	},this);
         }else{
             this.doQuery(page,opts);
         }
@@ -1218,26 +1232,18 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             $A.request({url:this.submiturl, para:p, ext:this.spara,success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
         //}
     },
-    isAllReady:function(records){
-        for(var i=0;i<records.length;i++){
-            if(!records[i].isReady)return false;
-        }
-        return true;
-    },
     /**
      * 提交选中数据.
      * @param {String} url(可选) 提交的url.
      * @param {Array} fields(可选) 根据选定的fields提交.
      */
     submitSelected : function(url,fields){
-        var sf=this,intervalId=setInterval(function(){
-            if(!sf.isAllReady(sf.getSelected()))return;
-            clearInterval(intervalId);
-            if(sf.fireEvent("beforesubmit",sf)){
-                var d = sf.getJsonData(true,fields);
-                sf.doSubmit(url,d);
+    	this.wait(false,function(){
+    		if(this.fireEvent("beforesubmit",this)){
+                var d = this.getJsonData(true,fields);
+                this.doSubmit(url,d);
             }
-        },10);
+    	},this);
     },
     /**
      * 提交数据.
@@ -1245,14 +1251,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Array} fields(可选) 根据选定的fields提交.
      */
     submit : function(url,fields){
-        var sf=this,intervalId=setInterval(function(){
-            if(!sf.isAllReady(sf.getAll()))return;
-            clearInterval(intervalId);
-            if(sf.fireEvent("beforesubmit",sf)){
-                var d = sf.getJsonData(false,fields);
-                sf.doSubmit(url,d);
+    	this.wait(true,function(){
+    		if(this.fireEvent("beforesubmit",this)){
+                var d = this.getJsonData(false,fields);
+                this.doSubmit(url,d);
             }
-        },10);
+    	},this);
     },
     /**
      * post方式提交数据.
@@ -1261,11 +1265,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     post : function(url){
         var r=this.getCurrentRecord();
         if(!r)return;
-        var sf=this,intervalId=setInterval(function(){
-            if(!r.isReady)return;
-            clearInterval(intervalId);
-            if(sf.validate())Aurora.post(url,r.data);
-        },10);
+        this.wait(true,function(){
+    		if(this.validate())$A.post(url,r.data);
+    	},this);
     },
     /**
      * 重置数据.
