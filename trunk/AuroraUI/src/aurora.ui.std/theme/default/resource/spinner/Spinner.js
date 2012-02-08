@@ -36,15 +36,13 @@ $A.Spinner = Ext.extend($A.TextField,{
     onBtnMouseDown:function(e,t){
     	var target = Ext.fly(t);
     	target.addClass('spinner-select');
-		var rv = Number(this.getValue()),
-			isPlus = target.hasClass('item-spinner-plus');
-		if(isNaN(rv))rv = 0;
-		this.goStep(rv,isPlus,function(rv){
+		var isPlus = target.hasClass('item-spinner-plus');
+		this.goStep(isPlus,function(){
 			var sf = this;
 	    	this.intervalId = setInterval(function(){
 		    	clearInterval(sf.intervalId);
 	    		sf.intervalId = setInterval(function(){
-	    			rv = sf.goStep(rv,isPlus,null,function(){
+	    			sf.goStep(isPlus,null,function(){
 	    				clearInterval(sf.intervalId);
 	    			});
 	    		},40);
@@ -61,7 +59,7 @@ $A.Spinner = Ext.extend($A.TextField,{
      * 递增
      */
     plus : function(){
-    	this.goStep(this.getValue(),true,function(n){
+    	this.goStep(true,function(n){
     		this.setValue(n);
     	});
     },
@@ -69,11 +67,12 @@ $A.Spinner = Ext.extend($A.TextField,{
      * 递减
      */
     minus : function(){
-    	this.goStep(this.getValue(),false,function(n){
+    	this.goStep(false,function(n){
     		this.setValue(n);
     	});
     },
-    goStep : function(n,isPlus,callback,callback2){
+    goStep : function(isPlus,callback,callback2){
+    	var n = Ext.isEmpty(this.tempValue) ? Number(this.getValue()||0) : this.tempValue;
     	n += isPlus ? this.step : -this.step;
     	var mod = this.toFixed(this.toFixed(n - this.min)%this.step);
     	n = this.toFixed(n - (mod == this.step ? 0 : mod));
