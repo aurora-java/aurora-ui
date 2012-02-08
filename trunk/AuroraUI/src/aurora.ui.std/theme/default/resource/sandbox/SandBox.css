@@ -1,11 +1,11 @@
-.sendbox {
+.sandbox {
 	border:1px solid #cccccc;
 	padding: 10px;
 	background-color: #F4F4F4;
 	font-size: 13px;
 	line-height: 22px;
 }
-.sendbox-content{
+.sandbox-content{
 	border:1px dashed #cccccc;
 	padding: 10px;
 	background-color: #ffffff;
