@@ -27,16 +27,19 @@ $A.Spinner = Ext.extend($A.TextField,{
     	this.btn[ou]('mouseup',this.onBtnMouseUp,this);
     },
     onBtnMouseOver:function(e,t){
+    	if(this.readonly)return;
     	Ext.fly(t).addClass('spinner-over');
     },
     onBtnMouseOut:function(e,t){
+    	if(this.readonly)return;
     	Ext.fly(t).removeClass('spinner-over');
     	this.onBtnMouseUp(e,t);
     },
     onBtnMouseDown:function(e,t){
+    	if(this.readonly)return;
     	var target = Ext.fly(t);
     	target.addClass('spinner-select');
-		var isPlus = target.hasClass('item-spinner-plus');
+		var isPlus = !!target.parent('.item-spinner-plus');
 		this.goStep(isPlus,function(){
 			var sf = this;
 	    	this.intervalId = setInterval(function(){
@@ -50,6 +53,7 @@ $A.Spinner = Ext.extend($A.TextField,{
 		});
     },
     onBtnMouseUp : function(e,t){
+    	if(this.readonly)return;
     	clearInterval(this.intervalId);
     	Ext.fly(t).removeClass('spinner-select');
     	this.setValue(this.tempValue);
@@ -84,7 +88,6 @@ $A.Spinner = Ext.extend($A.TextField,{
     	}else{
     		if(callback2)callback2.call(this,n)
     	}
-    	return n;
     },
     toFixed : function(n){
     	return Number(n.toFixed(this.decimalprecision));
