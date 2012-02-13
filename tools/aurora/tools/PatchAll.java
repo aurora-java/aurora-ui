@@ -35,6 +35,7 @@ public class PatchAll {
 		list.add("base/Box.js");
 		list.add("base/ImageCode.js");
 		list.add("base/Label.js");
+		list.add("base/Link.js");
 		list.add("button/Button.js");
 		list.add("checkbox/CheckBox.js");
 		list.add("radio/Radio.js");
