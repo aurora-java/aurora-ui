@@ -338,7 +338,7 @@ $A.request = function(opt){
 					$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 					if(res.error){
                         if(res.error.code  && (res.error.code == 'session_expired' || res.error.code == 'login_required')){
-                            $A.manager.fireEvent('timeout', $A.manager);
+                            if($A.manager.fireEvent('timeout', $A.manager))
                             $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
                         }else{
     						var st = res.error.stackTrace;
