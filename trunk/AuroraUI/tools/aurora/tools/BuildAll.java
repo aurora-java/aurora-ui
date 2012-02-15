@@ -20,10 +20,10 @@ public class BuildAll {
 	private static final String RELEASE_DIR = "release/";
 	private static final String THEME_DIR = "src/aurora.ui.std/theme/";
 	private static final String DEFAULT_DIR = "default/resource/";
-	private static final String AURORA_DIR = "D:\\prj\\workspace\\aurora\\";
-	private static final String UNCERTAIN_DIR = "D:\\prj\\workspace\\uncertain\\";
+//	private static final String AURORA_DIR = "D:\\prj\\workspace\\aurora\\";
+//	private static final String UNCERTAIN_DIR = "D:\\prj\\workspace\\uncertain\\";
 
-	private static final String ZIP_STD = "aurora-ui-std";
+	private static final String ZIP_STD = "aurora.ui.std";
 	private static final String ZIP_RESOURCE = "resource";
 
 	private static final String DATE_FORMAT = "yyyy.MM.dd";
@@ -43,6 +43,7 @@ public class BuildAll {
 		exceptFiles.add("base/ImageCode.js");
 		exceptFiles.add("base/Label.js");
 		exceptFiles.add("base/Layout.js");
+		exceptFiles.add("base/Customization.js");
 		exceptFiles.add("button/Button.js");
 		exceptFiles.add("checkbox/CheckBox.js");
 		exceptFiles.add("radio/Radio.js");
@@ -61,6 +62,7 @@ public class BuildAll {
 		exceptFiles.add("chart/Adapter.js");
 		exceptFiles.add("chart/Chart.js");
 		exceptFiles.add("chart/Exporting.js");
+		exceptFiles.add("spinner/Spinner.js");
 
 		exceptFiles.add("base/Aurora.css");
 		exceptFiles.add("base/Aurora-all.css");
@@ -77,7 +79,8 @@ public class BuildAll {
 		exceptFiles.add("textarea/TextArea.css");
 		exceptFiles.add("grid/Grid.css");
 		exceptFiles.add("tab/Tab.css");
-		exceptFiles.add("upload/upload.css");
+		exceptFiles.add("spinner/Spinner.css");
+//		exceptFiles.add("upload/upload.css");
 		
 		//local files
 //		exceptLocalFiles.add("base/highcharts.src.js");
@@ -132,10 +135,10 @@ public class BuildAll {
 		writeZip(new File(BUILD_DIR, RESOURCE_DIR), zout);
 		zout.finish();
 	}
-	private void buildJar() throws IOException{
-		String command="cmd /c jar cvf aurora-"+currentDate+".jar -C "+AURORA_DIR;
-		Runtime.getRuntime().exec(command);
-	}
+//	private void buildJar() throws IOException{
+//		String command="cmd /c jar cvf aurora-"+currentDate+".jar -C "+AURORA_DIR;
+//		Runtime.getRuntime().exec(command);
+//	}
 	private void delete(){
 		deleteAll(new File(BUILD_DIR + STD_DIR));
 		deleteAll(new File(BUILD_DIR + RESOURCE_DIR));
