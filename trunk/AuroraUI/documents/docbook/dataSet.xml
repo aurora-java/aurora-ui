@@ -1,0 +1,300 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<article>
+<sect2 id="presentation-client-dataset" revision="1">
+            <title>DataSet</title>            
+            <para>
+                什么是DataSet?
+            </para>
+            
+            <para>
+                DataSet是一个运行在客户端浏览器中的组件,本质上来说是一个JavaScript构建的对象.
+                DataSet是一个数据容器,他封装了常用的一些数据操作,我们可以通过下面这张图来更深刻的理解DataSet的含义
+            </para>
+            
+            <mediaobject>
+            	<imageobject role="fo">
+                    <imagedata fileref="images/dataSet.jpg" format="JPG" width="370" depth="247" contentwidth="370" contentdepth="247"/>
+                </imageobject>
+                <imageobject role="html">
+                    <imagedata fileref="images/dataSet.jpg" format="JPG"/>
+                </imageobject>
+            </mediaobject>
+            
+            <para>
+                通过上图我们可以看到DataSet是一个数据容器,它包含了一个数组对象用来存放所有的record对象.
+            </para>
+            <para>
+              Record代表一条数据对象,DataSet和Record的关系我们可以这样理解:假如我们把dataset比作数据库中的一张表,
+                那么record就是表中的一行记录.
+            </para>
+            
+            <sect3 id="presentation-client-dataset-tag" revision="1">
+                <title>
+                  DataSet定义
+                </title>            
+                <para>
+                    在screen文件中我们通过&lt;a:dataSet&gt;标签来定义一个dataset对象
+                </para>
+                
+                <programlisting language="screen"><![CDATA[                
+<a:dataSet model="sys.sys_user" id="sys_user_create_ds">
+    <a:fields>
+        <a:field name="user_name" required="true"/>
+        <a:field name="start_date" required="true" validator="dateValidator"/>
+        <a:field name="description" required="true"/>
+    </a:fields>
+    <events>
+        <a:event name="submitsuccess" handler="onCreateUserSuccess"/>
+        <a:event name="update" handler="onUpdate"/>
+    </events>
+</a:dataSet>
+                ]]></programlisting>
+                
+                <para>
+                    每一个dataset都应该定义一个id属性,在整个screen文件中不得出现重复的id值. 定义了id值我们可以在页面脚本中通过$('sys_user_create_ds')的方式
+                    获取到这个dataset对象,进而可以调用相应的函数方法.                    
+                </para>
+                
+                <para>
+                    fields子节点定义了这个dataset都包含哪些field以及field中的特性.
+                       在field上我们要指定它的name,通过ajax获取到的json数据会根据name来匹配.
+                       在field上我们还可以定义一些其他的附加特性,例如是否必输,是否只读等等.
+                </para>
+                <para>
+                    events标签定义了需要响应的事件函数,例如update事件,当dataset对其中一条record的field进行更新的时候,dataset会触发一个update事件,
+                    这样我们可以通过配置一个客户端函数onUpdate来响应.                 
+                </para>
+                <programlisting language="javascript"><![CDATA[                
+function onUpdate(ds,record,name,value){
+    if(name == 'user_password' || name == 'user_password_re'){
+        record.validate((name == 'user_password') ? 'user_password_re' : 'user_password'); 
+    }
+    if(name == 'start_date' || name == 'end_date'){
+        record.validate((name == 'start_date') ? 'end_date' : 'start_date');
+    }
+}
+                ]]></programlisting>
+                <para>
+                    更多详细配置可以参考AuroraTagDocument文档                  
+                </para>
+            </sect3>
+            
+            
+            
+            <sect3 id="presentation-client-dataset-action" revision="1">
+                <title>前言</title>            
+                <para>
+                    DataSet是一个客户端的JavaScript组件,它封装了相应的ajax操作,用来和服务端进行数据交互.
+                </para>       
+                
+                <programlisting><![CDATA[
+     客户端浏览器                            服务端程序
+    _____________                       __________________
+   |             |                     |                  |     
+   |   DataSet   |                     |   Web Server     |     
+   |_____________|      request        |__________________| 
+   |             | ------------------> |                  | 
+   |  record     |      AJAX           |  query()         |
+   |  record     | <------------------ |  update()        |
+   |  ...        |      JSON           |  delete()        | 
+   |_____________|                     |__________________|                   
+                                                 
+                                                 
+ ]]></programlisting>
+                <para>
+                    DataSet是一个客户端的JavaScript组件,它封装了相应的ajax操作,用来和服务端进行数据交互.
+                </para> 
+                
+                <para>
+                  DataSet提供了基本的数据操作,主要分为两类.一类是客户端操作,一类是和服务端通信.
+                </para> 
+                
+                <itemizedlist>
+                    <listitem>
+                    <para>
+                       客户端操作 -- 例如当调用add函数后,其实本质上是在客户端dataset中增加一条record记录,这个并没有同步到服务端数据库中.
+                    </para>
+                    </listitem>
+                    <listitem>
+                    <para>
+                      AJAX操作 --  通过AJAX调用和服务端进行通讯,例如query查询服务端返回相应的json数据,填充到客户端.
+                    </para>
+                    </listitem>
+                </itemizedlist>
+ 
+                  
+                
+            </sect3>
+            
+            <sect3 id="presentation-client-dataset-metadata" revision="1">
+                <title>
+                  元数据(Metadata)
+                </title>            
+                <para>
+                    Metadata元数据主要用来描述field的附加特性,例如是否只读,是否必输等等.
+                </para>
+                
+                <para>
+                    例如:设置某一字段必输,我们可以在配置dataset的时候指定对应field的required值
+                </para>
+                <programlisting language="screen"><![CDATA[                
+<a:dataSet id="exp_employee_group_result_ds">
+    <a:fields>
+        <a:field name="expense_user_group_code" required="true"/>
+        <a:field name="description" required="true"/>
+    </a:fields>
+</a:dataSet>
+                ]]></programlisting>
+                
+                <para>
+                    例如:设置某一字段只读,我们可以在配置dataset的时候指定对应field的readOnly值
+                </para>
+                <programlisting language="screen"><![CDATA[                
+<a:dataSet id="exp_employee_group_result_ds">
+    <a:fields>
+        <a:field name="expense_user_group_code" readOnly="true"/>
+        <a:field name="description" required="true"/>
+    </a:fields>
+</a:dataSet>
+                ]]></programlisting>
+            </sect3>
+            
+            <sect3 id="presentation-client-dataset-validate" revision="1">
+                <title>
+                  校验(Validate)
+                </title>            
+                <para>
+                   很多情况下我们需要对dataset的值进行校验,这个时候我们可以通过在field上配置校验函数(validator)来实现
+                </para>
+                
+                <para>
+                   例如:我们对2个日期字段进行校验,规则是结束日期不得小于开始日期.首先我们在dataset的2个日期field上配置validator
+                </para>
+                <programlisting language="screen"><![CDATA[                
+<a:dataSet id="fnd_companies_create_ds"  model="fnd.fnd_companies">
+    <a:fields>
+        ...
+        <a:field name="start_date_active" datatype="date" required="true" validator="dateValidator"/>
+        <a:field name="end_date_active" datatype="date" validator="dateValidator"/>        
+    </a:fields>
+</a:dataSet>
+                ]]></programlisting>
+                
+                <para>
+                   接下来我们需要实现校验函数dateValidator
+                </para>
+                
+                <programlisting language="javascript"><![CDATA[                
+function dateValidator(record, name, value){
+    if(name == 'start_date_active' || name == 'end_date_active'){
+        var start_date = record.get('start_date_active');
+        var end_date = record.get('end_date_active');
+        if(typeof(end_date) != 'undefined' && !Ext.isEmpty(end_date)){
+            if(!compareDate(start_date, end_date)){
+                return '开始时间不能大于结束时间';
+            }
+        }
+        return true;
+    }
+}
+                ]]></programlisting>
+                
+                <para>
+                   2个日期field公用了同一个校验函数,所以首先要判断name值,然后分别通过record获取对应的开始和结束日期.
+                   如果校验成功返回true,校验失败返回提示信息.
+                </para>
+            </sect3>
+            
+            <sect3 id="presentation-client-dataset-dynamic" revision="1">
+                <title>
+                  动态界面逻辑处理
+                </title>            
+                <para>
+                   待更新...
+                </para>
+            </sect3>
+            
+            <sect3 id="presentation-client-dataset-event" revision="1">
+                <title>
+                  DataSet常用操作与事件
+                </title>
+                <para>
+                  DataSet 常用函数
+                </para>
+                <table frame="topbot" revision="1">
+                    <title>DataSet相关函数</title>
+                    <tgroup cols="2">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="2.5*"/>
+                        <thead>
+                            <row>
+                                <entry>函数</entry>
+                                <entry>说明</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>add</entry>
+                                <entry>在客户端dataset中新增一条record记录</entry>                                
+                            </row>
+                            <row>
+                                <entry>remove</entry>
+                                <entry>在客户端dataset中删除指定的record</entry>                                
+                            </row>
+                            <row>
+                                <entry>query</entry>
+                                <entry>通过指定的url查询数据,服务端返回json数据填充到客户端dataset中</entry>                                
+                            </row>
+                            <row>
+                                <entry>submit</entry>
+                                <entry>降dataset中的数据提交到指定的url中</entry>                                
+                            </row>
+                       </tbody>
+                    </tgroup>
+                </table>
+                
+                <para>
+                  DataSet 常用事件
+                </para>
+                <table frame="topbot" revision="1">
+                    <title>DataSet事件</title>
+                    <tgroup cols="2">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="2.5*"/>
+                        <thead>
+                            <row>
+                                <entry>事件名</entry>
+                                <entry>说明</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>add</entry>
+                                <entry>新增一条record后触发</entry>                                
+                            </row>
+                            <row>
+                                <entry>remove</entry>
+                                <entry>删除record后触发</entry>                                
+                            </row>
+                            <row>
+                                <entry>update</entry>
+                                <entry>当dataset中的record被更新后触发</entry>                                
+                            </row>
+                            <row>
+                                <entry>load</entry>
+                                <entry>当dataset成功加载数据后触发</entry>                                
+                            </row>
+                            <row>
+                                <entry>submit</entry>
+                                <entry>当dataset提交请求时触发</entry>                                
+                            </row>
+                       </tbody>
+                    </tgroup>
+                </table>
+                <para>
+                    更多详细的函数请参考AuroraJavaScriptDocument
+                </para>
+            </sect3>
+        </sect2>
+        
+</article>

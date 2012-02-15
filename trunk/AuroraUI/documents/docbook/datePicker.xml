@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<article>
+<sect3 id="presentation-client-editor-datepicker" revision="1">
+    <title>DatePicker</title>            
+    <para>
+		DatePicker是一个提供日期输入编辑的组件，继承自TextField组件，拥有TextField标签的属性以及TextField对象的方法和事件。
+    </para>
+    <mediaobject>
+    	<imageobject role="fo">
+            <imagedata fileref="images/datePicker.jpg" format="JPG" width="254" depth="137" contentwidth="254" contentdepth="137"/>
+        </imageobject>
+        <imageobject role="html">
+            <imagedata fileref="images/datePicker.jpg" format="JPG"/>
+        </imageobject>
+		<caption>
+			<para>
+				上图是DatePicker组件在页面中的呈现，输入框前的文字信息是通过DatePicker标签属性prompt来定义的。
+			</para>
+		</caption>
+    </mediaobject>
+    <sect4 id="presentation-client-editor-datepicker-tag" revision="1">
+    <title>DatePicker定义</title>
+    <para>
+    	 在screen文件中我们通过&lt;a:datePicker&gt;标签来定义一个DatePicker对象。
+    </para>
+    <programlisting language="screen"><![CDATA[
+<a:datePicker name="start_date" bindTarget="sys_user_create_ds" viewSize="2"
+	enableBesideDays="both" enableMonthBtn="both">
+    <a:events>
+        <a:event handler="login" name="enterdown"/>
+    </a:events>
+</a:datePicker>
+]]></programlisting>
+	<para>
+    	datePicker标签可以设置一个id属性，id是组件的唯一标识，我们可以在页面脚本中用$('id')的方法获得该id对应的组件对象，进而可以调用相应的函数方法。
+    </para>
+    <para>
+    	datePicker标签的bindTarget属性可指定一个dataset对象的id，name属性可指定该dataset其中一个field的名字。这两个属性必须联合使用，其功能是将DatePicker对象绑定到dataset中的一个field上，进而我们只要对dataset进行操作就能即时反映在DatePicker上，另外DatePicker上的文字编辑也会立刻修改dataset中的数据。
+    </para>
+    <para>
+    	events标签定义了需要响应的事件函数，例如enterdown事件，当键盘键入回车键时，DatePicker会触发enterdown事件，这样我们可以通过配置一个客户端函数login来响应。
+    </para>
+    <programlisting language="javascript"><![CDATA[
+function login(){
+    var lds = $('login_dataset');
+    var record = lds.getCurrentRecord();
+    Aurora.request({url:'login.svc', para:record.data, success:function(){
+        window.location.href='role_select.screen'
+    },scope:this});
+}
+]]></programlisting>
+    </sect4>
+    <sect4>
+    	<title>日期渲染</title>
+    	<para>
+    		渲染函数(dayRenderer)
+    	</para>
+    	<para>
+很多情况下我们需要将显示的日期表进行一些特殊处理，例如我们需要将今天之前的日期设为不能选择状态。这个时候我们就需要 在datepicker标签上指定dayRenderer渲染函数来实现.
+    	</para>
+    	<para>
+首先我们需要实现一个dayRenderer函数，来判断当前日期，然后返回一段html代码。 
+    	</para>
+    	<programlisting language="javascript"><![CDATA[
+function rendererDay(cell,date,text,currentMonth){
+	var today=new Date();
+	if(date < new Date(today.getFullYear(),today.getMonth(),today.getDate())){
+		cell.disabled=true;
+	}
+	return text;
+}
+		]]></programlisting> 
+		<para>
+接下来在datepicker标签上指定dayRenderer属性为rendererDay. 
+		</para>
+		    	<programlisting language="screen"><![CDATA[
+<a:datePicker dayRenderer="rendererDay"/>
+		]]></programlisting>
+    </sect4>
+    <sect4>
+	<title>DatePicker标签属性</title>
+	<table frame="topbot" id="presentation-client-editor-datepicker-properties" revision="8">
+		<tgroup cols="4">
+			<colspec colname="c1" colwidth="1*"/>
+   			<colspec colname="c2" colwidth="2*"/>
+   			<colspec colname="c3" colwidth="0.5*"/>
+   			<colspec colname="c4" colwidth="0.5*"/>
+   			<thead>
+                <row>
+                    <entry>
+                        属性名
+                    </entry>
+                    <entry>
+                        用途
+                    </entry>
+                    <entry>
+                       默认值
+                    </entry>
+                    <entry>
+                       是否必填
+                    </entry>
+                </row>
+            </thead>
+            <tbody>
+            	<row>
+                    <entry>
+                        dayRenderer
+                    </entry>
+                    <entry>
+                        日期渲染函数。<literal>dayRenderer</literal>属性指定一个回调函数的函数名，该函数可带三个参数，依次为cell,date,text。
+						<para>
+                    		cell - 显示日期的单元格，当cell.disabled=true时，该日期无法被选择。
+						</para> 
+						<para>
+                    		date -  日期对应的date对象。
+						</para> 
+						<para>
+                    		text - 日期所显示的文本，函数的反回值需为包含此参数的HTML字符串。
+						</para> 
+                    </entry>
+                    <entry>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        enableBesideDays
+                    </entry>
+                    <entry>
+                    	enableBesideDays属性指定当月日期表是否显示上月结尾和(或)下月开头的日期。
+                    	<para>
+                    		<emphasis role="strong">取值</emphasis>
+                    		<literal>both</literal> | <literal>none</literal> | <literal>pre</literal>  | <literal>next</literal> 
+                    	</para>
+                    </entry>
+                    <entry><literal>both</literal>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        enableMonthBtn
+                    </entry>
+                    <entry>
+                    	<literal>enableMonthBtn</literal>属性指定日期表是否显示上月按钮和(或)下月按钮。
+                    	<para>
+                    		<emphasis role="strong">取值</emphasis>
+                    		<literal>both</literal> | <literal>none</literal> | <literal>pre</literal>  | <literal>next</literal> 
+                    	</para>
+                    </entry>
+                    <entry><literal>both</literal>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        viewSize
+                    </entry>
+                    <entry>
+                     	显示日期表的个数，已当前月开始依次排列。最大值是4。
+                    </entry>
+                    <entry><literal>1</literal>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            </tbody>
+		</tgroup>
+	</table>
+	</sect4>
+	<sect4>
+		<title>DatePicker对象事件</title>
+		<table frame="topbot" id="presentation-client-editor-datepicker-events" revision="8">
+			<tgroup cols="2">
+			<colspec colname="c1" colwidth="1*"/>
+   			<colspec colname="c2" colwidth="4*"/>
+			<thead>
+				<row>
+                    <entry>
+                        事件名
+                    </entry>
+                    <entry>
+                        用途
+                    </entry>
+                </row>
+			</thead>
+			<tbody>
+				<row>
+                    <entry>
+                        select
+                    </entry>
+                    <entry>
+                    	选择日期时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                    	其他
+                    </entry>
+                    <entry>
+                    	请参阅TextField对象的事件
+                    </entry>
+				</row>
+			</tbody>
+			</tgroup>
+		</table>
+	</sect4>
+</sect3>
+</article>

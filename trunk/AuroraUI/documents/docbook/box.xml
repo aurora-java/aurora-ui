@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<article>
+<sect3 id="presentation-client-layout-box" revision="1">
+	<title>Box</title>
+	<para>
+		Box组件类似html中的table标签,通过行(row)和列(column)的配置来构建一个表格.
+	</para>
+	<para>
+        在screen文件中我们通过&lt;a:box&gt;标签来定义一个box对象,然后定义row和column.
+    </para> 
+    <para>
+        box标签下的组件将会按照从左到右从上到下的原则进行排列.
+    </para>           
+    <programlisting language="screen"><![CDATA[                
+    <a:box column="2" row="3">
+        <a:textField name="cmp1"/>
+        <a:textField name="cmp2"/>
+        <a:textField name="cmp3"/>
+        <a:textField name="cmp4"/>
+        <a:textField name="cmp5"/>
+        <a:textField name="cmp6"/>
+    </a:dataSet>
+    ]]></programlisting>
+    <para>
+         布局实例图:
+    </para>
+	<programlisting><![CDATA[
+	      Box(2列3行)
+    ___________________________  
+   |             |             |
+   |    cmp1     |   cmp2      |
+   |_____________|_____________|
+   |             |             |
+   |    cmp3     |   cmp4      |
+   |_____________|_____________|     
+   |             |             |
+   |    cmp5     |   cmp6      |
+   |_____________|_____________|      
+                                                 
+                                                 
+ ]]></programlisting>
+</sect3>
+</article>

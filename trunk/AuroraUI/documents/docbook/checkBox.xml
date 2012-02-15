@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<article>
+<sect3 id="presentation-client-editor-checkbox" revision="1">
+    <title>CheckBox</title>            
+    <para>
+       CheckBox是一个多项选择按钮组件。
+    </para>
+    <mediaobject>
+    	<imageobject role="fo">
+            <imagedata fileref="images/checkBox.jpg" format="JPG" width="65" depth="49" contentwidth="65" contentdepth="49"/>
+        </imageobject>
+        <imageobject role="html">
+            <imagedata fileref="images/checkBox.jpg" format="JPG"/>
+        </imageobject>
+		<caption>
+			<para>
+				上图是CheckBox组件在页面中的呈现，选择框前的文字信息是通过ComboBox标签属性prompt来定义的。
+			</para>
+		</caption>
+    </mediaobject>
+    <sect4 id="presentation-client-editor-checkbox-tag" revision="1">
+    <title>CheckBox定义</title>
+    <para>
+    	 在screen文件中我们通过&lt;a:checkBox&gt;标签来定义一个CheckBox对象。
+    </para>
+    <programlisting language="screen"><![CDATA[
+<a:dataSet id="sys_notify_edit_ds">
+    <a:fields>
+        <a:field name="enabled_flag" checkedValue="Y" defaultValue="Y" uncheckedValue="N"/>
+    </a:fields>
+</a:dataSet>
+<a:checkBox name="enabled_flag" bindTarget="sys_notify_edit_ds" prompt="FND_OPERATION_UNITS.ENABLED_FLAG">
+	<a:events>
+        <a:event name="change" handler="onChange"/>
+    </a:events>
+</a:checkBox>
+]]></programlisting>
+	<para>
+    	checkBox标签可以设置一个id属性，id是组件的唯一标识，我们可以在页面脚本中用$('id')的方法获得该id对应的组件对象，进而可以调用相应的函数方法。
+    </para>
+    <para>
+    	checkBox标签的bindTarget属性可指定一个dataset对象的id，name属性可指定该dataset其中一个field的名字。这两个属性必须联合使用，其功能是将CheckBox对象绑定到dataset中的一个field上，进而我们只要对dataset进行操作就能即时反映在CheckBox上，另外改变CheckBox的选中状态也会立刻修改dataset中的数据。
+    </para>
+    <para>
+    	events标签定义了需要响应的事件函数，例如change事件，当选中的选项改变为选中另一个选项时，CheckBox会触发change事件，这样我们可以通过配置一个客户端函数onChange来响应。
+    </para>
+    <programlisting language="javascript"><![CDATA[
+function onChange(checkbox, newValue, oldValue){
+    var record = $('sys_user_create_ds').getCurrentRecord();  
+    if(newValue=='1'){
+        record.set('password_lifespan_access',null)
+        record.getMeta().getField('password_lifespan_days').setReadOnly(false);
+        record.getMeta().getField('password_lifespan_access').setReadOnly(true);
+    }else if(newValue=='2'){
+        record.set('password_lifespan_days',null)
+        record.getMeta().getField('password_lifespan_days').setReadOnly(true);
+        record.getMeta().getField('password_lifespan_access').setReadOnly(false);
+    }else{
+        record.set('password_lifespan_access',null)
+        record.set('password_lifespan_days',null)
+        record.getMeta().getField('password_lifespan_days').setReadOnly(true);
+        record.getMeta().getField('password_lifespan_access').setReadOnly(true);
+    }
+}
+]]></programlisting>
+    </sect4>
+    <sect4>
+		<title>CheckBox标签属性</title>
+		<para>
+			可参考TextField的标签属性。
+		</para>
+	</sect4>
+	<sect4>
+		<title>CheckBox对象事件</title>
+		<table frame="topbot" id="presentation-client-editor-checkbox-events" revision="8">
+			<tgroup cols="2">
+			<colspec colname="c1" colwidth="1*"/>
+   			<colspec colname="c2" colwidth="4*"/>
+			<thead>
+				<row>
+                    <entry>
+                        事件名
+                    </entry>
+                    <entry>
+                        用途
+                    </entry>
+                </row>
+			</thead>
+			<tbody>
+				<row>
+                    <entry>
+                        blur
+                    </entry>
+                    <entry>
+                        失去焦点时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                        change
+                    </entry>
+                    <entry>
+                       选项的选择状态发生改变时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                        click
+                    </entry>
+                    <entry>
+                        点击选项按钮时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                        focus
+                    </entry>
+                    <entry>
+                        获得焦点时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                        mouseover
+                    </entry>
+                    <entry>
+                        鼠标移到组件上时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                        mouseout
+                    </entry>
+                    <entry>
+                         鼠标移出组件时触发的事件。
+                    </entry>
+                </row>
+			</tbody>
+			</tgroup>
+		</table>
+	</sect4>
+</sect3>
+</article>

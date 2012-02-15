@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<article>
+<sect3 id="presentation-client-layout-fieldset" revision="1">
+    <title>
+        FieldSet
+    </title>
+    <para>
+        FieldSet组件继承自Box组件,带有一个title头. 它和Form标签的不同仅仅局限在界面展现上
+    </para> 
+    <para>
+        提示:FieldSet的配置和Form基本类似,它和Form标签的不同仅仅局限在界面展现上.
+    </para>
+    <para>
+        FieldSet组件的布局方式和Box类似,根据row和column的布局所有组件,采取从上到下从左到右的方式.
+    </para>          
+    <programlisting language="screen"><![CDATA[                
+<a:fieldSet id="loginForm" labelWidth="100" row="1" title="Form Title" width="320">
+    <a:textField name="cmp1"/>
+    <a:textField name="cmp2"/>
+    <a:textField name="cmp2"/>
+</a:fieldSet>
+    ]]></programlisting>
+    <para>
+         布局实例图:
+    </para>
+    <programlisting><![CDATA[
+    FieldSet
+    
+   |---Form Title----------------------------| 
+   |_________________________________________|
+   |             |             |             |
+   |    cmp1     |    cmp2     |    cmp3     |
+   |_____________|_____________|_____________|   
+ ]]></programlisting>
+ 
+    <para>
+        提示:FieldSet和Box以及其他容器组件类似,都是可以嵌套的.举例来说FieldSet下可以再次嵌套VBox,HBox,Form标签.
+    </para>
+</sect3>
+</article>
