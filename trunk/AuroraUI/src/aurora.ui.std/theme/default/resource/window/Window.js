@@ -408,8 +408,9 @@ $A.Window = Ext.extend($A.Component,{
         }catch(e){}
         if(res && res.success == false){
         	if(res.error){
-                if(res.error.code  && res.error.code == 'session_expired'){
-                            $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
+                if(res.error.code  && res.error.code == 'session_expired' || res.error.code == 'login_required'){
+                    if($A.manager.fireEvent('timeout', $A.manager))
+                    $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
                 }else{
             		$A.manager.fireEvent('ajaxfailed', $A.manager, options.url,options.para,res);
                     var st = res.error.stackTrace;

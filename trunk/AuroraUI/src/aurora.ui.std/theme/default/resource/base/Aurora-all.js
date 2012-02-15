@@ -338,7 +338,7 @@ $A.request = function(opt){
 					$A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
 					if(res.error){
                         if(res.error.code  && (res.error.code == 'session_expired' || res.error.code == 'login_required')){
-                            $A.manager.fireEvent('timeout', $A.manager);
+                            if($A.manager.fireEvent('timeout', $A.manager))
                             $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
                         }else{
     						var st = res.error.stackTrace;
@@ -2457,6 +2457,22 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     setSubmitParameter : function(para, value){
         this.spara[para] = value;
     },
+	/**
+	 * 等待ds中的所有record都ready后执行回调函数
+	 * @param {String} isAll 判断所有的record还是选中的record
+	 * @param {Function} callback 回调函数
+	 * @param {Object} scope 回调函数的作用域
+	 */
+    wait : function(isAll,callback,scope){
+    	var records = isAll ? this.getAll() : this.getSelected(),
+			intervalId = setInterval(function(){
+		        for(var i = 0;i < records.length;i++){
+		            if(!records[i].isReady)return;
+		        }
+		        clearInterval(intervalId);
+		        if(callback)callback.call(scope||window);
+		    },10);
+    },
     /**
      * 查询数据.
      * @param {Number} page(可选) 查询的页数.
@@ -2467,12 +2483,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(!this.queryurl) return;
         if(this.qds) {
             if(this.qds.getCurrentRecord() == null) this.qds.create();
-            var sf=this,intervalId=setInterval(function(){
-                if(!sf.qds.getCurrentRecord().isReady)return;
-                clearInterval(intervalId);
-                if(!sf.qds.validate()) return;
-                sf.doQuery(page,opts);
-            },10);
+            this.qds.wait(true,function(){
+	    		if(!this.qds.validate()) return;
+                this.doQuery(page,opts);
+	    	},this);
         }else{
             this.doQuery(page,opts);
         }
@@ -2599,26 +2613,18 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             $A.request({url:this.submiturl, para:p, ext:this.spara,success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
         //}
     },
-    isAllReady:function(records){
-        for(var i=0;i<records.length;i++){
-            if(!records[i].isReady)return false;
-        }
-        return true;
-    },
     /**
      * 提交选中数据.
      * @param {String} url(可选) 提交的url.
      * @param {Array} fields(可选) 根据选定的fields提交.
      */
     submitSelected : function(url,fields){
-        var sf=this,intervalId=setInterval(function(){
-            if(!sf.isAllReady(sf.getSelected()))return;
-            clearInterval(intervalId);
-            if(sf.fireEvent("beforesubmit",sf)){
-                var d = sf.getJsonData(true,fields);
-                sf.doSubmit(url,d);
+    	this.wait(false,function(){
+    		if(this.fireEvent("beforesubmit",this)){
+                var d = this.getJsonData(true,fields);
+                this.doSubmit(url,d);
             }
-        },10);
+    	},this);
     },
     /**
      * 提交数据.
@@ -2626,14 +2632,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Array} fields(可选) 根据选定的fields提交.
      */
     submit : function(url,fields){
-        var sf=this,intervalId=setInterval(function(){
-            if(!sf.isAllReady(sf.getAll()))return;
-            clearInterval(intervalId);
-            if(sf.fireEvent("beforesubmit",sf)){
-                var d = sf.getJsonData(false,fields);
-                sf.doSubmit(url,d);
+    	this.wait(true,function(){
+    		if(this.fireEvent("beforesubmit",this)){
+                var d = this.getJsonData(false,fields);
+                this.doSubmit(url,d);
             }
-        },10);
+    	},this);
     },
     /**
      * post方式提交数据.
@@ -2642,11 +2646,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     post : function(url){
         var r=this.getCurrentRecord();
         if(!r)return;
-        var sf=this,intervalId=setInterval(function(){
-            if(!r.isReady)return;
-            clearInterval(intervalId);
-            if(sf.validate())Aurora.post(url,r.data);
-        },10);
+        this.wait(true,function(){
+    		if(this.validate())$A.post(url,r.data);
+    	},this);
     },
     /**
      * 重置数据.
@@ -6469,8 +6471,9 @@ $A.Window = Ext.extend($A.Component,{
         }catch(e){}
         if(res && res.success == false){
         	if(res.error){
-                if(res.error.code  && res.error.code == 'session_expired'){
-                            $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
+                if(res.error.code  && res.error.code == 'session_expired' || res.error.code == 'login_required'){
+                    if($A.manager.fireEvent('timeout', $A.manager))
+                    $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
                 }else{
             		$A.manager.fireEvent('ajaxfailed', $A.manager, options.url,options.para,res);
                     var st = res.error.stackTrace;
@@ -6852,7 +6855,7 @@ $A.Lov = Ext.extend($A.TextField,{
     			clearTimeout(this.showCompleteId);
     			delete this.showCompleteId;
     		}
-    		this.autocompleteview.un('show',this.autoCompleteShow,this);
+    		(this.tempview||this.autocompleteview).un('show',this.autoCompleteShow,this);
     	}
     	$A.Lov.superclass.onBlur.call(this,e);
     },
@@ -6981,10 +6984,12 @@ $A.Lov = Ext.extend($A.TextField,{
         	if(displayFields){
             	text = '';
             	for(var i = 0,l = displayFields.length;i < l;i++){
-            		text += '<td>'+record.get(displayFields[i].name)+'</td>';
+            		var v = record.get(displayFields[i].name);
+            		text += '<td>'+(Ext.isEmpty(v)?'&#160;':v)+'</td>';
             	}
             }else{
-            	text = '<td>'+record.get(this.autocompletefield)+'</td>';
+            	var v = record.get(this.autocompletefield);
+            	text = '<td>'+(Ext.isEmpty(v)?'&#160;':v)+'</td>';
             }
         }
 		return text;
@@ -7095,7 +7100,42 @@ $A.Lov = Ext.extend($A.TextField,{
                 var datas = [].concat(res.result.record),l = datas.length;
                 if(l>0){
                 	if(this.fetchsingle && l>1){
-                		$A.showWarningMessage(_lang['lov.warn'],_lang['lov.warn.msg']);
+                		var sb=['<table class="autocomplete" cellspacing="0" cellpadding="2">'],
+                			displayFields = this.binder.ds.getField(this.binder.name).getPropertity('displayFields');
+            			if(displayFields && displayFields.length){
+            				sb.add('<tr tabIndex="-2" class="autocomplete-head">');
+			            	for(var i = 0,ll = displayFields.length;i < ll;i++){
+			            		sb.add('<td>'+displayFields[i].prompt+'</td>');
+			            	}
+							sb.add('</tr>');
+            			}
+            			for(var i=0;i<l;i++){
+							var text = this.getRenderText(new $A.Record(datas[i]),displayFields);
+							sb.add('<tr tabIndex="'+i+'"'+(i%2==1?' class="autocomplete-row-alt"':'')+'>'+text+'</tr>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
+						}
+						sb.add('</table>');
+						var div = new Ext.Template('<div style="position:absolute;left:0;top:0">{sb}</div>').append(document.body,{'sb':sb.join('')},true),
+                			cmp = new $A.Window({id:this.id+'_fetchmulti',closeable:true,title:'请选择', height:Math.max(div.getHeight(),300),width:Math.max(div.getWidth(),200)});
+                		cmp.on('close',function(){
+                			if(this.tempview){
+	                			this.autocompleteview = this.tempview;
+	                			delete this.tempview;
+                			}else this.autocompleteview = null;
+                		},this);
+                		if(this.autocompleteview)this.tempview = this.autocompleteview;
+            			this.autocompleteview = {};
+                		(this.autocompleteview.wrap = cmp.body).update(sb.join(''));
+                		div.remove();
+                		cmp.body.child('table').setWidth('100%')
+                		cmp.body.on('mousemove',this.onViewMove,this);
+                		cmp.body.on('dblclick',function(e,t){
+							t = Ext.fly(t).parent('TR');
+							var index = t.dom.tabIndex;
+							if(index<-1)return;
+							var r2 = new $A.Record(datas[index]);
+							this.commit(r2,record);
+							cmp.close();
+                		},this);
                 	}else{
 	                    var data = datas[0];
 	                    r = new $A.Record(data);
@@ -7248,6 +7288,108 @@ $A.Popup = Ext.extend($A.Component,{
     tpl : ['<div tabIndex="-2" class="item-popup" style="visibility:hidden;background-color:#fff;">','</div>'],
     shadowtpl : ['<div class="item-shadow" style="visibility:hidden;">','</div>']
 });
+/**
+ * @class Aurora.Spinner
+ * @extends Aurora.TextField
+ * <p>微调范围输入组件.
+ * @author huazhen.wu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
+$A.Spinner = Ext.extend($A.TextField,{
+	constructor: function(config) {
+        $A.Spinner.superclass.constructor.call(this, config);
+    },
+    initComponent : function(config){
+    	$A.Spinner.superclass.initComponent.call(this, config);
+    	this.step = Number(config.step||1);
+		this.max = Ext.isEmpty(config.max)?Number.MAX_VALUE:Number(config.max);
+		this.min = Ext.isEmpty(config.min)?-Number.MAX_VALUE:Number(config.min);
+		var decimal = String(this.step).split('.')[1];
+		this.decimalprecision = decimal?decimal.length:0;
+    	this.btn = this.wrap.child('div.item-spinner-btn');
+    },
+    processListener: function(ou){
+    	$A.Spinner.superclass.processListener.call(this, ou);
+    	this.btn[ou]('mouseover',this.onBtnMouseOver,this);
+    	this.btn[ou]('mouseout',this.onBtnMouseOut,this);
+    	this.btn[ou]('mousedown',this.onBtnMouseDown,this);
+    	this.btn[ou]('mouseup',this.onBtnMouseUp,this);
+    },
+    onBtnMouseOver:function(e,t){
+    	if(this.readonly)return;
+    	Ext.fly(t).addClass('spinner-over');
+    },
+    onBtnMouseOut:function(e,t){
+    	if(this.readonly)return;
+    	Ext.fly(t).removeClass('spinner-over');
+    	this.onBtnMouseUp(e,t);
+    },
+    onBtnMouseDown:function(e,t){
+    	if(this.readonly)return;
+    	var target = Ext.fly(t);
+    	target.addClass('spinner-select');
+		var isPlus = !!target.parent('.item-spinner-plus');
+		this.goStep(isPlus,function(){
+			var sf = this;
+	    	this.intervalId = setInterval(function(){
+		    	clearInterval(sf.intervalId);
+	    		sf.intervalId = setInterval(function(){
+	    			sf.goStep(isPlus,null,function(){
+	    				clearInterval(sf.intervalId);
+	    			});
+	    		},40);
+	    	},500);			
+		});
+    },
+    onBtnMouseUp : function(e,t){
+    	if(this.readonly)return;
+    	clearInterval(this.intervalId);
+    	Ext.fly(t).removeClass('spinner-select');
+    	this.setValue(this.tempValue);
+    	delete this.intervalId;
+    },
+    /**
+     * 递增
+     */
+    plus : function(){
+    	this.goStep(true,function(n){
+    		this.setValue(n);
+    	});
+    },
+    /**
+     * 递减
+     */
+    minus : function(){
+    	this.goStep(false,function(n){
+    		this.setValue(n);
+    	});
+    },
+    goStep : function(isPlus,callback,callback2){
+    	if(this.readonly)return;
+    	var n = Ext.isEmpty(this.tempValue) ? Number(this.getValue()||0) : this.tempValue;
+    	n += isPlus ? this.step : -this.step;
+    	var mod = this.toFixed(this.toFixed(n - this.min)%this.step);
+    	n = this.toFixed(n - (mod == this.step ? 0 : mod));
+    	if(n <= this.max && n >= this.min){
+    		this.setRawValue(n);
+	    	this.tempValue = n;
+    		if(callback)callback.call(this,n);
+    	}else{
+    		if(callback2)callback2.call(this,n)
+    	}
+    },
+    toFixed : function(n){
+    	return Number(n.toFixed(this.decimalprecision));
+    },
+    processValue : function(v){
+    	if(Ext.isEmpty(v)||isNaN(v))return '';
+    	if(v > this.max)v = this.max;
+    	else if(v < this.min)v = this.min;
+    	//else v -= v%this.step;
+        return v;
+    }
+})
 /**
  * @class Aurora.MultiLov
  * @extends Aurora.Lov
