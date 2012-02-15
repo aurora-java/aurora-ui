@@ -1,0 +1,93 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<article>
+<sect3 id="presentation-client-editor-datetimepicker" revision="1">
+    <title>DateTimePicker</title>            
+    <para>
+		DateTimePicker是一个提供日期及时间输入编辑的组件，继承自DatePicker组件，拥有DatePicker标签的属性以及DatePicker对象的方法和事件。
+    </para>
+    <mediaobject>
+    	<imageobject role="fo">
+            <imagedata fileref="images/dateTimePicker.jpg" format="JPG" width="254" depth="137" contentwidth="254" contentdepth="137"/>
+        </imageobject>
+        <imageobject role="html">
+            <imagedata fileref="images/dateTimePicker.jpg" format="JPG"/>
+        </imageobject>
+		<caption>
+			<para>
+				上图是DateTimePicker组件在页面中的呈现，输入框前的文字信息是通过DateTimePicker标签属性prompt来定义的。
+			</para>
+		</caption>
+    </mediaobject>
+    <sect4 id="presentation-client-editor-datetimepicker-tag" revision="1">
+    <title>DateTimePicker定义</title>
+    <para>
+    	 在screen文件中我们通过&lt;a:dateTimePicker&gt;标签来定义一个DateTimePicker对象。
+    </para>
+    <programlisting language="screen"><![CDATA[
+<a:dateTimePicker name="start_date" bindTarget="sys_user_create_ds" viewSize="2"
+	enableBesideDays="both" enableMonthBtn="both">
+    <a:events>
+        <a:event handler="login" name="enterdown"/>
+    </a:events>
+</a:dateTimePicker>
+]]></programlisting>
+	<para>
+    	dateTimePicker标签可以设置一个id属性，id是组件的唯一标识，我们可以在页面脚本中用$('id')的方法获得该id对应的组件对象，进而可以调用相应的函数方法。
+    </para>
+    <para>
+    	dateTimePicker标签的bindTarget属性可指定一个dataset对象的id，name属性可指定该dataset其中一个field的名字。这两个属性必须联合使用，其功能是将DateTimePicker对象绑定到dataset中的一个field上，进而我们只要对dataset进行操作就能即时反映在DateTimePicker上，另外DateTimePicker上的文字编辑也会立刻修改dataset中的数据。
+    </para>
+    <para>
+    	events标签定义了需要响应的事件函数，例如enterdown事件，当键盘键入回车键时，DateTimePicker会触发enterdown事件，这样我们可以通过配置一个客户端函数login来响应。
+    </para>
+    <programlisting language="javascript"><![CDATA[
+function login(){
+    var lds = $('login_dataset');
+    var record = lds.getCurrentRecord();
+    Aurora.request({url:'login.svc', para:record.data, success:function(){
+        window.location.href='role_select.screen'
+    },scope:this});
+}
+]]></programlisting>
+    </sect4>
+    <sect4>
+    	<title>日期渲染</title>
+    	<para>
+    		渲染函数(dayRenderer)
+    	</para>
+    	<para>
+很多情况下我们需要将显示的日期表进行一些特殊处理，例如我们需要将今天之前的日期设为不能选择状态。这个时候我们就需要 在datetimepicker标签上指定dayRenderer渲染函数来实现.
+    	</para>
+    	<para>
+首先我们需要实现一个dayRenderer函数，来判断当前日期，然后返回一段html代码。 
+    	</para>
+    	<programlisting language="javascript"><![CDATA[
+function rendererDay(cell,date,text,currentMonth){
+	var today=new Date();
+	if(date < new Date(today.getFullYear(),today.getMonth(),today.getDate())){
+		cell.disabled=true;
+	}
+	return text;
+}
+		]]></programlisting> 
+		<para>
+接下来在datetimepicker标签上指定dayRenderer属性为rendererDay. 
+		</para>
+		    	<programlisting language="screen"><![CDATA[
+<a:dateTimePicker dayRenderer="rendererDay"/>
+		]]></programlisting>
+    </sect4>
+    <sect4>
+		<title>DateTimePicker标签属性</title>
+		<para>
+    		请参阅DatePicker的标签属性。
+    	</para>
+	</sect4>
+	<sect4>
+		<title>DateTimePicker对象事件</title>
+		<para>
+    		请参阅DatePicker的对象事件。
+    	</para>
+	</sect4>
+</sect3>
+</article>

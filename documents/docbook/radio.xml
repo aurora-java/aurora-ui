@@ -1,0 +1,263 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<article>
+<sect3 id="presentation-client-editor-radio" revision="1">
+    <title>Radio</title>            
+    <para>
+       Radio是一组单项选择按钮组件。
+    </para>
+    <mediaobject>
+    	<imageobject role="fo">
+            <imagedata fileref="images/radio.jpg" format="JPG" width="57" depth="55" contentwidth="57" contentdepth="55"/>
+        </imageobject>
+        <imageobject role="html">
+            <imagedata fileref="images/radio.jpg" format="JPG"/>
+        </imageobject>
+		<caption>
+			<para>
+				上图是Radio组件在页面中的呈现。
+			</para>
+		</caption>
+    </mediaobject>
+    <sect4 id="presentation-client-editor-radio-tag" revision="1">
+    <title>Radio定义</title>
+    <para>
+    	 在screen文件中我们通过&lt;a:radio&gt;标签来定义一个Radio对象。
+    </para>
+    <programlisting language="screen"><![CDATA[
+<a:radio name="state" bindTarget="sys_user_create_ds" layout="vertical"
+style="padding-top:5px;padding-bottom:5px;" width="80">
+    <a:items>
+        <a:item label="SYS_USER.PASSWD_EXPIRED_DAYS" value="1"/>
+        <a:item label="SYS_USER.PASSWD_EXPIRED_TIMES" value="2"/>
+        <a:item label="SYS_USER.PASSWD_EXPIRED_NEVER" value="3"/>
+    </a:items>
+    <a:events>
+        <a:event name="change" handler="onRadioChange"/>
+    </a:events>
+</a:radio>
+]]></programlisting>
+	<para>
+    	radio标签可以设置一个id属性，id是组件的唯一标识，我们可以在页面脚本中用$('id')的方法获得该id对应的组件对象，进而可以调用相应的函数方法。
+    </para>
+    <para>
+    	radio标签的bindTarget属性可指定一个dataset对象的id，name属性可指定该dataset其中一个field的名字。这两个属性必须联合使用，其功能是将Radio对象绑定到dataset中的一个field上，进而我们只要对dataset进行操作就能即时反映在Radio上，另外Radio上的文字编辑也会立刻修改dataset中的数据。
+    </para>
+    <para>
+    	items标签定义了radio的选项组。items标签下每个item标签即一个选项，label属性指定选项后面的提示性息，value属性指定了选项的值。
+    </para>
+    <para>
+    	events标签定义了需要响应的事件函数，例如change事件，当选中的选项改变为选中另一个选项时，Radio会触发change事件，这样我们可以通过配置一个客户端函数onRadioChange来响应。
+    </para>
+    <programlisting language="javascript"><![CDATA[
+function onRadioChange(radio, newValue, oldValue){
+    var record = $('sys_user_create_ds').getCurrentRecord();  
+    if(newValue=='1'){
+        record.set('password_lifespan_access',null)
+        record.getMeta().getField('password_lifespan_days').setReadOnly(false);
+        record.getMeta().getField('password_lifespan_access').setReadOnly(true);
+    }else if(newValue=='2'){
+        record.set('password_lifespan_days',null)
+        record.getMeta().getField('password_lifespan_days').setReadOnly(true);
+        record.getMeta().getField('password_lifespan_access').setReadOnly(false);
+    }else{
+        record.set('password_lifespan_access',null)
+        record.set('password_lifespan_days',null)
+        record.getMeta().getField('password_lifespan_days').setReadOnly(true);
+        record.getMeta().getField('password_lifespan_access').setReadOnly(true);
+    }
+}
+]]></programlisting>
+	<para>
+		另外，radio标签还有另一种方式来定义Radio对象，Radio的选项不是用items标签来硬性定义，而是可以用类似于combobox的方法，将选项用options属性绑定到一个dataset数据集，相应的文本提示信息和选项值用labelField和valueField来指定。
+	</para>
+	<programlisting language="screen"><![CDATA[
+<a:radio id="roleRadios" labelExpression="${@role_description}_${@company_short_name}"
+layout="vertical" options="/model/role_list" valueField="role_company" width="230">
+    <a:events>
+        <event name="enterdown" handler="goToMain"/>
+    </a:events>
+</a:radio>	
+]]></programlisting>
+	<para>
+		labelExpression属性指定如何选项文本提示信息的表达式，可替代labelField属性。
+	</para>
+    </sect4>
+    <sect4>
+		<title>Radio标签属性</title>
+		<table frame="topbot" id="presentation-client-editor-radio-properties" revision="8">
+		<tgroup cols="4">
+			<colspec colname="c1" colwidth="1*"/>
+   			<colspec colname="c2" colwidth="2*"/>
+   			<colspec colname="c3" colwidth="0.5*"/>
+   			<colspec colname="c4" colwidth="0.5*"/>
+   			<thead>
+                <row>
+                    <entry>
+                        属性名
+                    </entry>
+                    <entry>
+                        用途
+                    </entry>
+                    <entry>
+                       默认值
+                    </entry>
+                    <entry>
+                       是否必填
+                    </entry>
+                </row>
+            </thead>
+            <tbody>
+            	<row>
+                    <entry>
+                        labelExpression
+                    </entry>
+                    <entry>
+                       指定如何选项文本提示信息的表达式。
+                    </entry>
+                    <entry>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        labelField
+                    </entry>
+                    <entry>指定options绑定的选项数据集中用来显示选项文本提示信息的field。
+                    </entry>
+                    <entry><literal>label</literal>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        layout
+                    </entry>
+                    <entry>
+                    	指定按钮组的排列方式。
+                    	<para>
+                    		<emphasis role="strong">取值</emphasis>
+                    		<literal>horizontal</literal> | <literal>vertical</literal> 
+                    	</para>
+                    </entry>
+                    <entry><literal>horizontal</literal>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        options
+                    </entry>
+                    <entry>
+                     	指定Radio选项的数据集。
+                    </entry>
+                    <entry>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        valueField
+                    </entry>
+                    <entry>
+                     	指定options绑定的选项数据集中用来表示选项值的field。
+                    </entry>
+                    <entry>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            </tbody>
+		</tgroup>
+	</table>
+	</sect4>
+	<sect4>
+		<title>Radio对象事件</title>
+		<table frame="topbot" id="presentation-client-editor-radio-events" revision="8">
+			<tgroup cols="2">
+			<colspec colname="c1" colwidth="1*"/>
+   			<colspec colname="c2" colwidth="4*"/>
+			<thead>
+				<row>
+                    <entry>
+                        事件名
+                    </entry>
+                    <entry>
+                        用途
+                    </entry>
+                </row>
+			</thead>
+			<tbody>
+				<row>
+                    <entry>
+                        blur
+                    </entry>
+                    <entry>
+                        失去焦点时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                        change
+                    </entry>
+                    <entry>
+                        选中的选项改变为选中另一个选项时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                        click
+                    </entry>
+                    <entry>
+                        点击选项按钮时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                        enterdown
+                    </entry>
+                    <entry>
+                       敲击回车键时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                        focus
+                    </entry>
+                    <entry>
+                        获得焦点时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                        keydown
+                    </entry>
+                    <entry>
+                        键盘按下时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                        mouseover
+                    </entry>
+                    <entry>
+                        鼠标移到组件上时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                        mouseout
+                    </entry>
+                    <entry>
+                         鼠标移出组件时触发的事件。
+                    </entry>
+                </row>
+			</tbody>
+			</tgroup>
+		</table>
+	</sect4>
+</sect3>
+</article>

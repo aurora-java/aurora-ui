@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<article>
+<sect2 id="presentation-client-tree" revision="1">
+    <title>Tree组件</title>         
+    <para>
+        Tree组件是一个树状导航组件。
+    </para>
+    <sect3 id="presentation-client-tree-tag" revision="1">
+    	<title>Tab定义</title>
+    	<para>
+    		在screen文件中我们通过&lt;a:tree&gt;标签来定义一个tree对象.
+    	</para>
+		<programlisting language="screen"><![CDATA[
+<a:tree id="functionTree" bindTarget="function_tree_ds" displayField="function_name"
+height="400" idField="function_id" parentField="parent_function_id" showCheckBox="false"
+expandField="expanded" style="margin:5px;" width="300"/>
+		]]></programlisting> 
+	    <para>
+	        生成的界面如下:
+	    </para>
+	    <mediaobject>
+	    	<imageobject role="fo">
+	            <imagedata fileref="images/tree.jpg" format="JPG" width="178" depth="172" contentwidth="178" contentdepth="172"/>
+	        </imageobject>
+	        <imageobject role="html">
+	            <imagedata fileref="images/tree.jpg" format="JPG"/>
+	        </imageobject>
+	    </mediaobject>
+	    <para>
+	    	树中的每一个节点都是对应所绑定的数据集(dataset)中每一条记录(record)。
+	    </para>
+	    <para>
+	    	节点与节点之间的层次关系是通过tree标签的属性idField和parentField来联系的，idField属性指定的是record中用来表示该节点的唯一标识(ID)的字段(field)名，parentField属性指定的record中用来表示该节点的父节点的ID的field名。
+	    </para>
+	    <para>
+	    	tree标签的属性displayField指定的record中用来表示节点文本信息的field名。
+	    </para>
+    </sect3>
+    <sect3>
+    	<title>树节点渲染</title>
+    	<para>
+    		渲染函数(renderer)
+    	</para>
+    	<para>
+很多情况下我们并不需要直接显示数据，而是需要对数据进行一下加工，例如我们需要将每个数节点变成一个可以导航页面的链接。这个时候我们就需要 在tree标签上指定renderer渲染函数来实现.
+    	</para>
+    	<para>
+首先我们需要实现一个renderer函数，通过取得节点用来表示url的field值，返回一段外层套有a标签的html代码。 
+    	</para>
+    	<programlisting language="javascript"><![CDATA[
+function linkrenderer(text, record, node){
+    var url = record.get('command_line');
+    if(url){
+        return  '<a target="main" href="'+url+'">'+text+'</a>';
+    }else{
+        return text;
+    }
+}
+		]]></programlisting> 
+		<para>
+接下来在tree标签上指定renderer属性为linkrenderer. 
+		</para>
+		    	<programlisting language="screen"><![CDATA[
+<a:tree renderer="linkrenderer"/>
+		]]></programlisting> 
+    </sect3>
+    <sect3>
+	<title>Tree标签属性</title>
+	<table frame="topbot" id="presentation-client-tree-properties" revision="8">
+		<tgroup cols="4">
+			<colspec colname="c1" colwidth="1*"/>
+   			<colspec colname="c2" colwidth="2*"/>
+   			<colspec colname="c3" colwidth="0.5*"/>
+   			<colspec colname="c4" colwidth="0.5*"/>
+   			<thead>
+                <row>
+                    <entry>
+                        属性名
+                    </entry>
+                    <entry>
+                        用途
+                    </entry>
+                    <entry>
+                       默认值
+                    </entry>
+                    <entry>
+                       是否必填
+                    </entry>
+                </row>
+            </thead>
+            <tbody>
+            	<row>
+                    <entry>
+                        checkField
+                    </entry>
+                    <entry>
+                        record中用来显示树节点是否被选中的field。只有在属性showCheckBox为true的情况下才有效果。
+                    </entry>
+                    <entry><literal>checked</literal>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        displayField
+                    </entry>
+                    <entry>
+                    	record中用来显示树节点文本信息的field。
+                    </entry>
+                    <entry><literal>name</literal>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        expandField
+                    </entry>
+                    <entry>
+                    	record中用来表示树节点是否被伸展的field。
+                    </entry>
+                    <entry><literal>expanded</literal>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        idField
+                    </entry>
+                    <entry>
+                       record中用来指定树节点唯一标识的field。
+                    </entry>
+                    <entry><literal>id</literal>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        parentField
+                    </entry>
+                    <entry>
+                    	record中用来指定树节点的父节点唯一标识的field。
+                    </entry>
+                    <entry><literal>pid</literal>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        renderer
+                    </entry>
+                    <entry>
+                    	节点渲染器
+                    </entry>
+                    <entry>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        sequenceField
+                    </entry>
+                    <entry>
+                      record中用来指定树节点序号的field。
+                    </entry>
+                    <entry><literal>sequence</literal>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            	<row>
+                    <entry>
+                        showCheckBox
+                    </entry>
+                    <entry>
+                    	是否显示多选框
+                    </entry>
+                    <entry><literal>false</literal>
+                    </entry>
+                    <entry>
+                    </entry>
+                </row>
+            </tbody>
+		</tgroup>
+	</table>
+	</sect3>
+</sect2>
+</article>

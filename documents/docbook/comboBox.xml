@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<article>
+<sect3 id="presentation-client-editor-combobox" revision="1">
+    <title>ComboBox</title>            
+    <para>
+    	ComboBox是一个可输入的下拉框组件，继承自TextField组件，拥有TextField标签的属性以及TextField对象的方法和事件。其主要的功能就是运用键值对的形式将数据(键)以值的形式来呈现。
+    </para>
+    <mediaobject>
+    	<imageobject role="fo">
+            <imagedata fileref="images/comboBox.jpg" format="JPG" width="148" depth="48" contentwidth="148" contentdepth="48"/>
+        </imageobject>
+        <imageobject role="html">
+            <imagedata fileref="images/comboBox.jpg" format="JPG"/>
+        </imageobject>
+		<caption>
+			<para>
+				上图是ComboBox组件在页面中的呈现，输入框前的文字信息是通过ComboBox标签属性prompt来定义的。
+			</para>
+		</caption>
+    </mediaobject>
+    <sect4 id="presentation-client-editor-combobox-tag" revision="1">
+    <title>ComboBox定义</title>
+    <para>
+    	 在screen文件中我们通过&lt;a:comboBox&gt;标签来定义一个ComboBox对象。
+    </para>
+    <programlisting language="screen"><![CDATA[
+<a:dataSet id="sys_user_islocked_ds">
+    <a:datas>
+        <a:record name="已冻结" code="Y"/>
+        <a:record name="未冻结" code="N"/>
+    </a:datas>
+</a:dataSet>
+<a:dataSet id="sys_user_query_ds">
+    <a:fields>
+        <a:field name="user_name"/>
+        <a:field name="frozen_flag_display" displayField="name" options="sys_user_islocked_ds"
+		returnField="frozen_flag" valueField="code"/>
+    </a:fields>
+</a:dataSet>
+<a:comboBox name="frozen_flag_display" bindTarget="sys_user_query_ds" prompt="SYS_USER.IS_FROZEN">
+    <a:events>
+        <a:event handler="login" name="enterdown"/>
+    </a:events>
+</a:comboBox>
+]]></programlisting>
+	<para>
+    	comboBox标签可以设置一个id属性，id是组件的唯一标识，我们可以在页面脚本中用$('id')的方法获得该id对应的组件对象，进而可以调用相应的函数方法。
+    </para>
+    <para>
+    	comboBox标签的bindTarget属性可指定一个dataset对象的id，name属性可指定该dataset其中一个field的名字。这两个属性必须联合使用，其功能是将ComboBox对象绑定到dataset中的一个field上，进而我们只要对dataset进行操作就能即时反映在ComboBox上，另外ComboBox上的文字编辑也会立刻修改dataset中的数据。
+    </para>
+    <para>
+    	comboBox所绑定的dataset应该至少有两条字段(field)，一条是对应数据库的数据的隐式字段，另一条是用来显示文字的显示字段。如上代码所示，comboBox的选项是在显示字段(如上代码中name="frozen_flag_display"的field)标签上加上returnField,options,displayField,valueField属性组合实现的。其中returnField属性是隐式字段名，表示comboBox选中选项后用哪个字段来承载这个值，进而通过dataset的方法用来对数据库进行添加修改等操作。options属性是一个选项的数据集的ID，该数据集的所有记录(record)都应该有两条字段(field)，一条字段是选项的值(如上代码中code="Y"的code)，另一条字段是选项显示的文本(如上代码中name="已冻结"的name)，valueField和displayField属性分别指定的就是这两条字段的名称(code和name)。
+    </para>
+    <para>
+    	events标签定义了需要响应的事件函数，例如enterdown事件，当键盘键入回车键时，ComboBox会触发enterdown事件，这样我们可以通过配置一个客户端函数login来响应。
+    </para>
+    <programlisting language="javascript"><![CDATA[
+function login(){
+    var lds = $('login_dataset');
+    var record = lds.getCurrentRecord();
+    Aurora.request({url:'login.svc', para:record.data, success:function(){
+        window.location.href='role_select.screen'
+    },scope:this});
+}
+]]></programlisting>
+    </sect4>
+    <sect4>
+	<title>ComboBox标签属性</title>
+    	<para>
+    		请参阅TextField的标签属性。
+    	</para>
+	</sect4>
+	<sect4>
+		<title>ComboBox对象事件</title>
+		<table frame="topbot" id="presentation-client-editor-combobox-events" revision="8">
+			<tgroup cols="2">
+			<colspec colname="c1" colwidth="1*"/>
+   			<colspec colname="c2" colwidth="4*"/>
+			<thead>
+				<row>
+                    <entry>
+                    	事件名
+                    </entry>
+                    <entry>
+                    	用途
+                    </entry>
+                </row>
+			</thead>
+			<tbody>
+				<row>
+                    <entry>
+                        select
+                    </entry>
+                    <entry>
+                    	选择选项时触发的事件。
+                    </entry>
+				</row>
+				<row>
+                    <entry>
+                    	其他
+                    </entry>
+                    <entry>
+                    	请参阅TextField对象的事件
+                    </entry>
+				</row>
+			</tbody>
+			</tgroup>
+		</table>
+	</sect4>
+</sect3>
+</article>

@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<article>
+<sect3 id="presentation-client-layout-hbox" revision="1">
+	<title>
+        HBox
+	</title>
+	<para>
+		HBox组件继承自Box组件,HBox的row恒等于1,所以HBox相当于row=1的Box组件.
+	</para>
+	<para>
+        HBox下的组件按照从左到右的方式进行布局
+    </para>           
+    <programlisting language="screen"><![CDATA[                
+    <a:hBox>
+        <a:textField name="cmp1"/>
+        <a:textField name="cmp2"/>
+        <a:textField name="cmp3"/>
+    </a:hBox>
+    ]]></programlisting>
+    <para>
+         布局实例图:
+    </para>
+	<programlisting><![CDATA[
+	HBox
+    _________________________________________
+   |             |             |             |
+   |    cmp1     |    cmp2     |    cmp3     |
+   |_____________|_____________|_____________|   
+ ]]></programlisting>
+</sect3>
+</article>

@@ -1,0 +1,378 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<article>
+<sect2 id="presentation-client-window" revision="1">
+	<title>窗口组件(Window)</title>            
+	<para>
+        APL中提供的窗口组件不同于html中的原生window,它是通过div模拟出来的.本质上和父页面是在同一个dom树中.
+	</para>            
+	<para>
+        window组件的内容是通过ajax动态加载进来的.所以加载页面中的所有对象在父页面中都可以直接获取到,反过来window也可以直接获取父页面的所有对象.
+    </para>
+    <para>
+        window组件的创建都是通过JavaScript脚本创建的.
+    </para>
+    <programlisting><![CDATA[                
+function openWindow(){
+    var win = new Aurora.Window({id:'mywin', url:'user.screen',title:'窗口', height:400,width:700});
+}
+]]></programlisting> 
+    <mediaobject>
+    	<imageobject role="fo">
+            <imagedata fileref="images/window.jpg" format="JPG" width="344" depth="196" contentwidth="344" contentdepth="196"/>
+        </imageobject>
+        <imageobject role="html">
+            <imagedata fileref="images/window.jpg" format="JPG"/>
+        </imageobject>
+    </mediaobject>
+    <para>
+        通过new Aurora.Window我们可以创建出一个window窗口.id是窗口的唯一标识,url指定当前窗口需要加载的screen文件.title指定打开窗口的标题,height和width分别指定窗口的大小.
+    </para>
+    <table frame="topbot" id="presentation-client-window-properties" revision="8">
+        <tgroup cols="4">
+            <colspec colname="c1" colwidth="1*"/>
+            <colspec colname="c2" colwidth="2*"/>
+            <colspec colname="c3" colwidth="0.5*"/>
+            <colspec colname="c4" colwidth="0.5*"/>
+            <thead>
+                <row>
+                    <entry>
+                        参数名
+                    </entry>
+                    <entry>
+                        用途
+                    </entry>
+                    <entry>
+                       默认值
+                    </entry>
+                    <entry>
+                       是否必填
+                    </entry>
+                </row>
+            </thead>
+            <tbody>
+                <row>
+                    <entry>
+                        id
+                    </entry>
+                    <entry>
+                        window窗口的id。
+                    </entry>
+                    <entry>
+                    </entry>
+                    <entry>
+                    	true
+                    </entry>
+                </row>
+                <row>
+                    <entry>
+                        title
+                    </entry>
+                    <entry>
+                        window窗口的标题。
+                    </entry>
+                    <entry>
+                    </entry>
+                    <entry>
+                        false
+                    </entry>
+                </row>
+                <row>
+                    <entry>
+                        url
+                    </entry>
+                    <entry>
+                        window窗口的url。
+                    </entry>
+                    <entry>
+                    </entry>
+                    <entry>
+                        true
+                    </entry>
+                </row>
+                <row>
+                    <entry>
+                        height
+                    </entry>
+                    <entry>
+                        window窗口的高度。
+                    </entry>
+                    <entry>
+                        400
+                    </entry>
+                    <entry>
+                        false
+                    </entry>
+                </row>
+                <row>
+                    <entry>
+                        width
+                    </entry>
+                    <entry>
+                        window窗口的宽度。
+                    </entry>
+                    <entry>
+                        350
+                    </entry>
+                    <entry>
+                        false
+                    </entry>
+                </row>
+            </tbody>
+        </tgroup>
+    </table>
+    
+    <para>
+        有时候我们仅仅需要显示一个提示信息,或者一个简单的警告.这个时候通过url加载就比较麻烦.
+       APL为我们提供了几个通用的窗口函数.
+    </para>
+    <itemizedlist>
+        <listitem>
+            <para>
+               提示信息窗口
+            </para>
+            <programlisting language="javascript"><![CDATA[
+Aurora.showMessage(title, msg,callback,width,height);    
+            ]]></programlisting>
+            <table frame="topbot" id="presentation-client-window-info-properties" revision="8">
+                <tgroup cols="4">
+                    <colspec colname="c1" colwidth="1*"/>
+                    <colspec colname="c2" colwidth="2*"/>
+                    <colspec colname="c3" colwidth="0.5*"/>
+                    <colspec colname="c4" colwidth="0.5*"/>
+                    <thead>
+                        <row>
+                            <entry>
+                                参数名
+                            </entry>
+                            <entry>
+                                用途
+                            </entry>
+                            <entry>
+                               默认值
+                            </entry>
+                            <entry>
+                               是否必填
+                            </entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>
+                                title
+                            </entry>
+                            <entry>
+                                window窗口的标题。
+                            </entry>
+                            <entry>
+                            </entry>
+                            <entry>
+                                true
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                msg
+                            </entry>
+                            <entry>
+                                需要提示的信息内容
+                            </entry>
+                            <entry>
+                            </entry>
+                            <entry>
+                                true
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                callback
+                            </entry>
+                            <entry>
+                                回调函数,不需要的话用null
+                            </entry>
+                            <entry>
+                            </entry>
+                            <entry>
+                                false
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                height
+                            </entry>
+                            <entry>
+                                window窗口的高度。
+                            </entry>
+                            <entry>
+                                100
+                            </entry>
+                            <entry>
+                                false
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                width
+                            </entry>
+                            <entry>
+                                window窗口的宽度。
+                            </entry>
+                            <entry>
+                                300
+                            </entry>
+                            <entry>
+                                false
+                            </entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </listitem>
+        <listitem>
+            <para>
+               带警告图标的窗口
+            </para>
+            <programlisting language="javascript"><![CDATA[
+Aurora.showWarningMessage(title, msg,callback,width,height);    
+            ]]></programlisting>
+            <para>
+               配置参数参考"提示信息窗口"
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+               带信息图标的窗口
+            </para>
+            <programlisting language="javascript"><![CDATA[
+Aurora.showInfoMessage(title, msg,callback,width,height);    
+            ]]></programlisting>
+            <para>
+               配置参数参考"提示信息窗口"
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+               带错误图标的窗口
+            </para>
+            <programlisting language="javascript"><![CDATA[
+Aurora.showErrorMessage(title, msg,callback,width,height);    
+            ]]></programlisting>
+            <para>
+               配置参数参考"提示信息窗口"
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+               带确定取消按钮的确认窗口
+            </para>
+            <programlisting language="javascript"><![CDATA[
+Aurora.showConfirm(title, msg, okfun,cancelfun, width, height);    
+            ]]></programlisting>
+            <table frame="topbot" id="presentation-client-window-okcancel-properties" revision="8">
+                <tgroup cols="4">
+                    <colspec colname="c1" colwidth="1*"/>
+                    <colspec colname="c2" colwidth="2*"/>
+                    <colspec colname="c3" colwidth="0.5*"/>
+                    <colspec colname="c4" colwidth="0.5*"/>
+                    <thead>
+                        <row>
+                            <entry>
+                                参数名
+                            </entry>
+                            <entry>
+                                用途
+                            </entry>
+                            <entry>
+                               默认值
+                            </entry>
+                            <entry>
+                               是否必填
+                            </entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>
+                                title
+                            </entry>
+                            <entry>
+                                window窗口的标题。
+                            </entry>
+                            <entry>
+                            </entry>
+                            <entry>
+                                true
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                msg
+                            </entry>
+                            <entry>
+                                需要提示的信息内容
+                            </entry>
+                            <entry>
+                            </entry>
+                            <entry>
+                                true
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                okfun
+                            </entry>
+                            <entry>
+                                确定按钮回调函数,不需要的话用null
+                            </entry>
+                            <entry>
+                            </entry>
+                            <entry>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                cancelfun
+                            </entry>
+                            <entry>
+                                取消按钮回调函数,不需要的话用null
+                            </entry>
+                            <entry>
+                            </entry>
+                            <entry>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                height
+                            </entry>
+                            <entry>
+                                window窗口的高度。
+                            </entry>
+                            <entry>
+                                100
+                            </entry>
+                            <entry>
+                                false
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                width
+                            </entry>
+                            <entry>
+                                window窗口的宽度。
+                            </entry>
+                            <entry>
+                                300
+                            </entry>
+                            <entry>
+                                false
+                            </entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </listitem>
+    </itemizedlist>
+</sect2>
+</article>
+
