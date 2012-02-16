@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+//import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+
+@SuppressWarnings("unchecked")
 public class BuildAll {
 	private static final String SRC_DIR = "src/";
 	private static final String STD_DIR = "aurora.ui.std/";
@@ -20,19 +22,18 @@ public class BuildAll {
 	private static final String RELEASE_DIR = "release/";
 	private static final String THEME_DIR = "src/aurora.ui.std/theme/";
 	private static final String DEFAULT_DIR = "default/resource/";
-//	private static final String AURORA_DIR = "D:\\prj\\workspace\\aurora\\";
-//	private static final String UNCERTAIN_DIR = "D:\\prj\\workspace\\uncertain\\";
 
 	private static final String ZIP_STD = "aurora.ui.std";
 	private static final String ZIP_RESOURCE = "resource";
 
 	private static final String DATE_FORMAT = "yyyy.MM.dd";
-	private String currentDate=null;
+//	private String currentDate=null;
+	
 	private List exceptFiles = new ArrayList();
 	private List exceptLocalFiles = new ArrayList();
 
 	public BuildAll() {
-		currentDate=new SimpleDateFormat(DATE_FORMAT).format(new Date());
+//		currentDate=new SimpleDateFormat(DATE_FORMAT).format(new Date());
 		
 		exceptFiles.add("base/ext-core.js");
 		exceptFiles.add("base/Aurora.js");
@@ -121,7 +122,7 @@ public class BuildAll {
 
 	private void buildZip() throws IOException {
 		
-		File direct = new File(BUILD_DIR+RELEASE_DIR+currentDate);
+		File direct = new File(BUILD_DIR+RELEASE_DIR);
 		direct.mkdirs();
 		String fileName = ZIP_STD+ ".zip";//+ "-" +currentDate 
 		ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(
