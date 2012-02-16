@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-//import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -25,16 +23,11 @@ public class BuildAll {
 
 	private static final String ZIP_STD = "aurora.ui.std";
 	private static final String ZIP_RESOURCE = "resource";
-
-	private static final String DATE_FORMAT = "yyyy.MM.dd";
-//	private String currentDate=null;
 	
 	private List exceptFiles = new ArrayList();
 	private List exceptLocalFiles = new ArrayList();
 
 	public BuildAll() {
-//		currentDate=new SimpleDateFormat(DATE_FORMAT).format(new Date());
-		
 		exceptFiles.add("base/ext-core.js");
 		exceptFiles.add("base/Aurora.js");
 		exceptFiles.add("base/DataSet.js");
