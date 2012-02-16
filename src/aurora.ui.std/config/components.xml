@@ -49,5 +49,6 @@
         <view-component elementName="upload" category="Input" description="上传组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="link" description="链接组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="sandBox" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />        
+    	<view-component elementName="navigationBar" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
     </components>
 </package>
