@@ -52,7 +52,8 @@ public class PatchAll {
 		list.add("lov/Lov.js");
 		list.add("lov/MultiLov.js");
 		list.add("textarea/TextArea.js");
-		
+		list.add("base/Customization.js");
+			
 		List csslist = new ArrayList();
 		csslist.add("base/Aurora.css");
 		csslist.add("checkbox/CheckBox.css");
