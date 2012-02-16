@@ -17,7 +17,6 @@ public class BuildAll {
 	private static final String STD_DIR = "aurora.ui.std/";
 	private static final String RESOURCE_DIR = "resource/";
 	private static final String BUILD_DIR = "build/";
-	private static final String RELEASE_DIR = "release/";
 	private static final String THEME_DIR = "src/aurora.ui.std/theme/";
 	private static final String DEFAULT_DIR = "default/resource/";
 
@@ -115,7 +114,7 @@ public class BuildAll {
 
 	private void buildZip() throws IOException {
 		
-		File direct = new File(BUILD_DIR+RELEASE_DIR);
+		File direct = new File(BUILD_DIR);
 		direct.mkdirs();
 		String fileName = ZIP_STD+ ".zip";//+ "-" +currentDate 
 		ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(
