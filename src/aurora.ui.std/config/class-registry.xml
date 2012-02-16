@@ -51,5 +51,5 @@
     <feature-attach elementName="upload" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Upload"/>
 	<feature-attach elementName="link" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Link"/>
 	<feature-attach elementName="sandBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.SandBox"/>
-	<feature-attach elementName="navigationBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.NavigationBar" />
+	<feature-attach elementName="accordionMenu" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.AccordionMenu" />
 </class-registry>
