@@ -8,13 +8,13 @@
  * @param {Object}
  *            config 配置对象.
  */
-$A.NavigationBar = Ext.extend($A.Component, {
+$A.AccordionMenu = Ext.extend($A.Component, {
 	constructor : function(config) {
-		$A.NavigationBar.superclass.constructor.call(this, config);
+		$A.AccordionMenu.superclass.constructor.call(this, config);
 		this.context = config.context || '';
 	},
 	initComponent : function(config) {
-		$A.NavigationBar.superclass.initComponent.call(this, config);
+		$A.AccordionMenu.superclass.initComponent.call(this, config);
 		this.body = this.wrap.child('ul[atype=navigationbar.body]');
 		this.navbar = [];		
 	},
@@ -27,7 +27,7 @@ $A.NavigationBar = Ext.extend($A.Component, {
 		}
 	},
 	initEvents : function(){
-		$A.NavigationBar.superclass.initEvents.call(this);
+		$A.AccordionMenu.superclass.initEvents.call(this);
 		this.addEvents(		
 		/**
          * @event click

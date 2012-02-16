@@ -10,6 +10,6 @@
 	</div>	
 </div>
 <script>
-	new Aurora.NavigationBar(${config});	
+	new Aurora.AccordionMenu(${config});	
 	$('${id}').bind('${bindtarget}');
 </script>
