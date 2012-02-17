@@ -1,5 +1,5 @@
 /**
- * @class Aurora.NavigationBar
+ * @class Aurora.AccordionMenu
  * @extends Aurora.Component
  *          <p>
  *          导航
@@ -113,11 +113,13 @@ $A.AccordionMenu = Ext.extend($A.Component, {
 			divImg.className='wp-menu-image';
 			var div = document.createElement('div');
 			divImg.appendChild(div);
+			li.appendChild(divImg);
 			if(!Ext.isIE6 && !Ext.isIE7 && !Ext.isIE8){
 				var divArrow = document.createElement('div');
 				divArrow.className='wp-menu-arrow';
 				divArrow.id='wp-menu-arrow';
 				divArrow.appendChild(div);
+				li.appendChild(divArrow);
 			}
 			var a = document.createElement('a');
 			a.className='mymenu menu-top wp-has-current-submenu';
@@ -130,10 +132,7 @@ $A.AccordionMenu = Ext.extend($A.Component, {
 			wp_submenu.appendChild(submenu);
 			var ul = document.createElement('ul');
 			submenu.appendChild(ul);
-			this.body.dom.appendChild(li);
-			li.appendChild(divImg);
-			if(!Ext.isIE6 && !Ext.isIE7 && !Ext.isIE8)
-				li.appendChild(divArrow);
+			this.body.dom.appendChild(li);									
 			li.appendChild(a);
 			li.appendChild(wp_submenu);
 			a.appendChild(text);
