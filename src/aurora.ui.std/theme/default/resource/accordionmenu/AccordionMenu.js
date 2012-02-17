@@ -99,7 +99,22 @@ $A.AccordionMenu = Ext.extend($A.Component, {
 			this.navbar.add(node);
 		}
 	},	
-	buildView : function() {		
+	sort : function(array, sequence){
+		array.sort(function(a,b){
+			var n1 = a.record.get(sequence)||Number.MAX_VALUE;
+            var n2 = b.record.get(sequence)||Number.MAX_VALUE;
+            return parseFloat(n1)-parseFloat(n2);
+		});
+		var len = array.length;
+		for(var i = 0; i < len; i++){
+       	    var n = array[i];
+       	    this.sort(n.children,sequence)
+        }
+	},
+	buildView : function() {	
+		if(this.sequencefield && this.sequencefield != ''){
+			this.sort(this.navbar, this.sequencefield);
+		}
 		var l = this.navbar.length;	
 		for ( var i = 0; i < l; i++) {
 			var record = this.navbar[i].record;	
