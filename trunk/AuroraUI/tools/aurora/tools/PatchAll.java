@@ -11,21 +11,16 @@ import org.apache.commons.io.FileUtils;
 import com.yahoo.platform.yui.compressor.JarClassLoader;
 import com.yahoo.platform.yui.compressor.YUICompressor;
 
-
+@SuppressWarnings("unchecked")
 public class PatchAll {
 	
 	private static final String RES_DIR = "src/aurora.ui.std/theme/default/resource/";
-	private static final String THEME_DIR= "src/aurora.ui.std/theme/";
-	private static final String DEPLOY_DIR= "D:/WorkDevSpace/eclipse3.3/workspace/HAP/web/resource/aurora.ui.std/";//"resource/aurora.ui.std/";
 	private static final String AURORA_ALL= "base/Aurora-all.js";
 	private static final String CSS_ALL= "base/Aurora-all.css";
 	
 	private static final String THEME_DARBLUE_DIR = "src/aurora.ui.std/theme/darkblue/resource/";
-	
-	
 	private int lineNum = 0;
 	
-	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception{
 		List list = new ArrayList();
 		list.add("base/Aurora.js");
@@ -81,6 +76,7 @@ public class PatchAll {
 		compressJs.add("chart/Adapter.js");
 		compressJs.add("chart/Chart.js");
 		compressJs.add("chart/Exporting.js");
+		compressJs.add("accordionmenu/AccordionMenu.js");
 		List compressCss = new ArrayList();
 		compressCss.add(CSS_ALL);
 		compressCss.add("grid/Grid.css");
@@ -88,6 +84,7 @@ public class PatchAll {
 		compressCss.add("table/Table.css");
 		compressCss.add("tree/Tree.css");
 		compressCss.add("tab/Tab.css");
+		compressCss.add("accordionmenu/AccordionMenu.css");
 //		compressCss.add("upload/upload.css");
 		
 		PatchAll pa = new PatchAll();
@@ -95,16 +92,12 @@ public class PatchAll {
 		pa.patchAllFile(csslist,RES_DIR,CSS_ALL);
 		pa.compressAllFiles(compressJs,"js");
 		pa.compressAllFiles(compressCss,"css");
-//		
-//		pa.deployAllFiles();
-		
-		
 		
 		pa.mergeCss();
-		System.out.println(pa.lineNum);
+//		System.out.println(pa.lineNum);
 	}
 	
-	@SuppressWarnings("unchecked")
+	
 	public void compressAllFiles(List files, String type) throws Exception{
 		ClassLoader loader = new JarClassLoader();
         Thread.currentThread().setContextClassLoader(loader);
@@ -147,40 +140,6 @@ public class PatchAll {
 	}
 	
 	
-	public void deployAllFiles() throws IOException{
-		File current = new File(".");
-//		File file = new File(current, DEPLOY_DIR);
-		File file = new File(DEPLOY_DIR);
-		File themefile = new File(current, THEME_DIR);
-		String[] files = themefile.list();
-		for(int i=0;i<files.length;i++){
-			String name = files[i];
-			if(".svn".equals(name) || "cvs".equals(name)) continue;
-			File themeDir = new File(file, name);
-			if(themeDir.exists()){
-				FileUtils.forceDelete(themeDir);
-				FileUtils.forceMkdir(themeDir);
-			}else{
-				themeDir.mkdir();
-			}
-		}
-		//copy default resource
-		File resource = new File(themefile, "default/resource/");
-		for(int i=0;i<files.length;i++){
-			String name = files[i];
-			if(".svn".equals(name) || "cvs".equals(name)) continue;
-			File themeDir = new File(file, name);
-			FileUtils.copyDirectory(resource, themeDir);
-		}
-		
-		for(int i=0;i<files.length;i++){
-			String name = files[i];
-			if(".svn".equals(name) || "cvs".equals(name) || "default".equals(name)) continue;
-			File themeDir = new File(file, name);
-			File srcDir = new File(themefile, name+ "/resource/");
-			FileUtils.copyDirectory(srcDir, themeDir);
-		}
-	}
 	
 	
 	public void mergeCss() throws IOException{
