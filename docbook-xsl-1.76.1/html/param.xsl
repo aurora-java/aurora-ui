@@ -201,7 +201,7 @@ set       toc,title
 <xsl:param name="header.rule" select="1"/>
 <xsl:param name="highlight.default.language"/>
 <xsl:param name="highlight.source" select="1"/>
-<xsl:param name="highlight.xslthl.config">file:///D:/workspace/AuroraUI/docbook-xsl-1.76.1/highlighting/xslthl-config.xml</xsl:param>
+<xsl:param name="highlight.xslthl.config">/usr/workspace/aurora_bulid/1.2.1/src/AuroraUI/docbook-xsl-1.76.1/highlighting/xslthl-config.xml</xsl:param>
 <xsl:param name="html.append"/>
 <xsl:param name="html.base"/>
 <xsl:param name="html.cellpadding"/>
