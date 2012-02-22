@@ -21,7 +21,7 @@ import org.apache.commons.io.FileUtils;
 public class BuildDocbook {
 	private static TransformerFactory factory;
 	private static Templates tempaltes;
-	private static String TEMPLATE_PATH = "file:////usr/workspace/aurora_bulid/docbook-xsl-1.76.1/html/docbook.xsl";
+	private static String TEMPLATE_PATH = "file:////usr/workspace/aurora_build/docbook-xsl-1.76.1/html/docbook.xsl";
 	private static String DATH_PATH = "documents/docbook/html";
 	private static String SOURCE_PATH = "documents/docbook/";
 
