@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -64,19 +66,20 @@ public class BuildDocbook {
 
 	private String getContent(String path) throws IOException {
 		InputStream stream = null;
+		Reader reader = null;
 		try {
 			File file = new File(path);
-			stream = new FileInputStream(file);
 			StringBuffer sb = new StringBuffer();
+			char[] tempchars = new char[30];
 			int begin;
-			byte[] buffer = new byte[1024];
-			while ((begin = stream.read(buffer)) != -1) {
-				sb.append(new String(buffer, 0, begin));
+			reader = new InputStreamReader(new FileInputStream(file), "UTF-8");
+			while ((begin = reader.read(tempchars)) != -1) {
+				sb.append(new String(tempchars, 0, begin));
 			}
 			return sb.toString();
 		} finally {
-			if (stream != null)
-				stream.close();
+			if (reader != null)
+				reader.close();
 		}
 	}
 
