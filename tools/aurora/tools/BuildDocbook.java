@@ -64,8 +64,7 @@ public class BuildDocbook {
 		transformer.transform(new StreamSource(sr), new StreamResult(dest));
 	}
 
-	private String getContent(String path) throws IOException {
-		InputStream stream = null;
+	private String getContent(String path) throws IOException {		
 		Reader reader = null;
 		try {
 			File file = new File(path);
