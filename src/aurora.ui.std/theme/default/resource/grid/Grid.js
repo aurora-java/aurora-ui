@@ -1509,6 +1509,7 @@ $A.Grid = Ext.extend($A.Component,{
     	this.showExportConfirm();
     },
     showExportConfirm :function(){
+    	this.initColumnPrompt();
     	var sf = this,id = this.id + '_export',
     		msg = ['<div class="item-export-wrap" style="margin:15px;width:270px" id="'+id+'">',
     				'<div class="grid-uh" atype="grid.uh" style="width: 270px; -moz-user-select: none; text-align: left; height: 25px; cursor: default;" onselectstart="return false;" unselectable="on">',
@@ -1519,10 +1520,9 @@ $A.Grid = Ext.extend($A.Component,{
 					'<div style="overflow:auto;height:200px;"><table cellSpacing="0" cellPadding="0" border="0"><tbody>'],
 					exportall = true;
 			for(var i=0,l=this.columns.length;i<l;i++){
-				var c = this.columns[i],
-				prompt = c.name?this.wrap.child('td.grid-hc[dataindex='+c.name+'] div').dom.innerHTML:c.prompt;
+				var c = this.columns[i];
 				if(exportall)exportall = c.forexport !==false;
-				msg.push('<tr',i%2==0?'':' class="row-alt"','><td class="grid-rowbox" style="width:22px;" rowid="',i,'" atype="export.rowcheck"><center><div id="',this.id,'__',i,'" class="grid-ckb item-ckb-',c.forexport === false?'u':'c','"></div></center></td><td><div class="grid-cell" style="width:220px">',prompt,'</div></td></tr>');	
+				msg.push('<tr',i%2==0?'':' class="row-alt"','><td class="grid-rowbox" style="width:22px;" rowid="',i,'" atype="export.rowcheck"><center><div id="',this.id,'__',i,'" class="grid-ckb item-ckb-',c.forexport === false?'u':'c','"></div></center></td><td><div class="grid-cell" style="width:220px">',c.prompt,'</div></td></tr>');	
 			}
 			if(exportall)msg[4]='c';
 			msg.push('</tbody></table></div></div>');
@@ -1536,6 +1536,15 @@ $A.Grid = Ext.extend($A.Component,{
 	    	return false;
     	},null,null,300);
     	this.exportwindow.body.on('click',this.onExportClick,this);
+    },
+    initColumnPrompt : function(){
+    	if(!this.isPromptInit){
+    		for(var i=0,l=this.columns.length;i<l;i++){
+    			var c = this.columns[i];
+    			c.prompt = c.name?this.wrap.child('td.grid-hc[dataindex='+c.name+'] div').dom.innerHTML : (c.prompt||this.dataset.getField(column.name).pro["prompt"]);
+    		}
+    		this.isPromptInit = true;
+    	}
     },
     onExportClick : function(e,t){
     	var target =Ext.fly(Ext.fly(t).findParent('td'));
@@ -1575,7 +1584,7 @@ $A.Grid = Ext.extend($A.Component,{
     	for(var i=0;i<sf.columns.length;i++){
     		var column=sf.columns[i],forExport=Ext.isDefined(column.forexport)?column.forexport:true;
     		if(!column.type&&forExport){
-    			var c={prompt:column.prompt||sf.dataset.getField(column.name).pro["prompt"]}
+    			var c={prompt:column.prompt}
     			if(column.width)c.width=column.width;
     			if(column.name)c.name=column.exportfield||column.name;
     			c.align=column.align||"left";
