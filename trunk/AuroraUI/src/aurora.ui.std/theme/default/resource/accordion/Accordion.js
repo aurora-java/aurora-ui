@@ -152,6 +152,6 @@ $A.Accordion = Ext.extend($A.Component,{
 	        	}
     		}
     	}
-		$A.Tab.superclass.destroy.call(this); 
+		$A.Accordion.superclass.destroy.call(this); 
 	}
 });
