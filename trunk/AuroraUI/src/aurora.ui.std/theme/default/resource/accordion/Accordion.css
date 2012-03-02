@@ -11,8 +11,28 @@
 	background-image: url("../toolbar/toolbar_bg.gif");
 	text-indent: 5px;
 	cursor: pointer;
+	height: 25px;
+	line-height: 25px;
 }
 .item-accordion-body {
 	overflow: auto;
 	border-top: 1px solid #BBBBBB;
+}
+.item-accordion-btn{
+	width:15px;
+	height:15px;
+	margin-top:5px;
+	margin-left:5px;
+	float: left;
+	background-image: url("accordion-btn.gif");
+	background-position: 0 -15px;
+}
+.selected .item-accordion-btn {
+	background-position: 0 0;
+}
+.strip-over .item-accordion-btn{
+	background-position: -15px -15px;
+}
+.selected .strip-over .item-accordion-btn{
+	background-position: -15px 0;
 }

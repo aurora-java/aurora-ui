@@ -81,16 +81,28 @@ $A.Accordion = Ext.extend($A.Component,{
 			this.currentTime=1;
 		}else this.currentTime++;
 	},
-	onClick:function(e){
-		if(Ext.fly(e.target).hasClass('strip')){
+	onClick:function(e,t){
+		t = Ext.fly(t);
+		if(t.hasClass('item-accordion-btn'))t = t.parent();
+		if(t.hasClass('strip')){
 			for(var i=0,l=this.strips.length;i<l;i++){
-				if(e.target==this.strips[i]){
+				if(t.dom==this.strips[i]){
 					this.selectAccordionIndex(i);
 					break;
 				}
 			}
 		}
 	},
+	onMouseOver : function(e,t){
+		t = Ext.fly(t);
+		if(t.hasClass('item-accordion-btn'))t.parent().addClass('strip-over')
+    	$A.Accordion.superclass.onMouseOver.call(this,e,t);   
+    },
+    onMouseOut : function(e,t){
+    	t = Ext.fly(t);
+		if(t.hasClass('item-accordion-btn'))t.parent().removeClass('strip-over')
+    	$A.Accordion.superclass.onMouseOut.call(this,e,t);   
+    },
 	showLoading : function(dom){
     	dom.update(_lang['accordion.loading']);
     	dom.setStyle('text-align','center');
