@@ -907,6 +907,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
         this.processCurrentRow();
+        index = index - this.pagesize*(this.gotoPage-1);
         if(this.selectionmodel == 'single') this.select(this.getAt(index-1));
     },
     /**
