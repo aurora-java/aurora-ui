@@ -2,6 +2,7 @@ $A.SandBox = Ext.extend($A.Component, {
 	initComponent : function(config) {
 		$A.SandBox.superclass.initComponent.call(this, config);
 		this.txt = $(this.id + "_view");
+		this.txt.setValue(this.content);
 	},
 	send : function(){
 		var content = this.screenTpl.replace('{content}',this.txt.value);
