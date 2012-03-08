@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: andy  
+    $Date: 2012-3-8 上午9:25:11  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application" xmlns:p="uncertain.proc" trace="true">
+    <a:init-procedure/>
+    <a:view>
+        <script><![CDATA[
+            function dateValidate(record, name, value) {
+                if (name == 'start_date' || name == 'end_date') {
+                    var start_date = record.get('start_date');
+                    var end_date = record.get('end_date');
+                    if (typeof(end_date) != 'undefined' && !Ext.isEmpty(end_date)) {
+                        if (!compareDate(start_date, end_date)) {
+                            return '有效日期至必须大于有效日期从';
+                        }
+                    }
+                    return true;
+                }
+            }
+            
+            function compareDate(start, end) {
+                if (start > end) {
+                    return false;
+                }
+                return true;
+            }
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet id="frozen_ds">
+                <a:datas>
+                    <a:record name="Y" value="Y"/>
+                    <a:record name="N" value="N"/>
+                </a:datas>
+            </a:dataSet>
+            <a:dataSet id="demo_ds" autoQuery="true" model="sys.sys_demo" selectable="true">
+                <a:fields>
+                    <a:field name="account_name" required="true"/>
+                    <a:field name="start_date" validator="dateValidate"/>
+                    <a:field name="end_date" validator="dateValidate"/>
+                    <a:field name="is_frozen" displayField="name" options="frozen_ds" returnField="is_frozen" valueField="value"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:grid bindTarget="demo_ds" height="350" navBar="true" width="800">
+            <a:toolBar>
+                <a:button text="新增" type="add"/>
+                <a:button text="删除" type="delete"/>
+                <a:button text="保存" type="save"/>
+            </a:toolBar>
+            <a:columns>
+                <a:column name="account_name" editor="edit_textField" prompt="账号"/>
+                <a:column name="description" editor="edit_textField" prompt="描述"/>
+                <a:column name="start_date" editor="edit_datePicker" prompt="有效日期从" renderer="Aurora.formatDate"/>
+                <a:column name="end_date" editor="edit_datePicker" prompt="有效日期至" renderer="Aurora.formatDate"/>
+                <a:column name="is_frozen" align="center" editor="edit_cbx" prompt="是否冻结"/>
+            </a:columns>
+            <a:editors>
+                <a:textField id="edit_textField"/>
+                <a:datePicker id="edit_datePicker"/>
+                <a:comboBox id="edit_cbx"/>
+            </a:editors>
+        </a:grid>
+    </a:view>
+</a:screen>
