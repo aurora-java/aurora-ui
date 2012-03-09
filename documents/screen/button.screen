@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: andy  
+    $Date: 2012-2-7 上午10:15:31  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application" xmlns:p="uncertain.proc">
+    <a:init-procedure/>
+    <a:view>
+        <script><![CDATA[
+            function onClick() {
+                alert('just a demo');
+            }
+        ]]></script>
+        <a:screenBody>
+            <a:button click="onClick" text="click here"/>
+        </a:screenBody>
+    </a:view>
+</a:screen>
