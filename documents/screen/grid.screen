@@ -5,7 +5,7 @@
     $Revision: 1.0  
     $Purpose: 
 -->
-<a:screen xmlns:a="http://www.aurora-framework.org/application" xmlns:p="uncertain.proc" trace="true">
+<a:screen xmlns:a="http://www.aurora-framework.org/application" xmlns:p="uncertain.proc">
     <a:init-procedure/>
     <a:view>
         <script><![CDATA[
@@ -45,24 +45,26 @@
                 </a:fields>
             </a:dataSet>
         </a:dataSets>
-        <a:grid bindTarget="demo_ds" height="350" navBar="true" width="800">
-            <a:toolBar>
-                <a:button text="新增" type="add"/>
-                <a:button text="删除" type="delete"/>
-                <a:button text="保存" type="save"/>
-            </a:toolBar>
-            <a:columns>
-                <a:column name="account_name" editor="edit_textField" prompt="账号"/>
-                <a:column name="description" editor="edit_textField" prompt="描述"/>
-                <a:column name="start_date" editor="edit_datePicker" prompt="有效日期从" renderer="Aurora.formatDate"/>
-                <a:column name="end_date" editor="edit_datePicker" prompt="有效日期至" renderer="Aurora.formatDate"/>
-                <a:column name="is_frozen" align="center" editor="edit_cbx" prompt="是否冻结"/>
-            </a:columns>
-            <a:editors>
-                <a:textField id="edit_textField"/>
-                <a:datePicker id="edit_datePicker"/>
-                <a:comboBox id="edit_cbx"/>
-            </a:editors>
-        </a:grid>
+        <a:screenBody>
+            <a:grid bindTarget="demo_ds" height="350" navBar="true" width="800">
+                <a:toolBar>
+                    <a:button text="新增" type="add"/>
+                    <a:button text="删除" type="delete"/>
+                    <a:button text="保存" type="save"/>
+                </a:toolBar>
+                <a:columns>
+                    <a:column name="account_name" editor="edit_textField" prompt="账号"/>
+                    <a:column name="description" editor="edit_textField" prompt="描述"/>
+                    <a:column name="start_date" editor="edit_datePicker" prompt="有效日期从" renderer="Aurora.formatDate"/>
+                    <a:column name="end_date" editor="edit_datePicker" prompt="有效日期至" renderer="Aurora.formatDate"/>
+                    <a:column name="is_frozen" align="center" editor="edit_cbx" prompt="是否冻结"/>
+                </a:columns>
+                <a:editors>
+                    <a:textField id="edit_textField"/>
+                    <a:datePicker id="edit_datePicker"/>
+                    <a:comboBox id="edit_cbx"/>
+                </a:editors>
+            </a:grid>
+        </a:screenBody>
     </a:view>
 </a:screen>
