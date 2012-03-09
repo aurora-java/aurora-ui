@@ -6,7 +6,8 @@ $A.SandBox = Ext.extend($A.Component, {
 	},
 	send : function(){
 		var content = this.screenTpl.replace('{content}',this.txt.value);
-		new $A.Window({'title':'生成的页面','url':this.context+'/sandbox?content='+encodeURIComponent(content),fullScreen:true});
+		//new $A.Window({'title':'生成的页面','url':this.context+'/sandbox?content='+encodeURIComponent(content),fullScreen:true});
+		window.open(this.context+'/sandbox?content='+encodeURIComponent(content));
 	},
 	screenTpl : "<a:screen xmlns:a='http://www.aurora-framework.org/application'><a:view template='sandbox'>{content}</a:view></a:screen>"
 })
