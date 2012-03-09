@@ -311,6 +311,7 @@ $A.Graphics=Ext.extend($A.Component,{
 		        Ext.apply(config,Ext.util.JSON.decode(v));
 	        }
 		}
+		
 		this.cmps.push(this.createGElement(config.type||type,config));
     },
     resizeSVG : function(){
@@ -442,13 +443,13 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     bind : function(ds,name){
     	this.dataset = $(ds);
-    	this.tableidfield = name||'node_id';
+    	this.tableidfield = name||'table_id';
     	if(this.dataset)this.processDataSetLiestener('on');
     	this.onLoad();
     },
     onLoad : function(){
     	this.clear();
-    	var ds = this.dataset,
+    	var ds = this.dataset,prepareRemove = [],
     		graphics = ds.getAll();
     	graphics.sort(function(a,b){
     		var at=a.get('type'),bt=b.get('type');
@@ -462,9 +463,15 @@ $A.Graphics=Ext.extend($A.Component,{
     		if(!type){
     			r.data['type'] = 'rect';
     			r.isNew = true;
+    		}else if(type == 'line'){
+    			var config = convertConfig(r);
+	    		if(!ds.find((this.tableidfield),config.from) || !ds.find((this.tableidfield),config.to)){
+	    			prepareRemove.push(r);
+	    		}
     		}
-    		this.create(graphics[i]);
+    		this.create(r);
     	}
+    	ds.remove(prepareRemove);
     },
     onAdd : function(ds,record,index){
     	this.create(record);
@@ -837,13 +844,15 @@ var pub ={
 	    bindEditor : function(id,isFrom){
 	    	if(!Ext.isEmpty(id)){
 		    	var eds = this.editors,ds = this.top.dataset;
-				var tr = ds.find(this.tableidfield||'table_id',id);
-				var el = $(this.top.id+"_"+tr.id);
-				if(el){
-					var ed = eds[isFrom?0:eds.length-1];
-					ed.bindEl = el;
-	    			el.lineEditors.add(ed);
-    			}
+				var tr = ds.find(this.top.tableidfield,id);
+				if(tr){
+					var el = $(this.top.id+"_"+tr.id);
+					if(el){
+						var ed = eds[isFrom?0:eds.length-1];
+						ed.bindEl = el;
+		    			el.lineEditors.add(ed);
+	    			}
+				}
 			}
 	    },
 	    createEditor : function(x,y){
