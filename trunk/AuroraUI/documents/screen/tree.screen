@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure/>
+    <a:view>
+        <script><![CDATA[
+             function doubleClick(tree, record, treeNode) {
+                 if (treeNode.childNodes.length == 0) {
+                     alert('双击了');
+                 }
+             }
+             
+             function clickFunction(tree, record, treeNode) {
+                 if (treeNode.childNodes.length == 0) {
+                     $('result_ds').add(record); 
+                 }
+             }
+         ]]></script>
+        <a:dataSets>
+            <a:dataSet id="result_ds" autoCreate="true"/>
+            <a:dataSet id="category_ds" autoQuery="true" model="sys.sys_demo"/>
+        </a:dataSets>
+        <a:screenBody>
+            <a:textField name="account_name" bindTarget="result_ds"/>
+            <div><![CDATA[单击或者双击下面的树节点触发相应事件]]></div>
+            <a:tree id="categoryTree" bindTarget="category_ds" displayField="account_name" height="360" idField="demo_id" parentField="parent_id" showCheckBox="false" style="margin:5px 5px 5px 25px;" width="300">
+                <a:events>
+                    <a:event name="dblclick" handler="doubleClick"/>
+                    <a:event name="click" handler="clickFunction"/>
+                </a:events>
+            </a:tree>
+        </a:screenBody>
+    </a:view>
+</a:screen>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: andy  
+    $Date: 2012-3-8 上午9:25:11  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application" xmlns:p="uncertain.proc">
+    <a:init-procedure/>
+    <a:view>
+        <a:dataSets>
+            <a:dataSet id="demo_ds" autoCreate="true">
+                <a:fields>
+                    <a:field name="lov_demo" lovGridHeight="300" lovHeight="450" lovService="sys.sys_demo" lovWidth="550">
+                        <a:mapping>
+                            <a:map from="description" to="lov_demo"/>
+                            <a:map from="account_name" to="demo_value"/>
+                        </a:mapping>
+                    </a:field>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:lov name="lov_demo" bindTarget="demo_ds" prompt="demo_display"/>
+            <a:textField name="demo_value" bindTarget="demo_ds" prompt="demo_value"/>
+        </a:screenBody>
+    </a:view>
+</a:screen>
