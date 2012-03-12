@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure/>
+    <a:view>
+        <a:dataSets>
+            <a:dataSet id="category_ds" autoQuery="true" model="sys.sys_demo"/>
+        </a:dataSets>
+        <a:screenBody>
+            <a:treeGrid id="functionTreeGrid" bindTarget="category_ds" height="400" idField="demo_id" parentField="parent_id" showCheckBox="true" width="570">
+                <a:columns>
+                    <a:column name="account_name" prompt="账号" width="250"/>
+                    <a:column name="description" prompt="描述" width="100"/>
+                </a:columns>
+            </a:treeGrid>
+        </a:screenBody>
+    </a:view>
+</a:screen>

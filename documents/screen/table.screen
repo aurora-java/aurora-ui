@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: andy  
+    $Date: 2012-3-8 上午9:25:11  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application" xmlns:p="uncertain.proc">
+    <a:init-procedure/>
+    <a:view>
+        <a:dataSets>
+            <a:dataSet id="demo_ds" autoQuery="true" model="sys.sys_demo"/>
+        </a:dataSets>
+        <a:screenBody>
+            <a:table bindTarget="demo_ds" height="350" width="600">
+                <a:columns>
+                    <a:column name="account_name" prompt="账号"/>
+                    <a:column name="description" prompt="描述"/>
+                    <a:column name="start_date" prompt="有效日期从" renderer="Aurora.formatDate"/>
+                    <a:column name="end_date" prompt="有效日期至" renderer="Aurora.formatDate"/>
+                    <a:column name="is_frozen" align="center" prompt="是否冻结"/>
+                </a:columns>
+            </a:table>
+        </a:screenBody>
+    </a:view>
+</a:screen>
