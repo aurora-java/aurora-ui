@@ -1,11 +1,17 @@
 $A.SandBox = Ext.extend($A.Component, {
 	initComponent : function(config) {
-		$A.SandBox.superclass.initComponent.call(this, config);
-		this.txt = $(this.id + "_view");
-		this.txt.setValue(this.content);
+		$A.SandBox.superclass.initComponent.call(this, config);	
+		this.txt = Ext.get(this.id + '_wrapcontent').dom;
+		this.content = Ext.get(this.id + '_tagcontent').dom;
+		//this.txt.scrollTop = this.content.offsetTop - this.txt.offsetTop;		
 	},
-	send : function(){
-		var content = this.screenTpl.replace('{content}',this.txt.value);
+	initScroll : function(){
+		var txt = Ext.get(this.id + '_wrapcontent').dom;
+		var content = Ext.get(this.id + '_tagcontent').dom;
+		txt.scrollTop = content.offsetTop - txt.offsetTop;
+	},
+	send : function(){		
+		var content = this.screenTpl.replace('{content}',this.txt.innerText);
 		//new $A.Window({'title':'生成的页面','url':this.context+'/sandbox?content='+encodeURIComponent(content),fullScreen:true});
 		var form = document.createElement("form");
 		form.method = "post";
