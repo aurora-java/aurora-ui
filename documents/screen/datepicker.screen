@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: hyb  
+    $Date: 2012-3-9 下午03:59:23  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure/>
+    <a:view>
+        <script><![CDATA[
+
+            function rendererDay(cell, date, text, currentMonth) {
+                var today = new Date();
+                if (date < new Date(today.getFullYear(), today.getMonth(), today.getDate())) {
+                    cell.disabled = true;
+                }
+                return text;
+            }
+        ]]></script>
+        <a:screenBody>
+            <div style="margin-left:20px;"><![CDATA[datePicker:将今天之前的日期设为不能选择状态]]></div>
+            <a:form height="100" labelWidth="100" title="datePicker组件演示" width="300">
+                <a:datePicker dayRenderer="rendererDay" enableBesideDays="both" enableMonthBtn="both" prompt="有效日期至" viewSize="2"/>
+            </a:form>
+        </a:screenBody>
+    </a:view>
+</a:screen>
