@@ -14,3 +14,22 @@
 	*word-wrap: break-word;
 	margin-bottom: 10px;
 }
+
+.wrapcontent{
+	width:945px;
+	height:305px;	
+	padding:2px;
+	border-width:1px;
+	border-color:#cccccc;
+	border-style:solid;	
+	font-Size:12px;
+	overflow-y:auto;
+	overflow-x:hidden;
+}
+
+.tagcontent{
+	width:940px;
+	background-color:#e2f7ff;	
+	font-Size:12px; 
+	font-weight:bold;
+}
