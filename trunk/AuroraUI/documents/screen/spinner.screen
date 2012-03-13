@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: hyb  
+    $Date: 2012-3-9 下午03:59:23  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure/>
+    <a:view>
+        <a:screenBody>
+            <a:spinner emptyText="请选择月份" max="12" min="1" prompt="月份" step="1"/>
+        </a:screenBody>
+    </a:view>
+</a:screen>
