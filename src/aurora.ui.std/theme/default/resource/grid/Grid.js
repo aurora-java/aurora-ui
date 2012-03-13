@@ -1541,7 +1541,7 @@ $A.Grid = Ext.extend($A.Component,{
     	if(!this.isPromptInit){
     		for(var i=0,l=this.columns.length;i<l;i++){
     			var c = this.columns[i];
-    			c.prompt = c.name?this.wrap.child('td.grid-hc[dataindex='+c.name+'] div').dom.innerHTML : (c.prompt||this.dataset.getField(column.name).pro["prompt"]);
+    			if(!c.type)c.prompt = c.name?this.wrap.child('td.grid-hc[dataindex='+c.name+'] div').dom.innerHTML : (c.prompt||this.dataset.getField(c.name).pro["prompt"]);
     		}
     		this.isPromptInit = true;
     	}
@@ -1568,6 +1568,7 @@ $A.Grid = Ext.extend($A.Component,{
         }
     },
     doExport : function(){
+    	this.initColumnPrompt();
     	var p={"parameter":{"_column_config_":{}}},columns=[],parentMap={},sf = this,
     	_parentColumn=function(pcl,cl){
     		if(!(Ext.isDefined(pcl.forexport)?pcl.forexport:true))return null;
