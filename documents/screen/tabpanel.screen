@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: hyb  
+    $Date: 2012-3-9 下午03:59:23  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure/>
+    <a:view>
+        <script><![CDATA[
+
+            function ordNumRenderer(value, record, name) {
+                return '<a href="javascript:skip(\'' + record.get('ord_num') + '\');">' + value + '</a>';
+            }
+            
+            function skip(ord_num){
+                alert("跳转到："+ord_num+"号单据！");
+            }
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet id="tabPanel_demo_ds">
+                <a:datas>
+                    <a:record line_num="1" ord_currency="人民币" ord_num="OL00001" ord_time="2012-03-12" ord_type="费用申请单" remark_1="备注1"/>
+                </a:datas>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:tabPanel height="500" width="600">
+                <a:tabs>
+                    <a:tab id="tab_1" prompt="订单明细" width="150">
+                        <a:grid bindTarget="tabPanel_demo_ds" height="473" width="596">
+                            <a:columns>
+                                <a:column name="line_num" align="center" prompt="行号"/>
+                                <a:column name="ord_num" align="center" prompt="订单号" renderer="ordNumRenderer"/>
+                                <a:column name="ord_type" align="center" prompt="订单类型"/>
+                                <a:column name="ord_time" align="center" prompt="订单日期"/>
+                                <a:column name="ord_currency" align="center" prompt="币种"/>
+                            </a:columns>
+                        </a:grid>
+                    </a:tab>
+                    <a:tab id="tab_2" closeable="true" prompt="备注" width="150">
+                        <a:grid bindTarget="tabPanel_demo_ds" height="473" width="596">
+                            <a:columns>
+                                <a:column name="remark_1" align="center" prompt="备注1"/>
+                                <a:column name="remark_2" align="center" prompt="备注2"/>
+                                <a:column name="remark_3" align="center" prompt="备注3"/>
+                            </a:columns>
+                        </a:grid>
+                    </a:tab>
+                </a:tabs>
+            </a:tabPanel>
+        </a:screenBody>
+    </a:view>
+</a:screen>

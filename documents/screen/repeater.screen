@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: hyb  
+    $Date: 2012-3-9 下午03:59:23  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure>
+        <a:model-query fetchAll="true" model="sys.sys_demo" rootPath="demo"/>
+    </a:init-procedure>
+    <a:view>
+        <style><![CDATA[
+            table{
+                border:1px solid black;
+                border-collapse:collapse;
+                width:500px;
+            }
+           table td{
+                border:1px solid black;
+            }
+            table th{
+                border:1px solid black;
+                background-color:#a3bae9;
+            }
+        ]]></style>
+        <a:screenBody>
+            <table>
+                <tr>
+                    <th><![CDATA[科目名]]></th>
+                    <th><![CDATA[描述]]></th>
+                    <th><![CDATA[起始时间]]></th>
+                    <th><![CDATA[结束时间]]></th>
+                    <th><![CDATA[是否启用]]></th>
+                </tr>
+                <a:repeater datamodel="/model/demo">
+                    <tr>
+                        <td><![CDATA[${@account_name}]]></td>
+                        <td><![CDATA[${@description}]]></td>
+                        <td><![CDATA[${@start_date}]]></td>
+                        <td><![CDATA[${@end_date}]]></td>
+                        <td><![CDATA[${@is_frozen}]]></td>
+                    </tr>
+                </a:repeater>
+            </table>
+        </a:screenBody>
+    </a:view>
+</a:screen>

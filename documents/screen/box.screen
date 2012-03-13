@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: hyb  
+    $Date: 2012-3-9 下午03:59:23  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure/>
+    <a:view>
+        <a:screenBody>
+            <div style="margin-left:20px;"><![CDATA[通过行(row)和列(column)的配置，构建一个3行2列的表格]]></div>
+            <a:box column="2" row="3" style="border:1px dashed red;">
+                <a:textField name="cmp1" prompt="cmp1"/>
+                <a:textField name="cmp2" prompt="cmp2"/>
+                <a:textField name="cmp3" prompt="cmp3"/>
+                <a:textField name="cmp4" prompt="cmp4"/>
+                <a:textField name="cmp5" prompt="cmp5"/>
+                <a:textField name="cmp6" prompt="cmp6"/>
+            </a:box>
+        </a:screenBody>
+    </a:view>
+</a:screen>

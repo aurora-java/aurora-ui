@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: hyb  
+    $Date: 2012-3-9 下午03:59:23  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure/>
+    <a:view>
+        <a:screenBody>
+            <a:form id="loginForm" column="1" title="费用申请单创建" width="800">
+                <a:box column="3" labelWidth="100">
+                    <a:textField name="cmp1" prompt="申请单类型"/>
+                    <a:textField name="cmp2" prompt="单据编号"/>
+                    <a:textField name="cmp3" prompt="申请日期"/>
+                    <a:textField name="cmp4" prompt="申请人"/>
+                    <a:textField name="cmp5" prompt="岗位"/>
+                    <a:textField name="cmp6" prompt="币种"/>
+                </a:box>
+                <a:box column="2">
+                    <a:vBox labelWidth="95">
+                        <a:textField name="cmp4" prompt="附件数"/>
+                        <a:textField name="cmp4" prompt="制单人"/>
+                    </a:vBox>
+                    <a:hBox labelWidth="95">
+                        <a:textArea name="cmp5" prompt="说明" width="405"/>
+                    </a:hBox>
+                </a:box>
+            </a:form>
+        </a:screenBody>
+    </a:view>
+</a:screen>
