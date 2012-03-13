@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: hyb  
+    $Date: 2012-3-9 下午03:59:23  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure/>
+    <a:view>
+        <a:screenBody>
+            <div style="margin-left:30px;"><![CDATA[screenToolBar: 相当于hBox组件,页面级组件]]></div>
+            <a:screenToolBar labelWidth="100" style="border:1px dashed red;">
+                <a:textField name="cmp1" prompt="申请单类型"/>
+                <a:textField name="cmp2" prompt="单据编号"/>
+                <a:textField name="cmp3" prompt="申请日期"/>
+            </a:screenToolBar>
+        </a:screenBody>
+    </a:view>
+</a:screen>

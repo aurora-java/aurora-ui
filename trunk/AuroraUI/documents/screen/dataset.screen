@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure><![CDATA[
+    ]]></a:init-procedure>
+    <a:view>
+        <script><![CDATA[
+
+            function getEl(id) {
+                return document.getElementById(id);
+            }
+            
+            function refresh() {
+                var ds = $('demo_ds');
+                var record = ds.getCurrentRecord();
+                dataSet(record);
+                showData();
+            }
+            
+            function dataSet(record) {
+                $('message_ds').getAt(0).set('name', record.get('name'));
+                $('message_ds').getAt(0).set('address', record.get('address'));
+                $('message_ds').getAt(0).set('age', record.get('age'));
+            }
+            
+            function showData() {
+                var ds = $('demo_ds');
+                var records = ds.getAll();
+                var items = [];
+                for (var k = 0,
+                    l = records.length;k < l;k++) {
+                    var record = records[k];
+                    items.add(record.data);
+                }
+                getEl('console').innerHTML = Ext.util.JSON.encode(items);
+            }
+            
+            function pre() {
+                $('demo_ds').pre();
+            }
+            
+            function next() {
+                $('demo_ds').next();
+            }
+            
+            function add() {
+                $('demo_ds').create();
+            }
+            
+            function remove() {
+                var ds = $('demo_ds');
+                var record = ds.getCurrentRecord();
+                ds.remove(record);
+            }
+            
+            function save() {
+                var demo_record = $('demo_ds').getCurrentRecord();
+                var record=$('message_ds').getAt(0);
+                demo_record.set('name', record.get('name'));
+                demo_record.set('address', record.get('address'));
+                demo_record.set('age', record.get('age'));
+                showData();
+            }
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet id="message_ds" autoCreate="true">
+                <a:fields>
+                    <a:field name="name"/>
+                    <a:field name="address"/>
+                    <a:field name="age"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:form column="1" style="margin:10px;" title="信息记录" width="400">
+                <a:textField name="name" bindTarget="message_ds" prompt="姓名"/>
+                <a:textField name="address" bindTarget="message_ds" prompt="地址"/>
+                <a:numberField name="age" allowDecimals="false" allowNegative="false" bindTarget="message_ds" prompt="年龄"/>
+            </a:form>
+            <a:hBox style="margin:10px;">
+                <a:button click="pre" text="pre"/>
+                <a:button click="next" text="next"/>
+                <a:button click="add" text="add"/>
+                <a:button click="save" text="save"/>
+                <a:button click="remove" text="remove"/>
+            </a:hBox>
+            <div id="console" style="margin:10px;width:500px;height:300px;border:1px solid #ccc;font-size:14px;"/>
+        </a:screenBody>
+        <a:dataSets>
+            <a:dataSet id="demo_ds">
+                <a:datas>
+                    <a:record name="张三" address="上海张江科苑路151号1楼" age="21"/>
+                    <a:record name="李四" address="上海张江科苑路151号2楼" age="25"/>
+                    <a:record name="王五" address="上海张江科苑路151号3楼" age="28"/>
+                </a:datas>
+                <a:events>
+                    <a:event name="load" handler="refresh"/>
+                    <a:event name="indexchange" handler="refresh"/>
+                </a:events>
+            </a:dataSet>
+        </a:dataSets>
+    </a:view>
+</a:screen>
