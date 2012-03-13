@@ -6,7 +6,7 @@ var DOC=document,
 	hasSVG = !Ext.isIE9 && !!DOC.createElementNS && !!DOC.createElementNS(SVG_NS, "svg").createSVGRect,
 	fill = "<v:fill color='{fillColor}' opacity='{fillOpacity}'></v:fill>",
 	stroke = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'></v:stroke>",
-    shadow = "<v:shadow on='t' opacity='0.5' offset='3px,3px'></v:shadow>",
+    shadow = "<v:shadow on='t' opacity='0.5' offset='0px,3px'></v:shadow>",
     pathReg = /\w|[\s\d-+.,]*/g,
     numberReg = /[\d-+.]+/g,
     screenWidth,screenHeight,
@@ -65,7 +65,15 @@ var DOC=document,
     	return color;
     },
     convertConfig = function(record){
-    	return Ext.util.JSON.decode('{'+(record.get('config')||'').replace(/^{|}$/g,'').toLowerCase()+'}')
+    	var config = Ext.util.JSON.decode('{'+(record.get('config')||'').replace(/^{|}$/g,'')+'}');
+    	for(var c in config){
+    		var lc = String(c).toLowerCase();
+    	    if(lc !==c){
+	    		config[lc] = config[c];
+	    		delete config[c];
+    		}
+    	}
+    	return config;
     },
     transform = function(){
     	var dom,values=Ext.toArray(arguments);
@@ -115,6 +123,7 @@ $A.Graphics=Ext.extend($A.Component,{
 	},
 	initComponent : function(config){ 
 		$A.Graphics.superclass.initComponent.call(this,config);
+		if(!this.wrap)this['init'+(hasSVG?'SVG':'VML')+'Wrap']();
 		this['init'+(hasSVG?'SVG':'VML')+'Element']();
     },
     initEvents : function(){
@@ -345,17 +354,12 @@ $A.Graphics=Ext.extend($A.Component,{
 					t.showEditors()
 				}
 				if(t.moveable){
-					if(hasSVG)t.el.setStyle('stroke-dasharray',3*(t.strokewidth||1)+' '+4*(t.strokewidth||1));
-					else{
-						var stroke;
-						if(Ext.isIE9)
-							for(var i = 0,all = t.el.dom.children,l=all.length;i<l;i++){
-								if(all[i].tagName.toLowerCase() == 'v:stroke')
-									stroke = all[i];
-							}
-						else
-							stroke = t.el.child('stroke').dom;
-						stroke.dashStyle='dash';
+					if(!t.focusMask){
+						var xy = this.wrap.getXY();
+						t.focusMask = new Ext.Template('<div style="-moz-user-select:none;background:none;position:absolute;border:1px dashed #000;z-index:999;left:{x}px;top:{y}px;width:{w}px;height:{h}px;"></div>').insertFirst(document.body,{x:t.x+xy[0]-3,y:t.y+xy[1]-3,w:t.width+6,h:t.height+6},true);
+						t.focusMask.on('mousedown',t.onMouseDown,t);					
+					}else{
+						t.focusMask.show()
 					}
 				}
 			}
@@ -371,18 +375,7 @@ $A.Graphics=Ext.extend($A.Component,{
 				t.hideEditors()
 			}
 			if(t.moveable){
-				if(hasSVG)t.el.setStyle('stroke-dasharray','');
-				else{
-					var stroke;
-					if(Ext.isIE9)
-						for(var i = 0,all = t.el.dom.children,l=all.length;i<l;i++){
-							if(all[i].tagName.toLowerCase() == 'v:stroke')
-								stroke = all[i];
-						}
-					else
-						stroke = t.el.child('stroke').dom;
-					stroke.dashStyle='none';
-				}
+				if(t.focusMask)t.focusMask.hide();
 			}
 			this.fire('blur',null,t);
 			this.focusItem = null;
@@ -463,15 +456,9 @@ $A.Graphics=Ext.extend($A.Component,{
     		if(!type){
     			r.data['type'] = 'rect';
     			r.isNew = true;
-    		}else if(type == 'line'){
-    			var config = convertConfig(r);
-	    		if(!ds.find((this.tableidfield),config.from) || !ds.find((this.tableidfield),config.to)){
-	    			prepareRemove.push(r);
-	    		}
     		}
     		this.create(r);
     	}
-    	ds.remove(prepareRemove);
     },
     onAdd : function(ds,record,index){
     	this.create(record);
@@ -486,9 +473,10 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     onUpdate : function(ds,record, name, value,ov){
     	var el = $(this.id+'_'+record.id),
-    		config = convertConfig(record);
-    		config.type = record.get('type');
-    	if(pub[capitalize(config.type)].processConfig(config)==false){
+    		config = convertConfig(record),
+    		type = record.get('type');
+    		config.type = type;
+    	if(pub[capitalize(type)].processConfig && pub[capitalize(type)].processConfig(config)==false){
     		record.set(name,ov);
     		return;
     	}
@@ -502,7 +490,15 @@ $A.Graphics=Ext.extend($A.Component,{
     	el.processListener('un');
     	el.el.remove();
     	if(el.text)el.text.remove();
+    	el['init'+(hasSVG?'SVG':'VML')+'Element'] = pub[type == 'image'?'Image':'Path'].prototype['init'+(hasSVG?'SVG':'VML')+'Element'];
+    	if(!hasSVG)el.vmlTpl = pub[type == 'image'?'Image':'Path'].prototype.vmlTpl;
     	el.initComponent(config);
+    	if(el.focusMask){
+    		var xy = this.wrap.getXY();
+    		el.focusMask.moveTo(el.x+xy[0]-3,el.y+xy[1]-3);
+    		el.focusMask.setWidth(el.width+9);
+    		el.focusMask.setHeight(el.height+9);
+    	}
     	el.processListener('on');
     	if(el.editors && el.points){
     		var i = 0,eds = el.editors;
@@ -564,8 +560,11 @@ var pub ={
 		initComponent : function(config){
 			this.fillcolor = convertColor(this.fillcolor);
 			this.strokecolor = convertColor(this.strokecolor);
-			if(!this.wrap)this['init'+(hasSVG?'SVG':'VML')+'Wrap']();
 			pub.Path.superclass.initComponent.call(this,config);
+			if(this.title)this['init'+(hasSVG?'SVG':'VML')+'Title']();
+			this['init'+(hasSVG?'SVG':'VML')+'Info']();
+			if(hasSVG && this.shadow)this.initSVGShadow();
+			var xy = this.top.wrap.getXY();
 	    },
 		initSVGWrap : function(){
 			this.wrap = newSVG("g",this.id);
@@ -614,67 +613,8 @@ var pub ={
 		    		new pub.Arrow({color:this.strokecolor,width:this.strokewidth,opacity:this.strokeopacity,endarrow:this.endarrow,startarrow:this.startarrow,root:this.root})
 		    	}
 	    	}
-	    	
-	    	if(this.shadow){
-	    		var fid = 'graphics-filter-shadow'
-	    		if(!Ext.get(fid)){
-	    			var defs = this.root.child('defs');
-					if(!defs){
-						defs = newSVG('defs');
-						this.root.insertFirst(defs);
-					}
-	    			var filter = newSVG('filter',fid);
-	    			filter.set({'x':-0.25,'y':-0.25,'width':1.5,'height':1.5,'color-interpolation-filters':'sRGB'});
-	    			defs.appendChild(filter);
-	    			var feGaussianBlur = newSVG('feGaussianBlur');
-	    			feGaussianBlur.set({'result':'blur','stdDeviation':1,'in':'SourceAlpha'});
-	    			var feColorMatrix = newSVG('feColorMatrix');
-	    			feColorMatrix.set({'values':'1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.2 0 ','type':'matrix','result':'bluralpha'});
-	    			var feOffset = newSVG('feOffset');
-	    			feOffset.set({'result':'offsetBlur','dx':3,'dy':3,'in':'bluralpha'});
-	    			var feMerge = newSVG('feMerge');
-	    			filter.appendChild(feGaussianBlur);
-	    			filter.appendChild(feColorMatrix);
-	    			filter.appendChild(feOffset);
-	    			filter.appendChild(feMerge);
-	    			var feMergeNode1 = newSVG('feMergeNode');
-	    			feMergeNode1.set({'in':'offsetBlur'});
-	    			var feMergeNode2 = newSVG('feMergeNode');
-	    			feMergeNode2.set({'in':'SourceGraphic'});
-	    			feMerge.appendChild(feMergeNode1);
-	    			feMerge.appendChild(feMergeNode2);
-	    		}
-	    		this.el.setStyle({'filter':'url(#'+fid+')'});
-	    	}
-	    	
 	    	this.el.set(config);
 	    	this.wrap.insertFirst(this.el);
-	    	
-	    	if(this.title){
-	    		var x = this.titlex||0, y = this.titley||0,size = this.titlesize||14;
-				this.text = newSVG("text",this.id+'_title');
-		    	this.text.dom.style.cssText=encodeStyle({
-		    		'fill':this.titlecolor,
-		    		'font-size':size+'px',
-		    		'line-height':size+'px',
-		    		'cursor':'pointer'
-		    	});
-		    	this.text.set({dx:x+1,dy:y+size-2});
-		    	this.text.dom.textContent = this.title;
-		    	this.wrap.appendChild(this.text);
-	    	}
-	    	if(this.info){
-	    		if(!this.infoEl){
-		    		this.infoEl = newSVG('title');
-		    		this.wrap.appendChild(this.infoEl)
-	    		}
-		    	this.infoEl.dom.textContent = this.info;
-	    	}else{
-	    		if(this.infoEl){
-	    			this.infoEl.remove();
-	    			this.infoEl = null;
-	    		}
-	    	}
 	    },
 	    initVMLElement : function(){
 	    	var stroke=true,fill=true,filled=true;
@@ -699,32 +639,72 @@ var pub ={
 	    		endArrow:this.endarrow,
 	    		startArrow:this.startarrow
 	    	},true);
-	    	
-	    	if(this.title){
-	    		var x = this.titlex||0, y = this.titley||0,size = this.titlesize||14,root = this.wrap;
-				if(this.type == 'line'){
-					x += this.x;
-					y += this.y;
-					root = this.top.wrap;
-				}else{
-					var strokewidth = this.strokewidth;
-					x += strokewidth/2;
-					y += strokewidth/2;
-				}
-		    	this.text=new Ext.Template(this.titleVmlTpl).append(root.dom,{
-		    		id:this.id+'_title',
-		    		style:encodeStyle({'line-height':size+'px','font-size':size+'px'}),
-		    		left:x,
-		    		top:y,
-		    		color:this.titlecolor||'black'
-		    	},true)
-		    	this.text.update(this.title);
-	    	}
 	    	this.wrap.set({'title':this.info||''});
 	    },
-	    processListener: function(ou){
-			pub.Path.superclass.processListener.call(this,ou);
+	    initSVGShadow : function(){
+    		var fid = 'graphics-filter-shadow'
+    		if(!Ext.get(fid)){
+    			var defs = this.root.child('defs');
+				if(!defs){
+					defs = newSVG('defs');
+					this.root.insertFirst(defs);
+				}
+    			var filter = newSVG('filter',fid);
+    			filter.set({'x':-0.25,'y':-0.25,'width':1.5,'height':1.5,'color-interpolation-filters':'sRGB'});
+    			defs.appendChild(filter);
+    			var feGaussianBlur = newSVG('feGaussianBlur');
+    			feGaussianBlur.set({'result':'blur','stdDeviation':1,'in':'SourceAlpha'});
+    			var feColorMatrix = newSVG('feColorMatrix');
+    			feColorMatrix.set({'values':'1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.6 0 ','type':'matrix','result':'bluralpha'});
+    			var feOffset = newSVG('feOffset');
+    			feOffset.set({'result':'offsetBlur','dx':0,'dy':3,'in':'bluralpha'});
+    			var feMerge = newSVG('feMerge');
+    			filter.appendChild(feGaussianBlur);
+    			filter.appendChild(feColorMatrix);
+    			filter.appendChild(feOffset);
+    			filter.appendChild(feMerge);
+    			var feMergeNode1 = newSVG('feMergeNode');
+    			feMergeNode1.set({'in':'offsetBlur'});
+    			var feMergeNode2 = newSVG('feMergeNode');
+    			feMergeNode2.set({'in':'SourceGraphic'});
+    			feMerge.appendChild(feMergeNode1);
+    			feMerge.appendChild(feMergeNode2);
+    		}
+    		this.el.setStyle({'filter':'url(#'+fid+')'});
 	    },
+	    initSVGTitle : function(){
+	    	this.text = pub.Text.prototype.initSVGElement.call({text:this.title,id:this.id+'_title',size:this.titlesize||14,dx:this.titlex||0,dy:this.titley||0,color:this.titlecolor,wrap:this.wrap});
+	    },
+	    initVMLTitle : function(){
+    		var x = this.titlex||0, y = this.titley||0,size = this.titlesize||14,root = this.wrap;
+			if(this.type == 'line'){
+				x += this.x;
+				y += this.y;
+				root = this.top.wrap;
+			}else{
+				var strokewidth = this.strokewidth;
+				x += strokewidth/2;
+				y += strokewidth/2;
+			}
+			this.text = pub.Text.prototype.initVMLElement.call({text:this.title,id:this.id+'_title',size:size,dx:x,dy:y,color:this.titlecolor,wrap:root,vmlTpl:pub.Text.prototype.vmlTpl});
+    	},
+    	initSVGInfo : function(){
+    		if(this.info){
+	    		if(!this.infoEl){
+		    		this.infoEl = newSVG('title');
+		    		this.wrap.appendChild(this.infoEl)
+	    		}
+		    	this.infoEl.dom.textContent = this.info;
+	    	}else{
+	    		if(this.infoEl){
+	    			this.infoEl.remove();
+	    			this.infoEl = null;
+	    		}
+	    	}
+    	},
+    	initVMLInfo : function(){
+    		this.wrap.set({'title':this.info||''});
+    	},
 	    convertArrow : function(x1,y1,x2,y2){
 	    	var dx = x1 - x2,dy = y1 - y2,d = this.strokewidth*3/2;
 	    	if(dx == 0){
@@ -977,6 +957,10 @@ var pub ={
 				ed.moveTo(ed.x,ed.y);
 				ed.fireEvent('move');
 			}
+			if(this.focusMask){
+				var fxy = this.focusMask.getXY();
+				this.focusMask.moveTo(fxy[0]+dx,fxy[1]+dy);
+			}
 	    },
 		getRecord : function(){
 	    	var a = this.id.match(/(.*)_(\d+)(_.*)*$/),id;
@@ -988,6 +972,10 @@ var pub ={
 	    },
 	    destroy : function(){
 	    	this.clearEditors();
+	    	if(this.focusMask){
+	    		this.focusMask.un('mousedown',this.onMouseDown,this);
+	    		this.focusMask.remove();
+	    	}
 	    	pub.Path.superclass.destroy.call(this);
 	    },
 	    getVmlTpl : function(s,f,sd){
@@ -997,8 +985,7 @@ var pub ={
 	    	if(sd)tpl.push(shadow);
 	    	tpl.push("</v:shape>");
 	    	return tpl;
-	    },
-	    titleVmlTpl : "<span id='{id}' unselectable='on'  onselectstart='return false;' style='position:absolute;left:{left}px;top:{top}px;color:{color};cursor:pointer;white-space:nowrap;{style}'></span>"
+	    }
 	}),
 	Line : function(config){
 		if(pub.Line.processConfig(config)==false)return;
@@ -1011,39 +998,6 @@ var pub ={
 		pub.Oval.processConfig(config);
 		return new pub.Path(config);
 	},
-	Image : Ext.extend($A.Graphics,{
-		initSVGElement : function(){
-			this.wrap = newSVG("g",this.id);
-			if(this.x||this.y) transform(this.wrap,this.x,this.y);
-			this.el = newSVG("image",this.id+"_el");
-	    	this.el.dom.style.cssText=encodeStyle({
-	    		'stroke':this.strokecolor,
-	    		'stroke-width':this.strokewidth,
-	    		'stroke-opacity':this.strokeopacity
-	    	})+this.style;
-	    	this.el.dom.setAttributeNS(XLINK_NS,'xlink:href',this.src);
-	    	this.el.set({x:0,y:0,width:this.width,height:this.height});
-	    	this.root.appendChild(this.wrap);
-	    	this.wrap.appendChild(this.el);
-	    },
-	    initVMLElement : function(){
-	    	this.wrap = newVML("v:group");
-	    	this.wrap.setStyle({position:'absolute',width:100+'px',height:100+'px',left:this.x+'px',top:this.y+'px'});
-	        this.wrap.set({coordsize:'100,100'});
-	        this.root.appendChild(this.wrap);
-	    	this.wrap=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
-	    		id:this.id,
-	    		src:this.src,
-	    		style:this.style,
-	    		width:this.width,
-	    		height:this.height,
-	    		strokeColor:this.strokecolor||'none',
-	    		strokeWidth:this.strokecolor?this.strokewidth:0,
-	    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
-	    	},true)
-	    },
-	    vmlTpl : ["<v:image id='{id}' src='{src}' style='position:absolute;left:0;top:0;width:{width}px;height:{height}px;{style}'>",stroke,"</v:image>"]
-	}),
 	Rect : function(config){
 		pub.Rect.processConfig(config);
 		return new pub.Path(config);
@@ -1052,41 +1006,6 @@ var pub ={
 		pub.Diamond.processConfig(config);
 		return new pub.Path(config);
 	},
-	Text : Ext.extend($A.Graphics,{
-		initSVGWrap : function(){
-			this.wrap = newSVG("g",this.id);
-			this.root.appendChild(this.wrap);
-		},
-    	initVMLWrap : function(){
-	    	this.wrap = newVML("v:group",this.id);
-	    	this.root.appendChild(this.wrap);
-	    },
-		initSVGElement : function(){
-			var size = this.size||14;
-			this.el = newSVG("text",this.id+'_el');
-	    	this.el.dom.style.cssText=encodeStyle({
-	    		'fill':this.color,
-	    		'font-size':size+'px',
-	    		'line-height':size+'px',
-	    		'cursor':'text'
-	    	})+this.style;
-	    	this.el.set({dx:this.dx+1,dy:this.dy+size-2});
-	    	this.el.dom.textContent = this.text;
-	    	this.wrap.appendChild(this.el);
-	    },
-	    initVMLElement : function(){
-	    	var size = this.size||14;
-	    	this.el=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
-	    		id:this.id+'_el',
-	    		style:encodeStyle({'line-height':size+'px','font-size':size+'px'})+this.style,
-	    		left:this.dx,
-	    		top:this.dy,
-	    		color:this.color||'black'
-	    	},true)
-	    	this.el.update(this.text);
-	    },
-	    vmlTpl : "<span id='{id}' style='position:absolute;left:{left}px;top:{top}px;color:{color};white-space:nowrap;{style}'></span>"
-	}),
 	Arrow : function(config){
 		if(!config.startarrow && !config.endarrow )return;
 		var defs = config.root.child('defs');
@@ -1123,6 +1042,75 @@ var pub ={
 		}
 	}
 }
+Ext.apply(pub,{
+	Image : Ext.extend(pub.Path,{
+		initSVGElement : function(){
+			if(this.x||this.y) transform(this.wrap,this.x,this.y);
+			this.el = newSVG("image",this.id+"_el");
+	    	this.el.dom.style.cssText=encodeStyle({
+	    		'stroke':this.strokecolor,
+	    		'stroke-width':this.strokewidth,
+	    		'stroke-opacity':this.strokeopacity,
+	    		'-moz-user-select':'none'
+	    	})+this.style;
+	    	this.el.dom.setAttributeNS(XLINK_NS,'xlink:href',this.image);
+	    	this.el.set({x:0,y:0,width:this.width,height:this.height});
+	    	this.wrap.appendChild(this.el);
+	    },
+	    initVMLElement : function(){
+	    	this.wrap.setStyle({position:'absolute',width:100+'px',height:100+'px',left:this.x+'px',top:this.y+'px'});
+	        this.wrap.set({coordsize:'100,100'});
+	    	this.el=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
+	    		id:this.id+'_el',
+	    		src:this.image,
+	    		style:this.style,
+	    		width:this.width,
+	    		height:this.height,
+	    		strokeColor:this.strokecolor||'none',
+	    		strokeWidth:this.strokecolor?this.strokewidth:0,
+	    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
+	    	},true)
+	    },
+	    vmlTpl : ["<v:image id='{id}' src='{src}' style='position:absolute;left:0;top:0;width:{width}px;height:{height}px;{style}'>",stroke,"</v:image>"]
+	}),
+	Text : Ext.extend(pub.Path,{
+		initSVGWrap : function(){
+			this.wrap = newSVG("g",this.id);
+			this.root.appendChild(this.wrap);
+		},
+    	initVMLWrap : function(){
+	    	this.wrap = newVML("v:group",this.id);
+	    	this.root.appendChild(this.wrap);
+	    },
+		initSVGElement : function(){
+			var size = this.size||14;
+			this.el = newSVG("text",this.id+'_el');
+	    	this.el.dom.style.cssText=encodeStyle({
+	    		'fill':this.color,
+	    		'font-size':size+'px',
+	    		'line-height':size+'px',
+	    		'cursor':'text'
+	    	})+this.style;
+	    	this.el.set({dx:this.dx+1,dy:this.dy+size-2});
+	    	this.el.dom.textContent = this.text;
+	    	this.wrap.appendChild(this.el);
+	    },
+	    initVMLElement : function(){
+	    	var size = this.size||14;
+	    	this.el=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
+	    		id:this.id+'_el',
+	    		style:encodeStyle({'line-height':size+'px','font-size':size+'px'})+this.style,
+	    		left:this.dx,
+	    		top:this.dy,
+	    		color:this.color||'black'
+	    	},true)
+	    	this.el.update(this.text);
+	    	return this.el;
+	    },
+	    vmlTpl : "<span id='{id}' unselectable='on'  onselectstart='return false;' style='position:absolute;left:{left}px;top:{top}px;color:{color};cursor:pointer;white-space:nowrap;{style}'></span>"
+	})
+})
+
 pub.Line.processConfig = function(config){
 	var a= config.points.match(numberReg),points = [];
 	if(!a)return false;
