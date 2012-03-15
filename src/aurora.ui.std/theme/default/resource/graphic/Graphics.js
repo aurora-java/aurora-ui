@@ -497,6 +497,7 @@ $A.Graphics=Ext.extend($A.Component,{
     	el['init'+(hasSVG?'SVG':'VML')+'Element'] = pub[type == 'image'?'Image':'Path'].prototype['init'+(hasSVG?'SVG':'VML')+'Element'];
     	if(!hasSVG)el.vmlTpl = pub[type == 'image'?'Image':'Path'].prototype.vmlTpl;
     	el.initComponent(config);
+    	if(Ext.isWebKit)el.wrap.dom.setAttribute('transform',el.wrap.dom.getAttribute('transform'));
     	el.syncLineEditors(el.x - x,el.y - y);
     	if(el == this.focusItem && this.focusMask){
     		this.syncFocusMask(el);
