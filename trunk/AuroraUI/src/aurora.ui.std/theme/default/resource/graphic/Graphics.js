@@ -345,6 +345,10 @@ $A.Graphics=Ext.extend($A.Component,{
     		this.wrap.moveTo(xy[0]+x,xy[1]+y);
     	}
     },
+    syncFocusMask : function(t){
+    	var xy = this.wrap.getXY(),stroke = t.strokewidth/2;
+		return this.focusMask.setStyle({'left':xy[0]+t.x-3-stroke+'px',top:xy[1]+t.y-3-stroke+'px'}).setWidth(t.width+6+stroke*3).setHeight(t.height+6+stroke*3);
+    },
     focus : function(t){
     	t = this.fire('focus',null,t);
     	if(t){
@@ -354,13 +358,10 @@ $A.Graphics=Ext.extend($A.Component,{
 					t.showEditors()
 				}
 				if(t.moveable){
-					if(!t.focusMask){
-						var xy = this.wrap.getXY();
-						t.focusMask = new Ext.Template('<div style="-moz-user-select:none;background:none;position:absolute;border:1px dashed #000;z-index:999;left:{x}px;top:{y}px;width:{w}px;height:{h}px;"></div>').insertFirst(document.body,{x:t.x+xy[0]-3,y:t.y+xy[1]-3,w:t.width+6,h:t.height+6},true);
-						t.focusMask.on('mousedown',t.onMouseDown,t);					
-					}else{
-						t.focusMask.show()
+					if(!this.focusMask){
+						this.focusMask = new Ext.Template('<div style="-moz-user-select:none;background:none;position:absolute;border:1px dashed #000;z-index:999;"></div>').insertFirst(document.body,{},true);
 					}
+					this.syncFocusMask(t).show().on('mousedown',t.onMouseDown,t);	
 				}
 			}
 			this.focusItem = t;
@@ -375,7 +376,9 @@ $A.Graphics=Ext.extend($A.Component,{
 				t.hideEditors()
 			}
 			if(t.moveable){
-				if(t.focusMask)t.focusMask.hide();
+				if(this.focusMask){
+					this.focusMask.hide().un('mousedown',t.onMouseDown,t);	
+				}
 			}
 			this.fire('blur',null,t);
 			this.focusItem = null;
@@ -475,7 +478,8 @@ $A.Graphics=Ext.extend($A.Component,{
     	var el = $(this.id+'_'+record.id),
     		config = convertConfig(record),
     		type = record.get('type');
-    		config.type = type;
+    		config.type = type,
+    		x = el.x,y = el.y;
     	if(pub[capitalize(type)].processConfig && pub[capitalize(type)].processConfig(config)==false){
     		record.set(name,ov);
     		return;
@@ -493,11 +497,9 @@ $A.Graphics=Ext.extend($A.Component,{
     	el['init'+(hasSVG?'SVG':'VML')+'Element'] = pub[type == 'image'?'Image':'Path'].prototype['init'+(hasSVG?'SVG':'VML')+'Element'];
     	if(!hasSVG)el.vmlTpl = pub[type == 'image'?'Image':'Path'].prototype.vmlTpl;
     	el.initComponent(config);
-    	if(el.focusMask){
-    		var xy = this.wrap.getXY();
-    		el.focusMask.moveTo(el.x+xy[0]-3,el.y+xy[1]-3);
-    		el.focusMask.setWidth(el.width+9);
-    		el.focusMask.setHeight(el.height+9);
+    	el.syncLineEditors(el.x - x,el.y - y);
+    	if(el == this.focusItem && this.focusMask){
+    		this.syncFocusMask(el);
     	}
     	el.processListener('on');
     	if(el.editors && el.points){
@@ -835,6 +837,14 @@ var pub ={
 				}
 			}
 	    },
+	    syncLineEditors : function(dx,dy){
+	    	for(var i = 0,l = this.lineEditors.length;i<l;i++){
+				var ed = this.lineEditors[i];
+				ed.x += dx;ed.y += dy; 
+				ed.moveTo(ed.x,ed.y);
+				ed.fireEvent('move');
+			}
+	    },
 	    createEditor : function(x,y){
 	    	var eds = this.editors,i = eds.length;
 	    	eds[i] = new pub.Oval({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':this.root,'top':this.top,'moveable':true});
@@ -919,7 +929,7 @@ var pub ={
 	    		ty = e.getPageY()+this.relativeY - _xy[1],
 	    		b=0;
     		if(stroke && isVML(this.wrap)){
-    			b = 1 - stroke/2;
+    			b =  - stroke/2;
     		}
     		if(tx <= b) tx = b;
     		else if(tx + this.width - b> sw - 2) tx = sw - 2 - this.width + b;
@@ -929,11 +939,13 @@ var pub ={
 			this.x = Math.round(tx - b);
 			this.y = Math.round(ty - b);
 			if(this.moveable){
-				var ds = this.top.dataset;
-				var record = ds.getCurrentRecord();
-        		var config = convertConfig(record);
+				var ds = this.top.dataset,
+					record = ds.getCurrentRecord(),
+        			config = convertConfig(record),
+        			stroke = config.strokewidth/2;
         		config.x = this.x;
         		config.y = this.y;
+        		this.top.syncFocusMask(config);
         		record.data['config']=Ext.util.JSON.encode(config).replace(/^{|}$/g,'');
         		record.dirty = true;
 				this.fireEvent('move',this,ds,record,config.x - b,config.y - b);
@@ -950,17 +962,7 @@ var pub ={
 	    		ty += _xy[1];
 	    		this.proxy.moveTo(tx,ty);
 			}
-			var dx = this.x - x;dy = this.y - y; 
-			for(var i = 0,l = this.lineEditors.length;i<l;i++){
-				var ed = this.lineEditors[i];
-				ed.x += dx;ed.y += dy; 
-				ed.moveTo(ed.x,ed.y);
-				ed.fireEvent('move');
-			}
-			if(this.focusMask){
-				var fxy = this.focusMask.getXY();
-				this.focusMask.moveTo(fxy[0]+dx,fxy[1]+dy);
-			}
+			this.syncLineEditors(this.x - x,this.y - y);
 	    },
 		getRecord : function(){
 	    	var a = this.id.match(/(.*)_(\d+)(_.*)*$/),id;
