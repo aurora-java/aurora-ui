@@ -227,8 +227,8 @@ $A.Graphics=Ext.extend($A.Component,{
 		    		this.proxy = this.wrap;
 		    	}
 		    	if(this.moveable)setTopCmp(this.proxy);
-		    	Ext.get(document).on('mousemove',this.onMouseMove,this);
-		    	Ext.get(document).on('mouseup',this.onMouseUp,this);
+		    	Ext.get(DOC).on('mousemove',this.onMouseMove,this);
+		    	Ext.get(DOC).on('mouseup',this.onMouseUp,this);
 	    	}
     	}
     },
@@ -238,8 +238,8 @@ $A.Graphics=Ext.extend($A.Component,{
     		ty = e.getPageY()+this.relativeY,
     		w = this.width||this.rx*2,
     		h = this.height||this.ry*2,
-    		sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft,
-			st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop,
+    		sl = DOC[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft,
+			st = DOC[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop,
     		sw = sl + screenWidth,
     		sh = st + screenHeight;
     	if(tx < 0) tx = 0;
@@ -250,8 +250,8 @@ $A.Graphics=Ext.extend($A.Component,{
     	this.proxy.moveTo(tx,ty);
     },
     onMouseUp : function(e){
-    	Ext.get(document).un('mousemove',this.onMouseMove,this);
-    	Ext.get(document).un('mouseup',this.onMouseUp,this);
+    	Ext.get(DOC).un('mousemove',this.onMouseMove,this);
+    	Ext.get(DOC).un('mouseup',this.onMouseUp,this);
     	if(this.dropto){
     		var wrap = this.dropEl.wrap,
     			xy = wrap.getXY(),
@@ -327,8 +327,8 @@ $A.Graphics=Ext.extend($A.Component,{
     	if(hasSVG){
 	    	var graphic = this.top.wrap;
 	    	var	_xy = graphic.getXY()
-	    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
-	    	var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
+	    	var sl = DOC[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
+	    	var st = DOC[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
 	    	var g = this.root.dom;
 	    	var svg = g.ownerSVGElement;
 			var box = g.getBoundingClientRect();
@@ -346,8 +346,8 @@ $A.Graphics=Ext.extend($A.Component,{
     	}
     },
     syncFocusMask : function(t){
-    	var xy = this.wrap.getXY(),stroke = t.strokewidth/2;
-		return this.focusMask.setStyle({'left':xy[0]+t.x-3-stroke+'px',top:xy[1]+t.y-3-stroke+'px'}).setWidth(t.width+6+stroke*3).setHeight(t.height+6+stroke*3);
+    	var delta = t.strokewidth/2 + 3;
+		return this.focusMask.setStyle({'left':t.x-delta+'px',top:t.y-delta+'px'}).setWidth(t.width+delta*2).setHeight(t.height+delta*2);
     },
     focus : function(t){
     	t = this.fire('focus',null,t);
@@ -359,7 +359,7 @@ $A.Graphics=Ext.extend($A.Component,{
 				}
 				if(t.moveable){
 					if(!this.focusMask){
-						this.focusMask = new Ext.Template('<div style="-moz-user-select:none;background:none;position:absolute;border:1px dashed #000;z-index:999;"></div>').insertFirst(document.body,{},true);
+						this.focusMask = new Ext.Template('<div style="-moz-user-select:none;-webkit-user-select:none;cursor:pointer;background:none;position:absolute;border:1px dashed #000;z-index:999;"></div>').insertFirst(this.wrap.dom,{},true);
 					}
 					this.syncFocusMask(t).show().on('mousedown',t.onMouseDown,t);	
 				}
@@ -390,8 +390,8 @@ $A.Graphics=Ext.extend($A.Component,{
 	    	var _xy = this.wrap.getXY();
 			this.startEl = el;
 			this.drawLinePoints = [e.getPageX() - _xy[0],e.getPageY() - _xy[1]];
-			Ext.get(document).on('mousemove',this.drawLine,this);
-			Ext.get(document).on('mouseup',this.endLine,this);
+			Ext.get(DOC).on('mousemove',this.drawLine,this);
+			Ext.get(DOC).on('mouseup',this.endLine,this);
     	}
     },
     drawLine : function(e){
@@ -419,8 +419,8 @@ $A.Graphics=Ext.extend($A.Component,{
     	}
     },
     endLine : function(e,t){
-    	Ext.get(document).un('mousemove',this.drawLine,this);
-		Ext.get(document).un('mouseup',this.endLine,this);
+    	Ext.get(DOC).un('mousemove',this.drawLine,this);
+		Ext.get(DOC).un('mouseup',this.endLine,this);
     	if(this.newline){
     		var el = this.getGElement(t);
     		if(!el||el.el == this.startEl.el||el.record == this.newline){
@@ -676,7 +676,7 @@ var pub ={
     		this.el.setStyle({'filter':'url(#'+fid+')'});
 	    },
 	    initSVGTitle : function(){
-	    	this.text = pub.Text.prototype.initSVGElement.call({text:this.title,id:this.id+'_title',size:this.titlesize||14,dx:this.titlex||0,dy:this.titley||0,color:this.titlecolor,wrap:this.wrap});
+	    	this.text = pub.Text.prototype.initSVGElement.call({text:this.title,id:this.id+'_title',size:this.titlesize||14,dx:this.titlex||0,dy:this.titley||0,color:this.titlecolor,wrap:this.wrap,style:'cursor:pointer;-webkit-user-select:none'});
 	    },
 	    initVMLTitle : function(){
     		var x = this.titlex||0, y = this.titley||0,size = this.titlesize||14,root = this.wrap;
@@ -910,8 +910,8 @@ var pub ={
 			    		this.proxy = this.wrap;
 			    	}
 			    	if(this.moveable)setTopCmp(this.proxy);
-			    	Ext.get(document).on('mousemove',this.onMouseMove,this);
-			    	Ext.get(document).on('mouseup',this.onMouseUp,this);
+			    	Ext.get(DOC).on('mousemove',this.onMouseMove,this);
+			    	Ext.get(DOC).on('mouseup',this.onMouseUp,this);
 		    	}else if(this.editable){
 		    		setTopCmp(this.wrap);
 		    	}
