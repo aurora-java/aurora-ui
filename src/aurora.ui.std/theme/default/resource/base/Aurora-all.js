@@ -2288,6 +2288,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
         this.processCurrentRow();
+        index = index - this.pagesize*(this.gotoPage-1);
         if(this.selectionmodel == 'single') this.select(this.getAt(index-1));
     },
     /**
@@ -5898,9 +5899,9 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 			this.selectDay=new Date(date);
 		}else {
 			date=new Date();
-			date.setHours(0);
-			date.setMinutes(0);
-			date.setSeconds(0);
+			date.setHours(this.hour||0);
+			date.setMinutes(this.minute||0);
+			date.setSeconds(this.second||0);
 			date.setMilliseconds(0);
 		}
 		this.draw(date);
