@@ -4935,6 +4935,8 @@ $A.TriggerField = Ext.extend($A.TextField,{
      */
     expand : function(){
 //    	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this, {delay: 10});
+        //对于某些行上的cb，如果是二级关联的情况下，会expand多次，导致多次绑定事件
+        Ext.get(document.documentElement).un("mousedown", this.triggerBlur, this);
     	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this);
     	this.syncPopup();
     },
