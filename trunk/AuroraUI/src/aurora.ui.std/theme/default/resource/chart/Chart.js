@@ -7344,7 +7344,8 @@ function Chart (options, callback) {
 							type:field.pro['type']||optionsChart.type
 						};
 		    		for(var i=0;i<records.length;i++){
-						data.push(records[i].get(yAxisName)||0);
+		    			var d = records[i].get(yAxisName);
+						data.push(Ext.isEmpty(d)?null:d);
 					}
 					options['data']=data;
 					options['yAxis']=j;
