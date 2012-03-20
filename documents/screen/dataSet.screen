@@ -4,7 +4,7 @@
     <a:view>
         <script><![CDATA[
             var department_id = 2;
-            var employee_id = 3;
+            var empoyee_id = 3;
             
             function init() {
                 initDep();
@@ -20,9 +20,9 @@
                 ds.add(new Aurora.Record({
                     dep_id: 1,
                     dep_code: 'DEP001',
-                    dep_name: 'MAS',
+                    dep_name: '财务',
                     dep_type: '事业部',
-                    dep_leader: '周凡',
+                    dep_leader: '张三',
                     dep_add: '科苑路151号',
                     dep_sdate: '',
                     dep_edate: ''
@@ -30,9 +30,9 @@
                 ds.add(new Aurora.Record({
                     dep_id: 2,
                     dep_code: 'DEP002',
-                    dep_name: '运维',
+                    dep_name: '人事',
                     dep_type: '虚拟部门',
-                    dep_leader: '马超',
+                    dep_leader: '李四',
                     dep_add: '',
                     dep_sdate: sdate,
                     dep_edate: edate
@@ -44,7 +44,7 @@
                 ds.add(new Aurora.Record({
                     emp_id: 1,
                     emp_code: 'EMP001',
-                    emp_name: '周凡',
+                    emp_name: '张三',
                     emp_sex: '男',
                     emp_level: 10,
                     entry_date: '1999-02-03',
@@ -53,7 +53,7 @@
                 ds.add(new Aurora.Record({
                     emp_id: 2,
                     emp_code: 'EMP002',
-                    emp_name: '马超',
+                    emp_name: '李四',
                     emp_sex: '男',
                     emp_level: 3,
                     entry_date: '2001-04-07',
@@ -94,30 +94,30 @@
             function refresh(ds) {
                 var record = ds.getCurrentRecord();
                 var dep_record = $('dep_ds').getCurrentRecord();
-                dep_record.set('dept_id', record.get('dep_id'));
-                dep_record.set('dept_code', record.get('dep_code'));
-                dep_record.set('dept_name', record.get('dep_name'));
-                dep_record.set('dept_type', record.get('dep_type'));
-                dep_record.set('dept_leader', record.get('dep_leader'));
-                dep_record.set('dept_add', record.get('dep_add'));
-                dep_record.set('dept_edate', record.get('dep_edate'));
-                dep_record.set('dept_sdate', record.get('dep_sdate'));
+                dep_record.set('dep_id', record.get('dep_id'));
+                dep_record.set('dep_code', record.get('dep_code'));
+                dep_record.set('dep_name', record.get('dep_name'));
+                dep_record.set('dep_type', record.get('dep_type'));
+                dep_record.set('dep_leader', record.get('dep_leader'));
+                dep_record.set('dep_add', record.get('dep_add'));
+                dep_record.set('dep_edate', record.get('dep_edate'));
+                dep_record.set('dep_sdate', record.get('dep_sdate'));
             }
             
             function refreshEmp(ds) {
                 var record = ds.getCurrentRecord();
                 var emp_record = $('emp_query_ds').getCurrentRecord();
-                emp_record.set('empl_code', record.get('emp_code'));
-                emp_record.set('empl_name', record.get('emp_name'));
-                emp_record.set('empl_level', record.get('emp_level'));
-                emp_record.set('ent_date', record.get('entry_date'));
+                emp_record.set('emp_code', record.get('emp_code'));
+                emp_record.set('emp_name', record.get('emp_name'));
+                emp_record.set('emp_level', record.get('emp_level'));
+                emp_record.set('entry_date', record.get('entry_date'));
             }
             
             function indexChange(ds, record) {
                 refresh(ds);
                 getEmp(record.get('dep_id'));
-            }
-            
+            }          
+           
             function addDep() {
                 if (!$('dep_ds').validate()) {
                     return;
@@ -126,13 +126,13 @@
                 var record = $('dep_ds').getCurrentRecord();
                 $('dep_result_ds').create({
                     'dep_id': department_id,
-                    'dep_code': record.get('dept_code'),
-                    'dep_name': record.get('dept_name'),
-                    'dep_leader': record.get('dept_leader'),
-                    'dep_type': record.get('dept_type'),
-                    'dep_add': record.get('dept_add'),
-                    'dep_sdate': record.get('dept_sdate'),
-                    'dep_edate': record.get('dept_edate')
+                    'dep_code': record.get('dep_code'),
+                    'dep_name': record.get('dep_name'),
+                    'dep_leader': record.get('dep_leader'),
+                    'dep_type': record.get('dep_type'),
+                    'dep_add': record.get('dep_add'),
+                    'dep_sdate': record.get('dep_sdate'),
+                    'dep_edate': record.get('dep_edate')
                 });
                 Ext.fly('console').dom.innerHTML = 'dataSet.create(Object);';
             }
@@ -149,13 +149,13 @@
                 }
                 var current_record = $('dep_ds').getCurrentRecord();
                 var record = $('dep_result_ds').getCurrentRecord();
-                record.set('dep_code', current_record.get('dept_code'));
-                record.set('dep_name', current_record.get('dept_name'));
-                record.set('dep_leader', current_record.get('dept_leader'));
-                record.set('dep_type', current_record.get('dept_type'));
-                record.set('dep_add', current_record.get('dept_add'));
-                record.set('dep_sdate', current_record.get('dept_sdate'));
-                record.set('dep_edate', current_record.get('dept_edate'));
+                record.set('dep_code', current_record.get('dep_code'));
+                record.set('dep_name', current_record.get('dep_name'));
+                record.set('dep_leader', current_record.get('dep_leader'));
+                record.set('dep_type', current_record.get('dep_type'));
+                record.set('dep_add', current_record.get('dep_add'));
+                record.set('dep_sdate', current_record.get('dep_sdate'));
+                record.set('dep_edate', current_record.get('dep_edate'));
                 Ext.fly('console').dom.innerHTML = 'record.set(name, value);';
             }
             
@@ -170,14 +170,14 @@
             }
             
             function addEmp() {
-                employee_id++;
+                empoyee_id++;
                 var record = $('emp_query_ds').getCurrentRecord();
                 var new_record = $('emp_result_ds').create({
-                    'emp_id': employee_id,
-                    'emp_code': record.get('empl_code'),
-                    'emp_name': record.get('empl_name'),
-                    'emp_level': record.get('empl_level'),
-                    'entry_date': record.get('ent_date'),
+                    'emp_id': empoyee_id,
+                    'emp_code': record.get('emp_code'),
+                    'emp_name': record.get('emp_name'),
+                    'emp_level': record.get('emp_level'),
+                    'entry_date': record.get('entry_date'),
                     'dep_id': $('dep_result_ds').getCurrentRecord().get('dep_id')
                 });
                 $('emp_ds').add(new_record);
@@ -193,35 +193,35 @@
             function updateEmp() {
                 var current_record = $('emp_query_ds').getCurrentRecord();
                 var record = $('emp_result_ds').getCurrentRecord();
-                record.set('emp_code', current_record.get('empl_code'));
-                record.set('emp_name', current_record.get('empl_name'));
-                record.set('emp_level', current_record.get('empl_level'));
-                record.set('entry_date', current_record.get('ent_date'));
+                record.set('emp_code', current_record.get('emp_code'));
+                record.set('emp_name', current_record.get('emp_name'));
+                record.set('emp_level', current_record.get('emp_level'));
+                record.set('entry_date', current_record.get('entry_date'));
                 var emp_record = $('emp_ds').find('emp_id', record.get('emp_id'));
-                emp_record.set('emp_code', current_record.get('empl_code'));
-                emp_record.set('emp_name', current_record.get('empl_name'));
-                emp_record.set('emp_level', current_record.get('empl_level'));
-                emp_record.set('entry_date', current_record.get('ent_date'));
+                emp_record.set('emp_code', current_record.get('emp_code'));
+                emp_record.set('emp_name', current_record.get('emp_name'));
+                emp_record.set('emp_level', current_record.get('emp_level'));
+                emp_record.set('entry_date', current_record.get('entry_date'));
             }
             
             function updateFunction(ds, record, name, value, oldvalue) {
-                if (name == 'dept_type') {
-                    record.set('dept_leader', null);
+                if (name == 'dep_type') {
+                    record.set('dep_leader', null);
                     var records = $('emp_ds').getAll();
                     var lds = $('leader_ds');
                     lds.removeAll();
                     var length = records.length;
                     if (value == '虚拟部门') {
-                        record.getField('dept_add').setRequired(false);
-                        record.getField('dept_sdate').setRequired(true);
-                        record.getField('dept_edate').setRequired(true);
+                        record.getField('dep_add').setRequired(false);
+                        record.getField('dep_sdate').setRequired(true);
+                        record.getField('dep_edate').setRequired(true);
                         for (var i = 0;i < length;i++) {
                             lds.add(records[i]);
                         }
                     } else {
-                        record.getField('dept_add').setRequired(true);
-                        record.getField('dept_sdate').setRequired(false);
-                        record.getField('dept_edate').setRequired(false);
+                        record.getField('dep_add').setRequired(true);
+                        record.getField('dep_sdate').setRequired(false);
+                        record.getField('dep_edate').setRequired(false);
                         for (var j = 0;j < length;j++) {
                             if (records[j].get('emp_level') > 3) {
                                 lds.add(records[j]);
@@ -232,9 +232,9 @@
             }
             
             function dateValidate(record, name, value) {
-                if (name == 'dept_sdate' || name == 'dept_edate') {
-                    var start_date = record.get('dept_sdate');
-                    var end_date = record.get('dept_edate');
+                if (name == 'dep_sdate' || name == 'dep_edate') {
+                    var start_date = record.get('dep_sdate');
+                    var end_date = record.get('dep_edate');
                     if (typeof(end_date) != 'undefined' && !Ext.isEmpty(end_date)) {
                         if (!compareDate(start_date, end_date)) {
                             return '有效期至必须大于有效期从';
@@ -253,55 +253,40 @@
             
             function recordValidate() {
                 var record = $('dep_ds').getCurrentRecord();
-                var ds = $('dep_result_ds');
-                if (isExist(record, ds)) {
-                    Aurora.showMessage('提示', '该部门已经存在!!');
+                if (record.get('dep_add') == '') {
+                    Aurora.showMessage('信息', '地址不能为空');
                 }
-                var records = ds.getAll();
-                var items = [];
-                for (var i = 0,
-                    l = records.length;i < l;i++) {
-                    items.add(records[i].data);
+                if (record.get('dep_sdate') == '' || record.get('dep_edate') == '') {
+                    Aurora.showMessage('信息', '有效期不能为空');
                 }
-                Ext.fly('console').dom.innerHTML = "&lt;span style='color:red'&gt;当前纪录:&lt;/span&gt;" + Ext.util.JSON.encode(record.data) + "&lt;br/&gt;&lt;br/&gt;&lt;span style='color:red'&gt;历史总纪录:&lt;/span&gt;" + Ext.util.JSON.encode(items);
-            }
-            
-            function isExist(record, ds) {
-                var records = ds.getAll();
-                for (var i = 0,
-                    l = records.length;i < l;i++) {
-                    if (record.get('dept_code') == records[i].get('dep_code') || record.get('dept_name') == records[i].get('dep_name')) {
-                        return true;
-                    }
-                }
-                return false;
+                Ext.fly('console').dom.innerHTML = "if (record.get('dep_add') == '') {Aurora.showMessage('信息','地址不能为空');}&lt;br/&gt;if (record.get('dep_sdate') == '' || record.get('dep_edate') == '') {Aurora.showMessage('信息','有效期不能为空');}";
             }
         ]]></script>
         <a:dataSets>
             <a:dataSet id="emp_ds"/>
-            <a:dataSet id="dep_result_ds">
-                <a:events>
-                    <a:event name="load" handler="refresh"/>
-                    <a:event name="indexchange" handler="indexChange"/>
-                </a:events>
-            </a:dataSet>
             <a:dataSet id="dep_type_ds">
                 <a:datas>
                     <a:record value="事业部"/>
                     <a:record value="虚拟部门"/>
                 </a:datas>
             </a:dataSet>
+            <a:dataSet id="dep_result_ds">
+                <a:events>
+                    <a:event name="load" handler="refresh"/>
+                    <a:event name="indexchange" handler="indexChange"/>
+                </a:events>
+            </a:dataSet>
             <a:dataSet id="leader_ds"/>
             <a:dataSet id="dep_ds" autoCreate="true">
                 <a:fields>
-                    <a:field name="dept_id" prompt="id"/>
-                    <a:field name="dept_code" prompt="代码"/>
-                    <a:field name="dept_name" prompt="名称"/>
-                    <a:field name="dept_type" displayField="value" options="dep_type_ds" prompt="类型" returnField="dept_type" valueField="value"/>
-                    <a:field name="dept_leader" displayField="emp_name" options="leader_ds" prompt="主管" returnField="dept_leader" valueField="emp_name"/>
-                    <a:field name="dept_add" prompt="地址"/>
-                    <a:field name="dept_sdate" prompt="有效期从" validator="dateValidate"/>
-                    <a:field name="dept_edate" prompt="有效期至" validator="dateValidate"/>
+                    <a:field name="dep_id" prompt="id"/>
+                    <a:field name="dep_code" prompt="代码"/>
+                    <a:field name="dep_name" prompt="名称"/>
+                    <a:field name="dep_type" displayField="value" options="dep_type_ds" prompt="类型" returnField="dep_type" valueField="value"/>
+                    <a:field name="dep_leader" displayField="emp_name" options="leader_ds" prompt="主管" returnField="dep_leader" valueField="emp_name"/>
+                    <a:field name="dep_add" prompt="地址"/>
+                    <a:field name="dep_sdate" prompt="有效期从" validator="dateValidate"/>
+                    <a:field name="dep_edate" prompt="有效期至" validator="dateValidate"/>
                 </a:fields>
                 <a:events>
                     <a:event name="update" handler="updateFunction"/>
@@ -309,11 +294,11 @@
             </a:dataSet>
             <a:dataSet id="emp_query_ds" autoCreate="true">
                 <a:fields>
-                    <a:field name="empl_id" prompt="id"/>
-                    <a:field name="empl_code" prompt="编号"/>
-                    <a:field name="empl_name" prompt="姓名"/>
-                    <a:field name="empl_level" prompt="级别"/>
-                    <a:field name="ent_date" prompt="入职日期"/>
+                    <a:field name="emp_id" prompt="id"/>
+                    <a:field name="emp_code" prompt="编号"/>
+                    <a:field name="emp_name" prompt="姓名"/>
+                    <a:field name="emp_level" prompt="级别"/>
+                    <a:field name="entry_date" prompt="入职日期"/>
                 </a:fields>
             </a:dataSet>
             <a:dataSet id="emp_result_ds">
@@ -332,7 +317,7 @@
             </a:dataSet>
         </a:dataSets>
         <a:screenBody>
-            <a:hBox>
+            <a:fieldSet column="3" title="部门">
                 <a:grid bindTarget="dep_result_ds" height="200" width="500">
                     <a:columns>
                         <a:column name="dep_code" prompt="编号" width="60"/>
@@ -344,17 +329,18 @@
                         <a:column name="dep_add" prompt="地址" width="80"/>
                     </a:columns>
                 </a:grid>
+                <img src="${/request/@context_path}/images/arrow.jpg" style="width:50px;height:80px;"/>
                 <a:form column="2" height="202" title="部门" width="440">
-                    <a:textField name="dept_code" bindTarget="dep_ds"/>
-                    <a:textField name="dept_name" bindTarget="dep_ds"/>
-                    <a:comboBox name="dept_type" bindTarget="dep_ds"/>
-                    <a:comboBox name="dept_leader" bindTarget="dep_ds"/>
-                    <a:datePicker name="dept_sdate" bindTarget="dep_ds"/>
-                    <a:datePicker name="dept_edate" bindTarget="dep_ds"/>
-                    <a:textField name="dept_add" bindTarget="dep_ds"/>
+                    <a:textField name="dep_code" bindTarget="dep_ds"/>
+                    <a:textField name="dep_name" bindTarget="dep_ds"/>
+                    <a:comboBox name="dep_type" bindTarget="dep_ds"/>
+                    <a:comboBox name="dep_leader" bindTarget="dep_ds"/>
+                    <a:datePicker name="dep_sdate" bindTarget="dep_ds"/>
+                    <a:datePicker name="dep_edate" bindTarget="dep_ds"/>
+                    <a:textField name="dep_add" bindTarget="dep_ds"/>
                 </a:form>
-            </a:hBox>
-            <a:hBox>
+            </a:fieldSet>
+            <a:fieldSet column="3" title="对应部门下的员工">
                 <a:grid bindTarget="emp_result_ds" height="200" width="500">
                     <a:columns>
                         <a:column name="emp_code"/>
@@ -363,14 +349,15 @@
                         <a:column name="entry_date" renderer="Aurora.formatDate"/>
                     </a:columns>
                 </a:grid>
+                <img src="${/request/@context_path}/images/arrow.jpg" style="width:50px;height:80px;"/>
                 <a:form height="202" title="员工" width="440">
-                    <a:textField name="empl_code" bindTarget="emp_query_ds"/>
-                    <a:textField name="empl_name" bindTarget="emp_query_ds"/>
-                    <a:numberField name="empl_level" allowDecimals="false" allowNegative="false" bindTarget="emp_query_ds"/>
-                    <a:datePicker name="ent_date" bindTarget="emp_query_ds"/>
+                    <a:textField name="emp_code" bindTarget="emp_query_ds"/>
+                    <a:textField name="emp_name" bindTarget="emp_query_ds"/>
+                    <a:numberField name="emp_level" allowDecimals="false" allowNegative="false" bindTarget="emp_query_ds"/>
+                    <a:datePicker name="entry_date" bindTarget="emp_query_ds"/>
                 </a:form>
-            </a:hBox>
-            <a:fieldSet title="头" width="950">
+            </a:fieldSet>
+            <a:fieldSet title="头" width="1020">
                 <a:hBox>
                     <a:vBox>
                         <a:button click="addDep" text="新增"/>
@@ -380,10 +367,10 @@
                         <a:button click="next" text="下一条"/>
                         <a:button click="recordValidate" text="记录级校验"/>
                     </a:vBox>
-                    <div id="console" style="width:820px;height:150px;border:1px solid #ccc;font-size:14px;overflow-y:auto;"/>
+                    <div id="console" style="width:920px;height:150px;border:1px solid #ccc;font-size:14px;overflow-y:auto;"/>
                 </a:hBox>
             </a:fieldSet>
-            <a:fieldSet title="行" width="950">
+            <a:fieldSet title="行" width="1020">
                 <a:hBox>
                     <a:button click="addEmp" text="新增"/>
                     <a:button click="deleteEmp" text="删除"/>
