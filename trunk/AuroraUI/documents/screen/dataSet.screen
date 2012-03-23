@@ -10,7 +10,6 @@
                 initDep();
                 initEmp();
                 initLeader();
-                $('dep_result_ds').pre();
             }
             
             function initDep() {
@@ -91,39 +90,26 @@
                 }
             }
             
-            function refresh(ds) {
-                var record = ds.getCurrentRecord();
-                var dep_record = $('dep_ds').getCurrentRecord();
-                dep_record.set('dep_id', record.get('dep_id'));
-                dep_record.set('dep_code', record.get('dep_code'));
-                dep_record.set('dep_name', record.get('dep_name'));
-                dep_record.set('dep_type', record.get('dep_type'));
-                dep_record.set('dep_leader', record.get('dep_leader'));
-                dep_record.set('dep_add', record.get('dep_add'));
-                dep_record.set('dep_edate', record.get('dep_edate'));
-                dep_record.set('dep_sdate', record.get('dep_sdate'));
-            }
-            
-            function refreshEmp(ds) {
-                var record = ds.getCurrentRecord();
-                var emp_record = $('emp_query_ds').getCurrentRecord();
-                emp_record.set('emp_code', record.get('emp_code'));
-                emp_record.set('emp_name', record.get('emp_name'));
-                emp_record.set('emp_level', record.get('emp_level'));
-                emp_record.set('entry_date', record.get('entry_date'));
-            }
-            
             function indexChange(ds, record) {
-                refresh(ds);
+                if (record.get('dep_type') == '虚拟部门') {
+                    record.getField('dep_add').setRequired(false);
+                    record.getField('dep_sdate').setRequired(true);
+                    record.getField('dep_edate').setRequired(true);
+            
+                } else {
+                    record.getField('dep_add').setRequired(true);
+                    record.getField('dep_sdate').setRequired(false);
+                    record.getField('dep_edate').setRequired(false);
+                }
                 getEmp(record.get('dep_id'));
-            }          
-           
+            }
+            
             function addDep() {
-                if (!$('dep_ds').validate()) {
+                if (!$('dep_result_ds').validate()) {
                     return;
                 }
                 department_id++;
-                var record = $('dep_ds').getCurrentRecord();
+                var record = $('dep_result_ds').getCurrentRecord();
                 $('dep_result_ds').create({
                     'dep_id': department_id,
                     'dep_code': record.get('dep_code'),
@@ -143,22 +129,6 @@
                 Ext.fly('console').dom.innerHTML = 'dataSet.remove(record);';
             }
             
-            function updateDep() {
-                if (!$('dep_ds').validate()) {
-                    return;
-                }
-                var current_record = $('dep_ds').getCurrentRecord();
-                var record = $('dep_result_ds').getCurrentRecord();
-                record.set('dep_code', current_record.get('dep_code'));
-                record.set('dep_name', current_record.get('dep_name'));
-                record.set('dep_leader', current_record.get('dep_leader'));
-                record.set('dep_type', current_record.get('dep_type'));
-                record.set('dep_add', current_record.get('dep_add'));
-                record.set('dep_sdate', current_record.get('dep_sdate'));
-                record.set('dep_edate', current_record.get('dep_edate'));
-                Ext.fly('console').dom.innerHTML = 'record.set(name, value);';
-            }
-            
             function pre() {
                 $('dep_result_ds').pre();
                 Ext.fly('console').dom.innerHTML = 'dataSet.pre();';
@@ -171,7 +141,10 @@
             
             function addEmp() {
                 empoyee_id++;
-                var record = $('emp_query_ds').getCurrentRecord();
+                var record = $('emp_result_ds').getCurrentRecord();
+                if (!record) {
+                    return;
+                }
                 var new_record = $('emp_result_ds').create({
                     'emp_id': empoyee_id,
                     'emp_code': record.get('emp_code'),
@@ -188,20 +161,6 @@
                 var record = ds.getCurrentRecord();
                 ds.remove(record);
                 $('emp_ds').remove(record);
-            }
-            
-            function updateEmp() {
-                var current_record = $('emp_query_ds').getCurrentRecord();
-                var record = $('emp_result_ds').getCurrentRecord();
-                record.set('emp_code', current_record.get('emp_code'));
-                record.set('emp_name', current_record.get('emp_name'));
-                record.set('emp_level', current_record.get('emp_level'));
-                record.set('entry_date', current_record.get('entry_date'));
-                var emp_record = $('emp_ds').find('emp_id', record.get('emp_id'));
-                emp_record.set('emp_code', current_record.get('emp_code'));
-                emp_record.set('emp_name', current_record.get('emp_name'));
-                emp_record.set('emp_level', current_record.get('emp_level'));
-                emp_record.set('entry_date', current_record.get('entry_date'));
             }
             
             function updateFunction(ds, record, name, value, oldvalue) {
@@ -252,7 +211,7 @@
             }
             
             function recordValidate() {
-                var record = $('dep_ds').getCurrentRecord();
+                var record = $('dep_result_ds').getCurrentRecord();
                 if (record.get('dep_add') == '') {
                     Aurora.showMessage('信息', '地址不能为空');
                 }
@@ -270,14 +229,8 @@
                     <a:record value="虚拟部门"/>
                 </a:datas>
             </a:dataSet>
-            <a:dataSet id="dep_result_ds">
-                <a:events>
-                    <a:event name="load" handler="refresh"/>
-                    <a:event name="indexchange" handler="indexChange"/>
-                </a:events>
-            </a:dataSet>
             <a:dataSet id="leader_ds"/>
-            <a:dataSet id="dep_ds" autoCreate="true">
+            <a:dataSet id="dep_result_ds">
                 <a:fields>
                     <a:field name="dep_id" prompt="id"/>
                     <a:field name="dep_code" prompt="代码"/>
@@ -289,17 +242,9 @@
                     <a:field name="dep_edate" prompt="有效期至" validator="dateValidate"/>
                 </a:fields>
                 <a:events>
+                    <a:event name="indexchange" handler="indexChange"/>
                     <a:event name="update" handler="updateFunction"/>
                 </a:events>
-            </a:dataSet>
-            <a:dataSet id="emp_query_ds" autoCreate="true">
-                <a:fields>
-                    <a:field name="emp_id" prompt="id"/>
-                    <a:field name="emp_code" prompt="编号"/>
-                    <a:field name="emp_name" prompt="姓名"/>
-                    <a:field name="emp_level" prompt="级别"/>
-                    <a:field name="entry_date" prompt="入职日期"/>
-                </a:fields>
             </a:dataSet>
             <a:dataSet id="emp_result_ds">
                 <a:fields>
@@ -310,51 +255,55 @@
                     <a:field name="emp_level" prompt="级别"/>
                     <a:field name="entry_date" prompt="入职日期"/>
                 </a:fields>
-                <a:events>
-                    <a:event name="load" handler="refreshEmp"/>
-                    <a:event name="indexchange" handler="refreshEmp"/>
-                </a:events>
             </a:dataSet>
         </a:dataSets>
         <a:screenBody>
             <a:fieldSet column="3" title="部门">
                 <a:grid bindTarget="dep_result_ds" height="200" width="500">
                     <a:columns>
-                        <a:column name="dep_code" prompt="编号" width="60"/>
-                        <a:column name="dep_name" prompt="名称" width="60"/>
-                        <a:column name="dep_type" prompt="类型" width="60"/>
-                        <a:column name="dep_leader" prompt="主管" width="60"/>
-                        <a:column name="dep_sdate" prompt="有效期从" renderer="Aurora.formatDate" width="80"/>
-                        <a:column name="dep_edate" prompt="有效期至" renderer="Aurora.formatDate" width="80"/>
-                        <a:column name="dep_add" prompt="地址" width="80"/>
+                        <a:column name="dep_code" editor="editor_txt" prompt="编号" width="60"/>
+                        <a:column name="dep_name" editor="editor_txt" prompt="名称" width="60"/>
+                        <a:column name="dep_type" editor="editor_cbx" prompt="类型" width="60"/>
+                        <a:column name="dep_leader" editor="editor_cbx" prompt="主管" width="60"/>
+                        <a:column name="dep_sdate" editor="editor_dpk" prompt="有效期从" renderer="Aurora.formatDate" width="80"/>
+                        <a:column name="dep_edate" editor="editor_dpk" prompt="有效期至" renderer="Aurora.formatDate" width="80"/>
+                        <a:column name="dep_add" editor="editor_txt" prompt="地址" width="80"/>
                     </a:columns>
+                    <a:editors>
+                        <a:textField id="editor_txt"/>
+                        <a:comboBox id="editor_cbx"/>
+                        <a:datePicker id="editor_dpk"/>
+                    </a:editors>
                 </a:grid>
                 <img src="${/request/@context_path}/images/arrow.jpg" style="width:50px;height:80px;"/>
                 <a:form column="2" height="202" title="部门" width="440">
-                    <a:textField name="dep_code" bindTarget="dep_ds"/>
-                    <a:textField name="dep_name" bindTarget="dep_ds"/>
-                    <a:comboBox name="dep_type" bindTarget="dep_ds"/>
-                    <a:comboBox name="dep_leader" bindTarget="dep_ds"/>
-                    <a:datePicker name="dep_sdate" bindTarget="dep_ds"/>
-                    <a:datePicker name="dep_edate" bindTarget="dep_ds"/>
-                    <a:textField name="dep_add" bindTarget="dep_ds"/>
+                    <a:textField name="dep_code" bindTarget="dep_result_ds"/>
+                    <a:textField name="dep_name" bindTarget="dep_result_ds"/>
+                    <a:comboBox name="dep_type" bindTarget="dep_result_ds"/>
+                    <a:comboBox name="dep_leader" bindTarget="dep_result_ds"/>
+                    <a:datePicker name="dep_sdate" bindTarget="dep_result_ds"/>
+                    <a:datePicker name="dep_edate" bindTarget="dep_result_ds"/>
+                    <a:textField name="dep_add" bindTarget="dep_result_ds"/>
                 </a:form>
             </a:fieldSet>
             <a:fieldSet column="3" title="对应部门下的员工">
                 <a:grid bindTarget="emp_result_ds" height="200" width="500">
                     <a:columns>
-                        <a:column name="emp_code"/>
-                        <a:column name="emp_name"/>
-                        <a:column name="emp_level"/>
-                        <a:column name="entry_date" renderer="Aurora.formatDate"/>
+                        <a:column name="emp_code" editor="editor_txt"/>
+                        <a:column name="emp_name" editor="editor_txt"/>
+                        <a:column name="emp_level" editor="editor_nf"/>
+                        <a:column name="entry_date" editor="editor_dpk" renderer="Aurora.formatDate"/>
                     </a:columns>
+                    <a:editors>
+                        <a:numberField id="editor_nf" allowDecimals="false" allowNegative="false"/>
+                    </a:editors>
                 </a:grid>
                 <img src="${/request/@context_path}/images/arrow.jpg" style="width:50px;height:80px;"/>
                 <a:form height="202" title="员工" width="440">
-                    <a:textField name="emp_code" bindTarget="emp_query_ds"/>
-                    <a:textField name="emp_name" bindTarget="emp_query_ds"/>
-                    <a:numberField name="emp_level" allowDecimals="false" allowNegative="false" bindTarget="emp_query_ds"/>
-                    <a:datePicker name="entry_date" bindTarget="emp_query_ds"/>
+                    <a:textField name="emp_code" bindTarget="emp_result_ds"/>
+                    <a:textField name="emp_name" bindTarget="emp_result_ds"/>
+                    <a:numberField name="emp_level" allowDecimals="false" allowNegative="false" bindTarget="emp_result_ds"/>
+                    <a:datePicker name="entry_date" bindTarget="emp_result_ds"/>
                 </a:form>
             </a:fieldSet>
             <a:fieldSet title="头" width="1020">
@@ -362,19 +311,17 @@
                     <a:vBox>
                         <a:button click="addDep" text="新增"/>
                         <a:button click="deleteDep" text="删除"/>
-                        <a:button click="updateDep" text="修改"/>
                         <a:button click="pre" text="上一条"/>
                         <a:button click="next" text="下一条"/>
                         <a:button click="recordValidate" text="记录级校验"/>
                     </a:vBox>
-                    <div id="console" style="width:920px;height:150px;border:1px solid #ccc;font-size:14px;overflow-y:auto;"/>
+                    <div id="console" style="width:920px;height:120px;border:1px solid #ccc;font-size:14px;overflow-y:auto;"/>
                 </a:hBox>
             </a:fieldSet>
             <a:fieldSet title="行" width="1020">
                 <a:hBox>
                     <a:button click="addEmp" text="新增"/>
                     <a:button click="deleteEmp" text="删除"/>
-                    <a:button click="updateEmp" text="修改"/>
                 </a:hBox>
             </a:fieldSet>
         </a:screenBody>
