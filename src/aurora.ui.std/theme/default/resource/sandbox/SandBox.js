@@ -9,8 +9,22 @@ $A.SandBox = Ext.extend($A.Component, {
 		if(content)
 			txt.scrollTop = content.dom.offsetTop - txt.offsetTop;
 	},
+	getInnerText : function(o) { 				
+		var isFirefox = /Firefox/.test(window.navigator.userAgent);
+		if(!isFirefox)
+			return o.innerText;
+		var anyString = ""; 
+		var childs = o.childNodes; 
+		for(var i=0; i<childs.length; i++) { 
+			if(childs[i].nodeType==1) 
+				anyString += childs[i].tagName=="BR" ? '\n' : childs[i].textContent; 
+			else if(childs[i].nodeType==3) 
+				anyString += childs[i].nodeValue; 
+		} 
+		return anyString;    
+    },
 	send : function(){		
-		var content = this.screenTpl.replace('{content}',this.txt.innerText);
+		var content = this.screenTpl.replace('{content}',this.getInnerText(this.txt));
 		var form = document.createElement("form");
 		form.method = "post";
 		form.target = "_blank";
@@ -27,3 +41,5 @@ $A.SandBox = Ext.extend($A.Component, {
 	},
 	screenTpl : "<a:screen xmlns:a='http://www.aurora-framework.org/application'><a:view template='sandbox'>{content}</a:view></a:screen>"
 })
+
+

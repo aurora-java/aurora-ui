@@ -25,11 +25,16 @@
 	font-Size:12px;
 	overflow-y:auto;
 	overflow-x:hidden;
+	white-space: pre-wrap;
+	*white-space: pre;
+	*word-wrap: break-word;
 }
 
 .tagcontent{
-	width:945px;
 	background-color:#e2f7ff;	
 	font-Size:12px; 
 	font-weight:bold;
+	white-space: pre-wrap;
+	*white-space: pre;
+	*word-wrap: break-word;
 }
