@@ -78,6 +78,7 @@ $A.Grid = Ext.extend($A.Component,{
         if(this.lht) this.lht[ou]('mousemove',this.onLockHeadMove, this);
         if(this.lh) this.lh[ou]('mousedown', this.onHeadMouseDown,this);
         if(this.lh) this.lh[ou]('click', this.onHeadClick,this);
+        this[ou]('cellclick',this.onCellClick,this);
     },
     initEvents:function(){
         $A.Grid.superclass.initEvents.call(this);
@@ -239,7 +240,7 @@ $A.Grid = Ext.extend($A.Component,{
         this.rowNumTdTpl = new Ext.Template('<td style="text-align:{align}" class="grid-rownumber" atype="grid-rownumber" recordid="{recordid}">');
         this.rowNumCellTpl = new Ext.Template('<div style="width:{width}px">{text}</div>');
         this.tdTpl = new Ext.Template('<td style="visibility:{visibility};text-align:{align}" dataindex="{name}" atype="grid-cell" recordid="{recordid}">');
-        this.cellTpl = new Ext.Template('<div class="grid-cell {cellcls}" style="width:{width}px" id="'+this.id+'_{name}_{recordid}" title="{title}">{text}</div>');        
+        this.cellTpl = new Ext.Template('<div class="grid-cell {cellcls}" style="width:{width}px" id="'+this.id+'_{name}_{recordid}" title="{title}"><span>{text}</span></div>');        
         this.cbTpl = new Ext.Template('<center><div class="{cellcls}" id="'+this.id+'_{name}_{recordid}"></div></center>');
     },
     getCheckBoxStatus: function(record, name ,readonly) {
@@ -752,7 +753,8 @@ $A.Grid = Ext.extend($A.Component,{
                 var row = this.dataset.indexOf(record);
                 var name = Ext.fly(target).getAttributeNS("","dataindex");
                 this.fireEvent('cellclick', this, row, name, record);
-                this.showEditor(row,name);
+                //this.adjustColumn(name);
+                //this.showEditor(row,name);
                 this.fireEvent('rowclick', this, row, record);
             }else if (atype == 'grid-rownumber'){
                 var record = this.dataset.findById(rid);
@@ -775,6 +777,22 @@ $A.Grid = Ext.extend($A.Component,{
                 this.dataset.select(rid);
             }
         }
+    },
+    onCellClick : function(grid,row,name,record,callback){
+    	this.adjustColumn(name);
+    	this.showEditor(row,name,callback);
+    },
+    adjustColumn:function(name){
+    	var th = this.wrap.select('tr.grid-hl th[dataindex='+name+']'),
+    		w = max = Ext.fly(th.elements[0]).getWidth(),
+    		margin = 12;
+    	Ext.each(this.wrap.query('td[dataindex='+name+']'),function(td){
+    		td = Ext.fly(td),span = td.child('span');
+    		if(span){
+	    		max = Math.max(span.getWidth()+margin,max);
+    		}
+    	});
+    	if(max > w)this.setColumnSize(name,max);
     },
     /**
      * 设置指定name列的标题.
@@ -973,8 +991,8 @@ $A.Grid = Ext.extend($A.Component,{
 	                		dom.setStyle('outline','1px dotted blue');
                 		},10)
                 	}else{
-	                    this.fireEvent('cellclick', this, row, name, r);
-	                    this.showEditor(row,name,callback);
+	                    this.fireEvent('cellclick', this, row, name, r ,callback);
+	                    //this.showEditor(row,name,callback);
                 	}
                 }else{
                     var nr = ds.getAt(row+1);
@@ -1004,8 +1022,8 @@ $A.Grid = Ext.extend($A.Component,{
 				                		dom.setStyle('outline','1px dotted blue');
 			                		},10)
 			                	}else{
-	                                this.fireEvent('cellclick', this, row+1, name, nr);
-	                                this.showEditor(row+1,name,callback);
+	                                this.fireEvent('cellclick', this, row+1, name, nr ,callback);
+	                                //this.showEditor(row+1,name,callback);
 			                	}
                                 break;
                             }
