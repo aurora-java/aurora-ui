@@ -2,108 +2,257 @@
  * HighchartsAdapter -> AuroraAdapter
  * 
  */
-AuroraAdapter = {
+(function () {
 
-    each: Ext.each,
+var win = window,
+	doc = document,
+	mooVersion = win.MooTools.version.substring(0, 3), // Get the first three characters of the version number
+	legacy = mooVersion === '1.2' || mooVersion === '1.1', // 1.1 && 1.2 considered legacy, 1.3 is not.
+	legacyEvent = legacy || mooVersion === '1.3', // In versions 1.1 - 1.3 the event class is named Event, in newer versions it is named DOMEvent.
+	$extend = win.$extend || function () {
+		return Object.append.apply(Object, arguments);
+	};
 
-    map: function(arr, fn) {
-        var results = [];
-        if (arr)
-            for (var i = 0, len = arr.length; i < len; i++)
-            results[i] = fn.call(arr[i], arr[i], i, arr);
-        return results;
-    },
-    
+win.AuroraAdapter = {
+	/**
+	 * Initialize the adapter. This is run once as Highcharts is first run.
+	 * @param {Object} pathAnim The helper object to do animations across adapters.
+	 */
+	init: function (pathAnim) {
+		var fxProto = Fx.prototype,
+			fxStart = fxProto.start,
+			morphProto = Fx.Morph.prototype,
+			morphCompute = morphProto.compute;
 
-    grep: function(elems, callback, inv) {
-        var ret = [];
+		// override Fx.start to allow animation of SVG element wrappers
+		/*jslint unparam: true*//* allow unused parameters in fx functions */
+		fxProto.start = function (from, to) {
+			var fx = this,
+				elem = fx.element;
 
-        // Go through the array, only saving the items
-        // that pass the validator function
-        for (var i = 0, length = elems.length; i < length; i++)
-            if (!inv != !callback(elems[i], i))
-            ret.push(elems[i]);
+			// special for animating paths
+			if (from.d) {
+				//this.fromD = this.element.d.split(' ');
+				fx.paths = pathAnim.init(
+					elem,
+					elem.d,
+					fx.toD
+				);
+			}
+			fxStart.apply(fx, arguments);
 
-        return ret;
-    },
+			return this; // chainable
+		};
 
-    merge: function() {
-        var args = arguments;
-        /**
-        * jQuery extend function
-        */
-        var jqextend = function() {
-            // copy reference to target object
-            var target = arguments[0] || {}, i = 1, length = arguments.length, deep = false, options;
+		// override Fx.step to allow animation of SVG element wrappers
+		morphProto.compute = function (from, to, delta) {
+			var fx = this,
+				paths = fx.paths;
 
-            // Handle a deep copy situation
-            if (typeof target === "boolean") {
-                deep = target;
-                target = arguments[1] || {};
-                // skip the boolean and the target
-                i = 2;
+			if (paths) {
+				fx.element.attr(
+					'd',
+					pathAnim.step(paths[0], paths[1], delta, fx.toD)
+				);
+			} else {
+				return morphCompute.apply(fx, arguments);
+			}
+		};
+		/*jslint unparam: false*/
+	},
+
+	/**
+	 * Downloads a script and executes a callback when done.
+	 * @param {String} scriptLocation
+	 * @param {Function} callback
+	 */
+	getScript: function (scriptLocation, callback) {
+		// We cannot assume that Assets class from mootools-more is available so instead insert a script tag to download script.
+		var head = doc.getElementsByTagName('head')[0];
+		var script = doc.createElement('script');
+
+		script.type = 'text/javascript';
+		script.src = scriptLocation;
+		script.onload = callback;
+
+		head.appendChild(script);
+	},
+
+	/**
+	 * Animate a HTML element or SVG element wrapper
+	 * @param {Object} el
+	 * @param {Object} params
+	 * @param {Object} options jQuery-like animation options: duration, easing, callback
+	 */
+	animate: function (el, params, options) {
+		var isSVGElement = el.attr,
+			effect,
+			complete = options && options.complete;
+
+		if (isSVGElement && !el.setStyle) {
+			// add setStyle and getStyle methods for internal use in Moo
+			el.getStyle = el.attr;
+			el.setStyle = function () { // property value is given as array in Moo - break it down
+				var args = arguments;
+				el.attr.call(el, args[0], args[1][0]);
+			};
+			// dirty hack to trick Moo into handling el as an element wrapper
+			el.$family = function () { return true; };
+		}
+
+		// stop running animations
+		win.AuroraAdapter.stop(el);
+
+		// define and run the effect
+		effect = new Fx.Morph(
+			isSVGElement ? el : $_(el),
+			$extend({
+				transition: Fx.Transitions.Quad.easeInOut
+			}, options)
+		);
+
+		// Make sure that the element reference is set when animating svg elements
+		if (isSVGElement) {
+			effect.element = el;
+		}
+
+		// special treatment for paths
+		if (params.d) {
+			effect.toD = params.d;
+		}
+
+		// jQuery-like events
+		if (complete) {
+			effect.addEvent('complete', complete);
+		}
+
+		// run
+		effect.start(params);
+
+		// record for use in stop method
+		el.fx = effect;
+	},
+
+	/**
+	 * MooTool's each function
+	 *
+	 */
+	each: function (arr, fn) {
+		return legacy ?
+			$each(arr, fn) :
+			Array.each(arr, fn);
+	},
+
+	/**
+	 * Map an array
+	 * @param {Array} arr
+	 * @param {Function} fn
+	 */
+	map: function (arr, fn) {
+		return arr.map(fn);
+	},
+
+	/**
+	 * Grep or filter an array
+	 * @param {Array} arr
+	 * @param {Function} fn
+	 */
+	grep: function (arr, fn) {
+		return arr.filter(fn);
+	},
+
+	/**
+	 * Deep merge two objects and return a third
+	 */
+	merge: function () {
+		var args = arguments,
+			args13 = [{}], // MooTools 1.3+
+			i = args.length,
+			ret;
+
+		if (legacy) {
+			ret = $merge.apply(null, args);
+		} else {
+			while (i--) {
+				// Boolean argumens should not be merged.
+				// JQuery explicitly skips this, so we do it here as well.
+				if (typeof args[i] !== 'boolean') {
+					args13[i + 1] = args[i];
+				}
+			}
+			ret = Object.merge.apply(Object, args13);
+		}
+
+		return ret;
+	},
+
+	/**
+	 * Get the offset of an element relative to the top left corner of the web page
+	 */
+	offset: function (el) {
+		var offsets = $_(el).getOffsets();
+		return {
+			left: offsets.x,
+			top: offsets.y
+		};
+	},
+
+	/**
+	 * Extends an object with Events, if its not done
+	 */
+	extendWithEvents: function (el) {
+		// if the addEvent method is not defined, el is a custom Highcharts object
+		// like series or point
+		if (!el.addEvent) {
+			if (el.nodeName) {
+				el = $_(el); // a dynamically generated node
+			} else {
+				$extend(el, new Events()); // a custom object
+			}
+		}
+	},
+
+	/**
+	 * Add an event listener
+	 * @param {Object} el HTML element or custom object
+	 * @param {String} type Event type
+	 * @param {Function} fn Event handler
+	 */
+	addEvent: function(el, event, fn) {
+		var xel = Ext.get(el);
+		if (xel) {
+			xel.addListener(event, fn)
+		} else {
+			if (!el.addListener) {
+				Ext.apply(el, new Ext.util.Observable());
+			}
+			el.addListener(event, fn)
+		}
+	}, 
+
+	removeEvent: function(el, event, fn) {
+        if (el.removeListener && el.purgeListeners) {
+            if (event && fn) {
+                el.removeListener(event, fn)
             }
-
-            // Handle case when target is a string or something (possible in deep copy)
-            if (typeof target !== "object" && !Ext.isFunction(target))
-                target = {};
-
-            // extend jQuery itself if only one argument is passed
-            if (length == i) {
-                target = this;
-                --i;
+            else {
+                el.purgeListeners();
             }
-
-            for (; i < length; i++)
-            // Only deal with non-null/undefined values
-                if ((options = arguments[i]) != null)
-            // Extend the base object
-                for (var name in options) {
-                var src = target[name], copy = options[name];
-
-                // Prevent never-ending loop
-                if (target === copy)
-                    continue;
-
-                // Recurse if we're merging object values
-                if (deep && copy && typeof copy === "object" && !copy.nodeType)
-                    target[name] = jqextend(deep,
-                // Never move original objects, clone them
-                                src || (copy.length != null ? [] : {})
-                                , copy);
-
-                // Don't bring in undefined values
-                else if (copy !== undefined)
-                    target[name] = copy;
-
-            }
-
-            // Return the modified object
-            return target;
-        };
-        return jqextend(true, null, args[0], args[1], args[2], args[3]);
-    },
-
-    hyphenate: function(str) {
-        return str.replace(/([A-Z])/g, function(a, b) {
-            return '-' + b.toLowerCase()
-        });
-    },
-
-    addEvent: function(el, event, fn) {
-        var xel = Ext.get(el);
-        if (xel) {
-            xel.addListener(event, fn)
-        } else {
-            if (!el.addListener) {
-                Ext.apply(el, new Ext.util.Observable());
-            }
-            el.addListener(event, fn)
         }
-
+        else {
+            var xel = Ext.get(el);
+            if (xel) {
+                if (event && fn) {
+                    xel.removeListener(event, fn)
+                }
+                else {
+                    xel.purgeAllListeners();
+                }
+            }
+        }
     },
 
-    fireEvent: function(el, event, eventArguments, defaultFunction) {
+	fireEvent: function(el, event, eventArguments, defaultFunction) {
         var o = {
             type: event,
             target: el
@@ -130,146 +279,13 @@ AuroraAdapter = {
         if (defaultFunction) defaultFunction(o);
     },
 
-    removeEvent: function(el, event, fn) {
-        if (el.removeListener && el.purgeListeners) {
-            if (event && fn) {
-                el.removeListener(event, fn)
-            }
-            else {
-                el.purgeListeners();
-            }
-        }
-        else {
-            var xel = Ext.get(el);
-            if (xel) {
-                if (event && fn) {
-                    xel.removeListener(event, fn)
-                }
-                else {
-                    xel.purgeAllListeners();
-                }
-            }
-        }
-    },
-
-    stop: function(el) {
-        // no animation exists in the animate Ext adapter method, so we don't need to stop anything
-    },
-    animate: function(eli, params, options) {
-        
-        var el = eli;
-        var isSVGElement = eli.attr;
-
-        if (isSVGElement) {
-            el = Ext.get(eli.element);
-            //el.element = el.dom;
-            //el.setStyle = el.getStyle = eli.attr;
-        }
-        if (options) {
-            if (options.duration == undefined || options.duration == 0) {
-                options.duration = 1;
-            }
-            else {
-                options.duration = options.duration / 1000;
-            }
-        } else {
-            options = {};
-        }
-        
-        // Width
-        if (params.width !== undefined) {
-            if (isSVGElement) {
-                if (Ext.isIE) {
-                    eli.attr('width', params.width);
-                } else {
-                    eli.element.setAttributeNS(null, 'width', params.width)
-                }
-            } else {
-                el.setWidth(params.width);
-            }
-        }
-
-        // Height
-        else if (params.height !== undefined) {
-            if (isSVGElement) {
-                if (Ext.isIE) {
-                    eli.attr('height', params.height);
-                    if (params.y) {
-                        eli.attr('y', params.y);
-                    }
-                } else {
-                    eli.element.setAttributeNS(null, 'height', params.height)
-                    if (params.y) {
-                        eli.element.setAttributeNS(null, 'y', params.y)
-                    }
-                }
-            } else {
-                el.setHeight(params.height);
-            }
-        }
-
-        // Left
-        else if (params.left !== undefined) {
-            if (isSVGElement) {
-                if (Ext.isIE) {
-                    eli.attr('left', params.left);
-                } else {
-                    eli.element.setAttributeNS(null, 'left', params.left)
-                }
-            } else {
-                el.setLeft(params.left);
-            }
-        }
-        // Top
-        else if (params.top!== undefined) {
-            if (isSVGElement) {
-                if (Ext.isIE) {
-                    eli.attr('top', params.top);
-                } else {
-                    eli.element.setAttributeNS(null, 'top', params.top)
-                }
-            } else {
-                el.setTop(params.top);
-            }
-
-            // Transform
-        } else if (!Ext.isEmpty(params.translateX) && !Ext.isEmpty(params.translateY)) {
-            if (isSVGElement) {
-                if (Ext.isIE) {
-                	Ext.fly(eli.element).setStyle({'left':params.translateX-eli.translateX,'top':params.translateY-eli.translateY})
-                    //eli.attr('transform', 'translate(' + params.translateX + ',' + params.translateY + ' )');
-                } else {
-                    eli.element.setAttributeNS(null, 'transform', 'translate(' + params.translateX + ',' + params.translateY + ' )');
-                }
-            }
-        } else if (params.r && params.start && params.end) {
-            eli.attr('r',params.r);
-            eli.attr('start',params.start);
-            eli.attr('end',params.end);
-        }
-
-        // Opacity
-        if (params.opacity !== undefined) {
-            if (!isSVGElement) {
-                //TODO:vincent.niu
-                Ext.fly(el).setOpacity(parseFloat(params.opacity))
-//                el.setOpacity(parseInt(params.opacity), {
-//                    duration: options.duration,
-//                    callback: options.complete
-//                });
-            }
-        }
-
-        // Callback
-        if (options.complete != undefined)
-            options.complete();
-    },
-    getAjax: function(url, callback) {
-        Ext.Ajax.request({
-            url: url,
-            success: function(response) {
-                callback(response.responseText);
-            }
-        });
-    }
-}
+	/**
+	 * Stop running animations on the object
+	 */
+	stop: function (el) {
+		if (el.fx) {
+			el.fx.cancel();
+		}
+	}
+};
+}());
