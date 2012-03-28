@@ -3,6 +3,7 @@ Release ()
 * 增加Spinner组件
 * 组件DateTimePicker增加hour,minute,second属性
 * 增加Grid组件点击列时自动调整列宽的功能
+* 修正了Aurora.Masker在遮罩body的时候chrome无法正常显示的问题
 
 Release (2012-02-08)  
 ------------------------------------
