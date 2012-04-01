@@ -161,6 +161,7 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     initSVGElement : function(){
     	var svg = newSVG("svg");
+    	svg.setStyle({'height':'100%','width':'100%'});//Fixed for FF 11;
     	this.root = newSVG("g");
     	this.wrap.appendChild(svg);
     	svg.appendChild(this.root);
