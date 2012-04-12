@@ -787,9 +787,11 @@ $A.Grid = Ext.extend($A.Component,{
     		w = max = Ext.fly(th.elements[0]).getWidth(),
     		margin = 12;
     	Ext.each(this.wrap.query('td[dataindex='+name+']'),function(td){
-    		td = Ext.fly(td),span = td.child('span');
+    		var t = Ext.fly(td),span = t.child('span');
     		if(span){
+    			if(Ext.isIE || Ext.isIE9)span.parent().setStyle('text-overflow','clip');
 	    		max = Math.max(span.getWidth()+margin,max);
+	    		if(Ext.isIE || Ext.isIE9)span.parent().setStyle('text-overflow','');
     		}
     	});
     	if(max > w)this.setColumnSize(name,max);
