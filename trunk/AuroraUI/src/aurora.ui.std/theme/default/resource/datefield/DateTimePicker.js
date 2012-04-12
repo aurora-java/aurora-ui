@@ -49,7 +49,7 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 			var date=new Date(this.value.getTime());
 			this.processDate(date);
 	    	this.setValue(date);
-	    	this.fireEvent('select',this, date);
+	    	//this.fireEvent('select',this, date);
 		}
 	},
     onDateFocus : function(e) {

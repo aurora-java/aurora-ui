@@ -859,7 +859,7 @@ $A.Grid = Ext.extend($A.Component,{
         this.setEditor(name, editor);
         var sf = this;
         if(sf.currentEditor){
-        	sf.currentEditor.editor.el.un('keydown', sf.onEidtorKeyDown,sf);
+        	sf.currentEditor.editor.el.un('keydown', sf.onEditorKeyDown,sf);
     		var d = sf.currentEditor.focusCheckBox;
     		if(d){
     			d.setStyle('outline','none');
@@ -882,7 +882,7 @@ $A.Grid = Ext.extend($A.Component,{
                 ed.render(record);
 	        	if(ed instanceof $A.CheckBox){
 	        		ed.move(-1000,xy[1]+5);
-		        	ed.el.on('keydown', sf.onEidtorKeyDown,sf);
+		        	ed.el.on('keydown', sf.onEditorKeyDown,sf);
 		        	ed.onClick();
 		        	sf.currentEditor.focusCheckBox = dom;
 	        		dom.setStyle('outline','1px dotted blue');
@@ -900,7 +900,8 @@ $A.Grid = Ext.extend($A.Component,{
                     ed.isHidden = false;
                     ed.focus();
        				sf.editing = true;
-                    ed.el.on('keydown', sf.onEidtorKeyDown,sf);
+                    ed.el.on('keydown', sf.onEditorKeyDown,sf);
+                    ed.on('select',sf.onEditorSelect,sf);
 //                    ed.on('blur',sf.onEditorBlur, sf);
                     Ext.get(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
                     if(callback)callback.call(window,ed)
@@ -909,7 +910,11 @@ $A.Grid = Ext.extend($A.Component,{
             },10)
         }           
     },
-    onEidtorKeyDown : function(e){
+    onEditorSelect : function(){
+		var sf =this;
+		setTimeout(function(){sf.hideEditor()},1);
+    },
+    onEditorKeyDown : function(e){
         var keyCode = e.keyCode;
         //esc
         if(keyCode == 27) {
@@ -986,7 +991,7 @@ $A.Grid = Ext.extend($A.Component,{
 	                		var xy = dom.getXY();
 	                		ed.move(-1000,xy[1])
 	                		ed.focus();
-	                		ed.el.on('keydown', sf.onEidtorKeyDown,sf);
+	                		ed.el.on('keydown', sf.onEditorKeyDown,sf);
 	                		sf.currentEditor.focusCheckBox = dom;
 	                		dom.setStyle('outline','1px dotted blue');
                 		},10)
@@ -1017,7 +1022,7 @@ $A.Grid = Ext.extend($A.Component,{
 				                		var xy = dom.getXY();
 				                		ed.move(-1000,xy[1])
 				                		ed.focus();
-				                		ed.el.on('keydown', sf.onEidtorKeyDown,sf);
+				                		ed.el.on('keydown', sf.onEditorKeyDown,sf);
 				                		sf.currentEditor.focusCheckBox = dom;
 				                		dom.setStyle('outline','1px dotted blue');
 			                		},10)
@@ -1091,7 +1096,8 @@ $A.Grid = Ext.extend($A.Component,{
                 needHide = ed.canHide();
             }
             if(needHide) {
-                ed.el.un('keydown', this.onEidtorKeyDown,this);
+                ed.el.un('keydown', this.onEditorKeyDown,this);
+                ed.un('select',this.onEditorSelect,this);
                 Ext.get(document.documentElement).un("mousedown", this.onEditorBlur, this);
                 var ed = this.currentEditor.editor;
                 ed.move(-10000,-10000);

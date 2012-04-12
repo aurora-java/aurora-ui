@@ -86,10 +86,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		this.currentIndex = this.getIndex(v);
 //		if(!this.currentIndex) return;
 		if (!Ext.isEmpty(v)) {				
-			if(this.selectedIndex)Ext.fly(this.getNode(this.selectedIndex)).removeClass(this.selectedClass);
-			var node = this.getNode(this.currentIndex);
-			if(node)Ext.fly(node).addClass(this.selectedClass);
-			this.selectedIndex = this.currentIndex;
+			this.selectItem(this.currentIndex)
 		}		
 	},
     onKeyDown: function(e){

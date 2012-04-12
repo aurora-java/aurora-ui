@@ -5,6 +5,7 @@ Release ()
 * 增加Grid组件点击列时自动调整列宽的功能
 * 修正了Aurora.Masker在遮罩body的时候chrome无法正常显示的问题
 * 修正了Griphics组件在FireFox11版本中显示不正确的问题
+* 修正了Combobox作为Grid的editor时，鼠标点击选项之后，控件不消失所导致的BUG；以及选项的选中显示BUG。
 
 Release (2012-02-08)  
 ------------------------------------
