@@ -62,6 +62,8 @@ Release (2011-07-19)
 * 增强checkbox在readonly状态下的显示效果
 * 修正日期控件输入后自动带出的值不对的BUG
 * 修正setCookie函数中path的错误
+* Grid的column上增加autoAdjust属性，用来设定列宽是否能自动调整
+* 修正Grid的导出选择对话框中出现空白列的问题
 
 Release (2011-07-08)
 ------------------------------------
