@@ -783,15 +783,21 @@ $A.Grid = Ext.extend($A.Component,{
     	this.showEditor(row,name,callback);
     },
     adjustColumn:function(name){
+    	if(!this.findColByName(name).autoadjust)return;
     	var th = this.wrap.select('tr.grid-hl th[dataindex='+name+']'),
     		w = max = Ext.fly(th.elements[0]).getWidth(),
-    		margin = 12;
+    		margin = 12,
+    		width = this.width - (this.selectable?23:0) - 20;
     	Ext.each(this.wrap.query('td[dataindex='+name+']'),function(td){
     		var t = Ext.fly(td),span = t.child('span');
     		if(span){
     			if(Ext.isIE || Ext.isIE9)span.parent().setStyle('text-overflow','clip');
 	    		max = Math.max(span.getWidth()+margin,max);
 	    		if(Ext.isIE || Ext.isIE9)span.parent().setStyle('text-overflow','');
+	    		if(max > width){
+	    			max = width;
+	    			return false
+	    		}
     		}
     	});
     	if(max > w)this.setColumnSize(name,max);
@@ -1547,8 +1553,10 @@ $A.Grid = Ext.extend($A.Component,{
 					exportall = true;
 			for(var i=0,l=this.columns.length;i<l;i++){
 				var c = this.columns[i];
-				if(exportall)exportall = c.forexport !==false;
-				msg.push('<tr',i%2==0?'':' class="row-alt"','><td class="grid-rowbox" style="width:22px;" rowid="',i,'" atype="export.rowcheck"><center><div id="',this.id,'__',i,'" class="grid-ckb item-ckb-',c.forexport === false?'u':'c','"></div></center></td><td><div class="grid-cell" style="width:220px">',c.prompt,'</div></td></tr>');	
+				if(!c.type){
+					if(exportall)exportall = c.forexport !==false;
+					msg.push('<tr',i%2==0?'':' class="row-alt"','><td class="grid-rowbox" style="width:22px;" rowid="',i,'" atype="export.rowcheck"><center><div id="',this.id,'__',i,'" class="grid-ckb item-ckb-',c.forexport === false?'u':'c','"></div></center></td><td><div class="grid-cell" style="width:220px">',c.prompt,'</div></td></tr>');	
+				}
 			}
 			if(exportall)msg[4]='c';
 			msg.push('</tbody></table></div></div>');
