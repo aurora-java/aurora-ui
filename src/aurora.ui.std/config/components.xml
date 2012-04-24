@@ -50,5 +50,6 @@
         <view-component elementName="link" description="链接组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="sandBox" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />        
     	<view-component elementName="accordionMenu" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="listView" category="Grid" description="listView" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ListView" />
     </components>
 </package>
