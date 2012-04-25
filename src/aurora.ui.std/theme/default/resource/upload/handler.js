@@ -8,11 +8,14 @@ function formatFileSize(size) {
 	}
 }
 function deleteFileRecord(did,id) {
+    
 	var ds = $(did);
 	var record = ds.findById(id);
     Aurora.showConfirm('确定','确定删除这个附件么?',function(win){
         win.close();
         ds.remove(record);
+        var upload = did.substring(0,did.indexOf('_ds'));
+        $(upload).fireEvent("delete", this);
     })
 	
 }
