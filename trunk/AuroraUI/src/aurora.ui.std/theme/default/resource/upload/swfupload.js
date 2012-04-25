@@ -979,7 +979,20 @@ SWFUpload.Console.writeLine = function (message) {
 	}
 };
 $A.Uploader = Ext.extend($A.Component,{
-    initEvents: function(){},
+    initEvents: function(){
+        this.addEvents( 
+            /**
+             * @event upload
+             * 上传完毕.
+             */
+            'upload',
+            /**
+             * @event delete
+             * 删除完毕.
+             */
+            'delete'
+        );
+    },
     destroy : function(){
         $A.Uploader.superclass.destroy.call(this);
         var sobj = window[this.id];
