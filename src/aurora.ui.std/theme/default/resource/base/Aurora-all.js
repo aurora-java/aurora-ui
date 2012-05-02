@@ -785,7 +785,8 @@ $A.Masker = function(){
             var w = el.getWidth();
             var h = el.getHeight();//leftp:0px;top:0px; 是否引起resize?
             var p = '<div class="aurora-mask"  style="left:-1000px;top:-1000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
-            var masker = Ext.get(Ext.DomHelper.append(el.parent(),p));
+            var wrap = el.parent('body')?el.parent():el;
+            var masker = Ext.get(Ext.DomHelper.append(wrap,p));
             var zi = el.getStyle('z-index') == 'auto' ? 0 : el.getStyle('z-index');
             masker.setStyle('z-index', zi + 1);
             masker.setXY(el.getXY());
@@ -5053,10 +5054,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		this.currentIndex = this.getIndex(v);
 //		if(!this.currentIndex) return;
 		if (!Ext.isEmpty(v)) {				
-			if(this.selectedIndex)Ext.fly(this.getNode(this.selectedIndex)).removeClass(this.selectedClass);
-			var node = this.getNode(this.currentIndex);
-			if(node)Ext.fly(node).addClass(this.selectedClass);
-			this.selectedIndex = this.currentIndex;
+			this.selectItem(this.currentIndex)
 		}		
 	},
     onKeyDown: function(e){
@@ -5976,7 +5974,7 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 			var date=new Date(this.value.getTime());
 			this.processDate(date);
 	    	this.setValue(date);
-	    	this.fireEvent('select',this, date);
+	    	//this.fireEvent('select',this, date);
 		}
 	},
     onDateFocus : function(e) {
