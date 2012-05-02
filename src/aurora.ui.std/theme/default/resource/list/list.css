@@ -7,7 +7,8 @@
 }
 .listView TH { 
     font-weight:bold;
-    background-color:#bed7f6;
+    background-color:#e8e8e8;
+    border-bottom:1px solid #ccc;
 }
 .listView .alt {
     background-color:#f8f8f8;
