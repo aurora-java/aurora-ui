@@ -34,13 +34,13 @@ function ${id}(){
             })
         },
         upload_success_handler : function(file, serverData, responseReceived) {
-            
             var record = $('${id}_ds').find('file_id', file.id);
             if (record) {
                 if(serverData != '') record.set('attachment_id',serverData);
                 record.set('status', 1);
                 record.commit();
             }
+            $('${id}').fireEvent("upload", this, ${pkvalue},'${sourcetype}');
         },
         file_queue_error_handler : function(file, code, message) {
             try {
