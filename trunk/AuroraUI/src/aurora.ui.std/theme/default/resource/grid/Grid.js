@@ -783,7 +783,8 @@ $A.Grid = Ext.extend($A.Component,{
     	this.showEditor(row,name,callback);
     },
     adjustColumn:function(name){
-    	if(!this.findColByName(name).autoadjust)return;
+    	var col = this.findColByName(name);
+    	if(!col || !col.autoadjust)return;
     	var th = this.wrap.select('tr.grid-hl th[dataindex='+name+']'),
     		w = max = Ext.fly(th.elements[0]).getWidth(),
     		margin = 12,
@@ -1305,13 +1306,15 @@ $A.Grid = Ext.extend($A.Component,{
      */
     findColByName : function(name){
         var col;
-        for(var i=0,l=this.columns.length;i<l;i++){
-            var c = this.columns[i];
-            if(c.name && c.name.toLowerCase() === name.toLowerCase()){
-                col = c;
-                break;
-            }
-        }
+    	if(name){
+	        for(var i=0,l=this.columns.length;i<l;i++){
+	            var c = this.columns[i];
+	            if(c.name && c.name.toLowerCase() === name.toLowerCase()){
+	                col = c;
+	                break;
+	            }
+	        }
+    	}
         return col;
     }, 
     /**
