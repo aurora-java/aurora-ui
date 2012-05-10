@@ -9526,6 +9526,11 @@ function Chart(userOptions, callback) {
 	    	}
 			for(var j=0;j<this.yAxis.length;j++){
 				var yAxis=this.yAxis[j].options,yAxisNames = yAxis.name.split(',');
+				if(yAxis.bindtarget){
+					for(var i=0,ds2 = $(yAxis.bindtarget),rs = ds2.getAll(),l = rs.length,name = yAxisNames[0],yAxisNames=[];i<l;i++){
+						yAxisNames.push(rs[i].get(name));
+					}
+				}
 				for(var k=0;k<yAxisNames.length;k++){
 					var yAxisName=yAxisNames[k],field=ds.getField(yAxisName),data=[],
 						options={
