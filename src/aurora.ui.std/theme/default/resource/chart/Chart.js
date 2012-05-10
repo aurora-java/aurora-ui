@@ -9534,8 +9534,8 @@ function Chart(userOptions, callback) {
 				for(var k=0;k<yAxisNames.length;k++){
 					var yAxisName=yAxisNames[k],field=ds.getField(yAxisName),data=[],
 						options={
-							name:field.pro['prompt']||yAxisName,
-							type:field.pro['type']||optionsChart.type
+							name:(field && field.pro['prompt'])||yAxisName,
+							type:(field && field.pro['type'])||optionsChart.type
 						};
 		    		for(var i=0;i<records.length;i++){
 		    			var d = records[i].get(yAxisName);
