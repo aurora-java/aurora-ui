@@ -40,6 +40,9 @@ $A.Button = Ext.extend($A.Component,{
          */
     	'click');
     },
+    /**
+     * 点击按钮
+     */
     click : function(){
     	this.el.dom.click();
     },
@@ -113,7 +116,7 @@ $A.Button = Ext.extend($A.Component,{
     onKeyUp: function(e){
     	if(!this.disabled && e.keyCode == 13){
         	Ext.get(document.documentElement).un("keyup", this.onKeyUp, this);
-        	this.wrap.removeClass(this.pressCss);
+        	if(this.wrap)this.wrap.removeClass(this.pressCss);
     	}
     },
     onClick: function(e){
@@ -132,6 +135,10 @@ $A.Button = Ext.extend($A.Component,{
     	this.wrap.removeClass(this.overCss);
         $A.Button.superclass.onMouseOut.call(this,e);
     },
+    /**
+     * 设置按钮的文本.
+     * @param {String} text  文本.
+     */
     setText : function(text){
     	this.textEl.update(text);
     }
