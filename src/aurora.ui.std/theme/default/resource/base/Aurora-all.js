@@ -4157,6 +4157,7 @@ $A.Button = Ext.extend($A.Component,{
 	initComponent : function(config){
     	$A.Button.superclass.initComponent.call(this, config);
     	this.el = this.wrap.child('button[atype=btn]');
+    	this.textEl = this.el.child('div');
     	if(this.hidden == true)this.setVisible(false)
     	if(this.disabled == true)this.disable();
     },
@@ -4164,6 +4165,9 @@ $A.Button = Ext.extend($A.Component,{
     	$A.Button.superclass.processListener.call(this,ou);
     	this.wrap[ou]("click", this.onClick,  this);
         this.wrap[ou]("mousedown", this.onMouseDown,  this);
+        this.el[ou]("focus",this.onMouseOver,this);
+        this.el[ou]("blur",this.onMouseOut,this);
+        this.el[ou]("keydown",this.onKeyDown,this);
     },
     initEvents : function(){
     	$A.Button.superclass.initEvents.call(this);
@@ -4175,7 +4179,13 @@ $A.Button = Ext.extend($A.Component,{
          * @param {EventObject} e 键盘事件对象.
          */
     	'click');
-    },    
+    },
+    /**
+     * 点击按钮
+     */
+    click : function(){
+    	this.el.dom.click();
+    },
     destroy : function(){
 		$A.Button.superclass.destroy.call(this);
     	delete this.el;
@@ -4237,6 +4247,18 @@ $A.Button = Ext.extend($A.Component,{
         	this.wrap.removeClass(this.pressCss);
     	}
     },
+    onKeyDown: function(e){
+    	if(!this.disabled && e.keyCode == 13){
+        	this.wrap.addClass(this.pressCss);
+        	Ext.get(document.documentElement).on("keyup", this.onKeyUp, this);
+    	}
+    },
+    onKeyUp: function(e){
+    	if(!this.disabled && e.keyCode == 13){
+        	Ext.get(document.documentElement).un("keyup", this.onKeyUp, this);
+        	if(this.wrap)this.wrap.removeClass(this.pressCss);
+    	}
+    },
     onClick: function(e){
     	if(!this.disabled){
         	e.stopEvent();
@@ -4252,10 +4274,17 @@ $A.Button = Ext.extend($A.Component,{
     	if(!this.disabled)
     	this.wrap.removeClass(this.overCss);
         $A.Button.superclass.onMouseOut.call(this,e);
+    },
+    /**
+     * 设置按钮的文本.
+     * @param {String} text  文本.
+     */
+    setText : function(text){
+    	this.textEl.update(text);
     }
 });
 $A.Button.getTemplate = function(id,text,width){
-    return '<TABLE class="item-btn " id="'+id+'" style="WIDTH: '+(width||60)+'px" cellSpacing="0"><TBODY><TR><TD class="item-btn-tl"><I></I></TD><TD class="item-btn-tc"></TD><TD class="item-btn-tr"><I></I></TD></TR><TR><TD class="item-btn-ml"><I></I></TD><TD class="item-btn-mc"><BUTTON hideFocus style="HEIGHT: 17px" atype="btn">'+text+'</BUTTON></TD><TD class="item-btn-mr"><I></I></TD></TR><TR><TD class="item-btn-bl"><I></I></TD><TD class="item-btn-bc"></TD><TD class="item-btn-br"><I></I></TD></TR></TBODY></TABLE><script>new Aurora.Button({"id":"'+id+'"});</script>';
+    return '<TABLE class="item-btn " id="'+id+'" style="WIDTH: '+(width||60)+'px" cellSpacing="0"><TBODY><TR><TD class="item-btn-tl"><I></I></TD><TD class="item-btn-tc"></TD><TD class="item-btn-tr"><I></I></TD></TR><TR><TD class="item-btn-ml"><I></I></TD><TD class="item-btn-mc"><BUTTON hideFocus style="HEIGHT: 17px" atype="btn"><div>'+text+'</div></BUTTON></TD><TD class="item-btn-mr"><I></I></TD></TR><TR><TD class="item-btn-bl"><I></I></TD><TD class="item-btn-bc"></TD><TD class="item-btn-br"><I></I></TD></TR></TBODY></TABLE><script>new Aurora.Button({"id":"'+id+'"});</script>';
 }
 /**
  * @class Aurora.CheckBox

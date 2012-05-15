@@ -72,39 +72,38 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 					displayfield : c.name,
 					renderer : c.renderer,
 					initColumns : function(node) {
-						if (!node.isRoot()) {
-							for (var i = 0; i < columns.length; i++) {
-								var c = columns[i];
-								if (c.name == node.ownerTree.displayfield)
-									continue;
-								var td = document.createElement('td');
-								td['_type_'] = 'text';
-								td['atype'] = 'grid-cell';
-								td['dataindex'] = c.name;
-								td['recordid'] = node.record.id;
-								if (c.align)
-									td.style.textAlign = c.align;
-								node.els[c.name + '_td'] = td;
+						if (node.isRoot() && node.ownerTree.showRoot == false) return;
+						for (var i = 0; i < columns.length; i++) {
+							var c = columns[i];
+							if (c.name == node.ownerTree.displayfield)
+								continue;
+							var td = document.createElement('td');
+							td['_type_'] = 'text';
+							td['atype'] = 'grid-cell';
+							td['dataindex'] = c.name;
+							td['recordid'] = node.record.id;
+							if (c.align)
+								td.style.textAlign = c.align;
+							node.els[c.name + '_td'] = td;
 
-								// var div = document.createElement('div');
-								// node.els[c.name+'_text']= div
-								// Ext.fly(div).setWidth(c.width-4);
-								// div.innerHTML =
-								// grid.renderText(node.record,c,node.record.get(c.name));
-								//                        
+							// var div = document.createElement('div');
+							// node.els[c.name+'_text']= div
+							// Ext.fly(div).setWidth(c.width-4);
+							// div.innerHTML =
+							// grid.renderText(node.record,c,node.record.get(c.name));
+							//                        
 
-								var html = grid.createCell(c, node.record,
-										false);
-								var div = Ext.DomHelper.insertHtml(
-										"afterBegin", td, html);
-								Ext.fly(td).setWidth(c.width - 2);
-								node.els[c.name + '_text'] = div;
+							var html = grid.createCell(c, node.record,
+									false);
+							var div = Ext.DomHelper.insertHtml(
+									"afterBegin", td, html);
+							Ext.fly(td).setWidth(c.width - 2);
+							node.els[c.name + '_text'] = div;
 
-								td.appendChild(node.els[c.name + '_text']);
-								td.className = 'node-text';
-								node.els['itemNodeTr']
-										.appendChild(node.els[c.name + '_td']);
-							}
+							td.appendChild(node.els[c.name + '_text']);
+							td.className = 'node-text';
+							node.els['itemNodeTr']
+									.appendChild(node.els[c.name + '_td']);
 						}
 					},
 					createTreeNode : function(item) {
