@@ -545,7 +545,7 @@ $A.Tree.TreeNode.prototype={
 	},
 	doSetWidth : function(name,w){
 		if(!w)return;
-		if(this.isRoot()) return;
+		if(this.isRoot() && this.showRoot == false) return;
 		var left = 0;
 		if(name == this.getOwnerTree().displayfield && this.getOwnerTree().showSkeleton){
 			var sw = this.getOwnerTree().sw;
