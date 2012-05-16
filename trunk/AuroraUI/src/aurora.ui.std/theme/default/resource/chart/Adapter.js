@@ -11,8 +11,11 @@ var win = window,
 	legacyEvent = legacy || mooVersion === '1.3', // In versions 1.1 - 1.3 the event class is named Event, in newer versions it is named DOMEvent.
 	$extend = win.$extend || function () {
 		return Object.append.apply(Object, arguments);
-	};
-
+	},
+	capitalize = function(w){
+    	return w.replace(/^./,w.charAt(0).toUpperCase());
+    };
+	
 win.AuroraAdapter = {
 	/**
 	 * Initialize the adapter. This is run once as Highcharts is first run.
@@ -286,6 +289,14 @@ win.AuroraAdapter = {
 		if (el.fx) {
 			el.fx.cancel();
 		}
+	},
+	adapterRun : function (el, method) {
+		return Ext.get(el)['get'+capitalize(method)]();
+	},
+	washMouseEvent : function (e) {
+		e.pageX = e.xy?e.xy[0]:e.page.x;
+		e.pageY = e.xy?e.xy[1]:e.page.y;
+		return e;
 	}
 };
 }());

@@ -88,7 +88,7 @@ defaultOptions.navigation = {
 
 // Add the export related options
 defaultOptions.exporting = {
-	//enabled: true,
+	enabled: false,
 	//filename: 'chart',
 	type: 'image/png',
 	url: '/exportchart',//TODO:EXPORT
