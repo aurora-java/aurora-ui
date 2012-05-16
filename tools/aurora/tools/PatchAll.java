@@ -73,8 +73,10 @@ public class PatchAll {
 		compressJs.add("tree/Tree.js");
 		compressJs.add("tab/Tab.js");
 //		compressJs.add("upload/upload.js");
+		compressJs.add("chart/Animate.js");
 		compressJs.add("chart/Adapter.js");
 		compressJs.add("chart/Chart.js");
+		compressJs.add("chart/Chart-more.js");
 		compressJs.add("chart/Exporting.js");
 		compressJs.add("accordionmenu/AccordionMenu.js");
 		List compressCss = new ArrayList();

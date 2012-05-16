@@ -6,6 +6,7 @@ Release ()
 * 修正了Aurora.Masker在遮罩body的时候chrome无法正常显示的问题
 * 修正了Griphics组件在FireFox11版本中显示不正确的问题
 * 修正了Combobox作为Grid的editor时，鼠标点击选项之后，控件不消失所导致的BUG；以及选项的选中显示BUG。
+* Chart新增polar类型
 
 Release (2012-02-08)  
 ------------------------------------
