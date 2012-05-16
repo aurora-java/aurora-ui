@@ -1556,7 +1556,7 @@ $A.Grid = Ext.extend($A.Component,{
 					exportall = true;
 			for(var i=0,l=this.columns.length;i<l;i++){
 				var c = this.columns[i];
-				if(c.type!='rowcheck'){
+				if(c.type!='rowcheck' && c.type!= 'rowradio'){
 					if(exportall)exportall = c.forexport !==false;
 					msg.push('<tr',i%2==0?'':' class="row-alt"','><td class="grid-rowbox" style="width:22px;" rowid="',i,'" atype="export.rowcheck"><center><div id="',this.id,'__',i,'" class="grid-ckb item-ckb-',c.forexport === false?'u':'c','"></div></center></td><td><div class="grid-cell" style="width:220px">',c.prompt,'</div></td></tr>');	
 				}
@@ -1578,7 +1578,7 @@ $A.Grid = Ext.extend($A.Component,{
     	if(!this.isPromptInit){
     		for(var i=0,l=this.columns.length;i<l;i++){
     			var c = this.columns[i];
-    			if(c.type != 'rowcheck')c.prompt = c.name?this.wrap.child('td.grid-hc[dataindex='+c.name+'] div').dom.innerHTML : (c.prompt||this.dataset.getField(c.name).pro["prompt"]);
+    			if(c.type != 'rowcheck' && c.type!= 'rowradio')c.prompt = c.name?this.wrap.child('td.grid-hc[dataindex='+c.name+'] div').dom.innerHTML : (c.prompt||this.dataset.getField(c.name).pro["prompt"]);
     		}
     		this.isPromptInit = true;
     	}
@@ -1621,7 +1621,7 @@ $A.Grid = Ext.extend($A.Component,{
     	};
     	for(var i=0;i<sf.columns.length;i++){
     		var column=sf.columns[i],forExport=Ext.isDefined(column.forexport)?column.forexport:true;
-    		if(column.type != 'rowcheck'&&forExport){
+    		if(column.type != 'rowcheck' && column.type!= 'rowradio'&&forExport){
     			var c={prompt:column.prompt}
     			if(column.width)c.width=column.width;
     			if(column.name)c.name=column.exportfield||column.name;
