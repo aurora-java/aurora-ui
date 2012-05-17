@@ -1,0 +1,5 @@
+<package>
+	<components>
+        <view-component elementName="button" category="Button" description="按钮组件" nameSpace="http://www.aurora-framework.org/touch" builder="aurora.presentation.TemplateBasedView" />
+	</components>
+</package>

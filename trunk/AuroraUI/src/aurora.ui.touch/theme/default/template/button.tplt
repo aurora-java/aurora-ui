@@ -1,0 +1,1 @@
+<BUTTON type="button" class="${cls}">${text}</BUTTON>
