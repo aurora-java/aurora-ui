@@ -54,4 +54,5 @@
 	<feature-attach elementName="accordionMenu" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.AccordionMenu" />
     <feature-attach elementName="listView" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ListView" />
     <feature-attach elementName="formView" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.FormView" />
+    <feature-attach elementName="dashboard" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Dashboard" />
 </class-registry>

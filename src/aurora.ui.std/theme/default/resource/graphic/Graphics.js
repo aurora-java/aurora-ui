@@ -1,14 +1,29 @@
 (function(){
+var toArray = function(a,i,j){
+		return Array.prototype.slice.call(a, i || 0, j || a.length);
+	}
+Function.prototype.methodize = function(start) {
+	var method = this ,_start = Number(start||0);
+	return function() {
+		return method.apply(this, new Array(_start).concat(toArray(arguments))) ;
+	};
+}
+
 var DOC=document,
+	gradientIndex = 0,
     SVG_NS = 'http://www.w3.org/2000/svg',
     VML_NS = 'urn:schemas-microsoft-com:vml',
     XLINK_NS = 'http://www.w3.org/1999/xlink',
 	hasSVG = !Ext.isIE9 && !!DOC.createElementNS && !!DOC.createElementNS(SVG_NS, "svg").createSVGRect,
-	fill = "<v:fill color='{fillColor}' opacity='{fillOpacity}'></v:fill>",
+	fill = "<v:fill color='{fillColor}' opacity='{fillOpacity}' angle='{angle}' colors='{colors}' type='{type}'></v:fill>",
 	stroke = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'></v:stroke>",
     shadow = "<v:shadow on='t' opacity='0.5' offset='0px,3px'></v:shadow>",
     pathReg = /\w|[\s\d-+.,]*/g,
     numberReg = /[\d-+.]+/g,
+    mathCos = Math.cos,
+    mathSin = Math.sin,
+    mathPI = Math.PI,
+    pInt = parseInt,
     screenWidth,screenHeight,
     capitalize = function(w){
     	return (w = w.trim()).toLowerCase().replace(/^./,w.charAt(0).toUpperCase());
@@ -53,17 +68,215 @@ var DOC=document,
         }
         return css.join('');
     },
-    convertColor = function(color){
-    	if(color && color.search(/rgb/i)!=-1){
-    		var c ="#";
-    		color.replace(/\d+/g,function(item){
-    			var n = Number(item).toString(16);
-    			c += (n.length == 1?"0":"") +n;
-    		})
-    		return c;
-    	}
-    	return color;
-    },
+    Color = function (input) {
+		var rgba = [], result , isGradient = false,type,linear,stops;
+		function init(input) {
+			if(!input){
+				rgba = [0,0,0,1];
+			}else if(input == 'transparent'){
+				rgba = [0,0,0,0];
+			}else if(input == 'none'){
+				rgba = 'none';
+			}else{
+				//gradirent
+				if(/gradient/i.test(input)){
+					isGradient = true;
+					var argString = /^gradient\((.*)\)$/.exec(input)[1],
+						beforeStop = /^([^stop]*),[^,]*stop/.exec(argString)[1];
+					type = /^[^,]*/.exec(beforeStop)[0];
+					linear = beforeStop.match(/[-\d%]+/g);
+					stops = function(arg){
+						var arr = [];
+						Ext.each(arg,function(item){
+							var stop = /\(([^\)]*\))\)$/.exec(item)[1],
+								reg = /^([^,]*),(.*)$/.exec(stop);
+							arr.push([reg[1],reg[2]]);
+						})
+						return arr;
+					}(argString.match(/stop\([^\)]*\)\)/mg));
+				}else{
+					// rgba
+					result = /rgba\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]?(?:\.[0-9]+)?)\s*\)/.exec(input);
+					if (result) {
+						rgba = [pInt(result[1]), pInt(result[2]), pInt(result[3]), parseFloat(result[4], 10)];
+					} else { // hex
+						result = /^#([a-fA-F0-9]{1,2})([a-fA-F0-9]{1,2})([a-fA-F0-9]{1,2})$/.exec(input);
+						if (result) {
+							rgba = [pInt(plus(result[1]), 16), pInt(plus(result[2]), 16), pInt(plus(result[3]), 16), 1];
+						}
+					}
+				}
+			}
+		}
+		function plus(v){
+			return v.length == 1? v+v:v;
+		}
+		function get(format) {
+			var ret = 1;
+			if(isGradient){
+				if(format === 'gradient'){
+					ret = {
+						isGradient : isGradient,
+						type : type,
+						linear : linear,
+						stops : stops
+					}
+				}else{
+					ret = '';
+				}
+			}else if(format === 'a'){
+				if(!isNaN(rgba[3])){
+					ret = rgba[3];
+				}
+			}else if (rgba && !isNaN(rgba[0])) {
+				if (format === 'rgb') {
+					ret = 'rgb(' + rgba[0] + ',' + rgba[1] + ',' + rgba[2] + ')';
+				} else {
+					ret = 'rgba(' + rgba.join(',') + ')';
+				}
+			}else if(rgba == 'none'){
+				ret = rgba;
+			}else {
+				ret = input;
+			}
+			return ret;
+		}
+		function brighten(alpha) {
+			if (rgba != 'none' && isNumber(alpha) && alpha !== 0) {
+				var i;
+				for (i = 0; i < 3; i++) {
+					rgba[i] += pInt(alpha * 255);
+	
+					if (rgba[i] < 0) {
+						rgba[i] = 0;
+					}
+					if (rgba[i] > 255) {
+						rgba[i] = 255;
+					}
+				}
+			}
+			return this;
+		}
+		
+		function setOpacity(alpha) {
+			if(input == 'transparent' || rgba == 'none')return this;
+			rgba[3] = alpha || 1;
+			return this;
+		}
+	
+		init(input);
+	
+		return {
+			get: get,
+			brighten: brighten,
+			setOpacity: setOpacity
+		};
+	},
+//    convertColor = function(color){
+//    	if(color && color.search(/rgb/i)!=-1){
+//    		var c ="#";
+//    		color.replace(/\d+/g,function(item){
+//    			var n = Number(item).toString(16);
+//    			c += (n.length == 1?"0":"") +n;
+//    		})
+//    		return c;
+//    	}
+//    	return color;
+//    },
+    convertPath = function(){
+    	var cache = {};
+    	return function(p,zoom){
+	    	if(cache[p])return cache[p];
+	    	zoom = zoom || 1;
+	    	var arr=p.match(pathReg),p1=[0,0],p2=[0,0],path=[],
+	    	f1=function(s,isC){
+	    		var arr=Ext.isArray(s)?s:s.match(numberReg);
+	    		for(var i=0;i<arr.length;i++){
+	    			if(!isC||i/2%3==2){
+	    				p2[0]+=f4(arr[i]);
+	    				p2[1]+=f4(arr[++i]);
+	    				path=path.concat(p2);
+	    			}else{
+	    				path=path.concat([p2[0]+f4(arr[i]),p2[1]+f4(arr[++i])]);
+	    			}
+	    		}
+	    	},
+	    	f2=function(s,re){
+	    		var arr=s.match(numberReg);
+	    		while(arr.length&&arr.length%7==0){
+		    		var	rx=f4(arr.shift()),//圆心x
+		    			ry=f4(arr.shift()),//圆心y
+		    			rr=Number(arr.shift()),//
+		    			la=Number(arr.shift()),//是否是大角度弧线
+		    			sw=Number(arr.shift()),//是否是顺时针
+		    			x=f4(arr.shift()),//end x
+		    			y=f4(arr.shift()),//end y
+		    			l,t,r,b;
+		    		if(re){
+		    			x+=p2[0];
+		    			y+=p2[1];
+		    		}
+		    		var dx=Math.abs(x-p2[0]),dy=Math.abs(y-p2[1]);
+		    		rx=dx;ry=dy;
+		    		path.push(sw?'wa':'at');
+		    		if((sw^la)^x<p2[0]){
+						if(y<p2[1]){
+							l=p2[0];
+							t=p2[1]-ry;
+						}else{
+							l=p2[0]-rx;
+							t=p2[1];
+						}
+		    		}else{
+		    			if(y<p2[1]){
+							l=p2[0]-rx;
+							t=p2[1]-(ry<<1);
+						}else{
+							l=p2[0]-(rx<<1);
+							t=p2[1]-ry;
+						}
+		    		}
+		    		r=l+(rx<<1);
+					b=t+(ry<<1);
+		    		path.push(l,t,r,b,p2[0],p2[1],x,y);
+		    		p2=[x,y];
+	    		}
+	    	},
+	    	f3=function(s){
+	    		var a=s.match(numberReg).slice(-2);
+	    		return [f4(a[0]),f4(a[1])];
+	    	},
+	    	f4=function(n){
+	    		return Math.floor(n*zoom);
+	    	},
+	    	f5=function(s){
+	    		for(var i=0,a=s.match(numberReg);i<a.length;i++){
+	    			path.push(f4(a[i]))
+	    		}
+	    	}
+	    	for(var i=0;i<arr.length;i++){
+	    		switch(arr[i]){
+	    			case 'M': p1=f3(arr[i+1]);
+	    			case 'C':
+	    			case 'L': p2=f3(arr[i+1]);path.push(arr[i]);f5(arr[++i]);break;
+	    			case 'm': path.push('M');f1(arr[++i]);p1=[].concat(p2);break;
+	    			case 'c': path.push('C');f1(arr[++i],true);break;
+	    			case 'l': path.push('L');f1(arr[++i]);break;
+	    			case 'h': path.push('L');f1(arr[++i]+" 0");break;
+	    			case 'v': path.push('L');f1("0 "+arr[++i]);break;
+	    			case 'H': path.push('L');p2[0]=f4(arr[++i]);path.push(p2[0],p2[1]);break;
+	    			case 'V': path.push('L');p2[1]=f4(arr[++i]);path.push(p2[0],p2[1]);break;
+	    			case 'A': f2(arr[++i]);break;
+	    			case 'a': f2(arr[++i],true);break;
+	    			case 'Z': 
+	    			case 'z': path.push('X');p2=[].concat(p1);break;
+	    		}
+	    	}
+	    	path.push('E');
+	    	cache[p] = path.join(' ');
+	    	return cache[p];
+	    }
+	}(),
     convertConfig = function(record){
     	var config = Ext.util.JSON.decode('{'+(record.get('config')||'').replace(/^{|}$/g,'')+'}');
     	for(var c in config){
@@ -75,21 +288,41 @@ var DOC=document,
     	}
     	return config;
     },
-    transform = function(){
+    transform = hasSVG?function(){
     	var dom,values=Ext.toArray(arguments);
     	if(values.length&&Ext.isObject(values[0])){
     		var el = values.shift();
     		dom = el.dom || el;
     	}else{
 	    	dom = this.wrap.dom;
-    		if(!isSVG(dom)){
-	    		dom = this.root.dom;
-    		}
     	}
-    	var transform = dom.getAttribute('transform');
-    	if(!transform)transform = 'translate(0,0) scale(1,1) rotate(0,0 0)';
-    	var t = transform.split('rotate');
+    	var _transform = dom.getAttribute('transform');
+    	if(!_transform)_transform = 'translate(0,0) scale(1,1) rotate(0,0 0)';
+    	var t = _transform.split('rotate');
     	dom.setAttribute('transform',(t[0].replace(/\(([-.\d]+)\)/g,'($1,$1)')+'rotate'+t[1].replace(/\(([-.\d]+)\)/,'($1,0 0)')).replace(/[-.\d]+/g,function($0){var v=values.shift();return Ext.isEmpty(v)?$0:v}))
+    }:function(){
+    	var dom,values=Ext.toArray(arguments),options={};
+    	if(values.length&&Ext.isObject(values[0])){
+    		var el = values.shift();
+    		dom = el.dom || el;
+    	}else{
+	    	dom = this.wrap.dom;
+    	}
+    	if(!Ext.isEmpty(values[0])) dom.style.left = values[0] + 'px';
+    	if(!Ext.isEmpty(values[1])) dom.style.top = values[1] + 'px';
+    	if(!Ext.isEmpty(values[2]) && !Ext.isEmpty(values[3])){
+	    	dom.coordsize.value= 100 / values[2]+',' +  100 / values[3];
+    	}
+    	if(!Ext.isEmpty(values[4])){
+    		dom = Ext.fly(dom);
+    		var xy = dom.getXY();
+    		dom.setStyle({
+    			rotation:values[4]
+//    			,
+//    			left : values[5] +'px',
+//    			top :  values[6] +'px'
+    		})
+    	}
     },
     setTopCmp = function(){
     	var z = 1,el;
@@ -322,7 +555,7 @@ $A.Graphics=Ext.extend($A.Component,{
 	        }
 		}
 		
-		this.cmps.push(this.createGElement(config.type||type,config));
+		this.createGElement(config.type||type,config);
     },
     resizeSVG : function(){
     	if(hasSVG){
@@ -347,6 +580,7 @@ $A.Graphics=Ext.extend($A.Component,{
     	}
     },
     syncFocusMask : function(t){
+    	if(!t.moveable)return this.focusMask;
     	var delta = t.strokewidth/2 + 3;
 		return this.focusMask.setStyle({'left':t.x-delta+'px',top:t.y-delta+'px'}).setWidth(t.width+delta*2).setHeight(t.height+delta*2);
     },
@@ -441,7 +675,7 @@ $A.Graphics=Ext.extend($A.Component,{
     bind : function(ds,name){
     	this.dataset = $(ds);
     	this.tableidfield = name||'table_id';
-    	if(this.dataset)this.processDataSetLiestener('on');
+    	this.processDataSetLiestener('on');
     	this.onLoad();
     },
     onLoad : function(){
@@ -537,8 +771,14 @@ $A.Graphics=Ext.extend($A.Component,{
     	//this.focus(el);
     },
 	createGElement : function(name,config){
-		var el = new pub[capitalize(name)](Ext.apply(config,{type:name,root:Ext.get(config.root)||this.root,top:this}));
+		var el = new pub[capitalize(name)](Ext.apply(config||{},{type:name,root:(config && Ext.get(config.root))||this.root,top:this.top}));
     	//this.resizeSVG();
+		this.top.cmps.push(el);
+    	return el;
+    },
+    createElement : function(name){
+    	var el = hasSVG?newSVG(name):newVML(name);
+    	this.root.appendChild(el)
     	return el;
     },
     clear : function(){
@@ -551,8 +791,11 @@ $A.Graphics=Ext.extend($A.Component,{
     	this.wrap.remove();
     	if(this.proxy && this.proxy!=this.wrap)this.proxy.remove()
     	$A.Graphics.superclass.destroy.call(this);
-    	if(this.dataset)this.processDataSetLiestener('un');
-    }
+    	this.processDataSetLiestener('un');
+    },
+    translate : transform.methodize(),
+    scale : transform.methodize(2),
+    rotate : transform.methodize(4)
 });
 var pub ={
 	Path:Ext.extend($A.Graphics,{
@@ -562,8 +805,10 @@ var pub ={
 			return pub.Path.superclass.constructor.call(this,config);
 		}, 
 		initComponent : function(config){
-			this.fillcolor = convertColor(this.fillcolor);
-			this.strokecolor = convertColor(this.strokecolor);
+			config.fillcolor = Color(config.fillcolor).setOpacity(config.fillopacity);
+			config.fillopacity = config.fillcolor.get('a');
+			config.strokecolor = Color(config.strokecolor).setOpacity(config.strokeopacity);
+			config.strokeopacity = config.strokecolor.get('a');
 			pub.Path.superclass.initComponent.call(this,config);
 			if(this.title)this['init'+(hasSVG?'SVG':'VML')+'Title']();
 			this['init'+(hasSVG?'SVG':'VML')+'Info']();
@@ -579,6 +824,9 @@ var pub ={
 	    	this.root.appendChild(this.wrap);
 	    },
 		initSVGElement : function(){
+			var gradient = this.createGradient(this.fillcolor.get('gradient')),
+				fillcolor = this.fillcolor.get(),
+				strokecolor = this.strokecolor.get();
 			if(this.x||this.y) {
 				if(this.strokewidth&&this.strokewidth%2==1&&!this.shadow)
 					transform(this.wrap,this.x+0.5,this.y+0.5);
@@ -587,21 +835,21 @@ var pub ={
 			}
 			this.el = newSVG("path",this.id+'_el');
 	    	this.el.dom.style.cssText=encodeStyle({
-	    		'fill':this.fillcolor,
+	    		'fill':fillcolor,
 	    		'fill-opacity':this.fillopacity,
-	    		'stroke':this.strokecolor,
+	    		'stroke':strokecolor,
 	    		'stroke-width':this.strokewidth,
 	    		'stroke-opacity':this.strokeopacity,
-	    		'cursor':'pointer'
+	    		'cursor':this.cursor || 'pointer'
 	    	})+this.style;
-	    	var config = {d:this.d};
+	    	var config = {d:this.d,fill:gradient};
 	    	if(this.strokewidth){
 		    	if(!this.el.dom.style.stroke){
-		    		this.strokecolor = this.el.dom.style.stroke = "black";
+		    		strokecolor = this.el.dom.style.stroke = "rgba(0,0,0,0)";
 		    	}
 		    	if(this.startarrow || this.endarrow){
 		    		var a = this.d.match(numberReg),l = a.length;
-		    		var id = '-' + this.strokecolor + '-' + (this.strokeopacity || 1) * 100;
+		    		var id = '-' + strokecolor + '-' + this.strokeopacity * 100;
 		    		if(Ext.isIE9) id += '-' + this.strokewidth;
 			    	if(this.startarrow){
 			    		config['marker-start'] = 'url(#start-arrow-' + this.startarrow + id + ')';
@@ -614,36 +862,83 @@ var pub ={
 			    		var point = this.convertArrow(Number(a[l-2]),y1 = Number(a[l-1]), x2 = Number(a[l-4]),y2 = Number(a[l-3]));
 			    		config.d = config.d.replace(/([\d-+.]+\s+[\d-+.]+)[^\d]*$/,point.x+' '+point.y);
 			    	}
-		    		new pub.Arrow({color:this.strokecolor,width:this.strokewidth,opacity:this.strokeopacity,endarrow:this.endarrow,startarrow:this.startarrow,root:this.root})
+		    		new pub.Arrow({color:strokecolor,width:this.strokewidth,opacity:this.strokeopacity,endarrow:this.endarrow,startarrow:this.startarrow,root:this.root})
 		    	}
 	    	}
 	    	this.el.set(config);
 	    	this.wrap.insertFirst(this.el);
 	    },
 	    initVMLElement : function(){
+	    	var gradient = this.createGradient(this.fillcolor.get('gradient')),
+	    		fillcolor = this.fillcolor.get('rgb'),
+	    		strokecolor = this.strokecolor.get('rgb');
 	    	var stroke=true,fill=true,filled=true;
 	    	if(Ext.isEmpty(this.strokewidth))this.strokewidth=1;
-	    	if(Ext.isEmpty(this.strokeopacity))this.strokeopacity=1;
-	    	if(!this.strokecolor||this.strokecolor=='none'||this.strokeopacity==0||this.strokewidth==0)stroke=false;
-	    	if(Ext.isEmpty(this.fillopacity))this.fillopacity=1;
-	    	if(this.fillcolor=='none')fill=false;
-	    	if(this.fillcolor=='transparent')this.fillopacity=0;
-	        this.wrap.setStyle({position:'absolute',width:100+'px',height:100+'px',left:(this.x||0)+'px',top:(this.y||0)+'px'});
+	    	if(strokecolor=='none'||this.strokeopacity==0||this.strokewidth==0)stroke=false;
+	    	if(fillcolor=='none')fill=false;
+	    	this.wrap.setStyle({position:'absolute',width:100+'px',height:100+'px',left:(this.x||0)+'px',top:(this.y||0)+'px'});
 	        this.wrap.set({coordsize:'100,100'});
-	    	this.el=new Ext.Template(this.getVmlTpl(stroke,fill,this.shadow)).insertFirst(this.wrap.dom,{
+	    	this.el=new Ext.Template(this.getVmlTpl(stroke,fill,this.shadow)).insertFirst(this.wrap.dom,Ext.apply({
 	    		id:this.id+'_el',
 	    		style:this.style,
-	    		path:this.convertPath(this.d),
+	    		path:this.path || convertPath(this.d,this.zoom),
 	    		zoom:this.zoom,
-	    		fillColor:this.fillcolor||'black',
+	    		fillColor:fillcolor,
 	    		fillOpacity:this.fillopacity,
-	    		strokeColor:this.strokecolor,
+	    		strokeColor:strokecolor,
 	    		strokeWidth:this.strokewidth,
 	    		strokeOpacity:this.strokeopacity,
 	    		endArrow:this.endarrow,
-	    		startArrow:this.startarrow
-	    	},true);
+	    		startArrow:this.startarrow,
+	    		cursor:this.cursor||'pointer'
+	    	},gradient),true);
 	    	this.wrap.set({'title':this.info||''});
+	    },
+	    createGradient : hasSVG?function(options){
+	    	if(!options.isGradient)return 'none';
+	    	var id = 'graphics-gradient' + gradientIndex++,
+	    		defs = this.root.child('defs');
+	    	if(!defs){
+				defs = newSVG('defs');
+				this.root.insertFirst(defs);
+			}
+			var gradient = newSVG(options.type+'Gradient',id),
+				linear = options.linear,
+				stops = options.stops;
+				gradient.set({'x1':linear[0],'y1':linear[1],'x2':linear[2],'y2':linear[3],'gradientUnits':'userSpaceOnUse'});
+				defs.appendChild(gradient);
+				Ext.each(stops,function(item){
+					var color = Color(item[1]),
+						stop = newSVG('stop');
+						stop.set({'offset':item[0],'stop-color':color.get('rgb'),'stop-opacity':color.get('a')});
+					gradient.appendChild(stop);
+				})
+			return 'url('+location.href+'#'+id+')';
+	    }:function(options){
+	    	if(!options.isGradient)return {};
+	    	var type = options.type == 'linear'?'gradient':'',
+	    		linear = options.linear,
+				stops = options.stops,
+				width = this.top.width,
+				height = this.top.height,
+				angle,colors='';
+				Ext.each(linear,function(item,index,all){
+					if(/\%/.test(item)){
+						item = pInt(item)/100;
+						all[index] = (index % 2 == 0 ?width : height) * item;
+					}
+				})
+				angle = Math.atan((linear[2] - linear[0]) / (linear[3] - linear[1])) * 180 / mathPI + 180;
+				Ext.each(stops,function(item){
+					var color = Color(item[1]);
+						colors += item[0] + ' ' + color.get('rgb') + ';';
+				})
+				return {
+					type : type,
+					angle : angle,
+					colors : colors,
+					fillOpacity : 1
+				}
 	    },
 	    initSVGShadow : function(){
     		var fid = 'graphics-filter-shadow'
@@ -722,97 +1017,6 @@ var pub ={
 			}
 			return {x:x1,y:y1};
 	    },
-	    convertPath : function(p){
-	    	if(this.oldPath && this.oldPath === p)return this.oldConvertPath;
-	    	this.oldPath = p;
-	    	var arr=p.match(pathReg),p1=[0,0],p2=[0,0],path=[],sf=this,
-	    	f1=function(s,isC){
-	    		var arr=Ext.isArray(s)?s:s.match(numberReg);
-	    		for(var i=0;i<arr.length;i++){
-	    			if(!isC||i/2%3==2){
-	    				p2[0]+=f4(arr[i]);
-	    				p2[1]+=f4(arr[++i]);
-	    				path=path.concat(p2);
-	    			}else{
-	    				path=path.concat([p2[0]+f4(arr[i]),p2[1]+f4(arr[++i])]);
-	    			}
-	    		}
-	    	},
-	    	f2=function(s,re){
-	    		var arr=s.match(numberReg);
-	    		while(arr.length&&arr.length%7==0){
-		    		var	rx=f4(arr.shift()),
-		    			ry=f4(arr.shift()),
-		    			rr=f4(arr.shift()),
-		    			la=Number(arr.shift()),//是否是大角度弧线
-		    			sw=Number(arr.shift()),//是否是顺时针
-		    			x=f4(arr.shift()),
-		    			y=f4(arr.shift()),
-		    			l,t,r,b;
-		    		if(re){
-		    			x+=p2[0];
-		    			y+=p2[1];
-		    		}
-		    		var dx=Math.abs(x-p2[0]),dy=Math.abs(y-p2[1]);
-		    		rx=dx;ry=dy;
-		    		path.push(sw?'wa':'at');
-		    		if((sw^la)^x<p2[0]){
-						if(y<p2[1]){
-							l=p2[0];
-							t=p2[1]-ry;
-						}else{
-							l=p2[0]-rx;
-							t=p2[1];
-						}
-		    		}else{
-		    			if(y<p2[1]){
-							l=p2[0]-rx;
-							t=p2[1]-(ry<<1);
-						}else{
-							l=p2[0]-(rx<<1);
-							t=p2[1]-ry;
-						}
-		    		}
-		    		r=l+(rx<<1);
-					b=t+(ry<<1);
-		    		path.push(l,t,r,b,p2[0],p2[1],x,y);
-		    		p2=[x,y];
-	    		}
-	    	},
-	    	f3=function(s){
-	    		var a=s.match(numberReg).slice(-2);
-	    		return [f4(a[0]),f4(a[1])];
-	    	},
-	    	f4=function(n){
-	    		return Math.floor(n*sf.zoom);
-	    	},
-	    	f5=function(s){
-	    		for(var i=0,a=s.match(numberReg);i<a.length;i++){
-	    			path.push(f4(a[i]))
-	    		}
-	    	}
-	    	for(var i=0;i<arr.length;i++){
-	    		switch(arr[i]){
-	    			case 'M': p1=f3(arr[i+1]);
-	    			case 'C':
-	    			case 'L': p2=f3(arr[i+1]);path.push(arr[i]);f5(arr[++i]);break;
-	    			case 'm': path.push('M');f1(arr[++i]);p1=[].concat(p2);break;
-	    			case 'c': path.push('C');f1(arr[++i],true);break;
-	    			case 'l': path.push('L');f1(arr[++i]);break;
-	    			case 'h': path.push('L');f1(arr[++i]+" 0");break;
-	    			case 'v': path.push('L');f1("0 "+arr[++i]);break;
-	    			case 'H': path.push('L');p2[0]=f4(arr[++i]);path.push(p2[0],p2[1]);break;
-	    			case 'V': path.push('L');p2[1]=f4(arr[++i]);path.push(p2[0],p2[1]);break;
-	    			case 'A': f2(arr[++i]);break;
-	    			case 'a': f2(arr[++i],true);break;
-	    			case 'Z': 
-	    			case 'z': path.push('X');p2=[].concat(p1);break;
-	    		}
-	    	}
-	    	path.push('E');
-	    	this.oldConvertPath = path.join(' ');
-	    	return this.oldConvertPath;
-	    },
 	    createEditors : function(){
 	    	if(this.editable){
 				this.editors = [];
@@ -849,7 +1053,7 @@ var pub ={
 	    },
 	    createEditor : function(x,y){
 	    	var eds = this.editors,i = eds.length;
-	    	eds[i] = new pub.Oval({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'black','fillopacity':0,'root':this.root,'top':this.top,'moveable':true});
+	    	eds[i] = new pub.Oval({id:this.id+'_editor'+i,'x':x-5,'y':y-5,'height':10,'width':10,'strokewidth':1,'strokecolor':'rgba(0,0,0,1)','fillcolor':'transparent','root':this.root,'top':this.top,'moveable':true});
 	    	eds[i].on('move',this.editorMove,this);
 	    },
 	    editorMove : function(el,ds,record,x,y){
@@ -983,12 +1187,28 @@ var pub ={
 	    	pub.Path.superclass.destroy.call(this);
 	    },
 	    getVmlTpl : function(s,f,sd){
-	    	var tpl = ["<v:shape id='{id}' filled='"+f+"' stroked='"+s+"' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:pointer;{style}' path='{path}'>"];
+	    	var tpl = ["<v:shape id='{id}' filled='"+f+"' stroked='"+s+"' coordsize='{zoom},{zoom}' style='position:absolute;left:0;top:0;width:1px;height:1px;cursor:{cursor};{style}' path='{path}'>"];
 	    	if(f)tpl.push(fill);
 	    	if(s)tpl.push(stroke);
 	    	if(sd)tpl.push(shadow);
 	    	tpl.push("</v:shape>");
 	    	return tpl;
+	    }
+	}),
+	Group : Ext.extend($A.Graphics,{
+		initSVGWrap : function(){
+			this.wrap = newSVG("g",this.id);
+			this.root.appendChild(this.wrap);
+		},
+    	initVMLWrap : function(){
+	    	this.wrap = newVML("v:group",this.id);
+	    	this.wrap.setStyle({position:'absolute',width:100+'px',height:100+'px'});
+	        this.wrap.set({coordsize:'100,100'});
+	    	this.root.appendChild(this.wrap);
+	    },
+		initSVGElement : function(){
+	    },
+	    initVMLElement : function(){
 	    }
 	}),
 	Line : function(config){
@@ -1000,6 +1220,10 @@ var pub ={
 	},
 	Oval:function(config){
 		pub.Oval.processConfig(config);
+		return new pub.Path(config);
+	},
+	Arc:function(config){
+		pub.Arc.processConfig(config);
 		return new pub.Path(config);
 	},
 	Rect : function(config){
@@ -1017,7 +1241,7 @@ var pub ={
 			defs = newSVG('defs');
 			config.root.insertFirst(defs);
 		}
-		var color = config.color||'black',opacity = config.opacity||1,width = config.width||2,
+		var color = config.color||'rgba(0,0,0,1)',opacity = config.opacity||1,width = config.width||2,
 			id = '-' + color + '-' + opacity * 100,vb = '0 0 100 100';
 		if(Ext.isIE9){
 			id += '-' + width;
@@ -1159,6 +1383,102 @@ pub.Oval.processConfig = function(config){
 	config.ry = config.height/2;
 	config.rx = config.width/2;
 	pub.Rect.processConfig(config);
+}
+pub.Arc.processConfig = hasSVG?function (options) {
+	var x = options.x,
+		y = options.y,
+		start = options.start % (2 *mathPI),
+		radius = options.r ,
+		end = options.end % (2 * mathPI) - 0.000001, // to prevent cos and sin of start and end from becoming equal on 360 arcs
+		innerRadius = options.innerR || 0,
+		open = options.open,
+		cosStart = mathCos(start),
+		sinStart = mathSin(start),
+		cosEnd = mathCos(end),
+		sinEnd = mathSin(end),
+		longArc = (end > start? end : end + 2 * mathPI) - start < mathPI ? 0 : 1;
+	options.d =  [
+		'M',
+		radius * cosStart,
+		- radius * sinStart,
+		'A', // arcTo
+		radius, // x radius
+		radius, // y radius
+		0, // slanting
+		longArc, // long or short arc
+		0, // clockwise
+		radius * cosEnd,
+		- radius * sinEnd,
+		open ? 'M' : 'L',
+		innerRadius * cosEnd,
+		- innerRadius * sinEnd,
+		'A', // arcTo
+		innerRadius, // x radius
+		innerRadius, // y radius
+		0, // slanting
+		longArc, // long or short arc
+		1, // clockwise
+		innerRadius * cosStart,
+		- innerRadius * sinStart,
+
+		open ? '' : 'Z' // close
+	].join(' ');
+}:function (options) {
+	var zoom = options.zoom || 10000,
+		x = options.x * zoom,
+		y = options.y * zoom,
+		start = options.start ,
+		end = options.end ,
+		radius = options.r * zoom,
+		cosStart = mathCos(start),
+		sinStart = mathSin(start),
+		cosEnd = mathCos(end),
+		sinEnd = mathSin(end),
+		innerRadius = (options.innerR  || 0)* zoom,
+		circleCorrection = 0.08 / radius, // #760
+		innerCorrection = (innerRadius && 0.1 / innerRadius) || 0,
+		ret;
+
+	if (end - start === 0) { // no angle, don't show it.
+		return ['x'];
+
+	}
+//	else if (2 * mathPI - end + start < circleCorrection) { // full circle
+//		// empirical correction found by trying out the limits for different radii
+//		cosEnd = -circleCorrection;
+//	} else if (end - start < innerCorrection) { // issue #186, another mysterious VML arc problem
+//		cosEnd = mathCos(start + innerCorrection);
+//	}
+
+	ret = [
+		'at', // clockwise arc to
+		pInt(- radius), // left
+		pInt(- radius), // top
+		pInt(radius), // right
+		pInt(radius), // bottom
+		pInt(radius * cosStart), // start x
+		pInt(- radius * sinStart), // start y
+		pInt(radius * cosEnd), // end x
+		pInt(- radius * sinEnd)  // end y
+	];
+	if(innerRadius){
+		ret.push(
+			'wa', // anti clockwise arc to
+			pInt(- innerRadius), // left
+			pInt(- innerRadius), // top
+			pInt(innerRadius), // right
+			pInt(innerRadius), // bottom
+			pInt(innerRadius * cosEnd), // start x
+			pInt(- innerRadius * sinEnd), // start y
+			pInt(innerRadius * cosStart), // end x
+			pInt(- innerRadius * sinStart) // end y
+		);
+	}
+	ret.push(
+		'x', // finish path
+		'e' // close
+	);
+	options.path = ret.join(' ');
 }
 pub.Diamond.processConfig = function(config){
 	var h = Number(config.height)||100,
