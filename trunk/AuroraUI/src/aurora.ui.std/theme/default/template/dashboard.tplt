@@ -1,0 +1,6 @@
+<DIV class="${wrapClass}" style="width:${width}px;height:${height}px;${style}" id="${id}" >
+</DIV>
+<script>
+	new Aurora.Dashboard(${config});
+	${binding}
+</script>

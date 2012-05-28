@@ -68,6 +68,8 @@ public class PatchAll {
 		List compressJs = new ArrayList();
 		compressJs.add(AURORA_ALL);
 		compressJs.add("grid/Grid.js");
+		compressJs.add("dashboard/Dashboard.js");
+		compressJs.add("graphic/Graphics.js");
 		compressJs.add("treegrid/TreeGrid.js");
 		compressJs.add("table/Table.js");
 		compressJs.add("tree/Tree.js");
