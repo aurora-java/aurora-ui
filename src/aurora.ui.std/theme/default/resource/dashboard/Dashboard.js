@@ -72,6 +72,9 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 		padding : 10,
 		max : 1,
 		min : 0,
+		borderwidth : 4,
+		bordercolor : '#4572A7',
+		borderradius : 5,
 		board : {
 			fillcolor : 'gradient(linear,-50% 0,50% 0,color-stop(0,rgba(0,255,255,1)),color-stop(50%,rgba(255,255,0,1)),color-stop(100%,rgba(255,0,0,1)))',
 			fillopacity : 0.5,
@@ -129,8 +132,11 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     	this.processDataListener('on');
     	this.onLoad();
     },
-    setOptions : function(options){
+    setOptions : function(options,redraw){
     	this.options = merge(this.options,options);
+    	if(redraw){
+    		this.redraw();
+    	}
     },
     onLoad : function(){
     	this.redraw();
@@ -145,7 +151,7 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     	this.renderTitle();
     },
     setTitle : function(options){
-    	merge(this.options.title,options);
+    	this.options.title = merge(this.options.title,options);
     	this.redraw();
     },
     clear : function(){
@@ -153,6 +159,7 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     	while(cmps.length){
     		cmps.pop().destroy();
     	}
+    	this.pointerEl = null;
     },
     renderTitle : function(){
     	var options = this.options.title,
@@ -187,10 +194,13 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     		titleVAlgin = title.verticalalign,
     		board = options.board,
     		padding = options.padding,
-    		marginLeft = options.marginLeft || 0,
-    		marginRight = options.marginRight || 0,
-    		marginTop = options.marginTop || (title.text && titleVAlgin == 'top' ? title.y + title.margin*2 :0),
-    		marginBottom = options.marginBottom || (title.text && titleVAlgin == 'bottom' ? title.y + title.margin*2 :0),
+    		borderWidth = options.borderwidth,
+    		borderColor = options.bordercolor,
+    		borderRadius = options.borderradius,
+    		marginLeft = (options.marginLeft || 0) + borderWidth,
+    		marginRight = (options.marginRight || 0) + borderWidth,
+    		marginTop = (options.marginTop || (title.text && titleVAlgin == 'top' ? title.y + title.margin*2 :0)) + borderWidth,
+    		marginBottom = (options.marginBottom || (title.text && titleVAlgin == 'bottom' ? title.y + title.margin*2 :0)) + borderWidth,
     		width = (options.width || 300) - padding * 2 - marginLeft - marginRight,
     		height = (options.height || 300) - padding * 2 - marginTop - marginBottom,
     		align = convertAlign(options.align || 'center'),
@@ -299,7 +309,18 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     		}
     	}
     	
-    	this.createGElement('arc',{
+    	this.createGElement('rect',{
+    		root:this.group.wrap,
+    		x : 0 + borderWidth,
+    		y : 0 + borderWidth,
+    		width : this.width - borderWidth*2,
+    		height : this.height - borderWidth*2,
+    		rx : borderRadius,
+    		ry : borderRadius,
+    		strokecolor : borderColor,
+    		strokewidth : borderWidth,
+    		fillcolor : 'transparent'
+    	}).createGElement('arc',{
     		root:this.group.wrap,
     		x : x,
     		y : y,
