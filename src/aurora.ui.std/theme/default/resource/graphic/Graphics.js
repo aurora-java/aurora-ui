@@ -14,16 +14,18 @@ var DOC=document,
     SVG_NS = 'http://www.w3.org/2000/svg',
     VML_NS = 'urn:schemas-microsoft-com:vml',
     XLINK_NS = 'http://www.w3.org/1999/xlink',
+    NONE = 'none',
 	hasSVG = !Ext.isIE9 && !!DOC.createElementNS && !!DOC.createElementNS(SVG_NS, "svg").createSVGRect,
 	fill = "<v:fill color='{fillColor}' opacity='{fillOpacity}' angle='{angle}' colors='{colors}' type='{type}'></v:fill>",
 	stroke = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'></v:stroke>",
     shadow = "<v:shadow on='t' opacity='0.5' offset='0px,3px'></v:shadow>",
-    pathReg = /\w|[\s\d-+.,]*/g,
-    numberReg = /[\d-+.]+/g,
+    pathReg = /\w|[\s\d-+.,e]*/g,
+    numberReg = /[\d-+.e]+/g,
     mathCos = Math.cos,
     mathSin = Math.sin,
     mathPI = Math.PI,
     pInt = parseInt,
+    angle2Raduis = mathPI / 180,
     screenWidth,screenHeight,
     capitalize = function(w){
     	return (w = w.trim()).toLowerCase().replace(/^./,w.charAt(0).toUpperCase());
@@ -75,8 +77,8 @@ var DOC=document,
 				rgba = [0,0,0,1];
 			}else if(input == 'transparent'){
 				rgba = [0,0,0,0];
-			}else if(input == 'none'){
-				rgba = 'none';
+			}else if(input == NONE){
+				rgba = NONE;
 			}else{
 				//gradirent
 				if(/gradient/i.test(input)){
@@ -134,7 +136,7 @@ var DOC=document,
 				} else {
 					ret = 'rgba(' + rgba.join(',') + ')';
 				}
-			}else if(rgba == 'none'){
+			}else if(rgba == NONE){
 				ret = rgba;
 			}else {
 				ret = input;
@@ -142,7 +144,7 @@ var DOC=document,
 			return ret;
 		}
 		function brighten(alpha) {
-			if (rgba != 'none' && isNumber(alpha) && alpha !== 0) {
+			if (rgba != NONE && isNumber(alpha) && alpha !== 0) {
 				var i;
 				for (i = 0; i < 3; i++) {
 					rgba[i] += pInt(alpha * 255);
@@ -159,7 +161,7 @@ var DOC=document,
 		}
 		
 		function setOpacity(alpha) {
-			if(input == 'transparent' || rgba == 'none')return this;
+			if(input == 'transparent' || rgba == NONE)return this;
 			rgba[3] = alpha || 1;
 			return this;
 		}
@@ -171,6 +173,12 @@ var DOC=document,
 			brighten: brighten,
 			setOpacity: setOpacity
 		};
+	},
+	measureText = function(text,fontSize){
+		var textEl = new Ext.Template('<span style="font-size:{fontSize}">{text}</span>').append(document.body,{fontSize:fontSize,text:text},true),
+			textWidth = textEl.getWidth();
+		textEl.remove();
+		return textWidth;
 	},
 //    convertColor = function(color){
 //    	if(color && color.search(/rgb/i)!=-1){
@@ -187,7 +195,7 @@ var DOC=document,
     	var cache = {};
     	return function(p,zoom){
 	    	if(cache[p])return cache[p];
-	    	zoom = zoom || 1;
+	    	zoom = zoom || 10000;
 	    	var arr=p.match(pathReg),p1=[0,0],p2=[0,0],path=[],
 	    	f1=function(s,isC){
 	    		var arr=Ext.isArray(s)?s:s.match(numberReg);
@@ -247,7 +255,7 @@ var DOC=document,
 	    		return [f4(a[0]),f4(a[1])];
 	    	},
 	    	f4=function(n){
-	    		return Math.floor(n*zoom);
+	    		return Number(Number(n*zoom).toFixed(0));
 	    	},
 	    	f5=function(s){
 	    		for(var i=0,a=s.match(numberReg);i<a.length;i++){
@@ -294,7 +302,7 @@ var DOC=document,
     		var el = values.shift();
     		dom = el.dom || el;
     	}else{
-	    	dom = this.wrap.dom;
+	    	dom = (this.el || this.wrap).dom;
     	}
     	var _transform = dom.getAttribute('transform');
     	if(!_transform)_transform = 'translate(0,0) scale(1,1) rotate(0,0 0)';
@@ -304,24 +312,66 @@ var DOC=document,
     	var dom,values=Ext.toArray(arguments),options={};
     	if(values.length&&Ext.isObject(values[0])){
     		var el = values.shift();
-    		dom = el.dom || el;
+    		dom = Ext.get(el);
     	}else{
-	    	dom = this.wrap.dom;
+	    	dom = this.el || this.wrap
     	}
-    	if(!Ext.isEmpty(values[0])) dom.style.left = values[0] + 'px';
-    	if(!Ext.isEmpty(values[1])) dom.style.top = values[1] + 'px';
+    	if(!Ext.isEmpty(values[0])) dom.setStyle('left',values[0] + 'px');
+    	if(!Ext.isEmpty(values[1])) dom.setStyle('top',values[1] + 'px');
     	if(!Ext.isEmpty(values[2]) && !Ext.isEmpty(values[3])){
-	    	dom.coordsize.value= 100 / values[2]+',' +  100 / values[3];
+	    	dom.dom.coordsize.value= 100 / values[2]+',' +  100 / values[3];
     	}
     	if(!Ext.isEmpty(values[4])){
-    		dom = Ext.fly(dom);
-    		var xy = dom.getXY();
-    		dom.setStyle({
-    			rotation:values[4]
-//    			,
-//    			left : values[5] +'px',
-//    			top :  values[6] +'px'
-    		})
+    		var xy = dom.getXY(),
+    			x = pInt(dom.getStyle('left')||0),
+    			y = pInt(dom.getStyle('top')||0),
+    			width = dom.getWidth(),
+    			height = dom.getHeight(),
+    			rotation = values[4],
+    			radians = rotation * angle2Raduis, 
+				cosA = mathCos(radians),
+				sinA = mathSin(radians),
+				costheta = mathCos(-radians),
+				sintheta = mathSin(-radians),
+				costhetb = mathCos(-radians - mathPI/2),
+				sinthetb = mathSin(-radians - mathPI/2),
+    			dx = dom.dx||x,
+    			dy = dom.dy||y,
+    			dist = Math.sqrt(dx*dx + dy*dy),
+    			angle =  Math.atan(-dy/dx) - radians,
+    			x = x -dx + dist * mathCos(angle),
+    			y = y -dy - dist * mathSin(angle),
+				left,top;
+				if(sintheta >= 0){
+					if(costheta >= 0){
+						left = x;
+						top = y - width * sintheta;
+					}else{
+						left = x + height * costhetb;
+						top = y - width * sintheta;
+					}
+				}else{
+					if(costheta >= 0){
+						left = x + height * costhetb;
+						top = y;
+					}else{
+						left = x + width * costheta;
+						top = y - height * sinthetb;
+					}	
+				}
+    		if(dom.dom.tagName == 'SPAN'){
+				dom.setStyle({
+					filter: !Ext.isEmpty(rotation) ? ['progid:DXImageTransform.Microsoft.Matrix(M11=', cosA,
+						', M12=', -sinA, ', M13=100', ', M21=', sinA, ', M22=', cosA,
+						', sizingMethod=\'auto expand\')'].join('') : NONE,
+						left : left  + 'px',
+						top : top + 'px'
+				});
+    		}else{
+	    		dom.setStyle({
+	    			rotation:rotation
+	    		})
+    		}
     	}
     },
     setTopCmp = function(){
@@ -424,7 +474,7 @@ $A.Graphics=Ext.extend($A.Component,{
     		var vml = this.wrap.dom.innerHTML.replace(/^<\?xml[^\/]*\/>/i,'').replace(/id\=([\S]*)/img,"id=$1_proxy");
     		new Ext.Template(vml).append(clone,{},true);
     	}
-    	this.proxy.setStyle({'background-color':'transparent','border':'none','position':'absolute','z-index':'99999'});
+    	this.proxy.setStyle({'background-color':'transparent','border':NONE,'position':'absolute','z-index':'99999'});
     	Ext.getBody().insertFirst(this.proxy);
     },
     onMouseDown : function(e,t){
@@ -795,7 +845,9 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     translate : transform.methodize(),
     scale : transform.methodize(2),
-    rotate : transform.methodize(4)
+    rotate : transform.methodize(4),
+    setTopCmp : setTopCmp,
+    hasSVG : hasSVG
 });
 var pub ={
 	Path:Ext.extend($A.Graphics,{
@@ -839,7 +891,7 @@ var pub ={
 	    		'fill-opacity':this.fillopacity,
 	    		'stroke':strokecolor,
 	    		'stroke-width':this.strokewidth,
-	    		'stroke-opacity':this.strokeopacity,
+	    		'stroke-opacity':this.strokewidth?this.strokeopacity:0,
 	    		'cursor':this.cursor || 'pointer'
 	    	})+this.style;
 	    	var config = {d:this.d,fill:gradient};
@@ -874,8 +926,8 @@ var pub ={
 	    		strokecolor = this.strokecolor.get('rgb');
 	    	var stroke=true,fill=true,filled=true;
 	    	if(Ext.isEmpty(this.strokewidth))this.strokewidth=1;
-	    	if(strokecolor=='none'||this.strokeopacity==0||this.strokewidth==0)stroke=false;
-	    	if(fillcolor=='none')fill=false;
+	    	if(strokecolor==NONE||this.strokeopacity==0||this.strokewidth==0)stroke=false;
+	    	if(fillcolor==NONE)fill=false;
 	    	this.wrap.setStyle({position:'absolute',width:100+'px',height:100+'px',left:(this.x||0)+'px',top:(this.y||0)+'px'});
 	        this.wrap.set({coordsize:'100,100'});
 	    	this.el=new Ext.Template(this.getVmlTpl(stroke,fill,this.shadow)).insertFirst(this.wrap.dom,Ext.apply({
@@ -895,7 +947,7 @@ var pub ={
 	    	this.wrap.set({'title':this.info||''});
 	    },
 	    createGradient : hasSVG?function(options){
-	    	if(!options.isGradient)return 'none';
+	    	if(!options.isGradient)return NONE;
 	    	var id = 'graphics-gradient' + gradientIndex++,
 	    		defs = this.root.child('defs');
 	    	if(!defs){
@@ -928,7 +980,7 @@ var pub ={
 						all[index] = (index % 2 == 0 ?width : height) * item;
 					}
 				})
-				angle = Math.atan((linear[2] - linear[0]) / (linear[3] - linear[1])) * 180 / mathPI + 180;
+				angle = Math.atan((linear[2] - linear[0]) / (linear[3] - linear[1])) / angle2Raduis + 180;
 				Ext.each(stops,function(item){
 					var color = Color(item[1]);
 						colors += item[0] + ' ' + color.get('rgb') + ';';
@@ -972,11 +1024,11 @@ var pub ={
     		this.el.setStyle({'filter':'url(#'+fid+')'});
 	    },
 	    initSVGTitle : function(){
-	    	this.text = pub.Text.prototype.initSVGElement.call({text:this.title,id:this.id+'_title',size:this.titlesize||14,dx:this.titlex||0,dy:this.titley||0,color:this.titlecolor,wrap:this.wrap,style:'cursor:pointer;-webkit-user-select:none'});
+	    	this.text = pub.Text.prototype.initSVGElement.call({text:this.title,id:this.id+'_title',size:this.titlesize||14,dx:this.titlex||0,dy:this.titley||0,color:this.titlecolor,fontfamily:this.titlefontfamily,rotation:this.titlerotation,wrap:this.wrap,style:'cursor:pointer;-webkit-user-select:none'});
 	    },
 	    initVMLTitle : function(){
     		var x = this.titlex||0, y = this.titley||0,size = this.titlesize||14,root = this.wrap;
-			if(this.type == 'line'){
+			if(this.type == 'line' || this.type == 'path'){
 				x += this.x;
 				y += this.y;
 				root = this.top.wrap;
@@ -985,7 +1037,7 @@ var pub ={
 				x += strokewidth/2;
 				y += strokewidth/2;
 			}
-			this.text = pub.Text.prototype.initVMLElement.call({text:this.title,id:this.id+'_title',size:size,dx:x,dy:y,color:this.titlecolor,wrap:root,vmlTpl:pub.Text.prototype.vmlTpl});
+			this.text = pub.Text.prototype.initVMLElement.call({text:this.title,id:this.id+'_title',size:size,dx:x,dy:y,color:this.titlecolor,fontfamily:this.titlefontfamily,rotation:this.titlerotation,wrap:root,positionwrap:this,vmlTpl:pub.Text.prototype.vmlTpl});
     	},
     	initSVGInfo : function(){
     		if(this.info){
@@ -1184,6 +1236,7 @@ var pub ={
 	    		this.focusMask.un('mousedown',this.onMouseDown,this);
 	    		this.focusMask.remove();
 	    	}
+    		this.text && this.text.remove&&this.text.remove()	
 	    	pub.Path.superclass.destroy.call(this);
 	    },
 	    getVmlTpl : function(s,f,sd){
@@ -1279,7 +1332,7 @@ Ext.apply(pub,{
 	    		'stroke':this.strokecolor,
 	    		'stroke-width':this.strokewidth,
 	    		'stroke-opacity':this.strokeopacity,
-	    		'-moz-user-select':'none'
+	    		'-moz-user-select':NONE
 	    	})+this.style;
 	    	this.el.dom.setAttributeNS(XLINK_NS,'xlink:href',this.image);
 	    	this.el.set({x:0,y:0,width:this.width,height:this.height});
@@ -1294,7 +1347,7 @@ Ext.apply(pub,{
 	    		style:this.style,
 	    		width:this.width,
 	    		height:this.height,
-	    		strokeColor:this.strokecolor||'none',
+	    		strokeColor:this.strokecolor||NONE,
 	    		strokeWidth:this.strokecolor?this.strokewidth:0,
 	    		strokeOpacity:this.strokecolor?(this.strokeopacity||1):0
 	    	},true)
@@ -1316,23 +1369,36 @@ Ext.apply(pub,{
 	    	this.el.dom.style.cssText=encodeStyle({
 	    		'fill':this.color,
 	    		'font-size':size+'px',
+	    		'font-family':this.fontfamily,
 	    		'line-height':size+'px',
 	    		'cursor':'text'
 	    	})+this.style;
 	    	this.el.set({dx:this.dx+1,dy:this.dy+size-2});
 	    	this.el.dom.textContent = this.text;
 	    	this.wrap.appendChild(this.el);
+	    	if(!Ext.isEmpty(this.rotation))transform(this.el,null,null,null,null,this.rotation);
+	    	return this.el;
 	    },
 	    initVMLElement : function(){
 	    	var size = this.size||14;
 	    	this.el=new Ext.Template(this.vmlTpl).append(this.wrap.dom,{
 	    		id:this.id+'_el',
-	    		style:encodeStyle({'line-height':size+'px','font-size':size+'px'})+this.style,
+	    		style:encodeStyle({'line-height':size+'px','font-size':size+'px','font-family':this.fontfamily})+this.style,
 	    		left:this.dx,
 	    		top:this.dy,
 	    		color:this.color||'black'
 	    	},true)
 	    	this.el.update(this.text);
+	    	if(!Ext.isEmpty(this.rotation)){
+	    		var x,y;
+	    		if(this.positionwrap){
+	    			x =  this.positionwrap.x;
+	    			y =  this.positionwrap.y;
+	    			this.el.dx = this.positionwrap.titlex;
+	    			this.el.dy = this.positionwrap.titley;
+	    		}
+	    		transform(this.el,null,null,null,null,this.rotation,x,y);
+	    	}
 	    	return this.el;
 	    },
 	    vmlTpl : "<span id='{id}' unselectable='on'  onselectstart='return false;' style='position:absolute;left:{left}px;top:{top}px;color:{color};cursor:pointer;white-space:nowrap;{style}'></span>"
@@ -1353,7 +1419,7 @@ pub.Line.processConfig = function(config){
 	}
 	config.d = a.join(' ');
 	if(config.strokewidth == 1)config.strokewidth = 2;
-	config.fillcolor = 'none';
+	config.fillcolor = NONE;
 	config.points = points;
 	config.x = Number(x);
 	config.y = Number(y);
