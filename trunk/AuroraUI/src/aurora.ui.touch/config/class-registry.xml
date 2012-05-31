@@ -3,4 +3,5 @@
     <feature-attach elementName="textField" nameSpace="http://www.aurora-framework.org/touch" featureClass="aurora.presentation.component.touch.TextField" />
     <feature-attach elementName="passWord" nameSpace="http://www.aurora-framework.org/touch" featureClass="aurora.presentation.component.touch.PassWord" />
     <feature-attach elementName="textArea" nameSpace="http://www.aurora-framework.org/touch" featureClass="aurora.presentation.component.touch.TextArea" />
+    <feature-attach elementName="ajax" nameSpace="http://www.aurora-framework.org/touch" featureClass="aurora.presentation.component.touch.Ajax" />
 </class-registry>
