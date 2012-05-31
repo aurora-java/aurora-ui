@@ -40,10 +40,10 @@ div.field {
     overflow:hidden;
     vertical-align:middle;
     border: 1px solid #CCC;
-	background: #F2F2F2;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
+    background: #F2F2F2;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
 }
 .field .prompt{
     padding-left:5px;
@@ -52,20 +52,19 @@ div.field {
     float:left;
 }
 input.input {
-	width:100%;
-	float:left;
-	padding:5px 0px 5px 0px;
-	font-size: 1em;
-	background-color:#F4F4F4;
-	border: 1px solid #A4A4A4;
-	height: auto;
-	line-height: 18px;
-	vertical-align:middle;
-	-moz-box-shadow: 0 1px 3px #c8c8c8 inset;
-	-webkit-box-shadow: 0 1px 3px #c8c8c8 inset;
-	box-shadow: 0 1px 3px #c8c8c8 inset;
-	vertical-align: text-top;
-	border-radius: 5px;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
+    width:100%;
+    padding:5px 0px 5px 0px;
+    font-size: 1em;
+    background-color:#F4F4F4;
+    border: 1px solid #A4A4A4;
+    height: auto;
+    line-height: 18px;
+    vertical-align:middle;
+    -moz-box-shadow: 0 1px 3px #c8c8c8 inset;
+    -webkit-box-shadow: 0 1px 3px #c8c8c8 inset;
+    box-shadow: 0 1px 3px #c8c8c8 inset;
+    vertical-align: text-top;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
 }
