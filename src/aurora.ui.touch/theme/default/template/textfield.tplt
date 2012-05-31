@@ -1,1 +1,1 @@
-<input type="text" ${id} class="${cls}" ${style} ${placeholder} ${required}/>
+<input type="text" ${id} class="${cls}" ${style} ${placeholder} ${required} value="${value}"/>
