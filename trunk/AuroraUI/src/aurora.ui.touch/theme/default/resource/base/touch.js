@@ -24,11 +24,8 @@ $.extend(t.Ajax.prototype,{
 	request : function(){
 		var data = {},p = this.options.parameters;
 		for(var key in p){
-			if(isFunction(p[key])){
-				data[key] = eval(p[key]);
-			}else{
-				data[key] = p[key];
-			}
+			var v = p[key],bind = v.bind;
+			data[key] = bind?$('#'+bind).val():v.value;
 		}
 		this.options.data = {
 			_request_data: JSON.stringify({
