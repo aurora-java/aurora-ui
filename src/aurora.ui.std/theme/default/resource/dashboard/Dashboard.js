@@ -5,6 +5,15 @@
 		mathSqrt = Math.sqrt,
 		mathPI = Math.PI,
 		angle2Raduis = mathPI / 180,
+		percent2Number =function(pv,v,av){
+			if(/\%/.test(pv)){
+				return parseFloat(pv)*v/100 + (av||0);
+			}
+			return pv;
+		},
+		isPercent = function(v){
+			return /\%/.test(v);
+		},
 		measureText = function(text,fontSize){
 			var textEl = new Ext.Template('<span style="font-size:{fontSize}">{text}</span>').append(document.body,{fontSize:fontSize,text:text},true),
     			textWidth = textEl.getWidth();
@@ -68,22 +77,25 @@
 		}();
 $A.Dashboard = Ext.extend($A.Graphics,{
 	options : {
-		align : 'center',
-		verticalAlign : 'middle',
-		padding : 10,
-		max : 100,
-		min : 0,
-		borderWidth : 4,
-		borderColor : '#4572A7',
-		borderRadius : 5,
-		style: {
-			fontFamily: '"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif',
-			fontSize: '11px',
-			color : '#000'
+		chart : {
+			align : 'center',
+			verticalAlign : 'middle',
+			padding : 10,
+			max : 100,
+			min : 0,
+			borderWidth : 4,
+			borderColor : '#4572A7',
+			borderRadius : 5,
+			backgroundColor : 'gradient(linear,0 0,100% 100%,color-stop(0,rgba(255,255,255,1)),color-stop(100%,rgba(240,240,255,1)))',
+			style: {
+				fontFamily: '"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif',
+				fontSize: '11px',
+				color : '#000'
+			}
 		},
 		board : {
 			allowDecimals : true,
-			width : 0,
+			width : '40%',
 			fillColor : 'gradient(linear,-50% 0,50% 0,color-stop(0,rgba(0,255,255,1)),color-stop(50%,rgba(255,255,0,1)),color-stop(100%,rgba(255,0,0,1)))',
 			fillOpacity : 0.5,
 			borderColor : '#000',
@@ -122,7 +134,7 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 			}
 		},
 		pointer : {
-			fillColor : 'rgba(135,135,135,0.3)',
+			fillColor : 'rgba(135,135,135,0.5)',
 			fillOpacity : null,
 			borderColor : '#000',
 			borderWidth : 1,
@@ -194,12 +206,15 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     },
     redraw : function(){
     	if(!this.record)return;
+    	var options = this.options,
+    		chart = options.chart,
+    		title = options.title,
+    		board = options.board
+    		pointer = options.pointer;
     	this.clear();
-    	this.group = this.createGElement('group');
-    	this.renderBoard();
-    	this.renderCenter();
-    	this.renderTitle();
-    	this.renderPointer();
+    	this.renderBoard(board,title,pointer,chart);
+    	this.renderPointer(pointer,chart);
+    	this.renderTitle(title,chart);
     },
     setTitle : function(options){
     	this.options.title = merge(this.options.title,options);
@@ -212,72 +227,58 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     	}
     	this.pointerEl = null;
     },
-    renderTitle : function(){
-    	var options = this.options.title,
-    		text = options.text;
-    	if(!text){
-    		return;
-    	}
-    	var	align = convertAlign(options.align),
-    		vAlign = convertAlign(options.verticalAlign),
-    		width = this.width,
-    		height = this.height,
-    		margin = options.margin,
-    		x = options.x,
-    		y = options.y,
-    		style = options.style,
+    renderTitle : function(title,chart){
+    	var text = title.text;
+    	if(!text)return;
+    	var	borderWidth = chart.borderWidth,
+    		margin = title.margin,
+    		style = title.style,
     		fontSize = style.fontSize,
-    		color = style.color,
-    		textWidth = measureText(text,fontSize),
-    		textHeight = parseInt(fontSize);
-    		this.titleEl = this.createGElement('text',{
-    			root : this.group.wrap,
+    		titleHeight = parseInt(fontSize);
+    		this.createGElement('text',{
     			text : text,
-    			color : color,
-    			size : textHeight,
-    			dx : x + margin + alignSize(width - margin * 2 - textWidth,align),
-    			dy : y + margin + alignSize(height - margin * 2 - textHeight,vAlign)
+    			color : style.color,
+    			size : titleHeight,
+    			dx : title.x + margin + alignSize(chart.width - margin * 2 - borderWidth * 2 - measureText(text,fontSize),convertAlign(title.align)),
+    			dy : title.y + margin + alignSize(chart.height - margin * 2 - borderWidth * 2 - titleHeight,convertAlign(title.verticalAlign))
     		});
     },
-    renderBoard : function(){
-    	var options = this.options,
-    		title = options.title,
-    		titleVAlgin = title.verticalAlign,
-    		board = options.board,
-    		padding = options.padding,
-    		borderWidth = options.borderWidth,
-    		borderColor = options.borderColor,
-    		borderRadius = options.borderRadius,
-    		marginLeft = (Ext.isEmpty(options.marginLeft)? 0 : options.marginLeft) + borderWidth,
-    		marginRight = (Ext.isEmpty(options.marginRight)? 0 : options.marginRight) + borderWidth,
-    		marginTop = (Ext.isEmpty(options.marginTop) ? (title.text && titleVAlgin == 'top' ? title.y + title.margin*2 :0) : options.marginTop) + borderWidth,
-    		marginBottom = (Ext.isEmpty(options.marginBottom) ? (title.text && titleVAlgin == 'bottom' ? title.y + title.margin*2 :0) : options.marginBottom) + borderWidth,
-    		width = (options.width || 300) - padding * 2 - marginLeft - marginRight,
-    		height = (options.height || 300) - padding * 2 - marginTop - marginBottom,
-    		align = convertAlign(options.align || 'center'),
-    		vAlign = convertAlign(options.verticalAlign || 'middle'),
-    		opt = {},radius,x,y,centerX,centerY,
+    renderBoard : function(board,title,pointer,chart){
+    	var titleVAlgin = title.verticalAlign,
+    		padding = chart.padding,
+    		borderWidth = chart.borderWidth,
+    		borderRadius = chart.borderRadius,
+    		textHeight = parseInt(title.style.fontSize),
+    		marginLeft = (Ext.isEmpty(chart.marginLeft)? 0 : chart.marginLeft) + borderWidth,
+    		marginRight = (Ext.isEmpty(chart.marginRight)? 0 : chart.marginRight) + borderWidth,
+    		marginTop = (Ext.isEmpty(chart.marginTop) ? (title.text && titleVAlgin == 'top' ? textHeight + title.margin*2 :0) : chart.marginTop) + borderWidth,
+    		marginBottom = (Ext.isEmpty(chart.marginBottom) ? (title.text && titleVAlgin == 'bottom' ? textHeight + title.margin*2 :0) : chart.marginBottom) + borderWidth,
+    		chartWidth = chart.width,
+    		chartHeight = chart.height,
+    		width = (chartWidth || 300) - padding * 2 - marginLeft - marginRight,
+    		height = (chartHeight || 300) - padding * 2 - marginTop - marginBottom,
+    		align = convertAlign(chart.align),
+    		vAlign = convertAlign(chart.verticalAlign),
     		startA = (board.startAngle % 360 + 360) % 360,
     		endA = (board.endAngle % 360 + 360) % 360,
     		endA = endA > startA? endA : endA + 360,
     		start = angle2Raduis * startA,
     		end =  angle2Raduis * (endA % 360),
-    		max = options.max,
-    		min = options.min,
-    		dashWidth = board.width||mathMin(height,width)/4,
+    		max = chart.max,
+    		min = chart.min,
+    		dashWidth = board.width,
+    		dashWidth = percent2Number(dashWidth,mathMin(height,width)),
     		tickAngleInterval = board.tickAngleInterval * angle2Raduis,
     		minAngle = board.startOntick ? start : board.tickStartAngle * angle2Raduis + start,
 			maxAngle = board.endOntick ? end : board.tickEndAngle * angle2Raduis + end,
     		interval = this.normalizeTickInterval(board.tickInterval ? board.tickInterval : (max - min) * tickAngleInterval/(maxAngle - minAngle),board),
 			tickAngleInterval =  (maxAngle - minAngle) * interval / (max-min),
 			tickCount = Math.ceil((max - min)/interval),
-//    		rotate = (startA - startA % 90),
-//    		start = (startA - rotate) * mathPI /180,
-//    		end =  (startB - rotate) * mathPI /180,
     		sinA = mathSin(start),
     		sinB = mathSin(end),
     		cosA = mathCos(start),
     		cosB = mathCos(end),
+    		radius,x,y,
     		getXY = function (startR,endR,xR,yR){
 				radius = mathMin(startR , endR);
 				var o={xR:xR * radius,yR:yR * radius},_x,_y,_align,_size;
@@ -292,7 +293,6 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 				o[_y] = padding + o[_y+'R'];
 				x = o.x + marginLeft;y = o.y + marginTop;
 			}
-			
     	if(sinA >= 0){
     		if(cosA >= 0){
 	    		if(sinB >= 0){
@@ -370,20 +370,18 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     			}
     		}
     	}
-    	
     	this.createGElement('rect',{
-    		root:this.group.wrap,
-    		x : 0 + borderWidth,
-    		y : 0 + borderWidth,
-    		width : this.width - borderWidth*2,
-    		height : this.height - borderWidth*2,
+    		x : borderWidth,
+    		y : borderWidth,
+    		width : chartWidth - borderWidth*2,
+    		height : chartHeight - borderWidth*2,
     		rx : borderRadius,
     		ry : borderRadius,
-    		strokecolor : borderColor,
+    		strokecolor : chart.borderColor,
     		strokewidth : borderWidth,
-    		fillcolor : 'transparent'
+    		fillcolor : chart.backgroundColor,
+    		cursor : 'default'
     	}).createGElement('arc',{
-    		root:this.group.wrap,
     		x : x,
     		y : y,
     		r : radius,
@@ -400,29 +398,26 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 			label = min,
 			labels = board.labels,
 			labelStyle = labels.style,
-			rotation = labels.rotation,
-			titleColor = labelStyle.color || options.style.color,
 			hideLabel;
-		board.width = dashWidth;
     	for(var i = 0;i <= tickCount;i++){
-    		var opt = this.getTickOptions(board,(i == 0 || i == tickCount)? 'marginal' : ''),
+    		var opt = this.getTickOptions(board,(i == 0 || i == tickCount)? 'marginal' : '',dashWidth),
     			_length = opt.length,
     			_cosA = mathCos(angle),
     			_sinA = mathSin(angle),
     			_points = [x + radius * _cosA , y - radius * _sinA , x + (radius - _length) * _cosA , y -  (radius - _length) * _sinA];
     		hideLabel = !labels.enabled || (!board.showFirstLabel && i == 0)||(!board.showLastLabel && i == tickCount)
     		this.createGElement('line',{
-    			root : this.group.wrap,
 				points : _points.join(" "),
 				strokewidth : (angle == start || angle == end) ? 0 :opt.width,
 				strokecolor : opt.color,
 				title : hideLabel?'':(label+''),
-				titlesize : parseInt(labelStyle.fontSize || options.style.fontSize),
-				titlecolor : labelStyle.color || options.style.color,
+				titlesize : parseInt(labelStyle.fontSize || chart.style.fontSize),
+				titlecolor : labelStyle.color || chart.style.color,
 				titlex : labels.x,
 				titley : labels.y,
-				titlerotation : 90 - angle / angle2Raduis - rotation ,
-				titlefontfamily : labelStyle.fontFamily || options.style.fontFamily
+				titlerotation : 90 - angle / angle2Raduis - labels.rotation ,
+				titlefontfamily : labelStyle.fontFamily || chart.style.fontFamily,
+				cursor : 'default'
     		})
     		if(i == tickCount - 1){
     			label = max;
@@ -432,43 +427,34 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     			angle += tickAngleInterval;
     		}
     	}
-    	
-    	Ext.apply(options.pointer,{
+    	Ext.apply(pointer,{
 	    	center : [x,y],
 	    	start : start,
 	    	end : end,
 	    	minAngle : minAngle,
 	    	maxAngle : maxAngle,
-	    	radius : radius - options.pointer.dist
+	    	radius : radius - pointer.dist
     	});
     },
-    getTickOptions : function(options,type){
+    getTickOptions : function(border,type,dashWidth){
     	type = type ? type + 'T' :'t';
-    	var length = options[type + 'ickLength'];
-    	if(/\%/.test(length)){
-    		length = parseInt(length)/100 * options.width
-    	}
     	return {
-    		length : length,
-    		width : options[type + 'ickWidth'],
-    		color : options[type + 'ickColor']
+    		length : percent2Number(border[type + 'ickLength'],dashWidth),
+    		width : border[type + 'ickWidth'],
+    		color : border[type + 'ickColor']
     	}
     },
-    renderPointer : function(){
-    	var v = this.record.get(this.binder.name),
-    		max = this.options.max,min = this.options.min;
-    	if(/\%/.test(v)){
-    		v = (max - min) * parseInt(v)/100 + min;
-    	}
-    	var	options = this.options.pointer,
-    		labels = options.labels,
-    		style = this.options.style,
+    renderPointer : function(pointer,chart){
+    	var max = chart.max,min = chart.min,
+    		v = percent2Number(this.record.get(this.binder.name),max - min,min),
+    		labels = pointer.labels,
+    		style = chart.style,
     		labelStyle = labels.style,
-    		width = options.width,
-    		radius = options.radius,
-    		center = options.center,
-    		start = options.minAngle,
-    		end = options.maxAngle < start ? options.maxAngle + mathPI * 2 : options.maxAngle,
+    		width = pointer.width,
+    		radius = pointer.radius,
+    		center = pointer.center,
+    		start = pointer.minAngle,
+    		end = pointer.maxAngle < start ? pointer.maxAngle + mathPI * 2 : pointer.maxAngle,
     		angle = (end - start)/(max - min) * (v - min) + start,
     		_angle = angle2Raduis * 135,
     		angleL = angle + _angle,
@@ -484,14 +470,13 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     			center[0] + dist *mathCos(angleR) - x,center[1] - dist * mathSin(angleR) - y,
     			'Z'];
     	this.pointerEl = this.createGElement('path',{
-    		root : this.group.wrap,
     		d : d.join(' '),
     		x : x,
     		y : y,
-    		strokecolor : options.borderColor,
-    		strokewidth : options.borderWidth,
-    		fillcolor : options.fillColor,
-    		fillopacity : options.fillOpacity,
+    		strokecolor : pointer.borderColor,
+    		strokewidth : pointer.borderWidth,
+    		fillcolor : pointer.fillColor,
+    		fillopacity : pointer.fillOpacity,
     		title : labels.enabled?v:'',
     		titlesize : parseInt(labelStyle.fontSize || style.fontSize),
 			titlecolor : labelStyle.color || style.color,
@@ -499,26 +484,16 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 			titley : labels.y,
 			titlerotation : 90 - angle / angle2Raduis - labels.rotation,
 			titlefontfamily : labelStyle.fontFamily || style.fontFamily
-    		
-    	})
-    	this.setTopCmp(this.centerEl.wrap)
-    	this.setTopCmp(this.titleEl.wrap)
-    },
-    renderCenter : function(){
-    	var options = this.options.pointer,
-    		center = options.center,
-    		width = options.width;
-    	this.centerEl = this.createGElement('arc',{
-    		root:this.group.wrap,
+    	}).createGElement('arc',{
     		x : center[0],
     		y : center[1],
     		r : width,
     		innerR : width - 2,
-    		start : options.start,
-    		end : options.end,
+    		start : pointer.start,
+    		end : pointer.end,
     		cursor : 'default',
-    		strokecolor:options.borderColor,
-    		strokewidth:options.borderWidth
+    		strokecolor:pointer.borderColor,
+    		strokewidth:pointer.borderWidth
     	})
     },
     normalizeTickInterval : function(interval,options) {
