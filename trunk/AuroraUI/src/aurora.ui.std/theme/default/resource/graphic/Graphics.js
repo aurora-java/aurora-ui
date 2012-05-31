@@ -1463,32 +1463,34 @@ pub.Arc.processConfig = hasSVG?function (options) {
 		cosEnd = mathCos(end),
 		sinEnd = mathSin(end),
 		longArc = (end > start? end : end + 2 * mathPI) - start < mathPI ? 0 : 1;
-	options.d =  [
+	options.d = [
 		'M',
-		radius * cosStart,
-		- radius * sinStart,
+		x + radius * cosStart,
+		y - radius * sinStart,
 		'A', // arcTo
 		radius, // x radius
 		radius, // y radius
 		0, // slanting
 		longArc, // long or short arc
 		0, // clockwise
-		radius * cosEnd,
-		- radius * sinEnd,
+		x + radius * cosEnd,
+		y - radius * sinEnd,
 		open ? 'M' : 'L',
-		innerRadius * cosEnd,
-		- innerRadius * sinEnd,
+		x + innerRadius * cosEnd,
+		y - innerRadius * sinEnd,
 		'A', // arcTo
 		innerRadius, // x radius
 		innerRadius, // y radius
 		0, // slanting
 		longArc, // long or short arc
 		1, // clockwise
-		innerRadius * cosStart,
-		- innerRadius * sinStart,
+		x + innerRadius * cosStart,
+		y - innerRadius * sinStart,
 
 		open ? '' : 'Z' // close
 	].join(' ');
+	options.x = 0;
+	options.y = 0;
 }:function (options) {
 	var zoom = options.zoom || 10000,
 		x = options.x * zoom,

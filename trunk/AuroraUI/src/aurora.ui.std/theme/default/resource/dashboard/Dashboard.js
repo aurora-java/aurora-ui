@@ -96,7 +96,7 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 		board : {
 			allowDecimals : true,
 			width : '40%',
-			fillColor : 'gradient(linear,-50% 0,50% 0,color-stop(0,rgba(0,255,255,1)),color-stop(50%,rgba(255,255,0,1)),color-stop(100%,rgba(255,0,0,1)))',
+			fillColor : 'gradient(linear,0 0,100% 0,color-stop(0,rgba(0,255,255,1)),color-stop(50%,rgba(255,255,0,1)),color-stop(100%,rgba(255,0,0,1)))',
 			fillOpacity : 0.5,
 			borderColor : '#000',
 			borderWidth : 1,
@@ -289,7 +289,7 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 					_size = height * (1 - radius / endR);
 					_x='y';_y='x',_align=vAlign;
 				}
-				o[_x]  = padding + o[_x+'R'] + alignSize(_size,_align);
+				o[_x] = padding + o[_x+'R'] + alignSize(_size,_align);
 				o[_y] = padding + o[_y+'R'];
 				x = o.x + marginLeft;y = o.y + marginTop;
 			}
