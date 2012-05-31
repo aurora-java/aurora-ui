@@ -26,6 +26,8 @@ $.extend(t.Ajax.prototype,{
 		for(var key in p){
 			if(isFunction(p[key])){
 				data[key] = eval(p[key]);
+			}else{
+				data[key] = p[key];
 			}
 		}
 		this.options.data = {
