@@ -83,7 +83,7 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 		},
 		board : {
 			allowDecimals : true,
-			dashWidth : 0,
+			width : 0,
 			fillColor : 'gradient(linear,-50% 0,50% 0,color-stop(0,rgba(0,255,255,1)),color-stop(50%,rgba(255,255,0,1)),color-stop(100%,rgba(255,0,0,1)))',
 			fillOpacity : 0.5,
 			borderColor : '#000',
@@ -94,8 +94,10 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 			tickLength: '25%',
 			tickPosition : 'inside',
 			tickInterval : null,
-			tickAngleInterval : 45,
+			tickAngleInterval : 30,
 			tickWidth : 1,
+			tickStartAngle : 10,
+			tickEndAngle : -10,
 			minorTickColor: '#A0A0A0',
 			minorTickLength: 2,
 			minorTickPosition: 'inside',
@@ -104,30 +106,33 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 			marginalTickWidth : 1,
 			marginalTickColor : '#000',
 			startOntick : true,
+			endOntick : true,
 			showFirstLabel : true,
 			showLastLabel : true,
 			labels : {
 				enabled : true,
 				x : 5,
 				y : 5,
+				rotation : 0,
 				style: {
-					color: '#666',
+					color: 'rgb(0,0,214)',
 					fontSize: '11px',
 					lineHeight: '14px'
 				}
 			}
 		},
 		pointer : {
-			fillColor : 'rgba(135,135,135,0.8)',
-			fillOpacity : 1,
+			fillColor : 'rgba(135,135,135,0.3)',
+			fillOpacity : null,
 			borderColor : '#000',
 			borderWidth : 1,
 			width : 8,
 			dist : 10,
 			labels : {
 				enabled : true,
-				x : 5,
-				y : 15,
+				x : 15,
+				y : -15,
+				rotation : -90,
 				style: {
 					color: 'rgb(145,45,0)',
 					fontSize: '11px',
@@ -255,22 +260,20 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     		startA = (board.startAngle % 360 + 360) % 360,
     		endA = (board.endAngle % 360 + 360) % 360,
     		endA = endA > startA? endA : endA + 360,
+    		start = angle2Raduis * startA,
+    		end =  angle2Raduis * (endA % 360),
     		max = options.max,
     		min = options.min,
-    		dashWidth = board.dashWidth||mathMin(height,width)/4,
-    		tickAngleInterval = board.tickAngleInterval,
-    		minAngle = board.startOntick? startA : 10,
-    		interval = this.normalizeTickInterval(board.tickInterval ? board.tickInterval : (max - min) * tickAngleInterval/(endA - minAngle),board),
+    		dashWidth = board.width||mathMin(height,width)/4,
+    		tickAngleInterval = board.tickAngleInterval * angle2Raduis,
+    		minAngle = board.startOntick ? start : board.tickStartAngle * angle2Raduis + start,
+			maxAngle = board.endOntick ? end : board.tickEndAngle * angle2Raduis + end,
+    		interval = this.normalizeTickInterval(board.tickInterval ? board.tickInterval : (max - min) * tickAngleInterval/(maxAngle - minAngle),board),
+			tickAngleInterval =  (maxAngle - minAngle) * interval / (max-min),
 			tickCount = Math.ceil((max - min)/interval),
-			tickAngleInterval = (endA - minAngle) / tickCount,
-			minAngle = angle2Raduis * minAngle,
-			maxAngle = angle2Raduis * (max - min) * tickAngleInterval / interval + minAngle,
-			tickAngleInterval = angle2Raduis * tickAngleInterval,
 //    		rotate = (startA - startA % 90),
 //    		start = (startA - rotate) * mathPI /180,
 //    		end =  (startB - rotate) * mathPI /180,
-    		start = angle2Raduis * startA,
-    		end =  angle2Raduis * (endA % 360),
     		sinA = mathSin(start),
     		sinB = mathSin(end),
     		cosA = mathCos(start),
@@ -397,9 +400,10 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 			label = min,
 			labels = board.labels,
 			labelStyle = labels.style,
+			rotation = labels.rotation,
 			titleColor = labelStyle.color || options.style.color,
 			hideLabel;
-		board.dashWidth = dashWidth;
+		board.width = dashWidth;
     	for(var i = 0;i <= tickCount;i++){
     		var opt = this.getTickOptions(board,(i == 0 || i == tickCount)? 'marginal' : ''),
     			_length = opt.length,
@@ -407,7 +411,6 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     			_sinA = mathSin(angle),
     			_points = [x + radius * _cosA , y - radius * _sinA , x + (radius - _length) * _cosA , y -  (radius - _length) * _sinA];
     		hideLabel = !labels.enabled || (!board.showFirstLabel && i == 0)||(!board.showLastLabel && i == tickCount)
-    		alert(angle == start)
     		this.createGElement('line',{
     			root : this.group.wrap,
 				points : _points.join(" "),
@@ -418,7 +421,7 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 				titlecolor : labelStyle.color || options.style.color,
 				titlex : labels.x,
 				titley : labels.y,
-				titlerotation : 90 - angle / angle2Raduis,
+				titlerotation : 90 - angle / angle2Raduis - rotation ,
 				titlefontfamily : labelStyle.fontFamily || options.style.fontFamily
     		})
     		if(i == tickCount - 1){
@@ -443,7 +446,7 @@ $A.Dashboard = Ext.extend($A.Graphics,{
     	type = type ? type + 'T' :'t';
     	var length = options[type + 'ickLength'];
     	if(/\%/.test(length)){
-    		length = parseInt(length)/100 * options.dashWidth
+    		length = parseInt(length)/100 * options.width
     	}
     	return {
     		length : length,
@@ -494,7 +497,7 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 			titlecolor : labelStyle.color || style.color,
 			titlex : labels.x,
 			titley : labels.y,
-			titlerotation : 90 - angle / angle2Raduis,
+			titlerotation : 90 - angle / angle2Raduis - labels.rotation,
 			titlefontfamily : labelStyle.fontFamily || style.fontFamily
     		
     	})

@@ -161,8 +161,8 @@ var DOC=document,
 		}
 		
 		function setOpacity(alpha) {
-			if(input == 'transparent' || rgba == NONE)return this;
-			rgba[3] = alpha || 1;
+			if(input == 'transparent' || rgba == NONE || Ext.isEmpty(alpha))return this;
+			rgba[3] = alpha;
 			return this;
 		}
 	
