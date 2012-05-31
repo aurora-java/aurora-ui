@@ -677,6 +677,7 @@ $A.SideBar = function(){
             }
         },
         hide : function(){
+            if(!this.enable)return;
         	if(parent.hideSideBar){
                 parent.hideSideBar()
             }else{
@@ -706,6 +707,7 @@ $A.Status = function(){
         	}
         },
         hide : function(){
+            if(!this.enable)return;
         	if(parent.hideStatus){
                 parent.hideStatus();
         	}else{
