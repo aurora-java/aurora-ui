@@ -35,6 +35,34 @@ button.green {
     border-bottom: 1px solid #5b992b;
     text-shadow: 0 -1px 0 #4c9021;
 }
+button.red { 
+    color: #fff;
+    background-color: #7fbf4d;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ED3131), color-stop(100%, #990A0A));
+    border: 1px solid #7C170A;
+    text-shadow: 0 -1px 0 #4c9021;
+}
+button.blue {
+    color: #fff;
+    background-color: #7fbf4d;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4785B9), color-stop(100%, #19578A));
+    border: 1px solid #333;
+    text-shadow: 0 -1px 0 #4c9021;
+}
+button.gray {
+    color: #333;
+    background-color: #7fbf4d;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ECECEC), color-stop(100%, #CDCDCD));
+    border: 1px solid #999;
+    text-shadow: 0 1px rgba(255, 255, 255, .5);
+}
+button.black {
+    color: #fff;
+    background-color: #7fbf4d;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #999), color-stop(100%, #2F2F2F));
+    border: 1px solid #000;
+    text-shadow:none;
+}
 div.field {
     font-size:16px; 
     line-height:34px;
