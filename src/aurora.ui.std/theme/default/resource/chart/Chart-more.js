@@ -166,7 +166,7 @@ var radialAxisMixin = {
 		var center = this.center;
 		
 		radius = pick(radius, center[2] / 2 - this.offset);
-		
+		if(radius === 0  && $A.Charts.VMLRenderer)radius = 1;
 		return this.chart.renderer.symbols.arc(
 			this.left + center[0],
 			this.top + center[1],
