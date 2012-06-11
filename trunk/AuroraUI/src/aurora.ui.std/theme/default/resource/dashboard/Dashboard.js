@@ -97,7 +97,7 @@ $A.Dashboard = Ext.extend($A.Graphics,{
 			allowDecimals : true,
 			width : '40%',
 			fillColor : 'gradient(linear,0 0,100% 0,color-stop(0,rgba(0,255,255,1)),color-stop(50%,rgba(255,255,0,1)),color-stop(100%,rgba(255,0,0,1)))',
-			fillOpacity : 0.5,
+			fillOpacity : null,
 			borderColor : '#000',
 			borderWidth : 1,
 			startAngle : 0,
