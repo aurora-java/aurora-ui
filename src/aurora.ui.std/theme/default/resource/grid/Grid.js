@@ -1594,10 +1594,12 @@ $A.Grid = Ext.extend($A.Component,{
                 this.setCheckBoxStatus(cb, !checked);
                 var _atype = cb.getAttributeNS("","atype");
                 if(_atype=='export.headcheck'){
-                	var cbs = this.exportwindow.body.query('td[atype=export.rowcheck] div[atype!=export.headcheck]');
+                	var cbs = this.exportwindow.body.query('td[atype=export.rowcheck] div[atype!=export.headcheck]'),
+                		c = this.columns[0],
+                		che = c.type != 'rowcheck' && c.type!= 'rowradio' ? 0 : 1;
 	            	for(var i = 0,l=cbs.length;i<l;i++){
 	            		this.setCheckBoxStatus(Ext.fly(cbs[i]), !checked);
-	            		this.columns[i].forexport = !checked;
+	            		this.columns[i+che].forexport = !checked;
 	            	}
                 }else
                 	this.columns[rid].forexport = !checked;
@@ -1606,57 +1608,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     doExport : function(){
     	this.initColumnPrompt();
-    	var p={"parameter":{"_column_config_":{}}},columns=[],parentMap={},sf = this,
-    	_parentColumn=function(pcl,cl){
-    		if(!(Ext.isDefined(pcl.forexport)?pcl.forexport:true))return null;
-    		var json=Ext.encode(pcl);
-    		var c=parentMap[json];
-    		if(!c)c={prompt:pcl.prompt};
-    		parentMap[json]=c;
-    		(c["column"]=c["column"]||[]).add(cl);
-    		if(pcl._parent){
-    			return _parentColumn(pcl._parent,c)
-    		}
-    		return c;
-    	};
-    	for(var i=0;i<sf.columns.length;i++){
-    		var column=sf.columns[i],forExport=Ext.isDefined(column.forexport)?column.forexport:true;
-    		if(column.type != 'rowcheck' && column.type!= 'rowradio'&&forExport){
-    			var c={prompt:column.prompt}
-    			if(column.width)c.width=column.width;
-    			if(column.name)c.name=column.exportfield||column.name;
-    			c.align=column.align||"left";
-    			var o=column._parent?_parentColumn(column._parent,c):c;
-	    		if(o)columns.add(o);
-    		}
-    	}
-    	p["parameter"]["_column_config_"]["column"]=columns;
-    	p["_generate_state"]=true;
-    	p["_format"]="xls";
-    	var r,q = {};
-    	if(sf.dataset.qds)r = sf.dataset.qds.getCurrentRecord();
-    	if(r) Ext.apply(q, r.data);
-    	Ext.apply(q, sf.dataset.qpara);
-    	for(var k in q){
-    	   var v = q[k];
-    	   if(Ext.isEmpty(v,false)) delete q[k];
-    	}
-    	Ext.apply(p.parameter,q)
-		var form = document.createElement("form");
-		form.target = "_export_window";
-		form.method="post";
-		var url = sf.dataset.queryurl;
-		if(url)form.action = url + (url.indexOf('?') == -1 ? '?' : '&')+'r='+Math.random();
-		var iframe = Ext.get('_export_window')||new Ext.Template('<iframe id ="_export_window" name="_export_window" style="position:absolute;left:-1000px;top:-1000px;width:1px;height:1px;display:none"></iframe>').insertFirst(document.body,{},true)
-		var s = document.createElement("input");
-		s.id = "_request_data";
-		s.type = 'hidden';
-		s.name = '_request_data';
-       	s.value = Ext.encode(p);
-       	form.appendChild(s);
-       	document.body.appendChild(form);
-       	form.submit();
-       	Ext.fly(form).remove();	
+    	$A.doExport(this.dataset,this.columns)
     },
     destroy: function(){
         $A.Grid.superclass.destroy.call(this);

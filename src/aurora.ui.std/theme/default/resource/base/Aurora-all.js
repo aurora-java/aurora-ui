@@ -1382,6 +1382,58 @@ $A.escapeHtml = function(str){
 	return String(str).replace(/&/gm,'&amp;')
 	.replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
 }
+$A.doExport=function(dataset,cols){
+	var p={"parameter":{"_column_config_":{}}},columns=[],parentMap={},
+    	_parentColumn=function(pcl,cl){
+    		if(!(Ext.isDefined(pcl.forexport)?pcl.forexport:true))return null;
+    		var json=Ext.encode(pcl);
+    		var c=parentMap[json];
+    		if(!c)c={prompt:pcl.prompt};
+    		parentMap[json]=c;
+    		(c["column"]=c["column"]||[]).add(cl);
+    		if(pcl._parent){
+    			return _parentColumn(pcl._parent,c)
+    		}
+    		return c;
+    	};
+    	for(var i=0;i<cols.length;i++){
+    		var column=cols[i],forExport=Ext.isDefined(column.forexport)?column.forexport:true;
+    		if(column.type != 'rowcheck' && column.type!= 'rowradio'&&forExport){
+    			var c={prompt:column.prompt}
+    			if(column.width)c.width=column.width;
+    			if(column.name)c.name=column.exportfield||column.name;
+    			c.align=column.align||"left";
+    			var o=column._parent?_parentColumn(column._parent,c):c;
+	    		if(o)columns.add(o);
+    		}
+    	}
+    	p["parameter"]["_column_config_"]["column"]=columns;
+    	p["_generate_state"]=true;
+    	p["_format"]="xls";
+    	var r,q = {};
+    	if(dataset.qds)r = dataset.qds.getCurrentRecord();
+    	if(r) Ext.apply(q, r.data);
+    	Ext.apply(q, dataset.qpara);
+    	for(var k in q){
+    	   if(Ext.isEmpty(q[k],false)) delete q[k];
+    	}
+    	Ext.apply(p.parameter,q)
+		var form = document.createElement("form");
+		form.target = "_export_window";
+		form.method="post";
+		var url = dataset.queryurl;
+		if(url)form.action = url + (url.indexOf('?') == -1 ? '?' : '&')+'r='+Math.random();
+		var iframe = Ext.get('_export_window')||new Ext.Template('<iframe id ="_export_window" name="_export_window" style="position:absolute;left:-1000px;top:-1000px;width:1px;height:1px;display:none"></iframe>').insertFirst(document.body,{},true)
+		var s = document.createElement("input");
+		s.id = "_request_data";
+		s.type = 'hidden';
+		s.name = '_request_data';
+       	s.value = Ext.encode(p);
+       	form.appendChild(s);
+       	document.body.appendChild(form);
+       	form.submit();
+       	Ext.fly(form).remove();	
+}
 /**
  * @class Aurora.DataSet
  * @extends Ext.util.Observable
