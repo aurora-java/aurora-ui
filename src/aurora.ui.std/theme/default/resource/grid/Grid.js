@@ -1365,7 +1365,9 @@ $A.Grid = Ext.extend($A.Component,{
                     
                 }
             }
-            c.lock !== true ? (uw += c.width) : (lw += c.width);
+            if(c.hidden !== true){
+            	c.lock !== true ? (uw += c.width) : (lw += c.width);
+            }
         }
         var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
         for(var i=0,l=tds.length;i<l;i++){
@@ -1457,8 +1459,8 @@ $A.Grid = Ext.extend($A.Component,{
         if(col){
             if(col.hidden === true){
                 delete col.hidden;
-                this.setColumnSize(name, col.hiddenWidth);
-                delete col.hiddenWidth;
+                this.setColumnSize(name, col.hiddenwidth||col.width);
+                delete col.hiddenwidth;
 //              if(!Ext.isIE){
                     var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
                     for(var i=0,l=tds.length;i<l;i++){
@@ -1478,7 +1480,7 @@ $A.Grid = Ext.extend($A.Component,{
         var col = this.findColByName(name);
         if(col){
             if(col.hidden !== true){
-                col.hiddenWidth = col.width;
+                col.hiddenwidth = col.width;
                 this.setColumnSize(name, 0, false);
 //              if(!Ext.isIE){
                     var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
