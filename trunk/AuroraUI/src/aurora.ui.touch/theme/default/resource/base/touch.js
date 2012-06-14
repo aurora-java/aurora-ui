@@ -69,7 +69,17 @@ $.extend(T.Ajax.prototype,{
 	options : {
 	  type: 'POST',
 	  dataType: 'json',
-	  timeout: T.Ajax.timeout
+	  timeout: T.Ajax.timeout,
+	  parameters : {}
+	},
+	addParameter : function(key,value){
+		this.options.parameters[key]={'value':value}
+	},
+	removeParameter : function(key){
+		delete this.options.parameters[key];
+	},
+	setUrl : function(url){
+		this.options.url = url;
 	},
 	request : function(){
 		var data = {},p = this.options.parameters;
