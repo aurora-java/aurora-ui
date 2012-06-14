@@ -117,44 +117,9 @@ textarea.textarea {
 	text-align: center;
 	-webkit-user-select:none;
 }
-.datefield-head{
-	height: 40px;
-	background:-webkit-gradient(linear,left top,left bottom,from(#F04343),to(#B40E0E))
-}
-.datefield-date{
-	margin-left:5px;
-	margin-top:5px;
-	float: left;
-}
-
-.datefield-date button{
-	float: left;
-	height: 0;
-	width: 0;
-	background-color: transparent;
-	padding:0;
-	border-bottom:15px solid transparent;
-	border-top:15px solid transparent;
-}
-.datefield-date div {
-	color: #fff;
-	font-size: 22px;
-	float: left;
-	line-height: 30px;
-	margin-left:15px;
-	margin-right: 15px;
-}
-.datefield-date button.pre{
-	border-right:30px solid #fff;
-	border-left:0;
-}
-.datefield-date button.next{
-	border-left:30px solid #fff;
-	border-right:0;
-}
 .datefield-scroller{
 	position: absolute;
-	top : 40px;
+	top : 0;
 	bottom : 0;
 	border-right:1px solid #000; 
 }
@@ -173,20 +138,6 @@ textarea.textarea {
 .datefield-view thead tr{
 	background-color: black;
 	color:#fff;
-}
-.datefield-drag-board{
-	position:absolute;
-	background-color:#fff;
-	-webkit-box-shadow:3px 3px 5px #333;
-	box-shadow:3px 3px 5px #333;
-	-webkit-user-select:none;
-}
-.datefield-drop-area{
-	position:absolute;
-	bottom : 0;
-	left : 0;
-	right : 0;
-	border-top: 4px solid rgb(255,0,0) 
 }
 .week-alt {
 	background-color: #F3F3ED;

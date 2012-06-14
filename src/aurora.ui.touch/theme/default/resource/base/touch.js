@@ -6,10 +6,7 @@ var Touch = {};
 		MOVE_EV = hasTouch ? 'touchmove' : 'mousemove',
 		END_EV = hasTouch ? 'touchend' : 'mouseup',
 		CANCEL_EV = hasTouch ? 'touchcancel' : 'mouseup',
-		PX = 'px',
-		plus0 = function(n){
-			return (String(n).length == 1? '0':'') + n;
-		};
+		PX = 'px',_ = '#';
 $.isEmpty = function(v, allowBlank){
     return v === null || v === undefined || (($.isArray(v) && !v.length)) || (!allowBlank ? v === '' : false);
 }
@@ -78,7 +75,7 @@ $.extend(T.Ajax.prototype,{
 		var data = {},p = this.options.parameters;
 		for(var key in p){
 			var v = p[key],bind = v.bind;
-			data[key] = bind?$('#'+bind).val():v.value;
+			data[key] = bind?$(_+bind).val():v.value;
 		}
 		this.options.data = {
 			_request_data: JSON.stringify({
@@ -96,9 +93,10 @@ T.DateField = function(config){
 		year = config.year || now.getFullYear(),
 		month = config.month || now.getMonth() + 1;
 	this.defaultDate = new Date(year,month - 1);
-	this.wrap = $('#' + config.id);
+	this.wrap = $(_ + config.id);
 	this.initComponent();
-	this.reflashHead();
+	this.processListener('on');
+	this.buildViews();
 }
 $.extend(T.DateField.prototype,{
 	initComponent : function(){
@@ -136,7 +134,9 @@ $.extend(T.DateField.prototype,{
 				sf.reflashHead();
 			}
 		 });
-		this.buildViews();
+	},
+	processListener : function(ou){
+		if(this.listeners)this.wrap[ou](this.listeners);
 	},
 	reViews : function(){
 		var iscroll = this.iscroll,
@@ -178,7 +178,7 @@ $.extend(T.DateField.prototype,{
 		this.goToDate(d);
 	},
 	reflashHead : function(){
-		this.title.text(this.date.getFullYear() + '-' + plus0(this.date.getMonth() + 1));
+		this.wrap.trigger('refresh',this.date);
 	},
 	preMonth : function(){
 		this.goToDate(new Date(this.date.getFullYear(),this.date.getMonth() - 1),200);
@@ -282,7 +282,7 @@ T.SwitchButton = function(config){
 	cmpCache[config.id] = this;
 	var opt = this.options;
 	$.extend(opt , config);
-	this.wrap = $('#' + config.id);
+	this.wrap = $(_ + config.id);
 	opt.defaultvalue = opt.defaultstatus == 'off'? opt.offvalue : opt.onvalue;
 	this.wrap.val(config.value || opt.defaultvalue);
 	this.initComponent();
