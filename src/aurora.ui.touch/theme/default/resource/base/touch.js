@@ -121,7 +121,7 @@ $.extend(T.DateField.prototype,{
 				}else if(isClick){
 					var el = $(e.target),
 					d = el.attr('_date')||((el = el.parent('[_date]')).length && el.attr('_date'));
-					sf.wrap.trigger('itemclick',new Date(Number(d)));
+					if(d)sf.wrap.trigger('itemclick',new Date(Number(d)));
 				}
 				isClick = false;
 			},
