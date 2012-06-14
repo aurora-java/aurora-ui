@@ -1,0 +1,13 @@
+<div ${id} class="${cls}" ${style}>
+	<table cellspacing="0">
+		<tr>
+			<td class="switch-left">${on}</td>
+			<td class="switch-right">${off}</td>
+		</tr>
+	</table>
+	<div class="switch-btn">:::</div>
+</div>
+<script>
+	new Touch.SwitchButton(${config});
+</script>
+${events}
