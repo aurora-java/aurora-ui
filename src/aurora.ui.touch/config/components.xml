@@ -4,6 +4,8 @@
         <view-component elementName="textField" category="Field" description="文本组件" nameSpace="http://www.aurora-framework.org/touch" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="passWord" category="Field" description="密码组件" nameSpace="http://www.aurora-framework.org/touch" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="textArea" category="Field" description="TextArea" nameSpace="http://www.aurora-framework.org/touch" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="dateField" category="Field" description="日历组件" nameSpace="http://www.aurora-framework.org/touch" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="ajax" category="Other" description="Ajax对象" nameSpace="http://www.aurora-framework.org/touch" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="switchButton" category="Button" description="开关" nameSpace="http://www.aurora-framework.org/touch" builder="aurora.presentation.TemplateBasedView" />
 	</components>
 </package>

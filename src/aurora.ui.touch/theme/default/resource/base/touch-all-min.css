@@ -112,3 +112,158 @@ textarea.textarea {
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
 }
+.datefield{
+	overflow: hidden;
+	text-align: center;
+	-webkit-user-select:none;
+}
+.datefield-head{
+	height: 40px;
+	background:-webkit-gradient(linear,left top,left bottom,from(#F04343),to(#B40E0E))
+}
+.datefield-date{
+	margin-left:5px;
+	margin-top:5px;
+	float: left;
+}
+
+.datefield-date button{
+	float: left;
+	height: 0;
+	width: 0;
+	background-color: transparent;
+	padding:0;
+	border-bottom:15px solid transparent;
+	border-top:15px solid transparent;
+}
+.datefield-date div {
+	color: #fff;
+	font-size: 22px;
+	float: left;
+	line-height: 30px;
+	margin-left:15px;
+	margin-right: 15px;
+}
+.datefield-date button.pre{
+	border-right:30px solid #fff;
+	border-left:0;
+}
+.datefield-date button.next{
+	border-left:30px solid #fff;
+	border-right:0;
+}
+.datefield-scroller{
+	position: absolute;
+	top : 40px;
+	bottom : 0;
+	border-right:1px solid #000; 
+}
+.datefield-scroller table{
+	border-left: 1px solid #000;
+	background-color: #fff
+}
+.datefield-scroller table td{
+	border-left: 1px solid #ccc;	
+}
+.datefield-view{
+	height: 100%;
+	float : left;
+}
+
+.datefield-view thead tr{
+	background-color: black;
+	color:#fff;
+}
+.datefield-drag-board{
+	position:absolute;
+	background-color:#fff;
+	-webkit-box-shadow:3px 3px 5px #333;
+	box-shadow:3px 3px 5px #333;
+	-webkit-user-select:none;
+}
+.datefield-drop-area{
+	position:absolute;
+	bottom : 0;
+	left : 0;
+	right : 0;
+	border-top: 4px solid rgb(255,0,0) 
+}
+.week-alt {
+	background-color: #F3F3ED;
+}
+.touch-mask div {
+    width:100%;
+    height:100%;
+    filter: alpha(opacity=20);
+    background-color: #000000;
+    opacity: 0.2; 
+    MozOpacity: 0.2
+}
+.touch-mask span {
+	background:url(wait.gif) no-repeat 5px 50%;
+    background-image: url(wait.gif);
+    padding-left:30px;
+    padding-right:15px;
+    border:1px solid #808080;
+    position: absolute;
+    background-color:#fff;
+    line-height:28px;
+    height:30px;    
+}
+
+.switch-button {
+	position:relative;
+	background-color: #F4F4F4;
+	border: 1px solid #A4A4A4;
+	height: 28px;
+	line-height: 18px;
+	-moz-box-shadow: 0 1px 3px #c8c8c8 inset;
+	-webkit-box-shadow: 0 1px 3px #c8c8c8 inset;
+	box-shadow: 0 1px 3px #c8c8c8 inset;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	margin: 2px 0 2px 0;
+	overflow: hidden;
+	vertical-align: middle;
+}
+.switch-button table{
+	width: 100%;
+	height: 100%;
+	border-radius: 5px;
+}
+.switch-left,.switch-right{
+	width:50%;
+	height:100%;
+	padding: 0 5px 0 5px;
+	font-weight: bold;
+	cursor: default;
+}
+.switch-left{
+	text-align: left;
+	color: #fff;
+	background-color: rgb(255,155,0);
+	border-radius: 5px;
+}
+.switch-right{
+	text-align: right;
+	color: #A4A4A4;	
+}
+.switch-btn{
+	position: absolute;
+	left: 0;
+	top: -1px;
+	height: 100%;
+	width: 60%;
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fff), color-stop(100%, #ccc));
+	border: 1px solid #A4A4A4;
+	border-radius: 5px;
+	text-align: center;
+	color: #aaa;
+	font-size: 22px;
+	line-height: 22px;
+	cursor: pointer;
+	-moz-box-shadow: 1px 1px 3px #c8c8c8;
+	-webkit-box-shadow: 1px 1px 3px #c8c8c8;
+	box-shadow: 1px 1px 3px #c8c8c8;
+}
