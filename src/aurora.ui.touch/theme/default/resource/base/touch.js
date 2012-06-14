@@ -21,7 +21,7 @@ T.Masker = function(){
 				w = el.width(),
 				h = el.height(),
 				spanHtml = msg?'<span style="top:'+(h/2-11)+PX+'">'+msg+'</span>':'',
-				masker = container[el];
+				masker = container[el.selector];
 			if(masker){
 				var sp = masker.children('span');
 				if(msg){
@@ -33,7 +33,7 @@ T.Masker = function(){
 					sp.remove();
 				}
         	}else {
-	        	var wrap = el,//.parent('body')?el.parent():el,
+	        	var wrap = el.parent('body')?el.parent():el,
 //	        		zi = el.css('z-index') == 'auto' ? 0 : el.css('z-index'),
 	        		offset = el.offset(),
 	        		p = ['<div class="touch-mask"  style="left:-1000',PX,';top:-1000',PX,';width:',w,PX,';height:',h,PX,';position: absolute;"><div unselectable="on"></div>'];
@@ -44,17 +44,17 @@ T.Masker = function(){
 //						'z-index': zi + 1,
 						'left':offset.left + PX,'top': offset.top + PX}),
 	            	sp = masker.children('span');
-	            container[el] = masker;
+	            container[el.selector] = masker;
         	}
         	sp.css('left',(w - sp.width() - 45)/2 + PX);
 		},
 		unmask : function(el){
 			var el = $(el),
-				masker = container[el];
+				masker = container[el.selector];
             if(masker) {
                 masker.remove();
-                container[el] = null;
-                delete container[el];
+                container[el.selector] = null;
+                delete container[el.selector];
             }
 		}
 	}
@@ -121,6 +121,9 @@ $.extend(T.DateField.prototype,{
 			snap: true,
 			momentum: false,
 			hScrollbar: false,
+			onScrollStart : function(){
+				sf.wrap.trigger('scrollstart');	
+			},
 			onBeforeScrollStart : function(e){
 				isClick = true;
 			},
@@ -202,6 +205,16 @@ $.extend(T.DateField.prototype,{
 		if(this.views[date]){
 			this.iscroll.scrollToPage(this.months.indexOf(date.getTime()),null,duration||0);
 		}else this.buildViews(date);
+	},
+	redraw : function(data){
+		var view = this.views[this.date];
+		view.data = data;
+		view.isAjax = !!data;
+		view.draw();
+	},
+	isAjax : function(date){
+		var view = this.views[date];
+		return !!view && view.isAjax;
 	}
 })
 
@@ -220,7 +233,7 @@ $.extend(T.DateField.View.prototype,{
 	},
 	draw : function(){
 		//用来保存日期列表
-		var arr = [],date = this.date,year=date.getFullYear(),month=date.getMonth()+1
+		var arr = [],date = this.date,year=date.getFullYear(),month=date.getMonth()+1,that = this.options
 //		,hour=date.getHours(),minute=date.getMinutes(),second=date.getSeconds();
 		//用当月第一天在一周中的日期值作为当月离第一天的天数,用上个月的最后天数补齐
 		for(var i = 1, firstDay = new Date(year, month - 1, 1).getDay(),lastDay = new Date(year, month - 1, 0).getDate(); i <= firstDay; i++){ 
@@ -261,9 +274,10 @@ $.extend(T.DateField.View.prototype,{
 						cell.attr({'c_index':i-1});
 //						cell.addClass(date.getMonth()==d.getMonth()?"item-day":"item-day item-day-besides");
 						var weekday = d.getDay(),
-							thisdate = d.getDate();
+							thisdate = d.getDate(),
+							renderer = that.dayrenderer;
 						if(weekday == 0 || weekday == 6)thisdate = '<span style="color:red">'+thisdate+'</span>';
-						cell.html(thisdate);
+						cell.html(renderer && renderer.call(that,cell,d,thisdate,this.data)|| thisdate);
 //						cell.update(this.renderCell(cell,d,d.getDate(),month)||d.getDate());
 //						if(cell.disabled){
 //							cell.attr({'_date':'0'});
