@@ -1,1 +1,2 @@
 <textarea rows="${rows}" ${id} class="${cls}" ${style} ${placeholder} ${required} ></textarea>
+${events}

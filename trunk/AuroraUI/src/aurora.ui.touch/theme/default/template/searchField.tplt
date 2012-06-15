@@ -1,0 +1,2 @@
+<input type="search" ${id} class="${cls}" ${style} ${placeholder} ${required} value="${value}"/>
+${events}
