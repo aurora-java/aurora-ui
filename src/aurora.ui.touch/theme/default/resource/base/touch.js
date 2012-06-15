@@ -405,4 +405,96 @@ $.extend(T.SwitchButton.prototype,{
 		this[this.status?'off':'on']();
 	}
 });
+
+/** Touch.List **/
+t.List = function(config){
+    var bid  = config.bind;
+    this.id = config.id;
+    this.renderer = config.renderer;
+    this.total = 0;
+    this.pageSize = config.size||10;
+    this.currentPage = 1;
+    var ax = t.get(bid);
+    this.ajax = ax;
+    cmpCache[config.id] = this;
+    var sf = this;
+    $(document).on('ajaxSuccess', function(e, xhr, options){
+        if(xhr == ax.xhr){
+            var data = JSON.parse(xhr.responseText);
+            if(data && data.success){
+                sf.total = data.result.totalCount || 0;
+                sf.totalPage = Math.ceil(sf.total/sf.pageSize) || 0;
+                if(data.result.totalCount > 0 ){
+                    var ls = ['<ul>'];
+                    var records = [].concat(data.result.record);
+                    var rc = window[sf.renderer];
+                    for(var i=0;i<records.length;i++){
+                        var record = records[i];
+                        ls[ls.length] = '<li>';
+                        if(rc){
+                            ls[ls.length] = rc.call(window,record); 
+                        }else{
+                            ls[ls.length] = record;
+                        }
+                        ls[ls.length] = '</li>'
+                    }
+                    ls[ls.length] = '</ul>'
+                    if(config.showpagebar){
+                        var bar = ['<table width="100%" border="0" cellspacing="3">',
+                                '<tr>',
+                                    '<td width="40%">',
+                                        '<button type="button" id="'+config.id+'_pre" class="btn gray" style="float:right;font-size:16px;height:30px;">上一页</button>',
+                                    '</td>',
+                                    '<td width="20%" id="'+config.id+'_info" style="text-align:center;font-size:16px;">'+sf.currentPage+'/'+sf.totalPage+'</td>',
+                                    '<td width="40%">',                                                
+                                        '<button type="button" id="'+config.id+'_next" class="btn gray" style="float:right;font-size:16px;height:30px;">下一页</button>',
+                                    '</td>',
+                                '</tr>',
+                            '</table>'];
+                            ls[ls.length] = bar.join('');
+                    }
+                    
+                    $('#'+config.id).html(ls.join(''));
+                    $('#'+config.id+'_pre').on("click",function(){Touch.get(config.id).pre()});
+                    $('#'+config.id+'_next').on("click",function(){Touch.get(config.id).next()});
+                }else {
+                    $('#'+config.id).html('未找到任何数据!');
+                }
+                if(config.callback) window[config.callback].call(window);
+                
+            }
+        }
+    })
+    
+    this.url = this.ajax.options.url;
+    this.prefix = this.url.indexOf('?') == -1 ? '?' : '&' 
+    this.ajax.options.url = this.url + this.prefix + 'pagenum=' + this.currentPage + '&pagesize='+this.pageSize;
+    this.ajax.request();    
+}
+$.extend(t.List.prototype,{
+    loading: function(){
+        $('#'+this.id).html('正在查询...');
+    },
+    query:function(){
+        this.loading();
+        this.currentPage = 1;
+        this.ajax.options.url = this.url + this.prefix + 'pagenum=' + this.currentPage + '&pagesize='+this.pageSize;
+        this.ajax.request();    
+    },
+    pre:function(){
+        this.loading();
+        if(this.currentPage -1 <=0)return;
+        this.currentPage--;
+        this.ajax.options.url = this.url + this.prefix + 'pagenum=' + this.currentPage + '&pagesize='+this.pageSize;
+        this.ajax.request();    
+    },
+    next:function(){
+        this.loading();
+        if(this.currentPage+1> this.totalPage)return;
+        this.currentPage++;
+        this.ajax.options.url = this.url + this.prefix + 'pagenum=' + this.currentPage + '&pagesize='+this.pageSize;
+        this.ajax.request(); 
+    }
+})
+
 })(Touch)
