@@ -407,14 +407,14 @@ $.extend(T.SwitchButton.prototype,{
 });
 
 /** Touch.List **/
-t.List = function(config){
+T.List = function(config){
     var bid  = config.bind;
     this.id = config.id;
     this.renderer = config.renderer;
     this.total = 0;
     this.pageSize = config.size||10;
     this.currentPage = 1;
-    var ax = t.get(bid);
+    var ax = T.get(bid);
     this.ajax = ax;
     cmpCache[config.id] = this;
     var sf = this;
@@ -471,7 +471,7 @@ t.List = function(config){
     this.ajax.options.url = this.url + this.prefix + 'pagenum=' + this.currentPage + '&pagesize='+this.pageSize;
     this.ajax.request();    
 }
-$.extend(t.List.prototype,{
+$.extend(T.List.prototype,{
     loading: function(){
         $('#'+this.id).html('正在查询...');
     },
