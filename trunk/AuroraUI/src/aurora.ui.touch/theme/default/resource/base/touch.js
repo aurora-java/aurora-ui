@@ -6,7 +6,19 @@ var Touch = {};
 		MOVE_EV = hasTouch ? 'touchmove' : 'mousemove',
 		END_EV = hasTouch ? 'touchend' : 'mouseup',
 		CANCEL_EV = hasTouch ? 'touchcancel' : 'mouseup',
-		PX = 'px',_ = '#';
+		PX = 'px',_ = '#',
+		funpro = Function.prototype,
+		slice = Array.prototype.slice;
+if(!funpro.bind){
+	funpro.bind = function(context){
+		if (arguments.length < 2 && arguments[0] === undefined) return this;
+		var __method = this, args = slice.call(arguments, 1);
+		return function() {
+			var a = args.concat(slice.call(arguments,0));
+			return __method.apply(context, a);
+		}
+	}
+}
 $.isEmpty = function(v, allowBlank){
     return v === null || v === undefined || (($.isArray(v) && !v.length)) || (!allowBlank ? v === '' : false);
 }
@@ -53,7 +65,7 @@ T.Masker = function(){
             	sp = masker.children('span');
 	            container[el.selector] = masker;
         	}
-        	sp.css({'left':(w - sp.width() - 45)/2 + PX,'top':masker.height()/2 - 11 + PX});
+        	sp.css({'left':(w - sp.width())/2 + PX,'top':masker.height()/2 - 11 + PX});
 		},
 		unmask : function(el){
 			var el = $(el),
@@ -350,7 +362,7 @@ $.extend(T.SwitchButton.prototype,{
 	},
 	processListener : function(){
 		var touch = {},
-			_start = function(e){	
+			_start = function(e){
 				touch.x = (hasTouch?e.touches[0]:e).pageX;
 				touch.startX = this.x;
 				$(document).on(MOVE_EV,_move);
