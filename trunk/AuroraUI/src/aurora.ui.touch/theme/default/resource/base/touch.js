@@ -20,10 +20,10 @@ T.Masker = function(){
 			var el = $(el),
 				w = el.width(),
 				h = el.height(),
-				spanHtml = msg?'<span style="top:'+(h/2-11)+PX+'">'+msg+'</span>':'',
-				masker = container[el.selector];
+				spanHtml = msg?'<span>'+msg+'</span>':'',
+				masker = container[el.selector],sp;
 			if(masker){
-				var sp = masker.children('span');
+				sp = masker.children('span');
 				if(msg){
 					if(!sp || !sp.length){
 						sp = $(spanHtml).appendTo(masker);
@@ -33,20 +33,27 @@ T.Masker = function(){
 					sp.remove();
 				}
         	}else {
-	        	var wrap = el.parent('body')?el.parent():el,
-//	        		zi = el.css('z-index') == 'auto' ? 0 : el.css('z-index'),
+	        	var isBody = !el.parent('body').length,
+	        		wrap = isBody?el:el.parent(),
 	        		offset = el.offset(),
-	        		p = ['<div class="touch-mask"  style="left:-1000',PX,';top:-1000',PX,';width:',w,PX,';height:',h,PX,';position: absolute;"><div unselectable="on"></div>'];
+	        		opt = {'z-index': el.css('z-index') == 'auto' ? 0 : el.css('z-index') + 1},
+	        		p = ['<div class="touch-mask"  style="position: absolute;"><div unselectable="on"></div>'];
 	    		if(msg)p.push(spanHtml);
 	    		p.push('</div>');
+    			$.extend(opt,isBody?{
+    				'top':0,'bottom':0,'left':0,'right':0
+    			}:{
+    				'top':offset.top + PX,
+    				'left':offset.left + PX,
+    				'width':w + PX,
+    				'height':h + PX
+    			})
 	    		masker = $(p.join('')).appendTo(wrap)
-					.css({
-//						'z-index': zi + 1,
-						'left':offset.left + PX,'top': offset.top + PX}),
-	            	sp = masker.children('span');
+					.css(opt);
+            	sp = masker.children('span');
 	            container[el.selector] = masker;
         	}
-        	sp.css('left',(w - sp.width() - 45)/2 + PX);
+        	sp.css({'left':(w - sp.width() - 45)/2 + PX,'top':masker.height()/2 - 11 + PX});
 		},
 		unmask : function(el){
 			var el = $(el),
@@ -73,13 +80,21 @@ $.extend(T.Ajax.prototype,{
 	  parameters : {}
 	},
 	addParameter : function(key,value){
-		this.options.parameters[key]={'value':value}
+		if($.isObject(key)){
+			for(var c in key){
+				this.addParameter(c,key[c]);
+			}
+		}else
+			this.options.parameters[key]={'value':value};
+		return this;
 	},
 	removeParameter : function(key){
 		delete this.options.parameters[key];
+		return this;
 	},
 	setUrl : function(url){
 		this.options.url = url;
+		return this;
 	},
 	request : function(){
 		var data = {},p = this.options.parameters;
@@ -92,7 +107,8 @@ $.extend(T.Ajax.prototype,{
 				'parameter': data
 			})
 		}
-		$.ajax(this.options)
+		$.ajax(this.options);
+		return this;
 	}
 })
 
