@@ -469,7 +469,9 @@ T.List = function(config){
     this.url = this.ajax.options.url;
     this.prefix = this.url.indexOf('?') == -1 ? '?' : '&' 
     this.ajax.options.url = this.url + this.prefix + 'pagenum=' + this.currentPage + '&pagesize='+this.pageSize;
-    this.ajax.request();    
+    if(config.autoquery == true){
+        this.ajax.request(); 
+    }
 }
 $.extend(T.List.prototype,{
     loading: function(){
