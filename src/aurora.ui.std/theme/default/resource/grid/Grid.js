@@ -1119,7 +1119,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     onEditorBlur : function(e){
         if(this.currentEditor && !this.currentEditor.editor.isEventFromComponent(e.target)) {   
-            this.hideEditor();
+            this.hideEditor.defer(Ext.isIE9?10:0,this);
         }
     },
     onLockHeadMove : function(e){
