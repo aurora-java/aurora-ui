@@ -1382,7 +1382,7 @@ $A.escapeHtml = function(str){
 	return String(str).replace(/&/gm,'&amp;')
 	.replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
 }
-$A.doExport=function(dataset,cols){
+$A.doExport=function(dataset,cols,generate_state){
 	var p={"parameter":{"_column_config_":{}}},columns=[],parentMap={},
     	_parentColumn=function(pcl,cl){
     		if(!(Ext.isDefined(pcl.forexport)?pcl.forexport:true))return null;
@@ -1408,7 +1408,7 @@ $A.doExport=function(dataset,cols){
     		}
     	}
     	p["parameter"]["_column_config_"]["column"]=columns;
-    	p["_generate_state"]=true;
+    	p["_generate_state"]=Ext.isEmpty(generate_state)?true:generate_state;
     	p["_format"]="xls";
     	var r,q = {};
     	if(dataset.qds)r = dataset.qds.getCurrentRecord();
