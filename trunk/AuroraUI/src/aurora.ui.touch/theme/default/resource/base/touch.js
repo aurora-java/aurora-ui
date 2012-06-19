@@ -234,6 +234,9 @@ $.extend(T.DateField.prototype,{
             this.iscroll.scrollToPage(this.months.indexOf(date.getTime()),null,duration||0);
         }else this.buildViews(date);
     },
+    getCurrentViewDatas : function(){
+		return this.views[this.date].data;
+	},
     redraw : function(data){
         var view = this.views[this.date];
         view.data = data;
@@ -255,7 +258,7 @@ T.DateField.View = function(date,options,insertFirst){
     this.draw();
 }
 $.extend(T.DateField.View.prototype,{
-    tpl : ['<table class="datefield-view" cellspacing="0"><thead><tr height="20',PX,'"><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th></tr></thead><tbody></tbody></table>'],
+    tpl : ['<table class="datefield-view" cellspacing="1" cellpadding="0"><thead><tr height="20',PX,'"><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th></tr></thead><tbody></tbody></table>'],
     offset : function(){
         return this.el[0].offsetLeft;
     },
@@ -288,10 +291,8 @@ $.extend(T.DateField.View.prototype,{
         while(arr.length){
             //每个星期插入一个tr
             var row = $(this.body[0].insertRow(-1));
-            row.attr({'r_index':k
-//          ,'vAlign':'top'
-            });
-            if(k%2==0)row.addClass('week-alt');
+            row.attr({'r_index':k,'vAlign':this.options.valign,'height':'16.67%'});
+			//if(k%2==0)row.addClass('week-alt');
             k++;
             //每个星期有7天
             for(var i = 1; i <= 7; i++){

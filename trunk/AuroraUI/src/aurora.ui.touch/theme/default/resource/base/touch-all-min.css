@@ -125,14 +125,19 @@ textarea.textarea {
 }
 .datefield-scroller table{
 	border-left: 1px solid #000;
-	background-color: #fff
 }
+.datefield-scroller table th{
+	width:14.28%;
+}
+
 .datefield-scroller table td{
-	border-left: 1px solid #ccc;	
+	//border-left: 1px solid #ccc;	
+	background-color: #fff
 }
 .datefield-view{
 	height: 100%;
 	float : left;
+	background-color:#DDD;
 }
 
 .datefield-view thead tr{
