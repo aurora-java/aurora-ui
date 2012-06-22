@@ -133,13 +133,14 @@ textarea.textarea {
 	height:16.67%;
 }
 .datefield-scroller table td{
-	//border-left: 1px solid #ccc;	
-	background-color: #fff
+	border-left: 1px solid #ddd;	
+	border-bottom: 1px solid #ddd;	
+	//background-color: #fff
 }
 .datefield-view{
 	height: 100%;
 	float : left;
-	background-color:#DDD;
+	//background-color:#DDD;
 }
 
 .datefield-view thead tr{
