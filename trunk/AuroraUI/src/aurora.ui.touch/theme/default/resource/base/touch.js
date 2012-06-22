@@ -81,16 +81,16 @@ T.Masker = function(){
 T.Ajax = function(config){
     cmpCache[config.id] = this;
     delete config.id;
+	this.options = {
+		type: 'POST',
+		dataType: 'json',
+		timeout: T.Ajax.timeout,
+		parameters : {}
+    }
     $.extend(this.options,config);
 }
 T.Ajax.timeout = 0;
 $.extend(T.Ajax.prototype,{
-    options : {
-      type: 'POST',
-      dataType: 'json',
-      timeout: T.Ajax.timeout,
-      parameters : {}
-    },
     addParameter : function(key,value){
         if($.isObject(key)){
             for(var c in key){
@@ -108,11 +108,14 @@ $.extend(T.Ajax.prototype,{
         this.options.url = url;
         return this;
     },
-    request : function(){
+    request : function(successCall,errorCall,scope){
         var data = {},p = this.options.parameters;
+        if(successCall)this.options.success = successCall.bind(scope||window);
+        if(errorCall)this.options.error = errorCall.bind(scope||window);
         for(var key in p){
-            var v = p[key],bind = v.bind;
+            var v = p[key],bind = v.bind,type= v.datatype;
             data[key] = bind?$(_+bind).val():v.value;
+            if(type == 'java.lang.Long') data[key] = Number(data[key]);
         }
         this.options.data = {
             _request_data: JSON.stringify({
@@ -161,8 +164,8 @@ $.extend(T.DateField.prototype,{
                     this._unbind(START_EV);
                 }else if(isClick){
                     var el = $(e.target),
-                    d = el.attr('_date')||((el = el.parent('[_date]')).length && el.attr('_date'));
-                    if(d)sf.wrap.trigger('itemclick',new Date(Number(d)));
+                    d = el.attr('_date')||((el = el.parents('[_date]')).length && el.attr('_date'));
+                    if(d)sf.wrap.trigger('itemclick',[new Date(Number(d)),el[0]]);
                 }
                 isClick = false;
             },
@@ -258,7 +261,7 @@ T.DateField.View = function(date,options,insertFirst){
     this.draw();
 }
 $.extend(T.DateField.View.prototype,{
-    tpl : ['<table class="datefield-view" cellspacing="1" cellpadding="0"><thead><tr height="20',PX,'"><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th></tr></thead><tbody></tbody></table>'],
+    tpl : ['<table class="datefield-view" cellspacing="0" cellpadding="0"><thead><tr height="20',PX,'"><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th></tr></thead><tbody></tbody></table>'],
     offset : function(){
         return this.el[0].offsetLeft;
     },
@@ -333,33 +336,25 @@ $.extend(T.DateField.View.prototype,{
 
 T.SwitchButton = function(config){
     cmpCache[config.id] = this;
-    var opt = this.options;
-    $.extend(opt , config);
-    this.wrap = $(_ + config.id);
-    opt.defaultvalue = opt.defaultstatus == 'off'? opt.offvalue : opt.onvalue;
-    this.wrap.val(config.value || opt.defaultvalue);
-    this.initComponent();
-    this.refresh();
-    this.processListener();
-}
-$.extend(T.SwitchButton.prototype,{
-    options : {
+    this.options = {
         on: '开',
         off: '关',
         onvalue: 'Y',
         offvalue: 'N',
         defaultstatus:'off'
-    },
+    }
+    var opt = this.options;
+    $.extend(opt , config);
+    this.wrap = $(_ + config.id);
+    opt.defaultvalue = opt.defaultstatus == 'off'? opt.offvalue : opt.onvalue;
+    this.initComponent();
+    this.val(config.value || opt.defaultvalue)
+    this.processListener();
+}
+$.extend(T.SwitchButton.prototype,{
     initComponent : function(){
         this.btn = this.wrap.children('.switch-btn');
-    },
-    refresh : function(){
-        var opt = this.options,
-            wrap = this.wrap,
-            rightside = wrap.width() - this.btn.width() - 2,
-            x = (this.status = wrap.val() == opt.onvalue) ? rightside : 0;
-        this.rightside = rightside;
-        this._pos(x);
+        this.rightside = this.wrap.width() - this.btn.width() - 2;
     },
     processListener : function(){
         var touch = {},
@@ -393,17 +388,22 @@ $.extend(T.SwitchButton.prototype,{
         this.btn.animate({'translate3d':[this.x+PX,0,0].join(',')},time||0);
     },
     on : function(){
-        this.status = true;
-        this.wrap.val(this.options.onvalue);
-        this._pos(this.rightside,100);
+        this.val(this.options.onvalue,100);
     },
     off : function(){
-        this.status = false;
-        this.wrap.val(this.options.offvalue);
-        this._pos(0,100);
+        this.val(this.options.offvalue,100);
     },
     trigger : function(){
-        this[this.status?'off':'on']();
+        this[this.wrap.val() == this.options.onvalue?'off':'on']();
+    },
+    val : function(v,time){
+    	if(v === undefined)return this.wrap.val();
+    	var wrap = this.wrap,
+    		ov = wrap.val();
+    	if(ov != v){
+        	wrap.val(v).trigger('change',[v,ov]);
+        	this._pos(v == this.options.onvalue ? this.rightside : 0,time);
+    	}
     }
 });
 
