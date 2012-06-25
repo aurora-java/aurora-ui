@@ -295,6 +295,7 @@ $.extend(T.DateField.View.prototype,{
             //每个星期插入一个tr
             var row = $(this.body[0].insertRow(-1));
             row.attr({'r_index':k,'vAlign':this.options.valign});
+            if(this.options.valign)row.attr({'vAlign':this.options.valign});
 			//if(k%2==0)row.addClass('week-alt');
             k++;
             //每个星期有7天

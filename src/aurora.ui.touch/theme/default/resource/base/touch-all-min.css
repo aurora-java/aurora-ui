@@ -121,12 +121,10 @@ textarea.textarea {
 	position: absolute;
 	top : 0;
 	bottom : 0;
-	border-right:1px solid #000; 
 }
 .datefield-scroller>table{
 	border-left: 1px solid #000;
 	border-right: 1px solid #000;
-	border-bottom: 1px solid #000;
 }
 .datefield-scroller>table>thead>tr>th{
 	width:14.28%;
@@ -134,10 +132,11 @@ textarea.textarea {
 .datefield-scroller>table>tbody>tr{
 	height:16.67%;
 }
-.datefield-scroller>table>tbody>tr>td{
+.datefield-scroller>table>tbody>tr>td+td{
 	border-left: 1px solid #ddd;	
+}
+.datefield-scroller>table>tbody>tr>td{
 	border-bottom: 1px solid #ddd;	
-	//background-color: #fff
 }
 .datefield-view{
 	height: 100%;
