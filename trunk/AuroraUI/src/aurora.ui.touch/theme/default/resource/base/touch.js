@@ -49,7 +49,7 @@ T.Masker = function(){
                     wrap = isBody?el:el.parent(),
                     offset = el.offset(),
                     opt = {'z-index': el.css('z-index') == 'auto' ? 0 : el.css('z-index') + 1},
-                    p = ['<div class="touch-mask"  style="position: absolute;"><div unselectable="on"></div>'];
+                    p = ['<div class="touch-mask"  style="position: absolute;opacity:0"><div unselectable="on"></div>'];
                 if(msg)p.push(spanHtml);
                 p.push('</div>');
                 $.extend(opt,isBody?{
@@ -65,15 +65,18 @@ T.Masker = function(){
                 sp = masker.children('span');
                 container[el.selector] = masker;
             }
-            sp.css({'left':(w - sp.width())/2 + PX,'top':masker.height()/2 - 11 + PX});
+            sp.css({'left':(w - sp.width())/2 + PX,'top':masker.height()*2/3 - 11 + PX});
+            masker.animate({opacity:1},500,'ease-out');
         },
         unmask : function(el){
             var el = $(el),
                 masker = container[el.selector];
             if(masker) {
-                masker.remove();
-                container[el.selector] = null;
-                delete container[el.selector];
+            	masker.animate({opacity:0},500,'ease-in',function(){
+	                masker.remove();
+	                container[el.selector] = null;
+	                delete container[el.selector];
+            	});
             }
         }
     }
@@ -181,6 +184,16 @@ $.extend(T.DateField.prototype,{
     },
     processListener : function(ou){
         if(this.listeners)this.wrap[ou](this.listeners);
+        $(window).on('resize',this.resize.bind(this));
+    },
+    resize : function(){
+    	var width = this.wrap.width(),
+    		views = this.views,sf=this;
+    	this.content.width(12 * width);
+    	for(var date in views){
+    		views[date].el.width(width);
+    	}
+    	setTimeout(function(){sf.iscroll.scrollToPage(sf.iscroll.currPageX,null,0)},10);
     },
     reViews : function(){
         var iscroll = this.iscroll,
@@ -225,10 +238,10 @@ $.extend(T.DateField.prototype,{
         this.wrap.trigger('refresh',this.date);
     },
     preMonth : function(){
-        this.goToDate(new Date(this.date.getFullYear(),this.date.getMonth() - 1),200);
+        this.goToDate(new Date(this.date.getFullYear(),this.date.getMonth() - 1),500);
     },
     nextMonth : function(){
-        this.goToDate(new Date(this.date.getFullYear(),this.date.getMonth() + 1),200);
+        this.goToDate(new Date(this.date.getFullYear(),this.date.getMonth() + 1),500);
     },
     goToDate : function(date,duration){
         date = new Date(date.getFullYear(),date.getMonth());
