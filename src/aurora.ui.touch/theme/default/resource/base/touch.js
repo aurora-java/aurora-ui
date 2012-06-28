@@ -131,6 +131,7 @@ $.extend(T.Ajax.prototype,{
 })
 
 T.DateField = function(config){
+	this.canPage = true;
     cmpCache[config.id] = this;
     $.extend(this,config);
     var now = new Date(),
@@ -244,6 +245,7 @@ $.extend(T.DateField.prototype,{
         this.goToDate(new Date(this.date.getFullYear(),this.date.getMonth() + 1),500);
     },
     goToDate : function(date,duration){
+    	if(!this.canPage)return;
         date = new Date(date.getFullYear(),date.getMonth());
         if(date.getTime() == (this.date && this.date.getTime()))return;
         if(this.views[date]){
@@ -258,6 +260,10 @@ $.extend(T.DateField.prototype,{
         view.data = data;
         view.isAjax = !!data;
         view.draw();
+    },
+    setCanPage : function(canPage){
+    	this.canPage = canPage;
+    	this.iscroll[canPage?'_bind':'_unbind'](START_EV);
     },
     isAjax : function(date){
         var view = this.views[date];
