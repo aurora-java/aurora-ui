@@ -142,6 +142,11 @@ T.DateField = function(config){
     this.initComponent();
     this.processListener('on');
     this.buildViews();
+    this.onClick = function(e){
+    	var el = $(e.target),
+        d = el.attr('_date')||((el = el.parents('[_date]')).length && el.attr('_date'));
+        if(d)this.wrap.trigger('itemclick',[new Date(Number(d)),el[0]]);
+    }.bind(this)
 }
 $.extend(T.DateField.prototype,{
     initComponent : function(){
@@ -167,9 +172,7 @@ $.extend(T.DateField.prototype,{
                     isUnbind = true;
                     this._unbind(START_EV);
                 }else if(isClick){
-                    var el = $(e.target),
-                    d = el.attr('_date')||((el = el.parents('[_date]')).length && el.attr('_date'));
-                    if(d)sf.wrap.trigger('itemclick',[new Date(Number(d)),el[0]]);
+                    sf.onClick(e);
                 }
                 isClick = false;
             },
@@ -262,8 +265,10 @@ $.extend(T.DateField.prototype,{
         view.draw();
     },
     setCanPage : function(canPage){
+    	var sf = this;
     	this.canPage = canPage;
     	this.iscroll[canPage?'_bind':'_unbind'](START_EV);
+    	this.wrap[canPage?'unbind':'bind']('click',this.onClick);
     },
     isAjax : function(date){
         var view = this.views[date];
