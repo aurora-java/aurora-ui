@@ -17,6 +17,16 @@ $A.Grid = Ext.extend($A.Component,{
         this.selectedId = null;
         this.lockWidth = 0;
         this.autofocus = config.autofocus||true;
+        this.defaultColumnOptions = {
+    		autoadjust: true,
+			forexport: true,
+			hidden: false,
+			lock: false,
+			resizable: true,
+			rowspan: 1,
+			sortable: true,
+			width: 100
+    	}
         $A.Grid.superclass.constructor.call(this,config);
     },
     initComponent:function(config){
@@ -41,19 +51,7 @@ $A.Grid = Ext.extend($A.Component,{
         Ext.getBody().insertFirst(this.sp)
         this.fs = wp.child('a[atype=grid.focus]');
         
-        this.lockColumns =[],this.unlockColumns = [];
-        this.lockWidth = 0,this.unlockWidth = 0;
-        for(var i=0,l=this.columns.length;i<l;i++){
-            var c = this.columns[i];
-            if(c.lock === true){
-                this.lockColumns.add(c);
-                if(c.hidden !== true) this.lockWidth += c.width;
-            }else{
-                this.unlockColumns.add(c);
-                if(c.hidden !== true) this.unlockWidth += c.width;
-            }
-        }
-        this.columns = this.lockColumns.concat(this.unlockColumns);
+        this.classfiyColumns();
         this.initTemplate();
     },
     processListener: function(ou){
@@ -1449,6 +1447,21 @@ $A.Grid = Ext.extend($A.Component,{
             this.ub.setWidth(us);
         }
     },
+    classfiyColumns : function(){
+    	this.lockColumns =[],this.unlockColumns = [];
+        this.lockWidth = 0,this.unlockWidth = 0;
+        for(var i=0,cols=this.columns,l=cols.length;i<l;i++){
+            var c = cols[i];
+            if(c.lock === true){
+                this.lockColumns.add(c);
+                if(c.hidden !== true) this.lockWidth += c.width;
+            }else{
+                this.unlockColumns.add(c);
+                if(c.hidden !== true) this.unlockWidth += c.width;
+            }
+        }
+        this.columns = this.lockColumns.concat(this.unlockColumns);
+    },
     /**
      * 显示某列.
      * 
@@ -1492,6 +1505,154 @@ $A.Grid = Ext.extend($A.Component,{
                 col.hidden = true;
             }
         }       
+    },
+    /**
+     * 删除列.
+     * 
+     * @param {String/Array} name/names 列名/列名数组;
+     */
+    removeColumn : function(name){
+    	var cols = this.columns,
+    		names = [].concat(name),
+    		lockNames = [],unLockNames=[];
+    	for(var i =0,l=names.length;i<l;i++){
+    		var n = names[i],
+    			col = this.findColByName(n);
+    		if(!col)continue;
+    		if(col.lock)lockNames.push(n);
+    		else unLockNames.push(n);
+    		cols.splice(cols.indexOf(col),1);
+    	}
+    	var lnl = lockNames.length,unl = unLockNames.length;
+    	if(lnl||unl){
+    		this.dataset.query();
+    		this.classfiyColumns();
+    		if(lnl){
+    			var lw = this.lockWidth < 1 ?  1 : this.lockWidth,
+    				selector = [];
+    			for(var i=0;i<lnl;i++){
+    				selector.push('[dataindex='+lockNames[i]+']');
+    			}
+    			this.lht.setWidth(this.lockWidth).select(selector.join(',')).remove();
+        		this.lc.setWidth(lw - 1); 
+        		this.uc.setWidth(this.wrap.getWidth() - lw); 
+    		}
+    		if(unl){
+    			var selector = [];
+    			for(var i=0;i<lnl;i++){
+    				selector.push('[dataindex='+unLockNames[i]+']');
+    			}
+    			this.uht.select(selector.join(',')).remove();
+    		}
+    		var ulw = this.unLockWidth;
+    		this.uht.setWidth(ulw); 
+    		this.uh.setWidth(ulw); 
+    		this.ub.setWidth(ulw);
+        }
+    },
+    /**
+     * 增加列.
+     * 
+     * @param {Object/Array} options/columns 列的参数/一组列的参数;
+     */
+    addColumn : function(options,name,where){
+    	if(this.dataset.isModified()){
+            $A.showInfoMessage(_lang['grid.info'], _lang['grid.info.continue']);
+        }else {
+        	var cols = this.columns,
+        		index = cols.length,
+        		oldLock;
+        	if(name && where){
+        		var column = this.findColByName(name);
+        		if(column){
+	        		oldLock = column.lock;
+	        		index = (where == 'before'? 0 : 1) + cols.indexOf(column);
+        		}else{
+        			alert('未找到列'+name);
+        			return;
+        		}
+        	}
+        	var newCols = [].concat(options),
+        	lockCols = [],unLockCols=[];
+	    	for(var i =0,l=newCols.length;i<l;i++){
+	    		var opt = Ext.apply(Ext.apply({},this.defaultColumnOptions),newCols[i]),
+	    			col = this.findColByName(opt.name);
+	    		if(col)continue;
+	    		if(!Ext.isEmpty(oldLock))opt.lock = oldLock;
+	    		if(opt.lock)lockCols.push(opt);
+	    		else unLockCols.push(opt);
+	    	};
+	    	var lcl = lockCols.length,ucl = unLockCols.length;
+	        if(lcl || ucl){
+	        	this.columns = cols.slice(0,index).concat(lockCols).concat(unLockCols).concat(cols.slice(index))
+	        	this.classfiyColumns();
+        		var method = where? (where == 'before'?'insertBefore':'insertAfter'):'append',
+        			wp = this.wrap,
+        			tds;
+	        	if(lcl){
+	        		if(!this.lht){
+		        		this.lc = new Ext.Template("<DIV class='grid-la' atype='grid.lc' style='width:24px;'><DIV class='grid-lh' atype='grid.lh' unselectable='on' onselectstart='return false;' style='height:25px;'><TABLE cellSpacing='0' atype='grid.lht' cellPadding='0' border='0' style='width:25px'><TBODY><TR class='grid-hl'></TR><TR height=25></TR></TBODY></TABLE></DIV><DIV class='grid-lb' atype='grid.lb' style='width:100%;height:255px'></DIV></DIV>").insertAfter(this.fs.dom,{},true); 
+				        this.lh = wp.child('div[atype=grid.lh]');
+				        this.lb = wp.child('div[atype=grid.lb]');
+				        this.lht = wp.child('table[atype=grid.lht]');
+			            this.lb['on']('click',this.onClick, this);
+			            this.lb['on']('dblclick',this.onDblclick, this);
+				        this.lht['on']('mousemove',this.onLockHeadMove, this);
+				        this.lh['on']('mousedown', this.onHeadMouseDown,this);
+				        this.lh['on']('click', this.onHeadClick,this);
+	        		}
+	        		var lw = this.lockWidth,
+	        			html = [],html2=[];
+	        		this.lht.setWidth(lw); 
+	        		this.lc.setWidth(lw - 1); 
+	        		this.uc.setWidth(wp.getWidth() - lw);
+	        		tds = this.lht.query(method != 'append'|| name?'[dataindex='+name+']':'tr');
+	        		for(var i=0;i<lcl;i++){
+	        			var c = lockCols[i];
+	        			html.push('<th style="width:',c.width,'px;" dataindex="',c.name,'"></th>')
+	        			html2.push('<td class="grid-hc" atype="grid.head" dataindex="',c.name,'"><div>',c.prompt,'</div></td>')
+	        		}
+	        		new Ext.Template(html.join(''))[method](tds[0],{});
+		    		new Ext.Template(html2.join(''))[method](tds[1],options);
+	        	}
+	        	if(ucl){
+	        		tds = this.uht.query(method != 'append'|| name?'[dataindex='+name+']':'tr');
+	        		var html = [],html2=[];
+	        		for(var i=0;i<ucl;i++){
+	        			var c = unLockCols[i];
+	        			html.push('<th style="width:',c.width,'px;" dataindex="',c.name,'"></th>')
+	        			html2.push('<td class="grid-hc" atype="grid.head" dataindex="',c.name,'"><div>',c.prompt,'</div></td>')
+	        		}
+	        		new Ext.Template(html.join(''))[method](tds[0],{});
+	        		if(method == 'append')
+	    				Ext.fly(tds[0]).child('th[width=20]').appendTo(Ext.fly(tds[0]))
+		    		new Ext.Template(html2.join(''))[method](tds[1],options);
+	    		}
+	    		this.dataset.query();
+	    		var ulw = this.unLockWidth;
+	    		this.uht.setWidth(ulw); 
+	    		this.uh.setWidth(ulw); 
+	    		this.ub.setWidth(ulw); 
+	        }
+        }
+    },
+    /**
+     * 在指定列前插入列.
+     * 
+     * @param {Object/Array} options/columns 列的参数/一组列的参数;
+     * @param {Object} options 列的参数;
+     */
+    insertColumnBefore : function(name,options){
+    	this.addColumn(options,name,'before');
+    },
+    /**
+     * 在指定列后插入列.
+     * 
+     * @param {Object/Array} options/columns 列的参数/一组列的参数;
+     * @param {String} name 指定列的列名;
+     */
+    insertColumnAfter : function(name,options){
+    	this.addColumn(options,name,'after');
     },
     setWidth: function(w){
     	if(this.width == w) return;

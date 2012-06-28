@@ -18,6 +18,8 @@ _lang['dataset.info.locate'] = '有未保存数据!';
 _lang['dataset.info.validate'] = '验证不通过!';
 _lang['dataset.validate.required'] = '当前字段不能为空!';
 
+_lang['grid.info'] = '提示';
+_lang['grid.info.continue'] = '有未保存数据！';
 _lang['grid.mask.remove'] = '正在删除数据...';
 _lang['grid.mask.loading'] = '正在查询数据...';
 _lang['grid.mask.submit'] = '正在提交数据...';
