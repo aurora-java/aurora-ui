@@ -434,10 +434,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             'submitfailed'
         );      
     },
+    addField : function(fd){
+        var field = new $A.Record.Field(fd);
+        this.fields[field.name] = field;
+    },
     initFields : function(fields){
         for(var i = 0, len = fields.length; i < len; i++){
-            var field = new $A.Record.Field(fields[i]);
-            this.fields[field.name] = field;
+            this.addField(fields[i]);
         }
     },
     /**
