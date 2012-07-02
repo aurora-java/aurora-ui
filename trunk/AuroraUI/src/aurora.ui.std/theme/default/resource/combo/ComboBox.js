@@ -44,7 +44,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
         if(this.readonly)return;
         if(this.hasFocus){
 			$A.ComboBox.superclass.onBlur.call(this,e);
-			if(!this.isExpanded()) {
+			//if(!this.isExpanded()) {
 				var raw = this.getRawValue();
 				if(this.fetchrecord===false){
 					this.setValue(raw)
@@ -56,7 +56,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 						this.setValue('');
 					}
 				}
-			}
+			//}
         }
     },
     getRecordByDisplay: function(name){
