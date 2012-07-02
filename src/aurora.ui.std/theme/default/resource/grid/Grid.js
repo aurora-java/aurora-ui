@@ -845,7 +845,7 @@ $A.Grid = Ext.extend($A.Component,{
                 alert("未找到"+col.editorfunction+"方法!") ;
                 return null;
             }
-            ed = ef.call(window,record,col.name)
+            ed = ef.call(window,record,col.name)||'';
         }
         return ed;
     },
