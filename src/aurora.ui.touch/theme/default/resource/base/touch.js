@@ -268,7 +268,7 @@ $.extend(T.DateField.prototype,{
     	var sf = this;
     	this.canPage = canPage;
     	this.iscroll[canPage?'_bind':'_unbind'](START_EV);
-    	this.wrap[canPage?'unbind':'bind']('click',this.onClick);
+    	this.wrap[canPage?'unbind':'bind'](END_EV,this.onClick);
     },
     isAjax : function(date){
         var view = this.views[date];
