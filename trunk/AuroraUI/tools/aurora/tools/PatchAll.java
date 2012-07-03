@@ -15,6 +15,7 @@ import com.yahoo.platform.yui.compressor.YUICompressor;
 public class PatchAll {
 	
 	private static final String RES_DIR = "src/aurora.ui.std/theme/default/resource/";
+	private static final String TOUCH_DIR = "src/aurora.ui.touch/theme/default/resource/";
 	private static final String AURORA_ALL= "base/Aurora-all.js";
 	private static final String CSS_ALL= "base/Aurora-all.css";
 	
@@ -91,18 +92,26 @@ public class PatchAll {
 		compressCss.add("accordionmenu/AccordionMenu.css");
 //		compressCss.add("upload/upload.css");
 		
+		List compressTouchJs = new ArrayList();
+		compressTouchJs.add("base/touch.js");
+		
+		List compressTouchCss = new ArrayList();
+		compressTouchCss.add("base/touch-all.css");
+		
 		PatchAll pa = new PatchAll();
 		pa.patchAllFile(list,RES_DIR,AURORA_ALL);
 		pa.patchAllFile(csslist,RES_DIR,CSS_ALL);
-		pa.compressAllFiles(compressJs,"js");
-		pa.compressAllFiles(compressCss,"css");
+		pa.compressAllFiles(compressJs,RES_DIR,"js");
+		pa.compressAllFiles(compressCss,RES_DIR,"css");
+		pa.compressAllFiles(compressTouchJs,TOUCH_DIR,"js");
+		pa.compressAllFiles(compressTouchCss,TOUCH_DIR,"css");
 		
 		pa.mergeCss();
 //		System.out.println(pa.lineNum);
 	}
 	
 	
-	public void compressAllFiles(List files, String type) throws Exception{
+	public void compressAllFiles(List files, String dir, String type ) throws Exception{
 		ClassLoader loader = new JarClassLoader();
         Thread.currentThread().setContextClassLoader(loader);
         Class c = loader.loadClass(YUICompressor.class.getName());
@@ -111,7 +120,7 @@ public class PatchAll {
         Iterator it = files.iterator();
         while(it.hasNext()){
         	String dest = (String)it.next();
-        	File file = new File(current, RES_DIR+dest);
+        	File file = new File(current, dir+dest);
         	String name = file.getName();
         	String minName = name.replaceAll("."+type, "")+"-min."+type;
         	File minFile = new File(file.getParentFile().getAbsolutePath(),minName);
