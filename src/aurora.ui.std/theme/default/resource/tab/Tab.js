@@ -366,7 +366,24 @@ $A.Tab = Ext.extend($A.Component,{
     },
     refresh : function(url,index){
     	index = index || this.selectedIndex;
+    	var tab=this.getTab(index);
+    	if(!tab)return;
     	if(url) this.items[index].ref = url;
+    	var cmps = tab.body.cmps;
+    	if(cmps){
+    		setTimeout(function(){
+	        	for(var key in cmps){
+	        		var cmp = cmps[key];
+	        		if(cmp.destroy){
+	        			try{
+	        				cmp.destroy();
+	        			}catch(e){
+	        				alert('销毁Tab出错: ' + e)
+	        			}
+	        		}
+	        	}
+	        },10)
+    	}
     	this.selectTab(index,true);
     },
 	load : function(url,dom,index){
