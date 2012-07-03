@@ -64,7 +64,7 @@ $A.Tab = Ext.extend($A.Component,{
 	 * 选中某个Tab页
 	 * @param {Number} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
 	 */
-	selectTab:function(index){		
+	selectTab:function(index,needRefresh){		
 		var tab=this.getTab(index);
 		if(!tab)return;
 		if(tab.strip.hasClass(this.sd)){
@@ -107,7 +107,7 @@ $A.Tab = Ext.extend($A.Component,{
 			activeBody.setLeft('0px');
 			activeBody.setTop('0px');
 		}
-		if(this.items[index].ref && activeBody.loaded!= true){
+		if(this.items[index].ref && (activeBody.loaded!= true||needRefresh)){
 			this.load(this.items[index].ref,activeBody,index);
 			activeBody.loaded = true;
 		}else{
@@ -363,6 +363,11 @@ $A.Tab = Ext.extend($A.Component,{
     	dom.update('');
     	dom.setStyle('text-align','');
     	dom.setStyle('line-height','');
+    },
+    refresh : function(url,index){
+    	index = index || this.selectedIndex;
+    	if(url) this.items[index].ref = url;
+    	this.selectTab(index,true);
     },
 	load : function(url,dom,index){
         url=url+(url.indexOf('?') !=-1?'&':'?')+'_vw='+this.width+'&_vh='+(this.height-Ext.fly(this.head).getHeight());
