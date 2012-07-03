@@ -438,6 +438,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         var field = new $A.Record.Field(fd);
         this.fields[field.name] = field;
     },
+    removeField : function(name){
+    	this.fields[name] = null;
+    	delete this.fields[name];
+    },
     initFields : function(fields){
         for(var i = 0, len = fields.length; i < len; i++){
             this.addField(fields[i]);
