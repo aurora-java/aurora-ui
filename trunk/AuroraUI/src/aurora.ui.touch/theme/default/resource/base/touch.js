@@ -49,7 +49,7 @@ T.Masker = function(){
                     wrap = isBody?el:el.parent(),
                     offset = el.offset(),
                     opt = {'z-index': el.css('z-index') == 'auto' ? 0 : el.css('z-index') + 1},
-                    p = ['<div class="touch-mask"  style="position: absolute;opacity:0"><div unselectable="on"></div>'];
+                    p = ['<div class="touch-mask"  style="position: absolute;opacity:0;-webkit-transform:translate3d(0,0,0)"><div unselectable="on" style="-webkit-transform:translate3d(0,0,0)"></div>'];
                 if(msg)p.push(spanHtml);
                 p.push('</div>');
                 $.extend(opt,isBody?{
