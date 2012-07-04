@@ -10,6 +10,7 @@ Release ()
 * 新增Dashboard组件
 * 新增Aurora.doExport方法
 * 修正Grid在初始有hidden的column时，调用hideColumn出现的BUG。
+* 修正DateTimePicker在IE6,IE7,IE8下关闭窗口时报错的BUG。
 
 Release (2012-02-08)  
 ------------------------------------
