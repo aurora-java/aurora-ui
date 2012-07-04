@@ -1042,7 +1042,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         if(fire !== false) {
             $A.manager.fireEvent('valid', $A.manager, this, this.isValid);
-            if(!this.isValid) $A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.validate']);
+            if(!this.isValid) {
+	            var valid = unvalidRecord.valid,unvalidMessage;
+	            for(var key in valid){
+            		unvalidMessage = valid[key];
+            		break;
+	            }
+	            $A.showInfoMessage(_lang['dataset.info'], unvalidMessage||_lang['dataset.info.validate']);
+            }
         }
         return this.isValid;
     },
@@ -1586,7 +1593,7 @@ $A.Record.prototype = {
         var vv = v;
         if(v&&v.trim) vv = v.trim();
         if(Ext.isEmpty(vv) && field.get('required') == true){
-            this.valid[name] = _lang['dataset.validate.required'];
+            this.valid[name] = field.get('requiredmessage') || _lang['dataset.validate.required'];
             valid =  false;
         }
         if(valid == true){

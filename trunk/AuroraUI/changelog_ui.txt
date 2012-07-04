@@ -11,6 +11,7 @@ Release ()
 * 新增Aurora.doExport方法
 * 修正Grid在初始有hidden的column时，调用hideColumn出现的BUG。
 * 修正DateTimePicker在IE6,IE7,IE8下关闭窗口时报错的BUG。
+* DataSet的Field上新增requiredMessage属性，用于自定义必输项提示信息。校验不通过时会提示该信息。
 
 Release (2012-02-08)  
 ------------------------------------
