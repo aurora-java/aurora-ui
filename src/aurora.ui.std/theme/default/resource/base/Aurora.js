@@ -115,7 +115,7 @@ $A.CmpManager = function(){
         	if($A.validInfoType != 'tip') return;
         	if(($A.Grid && cmp instanceof $A.Grid)||($A.Table && cmp instanceof $A.Table)){
         		var ds = cmp.dataset;
-        		if(!ds||ds.isValid == true||!e.target)return;
+        		if(!ds ||!e.target)return;
         		var target = Ext.fly(e.target).findParent('td');
                 if(target){
                     var atype = Ext.fly(target).getAttributeNS("","atype");
@@ -123,8 +123,9 @@ $A.CmpManager = function(){
             			var rid = Ext.fly(target).getAttributeNS("","recordid");
             			var record = ds.findById(rid);
             			if(record){
-                			var name = Ext.fly(target).getAttributeNS("","dataindex");        			
-        					var msg = record.valid[name];
+                			var name = Ext.fly(target).getAttributeNS("","dataindex"); 
+                			var field = record.getMeta().getField(name)
+                		    var msg = record.valid[name] || field.get('tooltip');               			
         	        		if(Ext.isEmpty(msg))return;
         	        		$A.ToolTip.show(target, msg);
             			}
@@ -133,10 +134,11 @@ $A.CmpManager = function(){
         	}else{
 	        	if(cmp.binder){
 	        		var ds = cmp.binder.ds;
-	        		if(!ds || ds.isValid == true)return;
+	        		if(!ds)return;
 	        		var record = cmp.record;
 	        		if(!record)return;
-	        		var msg = record.valid[cmp.binder.name];
+	        		var field = record.getMeta().getField(cmp.binder.name)
+        		    var msg = record.valid[cmp.binder.name] || field.get('tooltip');          		
 	        		if(Ext.isEmpty(msg))return;
 	        		$A.ToolTip.show(cmp.id, msg);
 	        	}
