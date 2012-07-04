@@ -27,7 +27,7 @@ $A.NumberField = Ext.extend($A.TextField,{
         }
     },
     initEvents : function(){
-    	$A.NumberField.superclass.initEvents.call(this);    	
+    	$A.NumberField.superclass.initEvents.call(this);
     },
     onKeyPress : function(e){
         var k = e.keyCode;
@@ -36,10 +36,15 @@ $A.NumberField = Ext.extend($A.TextField,{
         }
         var c = e.getCharCode();
         if(this.allowed.indexOf(String.fromCharCode(c)) === -1){
+        	$A.ToolTip.show(this.id,_lang['numberfield.only']);
             e.stopEvent();
             return;
         }
         $A.NumberField.superclass.onKeyPress.call(this, e); 
+    },
+    onBlur : function(e){
+    	$A.ToolTip.hide();
+    	$A.NumberField.superclass.onBlur.call(this,e);
     },
     formatValue : function(v){
     	var rv = this.fixPrecision(this.parseValue(v))        
