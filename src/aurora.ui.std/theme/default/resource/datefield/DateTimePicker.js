@@ -14,6 +14,7 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		this.hourSpan = this.popup.child("input[atype=field.hour]");
     	this.minuteSpan = this.popup.child("input[atype=field.minute]");
     	this.secondSpan = this.popup.child("input[atype=field.second]");
+    	this.hourSpanParent = this.hourSpan.parent();
     },
     processListener : function(ou){
     	$A.DateTimePicker.superclass.processListener.call(this,ou);
@@ -24,8 +25,8 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 			this.minuteSpan[ou]("blur", this.onDateBlur, this);
 			this.secondSpan[ou]("focus", this.onDateFocus, this);
 			this.secondSpan[ou]("blur", this.onDateBlur, this);
-			this.hourSpan.parent()[ou]("keydown", this.onDateKeyDown, this);
-			this.hourSpan.parent()[ou]("keyup", this.onDateKeyUp, this);
+			this.hourSpanParent[ou]("keydown", this.onDateKeyDown, this);
+			this.hourSpanParent[ou]("keyup", this.onDateKeyUp, this);
     	}
     },
     onDateKeyDown : function(e) {
