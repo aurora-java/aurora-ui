@@ -39,6 +39,8 @@ _lang['tab.loading'] = 'Loading,please wait...';
 _lang['textfield.warn'] = 'Warning';
 _lang['textfield.warn.capslock'] = 'Caps Lock is on!';
 
+_lang['numberfield.only'] = 'Number only!';
+
 _lang['toolbar.ctPage'] = 'Page:';
 _lang['toolbar.total'] = ' of ';
 _lang['toolbar.page'] = '';
