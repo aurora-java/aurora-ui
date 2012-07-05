@@ -434,7 +434,25 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             'submitfailed'
         );      
     },
-    addField : function(fd){
+    addField : function(fd,notCheck){
+        if(notCheck !== true){
+        	var rf = field.returnfield,
+        		vf = field.valuefield;
+        	if(rf && vf){
+        		var mapping = field.mapping || [],has = false;
+        		for(var i=0,l=mapping.length;i<l;i++){
+        			var m = mapping[i];
+        			if(m.from == vf && m.to == rf){
+        				has = true
+        				break;	
+        			}
+        		}
+        		if(!has){
+        			mapping.push({from:vf,to:rf});
+        			field.mapping = mapping;
+        		}
+        	}
+        }
         var field = new $A.Record.Field(fd);
         this.fields[field.name] = field;
     },
@@ -444,7 +462,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     initFields : function(fields){
         for(var i = 0, len = fields.length; i < len; i++){
-            this.addField(fields[i]);
+            this.addField(fields[i],true);
         }
     },
     /**
