@@ -1539,7 +1539,7 @@ $A.Grid = Ext.extend($A.Component,{
     		}
     		if(unl){
     			var selector = [];
-    			for(var i=0;i<lnl;i++){
+    			for(var i=0;i<unl;i++){
     				selector.push('[dataindex='+unLockNames[i]+']');
     			}
     			this.uht.select(selector.join(',')).remove();
@@ -1549,6 +1549,40 @@ $A.Grid = Ext.extend($A.Component,{
     		this.uh.setWidth(ulw); 
     		this.ub.setWidth(ulw);
         }
+    },
+    createHead : Ext.isIE || Ext.isIE9 ?function(cols,method,name,parent,index){
+		var trs = parent.query('tr'),t = Ext.fly(trs[0]).child('th[width=20]'),tds;
+		if(name)tds = parent.query('[dataindex='+name+']')[0];
+		if (method == 'insertAfter'){
+			tds = tds.nextSibling || null;
+			index ++;
+		}else if(method == 'append'){
+			if(t) tds = t.dom;
+			index = -1;	
+		}
+		for(var i=0,l = cols.length;i<l;i++){
+			var c = cols[i],
+				th = Ext.get(document.createElement('th')),
+				td = Ext.get(trs[1].insertCell(index)),
+				w = c.width,n = c.name;
+			if(index > - 1)index++;
+			td.addClass('grid-hc').set({'dataindex':n,'atype':'grid.head'}).update('<div>'+c.prompt+'</div>')
+			if(tds)trs[0].insertBefore(th.dom,tds)
+			else trs[0].appendChild(th.dom);
+			th.setStyle('width',w+'px').set({'dataindex':n});
+		}
+    }:function(cols,method,name,parent){
+    	var html = [],html2=[],
+    		tds = parent.query(method != 'append'?'[dataindex='+name+']':'tr');
+		for(var i=0,l = cols.length;i<l;i++){
+			var c = cols[i];
+			html.push('<th style="width:',c.width,'px;" dataindex="',c.name,'"></th>')
+			html2.push('<td class="grid-hc" atype="grid.head" dataindex="',c.name,'"><div>',c.prompt,'</div></td>')
+		}
+		new Ext.Template(html.join(''))[method](tds[0],{});
+		new Ext.Template(html2.join(''))[method](tds[1],{});
+		var th = Ext.fly(tds[0]).child('th[width=20]');
+		if(th)th.appendTo(Ext.fly(tds[0]));
     },
     /**
      * 增加列.
@@ -1561,11 +1595,12 @@ $A.Grid = Ext.extend($A.Component,{
         }else {
         	var cols = this.columns,
         		index = cols.length,
-        		oldLock;
+        		oldLock,oldIndex;
         	if(name && where){
         		var column = this.findColByName(name);
         		if(column){
 	        		oldLock = column.lock;
+	        		oldIndex = this[oldLock?'lockColumns':'unlockColumns'].indexOf(column);
 	        		index = (where == 'before'? 0 : 1) + cols.indexOf(column);
         		}else{
         			alert('未找到列'+name);
@@ -1578,18 +1613,25 @@ $A.Grid = Ext.extend($A.Component,{
 	    		var opt = Ext.apply(Ext.apply({},this.defaultColumnOptions),newCols[i]),
 	    			col = this.findColByName(opt.name);
 	    		if(col)continue;
-	    		if(!Ext.isEmpty(oldLock))opt.lock = oldLock;
 	    		if(opt.lock)lockCols.push(opt);
 	    		else unLockCols.push(opt);
 	    	};
-	    	var lcl = lockCols.length,ucl = unLockCols.length;
-	        if(lcl || ucl){
-	        	this.columns = cols.slice(0,index).concat(lockCols).concat(unLockCols).concat(cols.slice(index))
-	        	this.classfiyColumns();
+	    	newCols = lockCols.concat(unLockCols);
+	        if(newCols.length){
         		var method = where? (where == 'before'?'insertBefore':'insertAfter'):'append',
-        			wp = this.wrap,
-        			tds;
-	        	if(lcl){
+        			lmethod = umethod = method,
+        			lname = uname = name,
+        			wp = this.wrap;
+        		if(oldLock){
+        			umethod = 'insertBefore';
+        			uname = this.unlockColumns[0].name;
+        		}else{
+        			lmethod = 'append';
+        			lname = null;
+        		}
+	        	this.columns = cols.slice(0,index).concat(newCols).concat(cols.slice(index));
+	        	this.classfiyColumns();
+	        	if(lockCols.length){
 	        		if(!this.lht){
 		        		this.lc = new Ext.Template("<DIV class='grid-la' atype='grid.lc' style='width:24px;'><DIV class='grid-lh' atype='grid.lh' unselectable='on' onselectstart='return false;' style='height:25px;'><TABLE cellSpacing='0' atype='grid.lht' cellPadding='0' border='0' style='width:25px'><TBODY><TR class='grid-hl'></TR><TR height=25></TR></TBODY></TABLE></DIV><DIV class='grid-lb' atype='grid.lb' style='width:100%;height:255px'></DIV></DIV>").insertAfter(this.fs.dom,{},true); 
 				        this.lh = wp.child('div[atype=grid.lh]');
@@ -1601,38 +1643,18 @@ $A.Grid = Ext.extend($A.Component,{
 				        this.lh['on']('mousedown', this.onHeadMouseDown,this);
 				        this.lh['on']('click', this.onHeadClick,this);
 	        		}
-	        		var lw = this.lockWidth,
-	        			html = [],html2=[];
-	        		this.lht.setWidth(lw); 
-	        		this.lc.setWidth(lw - 1); 
-	        		this.uc.setWidth(wp.getWidth() - lw);
-	        		tds = this.lht.query(method != 'append'|| name?'[dataindex='+name+']':'tr');
-	        		for(var i=0;i<lcl;i++){
-	        			var c = lockCols[i];
-	        			html.push('<th style="width:',c.width,'px;" dataindex="',c.name,'"></th>')
-	        			html2.push('<td class="grid-hc" atype="grid.head" dataindex="',c.name,'"><div>',c.prompt,'</div></td>')
-	        		}
-	        		new Ext.Template(html.join(''))[method](tds[0],{});
-		    		new Ext.Template(html2.join(''))[method](tds[1],options);
+	        		this.createHead(lockCols,lmethod,lname,this.lht,oldIndex);
 	        	}
-	        	if(ucl){
-	        		tds = this.uht.query(method != 'append'|| name?'[dataindex='+name+']':'tr');
-	        		var html = [],html2=[];
-	        		for(var i=0;i<ucl;i++){
-	        			var c = unLockCols[i];
-	        			html.push('<th style="width:',c.width,'px;" dataindex="',c.name,'"></th>')
-	        			html2.push('<td class="grid-hc" atype="grid.head" dataindex="',c.name,'"><div>',c.prompt,'</div></td>')
-	        		}
-	        		new Ext.Template(html.join(''))[method](tds[0],{});
-	        		if(method == 'append')
-	    				Ext.fly(tds[0]).child('th[width=20]').appendTo(Ext.fly(tds[0]))
-		    		new Ext.Template(html2.join(''))[method](tds[1],options);
+	        	if(unLockCols.length){
+	        		this.createHead(unLockCols,umethod,uname,this.uht,oldIndex);
+	    		}
+	    		if(this.lb)this.lb.update('');
+	    		this.ub.update('');
+	    		for(var i=0,l = newCols.length;i<l;i++){
+	    			var nc = newCols[i];
+		        	this.setColumnSize(nc.name,nc.width)
 	    		}
 	    		this.dataset.query();
-	    		var ulw = this.unLockWidth;
-	    		this.uht.setWidth(ulw); 
-	    		this.uh.setWidth(ulw); 
-	    		this.ub.setWidth(ulw); 
 	        }
         }
     },
