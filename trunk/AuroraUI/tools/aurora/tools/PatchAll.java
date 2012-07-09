@@ -94,6 +94,7 @@ public class PatchAll {
 		
 		List compressTouchJs = new ArrayList();
 		compressTouchJs.add("base/touch.js");
+		compressTouchJs.add("base/iscroll.js");
 		
 		List compressTouchCss = new ArrayList();
 		compressTouchCss.add("base/touch-all.css");
