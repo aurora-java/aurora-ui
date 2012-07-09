@@ -364,25 +364,23 @@ $A.Tab = Ext.extend($A.Component,{
     	dom.setStyle('text-align','');
     	dom.setStyle('line-height','');
     },
-    refresh : function(url,index){
+    reloadTab : function(index,url){
     	index = index || this.selectedIndex;
     	var tab=this.getTab(index);
     	if(!tab)return;
     	if(url) this.items[index].ref = url;
     	var cmps = tab.body.cmps;
     	if(cmps){
-    		setTimeout(function(){
-	        	for(var key in cmps){
-	        		var cmp = cmps[key];
-	        		if(cmp.destroy){
-	        			try{
-	        				cmp.destroy();
-	        			}catch(e){
-	        				alert('销毁Tab出错: ' + e)
-	        			}
-	        		}
-	        	}
-	        },10)
+        	for(var key in cmps){
+        		var cmp = cmps[key];
+        		if(cmp.destroy){
+        			try{
+        				cmp.destroy();
+        			}catch(e){
+        				alert('销毁Tab出错: ' + e)
+        			}
+        		}
+        	}
     	}
     	this.selectTab(index,true);
     },
