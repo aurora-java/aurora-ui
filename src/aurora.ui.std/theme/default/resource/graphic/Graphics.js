@@ -670,7 +670,8 @@ $A.Graphics=Ext.extend($A.Component,{
     	}
     },
     startLine : function(e,t){
-    	var el = this.getGElement(t);
+    	var focusMask = this.focusMask,
+    		el = this.getGElement(focusMask && focusMask.dom === t? this.focusItem:t);
     	if(el){
 	    	var _xy = this.wrap.getXY();
 			this.startEl = el;
