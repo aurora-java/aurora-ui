@@ -132,6 +132,7 @@ $.extend(T.Ajax.prototype,{
 
 T.DateField = function(config){
 	this.canPage = true;
+	this.viewSize = 6;
     cmpCache[config.id] = this;
     $.extend(this,config);
     var now = new Date(),
@@ -152,7 +153,7 @@ $.extend(T.DateField.prototype,{
     initComponent : function(){
         this.head = this.wrap.children('.datefield-head');
         this.content = this.wrap.children('.datefield-scroller')
-            .width(this.wrap.width() * 12);
+            .width(this.wrap.width() * 6);
         this.title = this.head.children('.datefield-date').children('div');
         this.preBtn = this.head.children('button.pre');
         this.nextBtn = this.head.children('button.next');
@@ -193,7 +194,7 @@ $.extend(T.DateField.prototype,{
     resize : function(){
     	var width = this.wrap.width(),
     		views = this.views,sf=this;
-    	this.content.width(12 * width);
+    	this.content.width(this.viewSize * width);
     	for(var date in views){
     		views[date].el.width(width);
     	}
@@ -209,13 +210,13 @@ $.extend(T.DateField.prototype,{
             pdate = new Date(year,month-3);
         if(!views[pdate]){
             views[pdate] = new T.DateField.View(pdate,this,true);
-            views[new Date(year,month+9)].destroy();
+            views[new Date(year,month+this.viewSize-3)].destroy();
             iscroll.scrollToPage(currPageX + 1,null,0)
         }else{
             var ndate = new Date(year,month+1);
             if(!views[ndate]){
                 views[ndate] = new T.DateField.View(ndate,this);
-                views[new Date(year,month-11)].destroy();
+                views[new Date(year,month-this.viewSize+1)].destroy();
                 iscroll.scrollToPage(currPageX - 1,null,0)
             }
         }
@@ -232,7 +233,7 @@ $.extend(T.DateField.prototype,{
     buildViews : function(d){
         this.clearViews();
         d = d || this.defaultDate;
-        for(var m = 0;m < 12;m++){
+        for(var now = d.getMonth(),half = this.viewSize / 2,m = now - half,max = now + half;m < max;m++){
             var date = new Date(d.getFullYear(),m);
             this.views[date] = new T.DateField.View(date,this);
         }
