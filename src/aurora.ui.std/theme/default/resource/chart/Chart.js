@@ -10015,7 +10015,8 @@ Chart.prototype = {
     	var series = this.series,
     		ds = this.dataset,
     		records = ds.getAll(),
-    		type = this.options.chart.type;
+    		chart = this.options.chart,
+    		type = chart.type;
     	if(series) {
     		while(series.length){
                 series[0].remove(false);
@@ -10025,7 +10026,7 @@ Chart.prototype = {
     		var datas = [],options = {};
             for(var k = 0,l=records.length;k<l;k++){
                 var record = records[k];
-                datas[datas.length] = [record.get('name'),record.get('value')]
+                datas[datas.length] = [record.get(chart.namefield||'name'),record.get(chart.valuefield||'value')]
             }
             options['data'] = datas;
             this.addSeries(options,false)
