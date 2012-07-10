@@ -503,17 +503,20 @@ $A.Grid = Ext.extend($A.Component,{
     isFunctionCol: function(c){
         return c.type == 'rowcheck' || c.type == 'rowradio'
     },
-    onAdd : function(ds,record,index){
-        if(this.lb)
-        var sb = [];var cols = [];
-        var v = 0;
-        var columns = this.columns;
-        var row = this.dataset.data.length-1;
-        var css = this.parseCss(this.renderRow(record,row));
+    onAdd : function(ds,record,row){
+//        if(this.lb)
+//        var sb = [];var cols = [];
+//        var v = 0;
+        var columns = this.columns,
+        	isAdd = row === this.dataset.data.length-1,
+        	css = this.parseCss(this.renderRow(record,row)),
+        	rowAlt = 'row-alt',
+        	cls = (row % 2==0 ? '' : rowAlt)+' '+css.cls;
         if(this.lbt){
-            var ltr = document.createElement("tr");
+            var ltr = document.createElement("tr"),
+            	ltb = this.lbt.dom.tBodies[0];
             ltr.id=this.id+'$l'+'-'+record.id;
-            ltr.className=(row % 2==0 ? '' : 'row-alt')+' '+css.cls;
+            ltr.className=cls;
             Ext.fly(ltr).set({'style':css.style});
             for(var i=0,l=columns.length;i<l;i++){
                 var col = columns[i];
@@ -537,17 +540,25 @@ $A.Grid = Ext.extend($A.Component,{
                             td.className = 'grid-rownumber';
                         }
                     }
-                    var cell = this.createCell(col,record, false);
-                    td.innerHTML = cell;
+                    td.innerHTML = this.createCell(col,record, false);
                     ltr.appendChild(td);
                 }
             }
-            this.lbt.dom.tBodies[0].appendChild(ltr);
+            if(isAdd){
+	        	ltb.appendChild(ltr);
+	        }else{
+	        	var trs = Ext.fly(ltb).query('tr[class!=grid-hl]');
+	        	for(var i=row,l = trs.length;i<l;i++){
+					Ext.fly(trs[i]).toggleClass(rowAlt);    		
+	        	}
+	        	ltb.insertBefore(ltr,trs[row]);
+	        }
         }
         
-        var utr = document.createElement("tr");
+        var utr = document.createElement("tr"),
+        	utb = this.ubt.dom.tBodies[0];
         utr.id=this.id+'$u'+'-'+record.id;
-        utr.className=(row % 2==0 ? '' : 'row-alt')+' '+css.cls;
+        utr.className=cls;
         Ext.fly(utr).set({'style':css.style});
         for(var i=0,l=columns.length;i<l;i++){
             var col = columns[i];
@@ -560,12 +571,19 @@ $A.Grid = Ext.extend($A.Component,{
                     'recordid':record.id,
                     'atype':'grid-cell'
                 })
-                var cell = this.createCell(col,record,false);
-                td.innerHTML = cell;
+                td.innerHTML = this.createCell(col,record,false);
                 utr.appendChild(td);
             }
         }
-        this.ubt.dom.tBodies[0].appendChild(utr);
+        if(isAdd){
+        	utb.appendChild(utr);
+        }else{
+        	var trs = Ext.fly(utb).query('tr[class!=grid-hl]');
+        	for(var i=row,l = trs.length;i<l;i++){
+				Ext.fly(trs[i]).toggleClass(rowAlt);    		
+        	}
+        	utb.insertBefore(utr,trs[row]);
+        }
     	this.setSelectStatus(record);
     },
     renderEditor : function(div,record,c,editor){
@@ -1008,6 +1026,10 @@ $A.Grid = Ext.extend($A.Component,{
                 	}
                 }else{
                     var nr = ds.getAt(row+1);
+                    if(!nr && this.createifnorow !== false){
+		            	this.dataset.create();
+		            	nr = ds.getAt(row+1);
+		            }
                     if(nr){
                     	sf.selectRow(row+1);
                         for(var i = 0,l = cls.length; i<l; i++){

@@ -436,10 +436,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     addField : function(fd,notCheck){
         if(notCheck !== true){
-        	var rf = field.returnfield,
-        		vf = field.valuefield;
+        	var rf = fd.returnfield,
+        		vf = fd.valuefield;
         	if(rf && vf){
-        		var mapping = field.mapping || [],has = false;
+        		var mapping = fd.mapping || [],has = false;
         		for(var i=0,l=mapping.length;i<l;i++){
         			var m = mapping[i];
         			if(m.from == vf && m.to == rf){
@@ -449,7 +449,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         		}
         		if(!has){
         			mapping.push({from:vf,to:rf});
-        			field.mapping = mapping;
+        			fd.mapping = mapping;
         		}
         	}
         }
@@ -544,10 +544,15 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     /**
      * 创建一条记录
      * @param {Object} data 数据对象
+     * @param {Number} index 指定位置.若不指定则添加到最后.
      * @return {Aurora.Record} record 返回创建的record对象
      */
-    create : function(data, valid){
-        data = data||{}
+    create : function(data, index){
+    	if(Ext.isNumber(data)){
+    		index = data;
+    		data = {};
+    	}else
+        	data = data||{}
         if(this.fireEvent("beforecreate", this, data)){
     //      if(valid !== false) if(!this.validCurrent())return;
             var dd = {};
@@ -562,7 +567,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
             var data = Ext.apply(data||{},dd);
             var record = new $A.Record(data);
-            this.add(record); 
+            this.add(record,index)
     //        var index = (this.currentPage-1)*this.pagesize + this.data.length;
     //        this.locate(index, true);
             return record;
@@ -591,12 +596,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     /**
      * 新增数据. 
      * @param {Aurora.Record} record 需要新增的Record对象. 
+     * @param {Number} index 指定位置.若不指定则添加到最后. 
      */
-    add : function(record){
+    add : function(record,index){
+    	var d = this.data;
+    	if(d.indexOf(record) != -1)return;
+    	if(Ext.isEmpty(index)||index > d.length)index = d.length;
         record.isNew = true;
         record.setDataSet(this);
-        var index = this.data.length;
-        this.data.add(record);
+//        var index = this.data.length;
+        d.splice(index,0,record);
 //        for(var k in this.fields){
 //          var field = this.fields[k];
 //          if(field.type == 'dataset'){                
@@ -604,10 +613,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //              ds.resetConfig()            
 //          }
 //      }
-        var index = (this.currentPage-1)*this.pagesize + this.data.length;
-        this.currentIndex = index;
+        this.currentIndex = (this.currentPage-1)*this.pagesize + index + 1;
         this.fireEvent("add", this, record, index);
-        this.locate(index, true);
+        this.locate(this.currentIndex, true);
     },
     /**
      * 获取当前Record的数据对象
