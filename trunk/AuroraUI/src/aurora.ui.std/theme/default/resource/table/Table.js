@@ -27,6 +27,7 @@ $A.Table = Ext.extend($A.Component,{
 			this.tbody[ou]('mousewheel',this.onMouseWheel,this);
 		}
 		if(this.cb)this.cb[ou]('click',this.onHeadClick,this);
+		this[ou]('cellclick',this.onCellClick,this);
 	},
 	processDataSetLiestener: function(ou){
         var ds = this.dataset;
@@ -51,6 +52,8 @@ $A.Table = Ext.extend($A.Component,{
             ds[ou]('indexchange', this.onIndexChange, this);
             ds[ou]('select', this.onSelect, this);
             ds[ou]('unselect', this.onUnSelect, this);
+            ds[ou]('selectall', this.onSelectAll, this);
+            ds[ou]('unselectall', this.onUnSelectAll, this);
         }
     },
     initEvents:function(){
@@ -111,23 +114,33 @@ $A.Table = Ext.extend($A.Component,{
         this.cellTpl = new Ext.Template('<div class="table-cell {cellcls}" id="'+this.id+'_{name}_{recordid}">{text}</div>');        
     	this.cbTpl = new Ext.Template('<center><div class="{cellcls}" id="'+this.id+'_{name}_{recordid}"></div></center>');
     },
-	createRow:function(record,index){
-		var tr=this.tbody.dom.insertRow(-1);
-		var css=this.parseCss(this.renderRow(record,index));
+	createRow:function(record,index,isInsert){
+		var rowAlt = "table-row-alt";
+		if(isInsert){
+			var trs = this.wrap.query('tbody tr');
+	        	for(var i=index,l = trs.length;i<l;i++){
+					Ext.fly(trs[i]).toggleClass(rowAlt)
+						.select('.table-rowbox').each(function(td){
+							this.setSelectStatus(this.dataset.findById(td.getAttributeNS('','recordid')));
+						},this);
+	        	}
+		}
+		var tr=this.tbody.dom.insertRow(index),
+			css=this.parseCss(this.renderRow(record,index));
 		tr.id=this.id+'-'+record.id;
 		tr.style.cssText=css.style;
-		tr.className=(index%2==1?"table-row-alt ":"")+css.cls;
-		for(var i=0,l=this.columns.length;i<l;i++){
-			this.createCell(tr,this.columns[i],record);
-		}
+		tr.className=(index%2==1?rowAlt+' ':'')+css.cls;
+		Ext.each(this.columns,function(c){
+			this.createCell(tr,c,record);
+		},this);
 	},
 	createEmptyRow:function(){
 		this.emptyRow=this.tbody.dom.insertRow(-1);
-		for(var i=0,l=this.columns.length;i<l;i++){
-			var td=this.emptyRow.insertCell(-1),col = this.columns[i];
-			td.innerHTML="&#160;";
-			Ext.fly(td).set({'atype':'table-cell','dataindex':col.name,'style':'text-align:'+(col.align||'left')+(col.hidden?';display:none;':';')});
-		}
+		Ext.each(this.columns,function(col){
+			Ext.fly(this.emptyRow.insertCell(-1))
+				.set({'atype':'table-cell','dataindex':col.name,'style':'text-align:'+(col.align||'left')+(col.hidden?';display:none;':';')})
+				.update('&#160;');
+		},this);
 	},
 	removeEmptyRow:function(){
 		if(this.emptyRow){
@@ -136,118 +149,124 @@ $A.Table = Ext.extend($A.Component,{
 		}
 	},
 	getCheckBoxStatus: function(record, name ,readonly) {
-        var field = this.dataset.getField(name)
-        var cv = field.getPropertity('checkedvalue');
-        var uv = field.getPropertity('uncheckedvalue');
-        var value = record.data[name];
+        var field = this.dataset.getField(name),
+        	cv = field.getPropertity('checkedvalue'),
+        	value = record.data[name];
         return 'item-ckb-'+(readonly?'readonly-':'')+((value && value == cv) ? 'c' : 'u');
     },
 	createCell:function(tr,col,record){
-		var field = record.getMeta().getField(col.name);
-        if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get('required') == true){
-            cls = cls + ' ' + this.nbcls
-        }
-		var editor = this.getEditor(col,record),xtype = col.type,readonly,cls,td;
+		var editor = this.getEditor(col,record),
+			xtype = col.type,
+			xname = col.name,
+			readonly,cls='',td;
 		if(tr.tagName.toLowerCase()=='tr')td=tr.insertCell(-1);
 		else td=Ext.fly(tr).parent('td').dom
 		if(editor!=''){
         	var edi = $A.CmpManager.get(editor);
             if(edi && (edi instanceof $A.CheckBox)){
                 xtype = 'cellcheck';
-                cls = '';
             }else{
                 cls = 'table-cell-editor';
             }
-        }else if(col.name && Ext.isDefined(record.getField(col.name).get('checkedvalue'))){
+        }else if(xname && Ext.isDefined(record.getField(xname).get('checkedvalue'))){
     		xtype = 'cellcheck';
     		readonly=true;
         }
 		if(xtype == 'rowcheck'||xtype == 'rowradio'){
-	    	if(!this.dataset.execSelectFunction(record))readonly="-readonly";
-	    	else readonly="";
+			readonly = this.dataset.execSelectFunction(record)?'':'-readonly';
 	    	Ext.fly(td).set({'atype':xtype == 'rowcheck'?'table.rowcheck':'table.rowradio','recordid':record.id,'class':'table-rowbox'});
-	        td.innerHTML=this.cbTpl.applyTemplate({cellcls:xtype == 'rowcheck'?'table-ckb item-ckb'+readonly+'-u':'table-radio item-radio-img'+readonly+'-u',name:col.name,recordid:record.id});
+	        td.innerHTML=this.cbTpl.applyTemplate({cellcls:xtype == 'rowcheck'?'table-ckb item-ckb'+readonly+'-u':'table-radio item-radio-img'+readonly+'-u',name:xname,recordid:record.id});
 	    }else{
-			Ext.fly(td).set({'atype':'table-cell','recordid':record.id,'dataindex':col.name,'style':'text-align:'+(col.align||'left')+(col.hidden?';display:none;':';')});
+			Ext.fly(td).set({'atype':'table-cell','recordid':record.id,'dataindex':xname,'style':'text-align:'+(col.align||'left')+(col.hidden?';display:none;':';')});
 			if(xtype == 'cellcheck'){
-				td.innerHTML=this.cbTpl.applyTemplate({cellcls:'table-ckb ' + this.getCheckBoxStatus(record, col.name ,readonly),name:col.name,recordid:record.id});
+				td.innerHTML=this.cbTpl.applyTemplate({cellcls:'table-ckb ' + this.getCheckBoxStatus(record, xname ,readonly),name:xname,recordid:record.id});
 			}else{
-				td.innerHTML=this.cellTpl.applyTemplate({text:this.renderText(record,col,record.data[col.name]),cellcls:cls,name:col.name,recordid:record.id});
+				var field = record.getMeta().getField(xname);
+		        if(field && Ext.isEmpty(record.data[xname]) && record.isNew == true && field.get('required') == true){
+		            cls = cls + ' ' + this.nbcls
+		        }
+				td.innerHTML=this.cellTpl.applyTemplate({text:this.renderText(record,col,record.data[xname]),cellcls:cls,name:xname,recordid:record.id});
 			}
 		}
 	},
-	onSelect : function(ds,record){
+    onSelect : function(ds,record,isSelectAll){
+        if(!record||isSelectAll)return;
         var cb = Ext.get(this.id+'__'+record.id);
-        if(cb && this.selectable && this.selectionmodel=='multiple') {
-            this.setCheckBoxStatus(cb, true);
-            this.setSelectStatus(record);
-        }else{
-            this.setRadioStatus(cb,true);
-            this.setSelectStatus(record);
+        cb.parent('.table-rowbox').addClass('item-ckb-self');
+        if(cb){
+	        if(this.selectionmodel=='multiple') {
+	            this.setCheckBoxStatus(cb, true);
+	            this.setSelectStatus(record);
+	        }else{
+	            this.setRadioStatus(cb,true);
+	            this.setSelectStatus(record);
+	            this.dataset.locate((this.dataset.currentPage-1)*this.dataset.pagesize + this.dataset.indexOf(record) + 1)
+	        }
         }
     },
-    onUnSelect : function(ds,record){
+    onUnSelect : function(ds,record,isSelectAll){
+        if(!record||isSelectAll)return;
         var cb = Ext.get(this.id+'__'+record.id);
-        if(cb && this.selectable && this.selectionmodel=='multiple') {
-            this.setCheckBoxStatus(cb, false);
-            this.setSelectStatus(record);
-        }else{
-            this.setRadioStatus(cb,false);
-            this.setSelectStatus(record);
+        cb.parent('.table-rowbox').addClass('item-ckb-self');
+        if(cb){
+	        if(this.selectionmodel=='multiple') {
+	            this.setCheckBoxStatus(cb, false);
+	            this.setSelectStatus(record);
+	        }else{
+	            this.setRadioStatus(cb,false);
+	            this.setSelectStatus(record);
+	        }
         }
+    },
+    onSelectAll : function(){
+    	this.clearChecked();
+    	this.isSelectAll = true;
+    	this.isUnSelectAll = false;
+    	this.wrap.addClass('table-select-all');
+    },
+    onUnSelectAll : function(){
+    	this.clearChecked();
+    	this.isSelectAll = false;
+    	this.isUnSelectAll = true;
+    	this.wrap.removeClass('table-select-all');
+    },
+    clearChecked : function(){
+    	var w = this.wrap;
+		w.select('.item-ckb-self .item-ckb-c').replaceClass('item-ckb-c','item-ckb-u');
+		w.select('.item-ckb-self').removeClass('item-ckb-self');
     },
     setRadioStatus: function(el, checked){
         if(!checked){
-            el.removeClass('item-radio-img-c');
-            el.addClass('item-radio-img-u');
+            el.removeClass('item-radio-img-c').addClass('item-radio-img-u');
         }else{
-            el.addClass('item-radio-img-c');
-            el.removeClass('item-radio-img-u');
+            el.addClass('item-radio-img-c').removeClass('item-radio-img-u');
         }
     },
     setCheckBoxStatus: function(el, checked){
         if(!checked){
-            el.removeClass('item-ckb-c');
-            el.addClass('item-ckb-u');
+            el.removeClass('item-ckb-c').addClass('item-ckb-u');
         }else{
-            el.addClass('item-ckb-c');
-            el.removeClass('item-ckb-u');
+            el.addClass('item-ckb-c').removeClass('item-ckb-u');
         }
     },
     setSelectDisable:function(el,record){
-    	if(this.selectable && this.selectionmodel=='multiple'){
-    		el.removeClass('item-ckb-c');
-    		el.removeClass('item-ckb-u');
-            if(this.dataset.selected.indexOf(record) == -1){
-                el.addClass('item-ckb-readonly-u');
-            }else{
-                el.addClass('item-ckb-readonly-c');
-            }
+    	var flag = this.dataset.selected.indexOf(record) == -1;
+    	if(this.selectionmodel=='multiple'){
+    		el.removeClass(['item-ckb-c','item-ckb-u'])
+    			.addClass(flag?'item-ckb-readonly-u':'item-ckb-readonly-c');
     	}else{
-    		el.removeClass(['item-radio-img-c','item-radio-img-u','item-radio-img-readonly-c','item-radio-img-readonly-u']);
-            if(this.dataset.selected.indexOf(record) == -1){
-                el.addClass('item-radio-img-readonly-u');
-            }else{
-                el.addClass('item-radio-img-readonly-c');
-            }
+    		el.removeClass(['item-radio-img-c','item-radio-img-u','item-radio-img-readonly-c','item-radio-img-readonly-u'])
+            	.addClass(flag?'item-radio-img-readonly-u':'item-radio-img-readonly-c');
     	}
     },
     setSelectEnable:function(el,record){
-    	if(this.selectable && this.selectionmodel=='multiple'){
-            el.removeClass('item-ckb-readonly-u');
-            el.removeClass('item-ckb-readonly-c');
-            if(this.dataset.selected.indexOf(record) == -1){
-                el.addClass('item-ckb-u');
-            }else{
-                el.addClass('item-ckb-c');
-            }
+    	var flag = this.dataset.selected.indexOf(record) == -1;
+    	if(this.selectionmodel=='multiple'){
+    		el.removeClass(['item-ckb-readonly-u','item-ckb-readonly-c'])
+    			.addClass(flag?'item-ckb-u':'item-ckb-c');
     	}else{
-    		el.removeClass(['item-radio-img-u','item-radio-img-c','item-radio-img-readonly-u','item-radio-img-readonly-c']);
-            if(this.dataset.selected.indexOf(record) == -1){
-                el.addClass('item-radio-img-u');
-            }else{
-                el.addClass('item-radio-img-c');
-            }
+            el.removeClass(['item-radio-img-u','item-radio-img-c','item-radio-img-readonly-u','item-radio-img-readonly-c'])
+    			.addClass(flag?'item-radio-img-u':'item-radio-img-c');
     	}	
     },
     setSelectStatus:function(record){
@@ -260,15 +279,16 @@ $A.Table = Ext.extend($A.Component,{
 	    	}
     	}
     },
-     onHeadClick : function(e){
-            var cb = this.cb;
-            var checked = cb.hasClass('item-ckb-c');
-            this.setCheckBoxStatus(cb,!checked);
-            if(!checked){
-                this.dataset.selectAll();
-            }else{
-                this.dataset.unSelectAll();
-            }
+    onHeadClick : function(e){
+        var cb = this.cb,
+        	ds = this.dataset,
+        	checked = cb.hasClass('item-ckb-c');
+        this.setCheckBoxStatus(cb,!checked);
+        if(!checked){
+            ds.selectAll();
+        }else{
+            ds.unSelectAll();
+        }
     },
 	/**
      * 设置当前行的编辑器.
@@ -277,14 +297,15 @@ $A.Table = Ext.extend($A.Component,{
      * @param {String} editor 编辑器的id. ''空表示没有编辑器.
      */
     setEditor: function(name,editor){
-        var col = this.findColByName(name);
+        var col = this.findColByName(name),
+        	div = Ext.get(this.id+'_'+name+'_'+this.selectedId);
         col.editor = editor;
-        this.focusdiv = Ext.get(this.id+'_'+name+'_'+this.selectRecord.id)
-        if(this.focusdiv){
+        if(div){
+        	this.focusdiv = div;
         	if(editor == ''){
-            	this.focusdiv.removeClass(this.cecls)
+            	div.removeClass(this.cecls)
             }else if(!$(editor) instanceof $A.CheckBox){
-            	this.focusdiv.addClass(this.cecls)
+            	div.addClass(this.cecls)
             }
         }
     },
@@ -296,7 +317,7 @@ $A.Table = Ext.extend($A.Component,{
                 alert("未找到"+col.editorfunction+"方法!") ;
                 return null;
             }
-            ed = ef.call(window,record,col.name)
+            ed = ef.call(window,record,col.name)||'';
         }
         return ed;
     },
@@ -305,21 +326,18 @@ $A.Table = Ext.extend($A.Component,{
      * @param {Number} row 行号
      * @param {String} name 当前列的name.
      */
-    showEditor : function(row, name,callback){       
+    showEditor : function(row, name,callback){     
         if(row == -1)return;
         var col = this.findColByName(name);
         if(!col)return;
         var record = this.dataset.getAt(row);
         if(!record)return;
-        if(record.id != this.selectedId)
-        //this.selectRecord = record;
-        this.selectRow(row);
-        //this.focusColumn(name);
+        if(record.id != this.selectedId) this.selectRow(row);
         var editor = this.getEditor(col,record);
         this.setEditor(name, editor);
         var sf = this;
         if(sf.currentEditor){
-        	sf.currentEditor.editor.el.un('keydown', sf.onEidtorKeyDown,sf);
+        	sf.currentEditor.editor.el.un('keydown', sf.onEditorKeyDown,sf);
     		var d = sf.currentEditor.focusCheckBox;
     		if(d){
     			d.setStyle('outline','none');
@@ -329,39 +347,32 @@ $A.Table = Ext.extend($A.Component,{
         if(editor!=''){
         	var ed = $(editor);
             setTimeout(function(){
-                var v = record.get(name)
+                var v = record.get(name),
+                	dom = Ext.get(sf.id+'_'+name+'_'+record.id),
+                	xy = dom.getXY();
                 sf.currentEditor = {
                     record:record,
                     ov:v,
                     name:name,
                     editor:ed
                 };
-                var dom = Ext.get(sf.id+'_'+name+'_'+record.id);
-                var xy = dom.getXY();
                 ed.bind(sf.dataset, name);
                 ed.render(record);
 	        	if(ed instanceof $A.CheckBox){
 	        		ed.move(-1000,xy[1]+5);
-		        	ed.el.on('keydown', sf.onEidtorKeyDown,sf);
+		        	ed.el.on('keydown', sf.onEditorKeyDown,sf);
 		        	ed.onClick();
 		        	sf.currentEditor.focusCheckBox = dom;
 	        		dom.setStyle('outline','1px dotted blue');
-//		            var field = this.dataset.getField(name)
-//		            var cv = field.getPropertity('checkedvalue');
-//		            var uv = field.getPropertity('uncheckedvalue');
-//		            var v = record.get(name);
-//		            record.set(name, v == cv ? uv : cv);
 		        } else if(editor){
            			sf.positionEditor();
                     ed.isEditor = true;
                     ed.isFireEvent = true;
                     ed.isHidden = false;
-//                    ed.bind(sf.dataset, name);
-//                    ed.render(record);
                     ed.focus();
                     sf.editing = true;
-                    ed.el.on('keydown', sf.onEidtorKeyDown,sf);
-//                    ed.on('blur',sf.onEditorBlur, sf);
+                    ed.el.on('keydown', sf.onEditorKeyDown,sf);
+                    ed.on('select',sf.onEditorSelect,sf);
                     Ext.fly(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
                     Ext.fly(window).on("resize", sf.positionEditor, sf);
                     if(callback)callback.call(window,ed)
@@ -370,19 +381,29 @@ $A.Table = Ext.extend($A.Component,{
             },10)
         }           
     },
-    onEidtorKeyDown : function(e,editor){
+    onEditorSelect : function(){
+		var sf =this;
+		setTimeout(function(){sf.hideEditor()},1);
+    },
+    onEditorKeyDown : function(e,editor){
         var keyCode = e.keyCode;
         //esc
         if(keyCode == 27) {
-            editor.clearInvalid();
-            editor.render(editor.binder.ds.getCurrentRecord());
+            if(this.currentEditor){
+                var ed = this.currentEditor.editor;
+                if(ed){
+	                ed.clearInvalid();
+	                ed.render(ed.binder.ds.getCurrentRecord());
+                }
+            }
             this.hideEditor();
-        }
+        }else
         //enter
         if(keyCode == 13) {
-        	if(!editor instanceof $A.TextArea)
-            this.showNextEditor();
-        }
+        	if(!(this.currentEditor && this.currentEditor.editor && this.currentEditor.editor instanceof $A.TextArea)){
+	            this.showNextEditor();
+        	}
+        }else
         //tab
         if(keyCode == 9){
             e.stopEvent();
@@ -392,107 +413,115 @@ $A.Table = Ext.extend($A.Component,{
     showNextEditor : function(){
         this.hideEditor();
         var sf = this;
-        if(this.currentEditor && this.currentEditor.editor){
-            var callback = function(ed){
-                if(ed instanceof Aurora.Lov){
-                    ed.showLovWindow();
-                }
-            }
-            var ed = this.currentEditor.editor,ds = ed.binder.ds,
+        if(sf.currentEditor){
+        	var ed = sf.currentEditor.editor;
+        	if(ed){
+	            var callback = function(e){
+	                if(e instanceof $A.Lov){
+	                    e.showLovWindow();
+	                }
+	            },
+            	ds = sf.dataset,
                 fname = ed.binder.name,r = ed.record,
                 row = ds.data.indexOf(r),name=null;
-            if(row!=-1){
-                var cls = this.columns;
-                var start = 0;
-                for(var i = 0,l = cls.length; i<l; i++){
-                    if(cls[i].name == fname){
-                        start = i+1;
-                    }
-                }
-                var editor;
-                for(var i = start,l = cls.length; i<l; i++){
-                    var col = cls[i];
-                    if(col.hidden !=true){
-	                    editor = this.getEditor(col,r);
-	                    if(editor!=''){
-	                        name =  col.name;
+	            if(row!=-1){
+	                var cls = sf.columns,
+	                	start = 0,
+	                	editor;
+	                for(var i = 0,l = cls.length; i<l; i++){
+	                    if(cls[i].name == fname){
+	                        start = i+1;
 	                        break;
 	                    }
-                    }
-                }
-                if(sf.currentEditor){
-        			var d= sf.currentEditor.focusCheckBox;
-        			if(d){
-        				d.setStyle('outline','none');
-        				sf.currentEditor.focusCheckBox = null;
-        			}
-        		}
-                if(name){
-                	var ed = $(editor);
-                	if(ed instanceof $A.CheckBox){
-                		sf.currentEditor = {
-		                    record:r,
-		                    ov:r.get(name),
-		                    name:name,
-		                    editor:ed
-		                };
-                		setTimeout(function(){
-	                		ed.bind(sf.dataset,name);
-	                		ed.render(r);
-	                		var dom = Ext.get(sf.id+'_'+name+'_'+r.id);
-	                		var xy = dom.getXY();
-	                		ed.move(-1000,xy[1])
-	                		ed.focus();
-	                		ed.el.on('keydown', sf.onEidtorKeyDown,sf);
-	                		sf.currentEditor.focusCheckBox = dom;
-	                		dom.setStyle('outline','1px dotted blue');
-                		},10)
-                	}else{
-	                    this.fireEvent('cellclick', this, row, name, r);
-	                    this.showEditor(row,name,callback);
-                	}
-                }else{
-                    var nr = ds.getAt(row+1);
-                    if(nr){
-                    	sf.selectRow(row+1);
-                        for(var i = 0,l = cls.length; i<l; i++){
-                            var col = cls[i];
-                            var editor = this.getEditor(col,nr);
-                            if(editor!=''){
-                            	var ed = $(editor),name = col.name;
-                            	if(ed instanceof $A.CheckBox){
-			                		sf.currentEditor = {
-					                    record:nr,
-					                    ov:nr.get(name),
-					                    name:name,
-					                    editor:ed
-					                };
-			                		setTimeout(function(){
-				                		ed.bind(sf.dataset,name);
-				                		ed.render(nr);
-				                		var dom = Ext.get(sf.id+'_'+name+'_'+nr.id);
-				                		var xy = dom.getXY();
-				                		ed.move(-1000,xy[1])
-				                		ed.focus();
-				                		ed.el.on('keydown', sf.onEidtorKeyDown,sf);
-				                		sf.currentEditor.focusCheckBox = dom;
-				                		dom.setStyle('outline','1px dotted blue');
-			                		},10)
-			                	}else{
-	                                this.fireEvent('cellclick', this, row+1, name, nr);
-	                                this.showEditor(row+1,name,callback);
-			                	}
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            this.fireEvent('nexteditorshow',this, row, name);
+	                }
+	                for(var i = start,l = cls.length; i<l; i++){
+	                    var col = cls[i];
+	                    if(col.hidden !=true){
+		                    editor = sf.getEditor(col,r);
+		                    if(editor!=''){
+		                        name =  col.name;
+		                        break;
+		                    }
+	                    }
+	                }
+	                if(sf.currentEditor){
+	        			var d= sf.currentEditor.focusCheckBox;
+	        			if(d){
+	        				d.setStyle('outline','none');
+	        				sf.currentEditor.focusCheckBox = null;
+	        			}
+	        		}
+	                if(name){
+	                	var ed = $(editor);
+	                	if(ed instanceof $A.CheckBox){
+	                		sf.currentEditor = {
+			                    record:r,
+			                    ov:r.get(name),
+			                    name:name,
+			                    editor:ed
+			                };
+	                		setTimeout(function(){
+		                		ed.bind(ds,name);
+		                		ed.render(r);
+		                		var dom = Ext.get([sf.id,name,r.id].join('_')),
+		                			xy = dom.getXY();
+		                		ed.move(-1000,xy[1])
+		                		ed.focus();
+		                		ed.el.on('keydown', sf.onEditorKeyDown,sf);
+		                		sf.currentEditor.focusCheckBox = dom;
+		                		dom.setStyle('outline','1px dotted blue');
+	                		},10)
+	                	}else{
+		                    sf.fireEvent('cellclick', sf, row, name, r ,callback);
+		                    //this.showEditor(row,name,callback);
+	                	}
+	                }else{
+	                    var nr = ds.getAt(row+1);
+	                    if(!nr && sf.autoappend !== false){
+			            	ds.create();
+			            	nr = ds.getAt(row+1);
+			            }
+	                    if(nr){
+	                    	sf.selectRow(row+1);
+	                        for(var i = 0,l = cls.length; i<l; i++){
+	                            var col = cls[i],
+	                            	editor = sf.getEditor(col,nr);
+	                            if(editor!=''){
+	                            	var ed = $(editor),name = col.name;
+	                            	if(ed instanceof $A.CheckBox){
+				                		sf.currentEditor = {
+						                    record:nr,
+						                    ov:nr.get(name),
+						                    name:name,
+						                    editor:ed
+						                };
+				                		setTimeout(function(){
+					                		ed.bind(ds,name);
+					                		ed.render(nr);
+					                		var dom = Ext.get([sf.id,name,nr.id].join('_')),
+					                			xy = dom.getXY();
+					                		ed.move(-1000,xy[1])
+					                		ed.focus();
+					                		ed.el.on('keydown', sf.onEditorKeyDown,sf);
+					                		sf.currentEditor.focusCheckBox = dom;
+					                		dom.setStyle('outline','1px dotted blue');
+				                		},10)
+				                	}else{
+		                                sf.fireEvent('cellclick', sf, row+1, name, nr ,callback);
+		                                //this.showEditor(row+1,name,callback);
+				                	}
+	                                break;
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	            sf.fireEvent('nexteditorshow',sf, row, name);
+        	}
         }
     },
     positionEditor:function(){
-    	var ed=this.currentEditor.editor,dom=this.focusdiv,xy = dom.getXY(),sf=this;
+    	var ed=this.currentEditor.editor,dom=this.focusdiv,xy = dom.getXY();
         ed.setHeight(dom.getHeight()-2);
         ed.setWidth(dom.getWidth()-5<22?22:(dom.getWidth()-5));
         ed.move(xy[0],xy[1]);
@@ -511,24 +540,21 @@ $A.Table = Ext.extend($A.Component,{
      * 隐藏当前编辑器
      */
     hideEditor : function(){
-        if(this.currentEditor && this.currentEditor.editor){
+        if(this.currentEditor && this.editing){
             var ed = this.currentEditor.editor;
-//            ed.un('blur',this.onEditorBlur, this);
-            var needHide = true;
-            if(ed.canHide){
-                needHide = ed.canHide();
+            if(ed){
+	            if(!ed.canHide || ed.canHide()) {
+	            	ed.el.un('keydown', this.onEditorKeyDown,this);
+	            	ed.un('select',this.onEditorSelect,this);
+	                Ext.fly(document.documentElement).un("mousedown", this.onEditorBlur, this);
+	                Ext.fly(window).un("resize", this.positionEditor, this);
+	                ed.move(-10000,-10000);
+	                ed.onBlur();
+	                ed.isFireEvent = false;
+	                ed.isHidden = true;
+		            this.editing = false;
+	            }
             }
-            if(needHide) {
-            	ed.el.un('keydown', this.onEidtorKeyDown,this);
-                Ext.fly(document.documentElement).un("mousedown", this.onEditorBlur, this);
-                Ext.fly(window).un("resize", this.positionEditor, this);
-                var ed = this.currentEditor.editor;
-                ed.move(-10000,-10000);
-                ed.onBlur();
-                ed.isFireEvent = false;
-                ed.isHidden = true;
-            }
-            this.editing = false;
         }
     },
         /**
@@ -536,54 +562,43 @@ $A.Table = Ext.extend($A.Component,{
      * @param {Number} row 行号
      */
     selectRow : function(row, locate){
-        var record = this.dataset.getAt(row) 
+        var ds = this.dataset,record = ds.getAt(row),
+        	r = (ds.currentPage-1)*ds.pagesize + row+1;
         this.selectedId = record.id;
-        if(this.selectTr)this.selectTr.setStyle(this.bgc,'');
+        if(this.selectTr)this.selectTr.removeClass('row-selected');
         this.selectTr = Ext.get(this.id+'-'+record.id);
-        if(this.selectTr)this.selectTr.setStyle(this.bgc,this.scor);
+        if(this.selectTr)this.selectTr.addClass('row-selected');
         //this.focusRow(row);
-        var r = (this.dataset.currentPage-1)*this.dataset.pagesize + row+1;
         this.selectRecord = record
         if(locate!==false && r != null) {
 //          this.dataset.locate(r);
-            this.dataset.locate.defer(5, this.dataset,[r,false]);
+            ds.locate.defer(5, ds,[r,false]);
         }
     },
      drawFootBar : function(objs){
     	if(!this.fb) return;
-    	objs = [].concat((objs) ? objs : this.columns);
-    	var sf = this;
-    	Ext.each(objs, function(obj) {
-    		var col = typeof(obj)==='string' ? sf.findColByName(obj) : obj;
+    	Ext.each([].concat((objs) ? objs : this.columns), function(obj) {
+    		var col = typeof(obj)==='string' ? this.findColByName(obj) : obj;
             if(col&&col.footerrenderer){
-                var name = col.name;
                 var fder = $A.getRenderer(col.footerrenderer);
                 if(fder == null){
                     alert("未找到"+col.footerrenderer+"方法!")
                     return;
                 }
-                var v = fder.call(window,sf.dataset.data, name);
+                var name = col.name,
+                	v = fder.call(window,this.dataset.data, name);
                 if(!Ext.isEmpty(v)){
-		    		var t = sf.fb.child('td[dataindex='+name+']');
-	                t.update(v)
+	                this.fb.child('td[dataindex='+name+']').update(v)
                 }
             }
-    	});
+    	},this);
     },
     showColumn : function(name){
         var col = this.findColByName(name);
         if(col){
             if(col.hidden === true){
                 delete col.hidden;
-                //this.setColumnSize(name, col.hiddenWidth);
-                //delete col.hiddenWidth;
-//              if(!Ext.isIE){
-                    var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
-                    for(var i=0,l=tds.length;i<l;i++){
-                        var td = tds[i];
-                        Ext.fly(td).setStyle('display','');
-                    }
-//              }
+                this.wrap.select('td[dataindex='+name+']').setStyle('display','');
             }
         }   
     },
@@ -596,15 +611,7 @@ $A.Table = Ext.extend($A.Component,{
         var col = this.findColByName(name);
         if(col){
             if(col.hidden !== true){
-                //col.hiddenWidth = col.width;
-                //this.setColumnSize(name, 0, false);
-//              if(!Ext.isIE){
-                    var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
-                    for(var i=0,l=tds.length;i<l;i++){
-                        var td = tds[i];
-                        Ext.fly(td).setStyle('display','none');
-                    }
-//              }
+            	this.wrap.select('td[dataindex='+name+']').setStyle('display','none');
                 col.hidden = true;
             }
         }       
@@ -616,16 +623,17 @@ $A.Table = Ext.extend($A.Component,{
      * @return {Object} col 列配置对象.
      */
     findColByName : function(name){
-        var col;
-        for(var i=0,l=this.columns.length;i<l;i++){
-            var c = this.columns[i];
-            if(c.name && c.name.toLowerCase() === name.toLowerCase()){
-                col = c;
-                break;
-            }
-        }
-        return col;
-    },
+    	if(name){
+    		var cols = this.columns;
+	        for(var i=0,l=cols.length;i<l;i++){
+	            var c = cols[i];
+	            if(c.name && c.name.toLowerCase() === name.toLowerCase()){
+	                return c;
+	            }
+	        }
+    	}
+        return;
+    }, 
     parseCss:function(css){
     	var style="",cls="";
     	if(Ext.isArray(css)){
@@ -635,7 +643,7 @@ $A.Table = Ext.extend($A.Component,{
     			cls+=" "+_css.cls;
     		}
     	}else if(typeof css=="string"){
-    		isStyle=!!css.match(/^([^,:;]+:[^:;]+;)*[^,:;]+:[^:;]+;*$/);
+    		var isStyle=!!css.match(/^([^,:;]+:[^:;]+;)*[^,:;]+:[^:;]+;*$/);
     		cls=isStyle?"":css;
 			style=isStyle?css:"";
     	}
@@ -672,29 +680,38 @@ $A.Table = Ext.extend($A.Component,{
     	this.createCell(div.dom,c,record);
     	//div.parent().update(cell);
     },
-    onClick : function(e) {
-        var target = Ext.fly(e.target).findParent('td');
+    onClick : function(e,t) {
+        var isTd = t.tagName.toUpperCase() == 'TD' ,
+        	target = isTd?Ext.fly(t):Ext.fly(t).parent('td');
         if(target){
-            var atype = Ext.fly(target).getAttributeNS("","atype");
-            var rid = Ext.fly(target).getAttributeNS("","recordid");
+            var atype = target.getAttributeNS("","atype"),
+            	rid = target.getAttributeNS("","recordid"),
+            	ds = this.dataset;
             if(atype=='table-cell'){
-                var record = this.dataset.findById(rid);
-                var row = this.dataset.indexOf(record);
-                var name = Ext.fly(target).getAttributeNS("","dataindex");
-                this.showEditor(row,name);
+                var record = ds.findById(rid),
+                	row = ds.indexOf(record),
+                	name = target.getAttributeNS("","dataindex");
                 this.fireEvent('cellclick', this, row, name, record);
+//                this.showEditor(row,name);
                 this.fireEvent('rowclick', this, row, record);
             }else if(atype=='table.rowcheck'){               
                 var cb = Ext.get(this.id+'__'+rid);
                 if(cb.hasClass('item-ckb-readonly-u')||cb.hasClass('item-ckb-readonly-c'))return;
-                var checked = cb.hasClass('item-ckb-c');
-                (checked) ? this.dataset.unSelect(rid) : this.dataset.select(rid);
+                if(this.isSelectAll && !cb.parent('.item-ckb-self')){
+                	cb.replaceClass('item-ckb-u','item-ckb-c');	
+                }else if(this.isUnselectAll && !cb.parent('.item-ckb-self')){
+            		cb.replaceClass('item-ckb-c','item-ckb-u');	
+                }
+                cb.hasClass('item-ckb-c') ? ds.unSelect(rid) : ds.select(rid);
             }else if(atype=='table.rowradio'){
             	var cb = Ext.get(this.id+'__'+rid);
                 if(cb.hasClass('item-radio-img-readonly-u')||cb.hasClass('item-radio-img-readonly-c'))return;
-                this.dataset.select(rid);
+                ds.select(rid);
             }
         }
+    },
+    onCellClick : function(grid,row,name,record,callback){
+    	this.showEditor(row,name,callback);
     },
     onUpdate : function(ds,record, name, value){
         this.setSelectStatus(record);
@@ -731,20 +748,24 @@ $A.Table = Ext.extend($A.Component,{
         this.drawFootBar(name);
     },
     onLoad:function(){
+    	var w = this.wrap,
+    		data = this.dataset.data;
     	this.clearBody();
-    	var l=this.dataset.data.length;
+        var cb = w.removeClass('table-select-all').child('div[atype=table.headcheck]');
+        if(cb && this.selectable && this.selectionmodel=='multiple')this.setCheckBoxStatus(cb,false);
+    	var l=data.length;
     	if(l==0)this.createEmptyRow();
-		for(var i=0;i<l;i++){
-            this.createRow(this.dataset.getAt(i),i);
+		else for(var i=0;i<l;i++){
+            this.createRow(data[i],i);
         }
         this.drawFootBar();
-        $A.Masker.unmask(this.wrap);
+        $A.Masker.unmask(w);
         this.fireEvent('render',this)
 	},
 	onValid : function(ds, record, name, valid){
         var c = this.findColByName(name);
         if(c){
-            var div = Ext.get(this.id+'_'+name+'_'+record.id);
+            var div = Ext.get([this.id,name,record.id].join('_'));
             if(div) {
                 if(valid == false){
                     div.addClass('item-invalid');
@@ -756,7 +777,7 @@ $A.Table = Ext.extend($A.Component,{
     },
     onAdd : function(ds,record,index){
     	this.removeEmptyRow();
-        this.createRow(record,this.dataset.data.length-1);
+        this.createRow(record,index,index !== this.dataset.data.length-1);
         this.selectRow(this.dataset.indexOf(record));
         this.setSelectStatus(record);
     },
@@ -774,46 +795,42 @@ $A.Table = Ext.extend($A.Component,{
 		this.emptyRow = null;
 	},
 	getDataIndex : function(rid){
-        var index = -1;
-        for(var i=0,l=this.dataset.data.length;i<l;i++){
-            var item = this.dataset.getAt(i);
-            if(item.id == rid){
-                index = i;
-                break;
+        for(var i=0,data = this.dataset.data,l=data.length;i<l;i++){
+            if(data[i].id == rid){
+                return i;
             }
         }
-        return index;
+        return -1;
     },
-    onEditorBlur : function(e){
-        if(this.currentEditor && !this.currentEditor.editor.isEventFromComponent(e.target)) { 
-            this.hideEditor();
+    onEditorBlur : function(e,t){
+        if(this.currentEditor && !this.currentEditor.editor.isEventFromComponent(t)) {  
+            this.hideEditor.defer(Ext.isIE9?10:0,this);
         }
     },
     onMouseWheel : function(e){
         e.stopEvent();
         if(this.editing == true) return;
-    	var delta = e.getWheelDelta(),sf=this;
+    	var delta = e.getWheelDelta(),
+    		ds = this.dataset;
         if(delta > 0){
-            sf.dataset.pre();
+            ds.pre();
         } else if(delta < 0){
-            sf.dataset.next();
+            ds.next();
         }
     },
     onIndexChange:function(ds, r){
         var index = this.getDataIndex(r.id);
         if(index == -1)return;
-        if(r != this.selectRecord){
+//        if(r != this.selectRecord){
             this.selectRow(index, false);
-        }
+//        }
     },
     onFieldChange : function(ds, record, field, type, value){
-        switch(type){
-           case 'required':
-               var div = Ext.get(this.id+'_'+field.name+'_'+record.id);
-               if(div) {
-                   (value==true) ? div.addClass(this.nbcls) : div.removeClass(this.nbcls);
-               }
-               break;
+        if(type == 'required'){
+           var div = Ext.get([this.id,field.name,record.id].join('_'));
+           if(div) {
+               div[value==true?'addClass':'removeClass'](this.nbcls);
+           }
         }
     },
     onBeforeRemove : function(){

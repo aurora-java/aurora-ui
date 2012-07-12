@@ -167,7 +167,7 @@ $A.Grid = Ext.extend($A.Component,{
             }
         }else{
             if(key == 38 || key == 40 || key == 33 || key == 34) {
-                if(this.dataset.loading == true) return;
+                if(ds.loading == true) return;
 //                var row;
                 switch(e.getKey()){
                     case 33:
@@ -391,11 +391,10 @@ $A.Grid = Ext.extend($A.Component,{
     },
     preLoad : function(){},
     onLoad : function(){
-    	this.wrap.removeClass('grid-select-all');
     	this.isSelectAll = false;
     	this.clearDomRef();
     	this.preLoad();
-        var cb = Ext.fly(this.wrap).child('div[atype=grid.headcheck]');
+        var cb = this.wrap.removeClass('grid-select-all').child('div[atype=grid.headcheck]');
         if(cb && this.selectable && this.selectionmodel=='multiple')this.setCheckBoxStatus(cb,false);
         if(this.lb)
         this.renderLockArea();
@@ -415,11 +414,12 @@ $A.Grid = Ext.extend($A.Component,{
     onMouseWheel : function(e){
         e.stopEvent();
         if(this.editing == true) return;
-    	var delta = e.getWheelDelta();
+    	var delta = e.getWheelDelta(),
+    		ds = this.dataset;
         if(delta > 0){
-            this.dataset.pre();
+            ds.pre();
         } else if(delta < 0){
-            this.dataset.next();
+            ds.next();
         }
     },
     focus: function(){    	
@@ -497,7 +497,7 @@ $A.Grid = Ext.extend($A.Component,{
         	isAdd = row === this.dataset.data.length-1,
         	css = this.parseCss(this.renderRow(record,row)),
         	rowAlt = 'row-alt',
-        	cls = (row % 2==0 ? '' : rowAlt)+' '+css.cls;
+        	cls = (row % 2==0 ? '' : rowAlt+' ')+css.cls;
         if(this.lbt){
             var ltr = document.createElement("tr"),
             	ltb = this.lbt.dom.tBodies[0];
@@ -536,9 +536,13 @@ $A.Grid = Ext.extend($A.Component,{
 	        }else{
 	        	var trs = Ext.fly(ltb).query('tr[class!=grid-hl]');
 	        	for(var i=row,l = trs.length;i<l;i++){
-					Ext.fly(trs[i]).toggleClass(rowAlt).select('.grid-rownumber div').each(function(div){
+	        		var tr = Ext.fly(trs[i]).toggleClass(rowAlt);
+					tr.select('.grid-rownumber div').each(function(div){
 						div.update(Number(div.dom.innerHTML) + 1);
 					});
+					tr.select('.table-rowbox').each(function(td){
+						this.setSelectStatus(this.dataset.findById(td.getAttributeNS('','recordid')));
+					},this);
 	        	}
 	        	ltb.insertBefore(ltr,trs[row]);
 	        }
@@ -645,13 +649,11 @@ $A.Grid = Ext.extend($A.Component,{
         
     },
     onFieldChange : function(ds, record, field, type, value){
-        switch(type){
-           case 'required':
-               var div = Ext.get([this.id,field.name,record.id].join('_'));
-               if(div) {
-                   (value==true) ? div.addClass(this.nbcls) : div.removeClass(this.nbcls);
-               }
-               break;
+        if(type == 'required'){
+           var div = Ext.get([this.id,field.name,record.id].join('_'));
+           if(div) {
+               div[value==true?'addClass':'removeClass'](this.nbcls);
+           }
         }
     },
 //  onRowMouseOver : function(e){
@@ -684,12 +686,11 @@ $A.Grid = Ext.extend($A.Component,{
         if(cb){
 	        if(this.selectionmodel=='multiple') {
 	            this.setCheckBoxStatus(cb, true);
-	            this.setSelectStatus(record);
 	        }else{
 	            this.setRadioStatus(cb,true);
-	            this.setSelectStatus(record);
 	            this.dataset.locate((this.dataset.currentPage-1)*this.dataset.pagesize + this.dataset.indexOf(record) + 1)
 	        }
+            this.setSelectStatus(record);
         }
     },
     onUnSelect : function(ds,record,isSelectAll){
@@ -699,11 +700,10 @@ $A.Grid = Ext.extend($A.Component,{
         if(cb){
 	        if(this.selectionmodel=='multiple') {
 	            this.setCheckBoxStatus(cb, false);
-	            this.setSelectStatus(record);
 	        }else{
 	            this.setRadioStatus(cb,false);
-	            this.setSelectStatus(record);
 	        }
+            this.setSelectStatus(record);
         }
     },
     onSelectAll : function(){
@@ -719,14 +719,9 @@ $A.Grid = Ext.extend($A.Component,{
     	this.wrap.removeClass('grid-select-all');
     },
     clearChecked : function(){
-    	var ckbs = this.wrap.select('.item-ckb-self');
-    	if(ckbs){
-    		ckbs.removeClass('item-ckb-self');
-    		for(var i = 0,els = ckbs.elements,l = els.length;i<l;i++){
-    			var child = Ext.fly(els[i]).child('.item-ckb-c');
-    			if(child)child.replaceClass('item-ckb-c','item-ckb-u');
-    		}
-    	}
+    	var w = this.wrap;
+		w.select('.item-ckb-self .item-ckb-c').replaceClass('item-ckb-c','item-ckb-u');
+		w.select('.item-ckb-self').removeClass('item-ckb-self');
     },
     onDblclick : function(e,t){
         var target = Ext.fly(t).parent('td[atype=grid-cell]');
@@ -873,15 +868,15 @@ $A.Grid = Ext.extend($A.Component,{
         if(editor!=''){
         	var ed = $(editor);
             setTimeout(function(){
-            	var v = record.get(name);
+            	var v = record.get(name),
+                	dom = Ext.get([sf.id,name,record.id].join('_')),
+                	xy = dom.getXY();
                 sf.currentEditor = {
                     record:record,
                     ov:v,
                     name:name,
                     editor:ed
                 };
-                var dom = Ext.get(sf.id+'_'+name+'_'+record.id),
-                	xy = dom.getXY();
                 ed.bind(sf.dataset, name);
                 ed.render(record);
 	        	if(ed instanceof $A.CheckBox){
@@ -896,9 +891,10 @@ $A.Grid = Ext.extend($A.Component,{
 //		            var v = record.get(name);
 //		            record.set(name, v == cv ? uv : cv);
 	       		}else{
+	       			var p = dom.parent();
 	       			ed.move(xy[0],xy[1]);
-                    ed.setHeight(dom.parent().getHeight()-5)
-                    ed.setWidth(dom.parent().getWidth()-7);
+                    ed.setHeight(p.getHeight()-5)
+                    ed.setWidth(p.getWidth()-7);
                     ed.isEditor = true;
                     ed.isFireEvent = true;
                     ed.isHidden = false;
@@ -906,7 +902,6 @@ $A.Grid = Ext.extend($A.Component,{
        				sf.editing = true;
                     ed.el.on('keydown', sf.onEditorKeyDown,sf);
                     ed.on('select',sf.onEditorSelect,sf);
-//                    ed.on('blur',sf.onEditorBlur, sf);
                     Ext.get(document.documentElement).on("mousedown", sf.onEditorBlur, sf);
                     if(callback)callback.call(window,ed)
 	                sf.fireEvent('editorshow', sf, ed, row, name, record);
@@ -930,13 +925,13 @@ $A.Grid = Ext.extend($A.Component,{
                 }
             }
             this.hideEditor();
-        }
+        }else
         //enter
         if(keyCode == 13) {
         	if(!(this.currentEditor && this.currentEditor.editor && this.currentEditor.editor instanceof $A.TextArea)){
 	            this.showNextEditor();
         	}
-        }
+        }else
         //tab
         if(keyCode == 9){
             e.stopEvent();
@@ -1241,24 +1236,17 @@ $A.Grid = Ext.extend($A.Component,{
     	}
     },
     setSelectEnable:function(el,record){
+    	var flag = this.dataset.selected.indexOf(record) == -1;
     	if(this.selectionmodel=='multiple'){
-    		el.removeClass(['item-ckb-readonly-u','item-ckb-readonly-c']);
-            if(this.dataset.selected.indexOf(record) == -1){
-                el.addClass('item-ckb-u');
-            }else{
-                el.addClass('item-ckb-c');
-            }
+    		el.removeClass(['item-ckb-readonly-u','item-ckb-readonly-c'])
+    			.addClass(flag?'item-ckb-u':'item-ckb-c');
     	}else{
-            el.removeClass(['item-radio-img-u','item-radio-img-c','item-radio-img-readonly-u','item-radio-img-readonly-c']);
-    		if(this.dataset.selected.indexOf(record) == -1){
-                el.addClass('item-radio-img-u');
-            }else{
-                el.addClass('item-radio-img-c');
-            }
+            el.removeClass(['item-radio-img-u','item-radio-img-c','item-radio-img-readonly-u','item-radio-img-readonly-c'])
+    			.addClass(flag?'item-radio-img-u':'item-radio-img-c');
     	}	
     },
     setSelectStatus:function(record){
-    	if(this.dataset.selectfunction && this.selectable){
+    	if(this.dataset.selectfunction){
 	    	var cb = Ext.get(this.id+'__'+record.id);
 	    	if(!this.dataset.execSelectFunction(record)){
 	    		 this.setSelectDisable(cb,record)
@@ -1400,7 +1388,9 @@ $A.Grid = Ext.extend($A.Component,{
                 }
                 var name = col.name,
                 	v = fder.call(window,this.dataset.data, name);
-                this.fb.child('td[dataindex='+name+']').update(v)
+            	if(!Ext.isEmpty(v)){
+                	this.fb.child('td[dataindex='+name+']').update(v)
+            	}
             }
     	},this);
     },
