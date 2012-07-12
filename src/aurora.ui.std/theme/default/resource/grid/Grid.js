@@ -7,9 +7,6 @@
  * @param {Object} config 配置对象. 
  */
 $A.Grid = Ext.extend($A.Component,{
-    bgc:'background-color',
-    scor:'#dfeaf5',
-    ocor:'#ffe3a8',
     cecls:'cell-editor',
     nbcls:'item-notBlank',
     constructor: function(config){
@@ -1302,7 +1299,7 @@ $A.Grid = Ext.extend($A.Component,{
         var ds = this.dataset,record = ds.getAt(row),
         	r = (ds.currentPage-1)*ds.pagesize + row+1;
         this.selectedId = record.id;
-        if(this.selectlockTr) this.selectlockTr.setStyle(this.bgc,'');
+        if(this.selectlockTr) this.selectlockTr.removeClass('row-selected');
         //if(this.selectUnlockTr) this.selectUnlockTr.setStyle(this.bgc,'');
         if(this.selectUnlockTr) this.selectUnlockTr.removeClass('row-selected');
         this.selectUnlockTr = Ext.get(this.id+'$u-'+record.id);
@@ -1310,7 +1307,7 @@ $A.Grid = Ext.extend($A.Component,{
         //if(this.selectUnlockTr)this.selectUnlockTr.setStyle(this.bgc,this.scor);
         
         this.selectlockTr = Ext.get(this.id+'$l-'+record.id);
-        if(this.selectlockTr)this.selectlockTr.setStyle(this.bgc,this.scor);
+        if(this.selectlockTr)this.selectlockTr.addClass('row-selected');
         this.focusRow(row);
         this.selectRecord = record
         if(locate!==false && r != null) {

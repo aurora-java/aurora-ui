@@ -7,9 +7,6 @@
  * @param {Object} config 配置对象. 
  */
 $A.Table = Ext.extend($A.Component,{
-	bgc:'background-color',
-    scor:'#dfeaf5',
-    ocor:'#ffe3a8',
     cecls:'table-cell-editor',
     nbcls:'item-notBlank',
 	initComponent:function(config){
