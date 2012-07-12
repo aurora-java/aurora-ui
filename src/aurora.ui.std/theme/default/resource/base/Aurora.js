@@ -587,7 +587,7 @@ $A.TextMetrics.Instance = function(bindTo, fixedWidth){
     return instance;
 };
 $A.ToolTip = function(){
-	q = {
+	var q = {
 		init: function(){
 			var sf = this;
 			Ext.onReady(function(){
@@ -1400,7 +1400,7 @@ $A.doExport=function(dataset,cols,generate_state){
     	};
     	for(var i=0;i<cols.length;i++){
     		var column=cols[i],forExport=Ext.isDefined(column.forexport)?column.forexport:true;
-    		if(column.type != 'rowcheck' && column.type!= 'rowradio'&&forExport){
+    		if(column.type != 'rowcheck' && column.type!= 'rowradio' && column.type!= 'rownumber' && forExport){
     			var c={prompt:column.prompt}
     			if(column.width)c.width=column.width;
     			if(column.name)c.name=column.exportfield||column.name;
