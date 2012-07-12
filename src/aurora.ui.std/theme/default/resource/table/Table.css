@@ -77,3 +77,6 @@
     border-right: none;
     padding: 0;
 }
+.row-selected {
+    background-color:#dfeaf5;
+}
