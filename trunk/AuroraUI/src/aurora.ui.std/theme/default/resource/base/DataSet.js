@@ -851,6 +851,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 选择所有数据.
      */
     selectAll : function(){
+    	if(!this.selectable)return;
         for(var i=0,l=this.data.length;i<l;i++){
             if(!this.execSelectFunction(this.data[i]))continue;
             this.select(this.data[i],true);
@@ -861,6 +862,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 取消所有选择.
      */
     unSelectAll : function(){
+    	if(!this.selectable)return;
         for(var i=0,l=this.data.length;i<l;i++){
             if(!this.execSelectFunction(this.data[i]))continue;
             this.unSelect(this.data[i],true);
@@ -940,8 +942,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
         this.processCurrentRow();
-        index = index - this.pagesize*(this.gotoPage-1);
-        if(this.selectionmodel == 'single') this.select(this.getAt(index-1));
+        if(this.selectionmodel == 'single'){
+        	var r = this.getAt(index - this.pagesize*(this.gotoPage-1)-1)
+        	if(this.execSelectFunction(r))
+        		this.select(r);
+        }
     },
     /**
      * 定位到某页.
