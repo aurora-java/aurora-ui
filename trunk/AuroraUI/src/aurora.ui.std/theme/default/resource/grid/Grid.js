@@ -10,7 +10,7 @@ $A.Grid = Ext.extend($A.Component,{
     cecls:'cell-editor',
     nbcls:'item-notBlank',
     constructor: function(config){
-        this.overId = null;
+//        this.overId = null;
         this.selectedId = null;
         this.lockWidth = 0;
         this.autofocus = config.autofocus||true;
