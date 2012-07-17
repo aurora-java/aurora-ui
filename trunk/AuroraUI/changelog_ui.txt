@@ -14,6 +14,8 @@ Release ()
 * DataSet的Field上新增requiredMessage属性，用于自定义必输项提示信息。校验不通过时会提示该信息。
 * NumberField增加悬浮信息，用来提示非数字输入。
 * Chart增加nameField和valueField属性，用于绑定ds的field来显示对应的名称和值。
+* Grid增加addColumn,insertColumnBefore和insertColumnAfter方法。
+* Grid和Table新增插入行功能。
 
 Release (2012-02-08)  
 ------------------------------------
