@@ -842,7 +842,7 @@ $A.Grid = Ext.extend($A.Component,{
      * @param {Number} row 行号
      * @param {String} name 当前列的name.
      */
-    showEditor : function(row, name,callback){       
+    showEditor : function(row, name,callback){   
         if(row == -1)return;
         var col = this.findColByName(name);
         if(!col)return;
@@ -970,6 +970,7 @@ $A.Grid = Ext.extend($A.Component,{
 	                    }
 	                }
 	                if(sf.currentEditor){
+	                	sf.currentEditor.editor.el.un('keydown', sf.onEditorKeyDown,sf);
 	        			var d= sf.currentEditor.focusCheckBox;
 	        			if(d){
 	        				d.setStyle('outline','none');
