@@ -16,6 +16,10 @@ Release ()
 * Chart增加nameField和valueField属性，用于绑定ds的field来显示对应的名称和值。
 * Grid增加addColumn,insertColumnBefore和insertColumnAfter方法。
 * Grid和Table新增插入行功能。
+* 输入组件新增tabIndex属性
+* Grid增加autoAppend属性，实现在最后一行编辑器敲回车新增新行.
+* 增加TabPanel组件重新刷新tab项的函数
+* 增加Aurora.Touch移动开发包
 
 Release (2012-02-08)  
 ------------------------------------
