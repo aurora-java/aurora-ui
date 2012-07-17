@@ -20,8 +20,8 @@ $A.Tree = Ext.extend($A.Component,{
 	},
 	processListener: function(ou){
     	$A.Tree.superclass.processListener.call(this,ou);
-    	this.wrap[ou]('click', this.onClick, this);
-    	this.wrap[ou]('dblclick', this.onDblclick, this);
+    	this.wrap[ou]('click', this.onClick, this)
+    		[ou]('dblclick', this.onDblclick, this);
     },
 	initEvents:function(){
 		$A.Tree.superclass.initEvents.call(this);
@@ -84,13 +84,13 @@ $A.Tree = Ext.extend($A.Component,{
 		var sf = this;
 		sf.dataset = ds;
 		sf.processDataSetLiestener('on');
-    	Ext.onReady(function(){
+    	$A.onReady(function(){
             sf.onLoad();
         })
 	},
 	onAdd : function(ds,record){
-		var records = this.dataset.getAll();
-		var pid = record.get(this.parentfield);
+		var records = this.dataset.getAll(),
+			pid = record.get(this.parentfield);
 		if(Ext.isEmpty(pid))return;
 		var pnode;
 		for(var i = 0,l=records.length;i<l;i++){
@@ -104,7 +104,7 @@ $A.Tree = Ext.extend($A.Component,{
 		pnode.appendChild(this.createTreeNode(this.createNode(record)));
 	},
     onRemove : function(ds,record){
-        var node = this.getNodeById(record.id)
+        var id = record.id,node = this.getNodeById(id)
         if(node){
             var parent = node.parentNode;
             if(parent){
@@ -112,27 +112,21 @@ $A.Tree = Ext.extend($A.Component,{
                 this.unregisterNode(node,true);
                 parent.removeChild(node);
                 if(!this.focusNode || this.focusNode === node){
-	                var index = -1;
-	                for(var i=0;i<parent.data.children.length;i++){
-	                    var item = parent.data.children[i];
-	                    if(item.record.id == record.id){
+	                var index = -1,
+	                	pc = parent.data.children;
+	                Ext.each(pc,function(item){
+	                	if(item.record.id == id){
 	                        index = i;
-	                        break;
+	                        return false;
 	                    }
-	                }
+	                });
 	                if(index != -1){
-	                    var data = parent.data;
-	                    data.children.remove(parent.data.children[index]);
-	                    var ds = record.ds;
-	                    if(data.children[index-1]&&data.children[index-1].record) {
-	                        ds.locate(ds.indexOf(data.children[index-1].record)+1);
-	                    }else {
-	                        if(data.children[index]&&data.children[index].record) {
-	                            ds.locate(ds.indexOf(data.children[index].record)+1);
-	                        }else{
-	                            ds.locate(ds.indexOf(parent.record)+1);
-	                        }
-	                    }
+	                    var ds = record.ds,n;
+	                    pc.remove(pc[index]);
+	                    ds.locate(ds.indexOf(
+	                    	(n = pc[index-1])&&n.record
+	                    	||(n = pc[index])&&n.record
+	                    	||parent.record)+1);
 	                }
                 }
             }
@@ -142,8 +136,7 @@ $A.Tree = Ext.extend($A.Component,{
 		if(this.parentfield == name || name == this.sequencefield){
 			this.onLoad();
 		}else{
-			var node = this.nodeHash[record.id];
-			node.paintText();
+			this.nodeHash[record.id].paintText();
 		}
 	},
 	onIndexChange:function(ds, record){
@@ -171,17 +164,17 @@ $A.Tree = Ext.extend($A.Component,{
 		var p=node.parentNode;
 		return 	!p||(p.isExpand&&this.isAllParentExpand(p))
 	},
-	onClick : function(event){
-		var elem = Ext.fly(event.target).findParent('td');
+	onClick : function(event,t){
+		var elem = Ext.fly(t).findParent('td');
 		if(!elem)return;
 		var _type = elem['_type_'];
 		if(typeof(_type) === undefined){
 			return;
 		}
-		elem = Ext.fly(event.target).findParent('div.item-node');
+		elem = Ext.fly(t).findParent('div.item-node');
+		var node = this.nodeHash[elem.indexId];
 		if(_type == 'clip'){
-			if(elem.indexId!=null){
-				var node = this.nodeHash[elem.indexId ];
+			if(node){
 				if(node.isExpand){
 					node.collapse();
 					this.fireEvent('collapse', this, node);
@@ -191,29 +184,29 @@ $A.Tree = Ext.extend($A.Component,{
 				}
 			}
 		}else if(_type == 'icon' || _type == 'text'){
-			var node = this.nodeHash[elem.indexId];
 			this.setFocusNode(node);
 //			this.dataset.locate.defer(5, this.dataset,[this.dataset.indexOf(node.record)+1,false]);
-			this.dataset.locate(this.dataset.indexOf(node.record)+1,true);
-			this.fireEvent('click', this, node.record, node);
+			var ds = this.dataset,r = node.record;
+			ds.locate(ds.indexOf(r)+1,true);
+			this.fireEvent('click', this, r, node);
 		}else if(_type == 'checked'){
-			var node = this.nodeHash[elem.indexId];
 			node.onCheck();
 		}
 	},
-	onDblclick : function(event){
-		var elem = Ext.fly(event.target).findParent('td');
+	onDblclick : function(event,t){
+		var elem = Ext.fly(t).findParent('td');
 		if(!elem)return;
 		var _type = elem['_type_'];
 		if(typeof(_type) === undefined){
 			return;
 		}
-		elem = Ext.fly(event.target).findParent('div.item-node');
+		elem = Ext.fly(t).findParent('div.item-node');
 		if(_type == 'icon' || _type == 'text'){
 			var node = this.nodeHash[elem.indexId];
 			this.setFocusNode(node);
-			this.dataset.locate(this.dataset.indexOf(node.record)+1,true);
-			this.fireEvent('dblclick', this, node.record, node);
+			var ds = this.dataset,r = node.record;
+			ds.locate(ds.indexOf(r)+1,true);
+			this.fireEvent('dblclick', this, r, node);
 		}
 	},
 	getRootNode : function(){
@@ -241,9 +234,9 @@ $A.Tree = Ext.extend($A.Component,{
 	unregisterNode : function(node, unRegisterChildren){
 		delete this.nodeHash[node.id];
         if(unRegisterChildren){
-            for(var i=0;i<node.children;i++){
-                this.unregisterNode(node.children[i],unRegisterChildren);
-            }
+        	Ext.each(node.childNodes,function(node){
+                this.unregisterNode(node,unRegisterChildren);
+        	},this)
         }
 	},
 	/**
@@ -251,13 +244,11 @@ $A.Tree = Ext.extend($A.Component,{
 	 * @param {Aurora.Tree.TreeNode} node 节点对象.
 	 */
 	setFocusNode : function(node){
-		if(this.focusNode){
-			this.focusNode.unselect();
-		}
+		var f = this.focusNode,
+			p = node.parentNode;
+		if(f)f.unselect();
 		this.focusNode = node;
-		if(node.parentNode){
-			node.parentNode.expand();
-		}
+		if(p)p.expand();
 		node.select();
 	},
 	createNode: function(record){
@@ -267,104 +258,89 @@ $A.Tree = Ext.extend($A.Component,{
 		}
 	},
 	buildTree: function(){
-        
-		var array = [];
-		var map1 = {};
-		var map2 = {};
-		var datas = this.dataset.data;
-		var l = datas.length;
-		for(var i=0;i<l;i++){
-			var record = datas[i];
-			var id = record.get(this.idfield);
-			var node = this.createNode(record);
-			node.checked = (node.record.get(this.checkfield) == "Y") ? 1 : 0;
-            node.expanded = node.record.get(this.expandfield) == "Y";
+		var array = [],
+			map1 = {},
+			map2 = {},
+			ds = this.dataset,
+			rtnode,
+			process = function(item){
+				var children = item.children,
+					checked1 = 0;
+				Ext.each(children,function(node){
+	                if(node.children.length >0){
+	                    process(node);
+	                } 
+				});
+	            Ext.each(children,function(node){
+	                if(node.checked==1){
+	                    checked1++;
+	                }
+	            });
+	            if(checked1==0){
+	            	item.checked = 0;
+	            }else if(children.length==checked1){
+	                item.checked = 1;
+	            }else {
+	                item.checked = 2;
+	            }
+			};
+		Ext.each(ds.data,function(record){
+			var id = record.get(this.idfield),
+				node = this.createNode(record);
+			node.checked = (record.get(this.checkfield) == "Y") ? 1 : 0;
+            node.expanded = record.get(this.expandfield) == "Y";
 			map1[id] = node;
 			map2[id] = node;
-		}
+		},this);
 		for(var key in map2){
-			var node = map2[key];
-			var record = node.record;
-			var pid = record.get(this.parentfield);
-			var parent = map2[pid];
+			var node = map2[key],
+				parent = map2[node.record.get(this.parentfield)];
 			if(parent){
 				parent.children.add(node);
 				delete map1[key];
 			}
 		}
 		for(var key in map1){
-			var node = map2[key];
-			array.add(node);
+			array.push(map2[key]);
 		}
-		var rtnode = null;
 		if(array.length == 1){
 			this.showRoot = true;
 			rtnode = array[0];
 		}else{
 			var data = {};
 			data[this.displayfield] = '_root';
-			var record =  new Aurora.Record(data);
-			record.setDataSet(this.dataset);
-			var root = { 
+			var record =  new Aurora.Record(data),
+				root = { 
 				'record':record,
 			    'children':[]
 			}
-			for(var i=0;i<array.length;i++){
-				root['children'].add(array[i]);
-			}
+			record.setDataSet(ds);
+			Ext.each(array,function(c){
+				root['children'].push(c);
+			});
 			this.showRoot = false;
 			rtnode = root;
 		}
-		
-		var process = function(item){
-			var children = item.children;
-			var count = children.length;
-			for(var i=0;i<count;i++){
-                var node = children[i]
-                if(node.children.length >0){
-                    process(node);
-                } 
-            }                     
-            
-            var checked1 = 0;
-            for(var i=0;i<count;i++){
-                var checked = children[i].checked;
-                if(checked==1){
-                    checked1++;
-                }
-            }
-            if(checked1==0){
-            	item.checked = 0;
-            }else if(count==checked1){
-                item.checked = 1;
-            }else {
-                item.checked = 2;
-            }
-		}
-		
-		for(var i=0;i<array.length;i++){
-            var item = array[i];
-        	process(item)
-        }
-		
+		Ext.each(array,function(a){
+        	process(a);
+		})
 		
 		this.sortChildren(rtnode.children,this.sequencefield);
 		return rtnode;
 	},
 	sortChildren : function(children,sequence){
         if(sequence){
+        	var m = Number.MAX_VALUE;
             children.sort(function(a, b){
-                var n1 = a.record.get(sequence)||Number.MAX_VALUE;
-                var n2 = b.record.get(sequence)||Number.MAX_VALUE;
-                return parseFloat(n1)-parseFloat(n2);
+                return parseFloat(a.record.get(sequence)||m)
+                	- parseFloat(b.record.get(sequence)||m);
             });
         }else{
             children.sort();
         }
-        for(var i=0;i<children.length;i++){
-       	    var n = children[i];
+        Ext.each(children,function(n){
        	    this.sortChildren(n.children,sequence)
-        }
+        },this);
 	},
 	createTreeNode : function(item){
 		return new $A.Tree.TreeNode(item);
@@ -420,82 +396,70 @@ $A.Tree.TreeNode.prototype={
         this.childrenRendered = false;
         this.isExpand = data.expanded;//false;    
         this.checked = data.checked;
-    
-        var children = data.children || [];
-        for(var i=0,j=children.length;i<j;i++){
-            var node = this.createNode(children[i]);
-            this.appendChild(node);
-        }
+    	Ext.each(data.children,function(node){
+            this.appendChild(this.createNode(node));
+    	},this);
 	},
 	createNode : function(item){
 		return new $A.Tree.TreeNode(item);
 	},
 	createCellEl : function(df){
-        this.els[df+'_text']= document.createElement('div');
-        this.els[df+'_td'].appendChild(this.els[df+'_text']);		
+        var text = this.els[df+'_text']= document.createElement('div');
+        this.els[df+'_td'].appendChild(text);		
 	},
 	initEl : function(){
-		var df = this.getOwnerTree().displayfield;
-		this.els = {};
-		this.els['element'] = document.createElement('div');
-		this.els['element'].className = 'item-node';
-		
-		this.els['itemNodeTable'] = document.createElement('table');
-		this.els['itemNodeTable'].border=0;
-		this.els['itemNodeTable'].cellSpacing=0;
-		this.els['itemNodeTable'].cellPadding=0;
-		this.els['itemNodeTbody'] = document.createElement('tbody');
-		this.els['itemNodeTr'] = document.createElement('tr');
-		if(this.getOwnerTree().showSkeleton){
-			
-    		this.els['line']= document.createElement('td');
-    		this.els['clip']= document.createElement('td');
-    		this.els['icon']= (this.icon) ? document.createElement('img') : document.createElement('div');
-    		this.els['iconTd']= document.createElement('td');
-     		this.els['checkbox'] = document.createElement('td'); 
-    		Ext.fly(this.els['iconTd']).setWidth(18);
-    		this.els['iconTd'].appendChild(this.els['icon']);
+		var tree = this.getOwnerTree(),
+			df = tree.displayfield,
+			text = this.record.get(df),
+			div = document.createElement('div'),
+			child = document.createElement('div'),
+			table = document.createElement('table'),
+			tbody = document.createElement('tbody'),
+			tr = document.createElement('tr'),checkbox;
+		div.className = 'item-node';
+		table.border=0;
+		table.cellSpacing=0;
+		table.cellPadding=0;
+		this.els = {element:div,itemNodeTable:table,itemNodeTbody:tbody,itemNodeTr:tr,child:child};
+		tbody.appendChild(tr);
+		table.appendChild(tbody);
+		div.appendChild(table);
+		if(tree.showSkeleton){
+    		var line = tr.insertCell(-1),
+    			clip = tr.insertCell(-1),
+    			icon = this.icon? document.createElement('img') : document.createElement('div'),
+    			iconTd = tr.insertCell(-1);
+ 			checkbox = tr.insertCell(-1);
+     		line['_type_'] ='line';
+    		line.className ='line';
+    		clip['_type_'] ='clip';
+    		clip.innerHTML = '&#160';
+    		iconTd['_type_'] ='icon';
+    		checkbox['_type_'] ='checked';
+    		checkbox.innerHTML = '&#160';	
+    		Ext.fly(iconTd).setWidth(18);
+    		iconTd.appendChild(icon);
+    		Ext.apply(this.els,{line:line,clip:clip,icon:icon,iconTd:iconTd,checkbox:checkbox})
 		}
-		this.els[df+'_td']= document.createElement('td');
+		var td = tr.insertCell(-1);
+		this.els[df + '_td'] = td;
 		this.createCellEl(df);
 //		this.els[df+'_text']= document.createElement('div');
 //		this.els[df+'_td'].appendChild(this.els[df+'_text']);
-		this.els[df+'_td'].className='node-text'
-		if(this.getOwnerTree().showSkeleton){
-    		this.els['itemNodeTr'].appendChild(this.els['line']);
-    		this.els['itemNodeTr'].appendChild(this.els['clip']);
-    		this.els['itemNodeTr'].appendChild(this.els['iconTd']);
-    		this.els['itemNodeTr'].appendChild(this.els['checkbox']);
-		}
-		this.els['itemNodeTr'].appendChild(this.els[df+'_td']);
-		this.getOwnerTree().initColumns(this);
+		td.className='node-text'
+		tree.initColumns(this);
 		
-		this.els['itemNodeTbody'].appendChild(this.els['itemNodeTr']);
-		this.els['itemNodeTable'].appendChild(this.els['itemNodeTbody']);
-		this.els['element'].appendChild(this.els['itemNodeTable']);
-		
-		this.els['element'].noWrap='true';
-		if(this.getOwnerTree().showSkeleton){
-    		this.els['line']['_type_'] ='line';
-    		this.els['line'].className ='line';
-    		this.els['clip']['_type_'] ='clip';
-    		this.els['clip'].innerHTML = '&#160';
-    		this.els['iconTd']['_type_'] ='icon';
-    		this.els['checkbox']['_type_'] ='checked';
-    		this.els['checkbox'].innerHTML = '&#160';
+		div.noWrap='true';
+		td['_type_'] ='text';
+		if(tree.showcheckbox === false && checkbox) {
+			checkbox.style.display='none';
 		}
-		this.els[df+'_td']['_type_'] ='text';
-		if(this.getOwnerTree().showcheckbox === false) {
-			this.els['checkbox'].style.display='none';
-		}
-		var text = this.record.get(df)
 		if(this.isRoot() && text=='_root'){
-			this.els['itemNodeTable'].style.display='none';
+			table.style.display='none';
 		}
-		this.els['child'] = document.createElement('div');
-		this.els['element'].appendChild(this.els['child']);
-		this.els['child'].className= 'item-child';
-		this.els['child'].style.display='none';
+		div.appendChild(child);
+		child.className= 'item-child';
+		child.style.display='none';
 		
 	},
 	render : function(){
@@ -504,19 +468,20 @@ $A.Tree.TreeNode.prototype={
 		if(!this.els){
 			this.initEl();
 		}
-		
+		var els = this.els,
+			el = els['element'];
 		if(this.isRoot()){
-			tree.body.appendChild(this.els['element']);
-			if(this.getOwnerTree().showRoot == false && this.getOwnerTree().showSkeleton)
-			this.els['icon'].style.display=this.els['checkbox'].style.display=this.els[tree.displayfield+'_text'].style.display='none';
+			tree.body.appendChild(el);
+			if(tree.showRoot == false && tree.showSkeleton)
+			els['icon'].style.display=els['checkbox'].style.display=els[tree.displayfield+'_text'].style.display='none';
 			this.expand();
 		}else{
-			this.parentNode.els['child'].appendChild(this.els['element']);
+			this.parentNode.els['child'].appendChild(el);
 			if(this.isExpand)
 			this.expand();
 		}
 		this.paintPrefix();
-		this.els['element'].indexId = this.id;
+		el.indexId = this.id;
 		this.paintCheckboxImg();
 //		if(this.checked == true)
 //		this.setCheck(true);
@@ -536,27 +501,21 @@ $A.Tree.TreeNode.prototype={
         this.width = w;
 		this.doSetWidth(name,w);
         if(this.childrenRendered) {
-            var pathNodes = this.childNodes;
-            for(var i=0;i<pathNodes.length;i++){
-              var node = pathNodes[i];
-              node.setWidth(name,w);
-            }
+        	Ext.each(this.childNodes,function(node){
+				node.setWidth(name,w);
+        	});
         }
 	},
 	doSetWidth : function(name,w){
 		if(!w)return;
 		if(this.isRoot() && this.showRoot == false) return;
-		var left = 0;
-		if(name == this.getOwnerTree().displayfield && this.getOwnerTree().showSkeleton){
-			var sw = this.getOwnerTree().sw;
-    		var pathNodes = this.getPathNodes();
-            var lw = (pathNodes.length-2)*(sw) ;
-            var cw = sw,iw = sw,bw=0;  		
-            var bw = this.getOwnerTree().showcheckbox ? sw : 0;
-    		left = lw+cw+iw+bw;
-		}
-		Ext.fly(this.els[name+'_td']).setWidth(Math.max((w-left),0));
-        Ext.fly(this.els[name+'_text']).setWidth(Math.max((w-left-2),0));
+		var els = this.els,
+			tree = this.getOwnerTree(),
+			left = w-(name == tree.displayfield && tree.showSkeleton ? 
+				((tree.showcheckbox ? 1 : 0) +this.getPathNodes().length)*tree.sw
+				: 0);
+		Ext.fly(els[name+'_td']).setWidth(Math.max((left),0));
+        Ext.fly(els[name+'_text']).setWidth(Math.max((left-2),0));
 	},
 	paintPrefix : function(){
 		this.paintLine();
@@ -568,75 +527,50 @@ $A.Tree.TreeNode.prototype={
 	paintLine : function(){
 		var ownerTree = this.getOwnerTree();
 		if(!ownerTree.showSkeleton) return;
-		this.els['line'].innerHTML = '';
-		var pathNodes = this.getPathNodes();
-		var w = (pathNodes.length-2)*ownerTree.sw;
-		Ext.fly(this.els['line']).setWidth(w);
+		var pathNodes = this.getPathNodes(),
+			w = (pathNodes.length-2)*ownerTree.sw,
+			line = this.els['line'],
+			c = document.createElement('div');
+		line.innerHTML = '';
+		Ext.fly(line).setWidth(w);
 		if(w==0){
-			this.els['line'].style.display='none';
+			line.style.display='none';
 		}
-		var c = document.createElement('div');
-		Ext.fly(c).setWidth((pathNodes.length-2)*ownerTree.sw);
+		Ext.fly(c).setWidth(w);
 		for(var i = 1 ,count = pathNodes.length-1 ; i < count ; i++){
-				var node = pathNodes[i];
-				var ld = document.createElement('div');
-				if( node.isLast()){
-					ld.className = 'node-empty';
-				}else{
-					ld.className = 'node-line';
-				}
-				c.appendChild(ld);
+			var node = pathNodes[i],
+				ld = document.createElement('div');
+			ld.className = node.isLast()?'node-empty':'node-line';
+			c.appendChild(ld);
 		}
-		this.els['line'].appendChild(c);
+		line.appendChild(c);
 	},
 	paintClipIcoImg : function(){
-		if(!this.getOwnerTree().showSkeleton) return;
-		if(this.isRoot()){
-			this.els['clip'].style.display='none';//不显示根节点的clip
-			return;
-		}
 		var ownerTree = this.getOwnerTree();
-		var icon = 'empty';
-		if(!this.isRoot()){
+		if(!ownerTree.showSkeleton) return;
+		var clip = this.els['clip'],
+			prefix = 'empty',
+			icon;
+		if(this.isRoot()){
+			clip.style.display='none';//不显示根节点的clip
+			return;
+		}else{
+//		if(!this.isRoot()){
 //			icon = this.isExpand ? 'nlMinus':'nlPlus';
 //		}else{
-			if(this.isLeaf()){
-				if(this.isLast()){
-					icon = 'joinBottom';
-				} else if(this.isFirst()){
-					icon = 'joinTop';
-				}else{
-					icon = 'join';
-				}
-			}else{
-				if(this.isExpand){
-					if(this.isLast()){
-						icon = 'minusBottom';
-					} else if(this.isFirst()){
-						icon = 'minusTop';
-					}else{
-						icon = 'minus';
-					}
-				}else{
-					if(this.isLast()){
-						icon = 'plusBottom';
-					} else if(this.isFirst()){
-						icon = 'plusTop';
-					}else{
-						icon = 'plus';
-					}
-				}
-			}
-		};
-//		this.els['clip'].src = ownerTree.getIcon(icon);
-		this.els['clip'].className = 'node-clip clip-' + icon;
+			prefix = this.isLeaf()&&'join'||this.isExpand&&'minus'||'plus';
+			icon = this.isLast()&&'Bottom'||this.isFirst()&&'Top'||'';
+		}
+//		clip.src = ownerTree.getIcon(icon);
+		clip.className = 'node-clip clip-' + prefix + icon;
 	},
 	paintIconImg : function(){
 		var ownerTree = this.getOwnerTree();
 		if(!ownerTree.showSkeleton) return;
-		var icon = this.data.icon;
+		var data = this.data,icon = data.icon,
+			eicon = this.els['icon'];
 		if(!icon){
-			var type = this.data.type;
+			var type = data.type;
 			if(type){
 				icon = ownerTree.getIconByType(type);
 			}
@@ -653,30 +587,30 @@ $A.Tree.TreeNode.prototype={
 			}
 		}
 		if(this.icon) {
-			this.els['icon'].className = 'node-icon';
-			this.els['icon'].src = ownerTree.context + this.icon;
+			eicon.className = 'node-icon';
+			eicon.src = ownerTree.context + this.icon;
 		}else{
-			this.els['icon'].className = 'node-icon icon-' + icon;//ownerTree.getIcon(icon);
+			eicon.className = 'node-icon icon-' + icon;//ownerTree.getIcon(icon);
 		}
 	},
 	paintCheckboxImg : function(){
-		var ownerTree = this.getOwnerTree();	
-		if(!ownerTree.showSkeleton) return;
+		if(!this.els || !this.getOwnerTree().showSkeleton) return;
 		var checked = this.checked;
-		if(this.els){
-			this.els['checkbox'].className = ((checked==2)?'checkbox2':(checked==1)?'checkbox1':'checkbox0');
-		}
+		this.els['checkbox'].className = checked==2?'checkbox2':checked==1?'checkbox1':'checkbox0';
 	},	
 	paintText : function(){
 		if(!this.els) return;
-		var ownerTree = this.getOwnerTree();
-		var text = this.record.get(ownerTree.displayfield)
-		if(!Ext.isEmpty(ownerTree.renderer)){
-			var renderer = window[ownerTree.renderer];
+		var ownerTree = this.getOwnerTree(),
+			r = this.record,
+			df = ownerTree.displayfield,
+			renderer = ownerTree.renderer,
+			text = r.get(df);
+		if(!Ext.isEmpty(renderer)){
+			renderer = window[renderer];
 			if(renderer)
-			text = renderer.call(this, text, this.record, this);
+				text = renderer.call(this, text, r, this);
 		}
-		this.els[ownerTree.displayfield+'_text'].innerHTML=text
+		this.els[df+'_text'].innerHTML=text;
 	},
 	paintChildren : function(){
 //		var sequence = this.getOwnerTree().sequence;
@@ -688,12 +622,9 @@ $A.Tree.TreeNode.prototype={
 //				var n2 = b.record.get(sequence)||Number.MAX_VALUE;
 //	            return parseFloat(n1)-parseFloat(n2);
 //	        });
-			var childNodes = this.childNodes;
-	        
-			for(var i=0;i < childNodes.length;i++){
-				var node = childNodes[i];
+			Ext.each(this.childNodes,function(node){
 				node.render();
-			}
+			});
 		};
 	},
 	/**
@@ -711,7 +642,8 @@ $A.Tree.TreeNode.prototype={
 	 * 展开
 	 */
 	expand : function(){
-		if(this.parentNode&&this.parentNode.isExpand == false)this.parentNode.expand();
+		var p = this.parentNode;
+		if(p&&p.isExpand == false)p.expand();
 		if(!this.isLeaf()&&this.childNodes.length>0){
 			if(!this.isRoot())
 			this.record.set(this.getOwnerTree().expandfield,"Y");
@@ -743,14 +675,15 @@ $A.Tree.TreeNode.prototype={
 		return this.els;
 	},
 	setCheckStatus : function(checked){
+		var c;
 		if(checked==2||checked==3){
-			var childNodes = this.childNodes;
-			var count = childNodes.length;
+			var childNodes = this.childNodes,
+				count = childNodes.length;
 			if(count==0){
-				this.checked=checked==2?0:1;
+				c=checked==2?0:1;
 			}else{
-				var checked1 = 0;
-				var checked2 = 0;
+				var checked1 = 0,
+					checked2 = 0;
 				for(var i=0;i<count;i++){
 					var checked = childNodes[i].checked;
 					if(checked==1){
@@ -759,47 +692,35 @@ $A.Tree.TreeNode.prototype={
 						checked2++;
 					}
 				}
-				this.checked = (childNodes.length==checked1) ? 1 : (checked1>0||checked2>0) ? 2 : 0;
+				c = (childNodes.length==checked1) ? 1 : (checked1>0||checked2>0) ? 2 : 0;
 			}
 		}else{
-			this.checked=checked;
+			c=checked;
 		}
-		if(this.isRoot() && this.showRoot == false){}else{
-            this.record.set(this.getOwnerTree().checkfield, (this.checked==1||this.checked==2) ? "Y" : "N");
+		this.checked = c;
+		if(!this.isRoot() || this.showRoot != false){
+            this.record.set(this.getOwnerTree().checkfield, (c==1||c==2) ? "Y" : "N");
         }
 		this.paintCheckboxImg();
 	},
 	setCheck : function(cked){
-		if(cked == true){
-			this.cascade(function(node){
-				node.setCheckStatus(1);
-			});
-			this.bubble(function(node){
-				node.setCheckStatus(3);
-			});
-		}else{
-			
-			this.cascade(function(node){
-				node.setCheckStatus(0);
-			});
-			this.bubble(function(node){
-				node.setCheckStatus(2);
-			});
-		}
+		var a = cked?1:0,b=a+2;
+		this.cascade(function(node){
+			node.setCheckStatus(a);
+		});
+		this.bubble(function(node){
+			node.setCheckStatus(b);
+		});
 	},
 	onCheck : function(){
-		if(this.checked == 0) {
-			this.setCheck(true)
-		}else{
-			this.setCheck(false)
-		}
+		this.setCheck(this.checked == 0)
 	},
 	/**
 	 * 是否是根节点
 	 * @return {Boolean} isroot 是否根节点.
 	 */
 	isRoot : function(){
-		return (this.ownerTree!=null) && (this.ownerTree.root === this);
+		return this.ownerTree && this.ownerTree.root === this;
 	},
 	/**
 	 * 是否叶子节点
@@ -814,7 +735,8 @@ $A.Tree.TreeNode.prototype={
   	 * @return {Boolean} islast 是否是最后.
   	 */
 	isLast : function(){
-		return (!this.parentNode ? true : this.parentNode.childNodes[this.parentNode.childNodes.length-1] == this);
+		var p = this.parentNode;
+		return !p ? true : p.childNodes[p.childNodes.length-1] == this;
 //		return (!this.parentNode ? true : this.parentNode.lastChild == this);
 	},
 	/**
@@ -822,12 +744,13 @@ $A.Tree.TreeNode.prototype={
 	 * @return {Boolean} isfirst 是否是第一个.
 	 */
 	isFirst : function(){
-		var tree = this.getOwnerTree();
-		return (this.parentNode== tree.getRootNode()&&!tree.showRoot&&(this.parentNode.childNodes[0] == this));
+		var tree = this.getOwnerTree(),
+			p = this.parentNode;
+		return p== tree.getRootNode()&&!tree.showRoot&&p.childNodes[0] == this;
 //		return (!this.parentNode ? true : this.parentNode.firstChild == this);
 	},
 	hasChildNodes : function(){
-		return !this.isLeaf() && this.childNodes.length > 0;
+		return this.childNodes.length > 0;
 	},
 	setFirstChild : function(node){
 		this.firstChild = node;
@@ -836,31 +759,24 @@ $A.Tree.TreeNode.prototype={
 		this.lastChild = node;
 	},
 	appendChild : function(node){
-		var multi = false;
-		if(node instanceof Array){
-			multi = node;
-		}else if(arguments.length > 1){
-			multi = arguments;
-		}
-		if(multi){
-    	for(var i = 0, len = multi.length; i < len; i++) {
-				this.appendChild(multi[i]);
-			}
-		}else{
+		if(!Ext.isArray(node) && arguments.length > 1)node = arguments;
+		var tree = this.getOwnerTree();
+		Ext.each(node,function(node){
 			//>>beforeappend
 			var oldParent = node.parentNode;
   			//>>beforemove
   			if(oldParent){
 				oldParent.removeChild(node);
 			}
-			var index = this.childNodes.length;
+			var childs = this.childNodes,
+				index = childs.length,
+				ps = childs[index-1];
       		if(index == 0){
 				this.setFirstChild(node);
       		}
-			this.childNodes.push(node);
+			childs.push(node);
 			node.parentNode = this;
 			//
-			var ps = this.childNodes[index-1];
 			if(ps){
 				node.previousSibling = ps;
 				ps.nextSibling = node;
@@ -869,40 +785,44 @@ $A.Tree.TreeNode.prototype={
 			}
 			node.nextSibling = null;
       		this.setLastChild(node);
-			node.setOwnerTree(this.getOwnerTree());
+			node.setOwnerTree(tree);
 			//>>append
 			//if(oldParent) >>move
 
-			if(node && this.childrenRendered){
+			if(this.childrenRendered){
 				node.render();
-				if(node.previousSibling){
-					node.previousSibling.paintPrefix();//paintLine();
+				var p = node.previousSibling;
+				if(p){
+					p.paintPrefix();//paintLine();
 				}
 			}
 			if(this.els){
 				this.paintPrefix();
 			}
-			return node;//true
-		}
+		},this);
+		return node;
 	},
 	removeChild : function(node){
-		var index = this.childNodes.indexOf(node);
+		var childs = this.childNodes,index = childs.indexOf(node);
 		if(index == -1){
 			return false;
 		}
 		//>>beforeremove
-		this.childNodes.splice(index, 1);
-		if(node.previousSibling){
-	  		node.previousSibling.nextSibling = node.nextSibling;
+		childs.splice(index, 1);
+		var p = node.previousSibling,
+			n = node.nextSiblin,
+			els = node.els;
+		if(p){
+	  		p.nextSibling = n;
 		}
-		if(node.nextSibling){
-	  		node.nextSibling.previousSibling = node.previousSibling;
+		if(n){
+	  		n.previousSibling = p;
 		}
 		if(this.firstChild == node){
-	  		this.setFirstChild(node.nextSibling);
+	  		this.setFirstChild(n);
 		}
 		if(this.lastChild == node){
-	  		this.setLastChild(node.previousSibling);
+	  		this.setLastChild(p);
 		}
 		node.setOwnerTree(null);
 		//clear
@@ -911,10 +831,11 @@ $A.Tree.TreeNode.prototype={
 		node.nextSibling = null;
 		//>>remove UI
 		if(this.childrenRendered){
-			if(node.els&&node.els['element']){
-				this.els['child'].removeChild(node.els['element'])	
+			if(els){
+				var div = els['element'];
+				if(div)this.els['child'].removeChild(div);	
 			}
-			if(this.childNodes.length==0){
+			if(childs.length==0){
 				this.collapse();
 			}
 		}
@@ -931,11 +852,11 @@ $A.Tree.TreeNode.prototype={
 		if(node == refNode){
 			return false;
 		}
-		var index = this.childNodes.indexOf(refNode);
-		var oldParent = node.parentNode;
-		var refIndex = index;
+		var childs = this.childNodes,
+			refIndex = childs.indexOf(refNode),
+			oldParent = node.parentNode;
 		//是子节点，并且是向后移动
-		if(oldParent == this && this.childNodes.indexOf(node) < index){
+		if(oldParent == this && childs.indexOf(node) < refIndex){
 			refIndex--;
 		}
 		if(oldParent){
@@ -945,9 +866,9 @@ $A.Tree.TreeNode.prototype={
 		if(refIndex == 0){
 			this.setFirstChild(node);
 		}
-		this.childNodes.splice(refIndex, 0, node);
+		childs.splice(refIndex, 0, node);
 		node.parentNode = this;
-		var ps = this.childNodes[refIndex-1];
+		var ps = childs[refIndex-1];
 		if(ps){
 			node.previousSibling = ps;
 			ps.nextSibling = node;
@@ -969,36 +890,30 @@ $A.Tree.TreeNode.prototype={
 	},
 	getOwnerTree : function(){
 		if(!this.ownerTree){
-			var p = this;
-			while(p){
+			this.bubble(function(p){
 				if(p.ownerTree){
 					this.ownerTree = p.ownerTree;
-					break;
+					return false;
 				}
-				p = p.parentNode;
-			}
+			},this);
 		}
 		return this.ownerTree;
 	},
-	getDepth : function(){
-  		var depth = 0;
-		var p = this;
-		while(p.parentNode){
-			depth++;
-			p = p.parentNode;
-		}
-		return depth;
-	},
+//	getDepth : function(){
+//  		var depth = 0;
+//  		this.bubble(function(){depth++});
+//		return depth;
+//	},
 	setOwnerTree : function(tree){
-		if(tree != this.ownerTree){
-			if(this.ownerTree){
-				this.ownerTree.unregisterNode(this);
+		var ownerTree = this.ownerTree;
+		if(tree != ownerTree){
+			if(ownerTree){
+				ownerTree.unregisterNode(this);
 			}
 			this.ownerTree = tree;
-			var cs = this.childNodes;
-			for(var i = 0, len = cs.length; i < len; i++) {
-				cs[i].setOwnerTree(tree);
-			}
+			Ext.each(this.childNodes,function(c){
+				c.setOwnerTree(tree);
+			});
 			if(tree){
 				tree.registerNode(this);
 			}
@@ -1006,20 +921,19 @@ $A.Tree.TreeNode.prototype={
 	},
 	getPathNodes : function(){
 		var nodes = [];
-		for(var parent=this; parent!=null; parent=parent.parentNode){nodes.push(parent);};
-		return nodes.reverse();
+		this.bubble(function(){nodes.unshift(this)});
+		return nodes;
 	},
-	getPath : function(attr){
-		attr = attr || "id";
-		var p = this.parentNode;
-		var b = [this.data[attr]];
-		while(p){
-			b.unshift(p.attributes[attr]);
-			p = p.parentNode;
-    	}
-		var sep = this.getOwnerTree().pathSeparator;
-		return sep + b.join(sep);
-	},
+//	getPath : function(attr){
+//		attr = attr || "id";
+//		var p = this.parentNode,
+//			sep = this.getOwnerTree().pathSeparator||',',
+//			b = [this[attr]];
+//		p.bubble(function(){
+//			b.unshift(this[attr]);
+//		})
+//		return sep + b.join(sep);
+//	},
 	bubble : function(fn, scope, args){
   		var p = this;
 		while(p){
@@ -1038,29 +952,30 @@ $A.Tree.TreeNode.prototype={
     	}
 	},
 	findChild : function(attribute, value){
-		var cs = this.childNodes;
-    	for(var i = 0, len = cs.length; i < len; i++) {
-			if(cs[i].attributes[attribute] == value){
-      			return cs[i];
+		var c = null;
+		Ext.each(this.childNodes,function(cs){
+			if(cs.attributes[attribute] == value){
+				c = cs;
+      			return false;
      		}
-		}
-		return null;
+		});
+		return c;
 	},
   	findChildBy : function(fn, scope){
-    	var cs = this.childNodes;
-      	for(var i = 0, len = cs.length; i < len; i++) {
-	      	if(fn.call(scope||cs[i], cs[i]) === true){
-	      	    return cs[i];
-	      	}
-		}
-      	return null;
+  		var c = null;
+		Ext.each(this.childNodes,function(cs){
+			if(fn.call(scope||cs, cs) === true){
+				c = cs;
+      			return false;
+     		}
+		});
+		return c;
   	},
 	sort : function(fn, scope){
-		var cs = this.childNodes;
-		var len = cs.length;
+		var cs = this.childNodes,
+			len = cs.length;
     	if(len > 0){
-			var sortFn = scope ? function(){fn.apply(scope, arguments);} : fn;
-			cs.sort(sortFn);
+			cs.sort(scope?fn.createDelegate(scope):fn);
 			for(var i = 0; i < len; i++){
 				var n = cs[i];
 		        n.previousSibling = cs[i-1];
@@ -1074,16 +989,16 @@ $A.Tree.TreeNode.prototype={
 			}
 		}
 	},
-  	contains : function(node){
-		var p = node.parentNode;
-		while(p){
-          if(p == this){
-              return true;
-          }
-          p = p.parentNode;
-		}
-		return false;
-	},
+//  	contains : function(node){
+//		var p = node.parentNode,r = false;
+//		p.bubble(function(p){
+//			if(p == this){
+//				r = true;
+//				return false;
+//			}
+//		},this);
+//		return r;
+//	},
 	toString : function(){
 		return "[Node"+(this.id?" "+this.id:"")+"]";
 	}
