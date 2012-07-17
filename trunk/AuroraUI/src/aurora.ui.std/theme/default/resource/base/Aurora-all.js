@@ -115,7 +115,7 @@ $A.CmpManager = function(){
         	if($A.validInfoType != 'tip') return;
         	if(($A.Grid && cmp instanceof $A.Grid)||($A.Table && cmp instanceof $A.Table)){
         		var ds = cmp.dataset;
-        		if(!ds||ds.isValid == true||!e.target)return;
+        		if(!ds ||!e.target)return;
         		var target = Ext.fly(e.target).findParent('td');
                 if(target){
                     var atype = Ext.fly(target).getAttributeNS("","atype");
@@ -123,8 +123,9 @@ $A.CmpManager = function(){
             			var rid = Ext.fly(target).getAttributeNS("","recordid");
             			var record = ds.findById(rid);
             			if(record){
-                			var name = Ext.fly(target).getAttributeNS("","dataindex");        			
-        					var msg = record.valid[name];
+                			var name = Ext.fly(target).getAttributeNS("","dataindex"); 
+                			var field = record.getMeta().getField(name)
+                		    var msg = record.valid[name] || field.get('tooltip');               			
         	        		if(Ext.isEmpty(msg))return;
         	        		$A.ToolTip.show(target, msg);
             			}
@@ -133,10 +134,11 @@ $A.CmpManager = function(){
         	}else{
 	        	if(cmp.binder){
 	        		var ds = cmp.binder.ds;
-	        		if(!ds || ds.isValid == true)return;
+	        		if(!ds)return;
 	        		var record = cmp.record;
 	        		if(!record)return;
-	        		var msg = record.valid[cmp.binder.name];
+	        		var field = record.getMeta().getField(cmp.binder.name)
+        		    var msg = record.valid[cmp.binder.name] || field.get('tooltip');          		
 	        		if(Ext.isEmpty(msg))return;
 	        		$A.ToolTip.show(cmp.id, msg);
 	        	}
@@ -585,7 +587,7 @@ $A.TextMetrics.Instance = function(bindTo, fixedWidth){
     return instance;
 };
 $A.ToolTip = function(){
-	q = {
+	var q = {
 		init: function(){
 			var sf = this;
 			Ext.onReady(function(){
@@ -1398,7 +1400,7 @@ $A.doExport=function(dataset,cols,generate_state){
     	};
     	for(var i=0;i<cols.length;i++){
     		var column=cols[i],forExport=Ext.isDefined(column.forexport)?column.forexport:true;
-    		if(column.type != 'rowcheck' && column.type!= 'rowradio'&&forExport){
+    		if(column.type != 'rowcheck' && column.type!= 'rowradio' && column.type!= 'rownumber' && forExport){
     			var c={prompt:column.prompt}
     			if(column.width)c.width=column.width;
     			if(column.name)c.name=column.exportfield||column.name;
@@ -1870,13 +1872,35 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             'submitfailed'
         );      
     },
-    addField : function(fd){
+    addField : function(fd,notCheck){
+        if(notCheck !== true){
+        	var rf = fd.returnfield,
+        		vf = fd.valuefield;
+        	if(rf && vf){
+        		var mapping = fd.mapping || [],has = false;
+        		for(var i=0,l=mapping.length;i<l;i++){
+        			var m = mapping[i];
+        			if(m.from == vf && m.to == rf){
+        				has = true
+        				break;	
+        			}
+        		}
+        		if(!has){
+        			mapping.push({from:vf,to:rf});
+        			fd.mapping = mapping;
+        		}
+        	}
+        }
         var field = new $A.Record.Field(fd);
         this.fields[field.name] = field;
     },
+    removeField : function(name){
+    	this.fields[name] = null;
+    	delete this.fields[name];
+    },
     initFields : function(fields){
         for(var i = 0, len = fields.length; i < len; i++){
-            this.addField(fields[i]);
+            this.addField(fields[i],true);
         }
     },
     /**
@@ -1958,10 +1982,15 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     /**
      * 创建一条记录
      * @param {Object} data 数据对象
+     * @param {Number} index 指定位置.若不指定则添加到最后.
      * @return {Aurora.Record} record 返回创建的record对象
      */
-    create : function(data, valid){
-        data = data||{}
+    create : function(data, index){
+    	if(Ext.isNumber(data)){
+    		index = data;
+    		data = {};
+    	}else
+        	data = data||{}
         if(this.fireEvent("beforecreate", this, data)){
     //      if(valid !== false) if(!this.validCurrent())return;
             var dd = {};
@@ -1976,7 +2005,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
             var data = Ext.apply(data||{},dd);
             var record = new $A.Record(data);
-            this.add(record); 
+            this.add(record,index)
     //        var index = (this.currentPage-1)*this.pagesize + this.data.length;
     //        this.locate(index, true);
             return record;
@@ -2005,12 +2034,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     /**
      * 新增数据. 
      * @param {Aurora.Record} record 需要新增的Record对象. 
+     * @param {Number} index 指定位置.若不指定则添加到最后. 
      */
-    add : function(record){
+    add : function(record,index){
+    	var d = this.data;
+    	if(d.indexOf(record) != -1)return;
+    	if(Ext.isEmpty(index)||index > d.length)index = d.length;
         record.isNew = true;
         record.setDataSet(this);
-        var index = this.data.length;
-        this.data.add(record);
+//        var index = this.data.length;
+        d.splice(index,0,record);
 //        for(var k in this.fields){
 //          var field = this.fields[k];
 //          if(field.type == 'dataset'){                
@@ -2018,10 +2051,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //              ds.resetConfig()            
 //          }
 //      }
-        var index = (this.currentPage-1)*this.pagesize + this.data.length;
-        this.currentIndex = index;
+        this.currentIndex = (this.currentPage-1)*this.pagesize + index + 1;
         this.fireEvent("add", this, record, index);
-        this.locate(index, true);
+        this.locate(this.currentIndex, true);
     },
     /**
      * 获取当前Record的数据对象
@@ -2257,6 +2289,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 选择所有数据.
      */
     selectAll : function(){
+    	if(!this.selectable)return;
         for(var i=0,l=this.data.length;i<l;i++){
             if(!this.execSelectFunction(this.data[i]))continue;
             this.select(this.data[i],true);
@@ -2267,6 +2300,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 取消所有选择.
      */
     unSelectAll : function(){
+    	if(!this.selectable)return;
         for(var i=0,l=this.data.length;i<l;i++){
             if(!this.execSelectFunction(this.data[i]))continue;
             this.unSelect(this.data[i],true);
@@ -2346,8 +2380,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
         this.processCurrentRow();
-        index = index - this.pagesize*(this.gotoPage-1);
-        if(this.selectionmodel == 'single') this.select(this.getAt(index-1));
+        if(this.selectionmodel == 'single'){
+        	var r = this.getAt(index - this.pagesize*(this.gotoPage-1)-1)
+        	if(this.execSelectFunction(r))
+        		this.select(r);
+        }
     },
     /**
      * 定位到某页.
@@ -2474,7 +2511,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         if(fire !== false) {
             $A.manager.fireEvent('valid', $A.manager, this, this.isValid);
-            if(!this.isValid) $A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.validate']);
+            if(!this.isValid) {
+	            var valid = unvalidRecord.valid,unvalidMessage;
+	            for(var key in valid){
+            		unvalidMessage = valid[key];
+            		break;
+	            }
+	            $A.showInfoMessage(_lang['dataset.info'], unvalidMessage||_lang['dataset.info.validate']);
+            }
         }
         return this.isValid;
     },
@@ -3018,7 +3062,7 @@ $A.Record.prototype = {
         var vv = v;
         if(v&&v.trim) vv = v.trim();
         if(Ext.isEmpty(vv) && field.get('required') == true){
-            this.valid[name] = _lang['dataset.validate.required'];
+            this.valid[name] = field.get('requiredmessage') || _lang['dataset.validate.required'];
             valid =  false;
         }
         if(valid == true){
@@ -4764,7 +4808,7 @@ $A.NumberField = Ext.extend($A.TextField,{
         }
     },
     initEvents : function(){
-    	$A.NumberField.superclass.initEvents.call(this);    	
+    	$A.NumberField.superclass.initEvents.call(this);
     },
     onKeyPress : function(e){
         var k = e.keyCode;
@@ -4773,10 +4817,15 @@ $A.NumberField = Ext.extend($A.TextField,{
         }
         var c = e.getCharCode();
         if(this.allowed.indexOf(String.fromCharCode(c)) === -1){
+        	$A.ToolTip.show(this.id,_lang['numberfield.only']);
             e.stopEvent();
             return;
         }
         $A.NumberField.superclass.onKeyPress.call(this, e); 
+    },
+    onBlur : function(e){
+    	$A.ToolTip.hide();
+    	$A.NumberField.superclass.onBlur.call(this,e);
     },
     formatValue : function(v){
     	var rv = this.fixPrecision(this.parseValue(v))        
@@ -5098,7 +5147,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
         if(this.readonly)return;
         if(this.hasFocus){
 			$A.ComboBox.superclass.onBlur.call(this,e);
-			if(!this.isExpanded()) {
+			//if(!this.isExpanded()) {
 				var raw = this.getRawValue();
 				if(this.fetchrecord===false){
 					this.setValue(raw)
@@ -5110,7 +5159,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 						this.setValue('');
 					}
 				}
-			}
+			//}
         }
     },
     getRecordByDisplay: function(name){
@@ -6025,6 +6074,7 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		this.hourSpan = this.popup.child("input[atype=field.hour]");
     	this.minuteSpan = this.popup.child("input[atype=field.minute]");
     	this.secondSpan = this.popup.child("input[atype=field.second]");
+    	this.hourSpanParent = this.hourSpan.parent();
     },
     processListener : function(ou){
     	$A.DateTimePicker.superclass.processListener.call(this,ou);
@@ -6035,8 +6085,8 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 			this.minuteSpan[ou]("blur", this.onDateBlur, this);
 			this.secondSpan[ou]("focus", this.onDateFocus, this);
 			this.secondSpan[ou]("blur", this.onDateBlur, this);
-			this.hourSpan.parent()[ou]("keydown", this.onDateKeyDown, this);
-			this.hourSpan.parent()[ou]("keyup", this.onDateKeyUp, this);
+			this.hourSpanParent[ou]("keydown", this.onDateKeyDown, this);
+			this.hourSpanParent[ou]("keyup", this.onDateKeyUp, this);
     	}
     },
     onDateKeyDown : function(e) {
@@ -7711,6 +7761,13 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
         var context_path = path.substring(0,str);
         new Aurora.Window({id:'sys_customization_window', url:context_path + 'modules/sys/sys_customization_window.screen?screen_path='+screen_path + '&id='+ this.cmp.id, title:'个性化设置',height:170,width:400});
         this.onCmpOut();
+//        var context_path = path.substring(0,str);
+//        if(this.cmp instanceof Aurora.Grid){
+//            new Aurora.Window({id:'sys_customization_grid', url:context_path + 'modules/sys/sys_customization_grid.screen?source_file='+screen_path + '&id='+ this.cmp.id+'&did='+this.cmp.dataset.id, title:'个性化设置',height:530,width:460});
+//        } else {
+//            new Aurora.Window({id:'sys_customization_window', url:context_path + 'modules/sys/sys_customization_window.screen?screen_path='+screen_path + '&id='+ this.cmp.id, title:'个性化设置',height:170,width:400});
+//        }
+//        this.onCmpOut();
     },
     hideMask : function(){
         if(this.masker){
