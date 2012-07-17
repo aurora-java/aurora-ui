@@ -508,9 +508,9 @@ $A.Tree.TreeNode.prototype={
 	},
 	doSetWidth : function(name,w){
 		if(!w)return;
-		if(this.isRoot() && this.showRoot == false) return;
+		var tree = this.getOwnerTree();
+		if(this.isRoot() && tree.showRoot == false) return;
 		var els = this.els,
-			tree = this.getOwnerTree(),
 			left = w-(name == tree.displayfield && tree.showSkeleton ? 
 				((tree.showcheckbox ? 1 : 0) +this.getPathNodes().length)*tree.sw
 				: 0);
