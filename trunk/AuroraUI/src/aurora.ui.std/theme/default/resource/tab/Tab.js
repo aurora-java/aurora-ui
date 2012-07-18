@@ -23,22 +23,23 @@ $A.Tab = Ext.extend($A.Component,{
 	initComponent:function(config){
 		$A.Tab.superclass.initComponent.call(this, config);
 		this.scriptwidth = config.scriptwidth||60;
-		this.head = this.wrap.child('div[atype=tab.strips]'); 
-		this.body = this.wrap.child('div.item-tab-body');
-		this.scrollLeft = this.wrap.child('div[atype=scroll-left]');
-		this.scrollRight = this.wrap.child('div[atype=scroll-right]');
-		this.script = this.head.parent();
-		this.sp = this.script.parent();
+		var w = this.wrap,
+			h = this.head = w.child('div[atype=tab.strips]'), 
+			s = this.script = h.parent();
+		this.body = w.child('div.item-tab-body');
+		this.scrollLeft = w.child('div[atype=scroll-left]');
+		this.scrollRight = w.child('div[atype=scroll-right]');
+		this.sp = s.parent();
 		this.selectTab(config.selected||0)
 	},
 	processListener: function(ou){
     	$A.Tab.superclass.processListener.call(this,ou);
-    	this.sp[ou]('mousedown',this.onMouseDown, this);
-    	this.sp[ou]('mouseup',this.onMouseUp, this);
-    	this.sp[ou]('mouseover',this.onMouseOver, this);
-    	this.sp[ou]('mouseout',this.onMouseOut, this);
-    	this.script[ou]('click',this.onClick, this);
-    	this.script[ou]('mousewheel',this.onMouseWheel, this);
+    	this.sp[ou]('mousedown',this.onMouseDown, this)
+    		[ou]('mouseup',this.onMouseUp, this)
+    		[ou]('mouseover',this.onMouseOver, this)
+    		[ou]('mouseout',this.onMouseOut, this);
+    	this.script[ou]('click',this.onClick, this)
+    		[ou]('mousewheel',this.onMouseWheel, this);
     },
 	initEvents:function(){
 		$A.Tab.superclass.initEvents.call(this);   
@@ -67,51 +68,52 @@ $A.Tab = Ext.extend($A.Component,{
 	selectTab:function(index,needRefresh){		
 		var tab=this.getTab(index);
 		if(!tab)return;
-		if(tab.strip.hasClass(this.sd)){
-			this.selectTab(tab.index+1);
+		var sd = this.sd,
+			index=tab.index,
+			activeStrip = tab.strip,
+			activeBody = tab.body;		
+		if(activeStrip.hasClass(sd)){
+			this.selectTab(index+1);
 			return;
 		}
-		var activeStrip = tab.strip,activeBody = tab.body;
-		index=tab.index;		
 		this.selectedIndex=index;			
-		if(activeStrip){
-			if(this.activeTab)this.activeTab.replaceClass('active','unactive');
-			this.activeTab = activeStrip;
-			activeStrip.replaceClass('unactive','active');
-			var l=activeStrip.dom.offsetLeft,w=activeStrip.getWidth(),
-				sl=this.script.getScroll().left,sw=this.script.getWidth(),hw=this.head.getWidth();
-				tr=l+w-sl-sw,tl=sl-l;
-			if(tr>0){
-				this.scrollRight.removeClass(this.sd);
-				this.scrollLeft.removeClass(this.sd);
-				this.script.scrollTo('left',sl+tr);
-			}else if(tl>0){
-				this.scrollLeft.removeClass(this.sd);
-				this.script.scrollTo('left',sl-tl);
-				this.scrollRight.removeClass(this.sd);
-			}
-			if(sw+this.script.getScroll().left>=hw){
-				this.script.scrollTo('left',hw-sw);
-				this.scrollRight.addClass(this.sd);
-			}else if(index==0){
-				this.script.scrollTo('left',0);
-				this.scrollLeft.addClass(this.sd);
-			}
+		if(this.activeTab)this.activeTab.replaceClass('active','unactive');
+		this.activeTab = activeStrip;
+		activeStrip.replaceClass('unactive','active');
+		var script = this.script,
+			scrollLeft = this.scrollLeft,
+			scrollRight = this.scrollRight,
+			l=activeStrip.dom.offsetLeft,w=activeStrip.getWidth(),
+			sl=script.getScroll().left,sw=script.getWidth(),hw=this.head.getWidth();
+			tr=l+w-sl-sw,tl=sl-l;
+		if(tr>0){
+			scrollRight.removeClass(sd);
+			scrollLeft.removeClass(sd);
+			script.scrollTo('left',sl+tr);
+		}else if(tl>0){
+			scrollLeft.removeClass(sd);
+			script.scrollTo('left',sl-tl);
+			scrollRight.removeClass(sd);
+		}
+		if(sw+script.getScroll().left>=hw){
+			script.scrollTo('left',hw-sw);
+			scrollRight.addClass(sd);
+		}else if(index==0){
+			script.scrollTo('left',0);
+			scrollLeft.addClass(sd);
 		}
 		if(activeBody){
 			if(this.activeBody){
-				this.activeBody.setLeft('-10000px');
-				this.activeBody.setTop('-10000px');
+				this.activeBody.setLeft('-10000px').setTop('-10000px');
 			}
 			this.activeBody = activeBody;
-			activeBody.setLeft('0px');
-			activeBody.setTop('0px');
+			activeBody.setLeft('0px').setTop('0px');
 		}
 		if(this.items[index].ref && (activeBody.loaded!= true||needRefresh)){
 			this.load(this.items[index].ref,activeBody,index);
 			activeBody.loaded = true;
 		}else{
-            this.fireEvent('select', this, index)
+            this.fireEvent('select', this, index);
 		}
 	},	
 	stripTpl:['<div class="strip unactive"  unselectable="on" onselectstart="return false;"><div style="height:26px;width:{stripwidth2}px">'
@@ -126,27 +128,30 @@ $A.Tab = Ext.extend($A.Component,{
 	 * @param {String} prompt Tab的标题
 	 */
 	openTab : function(ref,prompt){
-		var i=0;
-		for(;i<this.items.length;i++){
-			if(this.items[i].ref&&this.items[i].ref==ref){
+		var i=0,
+			items = this.items,l = items.length;
+		for(;i<l;i++){
+			var item = items[i];
+			if(item.ref&&item.ref==ref){
 				this.selectTab(i);return;
 			}
 		}
-		var returnValue=this.fireEvent('beforeopen',this,i);
-		if(returnValue!=false){
-			this.items.push({'ref':ref});
-			var stripwidth=$A.TextMetrics.measure(document.body,prompt).width+20;
-			stripwidth=stripwidth<this.scriptwidth?this.scriptwidth:stripwidth;
-			var width=this.head.getWidth()+stripwidth+6;
-			this.head.setWidth(width);
-			if(width>this.script.getWidth()){
+		if(this.fireEvent('beforeopen',this,l)!==false){
+			items.push({'ref':ref});
+			var stripwidth=Math.max($A.TextMetrics.measure(document.body,prompt).width+20,this.scriptwidth),
+				head = this.head,
+				body = this.body,
+				script = this.script,
+				width = head.getWidth()+stripwidth+6;
+			head.setWidth(width);
+			if(width>script.getWidth()){
 				this.scrollLeft.setStyle({'display':'block'});
 				this.scrollRight.setStyle({'display':'block'});
-				this.script.setStyle('padding-left','1px');
+				script.setStyle('padding-left','1px');
 			}
-			new Ext.Template(this.stripTpl).append(this.head.dom,{'prompt':prompt,'stripwidth':stripwidth,'stripwidth2':stripwidth+6});
-			new Ext.Template(this.bodyTpl).append(this.body.dom,{'bodywidth':this.body.getWidth(),'bodyheight':this.body.getHeight()});
-			this.selectTab(i);
+			new Ext.Template(this.stripTpl).append(head.dom,{'prompt':prompt,'stripwidth':stripwidth,'stripwidth2':stripwidth+6});
+			new Ext.Template(this.bodyTpl).append(body.dom,{'bodywidth':body.getWidth(),'bodyheight':body.getHeight()});
+			this.selectTab(l);
 		}
 	},
 	/**
@@ -155,7 +160,6 @@ $A.Tab = Ext.extend($A.Component,{
 	 */
 	closeTab : function(o){
 		var tab=this.getTab(o);
-        
 		if(!tab)return;
 		var strip=tab.strip,body=tab.body,index=tab.index;
 		if(!strip.child('div.'+this.tc)){
@@ -167,20 +171,36 @@ $A.Tab = Ext.extend($A.Component,{
             this.activeTab=null;
         }
 		this.items.splice(index,1);
-		var width=this.head.getWidth()-strip.getWidth(),cmps=body.cmps;
-		this.head.setWidth(width);
-		if(width <= this.script.getWidth()){
+		var head = this.head,
+			script = this.script,
+			width= head.getWidth()-strip.getWidth();
+		head.setWidth(width);
+		if(width <= script.getWidth()){
 			this.scrollLeft.setStyle({'display':'none'});
 			this.scrollRight.setStyle({'display':'none'});
-			this.script.setStyle('padding-left','0');
+			script.setStyle('padding-left','0');
 		}
 		strip.remove();
 		body.remove();
         
 		delete body.loaded;
 		setTimeout(function(){
-        	for(var key in cmps){
-        		var cmp = cmps[key];
+			Ext.iterate(body.cmps,function(key,cmp){
+				if(cmp.destroy){
+        			try{
+        				cmp.destroy();
+        			}catch(e){
+        				alert('销毁Tab出错: ' + e)
+        			}
+        		}
+			});
+        },10)
+		this.selectTab(index);
+	},
+	destroy : function(){
+//		var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
+        Ext.each(this.body.dom.children,function(body){
+        	Ext.iterate(Ext.fly(body).cmps,function(key,cmp){
         		if(cmp.destroy){
         			try{
         				cmp.destroy();
@@ -188,29 +208,8 @@ $A.Tab = Ext.extend($A.Component,{
         				alert('销毁Tab出错: ' + e)
         			}
         		}
-        	}
-        },10)
-		this.selectTab(index);
-	},
-	destroy : function(){
-        var bodys = this.body.dom.children;
-//		var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
-    	for(var i=0;i<bodys.length;i++){
-    		var body = Ext.get(bodys[i]),
-    		cmps=body.cmps;
-    		if(cmps){
-	    		for(var key in cmps){
-	        		var cmp = cmps[key];
-	        		if(cmp.destroy){
-	        			try{
-	        				cmp.destroy();
-	        			}catch(e){
-	        				alert('销毁Tab出错: ' + e)
-	        			}
-	        		}
-	        	}
-    		}
-    	}
+        	});
+        });
 		$A.Tab.superclass.destroy.call(this); 
 	},
 	/**
@@ -221,10 +220,11 @@ $A.Tab = Ext.extend($A.Component,{
 		var tab = this.getTab(index);
 		if(!tab)return;
 		if(this.items.length > 1){
-			if(this.activeTab==tab.strip){
-				this.selectTab(tab.index+(this.getTab(tab.index+1)?1:-1))
+			var strip = tab.strip,index = tab.index;
+			if(this.activeTab==strip){
+				this.selectTab(index+(this.getTab(index+1)?1:-1))
 			}
-			tab.strip.addClass(this.sd);
+			strip.addClass(this.sd);
 		}
 	},
 	/**
@@ -238,7 +238,8 @@ $A.Tab = Ext.extend($A.Component,{
 	},
 	getTab : function(o){
 		var bodys = this.body.dom.children,//Ext.DomQuery.select('div.tab',this.body.dom),
-        strips = this.head.dom.children;//Ext.DomQuery.select('div.strip',this.head.dom),strip,body;
+        	strips = this.head.dom.children,//Ext.DomQuery.select('div.strip',this.head.dom),
+        	strip,body;
 		if(Ext.isNumber(o)){
 			if(o<0)o+=strips.length;
 			o=Math.round(o);
@@ -248,32 +249,35 @@ $A.Tab = Ext.extend($A.Component,{
 			}
 		}else {
 			o=Ext.get(o);
-			for(var i=0,l=strips.length;i<l;i++){
-				if(Ext.get(strips[i]) == o){
+			o=Ext.each(strips,function(s,i){
+				if(s == o.dom){
 					strip=o;
 					body=Ext.get(bodys[i]);
-					o=i;
-					break;
+					return false;
 				}
-			}
+			});
 		}
 		return strip?{'strip':strip,'body':body,'index':o}:null;
 	},
 	scrollTo : function(lr){
+		var script = this.script,
+			scrollRight = this.scrollRight,
+			scrollLeft = this.scrollLeft,
+			sl = script.getScroll().left,
+			sw = this.scriptwidth,
+			sd = this.sd;
 		if(lr=='left'){
-			this.script.scrollTo('left',this.script.getScroll().left-this.scriptwidth);
-			this.scrollRight.removeClass(this.sd);
-			if(this.script.getScroll().left<=0){
-				this.scrollLeft.addClass(this.sd);
-				this.scrollLeft.replaceClass(this.tslo,this.tsl);
+			script.scrollTo('left',sl-sw);
+			scrollRight.removeClass(sd);
+			if(script.getScroll().left<=0){
+				scrollLeft.addClass(sd).replaceClass(this.tslo,this.tsl);
 				this.stopScroll();
 			}
 		}else if(lr=='right'){
-			this.script.scrollTo('left',this.script.getScroll().left+this.scriptwidth);
-			this.scrollLeft.removeClass(this.sd);
-			if(this.script.getScroll().left+this.script.getWidth()>=this.head.getWidth()){
-				this.scrollRight.addClass(this.sd);
-				this.scrollRight.replaceClass(this.tsro,this.tsr);
+			script.scrollTo('left',sl+sw);
+			scrollLeft.removeClass(sd);
+			if(script.getScroll().left+script.getWidth()>=this.head.getWidth()){
+				scrollRight.addClass(sd).replaceClass(this.tsro,this.tsr);
 				this.stopScroll();
 			}
 		}
@@ -284,8 +288,8 @@ $A.Tab = Ext.extend($A.Component,{
 			delete this.scrollInterval;
 		}
 	},
-	onClick : function(e){
-		var el=Ext.get(e.target);
+	onClick : function(e,t){
+		var el=Ext.fly(t);
 		if(el.hasClass(this.tc))this.closeTab(el.parent('.strip'));
 	},
 	onMouseWheel : function(e){
@@ -298,11 +302,10 @@ $A.Tab = Ext.extend($A.Component,{
             e.stopEvent();
         }
 	},
-	onMouseDown : function(e){
-		var el=Ext.get(e.target),strip = el.parent('.strip'),sf=this;
+	onMouseDown : function(e,t){
+		var el=Ext.fly(t),strip = el.parent('.strip'),sf=this;
 		if(el.hasClass(sf.tc)){
-			el.removeClass(sf.tbo);
-			el.addClass(sf.tbd);
+			el.removeClass(sf.tbo).addClass(sf.tbd);
 		}else if(el.hasClass(sf.ts) && !el.hasClass(sf.sd)){
 			if(el.hasClass(sf.tslo))sf.scrollTo('left');
 			else sf.scrollTo('right');
@@ -320,78 +323,71 @@ $A.Tab = Ext.extend($A.Component,{
 	onMouseUp : function(e){
 		this.stopScroll();
 	},
-	onMouseOver : function(e){
-		var el=Ext.get(e.target),strip = el.parent('.strip');
+	onMouseOver : function(e,t){
+		var el=Ext.fly(t),strip = el.parent('.strip'),
+			tsl = this.tsl,tsr = this.tsr,tc = this.tc;
         if(el.hasClass(this.ts)&&!el.hasClass(this.sd)){
-            if(el.hasClass(this.tsl))el.replaceClass(this.tsl,this.tslo);
-            else if(el.hasClass(this.tsr))el.replaceClass(this.tsr,this.tsro);
-        } else if(el.hasClass(this.tc)){
+            if(el.hasClass(tsl))el.replaceClass(tsl,this.tslo);
+            else if(el.hasClass(tsr))el.replaceClass(tsr,this.tsro);
+        } else if(el.hasClass(tc)){
             el.addClass(this.tbo);
         }
         if(strip){
-            var el = strip.child('div.'+this.tc);
+        	el = strip.child('div.'+tc);
             if(el){
-                if(this.currentBtn)this.currentBtn.hide();
+            	var b = this.currentBtn;
+                if(b)b.hide();
                 this.currentBtn=el;
                 el.show();
             }            
         }
 	},
-	onMouseOut : function(e){
-		var el=Ext.get(e.target),strip = el.parent('.strip');
+	onMouseOut : function(e,t){
+		var el=Ext.fly(t),strip = el.parent('.strip'),
+			tslo = this.tslo,tsro = this.tsro,tc = this.tc;
         if(el.hasClass(this.ts)&&!el.hasClass(this.sd)){
             this.stopScroll();
-            if(el.hasClass(this.tslo))el.replaceClass(this.tslo,this.tsl);
-            else if((el.hasClass(this.tsro)))el.replaceClass(this.tsro,this.tsr);
-        }else if(el.hasClass(this.tc)){
-            el.removeClass(this.tbo);
-            el.removeClass(this.tbd);
+            if(el.hasClass(tslo))el.replaceClass(tslo,this.tsl);
+            else if((el.hasClass(tsro)))el.replaceClass(tsro,this.tsr);
+        }else if(el.hasClass(tc)){
+            el.removeClass([this.tbo,this.tbd]);
         }
         if(strip){
-            el = strip.child('div.'+this.tc);
+            el = strip.child('div.'+tc);
             if(el){
                 el.hide();
             }            
         }
 	},
 	showLoading : function(dom){
-    	dom.update(_lang['tab.loading']);
-    	dom.setStyle('text-align','center');
-    	dom.setStyle('line-height',5);
+    	dom.setStyle({'text-align':'center','line-height':5}).update(_lang['tab.loading']);
     },
     clearLoading : function(dom){
-    	dom.update('');
-    	dom.setStyle('text-align','');
-    	dom.setStyle('line-height','');
+    	dom.setStyle({'text-align':'','line-height':''}).update('');
     },
     reloadTab : function(index,url){
-    	index = index || this.selectedIndex;
+    	index = Ext.isEmpty(index) ? this.selectedIndex:index;
     	var tab=this.getTab(index);
     	if(!tab)return;
     	if(url) this.items[index].ref = url;
-    	var cmps = tab.body.cmps;
-    	if(cmps){
-        	for(var key in cmps){
-        		var cmp = cmps[key];
-        		if(cmp.destroy){
-        			try{
-        				cmp.destroy();
-        			}catch(e){
-        				alert('销毁Tab出错: ' + e)
-        			}
-        		}
-        	}
-    	}
+    	Ext.iterate(tab.body.cmps,function(key,cmp){
+    		if(cmp.destroy){
+    			try{
+    				cmp.destroy();
+    			}catch(e){
+    				alert('销毁Tab出错: ' + e)
+    			}
+    		}
+    	});
     	this.selectTab(index,true);
     },
 	load : function(url,dom,index){
-        url=url+(url.indexOf('?') !=-1?'&':'?')+'_vw='+this.width+'&_vh='+(this.height-Ext.fly(this.head).getHeight());
-		var sf = this,body = Ext.get(dom);
+        var sf = this,body = Ext.get(dom);
 		body.cmps={};
 		sf.showLoading(body);
 		//TODO:错误信息
     	Ext.Ajax.request({
-			url: url,
+			url: Ext.urlAppend(url,'_vw='+this.width+'&_vh='+(this.height-this.head.getHeight())),
 		   	success: function(response, options){
                 var res;
                 try {
@@ -403,14 +399,10 @@ $A.Tab = Ext.extend($A.Component,{
                             $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
                         }else{
                             $A.manager.fireEvent('ajaxfailed', $A.manager, options.url,options.para,res);
-                            var st = res.error.stackTrace;
-                            st = (st) ? st.replaceAll('\r\n','</br>') : '';
-                            if(res.error.message) {
-                                var h = (st=='') ? 150 : 250;
-                                $A.showErrorMessage(_lang['window.error'], res.error.message+'</br>'+st,null,400,h);
-                            }else{
-                                $A.showErrorMessage(_lang['window.error'], st,null,400,250);
-                            } 
+                            var st = res.error.stackTrace,
+                            	em = res.error.message;
+                            st = st ? st.replaceAll('\r\n','</br>') : '';
+                            $A.showErrorMessage(_lang['window.error'], em?em+'</br>'+st:st,null,400,em && st=='' ? 150 : 250);
                         }
                     }
                     return;
@@ -438,42 +430,41 @@ $A.Tab = Ext.extend($A.Component,{
     	w = Math.max(w,2);
     	if(this.width==w)return;
     	$A.Tab.superclass.setWidth.call(this, w);
-    	this.body.setWidth(w-2);
-    	this.script.setWidth(w-38);
-    	if(w-38<this.head.getWidth()){
-			this.scrollLeft.setStyle({'display':'block'});
-			this.scrollRight.setStyle({'display':'block'});
-			this.script.setStyle('padding-left','1px');
-			var sl=this.script.getScroll().left,sw=this.script.getWidth(),hw=this.head.getWidth();
-			if(sl<=0)this.scrollLeft.addClass(this.sd);
-			else this.scrollLeft.removeClass(this.sd);
+    	var body = this.body,head = this.head,script = this.script,
+    		scrollLeft = this.scrollLeft,scrollRight= this.scrollRight,
+    		sd = this.sd;
+    	body.setWidth(w-2);
+    	script.setWidth(w-38);
+    	if(w-38<head.getWidth()){
+			scrollLeft.setStyle({'display':'block'});
+			scrollRight.setStyle({'display':'block'});
+			script.setStyle('padding-left','1px');
+			var sl=script.getScroll().left,sw=script.getWidth(),hw=head.getWidth();
+			if(sl<=0)scrollLeft.addClass(sd);
+			else scrollLeft.removeClass(sd);
 			if(sl+sw>=hw){
-				if(!this.scrollRight.hasClass(this.sd))this.scrollRight.addClass(this.sd);
-				else this.script.scrollTo('left',hw-sw);
-			}else this.scrollRight.removeClass(this.sd);
+				if(!scrollRight.hasClass(sd))scrollRight.addClass(sd);
+				else script.scrollTo('left',hw-sw);
+			}else scrollRight.removeClass(sd);
     	}else{
-			this.scrollLeft.setStyle({'display':'none'});
-			this.scrollRight.setStyle({'display':'none'});
-			this.script.setStyle('padding-left','0');
-			this.script.scrollTo('left',0);
+			scrollLeft.setStyle({'display':'none'});
+			scrollRight.setStyle({'display':'none'});
+			script.setStyle('padding-left','0').scrollTo('left',0);
     	}
-        var bodys = this.body.dom.children;
 //    	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
-    	for(var i=0;i<bodys.length;i++){
-    		var body = bodys[i];
-    		Ext.fly(body).setWidth(w-4);
-    	}
+    	Ext.each(body.dom.children,function(b){
+    		Ext.fly(b).setWidth(w-4);
+    	});
     },
     setHeight : function(h){
     	h = Math.max(h,25);
     	if(this.height==h)return;
     	$A.Tab.superclass.setHeight.call(this, h);
-    	this.body.setHeight(h-26);
-        var bodys = this.body.dom.children;
+    	var body = this.body;
+    	body.setHeight(h-26);
 //    	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
-    	for(var i=0;i<bodys.length;i++){
-    		var body = bodys[i];
-    		Ext.fly(body).setHeight(h-28);
-    	}
+    	Ext.each(body.dom.children,function(b){
+    		Ext.fly(b).setHeight(h-28);
+    	});
     }
 });
