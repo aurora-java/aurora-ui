@@ -482,7 +482,24 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         return datas;
     },
+    clearFilter : function(){
+    	if(this.backup){
+    		this.data = this.backup;
+    		delete this.backup;
+    	}
+    },
+    filter : function(callback,scope){
+    	var d = this.backup||this.data,nd = [];
+		this.backup = d;
+		Ext.each(d,function(o){
+			if(callback.call(scope||this,o)!==false){
+				nd.push(o);	
+			}
+		},this)
+		this.data = nd;
+    },
     loadData : function(datas, num, options){
+    	this.clearFilter();
         datas = this.beforeLoadData(datas);
         this.data = [];
         this.selected = [];
