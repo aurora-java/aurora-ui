@@ -1,5 +1,6 @@
 (function(){
-var sd='scroll-disabled',
+var _N = '',
+	sd='scroll-disabled',
     tslo='tab-scroll-left-over',
     tsro='tab-scroll-right-over',
     tsl='tab-scroll-left',
@@ -16,7 +17,10 @@ var sd='scroll-disabled',
     BLOCK = 'block',
     EVT_SELECT = 'select',
     EVT_BEFORE_OPEN = 'beforeopen',
-    PADDING_LEFT = 'padding-left';
+    PADDING_LEFT = 'padding-left',
+    STRIP = 'strip',
+    $STRIP = '.'+STRIP,
+    ERROR = '销毁Tab出错: ';
 /**
  * @class Aurora.Tab
  * @extends Aurora.Component
@@ -199,7 +203,7 @@ $A.Tab = Ext.extend($A.Component,{
         			try{
         				cmp.destroy();
         			}catch(e){
-        				alert('销毁Tab出错: ' + e)
+        				alert(ERROR + e)
         			}
         		}
 			});
@@ -214,7 +218,7 @@ $A.Tab = Ext.extend($A.Component,{
         			try{
         				cmp.destroy();
         			}catch(e){
-        				alert('销毁Tab出错: ' + e)
+        				alert(ERROR + e)
         			}
         		}
         	});
@@ -298,7 +302,7 @@ $A.Tab = Ext.extend($A.Component,{
 	},
 	onClick : function(e,t){
 		var el=Ext.fly(t);
-		if(el.hasClass(tc))this.closeTab(el.parent('.strip'));
+		if(el.hasClass(tc))this.closeTab(el.parent($STRIP));
 	},
 	onMouseWheel : function(e){
 		var delta = e.getWheelDelta();
@@ -311,7 +315,7 @@ $A.Tab = Ext.extend($A.Component,{
         }
 	},
 	onMouseDown : function(e,t){
-		var el=Ext.fly(t),strip = el.parent('.strip'),sf=this;
+		var el=Ext.fly(t),strip = el.parent($STRIP),sf=this;
 		if(el.hasClass(tc)){
 			el.removeClass(tbo).addClass(tbd);
 		}else if(el.hasClass(ts) && !el.hasClass(sd)){
@@ -324,7 +328,7 @@ $A.Tab = Ext.extend($A.Component,{
 					if(el.hasClass(sd))clearInterval(sf.scrollInterval);
 				}
 			},100);
-		}else if(strip && strip.hasClass('strip') && !strip.hasClass(ACTIVE) && !strip.hasClass(sd)){
+		}else if(strip && strip.hasClass(STRIP) && !strip.hasClass(ACTIVE) && !strip.hasClass(sd)){
 			sf.selectTab(strip);
 		}
 	},
@@ -332,7 +336,7 @@ $A.Tab = Ext.extend($A.Component,{
 		this.stopScroll();
 	},
 	onMouseOver : function(e,t){
-		var el=Ext.fly(t),strip = el.parent('.strip');
+		var el=Ext.fly(t),strip = el.parent($STRIP);
         if(el.hasClass(ts)&&!el.hasClass(sd)){
             if(el.hasClass(tsl))el.replaceClass(tsl,tslo);
             else if(el.hasClass(tsr))el.replaceClass(tsr,tsro);
@@ -350,7 +354,7 @@ $A.Tab = Ext.extend($A.Component,{
         }
 	},
 	onMouseOut : function(e,t){
-		var el=Ext.fly(t),strip = el.parent('.strip');
+		var el=Ext.fly(t),strip = el.parent($STRIP);
         if(el.hasClass(ts)&&!el.hasClass(sd)){
             this.stopScroll();
             if(el.hasClass(tslo))el.replaceClass(tslo,tsl);
@@ -369,7 +373,7 @@ $A.Tab = Ext.extend($A.Component,{
     	dom.setStyle({'text-align':'center','line-height':5}).update(_lang['tab.loading']);
     },
     clearLoading : function(dom){
-    	dom.setStyle({'text-align':'','line-height':''}).update('');
+    	dom.setStyle({'text-align':_N,'line-height':_N}).update(_N);
     },
     reloadTab : function(index,url){
     	index = Ext.isEmpty(index) ? this.selectedIndex:index;
@@ -381,7 +385,7 @@ $A.Tab = Ext.extend($A.Component,{
     			try{
     				cmp.destroy();
     			}catch(e){
-    				alert('销毁Tab出错: ' + e)
+    				alert(ERROR + e)
     			}
     		}
     	});
@@ -407,8 +411,8 @@ $A.Tab = Ext.extend($A.Component,{
                             $A.manager.fireEvent('ajaxfailed', $A.manager, options.url,options.para,res);
                             var st = res.error.stackTrace,
                             	em = res.error.message;
-                            st = st ? st.replaceAll('\r\n','</br>') : '';
-                            $A.showErrorMessage(_lang['window.error'], em?em+'</br>'+st:st,null,400,em && st=='' ? 150 : 250);
+                            st = st ? st.replaceAll('\r\n','</br>') : _N;
+                            $A.showErrorMessage(_lang['window.error'], em?em+'</br>'+st:st,null,400,em && st==_N ? 150 : 250);
                         }
                     }
                     return;
