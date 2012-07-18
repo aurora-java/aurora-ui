@@ -12,13 +12,14 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	rendered:false,
 	selectedClass:'item-comboBox-selected',	
 	//currentNodeClass:'item-comboBox-current',
-	constructor : function(config) {
-		$A.ComboBox.superclass.constructor.call(this, config);		
-	},
+//	constructor : function(config) {
+//		$A.ComboBox.superclass.constructor.call(this, config);		
+//	},
 	initComponent:function(config){
 		$A.ComboBox.superclass.initComponent.call(this, config);
-		if(config.options) {
-            this.setOptions(config.options);
+		var opt = config.options;
+		if(opt) {
+            this.setOptions(opt);
 		}else{
             this.clearOptions();
 		}
@@ -37,7 +38,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		'select');
 	},
 	onTriggerClick : function() {
-		this.doQuery('',true);
+		this.doQuery();
 		$A.ComboBox.superclass.onTriggerClick.call(this);		
 	},
 	onBlur : function(e){
@@ -50,28 +51,20 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 					this.setValue(raw)
 				}else{
 					var record = this.getRecordByDisplay(raw);
-					if(record != null){
-						this.setValue(record.get(this.displayfield));				
-					}else{
-						this.setValue('');
-					}
+					this.setValue(record&&record.get(this.displayfield)||'');
 				}
 			//}
         }
     },
     getRecordByDisplay: function(name){
     	if(!this.optionDataSet)return null;
-    	var datas = this.optionDataSet.getAll();
-		var l=datas.length;
 		var record = null;
-		for(var i=0;i<l;i++){
-			var r = datas[i];
-			var d = r.get(this.displayfield);
-			if(d == name){
+		Ext.each(this.optionDataSet.getAll(),function(r){
+			if(r.get(this.displayfield) == name){
 				record = r;
-				break;
+				return false;
 			}
-		}
+		},this);
 		return record;
     },
     /**
@@ -91,8 +84,8 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
     onKeyDown: function(e){
         if(this.readonly)return;
-        var current = Ext.isEmpty(this.selectedIndex) ? -1 : this.selectedIndex;
-        var keyCode = e.keyCode;
+        var current = Ext.isEmpty(this.selectedIndex) ? -1 : this.selectedIndex,
+        	keyCode = e.keyCode;
         if(keyCode == 40||keyCode == 38){
             this.inKeyMode = true;
             if(keyCode == 38){
@@ -100,48 +93,55 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
                 if(current>=0){
                     this.selectItem(current)
                 }            
-            }
-            if(keyCode == 40){
+            }else if(keyCode == 40){
                 current ++;
                 if(current<this.view.dom.childNodes.length){
                     this.selectItem(current)
                 }
             }
-        }
-        if(this.inKeyMode && keyCode == 13){
+        }else if(this.inKeyMode && keyCode == 13){
             this.inKeyMode = false;
-            var doms = this.view.dom.childNodes;
-            var se = null;
-            for(var i=0;i<doms.length;i++){
-                var t = doms[i];
-                if(Ext.fly(t).hasClass(this.selectedClass)){
-                    se = t;
-                    break;
+            var cls = this.selectedClass;
+            Ext.each(this.view.dom.childNodes,function(t){
+                if(Ext.fly(t).hasClass(cls)){
+                    this.onSelect(t)
+                    return false;
                 }
-            }
-            if(se)this.onSelect(se);
+            },this);
             this.collapse();
         } else {
-            $A.ComboBox.superclass.onKeyDown.call(this,e);
+        	$A.ComboBox.superclass.onKeyDown.call(this,e);
         }
+    },
+    onKeyUp : function(e){
+    	if(this.readonly)return;
+    	var c = e.keyCode;
+    	if(!e.isSpecialKey()||c==8||c==46){
+    		if(this.timeoutId)
+    			clearTimeout(this.timeoutId)
+    		this.timeoutId = function(){
+    			this.doQuery(this.getRawValue());
+    			this.correctViewSize();
+    			delete this.timeoutId;
+    		}.defer(300,this);
+    	}
+    	$A.ComboBox.superclass.onKeyUp.call(this,e);
     },
 	/**
 	 * 收起下拉菜单.
 	 */
 	collapse:function(){
 		$A.ComboBox.superclass.collapse.call(this);
-		if(this.currentIndex!==undefined)
-		Ext.fly(this.getNode(this.currentIndex)).removeClass(this.selectedClass);
+		if(!Ext.isEmpty(this.currentIndex))
+			Ext.fly(this.getNode(this.currentIndex)).removeClass(this.selectedClass);
+		this.doQuery();
 	},
 	clearOptions : function(){
 	   this.processDataSet('un');
 	   this.optionDataSet = null;
 	},
 	setOptions : function(name){
-		var ds = name
-		if(typeof(name)==='string'){
-			ds = $(name);
-		}
+		var ds = typeof(name)==='string'?$(name) : name;
 		if(this.optionDataSet != ds){
 			this.optionDataSet = ds;
 			this.processDataSet('un');
@@ -151,13 +151,15 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		}
 	},
 	processDataSet: function(ou){
-		if(this.optionDataSet){
-            this.optionDataSet[ou]('load', this.onDataSetLoad, this);
-            this.optionDataSet[ou]('add', this.onDataSetLoad, this);
-            this.optionDataSet[ou]('update', this.onDataSetLoad, this);
-            this.optionDataSet[ou]('remove', this.onDataSetLoad, this);
-            this.optionDataSet[ou]('clear', this.onDataSetLoad, this);
-            this.optionDataSet[ou]('reject', this.onDataSetLoad, this);
+		var ds =this.optionDataSet,
+			loadFn = this.onDataSetLoad;
+		if(ds){
+            ds[ou]('load', loadFn, this);
+           	ds[ou]('add', loadFn, this);
+            ds[ou]('update', loadFn, this);
+            ds[ou]('remove', loadFn, this);
+            ds[ou]('clear', loadFn, this);
+            ds[ou]('reject', loadFn, this);
 		}
 	},	
 	onDataSetLoad: function(){
@@ -168,10 +170,9 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
 	onRender:function(){	
         if(!this.view){
-        	this.popup.update('<ul></ul>');
-			this.view=this.popup.child('ul');
-			this.view.on('click', this.onViewClick,this);
-			this.view.on('mousemove',this.onViewMove,this);
+			this.view=this.popup.update('<ul></ul>').child('ul')
+				.on('click', this.onViewClick,this)
+				.on('mousemove',this.onViewMove,this);
         }
         
         if(this.optionDataSet){
@@ -180,18 +181,14 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		}       
 	},
 	correctViewSize: function(){
-		var widthArray = [];
-		var mw = this.wrap.getWidth();
-		for(var i=0;i<this.view.dom.childNodes.length;i++){
-			var li=this.view.dom.childNodes[i];
-			var width=$A.TextMetrics.measure(li,li.innerHTML).width;
-			mw = Math.max(mw,width)||mw;
-		}
-		this.popup.setWidth(mw);
-		var lh = Math.min(this.popup.child('ul').getHeight()+4,this.maxHeight); 
-		this.popup.setHeight(lh<20?20:lh);
-    	this.shadow.setWidth(mw);
-    	this.shadow.setHeight(lh<20?20:lh);
+		var widthArray = [],
+			mw = this.wrap.getWidth();
+		Ext.each(this.view.dom.childNodes,function(li){
+			mw = Math.max(mw,$A.TextMetrics.measure(li,li.innerHTML).width)||mw;
+		});
+		var lh = Math.max(20,Math.min(this.popup.child('ul').getHeight()+4,this.maxHeight)); 
+		this.popup.setWidth(mw).setHeight(lh);
+    	this.shadow.setWidth(mw).setHeight(lh);
 	},
 	onViewClick:function(e,t){
 		if(t.tagName!='LI'){
@@ -207,79 +204,86 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //		if(this.inKeyMode){ // prevent key nav and mouse over conflicts
 //            return;
 //        }
-        var index = t.tabIndex;
-        this.selectItem(index);        
+        this.selectItem(t.tabIndex);        
 	},
 	onSelect:function(target){
 		var index = target.tabIndex;
 		if(index==-1)return;
-		var record = this.optionDataSet.getAt(index);
-		var value = record.get(this.valuefield);
-		var display = this.getRenderText(record);//record.get(this.displayfield);
+		var record = this.optionDataSet.getAt(index),
+			value = record.get(this.valuefield),
+			display = this.getRenderText(record);//record.get(this.displayfield);
 		this.setValue(display);
 		this.fireEvent('select',this, value, display, record);
 	},
 	initQuery: function(){//事件定义中调用
-		this.doQuery(this.getText());
+		this.doQuery();
 	},
-	doQuery : function(q,forceAll) {		
-		if(q === undefined || q === null){
-			q = '';
-	    }		
+	doQuery : function(q) {		
+//		if(q === undefined || q === null){
+//			q = '';
+//	    }		
 //		if(forceAll){
 //            this.store.clearFilter();
 //        }else{
 //            this.store.filter(this.displayField, q);
 //        }
-        
+		var ds = this.optionDataSet;
+		if(Ext.isEmpty(q)){
+			ds.clearFilter();
+		}else{
+			var reg = new RegExp("^"+q+".*","i"),field = this.displayfield;
+	        ds.filter(function(r){
+	        	return reg.test(r.get(field));
+	        },this);
+		}
 		//值过滤先不添加
 		this.onRender();	
 	},
 	initList: function(){
-		this.refresh();
+//		this.refresh();
+		this.currentIndex = this.selectedIndex = null;
+		var ds = this.optionDataSet,v = this.view;
 //		this.litp=new Ext.Template('<li tabIndex="{index}">{'+this.displayfield+'}&#160;</li>');
-		if(this.optionDataSet.loading == true){
-			this.view.update('<li tabIndex="-1">'+_lang['combobox.loading']+'</li>');
+		if(ds.loading == true){
+			v.update('<li tabIndex="-1">'+_lang['combobox.loading']+'</li>');
 		}else{
-			var datas = this.optionDataSet.getAll();
-			var l=datas.length;
 			var sb = [];
-			for(var i=0;i<l;i++){
+			Ext.each(ds.getAll(),function(d,i){
 //				var d = Ext.apply(datas[i].data, {index:i})
-				var rder = $A.getRenderer(this.renderer);
-				var text = this.getRenderText(datas[i]);
-				sb.add('<li tabIndex="'+i+'">'+text+'</li>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
-			}
-			if(l!=0){
-				this.view.update(sb.join(''));			
-			}
+//				var rder = $A.getRenderer(this.renderer);
+//				var text = this.getRenderText(datas[i]);
+				sb.push('<li tabIndex="',i,'">',this.getRenderText(d),'</li>');
+			},this);
+//			if(sb.length){
+				v.update(sb.join(''));			
+//			}
 		}
 	},
 	getRenderText : function(record){
         var rder = $A.getRenderer(this.renderer);
-        var text = '&#160;';
         if(rder){
-            text = rder.call(window,this,record);
+            return rder.call(window,this,record);
         }else{
-            text = record.get(this.displayfield);
+            return record.get(this.displayfield);
         }
-		return text;
 	},
-	refresh:function(){
-		this.view.update('');
-		this.selectedIndex = null;
-	},
+//	refresh:function(){
+//		this.view.update('');
+//		this.selectedIndex = null;
+//	},
 	selectItem:function(index){
 		if(Ext.isEmpty(index)){
 			return;
 		}	
-		var node = this.getNode(index);			
-		if(node && node.tabIndex!=this.selectedIndex){
-			if(!Ext.isEmpty(this.selectedIndex)){							
-				Ext.fly(this.getNode(this.selectedIndex)).removeClass(this.selectedClass);
+		var node = this.getNode(index),
+			sindex = this.selectedIndex,
+			cls = this.selectedClass;			
+		if(node && node.tabIndex!=sindex){
+			if(!Ext.isEmpty(sindex)){							
+				Ext.fly(this.getNode(sindex)).removeClass(cls);
 			}
 			this.selectedIndex=node.tabIndex;			
-			Ext.fly(node).addClass(this.selectedClass);					
+			Ext.fly(node).addClass(cls);					
 		}			
 	},
 	getNode:function(index){		
@@ -287,17 +291,17 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},	
 	destroy : function(){
 		if(this.view){
-			this.view.un('click', this.onViewClick,this);
-//			this.view.un('mouseover',this.onViewOver,this);
-			this.view.un('mousemove',this.onViewMove,this);
+			this.view.un('click', this.onViewClick,this)
+//				.un('mouseover',this.onViewOver,this)
+				.un('mousemove',this.onViewMove,this);
 		}
 		this.processDataSet('un');
     	$A.ComboBox.superclass.destroy.call(this);
 		delete this.view;
 	},
-	getText : function() {		
-		return this.text;
-	},
+//	getText : function() {		
+//		return this.text;
+//	},
 //	processValue : function(rv){
 //		var r = this.optionDataSet == null ? null : this.optionDataSet.find(this.displayfield, rv);
 //		if(r != null){
@@ -319,42 +323,36 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //	},
 	setValue: function(v, silent){
         $A.ComboBox.superclass.setValue.call(this, v, silent);
-        if(this.record){
-			var field = this.record.getMeta().getField(this.binder.name);
+        var r = this.record;
+        if(r){
+			var field = r.getMeta().getField(this.binder.name);
 			if(field){
-				var mapping = field.get('mapping');
-				var raw = this.getRawValue();
-				var record = this.getRecordByDisplay(raw);
-//				if(mapping&&record){
-				if(mapping){//TODO: v是空的时候?
-					for(var i=0;i<mapping.length;i++){
-						var map = mapping[i];
-    					var vl = record ? record.get(map.from) : (this.fetchrecord===false?raw:'');
+				var raw = this.getRawValue(),
+					record = this.getRecordByDisplay(raw);
+				Ext.each(field.get('mapping'),function(map){
+					var vl = record ? record.get(map.from) : (this.fetchrecord===false?raw:'');
 //    					var vl = record ? (record.get(map.from)||'') : '';
 //    					if(vl!=''){
     					if(!Ext.isEmpty(vl,true)){
     						//避免render的时候发生update事件
     						if(silent){
-                                this.record.data[map.to] = vl;
+                                r.data[map.to] = vl;
     						}else{
-    						    this.record.set(map.to,vl);						
+    						    r.set(map.to,vl);						
     						}
     					}else{
-    						delete this.record.data[map.to];
-    					}
-						
-					}
-				}
+    						delete r.data[map.to];
+    					}					
+				},this);
 			}
 		}
 	},
 	getIndex:function(v){
-		var datas = this.optionDataSet.getAll();		
-		var l=datas.length;
-		for(var i=0;i<l;i++){
-			if(datas[i].data[this.displayfield]==v){				
-				return i;
+		var df=this.displayfield;
+		return Ext.each(this.optionDataSet.getAll(),function(d){
+			if(d.data[df]==v){				
+				return false;
 			}
-		}
+		});
 	}
 });
