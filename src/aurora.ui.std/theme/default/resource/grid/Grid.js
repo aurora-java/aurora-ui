@@ -1,5 +1,7 @@
 (function(){
-var _ = '_',
+var DOC = document,
+	DOC_EL = DOC.documentElement,
+	_ = '_',
 	__ = '__',
 	_O = '.',
 	_S = ' ',
@@ -590,14 +592,14 @@ $A.Grid = Ext.extend($A.Component,{
         	css = this.parseCss(this.renderRow(record,row)),
         	cls = (row % 2==0 ? _N : ROW_ALT+_S)+css.cls;
         if(this.lbt){
-            var ltr = document.createElement(TR),
+            var ltr = DOC.createElement(TR),
             	ltb = this.lbt.dom.tBodies[0];
             ltr.id=this.id+$L+record.id;
             ltr.className=cls;
             Ext.fly(ltr).set({style:css.style});
             Ext.each(columns,function(col){
                 if(col.lock === true){
-                    var td = document.createElement(TD);
+                    var td = DOC.createElement(TD);
                     if(col.type == ROW_CHECK) {
                         Ext.fly(td).set({recordid:record.id,atype:GRID$ROWCHECK})
                         td.className = GRID_ROWBOX;
@@ -639,14 +641,14 @@ $A.Grid = Ext.extend($A.Component,{
 	        }
         }
         
-        var utr = document.createElement(TR),
+        var utr = DOC.createElement(TR),
         	utb = this.ubt.dom.tBodies[0];
         utr.id=this.id+$U+record.id;
         utr.className=cls;
         Ext.fly(utr).set({style:css.style});
         Ext.each(columns,function(col){
             if(col.lock !== true){
-                var td = document.createElement(TD);
+                var td = DOC.createElement(TD);
                 td.style.visibility=col.hidden === true ? HIDDEN : VISIBLE;
                 td.style.textAlign=col.align||LEFT;
                 Ext.fly(td).set({
@@ -755,9 +757,9 @@ $A.Grid = Ext.extend($A.Component,{
 //          if(this.overlockTr) this.overlockTr.setStyle(this.bgc, this.selectedId ==this.overId ? '#ffe3a8' : _N);
 //          if(this.overUnlockTr)  this.overUnlockTr.setStyle(this.bgc,this.selectedId ==this.overId ? '#ffe3a8' : _N);
 //          this.overId = rid;
-//          this.overlockTr = Ext.get(document.getElementById(this.id+'$l-'+rid));
+//          this.overlockTr = Ext.get(DOC.getElementById(this.id+'$l-'+rid));
 //          if(this.overlockTr)this.overlockTr.setStyle(this.bgc,'#d9e7ed');
-//          this.overUnlockTr = Ext.get(document.getElementById(this.id+'$u-'+rid));
+//          this.overUnlockTr = Ext.get(DOC.getElementById(this.id+'$u-'+rid));
 //          this.overUnlockTr.setStyle(this.bgc,'#d9e7ed');
 //      }
 //  },
@@ -992,7 +994,7 @@ $A.Grid = Ext.extend($A.Component,{
        				sf.editing = true;
                     ed.el.on(EVT_KEY_DOWN, sf.onEditorKeyDown,sf);
                     ed.on(EVT_SELECT,sf.onEditorSelect,sf);
-                    Ext.get(document.documentElement).on(EVT_MOUSE_DOWN, sf.onEditorBlur, sf);
+                    Ext.get(DOC_EL).on(EVT_MOUSE_DOWN, sf.onEditorBlur, sf);
                     if(callback)callback.call(window,ed)
 	                sf.fireEvent(EVT_EDITOR_SHOW, sf, ed, row, name, record);
        			}
@@ -1201,7 +1203,7 @@ $A.Grid = Ext.extend($A.Component,{
 	            if(!ed.canHide || ed.canHide()) {
 	                ed.el.un(EVT_KEY_DOWN, this.onEditorKeyDown,this);
 	                ed.un(EVT_SELECT,this.onEditorSelect,this);
-	                Ext.get(document.documentElement).un(EVT_MOUSE_DOWN, this.onEditorBlur, this);
+	                Ext.get(DOC_EL).un(EVT_MOUSE_DOWN, this.onEditorBlur, this);
 //	                var ed = this.currentEditor.editor;
 	                ed.move(-10000,-10000);
 	                ed.onBlur();
@@ -1236,7 +1238,7 @@ $A.Grid = Ext.extend($A.Component,{
         this.sp.setHeight(this.wrap.getHeight())
         	.show()
         	.setStyle({top:this.wrap.getXY()[1]+PX,left:e.xy[0]+PX});
-        Ext.get(document.documentElement)
+        Ext.get(DOC_EL)
         	.on(EVT_MOUSE_MOVE, this.onHeadMouseMove, this)
         	.on(EVT_MOUSE_UP, this.onHeadMouseUp, this);
     },
@@ -1353,7 +1355,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     onHeadMouseUp: function(e){
 //      this.draging = false;
-        Ext.get(document.documentElement).un(EVT_MOUSE_MOVE, this.onHeadMouseMove, this)
+        Ext.get(DOC_EL).un(EVT_MOUSE_MOVE, this.onHeadMouseMove, this)
         	.un(EVT_MOUSE_UP, this.onHeadMouseUp, this);      
         this.sp.hide();
         if(this.dragWidth != -1)
@@ -1606,7 +1608,7 @@ $A.Grid = Ext.extend($A.Component,{
 			index = -1;	
 		}
 		Ext.each(cols,function(c){
-			var	th = Ext.get(document.createElement(TH)),
+			var	th = Ext.get(DOC.createElement(TH)),
 				td = Ext.get(trs[1].insertCell(index)),
 				w = c.width,n = c.name;
 			if(index > - 1)index++;
