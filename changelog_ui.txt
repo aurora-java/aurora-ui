@@ -20,7 +20,7 @@ Release ()
 * Grid增加autoAppend属性，实现在最后一行编辑器敲回车新增新行.
 * 增加TabPanel组件重新刷新tab项的函数
 * 增加Aurora.Touch移动开发包
-* Dataset新增filter和clearFilter功能增
+* Dataset新增filter和clearFilter方法,为ComboBox实现了过滤选项的功能
 
 Release (2012-02-08)  
 ------------------------------------
