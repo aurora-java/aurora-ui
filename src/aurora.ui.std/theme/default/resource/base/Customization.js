@@ -47,11 +47,7 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
             }
         }
         var context_path = path.substring(0,str);
-        if(this.cmp instanceof Aurora.Grid){
-            new Aurora.Window({id:'sys_customization_grid', url:context_path + 'modules/sys/sys_customization_grid.screen?source_file='+screen_path + '&id='+ this.cmp.id+'&did='+this.cmp.dataset.id, title:'个性化设置',height:530,width:460});
-        } else {
-            new Aurora.Window({id:'sys_customization_window', url:context_path + 'modules/sys/sys_customization_window.screen?screen_path='+screen_path + '&id='+ this.cmp.id, title:'个性化设置',height:170,width:400});
-        }
+        new Aurora.Window({id:'sys_customization_window', url:context_path + 'modules/sys/sys_customization_window.screen?screen_path='+screen_path + '&id='+ this.cmp.id, title:'个性化设置',height:170,width:400});
         this.onCmpOut();
     },
     hideMask : function(){

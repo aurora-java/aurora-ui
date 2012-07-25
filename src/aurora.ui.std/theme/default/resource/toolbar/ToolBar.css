@@ -57,6 +57,6 @@
 .nav-prepage div, .nav-prepage div, .nav-firstpage div, .nav-lastpage div, .nav-nextpage div, .nav-refresh div{
 	background-image:url(../toolbar/navigation.gif);
 }
-.grid-add div,.grid-delete div,.grid-save div,.grid-clear div,.grid-excel div{
+.grid-add div,.grid-delete div,.grid-save div,.grid-clear div,.grid-excel div,.grid-cust div{
 	background-image:url(../toolbar/toolbar_btn.gif);
 }
