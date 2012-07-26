@@ -521,7 +521,7 @@ $A.Grid = Ext.extend($A.Component,{
             }
         }
         var context_path = path.substring(0,str);
-        new Aurora.Window({id:'sys_customization_grid', url:context_path + 'modules/sys/sys_customization_grid.screen?source_file='+screen_path + '&id='+ this.id+'&did='+this.dataset.id, title:'个性化设置',height:530,width:460});
+        new Aurora.Window({id:'sys_customization_grid', url:context_path + 'modules/sys/sys_customization_grid.screen?source_file='+screen_path + '&id='+ this.id+'&did='+this.dataset.id, title:'个性化设置',height:530,width:560});
     },
     onAjaxFailed : function(res,opt){
         $A.Masker.unmask(this.wb);
