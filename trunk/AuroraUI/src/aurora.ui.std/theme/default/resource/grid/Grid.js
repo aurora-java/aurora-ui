@@ -508,19 +508,24 @@ $A.Grid = Ext.extend($A.Component,{
         var str = path.indexOf('modules');
         var screen_path = path.substring(str,path.length);
         var screen = screen_path.substring(screen_path.lastIndexOf('/')+1, screen_path.length);
-        var parent = this.wrap.parent('.win-wrap')
+        var context_path = path.substring(0,str);
+        var parent = this.wrap.parent('[url]');
         if(parent) {
             var url = parent.getAttributeNS("","url");
             if(url){
                 url = url.split('?')[0];
-                var li = url.lastIndexOf('/');
-                if(li != -1){
-                    url = url.substring(li+1,url.length);
+                if(url.indexOf(context_path) == -1) {
+                    var li = url.lastIndexOf('/');
+                    if(li != -1){
+                        url = url.substring(li+1,url.length);
+                    }
+                    screen_path = screen_path.replaceAll(screen, url);
+                }else {
+                    screen_path = url.substring(url.indexOf(context_path) + new String(context_path).length,url.length);
                 }
-                screen_path = screen_path.replaceAll(screen, url);
             }
         }
-        var context_path = path.substring(0,str);
+        
         new Aurora.Window({id:'sys_customization_grid', url:context_path + 'modules/sys/sys_customization_grid.screen?source_file='+screen_path + '&id='+ this.id+'&did='+this.dataset.id, title:'个性化设置',height:530,width:560});
     },
     onAjaxFailed : function(res,opt){

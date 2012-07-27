@@ -7761,19 +7761,24 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
         var str = path.indexOf('modules');
         var screen_path = path.substring(str,path.length);
         var screen = screen_path.substring(screen_path.lastIndexOf('/')+1, screen_path.length);
-        var parent = this.el.parent('.win-wrap')
+        var context_path = path.substring(0,str);
+        var parent = this.el.parent('[url]');
         if(parent) {
             var url = parent.getAttributeNS("","url");
             if(url){
                 url = url.split('?')[0];
-                var li = url.lastIndexOf('/');
-                if(li != -1){
-                    url = url.substring(li+1,url.length);
+                if(url.indexOf(context_path) == -1) {
+                    var li = url.lastIndexOf('/');
+                    if(li != -1){
+                        url = url.substring(li+1,url.length);
+                    }
+                    screen_path = screen_path.replaceAll(screen, url);
+                }else {
+                    screen_path = url.substring(url.indexOf(context_path) + new String(context_path).length,url.length);
                 }
-                screen_path = screen_path.replaceAll(screen, url);
             }
         }
-        var context_path = path.substring(0,str);
+        
         new Aurora.Window({id:'sys_customization_window', url:context_path + 'modules/sys/sys_customization_window.screen?screen_path='+screen_path + '&id='+ this.cmp.id, title:'个性化设置',height:170,width:400});
         this.onCmpOut();
     },
