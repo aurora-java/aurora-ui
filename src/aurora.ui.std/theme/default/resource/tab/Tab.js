@@ -426,6 +426,7 @@ A.Tab = Ext.extend(A.Component,{
 				    	sf.clearLoading(body);
 //						A.focusTab=body;
 //						try{
+                            body.set({url:url});
 					    	body.update(html,true,function(){
 //					    		A.focusTab=null;
 			                    sf.fireEvent(EVT_SELECT, sf, index)
