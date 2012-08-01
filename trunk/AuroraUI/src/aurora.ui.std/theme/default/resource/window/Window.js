@@ -91,7 +91,6 @@ $A.Window = Ext.extend($A.Component,{
             this.focus.defer(10,this);
         }
         if(sf.url){
-        	sf.showLoading();       
         	sf.load(sf.url,config.params)
         }
     },
@@ -320,13 +319,8 @@ $A.Window = Ext.extend($A.Component,{
 	    	this.fireEvent('close', this);
     	}
     },
-    destroy : function(){
-//    	$A.focusWindow = null;
-    	var wrap = this.wrap;
-    	if(!wrap)return;
-    	if(this.proxy) this.proxy.remove();
-    	if(this.modal) $A.Cover.uncover(this.wrap);
-        for(var key in this.cmps){
+    clearBody : function(){
+    	for(var key in this.cmps){
             var cmp = this.cmps[key];
             if(cmp.destroy){
                 try{
@@ -336,6 +330,14 @@ $A.Window = Ext.extend($A.Component,{
                 }
             }
         }
+    },
+    destroy : function(){
+//    	$A.focusWindow = null;
+    	var wrap = this.wrap;
+    	if(!wrap)return;
+    	if(this.proxy) this.proxy.remove();
+    	if(this.modal) $A.Cover.uncover(this.wrap);
+        this.clearBody();
     	$A.Window.superclass.destroy.call(this);
     	delete this.title;
     	delete this.head;
@@ -369,7 +371,8 @@ $A.Window = Ext.extend($A.Component,{
 //    	for(var key in cmps){
 //    		this.oldcmps[key] = cmps[key];
 //    	}
-        
+    	this.clearBody();
+        this.showLoading();       
     	Ext.Ajax.request({
 			url: url,
 			params:params||{},
