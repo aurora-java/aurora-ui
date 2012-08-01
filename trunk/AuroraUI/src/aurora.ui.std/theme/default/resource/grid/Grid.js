@@ -476,7 +476,7 @@ $A.Grid = Ext.extend($A.Component,{
     onBeforeLoad : function(){
     	this.ub.scrollTo(LEFT,0);
     	this.uh.scrollTo(LEFT,0);
-        $A.Masker.mask(this.wb,_lang['grid.mask.loading']);
+        if(!Ext.isIE6)$A.Masker.mask(this.wb,_lang['grid.mask.loading']);
     },
     onBeforSubmit : function(ds){
     	$A.Masker.mask(this.wb,_lang['grid.mask.submit']);
