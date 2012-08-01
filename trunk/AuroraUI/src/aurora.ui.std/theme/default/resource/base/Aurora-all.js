@@ -6380,7 +6380,7 @@ $A.Window = Ext.extend($A.Component,{
     	sf.height= 1*(sf.height||400);
     	if(sf.fullScreen){
     		sf.width=$A.getViewportWidth()-(Ext.isIE||!sf.hasVScrollBar()?0:17)-(Ext.isIE8?1:0);
-    		sf.height=$A.getViewportHeight()-(Ext.isIE||!sf.hasHScrollBar()?26:43);
+    		sf.height=$A.getViewportHeight()-(Ext.isIE||Ext.isIE9||!sf.hasHScrollBar()?26:43);
     		sf.draggable = false;
     		sf.marginheight=1;
     		sf.marginwidth=1;
@@ -6926,7 +6926,7 @@ $A.showOkWindow = function(title, msg, width, height,callback){
  */
 $A.showUploadWindow = function(path,title,source_type,pkvalue,max_size,file_type,callback){
     new Aurora.Window({id:'upload_window', url:path+'/upload.screen?callback='+callback+'&pkvalue='+pkvalue+'&source_type='+source_type+'&max_size='+(max_size||0)+'&file_type='+(file_type||'*.*'), title:title||_lang['window.upload.title'], height:330,width:595});
-}
+};
 /**
  * @class Aurora.Lov
  * @extends Aurora.TextField
