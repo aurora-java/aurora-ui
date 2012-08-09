@@ -67,7 +67,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	WIDTH: 100%;
 	Z-INDEX: 20;
 	HEIGHT: 20px;
-	
+	overflow:hidden;
 }
 .item-label {
 	HEIGHT: 22px;
@@ -138,8 +138,10 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .item-trigger {
 	BORDER-TOP-WIDTH: 0px;	
 	BORDER-LEFT-WIDTH: 0px;	
-	FLOAT: left;	
 	BORDER-BOTTOM-WIDTH: 0px;	
+	position:absolute;
+	top:0;
+	right:0;
 	WIDTH: 20px;	
 	CURSOR: pointer;	
 	HEIGHT: 20px;
@@ -552,13 +554,12 @@ button div {
     background-image:url(../button/btn.gif);
 }
 .item-textField {
-	float:left;  
     border:0;  
-    height:18px;
+    height:17px;
     line-height:16px;
-    padding-top:2px;
-    padding-left:3px;    
-    
+    padding:0;
+    padding-top:2px;  
+    width:100%;
 }
 .ext-ie6 .item-textField{
     font-size:12px;
