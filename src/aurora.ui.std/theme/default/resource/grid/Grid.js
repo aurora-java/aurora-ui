@@ -1,4 +1,4 @@
-(function(){
+(function(A){
 var DOC = document,
 	DOC_EL = DOC.documentElement,
 	_ = '_',
@@ -116,66 +116,69 @@ var DOC = document,
  * @constructor
  * @param {Object} config 配置对象. 
  */
-$A.Grid = Ext.extend($A.Component,{
+A.Grid = Ext.extend(A.Component,{
     constructor: function(config){
-//        this.overId = null;
-        this.selectedId = null;
-        this.lockWidth = 0;
-        this.autofocus = config.autofocus||true;
-        $A.Grid.superclass.constructor.call(this,config);
+    	var sf = this;
+//        sf.overId = null;
+        sf.selectedId = null;
+        sf.lockWidth = 0;
+        sf.autofocus = config.autofocus||true;
+        A.Grid.superclass.constructor.call(sf,config);
     },
     initComponent:function(config){
-        $A.Grid.superclass.initComponent.call(this, config);
-        var wp = this.wrap;
-        this.wb = Ext.get(this.id+'_wrap');
-        this.fb = this.wb.child('div[atype=grid.fb]');
-        if(this.fb){
-            this.uf = this.fb.child('div[atype=grid.uf]');
+        A.Grid.superclass.initComponent.call(this, config);
+    	var sf = this,
+        	wp = sf.wrap;
+        sf.wb = Ext.get(sf.id+'_wrap');
+        sf.fb = sf.wb.child('div[atype=grid.fb]');
+        if(sf.fb){
+            sf.uf = sf.fb.child('div[atype=grid.uf]');
         }
-        this.uc = wp.child('div[atype=grid.uc]');
-        this.uh = wp.child('div[atype=grid.uh]');
-        this.ub = wp.child('div[atype=grid.ub]'); 
-        this.uht = wp.child('table[atype=grid.uht]'); 
+        sf.uc = wp.child('div[atype=grid.uc]');
+        sf.uh = wp.child('div[atype=grid.uh]');
+        sf.ub = wp.child('div[atype=grid.ub]'); 
+        sf.uht = wp.child('table[atype=grid.uht]'); 
         
-        this.lc = wp.child('div[atype=grid.lc]'); 
-        this.lh = wp.child('div[atype=grid.lh]');
-        this.lb = wp.child('div[atype=grid.lb]');
-        this.lht = wp.child('table[atype=grid.lht]'); 
+        sf.lc = wp.child('div[atype=grid.lc]'); 
+        sf.lh = wp.child('div[atype=grid.lh]');
+        sf.lb = wp.child('div[atype=grid.lb]');
+        sf.lht = wp.child('table[atype=grid.lht]'); 
 
-        this.sp = wp.child('div[atype=grid.spliter]');
-        Ext.getBody().insertFirst(this.sp)
-        this.fs = wp.child('a[atype=grid.focus]');
+        sf.sp = wp.child('div[atype=grid.spliter]');
+        Ext.getBody().insertFirst(sf.sp)
+        sf.fs = wp.child('a[atype=grid.focus]');
         
-        this.classfiyColumns();
-        this.initTemplate();
+        sf.classfiyColumns();
+        sf.initTemplate();
     },
     processListener: function(ou){
-    	$A.Grid.superclass.processListener.call(this, ou);
-        this.wrap[ou]("mouseover", this.onMouseOver, this)
-        	[ou]("mouseout", this.onMouseOut, this)
-        	[ou](EVT_CLICK,this.focus,this);
-        if(!(this.canwheel === false)){
-        	this.wb[ou]('mousewheel',this.onMouseWheel,this);
+    	var sf = this;
+    	A.Grid.superclass.processListener.call(sf, ou);
+        sf.wrap[ou]("mouseover", sf.onMouseOver, sf)
+        	[ou]("mouseout", sf.onMouseOut, sf)
+        	[ou](EVT_CLICK,sf.focus,sf);
+        if(!(sf.canwheel === false)){
+        	sf.wb[ou]('mousewheel',sf.onMouseWheel,sf);
         }
-        this.fs[ou](Ext.isOpera ? "keypress" : EVT_KEY_DOWN, this.handleKeyDown,  this);
-        this.ub[ou]('scroll',this.syncScroll, this)
-        	[ou](EVT_CLICK,this.onClick, this)
-        	[ou](EVT_DBLCLICK,this.onDblclick, this);
-        this.uht[ou](EVT_MOUSE_MOVE,this.onUnLockHeadMove, this);
-        this.uh[ou](EVT_MOUSE_DOWN, this.onHeadMouseDown,this)
-        	[ou](EVT_CLICK, this.onHeadClick,this);
-        if(this.lb){
-            this.lb[ou](EVT_CLICK,this.onClick, this)
-            	[ou](EVT_DBLCLICK,this.onDblclick, this);
+        sf.fs[ou](Ext.isOpera ? "keypress" : EVT_KEY_DOWN, sf.handleKeyDown,  sf);
+        sf.ub[ou]('scroll',sf.syncScroll, sf)
+        	[ou](EVT_CLICK,sf.onClick, sf)
+        	[ou](EVT_DBLCLICK,sf.onDblclick, sf);
+        sf.uht[ou](EVT_MOUSE_MOVE,sf.onUnLockHeadMove, sf);
+        sf.uh[ou](EVT_MOUSE_DOWN, sf.onHeadMouseDown,sf)
+        	[ou](EVT_CLICK, sf.onHeadClick,sf);
+        if(sf.lb){
+            sf.lb[ou](EVT_CLICK,sf.onClick, sf)
+            	[ou](EVT_DBLCLICK,sf.onDblclick, sf);
         }
-        if(this.lht) this.lht[ou](EVT_MOUSE_MOVE,this.onLockHeadMove, this);
-        if(this.lh)
-        	this.lh[ou](EVT_MOUSE_DOWN, this.onHeadMouseDown,this)
-        		[ou](EVT_CLICK, this.onHeadClick,this);
-        this[ou](EVT_CELL_CLICK,this.onCellClick,this);
+        if(sf.lht) sf.lht[ou](EVT_MOUSE_MOVE,sf.onLockHeadMove, sf);
+        if(sf.lh)
+        	sf.lh[ou](EVT_MOUSE_DOWN, sf.onHeadMouseDown,sf)
+        		[ou](EVT_CLICK, sf.onHeadClick,sf);
+        sf[ou](EVT_CELL_CLICK,sf.onCellClick,sf);
     },
     initEvents:function(){
-        $A.Grid.superclass.initEvents.call(this);
+        A.Grid.superclass.initEvents.call(this);
         this.addEvents(
         /**
          * @event render
@@ -236,29 +239,30 @@ $A.Grid = Ext.extend($A.Component,{
         EVT_NEXT_EDITOR_SHOW);
     },
     syncScroll : function(){
-        this.hideEditor();
-        this.uh.dom.scrollLeft = this.ub.dom.scrollLeft;
-        if(this.lb) this.lb.dom.scrollTop = this.ub.dom.scrollTop;
-        if(this.uf) this.uf.dom.scrollLeft = this.ub.dom.scrollLeft;
+    	var sf = this;
+        sf.hideEditor();
+        sf.uh.dom.scrollLeft = sf.ub.dom.scrollLeft;
+        if(sf.lb) sf.lb.dom.scrollTop = sf.ub.dom.scrollTop;
+        if(sf.uf) sf.uf.dom.scrollLeft = sf.ub.dom.scrollLeft;
     },
     handleKeyDown : function(e){
-        var key = e.getKey(),ds = this.dataset;
-        if(e.ctrlKey&&e.keyCode == 86&&this.canpaste){
+        var sf = this,key = e.getKey(),ds = sf.dataset;
+        if(e.ctrlKey&&e.keyCode == 86&&sf.canpaste){
             var text = window.clipboardData.getData('text');
             if(text){
                 Ext.each(text.split('\n'),function(row){
                     var	values = row.split('\t');
                     if(values==_N)return;
                     var data = {},v=0; 
-                    Ext.each(this.columns,function(c){
-                        if(this.isFunctionCol(c.type)) return;
+                    Ext.each(sf.columns,function(c){
+                        if(sf.isFunctionCol(c.type)) return;
                         if(c.hidden !== true) {
                             data[c.name] = values[v];
                             v++
                         }
-                    },this)
+                    });
                     ds.create(data);
-                },this);
+                });
             }
         }else{
             if(key == 38 || key == 40 || key == 33 || key == 34) {
@@ -280,33 +284,33 @@ $A.Grid = Ext.extend($A.Component,{
                 }
             }
         }
-        this.fireEvent(EVT_KEY_DOWN, this, e)
+        sf.fireEvent(EVT_KEY_DOWN, sf, e)
     },
     processDataSetLiestener: function(ou){
-        var ds = this.dataset;
+        var sf = this,ds = sf.dataset;
         if(ds){
-        	ds[ou]('ajaxfailed', this.onAjaxFailed, this);
-            ds[ou]('metachange', this.onRefresh, this);
-            ds[ou]('update', this.onUpdate, this);
-            ds[ou]('reject', this.onUpdate, this);
-            ds[ou]('add', this.onAdd, this);
-            ds[ou]('submit', this.onBeforSubmit, this);
-            ds[ou]('submitfailed', this.onAfterSuccess, this);
-            ds[ou]('submitsuccess', this.onAfterSuccess, this);
-            ds[ou]('query', this.onBeforeLoad, this);
-            ds[ou]('load', this.onLoad, this);
-            ds[ou]('loadfailed', this.onAjaxFailed, this);
-            ds[ou]('valid', this.onValid, this);
-            ds[ou]('beforeremove', this.onBeforeRemove, this); 
-            ds[ou]('remove', this.onRemove, this);
-            ds[ou]('clear', this.onLoad, this);
-            ds[ou]('refresh',this.onRefresh,this);
-            ds[ou]('fieldchange', this.onFieldChange, this);
-            ds[ou]('indexchange', this.onIndexChange, this);
-            ds[ou]('select', this.onSelect, this);
-            ds[ou]('unselect', this.onUnSelect, this);
-            ds[ou]('selectall', this.onSelectAll, this);
-            ds[ou]('unselectall', this.onUnSelectAll, this);
+        	ds[ou]('ajaxfailed', sf.onAjaxFailed, sf);
+            ds[ou]('metachange', sf.onRefresh, sf);
+            ds[ou]('update', sf.onUpdate, sf);
+            ds[ou]('reject', sf.onUpdate, sf);
+            ds[ou]('add', sf.onAdd, sf);
+            ds[ou]('submit', sf.onBeforSubmit, sf);
+            ds[ou]('submitfailed', sf.onAfterSuccess, sf);
+            ds[ou]('submitsuccess', sf.onAfterSuccess, sf);
+            ds[ou]('query', sf.onBeforeLoad, sf);
+            ds[ou]('load', sf.onLoad, sf);
+            ds[ou]('loadfailed', sf.onAjaxFailed, sf);
+            ds[ou]('valid', sf.onValid, sf);
+            ds[ou]('beforeremove', sf.onBeforeRemove, sf); 
+            ds[ou]('remove', sf.onRemove, sf);
+            ds[ou]('clear', sf.onLoad, sf);
+            ds[ou]('refresh',sf.onRefresh,sf);
+            ds[ou]('fieldchange', sf.onFieldChange, sf);
+            ds[ou]('indexchange', sf.onIndexChange, sf);
+            ds[ou]('select', sf.onSelect, sf);
+            ds[ou]('unselect', sf.onUnSelect, sf);
+            ds[ou]('selectall', sf.onSelectAll, sf);
+            ds[ou]('unselectall', sf.onUnSelectAll, sf);
         }
     },
     bind : function(ds){
@@ -314,24 +318,25 @@ $A.Grid = Ext.extend($A.Component,{
             ds = $(ds);
             if(!ds) return;
         }
-//        var sf = this;
-        this.dataset = ds;
+        var sf = this;
+        sf.dataset = ds;
         if(ds.autopagesize===true){
-        	ds.pagesize=Math.round(((this.ub.getHeight()||parseFloat(this.ub.dom.style.height))-16)/25);
+        	ds.pagesize=Math.round(((sf.ub.getHeight()||parseFloat(sf.ub.dom.style.height))-16)/25);
         }
-        this.processDataSetLiestener(ON);
-        this.onLoad();
+        sf.processDataSetLiestener(ON);
+        sf.onLoad();
 //        Ext.onReady(function(){
 //            sf.onLoad();
 //        })
     },
     initTemplate : function(){
-        this.rowTdTpl = new Ext.Template(['<td ',ATYPE,'="{',ATYPE,'}" class="',GRID_ROWBOX,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
-        this.rowNumTdTpl = new Ext.Template(['<td style="text-align:{align}" class="',GRN_ROW_NUMBER,'" ',ATYPE,'="',GRN_ROW_NUMBER,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
-        this.rowNumCellTpl = new Ext.Template(['<div style="',WIDTH,':{',WIDTH,'}px">{text}</div>']);
-        this.tdTpl = new Ext.Template(['<td style="visibility:{visibility};text-align:{align}" ',DATA_INDEX,'="{name}" ',ATYPE,'="',GRID_CELL,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
-        this.cellTpl = new Ext.Template(['<div class="',GRID_CELL,' {cellcls}" style="',WIDTH,':{',WIDTH,'}px" id="',this.id,'_{name}_{recordid}" title="{title}"><span>{text}</span></div>']);        
-        this.cbTpl = new Ext.Template(['<center><div class="{cellcls}" id="',this.id,'_{name}_{',RECORD_ID,'}"></div></center>']);
+    	var sf = this;
+        sf.rowTdTpl = new Ext.Template(['<td ',ATYPE,'="{',ATYPE,'}" class="',GRID_ROWBOX,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
+        sf.rowNumTdTpl = new Ext.Template(['<td style="text-align:{align}" class="',GRN_ROW_NUMBER,'" ',ATYPE,'="',GRN_ROW_NUMBER,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
+        sf.rowNumCellTpl = new Ext.Template(['<div style="',WIDTH,':{',WIDTH,'}px">{text}</div>']);
+        sf.tdTpl = new Ext.Template(['<td style="visibility:{visibility};text-align:{align}" ',DATA_INDEX,'="{name}" ',ATYPE,'="',GRID_CELL,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
+        sf.cellTpl = new Ext.Template(['<div class="',GRID_CELL,' {cellcls}" style="',WIDTH,':{',WIDTH,'}px" id="',sf.id,'_{name}_{recordid}" title="{title}"><span>{text}</span></div>']);        
+        sf.cbTpl = new Ext.Template(['<center><div class="{cellcls}" id="',sf.id,'_{name}_{',RECORD_ID,'}"></div></center>']);
     },
     getCheckBoxStatus: function(record, name ,readonly) {
         var field = this.dataset.getField(name),
@@ -349,18 +354,19 @@ $A.Grid = Ext.extend($A.Component,{
         }
     },
     createCell : function(col,record,includTd){
-        var data = this.createTemplateData(col,record),
+        var sf = this,
+        	data = sf.createTemplateData(col,record),
        		cellTpl,
-        	tdTpl = this.tdTpl,
+        	tdTpl = sf.tdTpl,
         	cls = _N, //col.editor ? CELL_EDITOR : 
         	xtype = col.type,
         	readonly,
-        	editor = this.getEditor(col,record),
+        	editor = sf.getEditor(col,record),
         	sb = [];
         if(editor!=_N){
-        	var edi = $A.CmpManager.get(editor);
+        	var edi = A.CmpManager.get(editor);
         	//这里对于checkbox可能会存在问题
-            if(edi && (edi instanceof $A.CheckBox)){
+            if(edi && (edi instanceof A.CheckBox)){
                 xtype = CELL_CHECK;
             }else{
                 cls = CELL_EDITOR;
@@ -370,27 +376,27 @@ $A.Grid = Ext.extend($A.Component,{
     		readonly=true;
         }
         if(xtype == ROW_CHECK || xtype == ROW_RADIO){
-        	readonly = this.dataset.execSelectFunction(record)?_N:READONLY;
-            tdTpl = this.rowTdTpl;
+        	readonly = sf.dataset.execSelectFunction(record)?_N:READONLY;
+            tdTpl = sf.rowTdTpl;
             data = Ext.apply(data,{
                 align:CENTER,
                 atype:xtype == ROW_CHECK?GRID$ROWCHECK:GRID$ROWRADIO,
                 cellcls: xtype == ROW_CHECK?GRID_CKB+ITEM_CKB+readonly+U:'grid-radio '+ITEM_RADIO_IMG+readonly+U
             })
-            cellTpl = this.cbTpl;
+            cellTpl = sf.cbTpl;
         }else if(xtype == CELL_CHECK){
             data = Ext.apply(data,{
                 align:CENTER,
-                cellcls: GRID_CKB + this.getCheckBoxStatus(record, col.name ,readonly) //+((cls==_N) ? ' disabled ' : _N )
+                cellcls: GRID_CKB + sf.getCheckBoxStatus(record, col.name ,readonly) //+((cls==_N) ? ' disabled ' : _N )
             })
-            cellTpl = this.cbTpl;
+            cellTpl = sf.cbTpl;
         }else{
             var field = record.getMeta().getField(col.name);
             if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get(REQUIRED) == true){
                 cls = cls + _S + ITEM_NOT_BLANK
             }
             var sp = (cls.indexOf(CELL_EDITOR)!=-1) ? 5 : 2,
-            	t = this.renderText(record,col,record.data[col.name]);
+            	t = sf.renderText(record,col,record.data[col.name]);
             data = Ext.apply(data,{
                 align:col.align||LEFT,
                 cellcls: cls,
@@ -399,10 +405,10 @@ $A.Grid = Ext.extend($A.Component,{
                 text:t,
                 title:String(t).replace(/<[^<>]*>/mg,_N)
             })
-            cellTpl =  this.cellTpl;
+            cellTpl =  sf.cellTpl;
             if(xtype == ROW_NUMBER) {
-                tdTpl = this.rowNumTdTpl;
-                cellTpl = this.rowNumCellTpl;
+                tdTpl = sf.rowNumTdTpl;
+                cellTpl = sf.rowNumCellTpl;
             }
         }
         if(includTd)sb.push(tdTpl.applyTemplate(data));
@@ -411,10 +417,11 @@ $A.Grid = Ext.extend($A.Component,{
         return sb.join(_N);
     },
     createRow : function(type, row, cols, item){
-        var css=this.parseCss(this.renderRow(item,row)),
-        	sb = ['<tr id="',this.id,type,item.id,'" class="',(row % 2==0 ? _N : ROW_ALT),css.cls,'"','style="',css.style,'">'];
+        var sf = this,
+        	css=sf.parseCss(sf.renderRow(item,row)),
+        	sb = ['<tr id="',sf.id,type,item.id,'" class="',(row % 2==0 ? _N : ROW_ALT),css.cls,'"','style="',css.style,'">'];
         for(var i=0,l=cols.length;i<l;i++){
-            sb.push(this.createCell(cols[i],item, true))           
+            sb.push(sf.createCell(cols[i],item, true))           
         }
         sb.push('</tr>');
         return sb.join(_N);
@@ -438,7 +445,7 @@ $A.Grid = Ext.extend($A.Component,{
     renderText : function(record,col,value){        
     	var renderer = col.renderer;
         if(renderer){//&&!Ext.isEmpty(value)  去掉对value是否为空的判断
-            var rder = $A.getRenderer(renderer);
+            var rder = A.getRenderer(renderer);
             if(rder == null){
                 alert(NOT_FOUND+renderer+METHOD)
                 return value;
@@ -451,7 +458,7 @@ $A.Grid = Ext.extend($A.Component,{
     renderRow : function(record,rowIndex){
     	var renderer = this.rowrenderer,css=null;
         if(renderer){
-            var rder = $A.getRenderer(renderer);
+            var rder = A.getRenderer(renderer);
             if(rder == null){
                 alert(NOT_FOUND+renderer+METHOD)
                 return css;
@@ -471,45 +478,46 @@ $A.Grid = Ext.extend($A.Component,{
         return sb.join(_N);
     },
     onBeforeRemove : function(){
-        $A.Masker.mask(this.wb,_lang['grid.mask.remove']);
+        A.Masker.mask(this.wb,_lang['grid.mask.remove']);
     },
     onBeforeLoad : function(){
     	this.ub.scrollTo(LEFT,0);
     	this.uh.scrollTo(LEFT,0);
-        if(!Ext.isIE6)$A.Masker.mask(this.wb,_lang['grid.mask.loading']);
+        if(!Ext.isIE6)A.Masker.mask(this.wb,_lang['grid.mask.loading']);
     },
     onBeforSubmit : function(ds){
-    	$A.Masker.mask(this.wb,_lang['grid.mask.submit']);
+    	A.Masker.mask(this.wb,_lang['grid.mask.submit']);
     },
     onAfterSuccess : function(){
-        $A.Masker.unmask(this.wb);
+        A.Masker.unmask(this.wb);
     },
     preLoad : function(){},
     onLoad : function(){
-    	this.isSelectAll = false;
-    	this.clearDomRef();
-    	this.preLoad();
-        var cb = this.wrap.removeClass(GRID_SELECT_ALL).child(SELECT_DIV_ATYPE);
-        if(cb && this.selectable && this.selectionmodel==MULTIPLE)this.setCheckBoxStatus(cb,false);
-        if(this.lb)
-        this.renderLockArea();
-        this.renderUnLockAread();
-//        if(focus !== false) this.focus.defer(10,this);//获取数据后的获得焦点,会引起其他编辑器无法编辑
-        this.drawFootBar();
-        $A.Masker.unmask(this.wb);
-        this.fireEvent(EVT_RENDER,this)
+    	var sf = this;
+    	sf.isSelectAll = false;
+    	sf.clearDomRef();
+    	sf.preLoad();
+        var cb = sf.wrap.removeClass(GRID_SELECT_ALL).child(SELECT_DIV_ATYPE);
+        if(cb && sf.selectable && sf.selectionmodel==MULTIPLE)sf.setCheckBoxStatus(cb,false);
+        if(sf.lb)
+        sf.renderLockArea();
+        sf.renderUnLockAread();
+//        if(focus !== false) sf.focus.defer(10,sf);//获取数据后的获得焦点,会引起其他编辑器无法编辑
+        sf.drawFootBar();
+        A.Masker.unmask(sf.wb);
+        sf.fireEvent(EVT_RENDER,sf)
     },
     clearDomRef : function(){
     	this.selectlockTr = null;
         this.selectUnlockTr = null;
     },
     customize : function(){
-        var path = window.location.pathname;
-        var str = path.indexOf('modules');
-        var screen_path = path.substring(str,path.length);
-        var screen = screen_path.substring(screen_path.lastIndexOf('/')+1, screen_path.length);
-        var context_path = path.substring(0,str);
-        var parent = this.wrap.parent('[url]');
+        var path = location.pathname,
+        	str = path.indexOf('modules'),
+        	screen_path = path.substring(str,path.length);
+        	screen = screen_path.substring(screen_path.lastIndexOf('/')+1, screen_path.length),
+        	context_path = path.substring(0,str),
+        	parent = this.wrap.parent('[url]');
         if(parent) {
             var url = parent.getAttributeNS("","url");
             if(url){
@@ -529,7 +537,7 @@ $A.Grid = Ext.extend($A.Component,{
         new Aurora.Window({id:'sys_customization_grid', url:context_path + 'modules/sys/sys_customization_grid.screen?source_file='+screen_path + '&id='+ this.id+'&did='+this.dataset.id, title:'个性化设置',height:530,width:560});
     },
     onAjaxFailed : function(res,opt){
-        $A.Masker.unmask(this.wb);
+        A.Masker.unmask(this.wb);
     },
     onMouseWheel : function(e){
         e.stopEvent();
@@ -546,55 +554,59 @@ $A.Grid = Ext.extend($A.Component,{
         this.fs.focus();
     },
     renderLockArea : function(){
-        var cols = this.lockColumns,
-        	sb = ['<TABLE cellSpacing="0" atype="grid.lbt" cellPadding="0" border="0"  ',WIDTH,'="',this.lockWidth,'"><TBODY>',this.createTH(cols)];
+        var sf = this,cols = sf.lockColumns,
+        	sb = ['<TABLE cellSpacing="0" atype="grid.lbt" cellPadding="0" border="0"  ',WIDTH,'="',sf.lockWidth,'"><TBODY>',sf.createTH(cols)];
 //        var v = 0;
-//        var columns = this.lockColumns;
+//        var columns = sf.lockColumns;
 //        for(var i=0,l=columns.length;i<l;i++){
 //            cols.add(columns[i]);
 //            if(columns[i].hidden !== true) v += columns[i].width;            
 //        }
-//        this.lockWidth = v;
-    	Ext.each(this.dataset.data,function(d,i){
-    		sb.push(this.createRow($L, i, cols, d));
-    	},this);
+//        sf.lockWidth = v;
+    	Ext.each(sf.dataset.data,function(d,i){
+    		sb.push(sf.createRow($L, i, cols, d));
+    	},sf);
         sb.push('</TBODY></TABLE><DIV style="height:17px"></DIV>');
-        this.lbt = this.lb.update(sb.join(_N)).child('table[atype=grid.lbt]'); 
+        sf.lbt = sf.lb.update(sb.join(_N)).child('table[atype=grid.lbt]'); 
     },
     renderUnLockAread : function(){
-        var cols = this.unlockColumns,
-        	sb = ['<TABLE cellSpacing="0" atype="grid.ubt" cellPadding="0" border="0" ',WIDTH,'="',this.unlockWidth,'"><TBODY>',this.createTH(cols)];
+        var sf = this,cols = sf.unlockColumns,
+        	sb = ['<TABLE cellSpacing="0" atype="grid.ubt" cellPadding="0" border="0" ',WIDTH,'="',sf.unlockWidth,'"><TBODY>',sf.createTH(cols)];
 //        var v = 0;
-//        var columns = this.unlockColumns;
+//        var columns = sf.unlockColumns;
 //        for(var i=0,l=columns.length;i<l;i++){
 //            cols.add(columns[i]);
 //            if(columns[i].hidden !== true) v += columns[i].width;            
 //        }
-        Ext.each(this.dataset.data,function(d,i){
-    		sb.push(this.createRow($U, i, cols, d));
-    	},this);
+        Ext.each(sf.dataset.data,function(d,i){
+    		sb.push(sf.createRow($U, i, cols, d));
+    	},sf);
         sb.push('</TBODY></TABLE>');
-        this.ubt = this.ub.update(sb.join(_N)).child('table[atype=grid.ubt]'); 
+        sf.ubt = sf.ub.update(sb.join(_N)).child('table[atype=grid.ubt]'); 
     },
     isOverSplitLine : function(x){
-        var v = 0,      
+        var sf = this,v = 0,      
         	isOver = false;
-        this.overColIndex = -1;
-        Ext.each(this.columns,function(c,i){
+        sf.overColIndex = -1;
+        Ext.each(sf.columns,function(c,i){
             if(c.hidden !== true) v += c.width;
             if(x < v+3 && x > v-3 && c.resizable != false){
                 isOver = true;
-                this.overColIndex = i;
+                sf.overColIndex = i;
                 return false;
             }
-        },this);
+        });
         return isOver;
     },
     onRefresh : function(){
-        this.onLoad(false);
-        if(this.selectable)
-        for(var i=0,ds=this.dataset,s=ds.selected,l=s.length;i<l;i++){
-            this.onSelect(ds, s[i]);
+    	var sf = this;
+//        sf.onLoad(false);
+        sf.onLoad();
+        if(sf.selectable){
+        	var ds = sf.dataset;
+        	Ext.each(ds.selected,function(s){
+        		sf.onSelect(ds,s);
+        	})
         }
     },
     onIndexChange:function(ds, r){
@@ -611,14 +623,14 @@ $A.Grid = Ext.extend($A.Component,{
 //        if(this.lb)
 //        var sb = [];var cols = [];
 //        var v = 0;
-        var columns = this.columns,
+        var sf = this,columns = sf.columns,
         	isAdd = row === ds.data.length-1,
-        	css = this.parseCss(this.renderRow(record,row)),
+        	css = sf.parseCss(sf.renderRow(record,row)),
         	cls = (row % 2==0 ? _N : ROW_ALT+_S)+css.cls;
-        if(this.lbt){
+        if(sf.lbt){
             var ltr = DOC.createElement(TR),
-            	ltb = this.lbt.dom.tBodies[0];
-            ltr.id=this.id+$L+record.id;
+            	ltb = sf.lbt.dom.tBodies[0];
+            ltr.id=sf.id+$L+record.id;
             ltr.className=cls;
             Ext.fly(ltr).set({style:css.style});
             Ext.each(columns,function(col){
@@ -627,7 +639,7 @@ $A.Grid = Ext.extend($A.Component,{
                     if(col.type == ROW_CHECK) {
                         Ext.fly(td).set({recordid:record.id,atype:GRID$ROWCHECK})
                         td.className = GRID_ROWBOX;
-                        if(this.isSelectAll){
+                        if(sf.isSelectAll){
                         	td.className += _S+ITEM_CKB_SELF;
                         }
                     }else if(col.type == ROW_RADIO){
@@ -636,7 +648,7 @@ $A.Grid = Ext.extend($A.Component,{
                     }else{
                         if(col.hidden)td.style.visibility=HIDDEN;
                         td.style.textAlign=col.align||LEFT;
-                        if(!this.isFunctionCol(col.type)) td.dataindex=col.name;
+                        if(!sf.isFunctionCol(col.type)) td.dataindex=col.name;
                         var data = {recordid:record.id,atype:GRID_CELL};
                         if(col.type == ROW_NUMBER) {
                             td.className = GRN_ROW_NUMBER;
@@ -644,10 +656,10 @@ $A.Grid = Ext.extend($A.Component,{
                         }
                         Ext.fly(td).set(data); 
                     }
-                    td.innerHTML = this.createCell(col,record, false);
+                    td.innerHTML = sf.createCell(col,record, false);
                     ltr.appendChild(td);
                 }
-            },this);
+            });
             if(isAdd){
 	        	ltb.appendChild(ltr);
 	        }else{
@@ -658,16 +670,16 @@ $A.Grid = Ext.extend($A.Component,{
 						div.update(Number(div.dom.innerHTML) + 1);
 					});
 					tr.select($GRID_ROWBOX).each(function(td){
-						this.setSelectStatus(ds.findById(td.getAttributeNS(_N,RECORD_ID)));
-					},this);
+						sf.setSelectStatus(ds.findById(td.getAttributeNS(_N,RECORD_ID)));
+					});
 	        	}
 	        	ltb.insertBefore(ltr,trs[row]);
 	        }
         }
         
         var utr = DOC.createElement(TR),
-        	utb = this.ubt.dom.tBodies[0];
-        utr.id=this.id+$U+record.id;
+        	utb = sf.ubt.dom.tBodies[0];
+        utr.id=sf.id+$U+record.id;
         utr.className=cls;
         Ext.fly(utr).set({style:css.style});
         Ext.each(columns,function(col){
@@ -680,10 +692,10 @@ $A.Grid = Ext.extend($A.Component,{
                     recordid:record.id,
                     atype:GRID_CELL
                 })
-                td.innerHTML = this.createCell(col,record,false);
+                td.innerHTML = sf.createCell(col,record,false);
                 utr.appendChild(td);
             }
-        },this)
+        })
         if(isAdd){
         	utb.appendChild(utr);
         }else{
@@ -693,7 +705,7 @@ $A.Grid = Ext.extend($A.Component,{
         	}
         	utb.insertBefore(utr,trs[row]);
         }
-    	this.setSelectStatus(record);
+    	sf.setSelectStatus(record);
     },
     renderEditor : function(div,record,c,editor){
     	div.parent(TD).update(this.createCell(c,record,false));
@@ -701,7 +713,7 @@ $A.Grid = Ext.extend($A.Component,{
     	/*
     	if(editor == _N){    	
     		div.removeClass(CELL_EDITOR);
-    	}else if(editor != _N || ($(editor) instanceof $A.CheckBox)){
+    	}else if(editor != _N || ($(editor) instanceof A.CheckBox)){
     		var cell = this.createCell(c,record,false);
     		div.parent().update(cell)
     	}else{
@@ -711,31 +723,32 @@ $A.Grid = Ext.extend($A.Component,{
     },
     onUpdate : function(ds,record, name, value){
         this.setSelectStatus(record);
-        var div = Ext.get([this.id,name,record.id].join(_));
+    	var sf = this,
+        	div = Ext.get([sf.id,name,record.id].join(_));
         if(div){
-            var c = this.findColByName(name),
-            	editor = this.getEditor(c,record);            
-            if(editor!=_N && ($(editor) instanceof $A.CheckBox)){
-            	this.renderEditor(div,record,c,editor);
+            var c = sf.findColByName(name),
+            	editor = sf.getEditor(c,record);            
+            if(editor!=_N && ($(editor) instanceof A.CheckBox)){
+            	sf.renderEditor(div,record,c,editor);
             }else{
             	//考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
-                div.update(this.renderText(record,c,value));
+                div.update(sf.renderText(record,c,value));
             }
         }
-        Ext.each(this.columns,function(c){
+        Ext.each(sf.columns,function(c){
             if(c.name != name) {
-            	var ediv = Ext.get([this.id,c.name,record.id].join(_));
+            	var ediv = Ext.get([sf.id,c.name,record.id].join(_));
             	if(ediv) {
             		if(c.editorfunction){
-                        this.renderEditor(ediv,record, c, this.getEditor(c,record));
+                        sf.renderEditor(ediv,record, c, sf.getEditor(c,record));
             		}
                     if(c.renderer){
-                        ediv.update(this.renderText(record,c, record.get(c.name)));
+                        ediv.update(sf.renderText(record,c, record.get(c.name)));
                     }
                 }
             }
-        },this);
-        this.drawFootBar(name);
+        });
+        sf.drawFootBar(name);
     },
     onValid : function(ds, record, name, valid){
         var c = this.findColByName(name);
@@ -752,14 +765,15 @@ $A.Grid = Ext.extend($A.Component,{
         }
     },
     onRemove : function(ds,record,index){
-        var lrow = Ext.get(this.id+$L+record.id),
-        	urow = Ext.get(this.id+$U+record.id);
+        var sf = this,
+        	lrow = Ext.get(sf.id+$L+record.id),
+        	urow = Ext.get(sf.id+$U+record.id);
         if(lrow)lrow.remove();        
         if(urow)urow.remove();
-        if(Ext.isIE||Ext.isIE9)this.syncScroll();
-        this.clearDomRef();
-        $A.Masker.unmask(this.wb);
-        this.drawFootBar();
+        if(Ext.isIE||Ext.isIE9)sf.syncScroll();
+        sf.clearDomRef();
+        A.Masker.unmask(sf.wb);
+        sf.drawFootBar();
     },
     onClear : function(){
         
@@ -797,42 +811,46 @@ $A.Grid = Ext.extend($A.Component,{
     },
     onSelect : function(ds,record,isSelectAll){
         if(!record||isSelectAll)return;
-        var cb = Ext.get(this.id+__+record.id);
+        var sf = this,
+        	cb = Ext.get(sf.id+__+record.id);
         cb.parent($GRID_ROWBOX).addClass(ITEM_CKB_SELF);
         if(cb){
-	        if(this.selectionmodel==MULTIPLE) {
-	            this.setCheckBoxStatus(cb, true);
+	        if(sf.selectionmodel==MULTIPLE) {
+	            sf.setCheckBoxStatus(cb, true);
 	        }else{
-	            this.setRadioStatus(cb,true);
+	            sf.setRadioStatus(cb,true);
 	            ds.locate((ds.currentPage-1)*ds.pagesize + ds.indexOf(record) + 1)
 	        }
-            this.setSelectStatus(record);
+            sf.setSelectStatus(record);
         }
     },
     onUnSelect : function(ds,record,isSelectAll){
         if(!record||isSelectAll)return;
-        var cb = Ext.get(this.id+__+record.id);
+        var sf = this,
+        	cb = Ext.get(sf.id+__+record.id);
         cb.parent($GRID_ROWBOX).addClass(ITEM_CKB_SELF);
         if(cb){
-	        if(this.selectionmodel==MULTIPLE) {
-	            this.setCheckBoxStatus(cb, false);
+	        if(sf.selectionmodel==MULTIPLE) {
+	            sf.setCheckBoxStatus(cb, false);
 	        }else{
-	            this.setRadioStatus(cb,false);
+	            sf.setRadioStatus(cb,false);
 	        }
-            this.setSelectStatus(record);
+            sf.setSelectStatus(record);
         }
     },
     onSelectAll : function(){
-    	this.clearChecked();
-    	this.isSelectAll = true;
-    	this.isUnSelectAll = false;
-    	this.wrap.addClass(GRID_SELECT_ALL);
+    	var sf = this;
+    	sf.clearChecked();
+    	sf.isSelectAll = true;
+    	sf.isUnSelectAll = false;
+    	sf.wrap.addClass(GRID_SELECT_ALL);
     },
     onUnSelectAll : function(){
-    	this.clearChecked();
-    	this.isSelectAll = false;
-    	this.isUnSelectAll = true;
-    	this.wrap.removeClass(GRID_SELECT_ALL);
+    	var sf = this;
+    	sf.clearChecked();
+    	sf.isSelectAll = false;
+    	sf.isUnSelectAll = true;
+    	sf.wrap.removeClass(GRID_SELECT_ALL);
     },
     clearChecked : function(){
     	var w = this.wrap;
@@ -853,32 +871,33 @@ $A.Grid = Ext.extend($A.Component,{
     onClick : function(e,t) {
         var target = Ext.fly(t).parent(TD);
         if(target){
-            var atype = target.getAttributeNS(_N,ATYPE),
+            var sf = this,
+            	atype = target.getAttributeNS(_N,ATYPE),
             	rid = target.getAttributeNS(_N,RECORD_ID),
-            	ds = this.dataset;
+            	ds = sf.dataset;
             if(atype==GRID_CELL){
                 var record = ds.findById(rid),
                 	row = ds.indexOf(record),
                 	name = target.getAttributeNS(_N,DATA_INDEX);
-                this.fireEvent(EVT_CELL_CLICK, this, row, name, record);
-                //this.adjustColumn(name);
-                //this.showEditor(row,name);
-                this.fireEvent(EVT_ROW_CLICK, this, row, record);
+                sf.fireEvent(EVT_CELL_CLICK, sf, row, name, record);
+                //sf.adjustColumn(name);
+                //sf.showEditor(row,name);
+                sf.fireEvent(EVT_ROW_CLICK, sf, row, record);
             }else if (atype == GRN_ROW_NUMBER){
                 var record = ds.findById(rid),
                 	row = ds.indexOf(record);
-                if(record.id != this.selectedId) this.selectRow(row);
+                if(record.id != sf.selectedId) sf.selectRow(row);
             }else if(atype==GRID$ROWCHECK){               
-                var cb = Ext.get(this.id+__+rid);
+                var cb = Ext.get(sf.id+__+rid);
                 if(cb.hasClass(ITEM_CKB_READONLY_U)||cb.hasClass(ITEM_CKB_READONLY_C))return;
-                if(this.isSelectAll && !cb.parent($ITEM_CKB_SELF)){
+                if(sf.isSelectAll && !cb.parent($ITEM_CKB_SELF)){
                 	cb.replaceClass(ITEM_CKB_U,ITEM_CKB_C);	
-                }else if(this.isUnselectAll && !cb.parent($ITEM_CKB_SELF)){
+                }else if(sf.isUnselectAll && !cb.parent($ITEM_CKB_SELF)){
             		cb.replaceClass(ITEM_CKB_C,ITEM_CKB_U);	
                 }
                 cb.hasClass(ITEM_CKB_C) ? ds.unSelect(rid) : ds.select(rid);
             }else if(atype==GRID$ROWRADIO){
-            	var cb = Ext.get(this.id+__+rid);
+            	var cb = Ext.get(sf.id+__+rid);
                 if(cb.hasClass(ITEM_RADIO_IMG_READONLY_U)||cb.hasClass(ITEM_RADIO_IMG_READONLY_C))return;
                 ds.select(rid);
             }
@@ -889,14 +908,15 @@ $A.Grid = Ext.extend($A.Component,{
     	this.showEditor(row,name,callback);
     },
     adjustColumn:function(name){
-    	var col = this.findColByName(name);
+    	var sf = this,col = sf.findColByName(name);
     	if(!col || !col.autoadjust)return;
-    	var th = this.wrap.select('tr.grid-hl '+SELECT_TH_DATAINDEX+name+_K),
+    	var th = sf.wrap.select('tr.grid-hl '+SELECT_TH_DATAINDEX+name+_K),
     		w = Ext.fly(th.elements[0]).getWidth(),
     		max = w,
     		margin = 12,
-    		width = this.width - (this.selectable?23:0) - 20;
-    	this.wrap.select(SELECT_TD_DATAINDEX+name+'] span').each(function(span){
+    		width = Math.min(sf.width - (sf.selectable?23:0) - 20,
+    			col.maxadjustwidth||Number.MAX_VALUE);
+    	sf.wrap.select(SELECT_TD_DATAINDEX+name+'] span').each(function(span){
 			if(Ext.isIE || Ext.isIE9)span.parent().setStyle(TEXT_OVERFLOW,'clip');
     		max = Math.max(span.getWidth()+margin,max);
     		if(Ext.isIE || Ext.isIE9)span.parent().setStyle(TEXT_OVERFLOW,_N);
@@ -905,7 +925,7 @@ $A.Grid = Ext.extend($A.Component,{
     			return false
     		}
     	});
-    	if(max > w)this.setColumnSize(name,max);
+    	max > w && sf.setColumnSize(name,max);
     },
     /**
      * 设置指定name列的标题.
@@ -939,7 +959,7 @@ $A.Grid = Ext.extend($A.Component,{
         if(div){
             if(editor == _N){
             	div.removeClass(CELL_EDITOR);
-            }else if(!$(editor) instanceof $A.CheckBox){
+            }else if(!$(editor) instanceof A.CheckBox){
             	div.addClass(CELL_EDITOR);
             }
         }
@@ -963,32 +983,32 @@ $A.Grid = Ext.extend($A.Component,{
      */
     showEditor : function(row, name,callback){   
         if(row == -1)return;
-        var col = this.findColByName(name);
+        var sf = this,col = sf.findColByName(name);
         if(!col)return;
-        var ds = this.dataset,record = ds.getAt(row);
+        var ds = sf.dataset,record = ds.getAt(row);
         if(!record)return;
-        if(record.id != this.selectedId) this.selectRow(row);
-        else this.focusRow(row);
-        this.focusColumn(name);
-        var editor = this.getEditor(col,record);
-        this.setEditor(name, editor);
+        if(record.id != sf.selectedId) sf.selectRow(row);
+        else sf.focusRow(row);
+        sf.focusColumn(name);
+        var editor = sf.getEditor(col,record);
+        sf.setEditor(name, editor);
         if(editor!=_N){
         	var ed = $(editor);
             (function(){
             	var v = record.get(name),
-                	dom = Ext.get([this.id,name,record.id].join(_)),
+                	dom = Ext.get([sf.id,name,record.id].join(_)),
                 	xy = dom.getXY(),ced;
                 ed.bind(ds, name);
                 ed.render(record);
-        		ed.el.on(EVT_KEY_DOWN, this.onEditorKeyDown,this);
-                Ext.fly(DOC_EL).on(EVT_MOUSE_DOWN, this.onEditorBlur, this);
-            	ced = this.currentEditor = {
+        		ed.el.on(EVT_KEY_DOWN, sf.onEditorKeyDown,sf);
+                Ext.fly(DOC_EL).on(EVT_MOUSE_DOWN, sf.onEditorBlur, sf);
+            	ced = sf.currentEditor = {
                     record:record,
                     ov:v,
                     name:name,
                     editor:ed
                 };
-                if(ed instanceof $A.CheckBox){
+                if(ed instanceof A.CheckBox){
 	        		ed.move(-1000,xy[1]+5);
 		        	if(callback)
 		        		ed.focus()
@@ -1005,20 +1025,20 @@ $A.Grid = Ext.extend($A.Component,{
                     ed.isFireEvent = true;
                     ed.isHidden = false;
                     ed.focus();
-       				this.editing = true;
-                    ed.on(EVT_SELECT,this.onEditorSelect,this);
+       				sf.editing = true;
+                    ed.on(EVT_SELECT,sf.onEditorSelect,sf);
                     if(callback)callback.call(window,ed)
-	                this.fireEvent(EVT_EDITOR_SHOW, this, ed, row, name, record);
+	                sf.fireEvent(EVT_EDITOR_SHOW, sf, ed, row, name, record);
        			}
-            }).defer(10,this)
+            }).defer(10);
         }           
     },
     onEditorSelect : function(){
 		(function(){this.hideEditor()}).defer(1,this);
     },
     onEditorKeyDown : function(e){
-        var keyCode = e.keyCode,
-        	ced = this.currentEditor;
+        var sf = this,keyCode = e.keyCode,
+        	ced = sf.currentEditor;
         //esc
         if(keyCode == 27) {
             if(ced){
@@ -1028,42 +1048,43 @@ $A.Grid = Ext.extend($A.Component,{
 	                ed.render(ed.binder.ds.getCurrentRecord());
                 }
             }
-            this.hideEditor();
+            sf.hideEditor();
         }else
         //enter
         if(keyCode == 13) {
-        	if(!(ced && ced.editor && ced.editor instanceof $A.TextArea)){
-	            this.showNextEditor();
+        	if(!(ced && ced.editor && ced.editor instanceof A.TextArea)){
+	            sf.showNextEditor();
         	}
         }else
         //tab
         if(keyCode == 9){
             e.stopEvent();
-            this.showNextEditor();
+            sf.showNextEditor();
         }
     },
     showNextEditor : function(){
-        this.hideEditor();
-        var ced = this.currentEditor;
+    	var sf = this,
+        	ced = sf.currentEditor;
+        sf.hideEditor();
         if(ced){
         	var ed = ced.editor;
         	if(ed){
 	            var callback = function(e){
-	                if(e instanceof $A.Lov){
+	                if(e instanceof A.Lov){
 	                    e.showLovWindow();
 	                }
 	            },
-            	ds = this.dataset,
+            	ds = sf.dataset,
                 fname = ed.binder.name,r = ed.record,
                 row = ds.data.indexOf(r),name=null;
 	            if(row!=-1){
-	                var cls = this.columns,
+	                var cls = sf.columns,
 	                	find = false,
 	                	editor;
 	                Ext.each(cls,function(col,i){
 	                	if(find){
 	                		if(col.hidden !=true){
-			                    editor = this.getEditor(col,r);
+			                    editor = sf.getEditor(col,r);
 			                    if(editor!=_N){
 			                        name =  col.name;
 			                        return false;
@@ -1074,27 +1095,27 @@ $A.Grid = Ext.extend($A.Component,{
 		                		find = true
 		                    }
 	                	}
-	                },this);
+	                });
 	                if(name){
-	                    this.fireEvent(EVT_CELL_CLICK, this, row, name, r ,callback);
+	                    sf.fireEvent(EVT_CELL_CLICK, sf, row, name, r ,callback);
 	                }else{
 	                    var nr = ds.getAt(row+1);
-	                    if(!nr && this.autoappend !== false){
+	                    if(!nr && sf.autoappend !== false){
 			            	ds.create();
 			            	nr = ds.getAt(row+1);
 			            }
 	                    if(nr){
-	                    	this.selectRow(row+1);
+	                    	sf.selectRow(row+1);
 	                    	Ext.each(cls,function(col){
-	                    		if(this.getEditor(col,nr)!=_N){
-	                                this.fireEvent(EVT_CELL_CLICK, this, row+1, col.name, nr ,callback);
+	                    		if(sf.getEditor(col,nr)!=_N){
+	                                sf.fireEvent(EVT_CELL_CLICK, sf, row+1, col.name, nr ,callback);
 	                                return false;
 	                            }
-	                    	},this);
+	                    	});
 	                    }
 	                }
 	            }
-	            this.fireEvent(EVT_NEXT_EDITOR_SHOW,this, row, name);
+	            sf.fireEvent(EVT_NEXT_EDITOR_SHOW,sf, row, name);
         	}
         }
     },
@@ -1117,14 +1138,13 @@ $A.Grid = Ext.extend($A.Component,{
     	this.focus();
     },
     focusColumn: function(name){
-        var r = 25,
-        	ub = this.ub,
-        	cols = this.columns,
-        	sleft = ub.getScroll().left;
-        var ll = 0, tw = 0, lw = 0 , lr;
-        for(var i=0,l=cols.length;i<l;i++){
-            var c = cols[i];
-            if(c.name == name) {
+        var sf = this,
+        	r = 25,
+        	ub = sf.ub,
+        	sleft = ub.getScroll().left,
+        	ll = 0, tw = 0, lw = 0 , lr;
+        Ext.each(sf.columns,function(c){
+        	if(c.name == name) {
 //          if(c.name && c.name.toLowerCase() == name.toLowerCase()) {
                 tw = c.width;
             }
@@ -1135,25 +1155,25 @@ $A.Grid = Ext.extend($A.Component,{
                     if(tw==0) ll += c.width;
                 }
             }
-        }
+        });
         lr = ll + tw;
         if(ll<sleft){
             ub.scrollTo(LEFT,ll);
-        }else if((lr-sleft)>(this.width-lw)){
-            ub.scrollTo(LEFT,lr  - this.width + lw + (ub.dom.scrollHeight > ub.dom.clientHeight? 16 : 0));
+        }else if((lr-sleft)>(sf.width-lw)){
+            ub.scrollTo(LEFT,lr  - sf.width + lw + (ub.dom.scrollHeight > ub.dom.clientHeight? 16 : 0));
         }
-        if(this.autofocus)
-    	this.focus();
+        if(sf.autofocus)
+    	sf.focus();
     },
     /**
      * 隐藏当前编辑器
      */
     hideEditor : function(){
-    	var ced = this.currentEditor;
+    	var sf = this,ced = sf.currentEditor;
         if(ced){
             var ed = ced.editor;
             if(ed){
-	            //ed.un('blur',this.onEditorBlur, this);
+	            //ed.un('blur',sf.onEditorBlur, sf);
 //	            var needHide = true;
 //	            if(ed.canHide){
 //	                needHide = ed.canHide();
@@ -1164,93 +1184,98 @@ $A.Grid = Ext.extend($A.Component,{
 		    			d.setStyle(OUTLINE,NONE);
 		    			ced.focusCheckBox = null;
 		    		}
-	                ed.el.un(EVT_KEY_DOWN, this.onEditorKeyDown,this);
-	                ed.un(EVT_SELECT,this.onEditorSelect,this);
-	                Ext.fly(DOC_EL).un(EVT_MOUSE_DOWN, this.onEditorBlur, this);
-//	                var ed = this.currentEditor.editor;
+	                ed.el.un(EVT_KEY_DOWN, sf.onEditorKeyDown,sf);
+	                ed.un(EVT_SELECT,sf.onEditorSelect,sf);
+	                Ext.fly(DOC_EL).un(EVT_MOUSE_DOWN, sf.onEditorBlur, sf);
+//	                var ed = sf.currentEditor.editor;
 	                ed.move(-10000,-10000);
 	                ed.onBlur();
 	                ed.isFireEvent = false;
 	                ed.isHidden = true;
-	                this.editing = false;
+	                sf.editing = false;
 	            }
             }
         }
     },
     onEditorBlur : function(e,t){
-        if(this.currentEditor && !this.currentEditor.editor.isEventFromComponent(t)) {  
-            this.hideEditor.defer(Ext.isIE9?10:0,this);
+    	var sf = this,ced = sf.currentEditor;
+        if(ced && !ced.editor.isEventFromComponent(t)) {  
+            sf.hideEditor.defer(Ext.isIE9?10:0,sf);
         }
     },
     onLockHeadMove : function(e){
-//      if(this.draging)return;
-        this.hmx = e.xy[0] - this.lht.getXY()[0];
-        this.lh.setStyle(CURSOR,this.isOverSplitLine(this.hmx)?W_RESIZE:DEFAULT);          
+    	var sf = this;
+//      if(sf.draging)return;
+        sf.hmx = e.xy[0] - sf.lht.getXY()[0];
+        sf.lh.setStyle(CURSOR,sf.isOverSplitLine(sf.hmx)?W_RESIZE:DEFAULT);          
     },
     onUnLockHeadMove : function(e){
-//      if(this.draging)return;
-        var uht = this.uht;
-        this.hmx = e.xy[0] - (uht?uht.getXY()[0] + uht.getScroll().left:0) + this.lockWidth;
-        this.uh.setStyle(CURSOR,this.isOverSplitLine(this.hmx)?W_RESIZE:DEFAULT);          
+    	var sf = this;
+//      if(sf.draging)return;
+        var uht = sf.uht;
+        sf.hmx = e.xy[0] - (uht?uht.getXY()[0] + uht.getScroll().left:0) + sf.lockWidth;
+        sf.uh.setStyle(CURSOR,sf.isOverSplitLine(sf.hmx)?W_RESIZE:DEFAULT);          
     },
     onHeadMouseDown : function(e){
-        this.dragWidth = -1;
-        if(this.overColIndex == undefined || this.overColIndex == -1) return;
-        this.dragIndex = this.overColIndex;
-        this.dragStart = e.getXY()[0];
-        this.sp.setHeight(this.wrap.getHeight())
+    	var sf = this;
+        sf.dragWidth = -1;
+        if(sf.overColIndex == undefined || sf.overColIndex == -1) return;
+        sf.dragIndex = sf.overColIndex;
+        sf.dragStart = e.getXY()[0];
+        sf.sp.setHeight(sf.wrap.getHeight())
         	.show()
-        	.setStyle({top:this.wrap.getXY()[1]+PX,left:e.xy[0]+PX});
+        	.setStyle({top:sf.wrap.getXY()[1]+PX,left:e.xy[0]+PX});
         Ext.get(DOC_EL)
-        	.on(EVT_MOUSE_MOVE, this.onHeadMouseMove, this)
-        	.on(EVT_MOUSE_UP, this.onHeadMouseUp, this);
+        	.on(EVT_MOUSE_MOVE, sf.onHeadMouseMove, sf)
+        	.on(EVT_MOUSE_UP, sf.onHeadMouseUp, sf);
     },
     onHeadClick : function(e,t){
-        var target = Ext.fly(t).parent(TD),
-        	ds = this.dataset,
+        var sf = this,
+        	target = Ext.fly(t).parent(TD),
+        	ds = sf.dataset,
         	atype;
         if(target) {
             atype = target.getAttributeNS(_N,ATYPE);
         }
         if(atype==GRID$HEAD){
             var index = target.getAttributeNS(_N,DATA_INDEX),
-            	col = this.findColByName(index);
+            	col = sf.findColByName(index);
             if(col && col.sortable === true){
             	if(ds.isModified()){
-                    $A.showInfoMessage('提示', '有未保存数据!');
+                    A.showInfoMessage('提示', '有未保存数据!');
                     return;
             	}
                 var d = target.child(DIV),
                 	of = index,
                 	ot = _N;
-//                this.dataset.setQueryParameter('ORDER_FIELD', index);
-                if(this.currentSortTarget){
-                    this.currentSortTarget.removeClass([GRID_ASC,GRID_DESC]);
+//                ds.setQueryParameter('ORDER_FIELD', index);
+                if(sf.currentSortTarget){
+                    sf.currentSortTarget.removeClass([GRID_ASC,GRID_DESC]);
                 }
-                this.currentSortTarget = d;
+                sf.currentSortTarget = d;
                 if(Ext.isEmpty(col.sorttype)) {
                     col.sorttype = DESC
                     d.removeClass(GRID_ASC).addClass(GRID_DESC);
                     ot = DESC;
-//                    this.dataset.setQueryParameter('ORDER_TYPE', 'desc');
+//                    ds.setQueryParameter('ORDER_TYPE', 'desc');
                 } else if(col.sorttype == DESC){
                     col.sorttype = ASC;
                     d.removeClass(GRID_DESC).addClass(GRID_ASC);
                     ot = ASC;
-//                    this.dataset.setQueryParameter('ORDER_TYPE', 'asc');
+//                    ds.setQueryParameter('ORDER_TYPE', 'asc');
                 }else {
                     col.sorttype = _N;
                     d.removeClass([GRID_DESC,GRID_ASC]);
-//                    delete this.dataset.qpara['ORDER_TYPE'];
+//                    delete ds.qpara['ORDER_TYPE'];
                 }
-//                if(this.dataset.getAll().length!=0)this.dataset.query();
+//                if(ds.getAll().length!=0)ds.query();
                 ds.sort(of,ot);
             }
         }else if(atype==GRID$ROWCHECK){
             var cb = target.child(SELECT_DIV_ATYPE);
             if(cb){
                 var checked = cb.hasClass(ITEM_CKB_C);
-                this.setCheckBoxStatus(cb,!checked);
+                sf.setCheckBoxStatus(cb,!checked);
                 if(!checked){
                     ds.selectAll();
                 }else{
@@ -1294,36 +1319,38 @@ $A.Grid = Ext.extend($A.Component,{
     	}	
     },
     setSelectStatus:function(record){
-    	var ds = this.dataset;
+    	var sf = this,ds = sf.dataset;
     	if(ds.selectfunction){
-	    	var cb = Ext.get(this.id+__+record.id);
+	    	var cb = Ext.get(sf.id+__+record.id);
 	    	if(!ds.execSelectFunction(record)){
-	    		 this.setSelectDisable(cb,record)
+	    		 sf.setSelectDisable(cb,record)
 	    	}else{
-	    		 this.setSelectEnable(cb,record);
+	    		 sf.setSelectEnable(cb,record);
 	    	}
     	}
     },
     onHeadMouseMove: function(e){
-//      this.draging = true
+    	var sf = this;
+//      sf.draging = true
         e.stopEvent();
-        this.dragEnd = e.getXY()[0];
-        var move = this.dragEnd - this.dragStart,
-        	c = this.columns[this.dragIndex],
+        sf.dragEnd = e.getXY()[0];
+        var move = sf.dragEnd - sf.dragStart,
+        	c = sf.columns[sf.dragIndex],
         	w = c.width + move;
-        if(w > 30 && w < this.width) {
-            this.dragWidth = w;
-            this.sp.setStyle(LEFT, e.xy[0]+PX)
+        if(w > 30 && w < sf.width) {
+            sf.dragWidth = w;
+            sf.sp.setStyle(LEFT, e.xy[0]+PX)
         }
     },
     onHeadMouseUp: function(e){
-//      this.draging = false;
-        Ext.get(DOC_EL).un(EVT_MOUSE_MOVE, this.onHeadMouseMove, this)
-        	.un(EVT_MOUSE_UP, this.onHeadMouseUp, this);      
-        this.sp.hide();
-        if(this.dragWidth != -1)
-        this.setColumnSize(this.columns[this.dragIndex].name, this.dragWidth);
-        this.syncScroll();
+    	var sf = this;
+//      sf.draging = false;
+        Ext.get(DOC_EL).un(EVT_MOUSE_MOVE, sf.onHeadMouseMove, sf)
+        	.un(EVT_MOUSE_UP, sf.onHeadMouseUp, sf);      
+        sf.sp.hide();
+        if(sf.dragWidth != -1)
+        sf.setColumnSize(sf.columns[sf.dragIndex].name, sf.dragWidth);
+        sf.syncScroll();
     },
     /**
      * 根据列的name获取列配置.
@@ -1332,38 +1359,39 @@ $A.Grid = Ext.extend($A.Component,{
      * @return {Object} col 列配置对象.
      */
     findColByName : function(name){
+    	var r;
     	if(name){
-    		var cols = this.columns;
-	        for(var i=0,l=cols.length;i<l;i++){
-	            var c = cols[i];
-	            if(c.name && c.name.toLowerCase() === name.toLowerCase()){
-	                return c;
+    		Ext.each(this.columns,function(c){
+    			if(c.name && c.name.toLowerCase() === name.toLowerCase()){
+	                r = c;
+	                return false;
 	            }
-	        }
+    		});
     	}
-        return;
+        return r;
     }, 
     /**
      * 选中高亮某行.
      * @param {Number} row 行号
      */
     selectRow : function(row, locate){
-        var ds = this.dataset,record = ds.getAt(row),
+        var sf = this,
+        	ds = sf.dataset,record = ds.getAt(row),
         	r = (ds.currentPage-1)*ds.pagesize + row+1;
-        this.selectedId = record.id;
-        if(this.selectlockTr) this.selectlockTr.removeClass(ROW_SELECT);
-        //if(this.selectUnlockTr) this.selectUnlockTr.setStyle(this.bgc,_N);
-        if(this.selectUnlockTr) this.selectUnlockTr.removeClass(ROW_SELECT);
-        this.selectUnlockTr = Ext.get(this.id+$U+record.id);
-        if(this.selectUnlockTr)this.selectUnlockTr.addClass(ROW_SELECT);
-        //if(this.selectUnlockTr)this.selectUnlockTr.setStyle(this.bgc,this.scor);
+        sf.selectedId = record.id;
+        if(sf.selectlockTr) sf.selectlockTr.removeClass(ROW_SELECT);
+        //if(sf.selectUnlockTr) sf.selectUnlockTr.setStyle(sf.bgc,_N);
+        if(sf.selectUnlockTr) sf.selectUnlockTr.removeClass(ROW_SELECT);
+        sf.selectUnlockTr = Ext.get(sf.id+$U+record.id);
+        if(sf.selectUnlockTr)sf.selectUnlockTr.addClass(ROW_SELECT);
+        //if(sf.selectUnlockTr)sf.selectUnlockTr.setStyle(sf.bgc,sf.scor);
         
-        this.selectlockTr = Ext.get(this.id+$L+record.id);
-        if(this.selectlockTr)this.selectlockTr.addClass(ROW_SELECT);
-        this.focusRow(row);
-        this.selectRecord = record
+        sf.selectlockTr = Ext.get(sf.id+$L+record.id);
+        if(sf.selectlockTr)sf.selectlockTr.addClass(ROW_SELECT);
+        sf.focusRow(row);
+        sf.selectRecord = record
         if(locate!==false && r != null) {
-//          this.dataset.locate(r);
+//          sf.dataset.locate(r);
             ds.locate.defer(5, ds,[r,false]);
         }
     },
@@ -1373,78 +1401,79 @@ $A.Grid = Ext.extend($A.Component,{
      * @param {Number} size 列的宽度
      */
     setColumnSize : function(name, size){
-        var hth,bth,lw=0,uw=0;
-        Ext.each(this.columns,function(c){
+        var sf = this,hth,bth,lw=0,uw=0;
+        Ext.each(sf.columns,function(c){
             if(c.name && c.name === name){
                 if(c.hidden === true) return;
                 c.width = size;
                 if(c.lock !== true){                    
-                    hth = this.uh.child(SELECT_TH_DATAINDEX+name+_K);
-                    bth = this.ub.child(SELECT_TH_DATAINDEX+name+_K);                  
+                    hth = sf.uh.child(SELECT_TH_DATAINDEX+name+_K);
+                    bth = sf.ub.child(SELECT_TH_DATAINDEX+name+_K);                  
                 }else{                          
-                    if(this.lh) hth = this.lh.child(SELECT_TH_DATAINDEX+name+_K);
-                    if(this.lb) bth = this.lb.child(SELECT_TH_DATAINDEX+name+_K);
+                    if(sf.lh) hth = sf.lh.child(SELECT_TH_DATAINDEX+name+_K);
+                    if(sf.lb) bth = sf.lb.child(SELECT_TH_DATAINDEX+name+_K);
                     
                 }
             }
             if(c.hidden !== true){
             	c.lock !== true ? (uw += c.width) : (lw += c.width);
             }
-        },this)
-        this.wrap.select(SELECT_TD_DATAINDEX+name+'] DIV.grid-cell').each(function(ce){
+        });
+        sf.wrap.select(SELECT_TD_DATAINDEX+name+'] DIV.grid-cell').each(function(ce){
             ce.setStyle(WIDTH, Math.max(size-(ce.hasClass(CELL_EDITOR) ? 7 : 4),0)+PX);
-        },this)
+        });
         
-        this.unlockWidth = uw;
-        this.lockWidth = lw;
+        sf.unlockWidth = uw;
+        sf.lockWidth = lw;
         if(hth) hth.setStyle(WIDTH, size+PX);
         if(bth) bth.setStyle(WIDTH, size+PX);
-        var mlw = Math.max(this.width - lw,0);
-        if(this.fb){
-            this.fb.child(SELECT_TH_DATAINDEX+name+_K).setStyle(WIDTH, size+PX);
-            this.uf.setStyle(WIDTH,mlw+PX);
-            this.fb.child('table[atype=fb.ubt]').setStyle(WIDTH,uw+PX);
-            var lft = this.fb.child('table[atype=fb.lbt]');
+        var mlw = Math.max(sf.width - lw,0);
+        if(sf.fb){
+            sf.fb.child(SELECT_TH_DATAINDEX+name+_K).setStyle(WIDTH, size+PX);
+            sf.uf.setStyle(WIDTH,mlw+PX);
+            sf.fb.child('table[atype=fb.ubt]').setStyle(WIDTH,uw+PX);
+            var lft = sf.fb.child('table[atype=fb.lbt]');
             if(lft){
-                this.fb.child('div[atype=grid.lf]').setStyle(WIDTH,(lw-1)+PX);
+                sf.fb.child('div[atype=grid.lf]').setStyle(WIDTH,(lw-1)+PX);
                 lft.setStyle(WIDTH,lw+PX);
             }
         }
         
-        if(this.lc){
+        if(sf.lc){
             var lcw = Math.max(lw-1,0);
-            this.lc.setStyle({width:lcw+PX,display:lcw==0 ? NONE : _N});
+            sf.lc.setStyle({width:lcw+PX,display:lcw==0 ? NONE : _N});
         }
-        if(this.lht)this.lht.setStyle(WIDTH,lw+PX);
-        if(this.lbt)this.lbt.setStyle(WIDTH,lw+PX);
-        this.uc.setStyle(WIDTH,mlw+PX);
-        this.uh.setStyle(WIDTH,mlw+PX);
-        this.ub.setStyle(WIDTH,mlw+PX);
-        this.uht.setStyle(WIDTH,uw+PX);
-        if(this.ubt)this.ubt.setStyle(WIDTH,uw+PX);
-        this.syncSize();
+        if(sf.lht)sf.lht.setStyle(WIDTH,lw+PX);
+        if(sf.lbt)sf.lbt.setStyle(WIDTH,lw+PX);
+        sf.uc.setStyle(WIDTH,mlw+PX);
+        sf.uh.setStyle(WIDTH,mlw+PX);
+        sf.ub.setStyle(WIDTH,mlw+PX);
+        sf.uht.setStyle(WIDTH,uw+PX);
+        if(sf.ubt)sf.ubt.setStyle(WIDTH,uw+PX);
+        sf.syncSize();
     },
     drawFootBar : function(objs){
-    	if(!this.fb) return;
-    	Ext.each([].concat(objs ? objs : this.columns), function(obj) {
-    		var col = Ext.isString(obj) ? this.findColByName(obj) : obj;
+    	var sf = this;
+    	if(!sf.fb) return;
+    	Ext.each([].concat(objs ? objs : sf.columns), function(obj) {
+    		var col = Ext.isString(obj) ? sf.findColByName(obj) : obj;
             if(col&&col.footerrenderer){
-                var fder = $A.getRenderer(col.footerrenderer);
+                var fder = A.getRenderer(col.footerrenderer);
                 if(fder == null){
                     alert(NOT_FOUND+col.footerrenderer+METHOD)
                     return;
                 }
                 var name = col.name,
-                	v = fder.call(window,this.dataset.data, name);
+                	v = fder.call(window,sf.dataset.data, name);
             	if(!Ext.isEmpty(v)){
-                	this.fb.child(SELECT_TD_DATAINDEX+name+_K).update(v)
+                	sf.fb.child(SELECT_TD_DATAINDEX+name+_K).update(v)
             	}
             }
-    	},this);
+    	});
     },
     syncSize : function(){
-        var lw = 0;
-        Ext.each(this.columns,function(c){
+        var sf = this,lw = 0;
+        Ext.each(sf.columns,function(c){
             if(c.hidden !== true){
                 if(c.lock === true){
                     lw += c.width;
@@ -1452,25 +1481,26 @@ $A.Grid = Ext.extend($A.Component,{
             }
         });
         if(lw !=0){
-            var us = this.width -lw;
-            this.uc.setWidth(us);
-            this.uh.setWidth(us);
-            this.ub.setWidth(us);
+            var us = sf.width -lw;
+            sf.uc.setWidth(us);
+            sf.uh.setWidth(us);
+            sf.ub.setWidth(us);
         }
     },
     classfiyColumns : function(){
-    	this.lockColumns =[],this.unlockColumns = [];
-        this.lockWidth = 0,this.unlockWidth = 0;
-        Ext.each(this.columns,function(c){
+    	var sf = this;
+    	sf.lockColumns =[],sf.unlockColumns = [];
+        sf.lockWidth = 0,sf.unlockWidth = 0;
+        Ext.each(sf.columns,function(c){
             if(c.lock === true){
-                this.lockColumns.add(c);
-                if(c.hidden !== true) this.lockWidth += c.width;
+                sf.lockColumns.add(c);
+                if(c.hidden !== true) sf.lockWidth += c.width;
             }else{
-                this.unlockColumns.add(c);
-                if(c.hidden !== true) this.unlockWidth += c.width;
+                sf.unlockColumns.add(c);
+                if(c.hidden !== true) sf.unlockWidth += c.width;
             }
-        },this);
-        this.columns = this.lockColumns.concat(this.unlockColumns);
+        });
+        sf.columns = sf.lockColumns.concat(sf.unlockColumns);
     },
     /**
      * 显示某列.
@@ -1524,40 +1554,41 @@ $A.Grid = Ext.extend($A.Component,{
      * @param {String/Array} name/names 列名/列名数组;
      */
     removeColumn : function(name){
-    	var cols = this.columns,
+    	var sf = this,
+    		cols = sf.columns,
     		lockNames = [],unLockNames=[];
 		Ext.each(name,function(n){
-    			col = this.findColByName(n);
+    			col = sf.findColByName(n);
     		if(!col)return;
     		if(col.lock)lockNames.push(n);
     		else unLockNames.push(n);
     		cols.splice(cols.indexOf(col),1);
-		},this);
+		});
     	var lnl = lockNames.length,unl = unLockNames.length;
     	if(lnl||unl){
-    		this.dataset.query();
-    		this.classfiyColumns();
+    		sf.dataset.query();
+    		sf.classfiyColumns();
     		if(lnl){
-    			var lw = this.lockWidth < 1 ?  1 : this.lockWidth,
+    			var lw = sf.lockWidth < 1 ?  1 : sf.lockWidth,
     				selector = [];
     			for(var i=0;i<lnl;i++){
     				selector.push(SELECT_DATAINDEX+lockNames[i]+_K);
     			}
-    			this.lht.setWidth(this.lockWidth).select(selector.join(',')).remove();
-        		this.lc.setWidth(lw - 1); 
-        		this.uc.setWidth(this.wrap.getWidth() - lw); 
+    			sf.lht.setWidth(sf.lockWidth).select(selector.join(',')).remove();
+        		sf.lc.setWidth(lw - 1); 
+        		sf.uc.setWidth(sf.wrap.getWidth() - lw); 
     		}
     		if(unl){
     			var selector = [];
     			for(var i=0;i<unl;i++){
     				selector.push(SELECT_DATAINDEX+unLockNames[i]+_K);
     			}
-    			this.uht.select(selector.join(',')).remove();
+    			sf.uht.select(selector.join(',')).remove();
     		}
-    		var ulw = this.unLockWidth;
-    		this.uht.setWidth(ulw); 
-    		this.uh.setWidth(ulw); 
-    		this.ub.setWidth(ulw);
+    		var ulw = sf.unLockWidth;
+    		sf.uht.setWidth(ulw); 
+    		sf.uh.setWidth(ulw); 
+    		sf.ub.setWidth(ulw);
         }
     },
     createHead : Ext.isIE || Ext.isIE9 ?function(cols,method,name,parent,index){
@@ -1598,17 +1629,18 @@ $A.Grid = Ext.extend($A.Component,{
      * @param {Object/Array} options/columns 列的参数/一组列的参数;
      */
     addColumn : function(options,name,where){
-    	if(this.dataset.isModified()){
-            $A.showInfoMessage(_lang['grid.info'], _lang['grid.info.continue']);
+    	var sf = this;
+    	if(sf.dataset.isModified()){
+            A.showInfoMessage(_lang['grid.info'], _lang['grid.info.continue']);
         }else {
-        	var cols = this.columns,
+        	var cols = sf.columns,
         		index = cols.length,
         		oldLock,oldIndex;
         	if(name && where){
-        		var column = this.findColByName(name);
+        		var column = sf.findColByName(name);
         		if(column){
 	        		oldLock = column.lock;
-	        		oldIndex = this[oldLock?'lockColumns':'unlockColumns'].indexOf(column);
+	        		oldIndex = sf[oldLock?'lockColumns':'unlockColumns'].indexOf(column);
 	        		index = (where == BEFORE? 0 : 1) + cols.indexOf(column);
         		}else{
         			alert('未找到列'+name);
@@ -1618,49 +1650,49 @@ $A.Grid = Ext.extend($A.Component,{
         	var lockCols = [],unLockCols=[];
         	Ext.each(options,function(c){
 	    		var opt = Ext.apply(Ext.apply({},defaultColumnOptions),c),
-	    			col = this.findColByName(opt.name);
+	    			col = sf.findColByName(opt.name);
 	    		if(col)return;
 	    		if(opt.lock)lockCols.push(opt);
 	    		else unLockCols.push(opt);
-        	},this);
+        	});
 	    	var newCols = lockCols.concat(unLockCols);
 	        if(newCols.length){
         		var method = where? (where == BEFORE?INSERT_BEFORE:INSERT_AFTER):APPEND,
         			lmethod = umethod = method,
         			lname = uname = name,
-        			wp = this.wrap;
+        			wp = sf.wrap;
         		if(oldLock){
         			umethod = INSERT_BEFORE;
-        			uname = this.unlockColumns[0].name;
+        			uname = sf.unlockColumns[0].name;
         		}else{
         			lmethod = APPEND;
         			lname = null;
         		}
-	        	this.columns = cols.slice(0,index).concat(newCols).concat(cols.slice(index));
-	        	this.classfiyColumns();
+	        	sf.columns = cols.slice(0,index).concat(newCols).concat(cols.slice(index));
+	        	sf.classfiyColumns();
 	        	if(lockCols.length){
-	        		if(!this.lht){
-		        		this.lc = new Ext.Template("<DIV class='grid-la' atype='grid.lc' style='width:24px;'><DIV class='grid-lh' atype='grid.lh' unselectable='on' onselectstart='return false;' style='height:25px;'><TABLE cellSpacing='0' atype='grid.lht' cellPadding='0' border='0' style='width:25px'><TBODY><TR class='grid-hl'></TR><TR height=25></TR></TBODY></TABLE></DIV><DIV class='grid-lb' atype='grid.lb' style='width:100%;height:255px'></DIV></DIV>").insertAfter(this.fs.dom,{},true); 
-				        this.lh = wp.child('div[atype=grid.lh]');
-				        this.lb = wp.child('div[atype=grid.lb]');
-				        this.lht = wp.child('table[atype=grid.lht]');
-			            this.lb[ON](EVT_CLICK,this.onClick, this)
-			            	[ON](EVT_DBLCLICK,this.onDblclick, this);
-				        this.lht[ON](EVT_MOUSE_MOVE,this.onLockHeadMove, this);
-				        this.lh[ON](EVT_MOUSE_DOWN, this.onHeadMouseDown,this)
-				        	[ON](EVT_CLICK, this.onHeadClick,this);
+	        		if(!sf.lht){
+		        		sf.lc = new Ext.Template("<DIV class='grid-la' atype='grid.lc' style='width:24px;'><DIV class='grid-lh' atype='grid.lh' unselectable='on' onselectstart='return false;' style='height:25px;'><TABLE cellSpacing='0' atype='grid.lht' cellPadding='0' border='0' style='width:25px'><TBODY><TR class='grid-hl'></TR><TR height=25></TR></TBODY></TABLE></DIV><DIV class='grid-lb' atype='grid.lb' style='width:100%;height:255px'></DIV></DIV>").insertAfter(sf.fs.dom,{},true); 
+				        sf.lh = wp.child('div[atype=grid.lh]');
+				        sf.lb = wp.child('div[atype=grid.lb]');
+				        sf.lht = wp.child('table[atype=grid.lht]');
+			            sf.lb[ON](EVT_CLICK,sf.onClick, sf)
+			            	[ON](EVT_DBLCLICK,sf.onDblclick, sf);
+				        sf.lht[ON](EVT_MOUSE_MOVE,sf.onLockHeadMove, sf);
+				        sf.lh[ON](EVT_MOUSE_DOWN, sf.onHeadMouseDown,sf)
+				        	[ON](EVT_CLICK, sf.onHeadClick,sf);
 	        		}
-	        		this.createHead(lockCols,lmethod,lname,this.lht,oldIndex);
+	        		sf.createHead(lockCols,lmethod,lname,sf.lht,oldIndex);
 	        	}
 	        	if(unLockCols.length){
-	        		this.createHead(unLockCols,umethod,uname,this.uht,oldIndex);
+	        		sf.createHead(unLockCols,umethod,uname,sf.uht,oldIndex);
 	    		}
-	    		if(this.lb)this.lb.update(_N);
-	    		this.ub.update(_N);
+	    		if(sf.lb)sf.lb.update(_N);
+	    		sf.ub.update(_N);
 	    		Ext.each(newCols,function(nc){
-		        	this.setColumnSize(nc.name,nc.width)
-	    		},this)
-	    		this.dataset.query();
+		        	sf.setColumnSize(nc.name,nc.width)
+	    		});
+	    		sf.dataset.query();
 	        }
         }
     },
@@ -1683,32 +1715,34 @@ $A.Grid = Ext.extend($A.Component,{
     	this.addColumn(options,name,1);
     },
     setWidth: function(w){
-    	if(this.width == w) return;
-        this.width = w;
-        this.wrap.setWidth(w);
-        var tb = $A.CmpManager.get(this.id+TB)
+    	var sf = this;
+    	if(sf.width == w) return;
+        sf.width = w;
+        sf.wrap.setWidth(w);
+        var tb = A.CmpManager.get(sf.id+TB)
         if(tb)tb.setWidth(w);
-        var nb = $A.CmpManager.get(this.id+NAVBAR)
+        var nb = A.CmpManager.get(sf.id+NAVBAR)
         if(nb)nb.setWidth(w);
-        if(this.fb) this.fb.setWidth(w);
-        var bw = w-this.lockWidth
-        this.uc.setWidth(bw);
-        this.uh.setWidth(bw);
-        this.ub.setWidth(bw);
-        if(this.uf) this.uf.setWidth(bw);
+        if(sf.fb) sf.fb.setWidth(w);
+        var bw = w-sf.lockWidth
+        sf.uc.setWidth(bw);
+        sf.uh.setWidth(bw);
+        sf.ub.setWidth(bw);
+        if(sf.uf) sf.uf.setWidth(bw);
     },
     setHeight: function(h){
-    	if(this.height == h) return;
-        this.height = h;
-        var tb = $A.CmpManager.get(this.id+TB);
+    	var sf = this;
+    	if(sf.height == h) return;
+        sf.height = h;
+        var tb = A.CmpManager.get(sf.id+TB);
         if(tb)h-=25;
-        var nb = $A.CmpManager.get(this.id+NAVBAR);
+        var nb = A.CmpManager.get(sf.id+NAVBAR);
         if(nb)h-=25;
-        if(this.fb)h-=25;
-        this.wrap.setHeight(h);
+        if(sf.fb)h-=25;
+        sf.wrap.setHeight(h);
         var bh = h - 25;
-        if(this.lb)this.lb.setHeight(bh)
-        this.ub.setHeight(bh)
+        if(sf.lb)sf.lb.setHeight(bh)
+        sf.ub.setHeight(bh)
     },
     deleteSelectRows: function(win){
         var ds = this.dataset,selected = [].concat(ds.getSelected());
@@ -1723,7 +1757,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     remove: function(){
         var selected = this.dataset.getSelected();
-        if(selected.length >0) $A.showConfirm(_lang['grid.remove.confirm'],_lang['grid.remove.confirmMsg'],this.deleteSelectRows.createDelegate(this));     
+        if(selected.length >0) A.showConfirm(_lang['grid.remove.confirm'],_lang['grid.remove.confirmMsg'],this.deleteSelectRows.createDelegate(this));     
     },
     clear: function(){
         var ds = this.dataset,selected = ds.getSelected();
@@ -1736,7 +1770,7 @@ $A.Grid = Ext.extend($A.Component,{
     },
     showExportConfirm :function(){
     	this.initColumnPrompt();
-    	var sf = this,n=0,id = this.id + '_export',
+    	var sf = this,n=0,id = sf.id + '_export',
     		msg = ['<div class="item-export-wrap" style="margin:15px;width:270px" id="',id,'">',
     				'<div class="grid-uh" atype="grid.uh" style="width: 270px; -moz-user-select: none; text-align: left; height: 25px; cursor: default;" onselectstart="return false;" unselectable="on">',
     				'<table cellSpacing="0" cellPadding="0" border="0"><tbody><tr height="25px">',
@@ -1745,16 +1779,16 @@ $A.Grid = Ext.extend($A.Component,{
 					'</tr></tbody></table></div>',
 					'<div style="overflow:auto;height:200px;"><table cellSpacing="0" cellPadding="0" border="0"><tbody>'],
 					exportall = true;
-			Ext.each(this.columns,function(c,i){
-				if(!this.isFunctionCol(c.type)){
+			Ext.each(sf.columns,function(c,i){
+				if(!sf.isFunctionCol(c.type)){
 					if(exportall)exportall = c.forexport !==false;
-					msg.push('<tr',(n+i)%2==0?_N:' class="',ROW_ALT,'"','><td class="',GRID_ROWBOX,'" style="width:22px;" ',RECORD_ID,'="',i,'" atype="export.rowcheck"><center><div id="',this.id,__,i,'" class="',GRID_CKB,c.forexport === false?ITEM_CKB_U:ITEM_CKB_C,'"></div></center></td><td><div class="',GRID_CELL,'" style="width:220px">',c.prompt,'</div></td></tr>');	
+					msg.push('<tr',(n+i)%2==0?_N:' class="',ROW_ALT,'"','><td class="',GRID_ROWBOX,'" style="width:22px;" ',RECORD_ID,'="',i,'" atype="export.rowcheck"><center><div id="',sf.id,__,i,'" class="',GRID_CKB,c.forexport === false?ITEM_CKB_U:ITEM_CKB_C,'"></div></center></td><td><div class="',GRID_CELL,'" style="width:220px">',c.prompt,'</div></td></tr>');	
 				}else n++;
-			},this);
+			});
 			if(exportall)msg[7]=ITEM_CKB_C;
 			msg.push('</tbody></table></div></div>');
-    	this.exportwindow = $A.showOkCancelWindow(_lang['grid.export.config'],msg.join(_N),function(win2){
-    		$A.showConfirm(_lang['grid.export.confirm'],_lang['grid.export.confirmMsg'],function(win){
+    	sf.exportwindow = A.showOkCancelWindow(_lang['grid.export.config'],msg.join(_N),function(win2){
+    		A.showConfirm(_lang['grid.export.confirm'],_lang['grid.export.confirmMsg'],function(win){
 		    	sf.doExport();
 		       	win.close();
 		       	win2.body.un(EVT_CLICK,sf.onExportClick,sf);
@@ -1762,20 +1796,21 @@ $A.Grid = Ext.extend($A.Component,{
 	    	});
 	    	return false;
     	},null,null,300);
-    	this.exportwindow.body.on(EVT_CLICK,this.onExportClick,this);
+    	sf.exportwindow.body.on(EVT_CLICK,sf.onExportClick,sf);
     },
     initColumnPrompt : function(){
-    	if(!this.isPromptInit){
-    		Ext.each(this.columns,function(c){
-    			if(!this.isFunctionCol(c.type)){
-    				c.prompt = c.name?this.wrap.child('td.grid-hc'+SELECT_DATAINDEX+c.name+'] div').dom.innerHTML : (c.prompt||this.dataset.getField(c.name).pro["prompt"]);
+    	var sf = this;
+    	if(!sf.isPromptInit){
+    		Ext.each(sf.columns,function(c){
+    			if(!sf.isFunctionCol(c.type)){
+    				c.prompt = c.name?sf.wrap.child('td.grid-hc'+SELECT_DATAINDEX+c.name+'] div').dom.innerHTML : (c.prompt||sf.dataset.getField(c.name).pro["prompt"]);
     			}
-    		},this);
-    		this.isPromptInit = true;
+    		});
+    		sf.isPromptInit = true;
     	}
     },
     onExportClick : function(e,t){
-    	var target =Ext.fly(t).parent(TD);
+    	var sf = this,target =Ext.fly(t).parent(TD);
         if(target){
             var atype = target.getAttributeNS(_N,ATYPE);
             if(atype=='export.rowcheck'){               
@@ -1783,16 +1818,16 @@ $A.Grid = Ext.extend($A.Component,{
 	            	cb = target.child(DIV),
                 	checked = cb.hasClass(ITEM_CKB_C),
                 	_atype = cb.getAttributeNS(_N,ATYPE),
-                	cols = this.columns;
-                this.setCheckBoxStatus(cb, !checked);
+                	cols = sf.columns;
+                sf.setCheckBoxStatus(cb, !checked);
                 if(_atype=='export.headcheck'){
-                	var che = (this.isFunctionCol(cols[0].type) ? 1 : 0)
-                		+ (this.isFunctionCol(cols[1].type) ? 1 : 0);
-	            	this.exportwindow.body.select('td[atype=export.rowcheck] div[atype!=export.headcheck]')
+                	var che = (sf.isFunctionCol(cols[0].type) ? 1 : 0)
+                		+ (sf.isFunctionCol(cols[1].type) ? 1 : 0);
+	            	sf.exportwindow.body.select('td[atype=export.rowcheck] div[atype!=export.headcheck]')
 	            		.each(function(cbs,o,i){
-		            		this.setCheckBoxStatus(cbs, !checked);
+		            		sf.setCheckBoxStatus(cbs, !checked);
 		            		cols[i+che].forexport = !checked;
-	            		},this);
+	            		});
                 }else
                 	cols[rid].forexport = !checked;
             }
@@ -1800,14 +1835,14 @@ $A.Grid = Ext.extend($A.Component,{
     },
     doExport : function(){
     	this.initColumnPrompt();
-    	$A.doExport(this.dataset,this.columns)
+    	A.doExport(this.dataset,this.columns)
     },
     destroy: function(){
-        $A.Grid.superclass.destroy.call(this);
+        A.Grid.superclass.destroy.call(this);
         this.processDataSetLiestener('un');
         this.sp.remove();
         delete this.sp;
     }
 });
-$A.Grid.revision='$Rev$';
-})();
+A.Grid.revision='$Rev$';
+})($A);
