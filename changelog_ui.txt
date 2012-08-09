@@ -1,4 +1,7 @@
-Release ()  
+Release ()
+------------------------------------
+
+Release (2012-07-26)
 ------------------------------------
 * 增加Spinner组件
 * 组件DateTimePicker增加hour,minute,second属性
