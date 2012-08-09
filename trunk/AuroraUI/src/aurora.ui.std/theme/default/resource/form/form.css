@@ -29,3 +29,33 @@
     -moz-border-radius: 0px 0px 5px 5px; 
     border-bottom:none;
 }
+.adFormView {
+    font-size:13px;
+    -webkit-border-radius: 5px; 
+    -moz-border-radius: 5px; 
+    border: 1px solid #aaa;
+    background-color:#fff;
+}
+.adFormView .title {
+	height:42px;
+	line-height:42px;
+	background:url(tmiddle.png) repeat-x;
+    font-size:16px;
+    padding:0px 5px;
+    font-weight:bold;
+    color:#960e00;
+}
+
+.adFormWrap .tl {
+    background:url(tleft.png) no-repeat 0px 11px;
+}
+.adFormView .tr {
+	font-size:0px;
+    height:40px;
+    width:24px;
+    background:url(tright.png) no-repeat;
+}
+.adFormView .label {
+    padding:5px 5px 5px 10px;
+    font-weight:bold;
+}
