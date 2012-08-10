@@ -514,7 +514,7 @@ A.Grid = Ext.extend(A.Component,{
     customize : function(){
         var path = location.pathname,
         	str = path.indexOf('modules'),
-        	screen_path = path.substring(str,path.length);
+        	screen_path = path.substring(str,path.length),
         	screen = screen_path.substring(screen_path.lastIndexOf('/')+1, screen_path.length),
         	context_path = path.substring(0,str),
         	parent = this.wrap.parent('[url]');
