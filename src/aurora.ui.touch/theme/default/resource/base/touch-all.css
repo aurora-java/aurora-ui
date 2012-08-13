@@ -232,3 +232,8 @@ textarea.textarea {
 	-webkit-box-shadow: 1px 1px 3px #c8c8c8;
 	box-shadow: 1px 1px 3px #c8c8c8;
 }
+
+.list .selected{
+	background-color: #017CB9;
+	color:white;
+}
