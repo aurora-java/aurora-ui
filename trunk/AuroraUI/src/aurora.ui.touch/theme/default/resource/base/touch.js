@@ -118,7 +118,12 @@ $.extend(T.Ajax.prototype,{
         for(var key in p){
             var v = p[key],bind = v.bind,type= v.datatype;
             data[key] = bind?$(_+bind).val():v.value;
-            if(type == 'java.lang.Long') data[key] = Number(data[key]);
+            switch(v.datatype){
+            	case 'int':
+            	case 'float':
+            	case 'java.lang.Long':data[key] = Number(data[key]);break;
+            	case 'boolean':data[key] =  data[key]=="true";
+            }
         }
         this.options.data = {
             _request_data: JSON.stringify({
@@ -435,16 +440,18 @@ $.extend(T.SwitchButton.prototype,{
 
 /** Touch.List **/
 T.List = function(config){
-    var bid  = config.bind;
-    this.id = config.id;
+    var bid  = config.bind,
+    	id = this.id = config.id,
+    	sf = cmpCache[id] = this;
+    this.wrap = $('#'+id)
     this.renderer = config.renderer;
     this.total = 0;
     this.pageSize = config.size||10;
     this.currentPage = 1;
+    this.selected = [];
+    this.selectable = config.selectable || false;
     var ax = T.get(bid);
     this.ajax = ax;
-    cmpCache[config.id] = this;
-    var sf = this;
     $(document).on('ajaxSuccess', function(e, xhr, options){
         if(xhr == ax.xhr){
             var data = JSON.parse(xhr.responseText);
@@ -452,14 +459,14 @@ T.List = function(config){
                 sf.total = data.result.totalCount || 0;
                 sf.totalPage = Math.ceil(sf.total/sf.pageSize) || 0;
                 if(data.result.totalCount > 0 ){
-                    var ls = ['<ul>'];
-                    var records = [].concat(data.result.record);
-                    var rc = window[sf.renderer];
+                    var ls = ['<ul>'],
+                    	records = sf.data = [].concat(data.result.record),
+                    	rc = window[sf.renderer];
                     for(var i=0;i<records.length;i++){
                         var record = records[i];
-                        ls[ls.length] = '<li>';
+                        ls[ls.length] = '<li dataindex="'+i+'">';
                         if(rc){
-                            ls[ls.length] = rc.call(window,record); 
+                            ls[ls.length] = rc(record); 
                         }else{
                             ls[ls.length] = record;
                         }
@@ -470,22 +477,23 @@ T.List = function(config){
                         var bar = ['<table width="100%" border="0" cellspacing="3">',
                                 '<tr>',
                                     '<td width="40%">',
-                                        '<button type="button" id="'+config.id+'_pre" class="btn gray" style="float:right;font-size:16px;height:30px;">上一页</button>',
+                                        '<button type="button" id="'+id+'_pre" class="btn gray" style="float:right;font-size:16px;height:30px;">上一页</button>',
                                     '</td>',
-                                    '<td width="20%" id="'+config.id+'_info" style="text-align:center;font-size:16px;">'+sf.currentPage+'/'+sf.totalPage+'</td>',
+                                    '<td width="20%" id="'+id+'_info" style="text-align:center;font-size:16px;">'+sf.currentPage+'/'+sf.totalPage+'</td>',
                                     '<td width="40%">',                                                
-                                        '<button type="button" id="'+config.id+'_next" class="btn gray" style="float:right;font-size:16px;height:30px;">下一页</button>',
+                                        '<button type="button" id="'+id+'_next" class="btn gray" style="float:right;font-size:16px;height:30px;">下一页</button>',
                                     '</td>',
                                 '</tr>',
                             '</table>'];
                             ls[ls.length] = bar.join('');
                     }
                     
-                    $('#'+config.id).html(ls.join(''));
-                    $('#'+config.id+'_pre').on("click",function(){Touch.get(config.id).pre()});
-                    $('#'+config.id+'_next').on("click",function(){Touch.get(config.id).next()});
+                    sf.wrap.html(ls.join(''));
+                    $('#'+id+'_pre').on("click",function(){Touch.get(id).pre()});
+                    $('#'+id+'_next').on("click",function(){Touch.get(id).next()});
+                    sf.processSelectEvent();
                 }else {
-                    $('#'+config.id).html('未找到任何数据!');
+                    sf.wrap.html('未找到任何数据!');
                 }
                 if(config.callback) window[config.callback].call(window);
                 
@@ -501,6 +509,60 @@ T.List = function(config){
     }
 }
 $.extend(T.List.prototype,{
+	processSelectEvent : function(){
+		var sf = this,
+			moved = false,
+            _start = function(e){
+                $(document).on(MOVE_EV,_move);
+                $(document).on(END_EV,_end);
+            },
+            _move = function(e){
+                moved = true;
+            },
+            _end = function(e){
+                $(document).off(MOVE_EV,_move);
+                $(document).off(END_EV,_end);
+                if(!moved){
+                	sf.onClick(e)
+                }
+                moved = false;
+            };
+        sf.wrap.on(START_EV,_start)
+	},
+	onClick: function(e,t){
+		var li =$(e.target).parents('li[dataindex]');
+		if(li){
+			var data = this.data[li.attr('dataindex')];
+			if(this.selected.indexOf(data) != -1){
+				this.unselect(data);
+				li.removeClass('selected')
+			}else{
+				this.select(data);
+				li.addClass('selected')
+			}
+		}
+	},
+	selectAll : function(){
+		if(!this.selectable)return;
+		this.selected = [].concat(this.data);
+		this.wrap.find('li').addClass('selected');
+	},
+	unSelectAll : function(){
+		if(!this.selectable)return;
+		this.selected = [];
+		this.wrap.find('li').removeClass('selected');
+	},
+	select : function(data,li){
+		if(!this.selectable)return;
+		this.selected.push(data);
+	},
+	unselect : function(data,li){
+		if(!this.selectable)return;
+		this.selected.splice(this.selected.indexOf(data),1);
+	},
+	getSelected : function(){
+		return this.selected;
+	},
     loading: function(){
         $('#'+this.id).html('正在查询...');
     },
