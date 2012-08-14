@@ -549,6 +549,8 @@ button div {
 .item-btn-disabled *{
     cursor:default !important;
     color:#ccc;
+    -webkit-filter:grayscale();
+    filter:gray;
 }
 .item-btn-tl, .item-btn-tr, .item-btn-tc, .item-btn-ml, .item-btn-mr, .item-btn-mc, .item-btn-bl, .item-btn-br, .item-btn-bc{
     background-image:url(../button/btn.gif);
