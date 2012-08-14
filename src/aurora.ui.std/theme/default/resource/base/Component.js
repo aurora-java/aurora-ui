@@ -94,7 +94,10 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         }
         if(this.marginwidth){
             wd = Aurora.getViewportWidth();
-            this.setWidth(wd-this.marginwidth);
+            var v = wd-this.marginwidth;
+            this.setWidth(v);
+            //TODO:中集特殊要求！
+//            this.setWidth(v < this.initConfig.width ? v : this.initConfig.width);
         }
     },
     isEventFromComponent:function(el){
