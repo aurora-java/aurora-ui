@@ -1384,7 +1384,7 @@ $A.escapeHtml = function(str){
 	return String(str).replace(/&/gm,'&amp;')
 	.replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
 }
-$A.doExport=function(dataset,cols,generate_state){
+$A.doExport=function(dataset,cols,mergeCols,generate_state){
 	var p={"parameter":{"_column_config_":{}}},columns=[],parentMap={},
     	_parentColumn=function(pcl,cl){
     		if(!(Ext.isDefined(pcl.forexport)?pcl.forexport:true))return null;
@@ -1412,6 +1412,13 @@ $A.doExport=function(dataset,cols,generate_state){
     	p["parameter"]["_column_config_"]["column"]=columns;
     	p["_generate_state"]=Ext.isEmpty(generate_state)?true:generate_state;
     	p["_format"]="xls";
+    	if(mergeCols){
+    		var _merge_column_ = [];
+    		Ext.each(mergeCols,function(item){
+    			_merge_column_.push({name:item});
+    		});
+	    	p["_merge_column_"] = _merge_column_;
+    	}
     	var r,q = {};
     	if(dataset.qds)r = dataset.qds.getCurrentRecord();
     	if(r) Ext.apply(q, r.data);
@@ -3535,7 +3542,10 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         }
         if(this.marginwidth){
             wd = Aurora.getViewportWidth();
-            this.setWidth(wd-this.marginwidth);
+            var v = wd-this.marginwidth;
+            this.setWidth(v);
+            //TODO:中集特殊要求！
+//            this.setWidth(v < this.initConfig.width ? v : this.initConfig.width);
         }
     },
     isEventFromComponent:function(el){
