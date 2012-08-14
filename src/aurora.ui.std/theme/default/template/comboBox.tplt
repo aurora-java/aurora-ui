@@ -2,7 +2,7 @@
 	<DIV style="position:relative;padding-left:3px;padding-right:20px">
 		<DIV style="width:100%">
 			<INPUT tabindex="${tabindex}" class="item-textField" atype="field.input" autocomplete="off" value="${value}"/>
-		<DIV>
+		</DIV>
 		<DIV class="item-trigger item-comboButton" atype="triggerfield.trigger" hideFocus></DIV>
 	</DIV>
 	<DIV class="item-popup item-comboBox-view" atype="triggerfield.popup" style="width:170px;"></DIV>
