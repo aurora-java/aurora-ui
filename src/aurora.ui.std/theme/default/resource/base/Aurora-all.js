@@ -1417,7 +1417,7 @@ $A.doExport=function(dataset,cols,mergeCols,generate_state){
     		Ext.each(mergeCols,function(item){
     			_merge_column_.push({name:item});
     		});
-	    	p["_merge_column_"] = _merge_column_;
+	    	p["parameter"]["_merge_column_"] = _merge_column_;
     	}
     	var r,q = {};
     	if(dataset.qds)r = dataset.qds.getCurrentRecord();
