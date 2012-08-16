@@ -1512,6 +1512,7 @@ A.Grid = Ext.extend(A.Component,{
         if(col){
             if(col.hidden === true){
                 delete col.hidden;
+                col.forexport = true;
                 this.setColumnSize(name, col.hiddenwidth||col.width);
                 delete col.hiddenwidth;
 //              if(!Ext.isIE){
@@ -1545,6 +1546,7 @@ A.Grid = Ext.extend(A.Component,{
 //                    }
 //              }
                 col.hidden = true;
+                col.forexport = false;
             }
         }       
     },
@@ -1564,31 +1566,32 @@ A.Grid = Ext.extend(A.Component,{
     		else unLockNames.push(n);
     		cols.splice(cols.indexOf(col),1);
 		});
-    	var lnl = lockNames.length,unl = unLockNames.length;
+    	var lnl = lockNames.length,unl = unLockNames.length,selector = [];
     	if(lnl||unl){
-    		sf.dataset.query();
     		sf.classfiyColumns();
     		if(lnl){
-    			var lw = sf.lockWidth < 1 ?  1 : sf.lockWidth,
-    				selector = [];
+    			var lw = sf.lockWidth,ucw = sf.wrap.getWidth() - lw;
     			for(var i=0;i<lnl;i++){
     				selector.push(SELECT_DATAINDEX+lockNames[i]+_K);
     			}
-    			sf.lht.setWidth(sf.lockWidth).select(selector.join(',')).remove();
-        		sf.lc.setWidth(lw - 1); 
-        		sf.uc.setWidth(sf.wrap.getWidth() - lw); 
-    		}
-    		if(unl){
-    			var selector = [];
-    			for(var i=0;i<unl;i++){
-    				selector.push(SELECT_DATAINDEX+unLockNames[i]+_K);
+    			if(lw){
+	    			sf.lht.setWidth(lw);
+	        		sf.lc.setWidth(lw); 
+	        		sf.lbt.dom.width = lw;
+    			}else{
+    				sf.lc.remove();	
     			}
-    			sf.uht.select(selector.join(',')).remove();
+        		sf.uc.setWidth(ucw);
+        		sf.uh.setWidth(ucw); 
+        		sf.ub.setWidth(ucw); 
     		}
-    		var ulw = sf.unLockWidth;
+			for(var i=0;i<unl;i++){
+				selector.push(SELECT_DATAINDEX+unLockNames[i]+_K);
+			}
+    		sf.wrap.select(selector.join(',')).remove();
+    		var ulw = sf.unlockWidth;
     		sf.uht.setWidth(ulw); 
-    		sf.uh.setWidth(ulw); 
-    		sf.ub.setWidth(ulw);
+    		sf.ubt.setWidth(ulw);
         }
     },
     createHead : Ext.isIE || Ext.isIE9 ?function(cols,method,name,parent,index){
@@ -1782,7 +1785,12 @@ A.Grid = Ext.extend(A.Component,{
 			Ext.each(sf.columns,function(c,i){
 				if(!sf.isFunctionCol(c.type)){
 					if(exportall)exportall = c.forexport !==false;
-					msg.push('<tr',(n+i)%2==0?_N:' class="',ROW_ALT,'"','><td class="',GRID_ROWBOX,'" style="width:22px;" ',RECORD_ID,'="',i,'" atype="export.rowcheck"><center><div id="',sf.id,__,i,'" class="',GRID_CKB,c.forexport === false?ITEM_CKB_U:ITEM_CKB_C,'"></div></center></td><td><div class="',GRID_CELL,'" style="width:220px">',c.prompt,'</div></td></tr>');	
+					msg.push('<tr',(n+i)%2==0?_N:' class="',ROW_ALT,'"',
+					'><td class="',GRID_ROWBOX,'" style="width:22px;" ',
+					RECORD_ID,'="',i,'" atype="export.rowcheck"><center><div id="',
+					sf.id,__,i,'" class="',GRID_CKB,c.forexport === false?ITEM_CKB_U:ITEM_CKB_C,
+					'"></div></center></td><td><div class="',GRID_CELL,'" style="width:220px">',
+					c.prompt,c.hidden?'<div style="float:right;color:red">&lt;隐藏列&gt;</div>':_N,'</div></td></tr>');	
 				}else n++;
 			});
 			if(exportall)msg[7]=ITEM_CKB_C;
