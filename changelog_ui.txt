@@ -4,6 +4,7 @@ Release ()
 * 增强所有editor，通过设置style="width:100%"能自适应宽度
 * Button禁用时的图片改为灰色
 * $A.doExport方法增加参数merge_columns
+* 修改Grid,使默认隐藏列不在导出列表内。改进removeColumn方法，删除列时不做查询。
 
 Release (2012-07-26)
 ------------------------------------
