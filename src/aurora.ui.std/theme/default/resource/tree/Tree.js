@@ -168,7 +168,7 @@ $A.Tree = Ext.extend($A.Component,{
 		var elem = Ext.fly(t).findParent('td');
 		if(!elem)return;
 		var _type = elem['_type_'];
-		if(typeof(_type) === undefined){
+		if(_type === undefined){
 			return;
 		}
 		elem = Ext.fly(t).findParent('div.item-node');
@@ -508,9 +508,9 @@ $A.Tree.TreeNode.prototype={
 	},
 	doSetWidth : function(name,w){
 		if(!w)return;
-		var tree = this.getOwnerTree();
-		if(this.isRoot() && tree.showRoot == false) return;
+		if(this.isRoot() && this.showRoot == false) return;
 		var els = this.els,
+			tree = this.getOwnerTree(),
 			left = w-(name == tree.displayfield && tree.showSkeleton ? 
 				((tree.showcheckbox ? 1 : 0) +this.getPathNodes().length)*tree.sw
 				: 0);
