@@ -281,10 +281,10 @@ A.Grid = Ext.extend(A.Component,{
                         ds.nextPage();
                         break;
                     case 38:
-                        ds.pre();
+                        if(!e.ctrlKey) ds.pre();
                         break;
                     case 40:
-                        ds.next();
+                        if(!e.ctrlKey) ds.next();
                         break;
                 }
                 e.stopEvent();
