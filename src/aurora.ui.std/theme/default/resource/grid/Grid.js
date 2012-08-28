@@ -1,6 +1,11 @@
 (function(A){
 var DOC = document,
 	DOC_EL = DOC.documentElement,
+	EACH = Ext.each,
+	IS_EMPTY = Ext.isEmpty,
+	FALSE = false,
+	TRUE = true,
+	NULL = null,
 	_ = '_',
 	__ = '__',
 	_O = '.',
@@ -99,13 +104,13 @@ var DOC = document,
     SELECT_TH_DATAINDEX = TH+SELECT_DATAINDEX,//'th[dataindex='
     SELECT_TD_DATAINDEX = TD+SELECT_DATAINDEX,//'td[dataindex='
 	defaultColumnOptions = {
-		autoadjust: true,
-		forexport: true,
-		hidden: false,
-		lock: false,
-		resizable: true,
+		autoadjust: TRUE,
+		forexport: TRUE,
+		hidden: FALSE,
+		lock: FALSE,
+		resizable: TRUE,
 		rowspan: 1,
-		sortable: true,
+		sortable: TRUE,
 		width: 100
 	};
 /**
@@ -119,10 +124,10 @@ var DOC = document,
 A.Grid = Ext.extend(A.Component,{
     constructor: function(config){
     	var sf = this;
-//        sf.overId = null;
-        sf.selectedId = null;
+//        sf.overId = NULL;
+        sf.selectedId = NULL;
         sf.lockWidth = 0;
-        sf.autofocus = config.autofocus||true;
+        sf.autofocus = config.autofocus||TRUE;
         A.Grid.superclass.constructor.call(sf,config);
     },
     initComponent:function(config){
@@ -157,7 +162,7 @@ A.Grid = Ext.extend(A.Component,{
         sf.wrap[ou]("mouseover", sf.onMouseOver, sf)
         	[ou]("mouseout", sf.onMouseOut, sf)
         	[ou](EVT_CLICK,sf.focus,sf);
-        if(!(sf.canwheel === false)){
+        if(!(sf.canwheel === FALSE)){
         	sf.wb[ou]('mousewheel',sf.onMouseWheel,sf);
         }
         sf.fs[ou](Ext.isOpera ? "keypress" : EVT_KEY_DOWN, sf.handleKeyDown,  sf);
@@ -250,13 +255,13 @@ A.Grid = Ext.extend(A.Component,{
         if(e.ctrlKey&&e.keyCode == 86&&sf.canpaste){
             var text = window.clipboardData.getData('text');
             if(text){
-                Ext.each(text.split('\n'),function(row){
+                EACH(text.split('\n'),function(row){
                     var	values = row.split('\t');
                     if(values==_N)return;
                     var data = {},v=0; 
-                    Ext.each(sf.columns,function(c){
+                    EACH(sf.columns,function(c){
                         if(sf.isFunctionCol(c.type)) return;
-                        if(c.hidden !== true) {
+                        if(c.hidden !== TRUE) {
                             data[c.name] = values[v];
                             v++
                         }
@@ -266,7 +271,7 @@ A.Grid = Ext.extend(A.Component,{
             }
         }else{
             if(key == 38 || key == 40 || key == 33 || key == 34) {
-                if(ds.loading == true) return;
+                if(ds.loading == TRUE) return;
 //                var row;
                 switch(e.getKey()){
                     case 33:
@@ -282,6 +287,7 @@ A.Grid = Ext.extend(A.Component,{
                         ds.next();
                         break;
                 }
+                e.stopEvent();
             }
         }
         sf.fireEvent(EVT_KEY_DOWN, sf, e)
@@ -320,7 +326,7 @@ A.Grid = Ext.extend(A.Component,{
         }
         var sf = this;
         sf.dataset = ds;
-        if(ds.autopagesize===true){
+        if(ds.autopagesize===TRUE){
         	ds.pagesize=Math.round(((sf.ub.getHeight()||parseFloat(sf.ub.dom.style.height))-16)/25);
         }
         sf.processDataSetLiestener(ON);
@@ -349,7 +355,7 @@ A.Grid = Ext.extend(A.Component,{
     	return {
             width:col.width-2,
             recordid:record.id,
-            visibility: col.hidden === true ? HIDDEN : VISIBLE,
+            visibility: col.hidden === TRUE ? HIDDEN : VISIBLE,
             name:col.name
         }
     },
@@ -373,7 +379,7 @@ A.Grid = Ext.extend(A.Component,{
             }
         }else if(col.name && Ext.isDefined(record.getField(col.name).get(CHECKED_VALUE))){
     		xtype = CELL_CHECK;
-    		readonly=true;
+    		readonly=TRUE;
         }
         if(xtype == ROW_CHECK || xtype == ROW_RADIO){
         	readonly = sf.dataset.execSelectFunction(record)?_N:READONLY;
@@ -392,7 +398,7 @@ A.Grid = Ext.extend(A.Component,{
             cellTpl = sf.cbTpl;
         }else{
             var field = record.getMeta().getField(col.name);
-            if(field && Ext.isEmpty(record.data[col.name]) && record.isNew == true && field.get(REQUIRED) == true){
+            if(field && IS_EMPTY(record.data[col.name]) && record.isNew == TRUE && field.get(REQUIRED) == TRUE){
                 cls = cls + _S + ITEM_NOT_BLANK
             }
             var sp = (cls.indexOf(CELL_EDITOR)!=-1) ? 5 : 2,
@@ -421,7 +427,7 @@ A.Grid = Ext.extend(A.Component,{
         	css=sf.parseCss(sf.renderRow(item,row)),
         	sb = ['<tr id="',sf.id,type,item.id,'" class="',(row % 2==0 ? _N : ROW_ALT),css.cls,'"','style="',css.style,'">'];
         for(var i=0,l=cols.length;i<l;i++){
-            sb.push(sf.createCell(cols[i],item, true))           
+            sb.push(sf.createCell(cols[i],item, TRUE))           
         }
         sb.push('</tr>');
         return sb.join(_N);
@@ -444,26 +450,26 @@ A.Grid = Ext.extend(A.Component,{
     },
     renderText : function(record,col,value){        
     	var renderer = col.renderer;
-        if(renderer){//&&!Ext.isEmpty(value)  去掉对value是否为空的判断
+        if(renderer){//&&!IS_EMPTY(value)  去掉对value是否为空的判断
             var rder = A.getRenderer(renderer);
-            if(rder == null){
+            if(rder == NULL){
                 alert(NOT_FOUND+renderer+METHOD)
                 return value;
             }
-            value = rder.call(window,value,record, col.name);
-            return value == null ? _N : value;
+            value = rder(value,record, col.name);
+            return value == NULL ? _N : value;
         }
-        return value == null ? _N : value;
+        return value == NULL ? _N : value;
     },
     renderRow : function(record,rowIndex){
-    	var renderer = this.rowrenderer,css=null;
+    	var renderer = this.rowrenderer,css=NULL;
         if(renderer){
             var rder = A.getRenderer(renderer);
-            if(rder == null){
+            if(rder == NULL){
                 alert(NOT_FOUND+renderer+METHOD)
                 return css;
             }
-            css = rder.call(window,record, rowIndex);
+            css = rder(record, rowIndex);
             return !css? _N : css;
         }
         return css ;
@@ -472,7 +478,7 @@ A.Grid = Ext.extend(A.Component,{
         var sb = ['<tr class="grid-hl">'];
         for(var i=0,l=cols.length;i<l;i++){
             var c = cols[i];
-            sb.push('<th ',DATA_INDEX,'="',c.name,'" style="height:0px;width:',c.hidden === true?0:c.width,PX,'"></th>');
+            sb.push('<th ',DATA_INDEX,'="',c.name,'" style="height:0px;width:',c.hidden === TRUE?0:c.width,PX,'"></th>');
         }
         sb.push('</tr>');
         return sb.join(_N);
@@ -494,22 +500,22 @@ A.Grid = Ext.extend(A.Component,{
     preLoad : function(){},
     onLoad : function(){
     	var sf = this;
-    	sf.isSelectAll = false;
+    	sf.isSelectAll = FALSE;
     	sf.clearDomRef();
     	sf.preLoad();
         var cb = sf.wrap.removeClass(GRID_SELECT_ALL).child(SELECT_DIV_ATYPE);
-        if(cb && sf.selectable && sf.selectionmodel==MULTIPLE)sf.setCheckBoxStatus(cb,false);
+        if(cb && sf.selectable && sf.selectionmodel==MULTIPLE)sf.setCheckBoxStatus(cb,FALSE);
         if(sf.lb)
         sf.renderLockArea();
         sf.renderUnLockAread();
-//        if(focus !== false) sf.focus.defer(10,sf);//获取数据后的获得焦点,会引起其他编辑器无法编辑
+//        if(focus !== FALSE) sf.focus.defer(10,sf);//获取数据后的获得焦点,会引起其他编辑器无法编辑
         sf.drawFootBar();
         A.Masker.unmask(sf.wb);
         sf.fireEvent(EVT_RENDER,sf)
     },
     clearDomRef : function(){
-    	this.selectlockTr = null;
-        this.selectUnlockTr = null;
+    	this.selectlockTr = NULL;
+        this.selectUnlockTr = NULL;
     },
     customize : function(){
         var path = location.pathname,
@@ -541,7 +547,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     onMouseWheel : function(e){
         e.stopEvent();
-        if(this.editing == true) return;
+        if(this.editing == TRUE) return;
     	var delta = e.getWheelDelta(),
     		ds = this.dataset;
         if(delta > 0){
@@ -560,10 +566,10 @@ A.Grid = Ext.extend(A.Component,{
 //        var columns = sf.lockColumns;
 //        for(var i=0,l=columns.length;i<l;i++){
 //            cols.add(columns[i]);
-//            if(columns[i].hidden !== true) v += columns[i].width;            
+//            if(columns[i].hidden !== TRUE) v += columns[i].width;            
 //        }
 //        sf.lockWidth = v;
-    	Ext.each(sf.dataset.data,function(d,i){
+    	EACH(sf.dataset.data,function(d,i){
     		sb.push(sf.createRow($L, i, cols, d));
     	},sf);
         sb.push('</TBODY></TABLE><DIV style="height:17px"></DIV>');
@@ -576,9 +582,9 @@ A.Grid = Ext.extend(A.Component,{
 //        var columns = sf.unlockColumns;
 //        for(var i=0,l=columns.length;i<l;i++){
 //            cols.add(columns[i]);
-//            if(columns[i].hidden !== true) v += columns[i].width;            
+//            if(columns[i].hidden !== TRUE) v += columns[i].width;            
 //        }
-        Ext.each(sf.dataset.data,function(d,i){
+        EACH(sf.dataset.data,function(d,i){
     		sb.push(sf.createRow($U, i, cols, d));
     	},sf);
         sb.push('</TBODY></TABLE>');
@@ -586,25 +592,25 @@ A.Grid = Ext.extend(A.Component,{
     },
     isOverSplitLine : function(x){
         var sf = this,v = 0,      
-        	isOver = false;
+        	isOver = FALSE;
         sf.overColIndex = -1;
-        Ext.each(sf.columns,function(c,i){
-            if(c.hidden !== true) v += c.width;
-            if(x < v+3 && x > v-3 && c.resizable != false){
-                isOver = true;
+        EACH(sf.columns,function(c,i){
+            if(c.hidden !== TRUE) v += c.width;
+            if(x < v+3 && x > v-3 && c.resizable != FALSE){
+                isOver = TRUE;
                 sf.overColIndex = i;
-                return false;
+                return FALSE;
             }
         });
         return isOver;
     },
     onRefresh : function(){
     	var sf = this;
-//        sf.onLoad(false);
+//        sf.onLoad(FALSE);
         sf.onLoad();
         if(sf.selectable){
         	var ds = sf.dataset;
-        	Ext.each(ds.selected,function(s){
+        	EACH(ds.selected,function(s){
         		sf.onSelect(ds,s);
         	})
         }
@@ -613,7 +619,7 @@ A.Grid = Ext.extend(A.Component,{
         var index = this.getDataIndex(r.id);
         if(index == -1)return;
         //if(r != this.selectRecord){
-            this.selectRow(index, false);
+            this.selectRow(index, FALSE);
         //}
     },
     isFunctionCol: function(t){
@@ -633,8 +639,8 @@ A.Grid = Ext.extend(A.Component,{
             ltr.id=sf.id+$L+record.id;
             ltr.className=cls;
             Ext.fly(ltr).set({style:css.style});
-            Ext.each(columns,function(col){
-                if(col.lock === true){
+            EACH(columns,function(col){
+                if(col.lock === TRUE){
                     var td = DOC.createElement(TD);
                     if(col.type == ROW_CHECK) {
                         Ext.fly(td).set({recordid:record.id,atype:GRID$ROWCHECK})
@@ -656,7 +662,7 @@ A.Grid = Ext.extend(A.Component,{
                         }
                         Ext.fly(td).set(data); 
                     }
-                    td.innerHTML = sf.createCell(col,record, false);
+                    td.innerHTML = sf.createCell(col,record, FALSE);
                     ltr.appendChild(td);
                 }
             });
@@ -682,17 +688,17 @@ A.Grid = Ext.extend(A.Component,{
         utr.id=sf.id+$U+record.id;
         utr.className=cls;
         Ext.fly(utr).set({style:css.style});
-        Ext.each(columns,function(col){
-            if(col.lock !== true){
+        EACH(columns,function(col){
+            if(col.lock !== TRUE){
                 var td = DOC.createElement(TD);
-                td.style.visibility=col.hidden === true ? HIDDEN : VISIBLE;
+                td.style.visibility=col.hidden === TRUE ? HIDDEN : VISIBLE;
                 td.style.textAlign=col.align||LEFT;
                 Ext.fly(td).set({
                     dataindex:col.name,
                     recordid:record.id,
                     atype:GRID_CELL
                 })
-                td.innerHTML = sf.createCell(col,record,false);
+                td.innerHTML = sf.createCell(col,record,FALSE);
                 utr.appendChild(td);
             }
         })
@@ -708,13 +714,13 @@ A.Grid = Ext.extend(A.Component,{
     	sf.setSelectStatus(record);
     },
     renderEditor : function(div,record,c,editor){
-    	div.parent(TD).update(this.createCell(c,record,false));
+    	div.parent(TD).update(this.createCell(c,record,FALSE));
     	
     	/*
     	if(editor == _N){    	
     		div.removeClass(CELL_EDITOR);
     	}else if(editor != _N || ($(editor) instanceof A.CheckBox)){
-    		var cell = this.createCell(c,record,false);
+    		var cell = this.createCell(c,record,FALSE);
     		div.parent().update(cell)
     	}else{
             div.addClass(CELL_EDITOR);
@@ -735,7 +741,7 @@ A.Grid = Ext.extend(A.Component,{
                 div.update(sf.renderText(record,c,value));
             }
         }
-        Ext.each(sf.columns,function(c){
+        EACH(sf.columns,function(c){
             if(c.name != name) {
             	var ediv = Ext.get([sf.id,c.name,record.id].join(_));
             	if(ediv) {
@@ -756,7 +762,7 @@ A.Grid = Ext.extend(A.Component,{
         if(c){
             var div = Ext.get([this.id,name,record.id].join(_));
             if(div) {
-                if(valid == false){
+                if(valid == FALSE){
                     div.addClass(ITEM_INVALID);
                 }else{
                     div.removeClass([ITEM_NOT_BLANK,ITEM_INVALID]);
@@ -782,7 +788,7 @@ A.Grid = Ext.extend(A.Component,{
         if(type == REQUIRED){
            var div = Ext.get([this.id,field.name,record.id].join(_));
            if(div) {
-               div[value==true?'addClass':'removeClass'](ITEM_NOT_BLANK);
+               div[value==TRUE?'addClass':'removeClass'](ITEM_NOT_BLANK);
            }
         }
     },
@@ -816,9 +822,9 @@ A.Grid = Ext.extend(A.Component,{
         cb.parent($GRID_ROWBOX).addClass(ITEM_CKB_SELF);
         if(cb){
 	        if(sf.selectionmodel==MULTIPLE) {
-	            sf.setCheckBoxStatus(cb, true);
+	            sf.setCheckBoxStatus(cb, TRUE);
 	        }else{
-	            sf.setRadioStatus(cb,true);
+	            sf.setRadioStatus(cb,TRUE);
 	            ds.locate((ds.currentPage-1)*ds.pagesize + ds.indexOf(record) + 1)
 	        }
             sf.setSelectStatus(record);
@@ -831,9 +837,9 @@ A.Grid = Ext.extend(A.Component,{
         cb.parent($GRID_ROWBOX).addClass(ITEM_CKB_SELF);
         if(cb){
 	        if(sf.selectionmodel==MULTIPLE) {
-	            sf.setCheckBoxStatus(cb, false);
+	            sf.setCheckBoxStatus(cb, FALSE);
 	        }else{
-	            sf.setRadioStatus(cb,false);
+	            sf.setRadioStatus(cb,FALSE);
 	        }
             sf.setSelectStatus(record);
         }
@@ -841,15 +847,15 @@ A.Grid = Ext.extend(A.Component,{
     onSelectAll : function(){
     	var sf = this;
     	sf.clearChecked();
-    	sf.isSelectAll = true;
-    	sf.isUnSelectAll = false;
+    	sf.isSelectAll = TRUE;
+    	sf.isUnSelectAll = FALSE;
     	sf.wrap.addClass(GRID_SELECT_ALL);
     },
     onUnSelectAll : function(){
     	var sf = this;
     	sf.clearChecked();
-    	sf.isSelectAll = false;
-    	sf.isUnSelectAll = true;
+    	sf.isSelectAll = FALSE;
+    	sf.isUnSelectAll = TRUE;
     	sf.wrap.removeClass(GRID_SELECT_ALL);
     },
     clearChecked : function(){
@@ -922,7 +928,7 @@ A.Grid = Ext.extend(A.Component,{
     		if(Ext.isIE || Ext.isIE9)span.parent().setStyle(TEXT_OVERFLOW,_N);
     		if(max > width){
     			max = width;
-    			return false
+    			return FALSE
     		}
     	});
     	max > w && sf.setColumnSize(name,max);
@@ -968,11 +974,11 @@ A.Grid = Ext.extend(A.Component,{
         var ed = col.editor||_N;
         if(col.editorfunction) {
             var ef = window[col.editorfunction];
-            if(ef==null) {
+            if(ef==NULL) {
                 alert(NOT_FOUND+col.editorfunction+METHOD) ;
-                return null;
+                return NULL;
             }
-            ed = ef.call(window,record,col.name)||_N;
+            ed = ef(record,col.name)||_N;
         }
         return ed;
     },
@@ -1021,13 +1027,13 @@ A.Grid = Ext.extend(A.Component,{
 	       			ed.move(xy[0],xy[1]);
                     ed.setHeight(p.getHeight()-5)
                     ed.setWidth(p.getWidth()-7);
-                    ed.isEditor = true;
-                    ed.isFireEvent = true;
-                    ed.isHidden = false;
+                    ed.isEditor = TRUE;
+                    ed.isFireEvent = TRUE;
+                    ed.isHidden = FALSE;
                     ed.focus();
-       				sf.editing = true;
+       				sf.editing = TRUE;
                     ed.on(EVT_SELECT,sf.onEditorSelect,sf);
-                    if(callback)callback.call(window,ed)
+                    if(callback)callback(ed)
 	                sf.fireEvent(EVT_EDITOR_SHOW, sf, ed, row, name, record);
        			}
             }).defer(10);
@@ -1053,70 +1059,87 @@ A.Grid = Ext.extend(A.Component,{
         //enter
         if(keyCode == 13) {
         	if(!(ced && ced.editor && ced.editor instanceof A.TextArea)){
-	            sf.showNextEditor();
+	            sf.showEditorBy(39);
         	}
         }else
         //tab
         if(keyCode == 9){
             e.stopEvent();
-            sf.showNextEditor();
+            sf.showEditorBy(e.shiftKey?37:39);
+        }else
+        //37-->left 38-->up 39-->right 40-->down
+        if(e.ctrlKey && (keyCode == 37||keyCode == 38 || keyCode == 39 || keyCode == 40)){
+        	sf.showEditorBy(keyCode);
+        	e.stopEvent();
         }
     },
-    showNextEditor : function(){
+    findEditorBy : function(dir){
+    	var sf = this,ced,ed;
+    	if((ced = sf.currentEditor) && (ed = ced.editor)){
+	    	var cls = sf.columns,
+	        	find = FALSE,
+	        	ds = sf.dataset,
+	            fname = ed.binder.name,r = ed.record,
+	            row = ds.data.indexOf(r),
+	            name=NULL,hasAutoAppend = FALSE,
+	            forward = TRUE,updown = FALSE,col;
+	        if(row!=-1){
+				if(dir == 37 || dir == 38){
+					cls = [].concat(cls).reverse();
+	           		forward = FALSE;
+				}
+	        	if(dir == 38 || dir == 40){
+					updown = TRUE;
+					col = sf.findColByName(fname);
+				}
+		        while(r){
+		        	if(!updown){
+			        	EACH(cls,function(col){
+				        	if(find){
+				        		if(col.hidden !=TRUE && sf.getEditor(col,r)!=_N){
+			                        name = col.name;
+			                        return FALSE;
+				                }
+				        	}else{
+				            	if(col.name == fname){
+				            		find = TRUE
+				                }
+				        	}
+				        });
+		        	}
+			        if(name){
+			        	return {
+			        		row : row,
+			        		name : name,
+			        		record : r
+			        	}	
+			        }
+			        r = ds.getAt(forward?++row:--row);
+			        if(forward && !r && !hasAutoAppend && sf.autoappend !== FALSE){
+		            	sf.hideEditor();
+		            	ds.create();
+		            	r = ds.getAt(row);
+		            	hasAutoAppend = TRUE;
+		            }
+		            if(updown && r && sf.getEditor(col,r)!=_N){
+	        			name = fname;
+			        }
+		        }
+	        }
+    	}
+        return NULL;
+    },
+    showEditorBy : function(dir){
     	var sf = this,
-        	ced = sf.currentEditor;
-        sf.hideEditor();
-        if(ced){
-        	var ed = ced.editor;
-        	if(ed){
-	            var callback = function(e){
-	                if(e instanceof A.Lov){
-	                    e.showLovWindow();
-	                }
-	            },
-            	ds = sf.dataset,
-                fname = ed.binder.name,r = ed.record,
-                row = ds.data.indexOf(r),name=null;
-	            if(row!=-1){
-	                var cls = sf.columns,
-	                	find = false,
-	                	editor;
-	                Ext.each(cls,function(col,i){
-	                	if(find){
-	                		if(col.hidden !=true){
-			                    editor = sf.getEditor(col,r);
-			                    if(editor!=_N){
-			                        name =  col.name;
-			                        return false;
-			                    }
-		                    }
-	                	}else{
-		                	if(col.name == fname){
-		                		find = true
-		                    }
-	                	}
-	                });
-	                if(name){
-	                    sf.fireEvent(EVT_CELL_CLICK, sf, row, name, r ,callback);
-	                }else{
-	                    var nr = ds.getAt(row+1);
-	                    if(!nr && sf.autoappend !== false){
-			            	ds.create();
-			            	nr = ds.getAt(row+1);
-			            }
-	                    if(nr){
-	                    	sf.selectRow(row+1);
-	                    	Ext.each(cls,function(col){
-	                    		if(sf.getEditor(col,nr)!=_N){
-	                                sf.fireEvent(EVT_CELL_CLICK, sf, row+1, col.name, nr ,callback);
-	                                return false;
-	                            }
-	                    	});
-	                    }
-	                }
-	            }
-	            sf.fireEvent(EVT_NEXT_EDITOR_SHOW,sf, row, name);
-        	}
+    		callback = function(e){
+//	                if(e instanceof A.Lov){
+//	                    e.showLovWindow();
+//	                }
+            },
+        	ed = sf.findEditorBy(dir);
+        if(ed){
+        	sf.hideEditor();
+        	sf.fireEvent(EVT_CELL_CLICK, sf, ed.row, ed.name, ed.record ,callback);	
         }
     },
     /**
@@ -1143,13 +1166,13 @@ A.Grid = Ext.extend(A.Component,{
         	ub = sf.ub,
         	sleft = ub.getScroll().left,
         	ll = 0, tw = 0, lw = 0 , lr;
-        Ext.each(sf.columns,function(c){
+        EACH(sf.columns,function(c){
         	if(c.name == name) {
 //          if(c.name && c.name.toLowerCase() == name.toLowerCase()) {
                 tw = c.width;
             }
-            if(c.hidden !== true){
-                if(c.lock === true){
+            if(c.hidden !== TRUE){
+                if(c.lock === TRUE){
                     lw += c.width;
                 }else{
                     if(tw==0) ll += c.width;
@@ -1174,7 +1197,7 @@ A.Grid = Ext.extend(A.Component,{
             var ed = ced.editor;
             if(ed){
 	            //ed.un('blur',sf.onEditorBlur, sf);
-//	            var needHide = true;
+//	            var needHide = TRUE;
 //	            if(ed.canHide){
 //	                needHide = ed.canHide();
 //	            }
@@ -1182,7 +1205,7 @@ A.Grid = Ext.extend(A.Component,{
 	        		var d = ced.focusCheckBox;
 		    		if(d){
 		    			d.setStyle(OUTLINE,NONE);
-		    			ced.focusCheckBox = null;
+		    			ced.focusCheckBox = NULL;
 		    		}
 	                ed.el.un(EVT_KEY_DOWN, sf.onEditorKeyDown,sf);
 	                ed.un(EVT_SELECT,sf.onEditorSelect,sf);
@@ -1190,9 +1213,10 @@ A.Grid = Ext.extend(A.Component,{
 //	                var ed = sf.currentEditor.editor;
 	                ed.move(-10000,-10000);
 	                ed.onBlur();
-	                ed.isFireEvent = false;
-	                ed.isHidden = true;
-	                sf.editing = false;
+	                ed.isFireEvent = FALSE;
+	                ed.isHidden = TRUE;
+	                sf.editing = FALSE;
+	                if(ed.collapse)ed.collapse();
 	            }
             }
         }
@@ -1240,7 +1264,7 @@ A.Grid = Ext.extend(A.Component,{
         if(atype==GRID$HEAD){
             var index = target.getAttributeNS(_N,DATA_INDEX),
             	col = sf.findColByName(index);
-            if(col && col.sortable === true){
+            if(col && col.sortable === TRUE){
             	if(ds.isModified()){
                     A.showInfoMessage('提示', '有未保存数据!');
                     return;
@@ -1253,7 +1277,7 @@ A.Grid = Ext.extend(A.Component,{
                     sf.currentSortTarget.removeClass([GRID_ASC,GRID_DESC]);
                 }
                 sf.currentSortTarget = d;
-                if(Ext.isEmpty(col.sorttype)) {
+                if(IS_EMPTY(col.sorttype)) {
                     col.sorttype = DESC
                     d.removeClass(GRID_ASC).addClass(GRID_DESC);
                     ot = DESC;
@@ -1331,7 +1355,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     onHeadMouseMove: function(e){
     	var sf = this;
-//      sf.draging = true
+//      sf.draging = TRUE
         e.stopEvent();
         sf.dragEnd = e.getXY()[0];
         var move = sf.dragEnd - sf.dragStart,
@@ -1344,7 +1368,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     onHeadMouseUp: function(e){
     	var sf = this;
-//      sf.draging = false;
+//      sf.draging = FALSE;
         Ext.get(DOC_EL).un(EVT_MOUSE_MOVE, sf.onHeadMouseMove, sf)
         	.un(EVT_MOUSE_UP, sf.onHeadMouseUp, sf);      
         sf.sp.hide();
@@ -1361,10 +1385,10 @@ A.Grid = Ext.extend(A.Component,{
     findColByName : function(name){
     	var r;
     	if(name){
-    		Ext.each(this.columns,function(c){
+    		EACH(this.columns,function(c){
     			if(c.name && c.name.toLowerCase() === name.toLowerCase()){
 	                r = c;
-	                return false;
+	                return FALSE;
 	            }
     		});
     	}
@@ -1390,9 +1414,9 @@ A.Grid = Ext.extend(A.Component,{
         if(sf.selectlockTr)sf.selectlockTr.addClass(ROW_SELECT);
         sf.focusRow(row);
         sf.selectRecord = record
-        if(locate!==false && r != null) {
+        if(locate!==FALSE && r != NULL) {
 //          sf.dataset.locate(r);
-            ds.locate.defer(5, ds,[r,false]);
+            ds.locate.defer(5, ds,[r,FALSE]);
         }
     },
     /**
@@ -1402,11 +1426,11 @@ A.Grid = Ext.extend(A.Component,{
      */
     setColumnSize : function(name, size){
         var sf = this,hth,bth,lw=0,uw=0;
-        Ext.each(sf.columns,function(c){
+        EACH(sf.columns,function(c){
             if(c.name && c.name === name){
-                if(c.hidden === true) return;
+                if(c.hidden === TRUE) return;
                 c.width = size;
-                if(c.lock !== true){                    
+                if(c.lock !== TRUE){                    
                     hth = sf.uh.child(SELECT_TH_DATAINDEX+name+_K);
                     bth = sf.ub.child(SELECT_TH_DATAINDEX+name+_K);                  
                 }else{                          
@@ -1415,8 +1439,8 @@ A.Grid = Ext.extend(A.Component,{
                     
                 }
             }
-            if(c.hidden !== true){
-            	c.lock !== true ? (uw += c.width) : (lw += c.width);
+            if(c.hidden !== TRUE){
+            	c.lock !== TRUE ? (uw += c.width) : (lw += c.width);
             }
         });
         sf.wrap.select(SELECT_TD_DATAINDEX+name+'] DIV.grid-cell').each(function(ce){
@@ -1455,17 +1479,17 @@ A.Grid = Ext.extend(A.Component,{
     drawFootBar : function(objs){
     	var sf = this;
     	if(!sf.fb) return;
-    	Ext.each([].concat(objs ? objs : sf.columns), function(obj) {
+    	EACH([].concat(objs ? objs : sf.columns), function(obj) {
     		var col = Ext.isString(obj) ? sf.findColByName(obj) : obj;
             if(col&&col.footerrenderer){
                 var fder = A.getRenderer(col.footerrenderer);
-                if(fder == null){
+                if(fder == NULL){
                     alert(NOT_FOUND+col.footerrenderer+METHOD)
                     return;
                 }
                 var name = col.name,
-                	v = fder.call(window,sf.dataset.data, name);
-            	if(!Ext.isEmpty(v)){
+                	v = fder(sf.dataset.data, name);
+            	if(!IS_EMPTY(v)){
                 	sf.fb.child(SELECT_TD_DATAINDEX+name+_K).update(v)
             	}
             }
@@ -1473,9 +1497,9 @@ A.Grid = Ext.extend(A.Component,{
     },
     syncSize : function(){
         var sf = this,lw = 0;
-        Ext.each(sf.columns,function(c){
-            if(c.hidden !== true){
-                if(c.lock === true){
+        EACH(sf.columns,function(c){
+            if(c.hidden !== TRUE){
+                if(c.lock === TRUE){
                     lw += c.width;
                 }
             }
@@ -1491,13 +1515,13 @@ A.Grid = Ext.extend(A.Component,{
     	var sf = this;
     	sf.lockColumns =[],sf.unlockColumns = [];
         sf.lockWidth = 0,sf.unlockWidth = 0;
-        Ext.each(sf.columns,function(c){
-            if(c.lock === true){
+        EACH(sf.columns,function(c){
+            if(c.lock === TRUE){
                 sf.lockColumns.add(c);
-                if(c.hidden !== true) sf.lockWidth += c.width;
+                if(c.hidden !== TRUE) sf.lockWidth += c.width;
             }else{
                 sf.unlockColumns.add(c);
-                if(c.hidden !== true) sf.unlockWidth += c.width;
+                if(c.hidden !== TRUE) sf.unlockWidth += c.width;
             }
         });
         sf.columns = sf.lockColumns.concat(sf.unlockColumns);
@@ -1510,9 +1534,9 @@ A.Grid = Ext.extend(A.Component,{
     showColumn : function(name){
         var col = this.findColByName(name);
         if(col){
-            if(col.hidden === true){
+            if(col.hidden === TRUE){
                 delete col.hidden;
-                col.forexport = true;
+                col.forexport = TRUE;
                 this.setColumnSize(name, col.hiddenwidth||col.width);
                 delete col.hiddenwidth;
 //              if(!Ext.isIE){
@@ -1534,9 +1558,9 @@ A.Grid = Ext.extend(A.Component,{
     hideColumn : function(name){
         var col = this.findColByName(name);
         if(col){
-            if(col.hidden !== true){
+            if(col.hidden !== TRUE){
                 col.hiddenwidth = col.width;
-                this.setColumnSize(name, 0, false);
+                this.setColumnSize(name, 0, FALSE);
 //              if(!Ext.isIE){
                 this.wrap.select(SELECT_TD_DATAINDEX+name+_K).hide();
 //                    var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
@@ -1545,8 +1569,8 @@ A.Grid = Ext.extend(A.Component,{
 //                        Ext.fly(td).hide();
 //                    }
 //              }
-                col.hidden = true;
-                col.forexport = false;
+                col.hidden = TRUE;
+                col.forexport = FALSE;
             }
         }       
     },
@@ -1559,7 +1583,7 @@ A.Grid = Ext.extend(A.Component,{
     	var sf = this,
     		cols = sf.columns,
     		lockNames = [],unLockNames=[];
-		Ext.each(name,function(n){
+		EACH(name,function(n){
     			col = sf.findColByName(n);
     		if(!col)return;
     		if(col.lock)lockNames.push(n);
@@ -1598,13 +1622,13 @@ A.Grid = Ext.extend(A.Component,{
 		var trs = parent.query(TR),t = Ext.fly(trs[0]).child('th[width=20]'),tds;
 		if(name)tds = parent.query(SELECT_DATAINDEX+name+_K)[0];
 		if (method == INSERT_AFTER){
-			tds = tds.nextSibling || null;
+			tds = tds.nextSibling || NULL;
 			index ++;
 		}else if(method == APPEND){
 			if(t) tds = t.dom;
 			index = -1;	
 		}
-		Ext.each(cols,function(c){
+		EACH(cols,function(c){
 			var	th = Ext.get(DOC.createElement(TH)),
 				td = Ext.get(trs[1].insertCell(index)),
 				w = c.width,n = c.name;
@@ -1617,7 +1641,7 @@ A.Grid = Ext.extend(A.Component,{
     }:function(cols,method,name,parent){
     	var html = [],html2=[],
     		tds = parent.query(method != APPEND?SELECT_DATAINDEX+name+_K:TR);
-		Ext.each(cols,function(c){
+		EACH(cols,function(c){
 			html.push('<th style="width:',c.width,PX,';" ',DATA_INDEX,'="',c.name,'"></th>');
 			html2.push('<td class="grid-hc" atype="grid.head" ',DATA_INDEX,'="',c.name,'"><div>',c.prompt,'</div></td>');
 		});
@@ -1651,7 +1675,7 @@ A.Grid = Ext.extend(A.Component,{
         		}
         	}
         	var lockCols = [],unLockCols=[];
-        	Ext.each(options,function(c){
+        	EACH(options,function(c){
 	    		var opt = Ext.apply(Ext.apply({},defaultColumnOptions),c),
 	    			col = sf.findColByName(opt.name);
 	    		if(col)return;
@@ -1669,13 +1693,13 @@ A.Grid = Ext.extend(A.Component,{
         			uname = sf.unlockColumns[0].name;
         		}else{
         			lmethod = APPEND;
-        			lname = null;
+        			lname = NULL;
         		}
 	        	sf.columns = cols.slice(0,index).concat(newCols).concat(cols.slice(index));
 	        	sf.classfiyColumns();
 	        	if(lockCols.length){
 	        		if(!sf.lht){
-		        		sf.lc = new Ext.Template("<DIV class='grid-la' atype='grid.lc' style='width:24px;'><DIV class='grid-lh' atype='grid.lh' unselectable='on' onselectstart='return false;' style='height:25px;'><TABLE cellSpacing='0' atype='grid.lht' cellPadding='0' border='0' style='width:25px'><TBODY><TR class='grid-hl'></TR><TR height=25></TR></TBODY></TABLE></DIV><DIV class='grid-lb' atype='grid.lb' style='width:100%;height:255px'></DIV></DIV>").insertAfter(sf.fs.dom,{},true); 
+		        		sf.lc = new Ext.Template("<DIV class='grid-la' atype='grid.lc' style='width:24px;'><DIV class='grid-lh' atype='grid.lh' unselectable='on' onselectstart='return false;' style='height:25px;'><TABLE cellSpacing='0' atype='grid.lht' cellPadding='0' border='0' style='width:25px'><TBODY><TR class='grid-hl'></TR><TR height=25></TR></TBODY></TABLE></DIV><DIV class='grid-lb' atype='grid.lb' style='width:100%;height:255px'></DIV></DIV>").insertAfter(sf.fs.dom,{},TRUE); 
 				        sf.lh = wp.child('div[atype=grid.lh]');
 				        sf.lb = wp.child('div[atype=grid.lb]');
 				        sf.lht = wp.child('table[atype=grid.lht]');
@@ -1692,7 +1716,7 @@ A.Grid = Ext.extend(A.Component,{
 	    		}
 	    		if(sf.lb)sf.lb.update(_N);
 	    		sf.ub.update(_N);
-	    		Ext.each(newCols,function(nc){
+	    		EACH(newCols,function(nc){
 		        	sf.setColumnSize(nc.name,nc.width)
 	    		});
 	    		sf.dataset.query();
@@ -1781,14 +1805,14 @@ A.Grid = Ext.extend(A.Component,{
 					'<td class="export-hc" style="width:222px;" atype="grid-type">',_lang['grid.export.column'],'</td>',
 					'</tr></tbody></table></div>',
 					'<div style="overflow:auto;height:200px;"><table cellSpacing="0" cellPadding="0" border="0"><tbody>'],
-					exportall = true;
-			Ext.each(sf.columns,function(c,i){
+					exportall = TRUE;
+			EACH(sf.columns,function(c,i){
 				if(!sf.isFunctionCol(c.type)){
-					if(exportall)exportall = c.forexport !==false;
+					if(exportall)exportall = c.forexport !==FALSE;
 					msg.push('<tr',(n+i)%2==0?_N:' class="',ROW_ALT,'"',
 					'><td class="',GRID_ROWBOX,'" style="width:22px;" ',
 					RECORD_ID,'="',i,'" atype="export.rowcheck"><center><div id="',
-					sf.id,__,i,'" class="',GRID_CKB,c.forexport === false?ITEM_CKB_U:ITEM_CKB_C,
+					sf.id,__,i,'" class="',GRID_CKB,c.forexport === FALSE?ITEM_CKB_U:ITEM_CKB_C,
 					'"></div></center></td><td><div class="',GRID_CELL,'" style="width:220px">',
 					c.prompt,c.hidden?'<div style="float:right;color:red">&lt;隐藏列&gt;</div>':_N,'</div></td></tr>');	
 				}else n++;
@@ -1802,19 +1826,19 @@ A.Grid = Ext.extend(A.Component,{
 		       	win2.body.un(EVT_CLICK,sf.onExportClick,sf);
 		       	win2.close();
 	    	});
-	    	return false;
-    	},null,null,300);
+	    	return FALSE;
+    	},NULL,NULL,300);
     	sf.exportwindow.body.on(EVT_CLICK,sf.onExportClick,sf);
     },
     initColumnPrompt : function(){
     	var sf = this;
     	if(!sf.isPromptInit){
-    		Ext.each(sf.columns,function(c){
+    		EACH(sf.columns,function(c){
     			if(!sf.isFunctionCol(c.type)){
     				c.prompt = c.name?sf.wrap.child('td.grid-hc'+SELECT_DATAINDEX+c.name+'] div').dom.innerHTML : (c.prompt||sf.dataset.getField(c.name).pro["prompt"]);
     			}
     		});
-    		sf.isPromptInit = true;
+    		sf.isPromptInit = TRUE;
     	}
     },
     onExportClick : function(e,t){
