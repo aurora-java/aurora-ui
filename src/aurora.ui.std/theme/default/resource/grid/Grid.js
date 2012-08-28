@@ -1139,7 +1139,9 @@ A.Grid = Ext.extend(A.Component,{
         	ed = sf.findEditorBy(dir);
         if(ed){
         	sf.hideEditor();
-        	sf.fireEvent(EVT_CELL_CLICK, sf, ed.row, ed.name, ed.record ,callback);	
+        	var row = ed.row,record = ed.record;
+        	sf.fireEvent(EVT_CELL_CLICK, sf, row, ed.name, record ,callback);	
+        	sf.fireEvent(EVT_ROW_CLICK, sf, row, record);
         }
     },
     /**
