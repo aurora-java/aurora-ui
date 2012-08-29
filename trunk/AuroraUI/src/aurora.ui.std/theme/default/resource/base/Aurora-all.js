@@ -7050,7 +7050,7 @@ $A.Lov = Ext.extend($A.TextField,{
         if(this.autocomplete){
         	var v=this.getRawValue(),view=this.autocompleteview,code = e.keyCode;
         	//if((code > 47 && code < 58) || (code > 64 && code < 91) || code == 8 || code == 46 || code == 13 || code == 32 || code == 16 || code == 17){
-	        if((code < 37 || code > 40)&&code != 13 && code !=27 && code != 9){
+	        if((code < 37 || code > 40)&&code != 13 && code !=27 && code != 9 && code!=17){
         		if(v.length >= this.autocompletesize){
 	        		var sf=this;
 	        		if(this.showCompleteId)clearTimeout(this.showCompleteId);
@@ -7111,6 +7111,10 @@ $A.Lov = Ext.extend($A.TextField,{
     	        }
             }
         }else{
+        	if(!e.ctrlKey && keyCode == 40){
+        		e.stopEvent();
+        		this.showLovWindow();
+        	}
             $A.Lov.superclass.onKeyDown.call(this,e);
         }
     },
