@@ -917,7 +917,8 @@ A.Grid = Ext.extend(A.Component,{
     	var sf = this,col = sf.findColByName(name);
     	if(!col || !col.autoadjust)return;
     	var th = sf.wrap.select('tr.grid-hl '+SELECT_TH_DATAINDEX+name+_K),
-    		w = Ext.fly(th.elements[0]).getWidth(),
+    		w = parseInt(th.elements[0].style.width),
+//            w = Ext.fly(th.elements[0]).getWidth(),
     		max = w,
     		margin = 12,
     		width = Math.min(sf.width - (sf.selectable?23:0) - 20,
