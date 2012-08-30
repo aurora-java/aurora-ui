@@ -1,7 +1,15 @@
 /**
- * HighchartsAdapter -> AuroraAdapter
- * 
+ * @license Highcharts JS v2.3.0 (2012-08-24)
+ * MooTools adapter
+ *
+ * (c) 2010-2011 Torstein Hønsi
+ *
+ * License: www.highcharts.com/license
  */
+
+// JSLint options:
+/*global Fx, $, $extend, $each, $merge, Events, Event, DOMEvent */
+
 (function () {
 
 var win = window,
@@ -11,11 +19,8 @@ var win = window,
 	legacyEvent = legacy || mooVersion === '1.3', // In versions 1.1 - 1.3 the event class is named Event, in newer versions it is named DOMEvent.
 	$extend = win.$extend || function () {
 		return Object.append.apply(Object, arguments);
-	},
-	capitalize = function(w){
-    	return w.replace(/^./,w.charAt(0).toUpperCase());
-    };
-	
+	};
+
 win.AuroraAdapter = {
 	/**
 	 * Initialize the adapter. This is run once as Highcharts is first run.
@@ -63,6 +68,20 @@ win.AuroraAdapter = {
 		};
 		/*jslint unparam: false*/
 	},
+	
+	/**
+	 * Run a general method on the framework, following jQuery syntax
+	 * @param {Object} el The HTML element
+	 * @param {String} method Which method to run on the wrapped element
+	 */
+	adapterRun: function (el, method) {
+		
+		// This currently works for getting inner width and height. If adding
+		// more methods later, we need a conditional implementation for each.
+		if (method === 'width' || method === 'height') {
+			return parseInt($$(el).getStyle(method), 10);
+		}
+	},
 
 	/**
 	 * Downloads a script and executes a callback when done.
@@ -108,7 +127,7 @@ win.AuroraAdapter = {
 
 		// define and run the effect
 		effect = new Fx.Morph(
-			isSVGElement ? el : $_(el),
+			isSVGElement ? el : $$(el),
 			$extend({
 				transition: Fx.Transitions.Quad.easeInOut
 			}, options)
@@ -163,6 +182,13 @@ win.AuroraAdapter = {
 	grep: function (arr, fn) {
 		return arr.filter(fn);
 	},
+	
+	/**
+	 * Return the index of an item in an array, or -1 if not matched
+	 */
+	inArray: function (item, arr, from) {
+		return arr.indexOf(item, from);
+	},
 
 	/**
 	 * Deep merge two objects and return a third
@@ -193,7 +219,7 @@ win.AuroraAdapter = {
 	 * Get the offset of an element relative to the top left corner of the web page
 	 */
 	offset: function (el) {
-		var offsets = $_(el).getOffsets();
+		var offsets = $$(el).getOffsets();
 		return {
 			left: offsets.x,
 			top: offsets.y
@@ -208,7 +234,7 @@ win.AuroraAdapter = {
 		// like series or point
 		if (!el.addEvent) {
 			if (el.nodeName) {
-				el = $_(el); // a dynamically generated node
+				el = $$(el); // a dynamically generated node
 			} else {
 				$extend(el, new Events()); // a custom object
 			}
@@ -221,66 +247,72 @@ win.AuroraAdapter = {
 	 * @param {String} type Event type
 	 * @param {Function} fn Event handler
 	 */
-	addEvent: function(el, event, fn) {
-		var xel = Ext.get(el);
-		if (xel) {
-			xel.addListener(event, fn)
-		} else {
-			if (!el.addListener) {
-				Ext.apply(el, new Ext.util.Observable());
+	addEvent: function (el, type, fn) {
+		if (typeof type === 'string') { // chart broke due to el being string, type function
+
+			if (type === 'unload') { // Moo self destructs before custom unload events
+				type = 'beforeunload';
 			}
-			el.addListener(event, fn)
+
+			win.AuroraAdapter.extendWithEvents(el);
+
+			el.addEvent(type, fn);
 		}
-	}, 
+	},
 
-	removeEvent: function(el, event, fn) {
-        if (el.removeListener && el.purgeListeners) {
-            if (event && fn) {
-                el.removeListener(event, fn)
-            }
-            else {
-                el.purgeListeners();
-            }
-        }
-        else {
-            var xel = Ext.get(el);
-            if (xel) {
-                if (event && fn) {
-                    xel.removeListener(event, fn)
-                }
-                else {
-                    xel.purgeAllListeners();
-                }
-            }
-        }
-    },
+	removeEvent: function (el, type, fn) {
+		if (typeof el === 'string') {
+			// el.removeEvents below apperantly calls this method again. Do not quite understand why, so for now just bail out.
+			return;
+		}
+		
+		win.AuroraAdapter.extendWithEvents(el);
+		if (type) {
+			if (type === 'unload') { // Moo self destructs before custom unload events
+				type = 'beforeunload';
+			}
 
-	fireEvent: function(el, event, eventArguments, defaultFunction) {
-        var o = {
-            type: event,
-            target: el
-        }
-        if(Ext.isArray(eventArguments) && eventArguments.length){
-        	Ext.apply(o, eventArguments[0])
-        }else{
-        	Ext.apply(o, eventArguments)
-        }
-        // if fireEvent is not available on the object, there hasn't been added
-        // any events to it above
-        if (el.fireEvent) {
-            var fire = 'el.fireEvent(event, o';
-            if(eventArguments){
-	            for(var i = 1 ,l = eventArguments.length;i<l;i++){
-	            	fire += ',eventArguments['+i+']';
-	            }
-            }
-            fire+=')';
-            eval(fire);
-        }
+			if (fn) {
+				el.removeEvent(type, fn);
+			} else if (el.removeEvents) { // #958
+				el.removeEvents(type);
+			}
+		} else {
+			el.removeEvents();
+		}
+	},
 
-        // fire the default if it is passed and it is not prevented above
-        if (defaultFunction) defaultFunction(o);
-    },
+	fireEvent: function (el, event, eventArguments, defaultFunction) {
+		var eventArgs = {
+			type: event,
+			target: el
+		};
+		// create an event object that keeps all functions
+		event = legacyEvent ? new Event(eventArgs) : new DOMEvent(eventArgs);
+		event = $extend(event, eventArguments);
+		// override the preventDefault function to be able to use
+		// this for custom events
+		event.preventDefault = function () {
+			defaultFunction = null;
+		};
+		// if fireEvent is not available on the object, there hasn't been added
+		// any events to it above
+		if (el.fireEvent) {
+			el.fireEvent(event.type, event);
+		}
+
+		// fire the default if it is passed and it is not prevented above
+		if (defaultFunction) {
+			defaultFunction(event);
+		}
+	},
+	
+	/**
+	 * Set back e.pageX and e.pageY that MooTools has abstracted away
+	 */
+	washMouseEvent: function (e) {
+		return e.event || e;
+	},
 
 	/**
 	 * Stop running animations on the object
@@ -289,14 +321,7 @@ win.AuroraAdapter = {
 		if (el.fx) {
 			el.fx.cancel();
 		}
-	},
-	adapterRun : function (el, method) {
-		return Ext.get(el)['get'+capitalize(method)]();
-	},
-	washMouseEvent : function (e) {
-		e.pageX = e.xy?e.xy[0]:e.page.x;
-		e.pageY = e.xy?e.xy[1]:e.page.y;
-		return e;
 	}
 };
+
 }());
