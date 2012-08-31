@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v2.3.0 (2012-08-24)
+ * @license Highcharts JS v2.3.1 (2012-08-24)
  * MooTools adapter
  *
  * (c) 2010-2011 Torstein Hønsi
@@ -79,7 +79,7 @@ win.AuroraAdapter = {
 		// This currently works for getting inner width and height. If adding
 		// more methods later, we need a conditional implementation for each.
 		if (method === 'width' || method === 'height') {
-			return parseInt($$(el).getStyle(method), 10);
+			return parseInt($_(el).getStyle(method), 10);
 		}
 	},
 
@@ -127,7 +127,7 @@ win.AuroraAdapter = {
 
 		// define and run the effect
 		effect = new Fx.Morph(
-			isSVGElement ? el : $$(el),
+			isSVGElement ? el : $_(el),
 			$extend({
 				transition: Fx.Transitions.Quad.easeInOut
 			}, options)
@@ -219,7 +219,7 @@ win.AuroraAdapter = {
 	 * Get the offset of an element relative to the top left corner of the web page
 	 */
 	offset: function (el) {
-		var offsets = $$(el).getOffsets();
+		var offsets = $_(el).getOffsets();
 		return {
 			left: offsets.x,
 			top: offsets.y
@@ -234,7 +234,7 @@ win.AuroraAdapter = {
 		// like series or point
 		if (!el.addEvent) {
 			if (el.nodeName) {
-				el = $$(el); // a dynamically generated node
+				el = $_(el); // a dynamically generated node
 			} else {
 				$extend(el, new Events()); // a custom object
 			}
@@ -311,7 +311,9 @@ win.AuroraAdapter = {
 	 * Set back e.pageX and e.pageY that MooTools has abstracted away
 	 */
 	washMouseEvent: function (e) {
-		return e.event || e;
+		e.pageX = e.page.x;
+		e.pageY = e.page.y;
+		return e;
 	},
 
 	/**

@@ -10457,7 +10457,7 @@ Chart.prototype = {
 	 * Clean up memory usage
 	 */
 	destroy: function () {
-		delete $A.CmpManager.cache[this.options.id];
+		$A.CmpManager.remove(this.options.id);
 		this.processDataSetLiestener('un', this);
 		var chart = this,
 			axes = chart.axes,
