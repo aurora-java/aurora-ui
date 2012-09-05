@@ -6,6 +6,7 @@ Release ()
 * $A.doExport方法增加参数merge_columns
 * 修改Grid,使默认隐藏列不在导出列表内。改进removeColumn方法，删除列时不做查询。
 * Grid增加组合快捷键ctrl+上下左右
+* 新增QueryForm组件
 
 Release (2012-07-26)
 ------------------------------------

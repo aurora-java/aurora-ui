@@ -28,6 +28,7 @@
         <view-component elementName="dateTimePicker" category="Input" description="日期时间组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="box" category="Layout" description="box布局" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Box" />
         <view-component elementName="form" category="Layout" description="form布局" nameSpace="http://www.aurora-framework.org/application"  builder="aurora.presentation.component.std.Form" />
+        <view-component elementName="queryForm" category="Layout" description="queryForm布局" nameSpace="http://www.aurora-framework.org/application"  builder="aurora.presentation.component.std.QueryForm" />
         <view-component elementName="fieldSet" category="Layout" description="fieldSet布局" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.FieldSet" />
         <view-component elementName="vBox" category="Layout" description="垂直布局" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.VBox" />
         <view-component elementName="hBox" category="Layout" description="水平布局" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.HBox" />

@@ -25,6 +25,7 @@
 	<feature-attach elementName="table" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Table" />
 	<feature-attach elementName="dataSet" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.DataSet" />
 	<feature-attach elementName="form" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Form" />
+	<feature-attach elementName="queryForm" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.QueryForm" />
 	<feature-attach elementName="fieldSet" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.FieldSet" />
 	<feature-attach elementName="box" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Box" />
 	<feature-attach elementName="vBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.VBox" />
