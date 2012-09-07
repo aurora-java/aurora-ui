@@ -32,7 +32,7 @@ var HC = $A.Charts,//TODO:AURORA
 			downloadPNG: '导出成 PNG 格式',
 			downloadJPEG: '导出成 JPEG 格式',
 			downloadPDF: '导出成 PDF 格式',
-			downloadSVG: '导出成 SVG 格式',
+//			downloadSVG: '导出成 SVG 格式',
 			exportButtonTitle: '导出图表',
 			printButtonTitle: '打印图表'
 		}
@@ -120,14 +120,14 @@ defaultOptions.exporting = {
 						type: 'application/pdf'
 					});
 				}
-			}, {
+			}/*, {
 				textKey: 'downloadSVG',
 				onclick: function() {
 					this.exportChart({
 						type: 'image/svg+xml'
 					});
 				}
-			}/*, {
+			}, {
 				text: 'View SVG',
 				onclick: function() {
 					var svg = this.getSVG()
