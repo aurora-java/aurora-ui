@@ -1,6 +1,8 @@
 package aurora.tools;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -49,6 +51,7 @@ public class PatchAll {
 		list.add("lov/MultiLov.js");
 		list.add("textarea/TextArea.js");
 		list.add("base/Customization.js");
+		list.add("queryform/QueryForm.js");
 			
 		List csslist = new ArrayList();
 		csslist.add("base/Aurora.css");
@@ -81,7 +84,9 @@ public class PatchAll {
 		compressJs.add("chart/Chart.js");
 		compressJs.add("chart/Chart-more.js");
 		compressJs.add("chart/Exporting.js");
+		compressJs.add("accordion/Accordion.js");
 		compressJs.add("accordionmenu/AccordionMenu.js");
+		compressJs.add("menu/Menu.js");
 		List compressCss = new ArrayList();
 		compressCss.add(CSS_ALL);
 		compressCss.add("grid/Grid.css");
@@ -89,7 +94,9 @@ public class PatchAll {
 		compressCss.add("table/Table.css");
 		compressCss.add("tree/Tree.css");
 		compressCss.add("tab/Tab.css");
+		compressCss.add("accordion/Accordion.css");
 		compressCss.add("accordionmenu/AccordionMenu.css");
+		compressCss.add("menu/Menu.css");
 //		compressCss.add("upload/upload.css");
 		
 		List compressTouchJs = new ArrayList();
@@ -127,6 +134,15 @@ public class PatchAll {
         	File minFile = new File(file.getParentFile().getAbsolutePath(),minName);
         	String[] args = new String[]{file.getAbsolutePath(),"-o",minFile.getAbsolutePath(),"--type", type, "--charset","utf-8"};
         	main.invoke(null, new Object[]{args});	
+        	InputStream is = new FileInputStream(minFile);
+        	byte[] buf = new byte[1024];
+        	int begin,size=0;
+			while ((begin = is.read(buf)) != -1) {
+				size+=begin;
+			}
+			is.close();
+			//if("js".equals(type))
+				System.out.println(minFile.getName()+" : "+size+" bytes");
         }	
 	}
 	
@@ -137,6 +153,7 @@ public class PatchAll {
 	public void patchAllFile(List list,String dir, String dest) throws Exception {
 		List lines = new ArrayList();
 		Iterator it = list.iterator();
+//		boolean isJS = AURORA_ALL.equals(dest);
 		File current = new File(".");
 		while(it.hasNext()){
 			String name = (String)it.next();
@@ -148,6 +165,7 @@ public class PatchAll {
 		        	lineNum ++;
 		        	lines.add(line);
 				}
+//				if(isJS)lines.add(";");
 			}			
 		}
 		FileUtils.writeLines(new File(current, dir+dest), "UTF-8", lines);
