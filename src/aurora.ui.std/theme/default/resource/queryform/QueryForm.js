@@ -9,8 +9,9 @@ $A.QueryForm = Ext.extend($A.Component,{
 		var sf = this,body = sf.body;
 		if(sf.isopen)return;
 		sf.isopen = true;
+		sf.needShow = true;
 		sf.bodyWrap.setHeight(body.getHeight(),{
-			callback:function(){body.show();}
+			callback:function(){if(sf.needShow)body.show();}
 		});
 	},
 	close : function(){
@@ -18,6 +19,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 		if(!sf.isopen)return;
 		sf.isopen = false;
 		sf.body.hide();
+		sf.needShow = false;
 		sf.bodyWrap.setHeight(0,true);
 	},
 	trigger : function(){
