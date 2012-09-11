@@ -96,8 +96,8 @@ $A.Component = Ext.extend(Ext.util.Observable,{
             wd = Aurora.getViewportWidth();
             var v = wd-this.marginwidth;
             this.setWidth(v);
-            //TODO:中集特殊要求！
-//            this.setWidth(v < this.initConfig.width ? v : this.initConfig.width);
+            //非标准做法,中集特殊要求！
+            //this.setWidth(v < this.initConfig.width ? v : this.initConfig.width);
         }
     },
     isEventFromComponent:function(el){
