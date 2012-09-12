@@ -1,0 +1,120 @@
+.item-dateButton {	
+	BACKGROUND: url(../base/itembar.gif) no-repeat 2px -20px;	
+}
+.item-dateField {
+	text-align:center;
+	width:100%;
+	line-height:1.5em;
+	background-color:none;
+}
+.item-dateField-head,.item-dateField-caption,.item-dateField-foot{
+	LINE-HEIGHT: 17px;	
+	HEIGHT: 18px;
+}
+.item-dateField-caption,.item-dateField-foot{	
+	FONT-WEIGHT: bold;
+	background-image: url(../toolbar/toolbar_bg.gif);
+	background-repeat:repeat-x;
+	COLOR: #055a78;	
+}
+.item-dateField-caption{
+	border-bottom:1px solid #bababa;
+	text-align:center;
+}
+
+.item-dateField-foot{
+	border-top:1px solid #bababa;	
+}
+.item-dateField a{
+	color:#1e5494;
+}
+
+.item-dateField table{
+	width:100%;
+	border:0;
+}
+
+.item-dateField table thead{color:#acacac}
+
+.item-dateField table td {
+	/**font-size: 11px;**/
+	padding:1px;
+}
+.item-dateField-pre,.item-dateField-next,.item-dateField-preYear,.item-dateField-nextYear{
+	background-image:url(../toolbar/navigation.gif);
+	cursor:pointer;
+	width:16px;
+	height:16px;
+	top:3px;
+}
+.week-alt {
+	background-color:#f3f3ed;
+}
+.item-dateField-preYear {
+	background-position: 0 0px;
+	float: left;
+}
+.item-dateField-nextYear{
+	background-position: 0 -16px;
+	float: right;
+}
+.item-dateField-pre {
+	background-position: 0 -32px;
+	float: left;
+}
+.item-dateField-next{
+	background-position: 0 -48px;
+	float: right;
+}
+.item-dateField-close {
+	background-image:url(../tab/tab_close.gif);
+	background-position: -11px -23px;
+	cursor:pointer;
+	width:11px;
+	height:11px;
+	font-size: 0;
+}
+.item-dateField-input{
+	margin:1px;
+	height:13px;
+	line-height:13px;
+	border:1px solid #bababa;
+	background-color: #fff;
+}
+.item-dateField-input input,.item-dateField-input div{
+	border:0;
+	float:left;
+	height:13px;
+	line-height:13px;
+	vertical-align: bottom;
+	COLOR: #055a78;	
+	FONT-WEIGHT: bold;
+	background-color: transparent;
+	text-align: right;
+}
+.item-dateField-input-focus{
+	border-color:blue;
+	background-color:#e2f7ff;
+}
+.item-day-besides{
+	color:#ACACAC;
+}
+.item-day-disabled{
+	color:#BABABA;
+}
+.item-dateField td.onToday {
+	background-color:#FDAB00;
+	color:#fff;
+}
+.item-dateField td.dateover {
+	background-color:#8197bf;
+	cursor:pointer;
+}
+.item-dateField td.onSelect {
+	background-color:#6899FF;
+	color:#fff;
+}
+
+.item-dateField-head,.item-dateField-foot{  
+    background-color:#d2d7ea;
+}
