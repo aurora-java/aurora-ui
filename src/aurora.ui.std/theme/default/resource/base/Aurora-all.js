@@ -7891,7 +7891,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 		if(sf.isopen)return;
 		sf.isopen = true;
 		sf.bodyWrap.setHeight(body.getHeight(),{
-			callback:function(){body.show();}
+			callback:function(){if(sf.isopen)body.show();}
 		});
 	},
 	close : function(){
