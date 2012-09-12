@@ -16,12 +16,14 @@ import com.yahoo.platform.yui.compressor.YUICompressor;
 @SuppressWarnings("unchecked")
 public class PatchAll {
 	
-	private static final String RES_DIR = "src/aurora.ui.std/theme/default/resource/";
 	private static final String TOUCH_DIR = "src/aurora.ui.touch/theme/default/resource/";
 	private static final String AURORA_ALL= "base/Aurora-all.js";
 	private static final String CSS_ALL= "base/Aurora-all.css";
 	
+	private static final String THEME_DEFAULT_DIR = "src/aurora.ui.std/theme/default/resource/";
 	private static final String THEME_DARBLUE_DIR = "src/aurora.ui.std/theme/darkblue/resource/";
+	private static final String THEME_BLACK_DIR = "src/aurora.ui.std/theme/darkblue/resource/";
+	private static final String THEME_MAC_DIR = "src/aurora.ui.std/theme/darkblue/resource/";
 	private int lineNum = 0;
 	
 	public static void main(String[] args) throws Exception{
@@ -107,14 +109,28 @@ public class PatchAll {
 		compressTouchCss.add("base/touch-all.css");
 		
 		PatchAll pa = new PatchAll();
-		pa.patchAllFile(list,RES_DIR,AURORA_ALL);
-		pa.patchAllFile(csslist,RES_DIR,CSS_ALL);
-		pa.compressAllFiles(compressJs,RES_DIR,"js");
-		pa.compressAllFiles(compressCss,RES_DIR,"css");
+		pa.patchAllFile(list,THEME_DEFAULT_DIR,AURORA_ALL);
+		pa.patchAllFile(csslist,THEME_DEFAULT_DIR,CSS_ALL);
+		pa.patchAllFile(list,THEME_DARBLUE_DIR,AURORA_ALL);
+		pa.patchAllFile(csslist,THEME_DARBLUE_DIR,CSS_ALL);
+		pa.patchAllFile(list,THEME_BLACK_DIR,AURORA_ALL);
+		pa.patchAllFile(csslist,THEME_BLACK_DIR,CSS_ALL);
+		pa.patchAllFile(list,THEME_MAC_DIR,AURORA_ALL);
+		pa.patchAllFile(csslist,THEME_MAC_DIR,CSS_ALL);
+
+		pa.compressAllFiles(compressJs,THEME_DEFAULT_DIR,"js");
+		pa.compressAllFiles(compressCss,THEME_DEFAULT_DIR,"css");
+		pa.compressAllFiles(compressJs,THEME_DARBLUE_DIR,"js");
+		pa.compressAllFiles(compressCss,THEME_DARBLUE_DIR,"css");
+		pa.compressAllFiles(compressJs,THEME_BLACK_DIR,"js");
+		pa.compressAllFiles(compressCss,THEME_BLACK_DIR,"css");
+		pa.compressAllFiles(compressJs,THEME_MAC_DIR,"js");
+		pa.compressAllFiles(compressCss,THEME_MAC_DIR,"css");
+		
 		pa.compressAllFiles(compressTouchJs,TOUCH_DIR,"js");
 		pa.compressAllFiles(compressTouchCss,TOUCH_DIR,"css");
 		
-		pa.mergeCss();
+//		pa.mergeCss();
 //		System.out.println(pa.lineNum);
 	}
 	
@@ -129,20 +145,24 @@ public class PatchAll {
         while(it.hasNext()){
         	String dest = (String)it.next();
         	File file = new File(current, dir+dest);
-        	String name = file.getName();
-        	String minName = name.replaceAll("."+type, "")+"-min."+type;
-        	File minFile = new File(file.getParentFile().getAbsolutePath(),minName);
-        	String[] args = new String[]{file.getAbsolutePath(),"-o",minFile.getAbsolutePath(),"--type", type, "--charset","utf-8"};
-        	main.invoke(null, new Object[]{args});	
-        	InputStream is = new FileInputStream(minFile);
-        	byte[] buf = new byte[1024];
-        	int begin,size=0;
-			while ((begin = is.read(buf)) != -1) {
-				size+=begin;
-			}
-			is.close();
-			//if("js".equals(type))
-				System.out.println(minFile.getName()+" : "+size+" bytes");
+        	if(file!=null && file.exists()){
+	        	String name = file.getName();
+	        	String minName = name.replaceAll("."+type, "")+"-min."+type;
+	        	File minFile = new File(file.getParentFile().getAbsolutePath(),minName);
+	        	String[] args = new String[]{file.getAbsolutePath(),"-o",minFile.getAbsolutePath(),"--type", type, "--charset","utf-8"};
+	        	main.invoke(null, new Object[]{args});	
+	        	InputStream is = new FileInputStream(minFile);
+	        	byte[] buf = new byte[1024];
+	        	int begin,size=0;
+				while ((begin = is.read(buf)) != -1) {
+					size+=begin;
+				}
+				is.close();
+				//if("js".equals(type))
+					System.out.println(minFile.getName()+" : "+size+" bytes");
+        	}else{
+//        		System.out.println("File "+dir+dest+" is not exists!!");
+        	}
         }	
 	}
 	
@@ -157,8 +177,11 @@ public class PatchAll {
 		File current = new File(".");
 		while(it.hasNext()){
 			String name = (String)it.next();
-			File file = new File(current, dir+name);
-			if(file != null){
+			File file = new File(current, dir+name);file.exists();
+			if((null == file || !file.exists()) && !THEME_DEFAULT_DIR.equals(dir)){
+				file = new File(current, THEME_DEFAULT_DIR+name);
+			}
+			if(file != null && file.exists()){
 				List ls = FileUtils.readLines(file, "UTF-8");
 				for(int i=0;i<ls.size();i++) {
 		        	String line = ls.get(i).toString();
@@ -192,7 +215,7 @@ public class PatchAll {
 		File current = new File(".");
 		while(it1.hasNext()){
 			String dest = (String)it1.next();
-			File file = new File(current, RES_DIR+dest);
+			File file = new File(current, THEME_DEFAULT_DIR+dest);
 			File destFile = new File(current, THEME_DARBLUE_DIR+dest);
 			FileUtils.copyFile(file, destFile);
 		}
