@@ -22,8 +22,8 @@ public class PatchAll {
 	
 	private static final String THEME_DEFAULT_DIR = "src/aurora.ui.std/theme/default/resource/";
 	private static final String THEME_DARBLUE_DIR = "src/aurora.ui.std/theme/darkblue/resource/";
-	private static final String THEME_BLACK_DIR = "src/aurora.ui.std/theme/darkblue/resource/";
-	private static final String THEME_MAC_DIR = "src/aurora.ui.std/theme/darkblue/resource/";
+	private static final String THEME_BLACK_DIR = "src/aurora.ui.std/theme/black/resource/";
+	private static final String THEME_MAC_DIR = "src/aurora.ui.std/theme/mac/resource/";
 	private int lineNum = 0;
 	
 	public static void main(String[] args) throws Exception{
