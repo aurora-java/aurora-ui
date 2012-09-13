@@ -1,0 +1,111 @@
+.item-btn {
+    cursor:pointer;
+    white-space: nowrap;
+}
+.ext-ie .item-btn button {
+    width:1px;
+    /*padding-top:2px;*/
+}
+.ext-gecko .item-btn button{
+    padding-top:0;
+}
+.item-btn td {
+    padding:0 !important;
+}
+.item-btn button {
+    border:0 none;
+    background-color:transparent;
+    cursor:pointer;
+    margin:0px;
+    vertical-align: top;
+    overflow:visible;
+    /*padding-left:3px;
+    padding-right:3px;*/
+    -moz-outline:0 none;
+    outline:0 none;
+    width:auto !important;
+    width:1px;
+    color:#333;
+    white-space: nowrap;
+    text-align:center;
+    font-weight: bold;
+}
+.ext-ie6 button{
+    font-size:12px;
+}
+button div {
+    left: 0px;
+    /*position: relative;*/
+    top: 0px;
+}
+.item-btn em {
+    font-style:normal;
+    font-weight:normal;
+}
+ .item-btn-mr i, .item-btn-ml i{
+    font-size:1px;
+    line-height:1px;
+    width:10px;
+    display:block;
+    overflow:hidden;
+}
+
+.item-btn-ml{
+    width:10px;
+    background:no-repeat 0 0px;
+}
+.item-btn-mr{
+    width:10px;
+    background:no-repeat -10px 0px;
+}
+
+.item-btn-mc{
+    background:repeat-x 0 -22px;
+    vertical-align: middle;
+    text-align:center;
+    padding:0 5px;
+    cursor:pointer;
+    white-space:nowrap;
+}
+
+.ext-strict .ext-ie6 .item-btn-mc, .ext-strict .ext-ie7 .item-btn-mc {
+    height: 100%;
+}
+
+.item-btn-over .item-btn-ml{
+}
+
+.item-btn-over .item-btn-mr{
+}
+
+.item-btn-over .item-btn-mc{
+}
+
+.item-btn-pressed .item-btn-ml{
+}
+
+.item-btn-pressed .item-btn-mr{
+}
+
+.item-btn-pressed .item-btn-mc{
+}
+
+.item-btn-icon-text div {
+    background-position: 0px;
+    padding-left:20px;
+    background-repeat: no-repeat;
+}
+.item-btn-icon div {
+    background-position: 1px;
+    padding-left:16px;
+    background-repeat: no-repeat;
+}
+.item-btn-disabled *{
+    cursor:default !important;
+    color:#ccc;
+    -webkit-filter:grayscale();
+    filter:gray;
+}
+.item-btn-ml, .item-btn-mr, .item-btn-mc{
+    background-image:url(../button/btn.gif);
+}
