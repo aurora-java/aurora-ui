@@ -49,18 +49,20 @@ button div {
     display:block;
     overflow:hidden;
 }
-
+.item-btn-ml, .item-btn-mr{
+	width:10px;
+    background-repeat:no-repeat;	
+}
 .item-btn-ml{
-    width:10px;
-    background:no-repeat 0 0px;
+    background-position:0 0;
 }
 .item-btn-mr{
-    width:10px;
-    background:no-repeat -10px 0px;
+    background-position:0 -22px;
 }
 
 .item-btn-mc{
-    background:repeat-x 0 -22px;
+	background-repeat:repeat-x;
+    background-position:0 -44px;
     vertical-align: middle;
     text-align:center;
     padding:0 5px;
@@ -82,12 +84,15 @@ button div {
 }
 
 .item-btn-pressed .item-btn-ml{
+	 background-position:0 -66px;
 }
 
 .item-btn-pressed .item-btn-mr{
+	 background-position:0 -88px;
 }
 
 .item-btn-pressed .item-btn-mc{
+	 background-position:0 -110px;
 }
 
 .item-btn-icon-text div {
