@@ -555,28 +555,18 @@ button div {
 .item-btn-tl, .item-btn-tr, .item-btn-tc, .item-btn-ml, .item-btn-mr, .item-btn-mc, .item-btn-bl, .item-btn-br, .item-btn-bc{
     background-image:url(../button/btn.gif);
 }
+.item-tf-wrap .tl {
+    background:url(../textfield/ql.png) no-repeat;
+}
+.item-tf-wrap .tr {
+    background:url(../textfield/qr.png) no-repeat;
+}
 .item-textField {
-    border:0;  
-    height:17px;
-    line-height:16px;
-    padding:0;
-    padding-top:2px;  
+    border-width:0px; 
+    float:left; 
+    height:20px;
+    line-height:20px;
     width:100%;
-}
-.ext-ie6 .item-textField{
-    font-size:12px;
-}
-.item-notBlank, .item-notBlank .item-textField{
-	background:#fff9c2;
-}
-.item-emptyText .item-textField{
-	color:#bbb !important;
-}
-.item-readOnly, .item-readOnly .item-textField {
-	background:#DBDBDB;
-}
-.item-invalid, .item-invalid .item-textField{
-	background:#FFB9AC;
 }
 .item-numberField {
 	padding-right:3px;
