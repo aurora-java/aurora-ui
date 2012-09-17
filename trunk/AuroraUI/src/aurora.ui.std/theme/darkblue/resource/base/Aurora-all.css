@@ -385,9 +385,10 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     outline:0 none;
     width:auto !important;
     width:1px;
-    color:#333;
     white-space: nowrap;
     text-align:center;
+    color:#ffffff;
+	font-weight:bold;
 }
 .ext-ie6 button{
     font-size:12px;
@@ -650,10 +651,10 @@ button div {
 	BACKGROUND: url(../base/itembar.gif) no-repeat 2px -20px;	
 }
 .item-dateField {
-	background-color:#fff;
 	text-align:center;
 	width:100%;
 	line-height:1.5em;
+	background-color:none;
 }
 .item-dateField-head,.item-dateField-caption,.item-dateField-foot{
 	LINE-HEIGHT: 17px;	
@@ -755,12 +756,16 @@ button div {
 	color:#fff;
 }
 .item-dateField td.dateover {
-	background-color:#dfeaf5;
+	background-color:#8197bf;
 	cursor:pointer;
 }
 .item-dateField td.onSelect {
 	background-color:#6899FF;
 	color:#fff;
+}
+
+.item-dateField-head,.item-dateField-foot{  
+    background-color:#d2d7ea;
 }
 .item-toolbar {	
 	background-image: url(../toolbar/toolbar_bg.gif);	
@@ -853,11 +858,10 @@ button div {
 	padding-left:5px;
 	/**FONT-SIZE: 12px;**/ 
 	FLOAT: left; 
-	COLOR: #055a78;
 	overflow:hidden; 
 	height: 23px;
 	line-height:23px;
-	
+	color:#ffffff;
 }
 .win-caption-button {
     vertical-align:top;
@@ -917,7 +921,7 @@ button div {
     border-top:1px solid #ccc;
 }
 .item-lovButton {	
-	BACKGROUND: url(../base/itembar.gif) no-repeat 2px -42px;	
+	BACKGROUND: url(../base/itembar.gif) no-repeat 2px -38px;   
 }
 .autocomplete-head {
 	
@@ -956,29 +960,4 @@ button div {
 }
 .item-textarea.item-focus{
 	border:1px solid blue;
-}
-.item-btn button{
-	color:#ffffff;
-	font-weight:bold;
-}
-.form_head {
-    border-left:none;
-    color:#ffffff;
-    font-weight:bold;
-}
-.win-caption-label div {
-    color:#ffffff;
-    font-weight:bold;    
-}
-.item-lovButton {   
-    BACKGROUND: url(../base/itembar.gif) no-repeat 2px -38px;   
-}
-.week-alt {
-    background-color:none;
-}
-.item-dateField-head,.item-dateField-foot{  
-    background-color:#d2d7ea;
-}
-.item-dateField td.dateover {
-    background-color:#8197bf;
 }
