@@ -45,6 +45,18 @@
         <view-component elementName="htmlInclude" category="Template" description="htmlInclude标签" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.HTMLInclude" />
         <view-component elementName="comment" description="评论组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="screenBody" description="整体布局容器" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ScreenBody" />
+        <view-component elementName="popupScreen" description="窗口界面布局容器" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.PopupScreen" />
+        <view-component elementName="defaultScreen" description="普通界面布局容器" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.DefaultScreen" />
+        <view-component elementName="printableScreen" description="显示打印布局容器" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.PrintableScreen" />
+        <view-component elementName="wizardScreen" description="向导界面布局容器" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.WizardScreen" />
+        <view-component elementName="wizardToolbar" description="向导界面工具条" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.WizardToolbar" />
+        
+        <view-component elementName="queryToolbar" description="查询工具条" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.QueryToolbar" />
+        <view-component elementName="screenTopToolbar" description="页面级别顶部工具条" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ScreenTopToolbar" />
+        <view-component elementName="screenBottomToolbar" description="页面级别底部工具条" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ScreenBottomToolbar" />
+        
+        
+        
         <view-component elementName="chart" category="Chart" description="图表组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="graphic" category="Chart" description="图形组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="upload" category="Input" description="上传组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
