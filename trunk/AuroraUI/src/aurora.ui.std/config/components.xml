@@ -44,6 +44,7 @@
         <view-component elementName="repeater" category="Template" description="循环组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Repeater" />
         <view-component elementName="htmlInclude" category="Template" description="htmlInclude标签" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.HTMLInclude" />
         <view-component elementName="comment" description="评论组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="hotKey" description="热键" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.HotKey" />
         <view-component elementName="screenBody" description="整体布局容器" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ScreenBody" />
         <view-component elementName="popupScreen" description="窗口界面布局容器" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.PopupScreen" />
         <view-component elementName="defaultScreen" description="普通界面布局容器" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.DefaultScreen" />
