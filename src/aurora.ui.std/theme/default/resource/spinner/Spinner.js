@@ -7,24 +7,25 @@
  * @param {Object} config 配置对象. 
  */
 $A.Spinner = Ext.extend($A.TextField,{
-	constructor: function(config) {
-        $A.Spinner.superclass.constructor.call(this, config);
-    },
+//	constructor: function(config) {
+//        $A.Spinner.superclass.constructor.call(this, config);
+//    },
     initComponent : function(config){
-    	$A.Spinner.superclass.initComponent.call(this, config);
-    	this.step = Number(config.step||1);
-		this.max = Ext.isEmpty(config.max)?Number.MAX_VALUE:Number(config.max);
-		this.min = Ext.isEmpty(config.min)?-Number.MAX_VALUE:Number(config.min);
-		var decimal = String(this.step).split('.')[1];
-		this.decimalprecision = decimal?decimal.length:0;
-    	this.btn = this.wrap.child('div.item-spinner-btn');
+    	var sf = this;
+    	$A.Spinner.superclass.initComponent.call(sf, config);
+		sf.max = Ext.isEmpty(config.max)?Number.MAX_VALUE:Number(config.max);
+		sf.min = Ext.isEmpty(config.min)?-Number.MAX_VALUE:Number(config.min);
+		var decimal = String(sf.step = Number(config.step||1)).split('.')[1];
+		sf.decimalprecision = decimal?decimal.length:0;
+    	sf.btn = sf.wrap.child('div.item-spinner-btn');
     },
     processListener: function(ou){
-    	$A.Spinner.superclass.processListener.call(this, ou);
-    	this.btn[ou]('mouseover',this.onBtnMouseOver,this);
-    	this.btn[ou]('mouseout',this.onBtnMouseOut,this);
-    	this.btn[ou]('mousedown',this.onBtnMouseDown,this);
-    	this.btn[ou]('mouseup',this.onBtnMouseUp,this);
+    	var sf = this;
+    	$A.Spinner.superclass.processListener.call(sf, ou);
+    	sf.btn[ou]('mouseover',sf.onBtnMouseOver,sf)
+    		[ou]('mouseout',sf.onBtnMouseOut,sf)
+    		[ou]('mousedown',sf.onBtnMouseDown,sf)
+    		[ou]('mouseup',sf.onBtnMouseUp,sf);
     },
     onBtnMouseOver:function(e,t){
     	if(this.readonly)return;
@@ -37,12 +38,11 @@ $A.Spinner = Ext.extend($A.TextField,{
     },
     onBtnMouseDown:function(e,t){
     	if(this.readonly)return;
-    	var target = Ext.fly(t);
-    	target.addClass('spinner-select');
-		var isPlus = !!target.parent('.item-spinner-plus');
-		this.goStep(isPlus,function(){
-			var sf = this;
-	    	this.intervalId = setInterval(function(){
+    	var target = Ext.fly(t),
+			isPlus = !!target.addClass('spinner-select').parent('.item-spinner-plus'),
+			sf = this;
+		sf.goStep(isPlus,function(){
+	    	sf.intervalId = setInterval(function(){
 		    	clearInterval(sf.intervalId);
 	    		sf.intervalId = setInterval(function(){
 	    			sf.goStep(isPlus,null,function(){
@@ -53,11 +53,14 @@ $A.Spinner = Ext.extend($A.TextField,{
 		});
     },
     onBtnMouseUp : function(e,t){
-    	if(this.readonly)return;
-    	clearInterval(this.intervalId);
+    	var sf = this;
+    	if(sf.readonly)return;
     	Ext.fly(t).removeClass('spinner-select');
-    	this.setValue(this.tempValue);
-    	delete this.intervalId;
+    	if(sf.intervalId){
+	    	clearInterval(sf.intervalId);
+    		sf.setValue(sf.getRawValue());
+	    	delete sf.intervalId;
+    	}
     },
     /**
      * 递增
@@ -77,16 +80,19 @@ $A.Spinner = Ext.extend($A.TextField,{
     },
     goStep : function(isPlus,callback,callback2){
     	if(this.readonly)return;
-    	var n = Ext.isEmpty(this.tempValue) ? Number(this.getValue()||0) : this.tempValue;
-    	n += isPlus ? this.step : -this.step;
-    	var mod = this.toFixed(this.toFixed(n - this.min)%this.step);
-    	n = this.toFixed(n - (mod == this.step ? 0 : mod));
-    	if(n <= this.max && n >= this.min){
-    		this.setRawValue(n);
-	    	this.tempValue = n;
-    		if(callback)callback.call(this,n);
+    	var sf = this,tempValue = sf.tempValue,
+    		step = sf.step,
+    		min = sf.min,
+    		max = sf.max,
+    		n = Number(sf.getRawValue()||(isPlus?min-1:max+1))
+				+ (isPlus ? step : -step),
+    		mod = sf.toFixed(sf.toFixed(n - min)%step);
+    	n = sf.toFixed(n - (mod == step ? 0 : mod));
+    	if(n <= max && n >= min){
+    		sf.setRawValue(n);
+    		if(callback)callback.call(sf,n);
     	}else{
-    		if(callback2)callback2.call(this,n)
+    		if(callback2)callback2.call(sf,n)
     	}
     },
     toFixed : function(n){
@@ -94,9 +100,6 @@ $A.Spinner = Ext.extend($A.TextField,{
     },
     processValue : function(v){
     	if(Ext.isEmpty(v)||isNaN(v))return '';
-    	if(v > this.max)v = this.max;
-    	else if(v < this.min)v = this.min;
-    	//else v -= v%this.step;
-        return v;
+        return Math.max(Math.min(v,this.max),this.min);
     }
-})
+});
