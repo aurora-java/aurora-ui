@@ -3,7 +3,19 @@ $A.QueryForm = Ext.extend($A.Component,{
 		$A.QueryForm.superclass.initComponent(config);
 		var sf = this,wrap= sf.bodyWrap = sf.wrap.child('.form_body_wrap');
 		sf.body = wrap.first();
+		sf.searchField = $(sf.id + '_query');
 		if(!sf.isopen)sf.body.hide();
+	},
+	bind : function(ds){
+		if(Ext.isString(ds)){
+			ds = $(ds);
+		}
+		this.queryDataset = ds;
+	},
+	doSearch : function(){
+		//TODO
+		this.queryDataset.query();	
+		this.open();
 	},
 	open : function(){
 		var sf = this,body = sf.body;
@@ -15,12 +27,16 @@ $A.QueryForm = Ext.extend($A.Component,{
 	},
 	close : function(){
 		var sf = this;
-		if(!sf.isopen)return;
-		sf.isopen = false;
-		sf.body.hide();
-		sf.bodyWrap.setHeight(0,true);
+		if(sf.isopen){
+			sf.isopen = false;
+			sf.body.hide();
+			sf.bodyWrap.setHeight(0,true);
+		}
 	},
 	trigger : function(){
 		this[this.isopen?'close':'open']();
+	},
+	setSearchMapping : function(mapping){
+		this.mapping = mapping;
 	}
 });
