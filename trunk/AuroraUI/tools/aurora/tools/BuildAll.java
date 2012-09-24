@@ -92,6 +92,7 @@ public class BuildAll {
 	public static void main(String[] args) {
 		BuildAll ba = new BuildAll();
 		try {
+			ba.delete();
 			ba.buildSTD();
 			ba.buildResource();
 			ba.buildZip();
@@ -136,14 +137,14 @@ public class BuildAll {
 		direct.mkdirs();
 		String fileName = ZIP+ ".zip";//+ "-" +currentDate 
 		ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(new File(direct, fileName)));
-		writeZip(new File(BUILD_DIR, STD_DIR), zout);
-		writeZip(new File(BUILD_DIR, TOUCH_DIR), zout);
+		writeZip(new File(BUILD_DIR, STD_DIR), zout,BUILD_DIR);
+		writeZip(new File(BUILD_DIR, TOUCH_DIR), zout,BUILD_DIR);
 		zout.finish();
 
 		fileName = ZIP_RESOURCE+ ".zip";//+ "-" + currentDate 
-		zout = new ZipOutputStream(new FileOutputStream(new File(direct,
-				fileName)));
-		writeZip(new File(BUILD_DIR, RESOURCE_DIR), zout);
+		zout = new ZipOutputStream(new FileOutputStream(new File(direct,fileName)));
+		writeZip(new File(BUILD_DIR+RESOURCE_DIR,STD_DIR), zout,BUILD_DIR+RESOURCE_DIR);
+		writeZip(new File(BUILD_DIR+RESOURCE_DIR, TOUCH_DIR), zout,BUILD_DIR+RESOURCE_DIR);
 		zout.finish();
 	}
 //	private void buildJar() throws IOException{
@@ -153,6 +154,7 @@ public class BuildAll {
 	private void delete(){
 		deleteAll(new File(BUILD_DIR + STD_DIR));
 		deleteAll(new File(BUILD_DIR + TOUCH_DIR));
+		deleteAll(new File(BUILD_DIR + ZIP));
 		deleteAll(new File(BUILD_DIR + RESOURCE_DIR));
 	}
 	
@@ -161,6 +163,7 @@ public class BuildAll {
 			direct.delete();
 		}else{
 			File[] files=direct.listFiles();
+			if(files!=null)
 			for(int i=0;i<files.length;i++){
 				deleteAll(files[i]);
 			}
@@ -168,15 +171,15 @@ public class BuildAll {
 		}
 	}
 	
-	private void writeZip(File file, ZipOutputStream zout) throws IOException {
+	private void writeZip(File file, ZipOutputStream zout,String path) throws IOException {
 		File[] files = file.listFiles();
 		for (int i = 0; i < files.length; i++) {
 			if (files[i].isDirectory()) {
-				writeZip(files[i], zout);
+				writeZip(files[i], zout,path);
 			} else {
 				FileInputStream fis = new FileInputStream(files[i]);
 				zout.putNextEntry(new ZipEntry(files[i].getPath().substring(
-						BUILD_DIR.length())));
+						path.length())));
 				byte[] buf = new byte[1024];
 				int begin;
 				while ((begin = fis.read(buf)) != -1) {
