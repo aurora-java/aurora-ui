@@ -10,7 +10,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 		if(Ext.isString(ds)){
 			ds = $(ds);
 		}
-		this.queryDataset = ds;
+		this.qds = ds;
 	},
 	doSearch : function(){
 		var sf = this,
@@ -18,16 +18,16 @@ $A.QueryForm = Ext.extend($A.Component,{
 			queryhook = sf.queryhook,
 			queryfield = sf.queryfield;
 		if(input && (queryhook || queryfield)){
-			var value = input.value,
-			qds = sf.queryDataset;
+			var value = input.getValue(),
+				qds = sf.qds;
 			if(queryhook){
-				Ext.iterate(queryhook(value),function(key,value){
-					qds.setQueryParameter(key,value);
+				Ext.iterate(queryhook(value),function(key,v){
+					qds.setQueryParameter(key,v);
 				});
 			}else
 				qds.setQueryParameter(queryfield,value);
 			qds.query();	
-			this.open();
+			sf.open();
 		}
 	},
 	open : function(){
@@ -48,8 +48,9 @@ $A.QueryForm = Ext.extend($A.Component,{
 	},
 	trigger : function(){
 		this[this.isopen?'close':'open']();
-	},
-	setSearchMapping : function(mapping){
-		this.mapping = mapping;
 	}
+//	,
+//	setSearchMapping : function(mapping){
+//		this.mapping = mapping;
+//	}
 });
