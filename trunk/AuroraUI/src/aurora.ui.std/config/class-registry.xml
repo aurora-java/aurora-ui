@@ -49,6 +49,7 @@
     <feature-attach elementName="printableScreen" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.PrintableScreen"/>
     
     <feature-attach elementName="wizardToolbar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.WizardToolbar"/>
+    <feature-attach elementName="windowToolbar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.WindowToolbar"/>
     <feature-attach elementName="queryToolbar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.QueryToolbar"/>
     <feature-attach elementName="screenTopToolbar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ScreenTopToolbar"/>
     <feature-attach elementName="screenBottomToolbar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ScreenBottomToolbar"/>

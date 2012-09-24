@@ -51,6 +51,7 @@
         <view-component elementName="printableScreen" description="显示打印布局容器" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.PrintableScreen" />
         <view-component elementName="wizardScreen" description="向导界面布局容器" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.WizardScreen" />
         <view-component elementName="wizardToolbar" description="向导界面工具条" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.WizardToolbar" />
+        <view-component elementName="windowToolbar" description="window工具条" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.WindowToolbar" />
         
         <view-component elementName="queryToolbar" description="查询工具条" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.QueryToolbar" />
         <view-component elementName="screenTopToolbar" description="页面级别顶部工具条" category="Layout" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ScreenTopToolbar" />
