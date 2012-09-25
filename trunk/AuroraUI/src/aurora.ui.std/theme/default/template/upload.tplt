@@ -24,20 +24,22 @@ function ${id}(){
         file_size_limit: ${filesize}, //默认单位是KB,0表示无限制
         file_types:'${filetype}',
         file_queued_handler : function(file){
-            $('${id}_ds').create({
+            var record = new Aurora.Record({
                 file_id : file.id,
                 file_name : file.name,
                 file_size : file.size,
                 table_name: "${sourcetype}",
                 table_pk_value : ${pkvalue},
                 percent : 0
-            })
+            });
+            $('${id}_ds').add(record,0)
         },
         upload_success_handler : function(file, serverData, responseReceived) {
             var record = $('${id}_ds').find('file_id', file.id);
             if (record) {
                 if(serverData != '') record.set('attachment_id',serverData);
                 record.set('status', 1);
+                record.set('creation_time',new Date())
                 record.commit();
             }
             $('${id}').fireEvent("upload", this, ${pkvalue},'${sourcetype}');
