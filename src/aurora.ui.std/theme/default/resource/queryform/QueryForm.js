@@ -21,9 +21,10 @@ $A.QueryForm = Ext.extend($A.Component,{
 			var value = input.getValue(),
 				qds = sf.qds;
 			if(queryhook){
-				Ext.iterate(queryhook(value),function(key,v){
-					qds.setQueryParameter(key,v);
-				});
+				queryhook(value,qds);
+//				Ext.iterate(queryhook(value),function(key,v){
+//					qds.setQueryParameter(key,v);
+//				});
 			}else
 				qds.setQueryParameter(queryfield,value);
 			qds.query();	
