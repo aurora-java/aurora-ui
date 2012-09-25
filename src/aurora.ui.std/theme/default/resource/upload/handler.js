@@ -39,6 +39,9 @@ function processPercent(record,canDelete) {
 	if (Ext.isEmpty(percent) || status == 1) {
 		html += '<div style="float:left;margin-left:10px;color:#808080">'
 				+ formatFileSize(record.get('file_size'))
+                + '</div>'
+                + '<div style="float:left;margin-left:10px;color:#808080">'
+                + Aurora.formatDateTime(record.get('creation_time'))
 				+ '</div>'
                 + ((canDelete != false) ? '<a style="margin-left:5px;text-decoration:underline" href="javascript:deleteFileRecord(\''+id +'\','+ record.id + ')">[删除]</a>' : '');
 	} else if (percent == -1) {
@@ -57,7 +60,7 @@ function processPercent(record,canDelete) {
 function fileSizeRenderer(value, record, name) {
 	return formatFileSize(value)
 }
-function atmRenderer(value, record, name, canDelete) {
+function atmRenderer(value, record, name, canDelete) {debugger
     var ds = record.ds;
     var id = ds.id;
     var upid = id.replaceAll('_ds','');

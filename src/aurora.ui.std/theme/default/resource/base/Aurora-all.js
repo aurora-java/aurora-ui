@@ -1443,6 +1443,40 @@ $A.doExport=function(dataset,cols,mergeCols,generate_state){
        	form.submit();
        	Ext.fly(form).remove();	
 }
+
+
+$A.isChinese = function(value){
+	return /^[\u4E00-\u9FA5]+$/.test(value.trim());
+};
+$A.isLetter = function(value){
+	return /^[a-zA-Z]+$/.test(value.trim());
+}
+$A.isUpperCase = function(){
+	return /^[A-Z]+$/.test(value.trim());
+};
+$A.isLowerCase = function(){
+	return /^[a-z]+$/.test(value.trim());
+};
+$A.isNumber = function(value){
+	return Ext.isNumber(Number(value));
+};
+$A.isDate = function(){
+	var formats = [
+		'mm/dd/yyyy',
+		'yyyy-mm-dd'
+	];
+	return function(value){
+		if(!Ext.isString(value))return false;
+		for(var i = formats.length;i--;){
+			try{
+				value.parseDate(formats[i]);
+				return true;
+			}catch(e){
+			}
+		}
+		return false;
+	};
+}();
 /**
  * @class Aurora.DataSet
  * @extends Ext.util.Observable
@@ -2093,21 +2127,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     getCurrentRecord : function(){
         if(this.data.length ==0) return null;
         return this.data[this.currentIndex - (this.currentPage-1)*this.pagesize -1];
-    },
-    /**
-     * 插入数据. 
-     * @param {Number} index  指定位置. 
-     * @param {Array} records 需要新增的Record对象集合.
-     */
-    insert : function(index, records){
-        records = [].concat(records);
-        var splice = this.data.splice(index,this.data.length);
-        for(var i = 0, len = records.length; i < len; i++){
-            records[i].setDataSet(this);
-            this.data.add(records[i]);
-        }
-        this.data = this.data.concat(splice);
-        this.fireEvent("add", this, records, index);
     },
     /**
      * 移除数据.  
@@ -7886,32 +7905,54 @@ $A.QueryForm = Ext.extend($A.Component,{
 	initComponent:function(config){
 		$A.QueryForm.superclass.initComponent(config);
 		var sf = this,wrap= sf.bodyWrap = sf.wrap.child('.form_body_wrap');
-		sf.body = wrap.first();
-		sf.searchField = $(sf.id + '_query');
-		if(!sf.isopen)sf.body.hide();
+		if(wrap){
+			sf.body = wrap.first();
+			sf.hasbody = true;
+			if(!sf.isopen)sf.body.hide();
+		}
+		sf.searchInput = $(sf.id + '_query');
+		sf.rds = $(sf.resulttarget);
 	},
 	bind : function(ds){
 		if(Ext.isString(ds)){
 			ds = $(ds);
 		}
-		this.queryDataset = ds;
+		this.qds = ds;
 	},
 	doSearch : function(){
-		//TODO
-		this.queryDataset.query();	
-		this.open();
+		var sf = this,
+			input = sf.searchInput,
+			queryhook = sf.queryhook,
+			queryfield = sf.queryfield;
+		if(input && (queryhook || queryfield)){
+			var value = input.getValue(),
+				qds = sf.qds;
+			if(queryhook){
+				queryhook(value,qds);
+//				Ext.iterate(queryhook(value),function(key,v){
+//					qds.setQueryParameter(key,v);
+//				});
+			}else
+				qds.getCurrentRecord().set(queryfield,value);
+			sf.rds.query();	
+		}
 	},
 	open : function(){
-		var sf = this,body = sf.body;
-		if(sf.isopen)return;
+		var sf = this,body = sf.body,input = sf.searchInput;
+		if(sf.isopen && sf.hasbody)return;
+		input.readonly = true;
+		input.setValue('');
+		input.initStatus();
 		sf.isopen = true;
 		sf.bodyWrap.setHeight(body.getHeight(),{
 			callback:function(){if(sf.isopen)body.show();}
 		});
 	},
 	close : function(){
-		var sf = this;
-		if(sf.isopen){
+		var sf = this,input = sf.searchInput;
+		if(sf.isopen && sf.hasbody){
+			input.readonly = false;
+			input.initStatus();
 			sf.isopen = false;
 			sf.body.hide();
 			sf.bodyWrap.setHeight(0,true);
@@ -7919,8 +7960,9 @@ $A.QueryForm = Ext.extend($A.Component,{
 	},
 	trigger : function(){
 		this[this.isopen?'close':'open']();
-	},
-	setSearchMapping : function(mapping){
-		this.mapping = mapping;
 	}
+//	,
+//	setSearchMapping : function(mapping){
+//		this.mapping = mapping;
+//	}
 });

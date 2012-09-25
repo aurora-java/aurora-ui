@@ -650,21 +650,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         return this.data[this.currentIndex - (this.currentPage-1)*this.pagesize -1];
     },
     /**
-     * 插入数据. 
-     * @param {Number} index  指定位置. 
-     * @param {Array} records 需要新增的Record对象集合.
-     */
-    insert : function(index, records){
-        records = [].concat(records);
-        var splice = this.data.splice(index,this.data.length);
-        for(var i = 0, len = records.length; i < len; i++){
-            records[i].setDataSet(this);
-            this.data.add(records[i]);
-        }
-        this.data = this.data.concat(splice);
-        this.fireEvent("add", this, records, index);
-    },
-    /**
      * 移除数据.  
      * @param {Aurora.Record} record 需要移除的Record.
      */
