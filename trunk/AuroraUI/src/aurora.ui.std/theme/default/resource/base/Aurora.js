@@ -1443,3 +1443,37 @@ $A.doExport=function(dataset,cols,mergeCols,generate_state){
        	form.submit();
        	Ext.fly(form).remove();	
 }
+
+
+$A.isChinese = function(value){
+	return /^[\u4E00-\u9FA5]+$/.test(value.trim());
+};
+$A.isLetter = function(value){
+	return /^[a-zA-Z]+$/.test(value.trim());
+}
+$A.isUpperCase = function(){
+	return /^[A-Z]+$/.test(value.trim());
+};
+$A.isLowerCase = function(){
+	return /^[a-z]+$/.test(value.trim());
+};
+$A.isNumber = function(value){
+	return Ext.isNumber(Number(value));
+};
+$A.isDate = function(){
+	var formats = [
+		'mm/dd/yyyy',
+		'yyyy-mm-dd'
+	];
+	return function(value){
+		if(!Ext.isString(value))return false;
+		for(var i = formats.length;i--;){
+			try{
+				value.parseDate(formats[i]);
+				return true;
+			}catch(e){
+			}
+		}
+		return false;
+	};
+}();
