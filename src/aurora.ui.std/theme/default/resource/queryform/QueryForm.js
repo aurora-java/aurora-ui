@@ -2,9 +2,13 @@ $A.QueryForm = Ext.extend($A.Component,{
 	initComponent:function(config){
 		$A.QueryForm.superclass.initComponent(config);
 		var sf = this,wrap= sf.bodyWrap = sf.wrap.child('.form_body_wrap');
-		sf.body = wrap.first();
+		if(wrap){
+			sf.body = wrap.first();
+			sf.hasbody = true;
+			if(!sf.isopen)sf.body.hide();
+		}
 		sf.searchInput = $(sf.id + '_query');
-		if(!sf.isopen)sf.body.hide();
+		sf.rds = $(sf.resulttarget);
 	},
 	bind : function(ds){
 		if(Ext.isString(ds)){
@@ -26,22 +30,26 @@ $A.QueryForm = Ext.extend($A.Component,{
 //					qds.setQueryParameter(key,v);
 //				});
 			}else
-				qds.setQueryParameter(queryfield,value);
-			qds.query();	
-			sf.open();
+				qds.getCurrentRecord().set(queryfield,value);
+			sf.rds.query();	
 		}
 	},
 	open : function(){
-		var sf = this,body = sf.body;
-		if(sf.isopen)return;
+		var sf = this,body = sf.body,input = sf.searchInput;
+		if(sf.isopen && sf.hasbody)return;
+		input.readonly = true;
+		input.setValue('');
+		input.initStatus();
 		sf.isopen = true;
 		sf.bodyWrap.setHeight(body.getHeight(),{
 			callback:function(){if(sf.isopen)body.show();}
 		});
 	},
 	close : function(){
-		var sf = this;
-		if(sf.isopen){
+		var sf = this,input = sf.searchInput;
+		if(sf.isopen && sf.hasbody){
+			input.readonly = false;
+			input.initStatus();
 			sf.isopen = false;
 			sf.body.hide();
 			sf.bodyWrap.setHeight(0,true);
