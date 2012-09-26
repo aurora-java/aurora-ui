@@ -1451,10 +1451,10 @@ $A.isChinese = function(value){
 $A.isLetter = function(value){
 	return /^[a-zA-Z]+$/.test(value.trim());
 }
-$A.isUpperCase = function(){
+$A.isUpperCase = function(value){
 	return /^[A-Z]+$/.test(value.trim());
 };
-$A.isLowerCase = function(){
+$A.isLowerCase = function(value){
 	return /^[a-z]+$/.test(value.trim());
 };
 $A.isNumber = function(value){
