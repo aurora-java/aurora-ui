@@ -321,8 +321,10 @@ $A.Tree = Ext.extend($A.Component,{
 			this.showRoot = false;
 			rtnode = root;
 		}
-		Ext.each(array,function(a){
-        	process(a);
+		Ext.each(array,function(node){
+			if(node.children.length >0){
+        		process(node);
+			}
 		})
 		
 		this.sortChildren(rtnode.children,this.sequencefield);
