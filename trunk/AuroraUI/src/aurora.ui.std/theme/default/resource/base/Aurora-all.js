@@ -7927,13 +7927,15 @@ $A.QueryForm = Ext.extend($A.Component,{
 		if(input && (queryhook || queryfield)){
 			var value = input.getValue(),
 				qds = sf.qds;
-			if(queryhook){
-				queryhook(value,qds);
-//				Ext.iterate(queryhook(value),function(key,v){
-//					qds.setQueryParameter(key,v);
-//				});
-			}else
-				qds.getCurrentRecord().set(queryfield,value);
+			if(!sf.isopen){
+				if(queryhook){
+					queryhook(value,qds);
+	//				Ext.iterate(queryhook(value),function(key,v){
+	//					qds.setQueryParameter(key,v);
+	//				});
+				}else
+					qds.getCurrentRecord().set(queryfield,value);
+			}
 			sf.rds.query();	
 		}
 	},
@@ -7943,6 +7945,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 		input.readonly = true;
 		input.setValue('');
 		input.initStatus();
+		sf.qds.reset();
 		sf.isopen = true;
 		sf.bodyWrap.setHeight(body.getHeight(),{
 			callback:function(){if(sf.isopen)body.show();}
@@ -7953,6 +7956,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 		if(sf.isopen && sf.hasbody){
 			input.readonly = false;
 			input.initStatus();
+			sf.qds.reset();
 			sf.isopen = false;
 			sf.body.hide();
 			sf.bodyWrap.setHeight(0,true);
