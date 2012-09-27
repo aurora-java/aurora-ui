@@ -712,6 +712,7 @@ A.Grid = Ext.extend(A.Component,{
         	utb.insertBefore(utr,trs[row]);
         }
     	sf.setSelectStatus(record);
+        sf.drawFootBar();
     },
     renderEditor : function(div,record,c,editor){
     	div.parent(TD).update(this.createCell(c,record,FALSE));
