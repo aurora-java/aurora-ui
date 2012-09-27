@@ -285,3 +285,20 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     line-height:28px;
     height:30px;    
 }
+.screenTopToolbar {
+	border-bottom:1px solid #ccc;
+	background-color:#f5f5f5;
+}
+.screenTopToolbar div.sep {
+    font-size: 1px; 
+    border-right:1px solid #fff;
+    border-left:1px solid #ccc;
+    margin-left: 1px;
+    margin-right: 1px;  
+    background-repeat: no-repeat;
+    height: 100%;   
+    moz-user-select: none;
+}
+.screenTopToolbar .item-btn-tl,.screenTopToolbar .item-btn-tr,.screenTopToolbar .item-btn-tc,.screenTopToolbar .item-btn-ml,.screenTopToolbar .item-btn-mr,.screenTopToolbar .item-btn-mc,.screenTopToolbar .item-btn-bl,.screenTopToolbar .item-btn-br,.screenTopToolbar .item-btn-bc{
+    background-image:none;
+}
