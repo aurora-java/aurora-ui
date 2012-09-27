@@ -553,6 +553,11 @@ button div {
 .item-btn-pressed .item-btn-bc{
     background-position: 0 -22px;
 }
+.item-btn-icon-text-top div {
+    background-position-x: center;
+    padding-top:14px;
+    background-repeat: no-repeat;
+}
 .item-btn-icon-text div {
     background-position: 0px;
     padding-left:20px;
