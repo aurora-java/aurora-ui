@@ -133,9 +133,9 @@ A.Grid = Ext.extend(A.Component,{
     initComponent:function(config){
         A.Grid.superclass.initComponent.call(this, config);
     	var sf = this,
-        	wp = sf.wrap;
-        sf.wb = Ext.get(sf.id+'_wrap');
-        sf.fb = sf.wb.child('div[atype=grid.fb]');
+        	wp = sf.wrap,
+        	wb = sf.wb = Ext.get(sf.id+'_wrap');
+        sf.fb = wb.child('div[atype=grid.fb]');
         if(sf.fb){
             sf.uf = sf.fb.child('div[atype=grid.uf]');
         }
@@ -151,7 +151,7 @@ A.Grid = Ext.extend(A.Component,{
 
         sf.sp = wp.child('div[atype=grid.spliter]');
         Ext.getBody().insertFirst(sf.sp)
-        sf.fs = wp.child('a[atype=grid.focus]');
+//        sf.fs = wp.child('a[atype=grid.focus]');
         
         sf.classfiyColumns();
         sf.initTemplate();
@@ -162,10 +162,11 @@ A.Grid = Ext.extend(A.Component,{
         sf.wrap[ou]("mouseover", sf.onMouseOver, sf)
         	[ou]("mouseout", sf.onMouseOut, sf)
         	[ou](EVT_CLICK,sf.focus,sf);
-        if(!(sf.canwheel === FALSE)){
+        if(sf.canwheel !== FALSE){
         	sf.wb[ou]('mousewheel',sf.onMouseWheel,sf);
         }
-        sf.fs[ou](Ext.isOpera ? "keypress" : EVT_KEY_DOWN, sf.handleKeyDown,  sf);
+        sf.wb[ou](Ext.isOpera ? "keypress" : EVT_KEY_DOWN, sf.handleKeyDown,  sf)
+        	[ou]("keyup", sf.handleKeyUp,  sf);
         sf.ub[ou]('scroll',sf.syncScroll, sf)
         	[ou](EVT_CLICK,sf.onClick, sf)
         	[ou](EVT_DBLCLICK,sf.onDblclick, sf);
@@ -250,6 +251,11 @@ A.Grid = Ext.extend(A.Component,{
         if(sf.lb) sf.lb.dom.scrollTop = sf.ub.dom.scrollTop;
         if(sf.uf) sf.uf.dom.scrollLeft = sf.ub.dom.scrollLeft;
     },
+    handleKeyUp : function(e){
+		if(e.getKey() == 9){
+			this.showFirstEditor();
+    	}
+    },
     handleKeyDown : function(e){
         var sf = this,key = e.getKey(),ds = sf.dataset;
         if(e.ctrlKey&&e.keyCode == 86&&sf.canpaste){
@@ -270,7 +276,9 @@ A.Grid = Ext.extend(A.Component,{
                 });
             }
         }else{
-            if(key == 38 || key == 40 || key == 33 || key == 34) {
+        	if(key == 9){
+    			sf.showFirstEditor();
+        	}else if(key == 38 || key == 40 || key == 33 || key == 34) {
                 if(ds.loading == TRUE) return;
 //                var row;
                 switch(e.getKey()){
@@ -557,7 +565,7 @@ A.Grid = Ext.extend(A.Component,{
         }
     },
     focus: function(){    	
-        this.fs.focus();
+        this.wb.focus();
     },
     renderLockArea : function(){
         var sf = this,cols = sf.lockColumns,
@@ -1041,6 +1049,17 @@ A.Grid = Ext.extend(A.Component,{
             }).defer(10);
         }           
     },
+    showFirstEditor : function(){
+    	var sf = this,record = sf.dataset.data[0];
+    	EACH(sf.columns,function(col){
+    		if(col.hidden !=TRUE && sf.getEditor(col,record)!=_N){
+    			sf.fireEvent(EVT_CELL_CLICK, sf, 0, col.name, record,function(){});	
+        		sf.fireEvent(EVT_ROW_CLICK, sf, 0, record);
+                name = col.name;
+                return FALSE;
+            }
+        });
+    },
     onEditorSelect : function(){
 		(function(){this.hideEditor()}).defer(1,this);
     },
@@ -1077,8 +1096,8 @@ A.Grid = Ext.extend(A.Component,{
     },
     findEditorBy : function(dir){
     	var sf = this,ced,ed;
-    	if((ced = sf.currentEditor) && (ed = ced.editor)){
-	    	var cls = sf.columns,
+        if((ced = sf.currentEditor) && (ed = ced.editor)){
+	    	var	cls = sf.columns,
 	        	find = FALSE,
 	        	ds = sf.dataset,
 	            fname = ed.binder.name,r = ed.record,
@@ -1128,7 +1147,7 @@ A.Grid = Ext.extend(A.Component,{
 			        }
 		        }
 	        }
-    	}
+        }
         return NULL;
     },
     showEditorBy : function(dir){
@@ -1223,6 +1242,8 @@ A.Grid = Ext.extend(A.Component,{
 	                if(ed.collapse)ed.collapse();
 	            }
             }
+            //TODO
+//            sf.currentEditor = null;
         }
     },
     onEditorBlur : function(e,t){
@@ -1703,7 +1724,7 @@ A.Grid = Ext.extend(A.Component,{
 	        	sf.classfiyColumns();
 	        	if(lockCols.length){
 	        		if(!sf.lht){
-		        		sf.lc = new Ext.Template("<DIV class='grid-la' atype='grid.lc' style='width:24px;'><DIV class='grid-lh' atype='grid.lh' unselectable='on' onselectstart='return false;' style='height:25px;'><TABLE cellSpacing='0' atype='grid.lht' cellPadding='0' border='0' style='width:25px'><TBODY><TR class='grid-hl'></TR><TR height=25></TR></TBODY></TABLE></DIV><DIV class='grid-lb' atype='grid.lb' style='width:100%;height:255px'></DIV></DIV>").insertAfter(sf.fs.dom,{},TRUE); 
+		        		sf.lc = new Ext.Template("<DIV class='grid-la' atype='grid.lc' style='width:24px;'><DIV class='grid-lh' atype='grid.lh' unselectable='on' onselectstart='return false;' style='height:25px;'><TABLE cellSpacing='0' atype='grid.lht' cellPadding='0' border='0' style='width:25px'><TBODY><TR class='grid-hl'></TR><TR height=25></TR></TBODY></TABLE></DIV><DIV class='grid-lb' atype='grid.lb' style='width:100%;height:255px'></DIV></DIV>").insertFirst(sf.wrap.dom,{},TRUE); 
 				        sf.lh = wp.child('div[atype=grid.lh]');
 				        sf.lb = wp.child('div[atype=grid.lb]');
 				        sf.lht = wp.child('table[atype=grid.lht]');
