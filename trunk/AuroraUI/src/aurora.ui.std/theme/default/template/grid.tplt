@@ -1,10 +1,9 @@
-<TABLE class="${wrapClass}" id="${id}_wrap" style="${style}" cellSpacing="0" cellPadding="0" border="0">
+<TABLE tabIndex="${tabindex}" class="${wrapClass}" id="${id}_wrap" hidefocus style="outline:none;${style}" cellSpacing="0" cellPadding="0" border="0">
 <TBODY>
 	${toolBar}	
 	<TR>
 		<TD class="layout-td-cell">
 			<DIV class="item-grid" id="${id}" style="width:${width}px;height:${tableHeight}px;${gridstyle}">
-				<A atype="grid.focus" href="#" class="grid-fs" tabIndex="-1"></A>
 				${lockarea}
 				<DIV class="grid-ua" atype="grid.uc" style="width:${unlockwidth}px;">
 					<DIV class="grid-uh" unselectable="on" onselectstart="return false;" style="width:${unlockwidth}px;-moz-user-select:none;text-align:left;height:${headHeight}px;"  atype="grid.uh">
