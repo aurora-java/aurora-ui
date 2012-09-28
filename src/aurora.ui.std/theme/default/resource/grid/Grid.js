@@ -377,7 +377,7 @@ A.Grid = Ext.extend(A.Component,{
             }else{
                 cls = CELL_EDITOR;
             }
-        }else if(col.name && Ext.isDefined(record.getField(col.name).get(CHECKED_VALUE))){
+        }else if(col.name && !IS_EMPTY(record.getField(col.name).get(CHECKED_VALUE))){
     		xtype = CELL_CHECK;
     		readonly=TRUE;
         }
