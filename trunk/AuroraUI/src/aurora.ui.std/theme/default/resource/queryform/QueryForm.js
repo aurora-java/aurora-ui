@@ -31,7 +31,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 	//					qds.setQueryParameter(key,v);
 	//				});
 				}else
-					qds.getCurrentRecord().set(queryfield,value);
+					if(qds.getCurrentRecord())qds.getCurrentRecord().set(queryfield,value);
 			}
 			sf.rds.query();	
 		}

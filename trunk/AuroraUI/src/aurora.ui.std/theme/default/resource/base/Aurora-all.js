@@ -2801,7 +2801,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     reset : function(){
         var record=this.getCurrentRecord();
-        if(!record&&!record.fields)return;
+        if(!record || !record.fields)return;
         for(var c in record.fields){
             var v=record.fields[c].get('defaultvalue');
             if(v!=record.get(c))
@@ -7934,7 +7934,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 	//					qds.setQueryParameter(key,v);
 	//				});
 				}else
-					qds.getCurrentRecord().set(queryfield,value);
+					if(qds.getCurrentRecord())qds.getCurrentRecord().set(queryfield,value);
 			}
 			sf.rds.query();	
 		}
