@@ -3482,6 +3482,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 		this.initConfig=config;
 		this.isHidden = false;
 		this.isFireEvent = false;
+        this.hasFocus = false;
 		this.initComponent(config);
         this.initEvents();
     },
@@ -4104,12 +4105,12 @@ $A.Field = Ext.extend($A.Component,{
         this.applyEmptyText();
     },
     focus : function(){
-    	if(this.readonly) return;
+//    	if(this.readonly) return;
     	this.el.dom.focus();
     	this.fireEvent('focus', this);
     },
     blur : function(){
-    	if(this.readonly) return;
+//    	if(this.readonly) return;
     	this.el.blur();
     	this.fireEvent('blur', this);
     },
@@ -4312,8 +4313,8 @@ $A.Button = Ext.extend($A.Component,{
     	$A.Button.superclass.processListener.call(this,ou);
     	this.wrap[ou]("click", this.onClick,  this);
         this.wrap[ou]("mousedown", this.onMouseDown,  this);
-        this.el[ou]("focus",this.onMouseOver,this);
-        this.el[ou]("blur",this.onMouseOut,this);
+        this.el[ou]("focus",this.onFocus,this);
+        this.el[ou]("blur",this.onBlur,this);
         this.el[ou]("keydown",this.onKeyDown,this);
     },
     initEvents : function(){
@@ -4411,6 +4412,14 @@ $A.Button = Ext.extend($A.Component,{
         	e.stopEvent();
         	this.fireEvent("click", this, e);
     	}
+    },
+    onFocus : function(e){
+        this.hasFocus = true;
+        this.onMouseOver(e);
+    },
+    onBlur : function(e){
+        this.hasFocus = false;
+        this.onMouseOut(e)
     },
     onMouseOver: function(e){
     	if(!this.disabled)
@@ -6456,6 +6465,7 @@ $A.Window = Ext.extend($A.Component,{
     	}
         if(!this.modal) this.wrap[ou]("click", this.toFront, this);
     	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
+        this.wrap[ou]("keydown", this.onKeyDown,  this);
     	if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
     },
     initEvents : function(){
@@ -6480,6 +6490,28 @@ $A.Window = Ext.extend($A.Component,{
          * @param {Window} this 当前窗口.
          */
     	'load');    	
+    },
+    onKeyDown : function(e){
+        var key = e.getKey();
+        if(key == 9){
+            var fk,lk,ck,cmp
+            for(var key in this.cmps){
+                cmp = this.cmps[key];
+                if(!fk && cmp.focus){
+                    fk=key;
+                }
+                lk=key;
+                if(cmp.hasFocus){
+                    ck = key;
+                }
+            }
+            debugger
+            if(ck==lk){
+                e.stopEvent();
+                if(cmp.blur)cmp.blur();
+                this.cmps[fk].focus();
+            }
+        }
     },
     handleKeyDown : function(e){
 		e.stopEvent();

@@ -15,6 +15,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 		this.initConfig=config;
 		this.isHidden = false;
 		this.isFireEvent = false;
+        this.hasFocus = false;
 		this.initComponent(config);
         this.initEvents();
     },

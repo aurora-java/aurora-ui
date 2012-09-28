@@ -332,12 +332,12 @@ $A.Field = Ext.extend($A.Component,{
         this.applyEmptyText();
     },
     focus : function(){
-    	if(this.readonly) return;
+//    	if(this.readonly) return;
     	this.el.dom.focus();
     	this.fireEvent('focus', this);
     },
     blur : function(){
-    	if(this.readonly) return;
+//    	if(this.readonly) return;
     	this.el.blur();
     	this.fireEvent('blur', this);
     },

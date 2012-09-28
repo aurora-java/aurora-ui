@@ -161,7 +161,9 @@ A.Grid = Ext.extend(A.Component,{
     	A.Grid.superclass.processListener.call(sf, ou);
         sf.wrap[ou]("mouseover", sf.onMouseOver, sf)
         	[ou]("mouseout", sf.onMouseOut, sf)
-        	[ou](EVT_CLICK,sf.focus,sf);
+        	[ou](EVT_CLICK,sf.focus,sf)
+            [ou]("focus",sf.onFocus,sf)
+            [ou]("blur",sf.onBlur,sf);
         if(sf.canwheel !== FALSE){
         	sf.wb[ou]('mousewheel',sf.onMouseWheel,sf);
         }
@@ -566,6 +568,15 @@ A.Grid = Ext.extend(A.Component,{
     },
     focus: function(){    	
         this.wb.focus();
+    },
+    onFocus : function(){
+        this.hasFocus = true;
+    },
+    blur : function(){
+        this.wb.blur();
+    },
+    onBlur : function(){
+        this.hasFocus = false;
     },
     renderLockArea : function(){
         var sf = this,cols = sf.lockColumns,

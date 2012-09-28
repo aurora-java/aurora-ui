@@ -107,6 +107,7 @@ $A.Window = Ext.extend($A.Component,{
     	}
         if(!this.modal) this.wrap[ou]("click", this.toFront, this);
     	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
+        this.wrap[ou]("keydown", this.onKeyDown,  this);
     	if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
     },
     initEvents : function(){
@@ -131,6 +132,28 @@ $A.Window = Ext.extend($A.Component,{
          * @param {Window} this 当前窗口.
          */
     	'load');    	
+    },
+    onKeyDown : function(e){
+        var key = e.getKey();
+        if(key == 9){
+            var fk,lk,ck,cmp
+            for(var key in this.cmps){
+                cmp = this.cmps[key];
+                if(!fk && cmp.focus){
+                    fk=key;
+                }
+                lk=key;
+                if(cmp.hasFocus){
+                    ck = key;
+                }
+            }
+            debugger
+            if(ck==lk){
+                e.stopEvent();
+                if(cmp.blur)cmp.blur();
+                this.cmps[fk].focus();
+            }
+        }
     },
     handleKeyDown : function(e){
 		e.stopEvent();

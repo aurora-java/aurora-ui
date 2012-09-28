@@ -25,8 +25,8 @@ $A.Button = Ext.extend($A.Component,{
     	$A.Button.superclass.processListener.call(this,ou);
     	this.wrap[ou]("click", this.onClick,  this);
         this.wrap[ou]("mousedown", this.onMouseDown,  this);
-        this.el[ou]("focus",this.onMouseOver,this);
-        this.el[ou]("blur",this.onMouseOut,this);
+        this.el[ou]("focus",this.onFocus,this);
+        this.el[ou]("blur",this.onBlur,this);
         this.el[ou]("keydown",this.onKeyDown,this);
     },
     initEvents : function(){
@@ -124,6 +124,14 @@ $A.Button = Ext.extend($A.Component,{
         	e.stopEvent();
         	this.fireEvent("click", this, e);
     	}
+    },
+    onFocus : function(e){
+        this.hasFocus = true;
+        this.onMouseOver(e);
+    },
+    onBlur : function(e){
+        this.hasFocus = false;
+        this.onMouseOut(e)
     },
     onMouseOver: function(e){
     	if(!this.disabled)
