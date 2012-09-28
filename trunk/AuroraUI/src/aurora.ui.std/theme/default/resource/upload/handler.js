@@ -60,7 +60,7 @@ function processPercent(record,canDelete) {
 function fileSizeRenderer(value, record, name) {
 	return formatFileSize(value)
 }
-function atmRenderer(value, record, name, canDelete) {debugger
+function atmRenderer(value, record, name, canDelete) {
     var ds = record.ds;
     var id = ds.id;
     var upid = id.replaceAll('_ds','');

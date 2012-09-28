@@ -147,7 +147,7 @@ $A.Window = Ext.extend($A.Component,{
                     ck = key;
                 }
             }
-            debugger
+            
             if(ck==lk){
                 e.stopEvent();
                 if(cmp.blur)cmp.blur();
