@@ -7,6 +7,7 @@ Release ()
 * 修改Grid,使默认隐藏列不在导出列表内。改进removeColumn方法，删除列时不做查询。
 * Grid增加组合快捷键ctrl+上下左右
 * 新增QueryForm组件
+* 导出功能增加新类型txt和excel2007，导出按钮增加新属性fileName和separator。separator属性作为分隔符用于txt类型。
 
 Release (2012-07-26)
 ------------------------------------

@@ -1384,7 +1384,7 @@ $A.escapeHtml = function(str){
 	return String(str).replace(/&/gm,'&amp;')
 	.replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
 }
-$A.doExport=function(dataset,cols,mergeCols,generate_state){
+$A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_state){
 	var p={"parameter":{"_column_config_":{}}},columns=[],parentMap={},
     	_parentColumn=function(pcl,cl){
     		if(!(Ext.isDefined(pcl.forexport)?pcl.forexport:true))return null;
@@ -1411,7 +1411,9 @@ $A.doExport=function(dataset,cols,mergeCols,generate_state){
     	}
     	p["parameter"]["_column_config_"]["column"]=columns;
     	p["_generate_state"]=Ext.isEmpty(generate_state)?true:generate_state;
-    	p["_format"]="xls";
+    	p["_format"]=type||"xls";
+    	if(separator)p["separator"]=separator;
+    	if(filename)p["_file_name_"]=filename;
     	if(mergeCols){
     		var _merge_column_ = [];
     		Ext.each(mergeCols,function(item){
@@ -1447,19 +1449,19 @@ $A.doExport=function(dataset,cols,mergeCols,generate_state){
 
 $A.isChinese = function(value){
 	return /^[\u4E00-\u9FA5]+$/.test(value.trim());
-};
+}
 $A.isLetter = function(value){
 	return /^[a-zA-Z]+$/.test(value.trim());
 }
 $A.isUpperCase = function(value){
 	return /^[A-Z]+$/.test(value.trim());
-};
+}
 $A.isLowerCase = function(value){
 	return /^[a-z]+$/.test(value.trim());
-};
+}
 $A.isNumber = function(value){
 	return Ext.isNumber(Number(value));
-};
+}
 $A.isDate = function(){
 	var formats = [
 		'mm/dd/yyyy',
@@ -1475,5 +1477,5 @@ $A.isDate = function(){
 			}
 		}
 		return false;
-	};
+	}
 }();
