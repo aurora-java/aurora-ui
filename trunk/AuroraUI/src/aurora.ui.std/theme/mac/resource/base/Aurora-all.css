@@ -455,7 +455,7 @@ button div {
 }
 
 .item-btn-icon-text div {
-    background-position: 0px;
+    background-position: 3px;
     padding-left:20px;
     background-repeat: no-repeat;
 }
@@ -473,21 +473,34 @@ button div {
 .item-btn-ml, .item-btn-mr, .item-btn-mc{
     background-image:url(../button/btn.gif);
 }
-.item-tf-wrap .tl {
+.item-textField {
+    border:0;  
+    height:17px;
+    line-height:16px;
+    padding:0;
+    padding-top:2px;  
+    width:100%;
+}
+.ext-ie6 .item-textField{
+    font-size:12px;
+}
+.item-notBlank, .item-notBlank .item-textField{
+	background:#fff9c2;
+}
+.item-emptyText .item-textField{
+	color:#bbb !important;
+}
+.item-readOnly, .item-readOnly .item-textField {
+	background:#DBDBDB;
+}
+.item-invalid, .item-invalid .item-textField{
+	background:#FFB9AC;
+}
+.item-rtf .tl {
     background:url(../textfield/ql.png) no-repeat;
 }
-.item-tf-wrap .tr {
+.item-rtf .tr {
     background:url(../textfield/qr.png) no-repeat;
-}
-.item-textField {
-    border-width:0px; 
-    float:left; 
-    height:20px;
-    line-height:20px;
-    padding:0;
-    width:100%;
-
-            
 }
 .item-numberField {
 	padding-right:3px;

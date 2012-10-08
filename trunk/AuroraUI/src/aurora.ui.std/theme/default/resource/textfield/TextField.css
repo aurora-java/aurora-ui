@@ -21,3 +21,9 @@
 .item-invalid, .item-invalid .item-textField{
 	background:#FFB9AC;
 }
+.item-rtf .tl {
+    background:url(../textfield/ql.png) no-repeat;
+}
+.item-rtf .tr {
+    background:url(../textfield/qr.png) no-repeat;
+}
