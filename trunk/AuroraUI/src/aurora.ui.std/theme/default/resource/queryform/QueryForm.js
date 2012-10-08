@@ -61,6 +61,10 @@ $A.QueryForm = Ext.extend($A.Component,{
 	},
 	trigger : function(){
 		this[this.isopen?'close':'open']();
+	},
+	reset : function(){
+		this.searchInput.setValue('');
+		this.qds.reset();
 	}
 //	,
 //	setSearchMapping : function(mapping){
