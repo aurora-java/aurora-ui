@@ -4,6 +4,7 @@ $A.HotKey = function(){
 		SHIFT = 'SHIFT',
 		keys = {},
 		doc = Ext.get(document),
+		enable = true;
 		onKeyDown = function(e,t){
 			var key = e.keyCode;
 			if(key!=17 && key!=18 && key!=16){
@@ -20,11 +21,21 @@ $A.HotKey = function(){
 				handler = keys[bind.join('+').toUpperCase()];
 				if(handler){
 					e.stopEvent();
-					handler();
+					if(enable){
+						enable = false;
+						Ext.each(handler,function(fn){
+							fn();
+						});
+					}
 				}
 			}
-		},on = function(){
+		},
+		onKeyUp = function(){
+			enable = true;
+		},
+		on = function(){
 			doc.on('keydown',onKeyDown);
+			doc.on('keyup',onKeyUp);
 		};
 	on();
 	return {
@@ -38,12 +49,15 @@ $A.HotKey = function(){
 				key.push(SHIFT);
 			if(key.length < binds.length){
 				key.push(binds.pop());
-				keys[key.join('+')] = handler;
+				key = key.join('+');
+				keys[key] = keys[key]||[];
+				keys[key].push(handler);
 			}
 		},
 		on : on,
 		off : function(){
 			doc.un('keydown',onKeyDown);
+			doc.un('keyup',onKeyUp);
 			keys={};
 		}
 	}
