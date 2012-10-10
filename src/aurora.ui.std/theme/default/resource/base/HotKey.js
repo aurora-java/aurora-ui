@@ -24,7 +24,7 @@ $A.HotKey = function(){
 					if(enable){
 						enable = false;
 						Ext.each(handler,function(fn){
-							fn();
+							return fn();
 						});
 					}
 				}
