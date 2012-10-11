@@ -1231,7 +1231,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(selected) items = this.getSelected();
         for(var i=0,l=items.length;i<l;i++){
             var r = items[i];
-            var isAdd = r.dirty || r.isNew
+            var isAdd = r.dirty;
+//            var isAdd = r.dirty || r.isNew
             var d = Ext.apply({}, r.data);
             d['_id'] = r.id;
             d['_status'] = r.isNew ? 'insert' : 'update';
@@ -1708,7 +1709,7 @@ $A.Record.prototype = {
      * @return {Object}
      */
     getObject : function(){
-        return Ext.apply({},thi.data);
+        return Ext.apply({},this.data);
     },
     /**
      * 更新data数据.

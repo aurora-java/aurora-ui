@@ -125,6 +125,7 @@ $A.CmpManager = function(){
             			if(record){
                 			var name = Ext.fly(target).getAttributeNS("","dataindex"); 
                 			var field = record.getMeta().getField(name)
+                            if(!field)return;
                 		    var msg = record.valid[name] || field.get('tooltip');               			
         	        		if(Ext.isEmpty(msg))return;
         	        		$A.ToolTip.show(target, msg);
@@ -1479,3 +1480,4 @@ $A.isDate = function(){
 		return false;
 	}
 }();
+Aurora.isEmpty = Ext.isEmpty; 

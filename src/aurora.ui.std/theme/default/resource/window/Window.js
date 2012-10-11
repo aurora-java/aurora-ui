@@ -366,8 +366,8 @@ $A.Window = Ext.extend($A.Component,{
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
     	if(this.modal) $A.Cover.uncover(this.wrap);
-        this.clearBody();
     	$A.Window.superclass.destroy.call(this);
+        this.clearBody();
     	delete this.title;
     	delete this.head;
     	delete this.body;
