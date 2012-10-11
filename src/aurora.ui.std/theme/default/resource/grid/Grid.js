@@ -627,6 +627,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     onRefresh : function(){
     	var sf = this;
+    	sf.selectedId = NULL;
 //        sf.onLoad(FALSE);
         sf.onLoad();
         if(sf.selectable){

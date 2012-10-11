@@ -76,10 +76,10 @@ $A.Window = Ext.extend($A.Component,{
             urlAtt = 'url="'+sf.url+'"';
         }
         sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,url:urlAtt}, true);
+        sf.wrap.cmps = sf.cmps;
         sf.shadow = shadowTpl.insertFirst(document.body, {}, true);
         sf.shadow.setWidth(sf.wrap.getWidth());
         sf.shadow.setHeight(sf.wrap.getHeight());
-        sf.focusEl = sf.wrap.child('a[atype=win.focus]')
     	sf.title = sf.wrap.child('div[atype=window.title]');
     	sf.head = sf.wrap.child('td[atype=window.head]');
     	sf.body = sf.wrap.child('div[atype=window.body]');
@@ -106,7 +106,6 @@ $A.Window = Ext.extend($A.Component,{
     	   this.closeBtn[ou]("mousedown", this.onCloseDown,  this);
     	}
         if(!this.modal) this.wrap[ou]("click", this.toFront, this);
-    	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
         this.wrap[ou]("keydown", this.onKeyDown,  this);
     	if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
     },
@@ -153,12 +152,8 @@ $A.Window = Ext.extend($A.Component,{
                 if(cmp.blur)cmp.blur();
                 this.cmps[fk].focus();
             }
-        }
-    },
-    handleKeyDown : function(e){
-		e.stopEvent();
-		var key = e.getKey();
-		if(key == 27){
+        }else if(key == 27){
+			e.stopEvent();
 			this.close();
 		}
     },
@@ -170,7 +165,7 @@ $A.Window = Ext.extend($A.Component,{
      * 
      */
     focus: function(){
-		this.focusEl.focus();
+		this.wrap.focus();
 	},
 	/**
      * 窗口居中.
@@ -217,7 +212,7 @@ $A.Window = Ext.extend($A.Component,{
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap" style="left:-1000px;top:-1000px;width:{width}px;" cellSpacing="0" cellPadding="0" border="0" {url}>',
+            '<TABLE class="win-wrap" style="left:-1000px;top:-1000px;width:{width}px;outline:none" cellSpacing="0" cellPadding="0" hideFocus tabIndex="-1" border="0" {url}>',
 			'<TBODY>',
 			'<TR style="height:23px;" >',
 				'<TD class="win-caption">',
@@ -225,7 +220,7 @@ $A.Window = Ext.extend($A.Component,{
 						'<TBODY>',
 						'<TR>',
 							'<TD unselectable="on" class="win-caption-label" atype="window.head" width="99%">',
-								'<A atype="win.focus" href="#" class="win-fs" tabIndex="-1"></A><DIV unselectable="on" atype="window.title" unselectable="on">{title}</DIV>',
+								'<DIV unselectable="on" atype="window.title" unselectable="on">{title}</DIV>',
 							'</TD>',
 							'<TD unselectable="on" class="win-caption-button" noWrap>',
 								'<DIV class="win-close" atype="window.close" unselectable="on"></DIV>',
@@ -466,7 +461,7 @@ $A.Window = Ext.extend($A.Component,{
 //	    		}
 //	    	}
 	    	sf.fireEvent('load',sf)
-    	},this);
+    	},this.wrap);
     }
 });
 /**
