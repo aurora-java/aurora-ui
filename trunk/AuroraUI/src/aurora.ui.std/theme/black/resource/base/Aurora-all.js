@@ -125,6 +125,7 @@ $A.CmpManager = function(){
             			if(record){
                 			var name = Ext.fly(target).getAttributeNS("","dataindex"); 
                 			var field = record.getMeta().getField(name)
+                            if(!field)return;
                 		    var msg = record.valid[name] || field.get('tooltip');               			
         	        		if(Ext.isEmpty(msg))return;
         	        		$A.ToolTip.show(target, msg);
@@ -1479,6 +1480,7 @@ $A.isDate = function(){
 		return false;
 	}
 }();
+Aurora.isEmpty = Ext.isEmpty; 
 /**
  * @class Aurora.DataSet
  * @extends Ext.util.Observable
@@ -2712,7 +2714,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(selected) items = this.getSelected();
         for(var i=0,l=items.length;i<l;i++){
             var r = items[i];
-            var isAdd = r.dirty || r.isNew
+            var isAdd = r.dirty;
+//            var isAdd = r.dirty || r.isNew
             var d = Ext.apply({}, r.data);
             d['_id'] = r.id;
             d['_status'] = r.isNew ? 'insert' : 'update';
@@ -3189,7 +3192,7 @@ $A.Record.prototype = {
      * @return {Object}
      */
     getObject : function(){
-        return Ext.apply({},thi.data);
+        return Ext.apply({},this.data);
     },
     /**
      * 更新data数据.
@@ -4288,6 +4291,66 @@ $A.Link = Ext.extend($A.Component,{
         return url;
     }
 });
+$A.HotKey = function(){
+	var CTRL = 'CTRL',
+		ALT = 'ALT',
+		SHIFT = 'SHIFT',
+		keys = {},
+		doc = Ext.get(document),
+		enable = true;
+		onKeyDown = function(e,t){
+			var key = e.keyCode,bind = [],handler;
+			if(key!=16 && key!=17 && key!=18 ){
+				e.ctrlKey &&
+					bind.push(CTRL);
+				e.altKey &&
+					bind.push(ALT);
+				e.shiftKey &&
+					bind.push(SHIFT);
+				bind.push(String.fromCharCode(key));
+				handler = keys[bind.join('+').toUpperCase()];
+				if(handler){
+					e.stopEvent();
+					if(enable){
+						enable = false;
+						Ext.each(handler,function(fn){
+							return fn();
+						});
+					}
+				}
+			}
+		},
+		onKeyUp = function(){
+			enable = true;
+		},
+		pub = {
+			addHandler : function(bind,handler){
+				var binds = bind.toUpperCase().split('+'),key=[];
+				binds.indexOf(CTRL)!=-1 &&
+					key.push(CTRL);
+				binds.indexOf(ALT)!=-1 &&
+					key.push(ALT);
+				binds.indexOf(SHIFT)!=-1 &&
+					key.push(SHIFT);
+				if(key.length < binds.length){
+					key.push(binds.pop());
+					key = key.join('+');
+					(keys[key]||(keys[key] = [])).add(handler);
+				}
+			},
+			on : function(){
+				doc.on('keydown',onKeyDown)
+					.on('keyup',onKeyUp);
+			},
+			off : function(){
+				doc.un('keydown',onKeyDown)
+					.un('keyup',onKeyUp);
+				keys={};
+			}
+		};
+	pub.on();
+	return pub;
+}();
 /**
  * @class Aurora.Button
  * @extends Aurora.Component
@@ -6726,8 +6789,8 @@ $A.Window = Ext.extend($A.Component,{
     	if(!wrap)return;
     	if(this.proxy) this.proxy.remove();
     	if(this.modal) $A.Cover.uncover(this.wrap);
-        this.clearBody();
     	$A.Window.superclass.destroy.call(this);
+        this.clearBody();
     	delete this.title;
     	delete this.head;
     	delete this.body;

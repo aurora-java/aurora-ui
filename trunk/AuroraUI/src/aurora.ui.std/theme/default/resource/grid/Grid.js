@@ -437,6 +437,7 @@ A.Grid = Ext.extend(A.Component,{
         	css=sf.parseCss(sf.renderRow(item,row)),
         	sb = ['<tr id="',sf.id,type,item.id,'" class="',(row % 2==0 ? _N : ROW_ALT),css.cls,'"','style="',css.style,'">'];
         for(var i=0,l=cols.length;i<l;i++){
+            if(cols[i].hidden)continue;
             sb.push(sf.createCell(cols[i],item, TRUE))           
         }
         sb.push('</tr>');
@@ -488,6 +489,7 @@ A.Grid = Ext.extend(A.Component,{
         var sb = ['<tr class="grid-hl">'];
         for(var i=0,l=cols.length;i<l;i++){
             var c = cols[i];
+            if(c.hidden)continue;
             sb.push('<th ',DATA_INDEX,'="',c.name,'" style="height:0px;width:',c.hidden === TRUE?0:c.width,PX,'"></th>');
         }
         sb.push('</tr>');
@@ -935,7 +937,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     adjustColumn:function(name){
     	var sf = this,col = sf.findColByName(name);
-    	if(!col || !col.autoadjust)return;
+    	if(!col || !col.autoadjust || col.hidden)return;
     	var th = sf.wrap.select('tr.grid-hl '+SELECT_TH_DATAINDEX+name+_K),
     		w = parseInt(th.elements[0].style.width),
 //            w = Ext.fly(th.elements[0]).getWidth(),
@@ -1008,7 +1010,7 @@ A.Grid = Ext.extend(A.Component,{
      * @param {Number} row 行号
      * @param {String} name 当前列的name.
      */
-    showEditor : function(row, name,callback){   
+    showEditor : function(row, name,callback){
         if(row == -1)return;
         var sf = this,col = sf.findColByName(name);
         if(!col)return;
@@ -1046,8 +1048,10 @@ A.Grid = Ext.extend(A.Component,{
 	       		}else{
 	       			var p = dom.parent();
 	       			ed.move(xy[0],xy[1]);
-                    ed.setHeight(p.getHeight()-5)
-                    ed.setWidth(p.getWidth()-7);
+//                    ed.setHeight(p.getHeight()-5);
+//                    ed.setWidth(p.getWidth()-7);
+                    ed.setHeight(dom.getHeight()-2);
+                    ed.setWidth(dom.getWidth()-5);
                     ed.isEditor = TRUE;
                     ed.isFireEvent = TRUE;
                     ed.isHidden = FALSE;
@@ -1816,7 +1820,7 @@ A.Grid = Ext.extend(A.Component,{
 //              this.dataset.remove(r);
 //          }
         }
-        win.close();
+        //win.close();//window中showOkWindow导致2次close
     },
     remove: function(){
         var selected = this.dataset.getSelected();
