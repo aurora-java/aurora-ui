@@ -1365,8 +1365,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         for(var i=0,l=datas.length;i<l;i++){
             var data = datas[i];
             var r = this.findById(data['_id']);
+            if(!r) continue;
             if(r.isNew) this.totalCount ++;
-            if(!r) return;
             r.commit();
             for(var k in data){
                 var field = k;
