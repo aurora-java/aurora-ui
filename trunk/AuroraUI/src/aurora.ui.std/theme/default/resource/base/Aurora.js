@@ -735,8 +735,9 @@ $A.Cover = function(){
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight());
-			var p = '<DIV class="aurora-cover"'+(Ext.isIE6?' style="position:absolute;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;':'')+'" unselectable="on"></DIV>';
+			var p = '<DIV tabIndex="-1" class="aurora-cover"'+(Ext.isIE6?' style="position:absolute;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;':'')+'" unselectable="on" hideFocus></DIV>';
 			var cover = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
+			cover.on('focus',function(e){e.stopPropagation(); Ext.fly(el).focus()});
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
 //	    	Ext.getBody().setStyle('overflow','hidden');
 	    	$A.Cover.container[el.id] = cover;
