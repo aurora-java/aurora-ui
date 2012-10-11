@@ -52,6 +52,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	height:100%;
 	left:0;
 	top:0;
+	outline:none;
 }
 /**Item**/
 .item-clear{
