@@ -17,6 +17,7 @@
 .item-accordion-body {
 	overflow: auto;
 	border-top: 1px solid #BBBBBB;
+	outline:none;
 }
 .item-accordion-btn{
 	width:15px;

@@ -16,6 +16,7 @@
 	left:-10000px;
 	top:-10000px;
 	overflow: auto;
+	outline: none;
 }
 .item-tab-strip{
 	float: left;
