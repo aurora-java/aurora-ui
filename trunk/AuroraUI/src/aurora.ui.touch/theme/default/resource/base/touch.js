@@ -84,6 +84,7 @@ T.Masker = function(){
 T.Ajax = function(config){
     cmpCache[config.id] = this;
     delete config.id;
+    this.data = null;
 	this.options = {
 		type: 'POST',
 		dataType: 'json',
@@ -94,6 +95,14 @@ T.Ajax = function(config){
 }
 T.Ajax.timeout = 0;
 $.extend(T.Ajax.prototype,{
+	setData : function(data,method){
+		this.data = data;
+		if(method)
+		for(var i=0,length = data.length;i<length;i++){
+			data[i]['_status'] = method;
+		}
+		return this;
+	},
     addParameter : function(key,value){
         if($.isObject(key)){
             for(var c in key){
@@ -125,10 +134,11 @@ $.extend(T.Ajax.prototype,{
             	case 'boolean':data[key] =  data[key]=="true";
             }
         }
+        data = this.data?$.extend({'parameter':this.data},data):{
+            'parameter': data
+        }
         this.options.data = {
-            _request_data: JSON.stringify({
-                'parameter': data
-            })
+            _request_data: JSON.stringify(data)
         }
         this.xhr = $.ajax(this.options);
         return this;
@@ -495,7 +505,7 @@ T.List = function(config){
                 }else {
                     sf.wrap.html('未找到任何数据!');
                 }
-                if(config.callback) window[config.callback].call(window);
+                if(config.callback) window[config.callback]();
                 
             }
         }
@@ -534,11 +544,9 @@ $.extend(T.List.prototype,{
 		if(li){
 			var data = this.data[li.attr('dataindex')];
 			if(this.selected.indexOf(data) != -1){
-				this.unselect(data);
-				li.removeClass('selected')
+				this.unselect(data,li);
 			}else{
-				this.select(data);
-				li.addClass('selected')
+				this.select(data,li);
 			}
 		}
 	},
@@ -555,10 +563,12 @@ $.extend(T.List.prototype,{
 	select : function(data,li){
 		if(!this.selectable)return;
 		this.selected.push(data);
+		li.addClass('selected')
 	},
 	unselect : function(data,li){
 		if(!this.selectable)return;
 		this.selected.splice(this.selected.indexOf(data),1);
+		li.removeClass('selected')
 	},
 	getSelected : function(){
 		return this.selected;
