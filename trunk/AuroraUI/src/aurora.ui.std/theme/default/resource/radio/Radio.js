@@ -42,14 +42,14 @@ $A.Radio = Ext.extend($A.Component, {
             setTimeout(function(){
                 sf.fireEvent('enterdown', sf, e)
             },5);
-        }else if(keyCode==40){
+        }else if(keyCode==40 || keyCode==39){
             var vi = this.getValueItem();
             var i = this.options.indexOf(vi);
             if(i+1 < this.options.length){
                 var v = this.options[i+1][this.valueField];
                 this.setValue(v)
             }
-        }else if(keyCode==38){
+        }else if(keyCode==38 || keyCode==37){
             var vi = this.getValueItem();
             var i = this.options.indexOf(vi);
             if(i-1 >=0){
