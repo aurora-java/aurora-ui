@@ -62,11 +62,9 @@ $A.CheckBox = Ext.extend($A.Component,{
 		this.el.focus();
 	},
 	onFocus : function(){
-		this.el.setStyle('outline','1px dotted blue')
 		this.fireEvent('focus',this);
 	},
 	onBlur : function(){
-		this.el.setStyle('outline','none')
 		this.fireEvent('blur',this);
 	},
 	setValue:function(v, silent){

@@ -1,3 +1,6 @@
+.item-radio:focus{
+	outline:1px dotted black;
+}
 .item-radio-img,.grid-radio,.table-radio{
 	width:13px;
 	height:13px;
@@ -33,4 +36,5 @@
 }
 .item-radio-option{	
 	padding:3px;
+	position: relative;
 }

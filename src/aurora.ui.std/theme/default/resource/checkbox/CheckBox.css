@@ -8,6 +8,9 @@
 	float:left;
 	margin-top: 4px;
 }
+.item-ckb:focus{
+	outline:1px dotted black;	
+}
 .grid-select-all .grid-rowbox .item-ckb-u,.grid-select-all .grid-rowbox .item-ckb-c,
 .table-select-all .table-rowbox .item-ckb-u,.table-select-all .table-rowbox .item-ckb-c{
 	background-position:0 -13px;
