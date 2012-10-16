@@ -146,7 +146,11 @@ $A.Window = Ext.extend($A.Component,{
                     ck = key;
                 }
             }
-            
+            if(e.shiftKey){
+            	var temp = lk;
+            	lk = fk;
+            	fk = temp;
+            }
             if(ck==lk){
                 e.stopEvent();
                 if(cmp.blur)cmp.blur();
