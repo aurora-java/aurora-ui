@@ -115,11 +115,14 @@ $A.DateField = Ext.extend($A.Component, {
     	}
     },
     onSelect:function(e,t){
-    	var td = Ext.get(t);
+    	var sf = this,td = Ext.get(t),_date;
     	if(td.parent('div[atype="date-popup"]')){
-    		this.onViewClick(e,td);
+    		sf.onViewClick(e,td);
     	}else{
-    		this.fireEvent("select",e,t);
+    		_date =  td.getAttributeNS('','_date');
+			if(_date && _date != '0'){
+		    	sf.fireEvent("select",sf, new Date(Number(_date)));
+			}
     	}
     },
 	onSelectDay: function(o){
