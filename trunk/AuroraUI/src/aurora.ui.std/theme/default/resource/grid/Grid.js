@@ -161,7 +161,7 @@ A.Grid = Ext.extend(A.Component,{
     	A.Grid.superclass.processListener.call(sf, ou);
         sf.wrap[ou]("mouseover", sf.onMouseOver, sf)
         	[ou]("mouseout", sf.onMouseOut, sf)
-        	[ou](EVT_CLICK,sf.focus,sf)
+//        	[ou](EVT_CLICK,sf.focus,sf)
             [ou]("focus",sf.onFocus,sf)
             [ou]("blur",sf.onBlur,sf);
         if(sf.canwheel !== FALSE){
@@ -627,7 +627,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     onRefresh : function(){
     	var sf = this;
-    	sf.selectedId = NULL;
+//    	sf.selectedId = NULL;
 //        sf.onLoad(FALSE);
         sf.onLoad();
         if(sf.selectable){
@@ -1039,13 +1039,13 @@ A.Grid = Ext.extend(A.Component,{
                     editor:ed
                 };
                 if(ed instanceof A.CheckBox){
-	        		ed.move(-1000,xy[1]+5);
+	        		ed.move(xy[0],xy[1]-4);
 		        	if(callback)
 		        		ed.focus()
 		        	else
 		        		ed.onClick();
-		        	ced.focusCheckBox = dom;
-	        		dom.setStyle(OUTLINE,OUTLINE_V);
+//		        	ced.focusCheckBox = dom;
+	        		//dom.setStyle(OUTLINE,OUTLINE_V);
 	       		}else{
 	       			var p = dom.parent();
 	       			ed.move(xy[0],xy[1]);
@@ -1196,8 +1196,6 @@ A.Grid = Ext.extend(A.Component,{
         }else if((row+1)*r>(stop+h-sh)){//this.ub.dom.scrollHeight
             ub.scrollTo(TOP, (row+1)*r-h + sh);
         }
-        if(this.autofocus)
-    	this.focus();
     },
     focusColumn: function(name){
         var sf = this,
@@ -1224,8 +1222,6 @@ A.Grid = Ext.extend(A.Component,{
         }else if((lr-sleft)>(sf.width-lw)){
             ub.scrollTo(LEFT,lr  - sf.width + lw + (ub.dom.scrollHeight > ub.dom.clientHeight? 16 : 0));
         }
-        if(sf.autofocus)
-    	sf.focus();
     },
     /**
      * 隐藏当前编辑器
@@ -1241,11 +1237,11 @@ A.Grid = Ext.extend(A.Component,{
 //	                needHide = ed.canHide();
 //	            }
 	            if(!ed.canHide || ed.canHide()) {
-	        		var d = ced.focusCheckBox;
-		    		if(d){
-		    			d.setStyle(OUTLINE,NONE);
-		    			ced.focusCheckBox = NULL;
-		    		}
+//	        		var d = ced.focusCheckBox;
+//		    		if(d){
+		    			//d.setStyle(OUTLINE,NONE);
+//		    			ced.focusCheckBox = NULL;
+//		    		}
 	                ed.el.un(EVT_KEY_DOWN, sf.onEditorKeyDown,sf);
 	                ed.un(EVT_SELECT,sf.onEditorSelect,sf);
 	                Ext.fly(DOC_EL).un(EVT_MOUSE_DOWN, sf.onEditorBlur, sf);
