@@ -30,6 +30,8 @@ $A.Radio = Ext.extend($A.Component, {
         $A.Radio.superclass.processListener.call(this, ou);
     	this.wrap[ou]('click',this.onClick,this);
     	this.wrap[ou]("keydown", this.onKeyDown, this);
+    	this.wrap[ou]('focus', this.onFocus, this);
+    	this.wrap[ou]('blur', this.onBlur, this);
     },
     focus : function(){
     	this.wrap.focus();
@@ -37,6 +39,12 @@ $A.Radio = Ext.extend($A.Component, {
     blur : function(){
     	this.wrap.blur();
     },
+    onFocus : function(){
+		this.fireEvent('focus',this);
+	},
+	onBlur : function(){
+		this.fireEvent('blur',this);
+	},
     onKeyDown:function(e){
         this.fireEvent('keydown', this, e);
         var keyCode = e.keyCode;

@@ -40,9 +40,8 @@ $A.TriggerField = Ext.extend($A.TextField,{
 		this.el.setStyle("width",(w-20)+"px");
 	},
     onFocus : function(){
-    	if(this.readonly) return;
         $A.TriggerField.superclass.onFocus.call(this);
-        if(!this.isExpanded())this.expand();
+        if(!this.readonly && !this.isExpanded())this.expand();
     },
     onBlur : function(e){
 //        if(this.isEventFromComponent(e.target)) return;

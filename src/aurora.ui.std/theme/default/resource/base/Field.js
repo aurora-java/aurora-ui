@@ -137,11 +137,10 @@ $A.Field = Ext.extend($A.Component,{
     onFocus : function(e){
         //(Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
     	this.select();
-    	if(this.readonly) return;
         if(!this.hasFocus){
             this.hasFocus = true;
             this.startValue = this.getValue();
-            if(this.emptytext){
+            if(!this.readonly && this.emptytext){
 	            if(this.el.dom.value == this.emptytext){
 	                this.setRawValue('');
 	            }
@@ -160,17 +159,18 @@ $A.Field = Ext.extend($A.Component,{
     	return v;
     },
     onBlur : function(e){
-    	if(this.readonly) return;
     	if(this.hasFocus){
 	        this.hasFocus = false;
-	        var rv = this.getRawValue();
-           	rv = this.processMaxLength(rv);
-	        rv = this.processValue(rv);
-//	        if(String(rv) !== String(this.startValue)){
-//	            this.fireEvent('change', this, rv, this.startValue);
-//	        } 
-            
-	        this.setValue(rv);
+	        if(!this.readonly){
+		        var rv = this.getRawValue();
+	           	rv = this.processMaxLength(rv);
+		        rv = this.processValue(rv);
+	//	        if(String(rv) !== String(this.startValue)){
+	//	            this.fireEvent('change', this, rv, this.startValue);
+	//	        } 
+	            
+		        this.setValue(rv);
+	        }
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
     	}
