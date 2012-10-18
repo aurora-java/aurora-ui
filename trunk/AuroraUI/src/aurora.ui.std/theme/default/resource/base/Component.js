@@ -8,6 +8,7 @@
  * @param {Object} config 配置对象. 
  */
 $A.Component = Ext.extend(Ext.util.Observable,{
+	focusCss:'item-focus',
 	constructor: function(config) {
         $A.Component.superclass.constructor.call(this);
         this.id = config.id || Ext.id();
