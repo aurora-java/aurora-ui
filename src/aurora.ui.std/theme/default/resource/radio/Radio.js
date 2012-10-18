@@ -34,6 +34,9 @@ $A.Radio = Ext.extend($A.Component, {
     focus : function(){
     	this.wrap.focus();
     },
+    blur : function(){
+    	this.wrap.blur();
+    },
     onKeyDown:function(e){
         this.fireEvent('keydown', this, e);
         var keyCode = e.keyCode;

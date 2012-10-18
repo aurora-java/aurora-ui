@@ -61,11 +61,18 @@ $A.CheckBox = Ext.extend($A.Component,{
 	focus : function(){
 		this.el.focus();
 	},
+	blur : function(){
+		this.el.blur();		
+	},
 	onFocus : function(){
-		this.fireEvent('focus',this);
+		var sf = this;
+		sf.el.addClass(sf.focusCss);
+		sf.fireEvent('focus',sf);
 	},
 	onBlur : function(){
-		this.fireEvent('blur',this);
+		var sf = this;
+		sf.el.removeClass(sf.focusCss);
+		sf.fireEvent('blur',sf);
 	},
 	setValue:function(v, silent){
 		if(typeof(v)==='boolean'){

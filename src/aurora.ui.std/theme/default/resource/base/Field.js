@@ -9,7 +9,6 @@
 $A.Field = Ext.extend($A.Component,{	
 	validators: [],
 	requiredCss:'item-notBlank',
-	focusCss:'item-focus',
 	readOnlyCss:'item-readOnly',
 	emptyTextCss:'item-emptyText',
 	invalidCss:'item-invalid',
