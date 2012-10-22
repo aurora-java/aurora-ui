@@ -14,7 +14,7 @@
  
 Ext.Ajax.timeout = 1800000;
 
-$A = Aurora = {version: '1.0',revision:'$Rev: 6525 $'};
+$A = Aurora = {version: '1.0',revision:'$Rev: 6535 $'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){
 	if($A.winWidth != $A.getViewportWidth() || $A.winHeight != $A.getViewportHeight()){
@@ -526,7 +526,18 @@ Ext.applyIf(Array.prototype, {
 	add : function(o){
 		if(this.indexOf(o) == -1)
 		this[this.length] = o;
-	}
+	},
+    find : function(property, value){
+        var r = null;
+        for(var i=0;i<this.length;i++){
+            var item = this[i];
+            if(item[property] == value) {
+                r = item;
+                break;
+            }
+        }
+        return r;
+    }
 });
 Ext.applyIf(String.prototype, {
     replaceAll : function(s1,s2){
@@ -735,8 +746,9 @@ $A.Cover = function(){
     		var scrollHeight = Ext.isStrict ? document.documentElement.scrollHeight : document.body.scrollHeight;
     		var screenWidth = Math.max(scrollWidth,$A.getViewportWidth());
     		var screenHeight = Math.max(scrollHeight,$A.getViewportHeight());
-			var p = '<DIV class="aurora-cover"'+(Ext.isIE6?' style="position:absolute;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;':'')+'" unselectable="on"></DIV>';
+			var p = '<DIV tabIndex="-1" class="aurora-cover"'+(Ext.isIE6?' style="position:absolute;width:'+(screenWidth-1)+'px;height:'+(screenHeight-1)+'px;':'')+'" unselectable="on" hideFocus></DIV>';
 			var cover = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
+			cover.on('focus',function(e){e.stopPropagation(); Ext.fly(el).focus()});
 	    	cover.setStyle('z-index', Ext.fly(el).getStyle('z-index') - 1);
 //	    	Ext.getBody().setStyle('overflow','hidden');
 	    	$A.Cover.container[el.id] = cover;
@@ -3480,6 +3492,7 @@ $A.Record.Field.prototype = {
  * @param {Object} config 配置对象. 
  */
 $A.Component = Ext.extend(Ext.util.Observable,{
+	focusCss:'item-focus',
 	constructor: function(config) {
         $A.Component.superclass.constructor.call(this);
         this.id = config.id || Ext.id();
@@ -3787,7 +3800,6 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 $A.Field = Ext.extend($A.Component,{	
 	validators: [],
 	requiredCss:'item-notBlank',
-	focusCss:'item-focus',
 	readOnlyCss:'item-readOnly',
 	emptyTextCss:'item-emptyText',
 	invalidCss:'item-invalid',
@@ -3916,11 +3928,10 @@ $A.Field = Ext.extend($A.Component,{
     onFocus : function(e){
         //(Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
     	this.select();
-    	if(this.readonly) return;
         if(!this.hasFocus){
             this.hasFocus = true;
             this.startValue = this.getValue();
-            if(this.emptytext){
+            if(!this.readonly && this.emptytext){
 	            if(this.el.dom.value == this.emptytext){
 	                this.setRawValue('');
 	            }
@@ -3939,17 +3950,18 @@ $A.Field = Ext.extend($A.Component,{
     	return v;
     },
     onBlur : function(e){
-    	if(this.readonly) return;
     	if(this.hasFocus){
 	        this.hasFocus = false;
-	        var rv = this.getRawValue();
-           	rv = this.processMaxLength(rv);
-	        rv = this.processValue(rv);
-//	        if(String(rv) !== String(this.startValue)){
-//	            this.fireEvent('change', this, rv, this.startValue);
-//	        } 
-            
-	        this.setValue(rv);
+	        if(!this.readonly){
+		        var rv = this.getRawValue();
+	           	rv = this.processMaxLength(rv);
+		        rv = this.processValue(rv);
+	//	        if(String(rv) !== String(this.startValue)){
+	//	            this.fireEvent('change', this, rv, this.startValue);
+	//	        } 
+	            
+		        this.setValue(rv);
+	        }
 	        this.wrap.removeClass(this.focusCss);
 	        this.fireEvent("blur", this);
     	}
@@ -4295,8 +4307,7 @@ $A.HotKey = function(){
 	var CTRL = 'CTRL',
 		ALT = 'ALT',
 		SHIFT = 'SHIFT',
-		keys = {},
-		doc = Ext.get(document),
+		hosts = {},
 		enable = true;
 		onKeyDown = function(e,t){
 			var key = e.keyCode,bind = [],handler;
@@ -4308,7 +4319,7 @@ $A.HotKey = function(){
 				e.shiftKey &&
 					bind.push(SHIFT);
 				bind.push(String.fromCharCode(key));
-				handler = keys[bind.join('+').toUpperCase()];
+				handler = hosts[this.id][bind.join('+').toUpperCase()];
 				if(handler){
 					e.stopEvent();
 					if(enable){
@@ -4323,9 +4334,20 @@ $A.HotKey = function(){
 		onKeyUp = function(){
 			enable = true;
 		},
+		on = function(host){
+			host.on('keydown',onKeyDown,host,{stopPropagation:true})
+				.on('keyup',onKeyUp);
+		},
 		pub = {
 			addHandler : function(bind,handler){
-				var binds = bind.toUpperCase().split('+'),key=[];
+				var binds = bind.toUpperCase().split('+'),key=[],
+					host = window['__host']||Ext.get(document.documentElement),
+					id = host.id,
+					keys = hosts[id];
+				if(!keys){
+					hosts[id] = keys = {};
+					on(host);
+				}
 				binds.indexOf(CTRL)!=-1 &&
 					key.push(CTRL);
 				binds.indexOf(ALT)!=-1 &&
@@ -4337,18 +4359,8 @@ $A.HotKey = function(){
 					key = key.join('+');
 					(keys[key]||(keys[key] = [])).add(handler);
 				}
-			},
-			on : function(){
-				doc.on('keydown',onKeyDown)
-					.on('keyup',onKeyUp);
-			},
-			off : function(){
-				doc.un('keydown',onKeyDown)
-					.un('keyup',onKeyUp);
-				keys={};
 			}
 		};
-	pub.on();
 	return pub;
 }();
 /**
@@ -4570,13 +4582,18 @@ $A.CheckBox = Ext.extend($A.Component,{
 	focus : function(){
 		this.el.focus();
 	},
+	blur : function(){
+		this.el.blur();		
+	},
 	onFocus : function(){
-		this.el.setStyle('outline','1px dotted blue')
-		this.fireEvent('focus',this);
+		var sf = this;
+		sf.el.addClass(sf.focusCss);
+		sf.fireEvent('focus',sf);
 	},
 	onBlur : function(){
-		this.el.setStyle('outline','none')
-		this.fireEvent('blur',this);
+		var sf = this;
+		sf.el.removeClass(sf.focusCss);
+		sf.fireEvent('blur',sf);
 	},
 	setValue:function(v, silent){
 		if(typeof(v)==='boolean'){
@@ -4644,10 +4661,21 @@ $A.Radio = Ext.extend($A.Component, {
         $A.Radio.superclass.processListener.call(this, ou);
     	this.wrap[ou]('click',this.onClick,this);
     	this.wrap[ou]("keydown", this.onKeyDown, this);
+    	this.wrap[ou]('focus', this.onFocus, this);
+    	this.wrap[ou]('blur', this.onBlur, this);
     },
     focus : function(){
     	this.wrap.focus();
     },
+    blur : function(){
+    	this.wrap.blur();
+    },
+    onFocus : function(){
+		this.fireEvent('focus',this);
+	},
+	onBlur : function(){
+		this.fireEvent('blur',this);
+	},
     onKeyDown:function(e){
         this.fireEvent('keydown', this, e);
         var keyCode = e.keyCode;
@@ -4656,14 +4684,14 @@ $A.Radio = Ext.extend($A.Component, {
             setTimeout(function(){
                 sf.fireEvent('enterdown', sf, e)
             },5);
-        }else if(keyCode==40){
+        }else if(keyCode==40 || keyCode==39){
             var vi = this.getValueItem();
             var i = this.options.indexOf(vi);
             if(i+1 < this.options.length){
                 var v = this.options[i+1][this.valueField];
                 this.setValue(v)
             }
-        }else if(keyCode==38){
+        }else if(keyCode==38 || keyCode==37){
             var vi = this.getValueItem();
             var i = this.options.indexOf(vi);
             if(i-1 >=0){
@@ -4965,8 +4993,7 @@ $A.NumberField = Ext.extend($A.TextField,{
         return this.parseValue(v);
     },
     onFocus : function(e) {
-    	if(this.readonly) return;
-    	if(this.allowformat) {
+    	if(!this.readonly && this.allowformat) {
             this.setRawValue($A.removeNumberFormat(this.getRawValue()));
         }
     	$A.NumberField.superclass.onFocus.call(this,e);
@@ -5134,9 +5161,8 @@ $A.TriggerField = Ext.extend($A.TextField,{
 		this.el.setStyle("width",(w-20)+"px");
 	},
     onFocus : function(){
-    	if(this.readonly) return;
         $A.TriggerField.superclass.onFocus.call(this);
-        if(!this.isExpanded())this.expand();
+        if(!this.readonly && !this.isExpanded())this.expand();
     },
     onBlur : function(e){
 //        if(this.isEventFromComponent(e.target)) return;
@@ -5268,10 +5294,9 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		$A.ComboBox.superclass.onTriggerClick.call(this);		
 	},
 	onBlur : function(e){
-        if(this.readonly)return;
         if(this.hasFocus){
 			$A.ComboBox.superclass.onBlur.call(this,e);
-			//if(!this.isExpanded()) {
+			if(!this.readonly/*!this.isExpanded()*/) {
 				var raw = this.getRawValue();
 				if(this.fetchrecord===false){
 					this.setValue(raw)
@@ -5279,7 +5304,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 					var record = this.getRecordByDisplay(raw);
 					this.setValue(record&&record.get(this.displayfield)||'');
 				}
-			//}
+			}
         }
     },
     getRecordByDisplay: function(name){
@@ -5699,11 +5724,14 @@ $A.DateField = Ext.extend($A.Component, {
     	}
     },
     onSelect:function(e,t){
-    	var td = Ext.get(t);
+    	var sf = this,td = Ext.get(t),_date;
     	if(td.parent('div[atype="date-popup"]')){
-    		this.onViewClick(e,td);
+    		sf.onViewClick(e,td);
     	}else{
-    		this.fireEvent("select",e,t);
+    		_date =  td.getAttributeNS('','_date');
+			if(_date && _date != '0'){
+		    	sf.fireEvent("select",sf, new Date(Number(_date)));
+			}
     	}
     },
 	onSelectDay: function(o){
@@ -6101,10 +6129,9 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     wrapDate : function(d){},
     processDate : function(d){},
     onBlur : function(e){
-    	if(this.readonly)return;
     	if(this.hasFocus){
 			$A.DatePicker.superclass.onBlur.call(this,e);
-			if(!this.isExpanded()){
+			if(!this.readonly && !this.isExpanded()){
 				try{
 	                var d = this.getRawValue().parseDate(this.format)
 	                this.wrapDate(d);
@@ -6499,10 +6526,10 @@ $A.Window = Ext.extend($A.Component,{
             urlAtt = 'url="'+sf.url+'"';
         }
         sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,url:urlAtt}, true);
+        sf.wrap.cmps = sf.cmps;
         sf.shadow = shadowTpl.insertFirst(document.body, {}, true);
         sf.shadow.setWidth(sf.wrap.getWidth());
         sf.shadow.setHeight(sf.wrap.getHeight());
-        sf.focusEl = sf.wrap.child('a[atype=win.focus]')
     	sf.title = sf.wrap.child('div[atype=window.title]');
     	sf.head = sf.wrap.child('td[atype=window.head]');
     	sf.body = sf.wrap.child('div[atype=window.body]');
@@ -6529,7 +6556,6 @@ $A.Window = Ext.extend($A.Component,{
     	   this.closeBtn[ou]("mousedown", this.onCloseDown,  this);
     	}
         if(!this.modal) this.wrap[ou]("click", this.toFront, this);
-    	this.focusEl[ou]("keydown", this.handleKeyDown,  this);
         this.wrap[ou]("keydown", this.onKeyDown,  this);
     	if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
     },
@@ -6570,18 +6596,18 @@ $A.Window = Ext.extend($A.Component,{
                     ck = key;
                 }
             }
-            
+            if(e.shiftKey){
+            	var temp = lk;
+            	lk = fk;
+            	fk = temp;
+            }
             if(ck==lk){
                 e.stopEvent();
                 if(cmp.blur)cmp.blur();
                 this.cmps[fk].focus();
             }
-        }
-    },
-    handleKeyDown : function(e){
-		e.stopEvent();
-		var key = e.getKey();
-		if(key == 27){
+        }else if(key == 27){
+			e.stopEvent();
 			this.close();
 		}
     },
@@ -6593,7 +6619,7 @@ $A.Window = Ext.extend($A.Component,{
      * 
      */
     focus: function(){
-		this.focusEl.focus();
+		this.wrap.focus();
 	},
 	/**
      * 窗口居中.
@@ -6640,7 +6666,7 @@ $A.Window = Ext.extend($A.Component,{
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap" style="left:-1000px;top:-1000px;width:{width}px;" cellSpacing="0" cellPadding="0" border="0" {url}>',
+            '<TABLE class="win-wrap" style="left:-1000px;top:-1000px;width:{width}px;outline:none" cellSpacing="0" cellPadding="0" hideFocus tabIndex="-1" border="0" {url}>',
 			'<TBODY>',
 			'<TR style="height:23px;" >',
 				'<TD class="win-caption">',
@@ -6648,7 +6674,7 @@ $A.Window = Ext.extend($A.Component,{
 						'<TBODY>',
 						'<TR>',
 							'<TD unselectable="on" class="win-caption-label" atype="window.head" width="99%">',
-								'<A atype="win.focus" href="#" class="win-fs" tabIndex="-1"></A><DIV unselectable="on" atype="window.title" unselectable="on">{title}</DIV>',
+								'<DIV unselectable="on" atype="window.title" unselectable="on">{title}</DIV>',
 							'</TD>',
 							'<TD unselectable="on" class="win-caption-button" noWrap>',
 								'<DIV class="win-close" atype="window.close" unselectable="on"></DIV>',
@@ -6889,7 +6915,7 @@ $A.Window = Ext.extend($A.Component,{
 //	    		}
 //	    	}
 	    	sf.fireEvent('load',sf)
-    	},this);
+    	},this.wrap);
     }
 });
 /**

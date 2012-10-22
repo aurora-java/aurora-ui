@@ -526,7 +526,18 @@ Ext.applyIf(Array.prototype, {
 	add : function(o){
 		if(this.indexOf(o) == -1)
 		this[this.length] = o;
-	}
+	},
+    find : function(property, value){
+        var r = null;
+        for(var i=0;i<this.length;i++){
+            var item = this[i];
+            if(item[property] == value) {
+                r = item;
+                break;
+            }
+        }
+        return r;
+    }
 });
 Ext.applyIf(String.prototype, {
     replaceAll : function(s1,s2){

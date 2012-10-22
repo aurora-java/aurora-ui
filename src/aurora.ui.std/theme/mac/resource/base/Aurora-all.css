@@ -293,6 +293,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .item-ckb {
 	float:left;
 	margin-top: 4px;
+	outline:none;
 }
 .grid-select-all .grid-rowbox .item-ckb-u,.grid-select-all .grid-rowbox .item-ckb-c,
 .table-select-all .table-rowbox .item-ckb-u,.table-select-all .table-rowbox .item-ckb-c{
@@ -320,6 +321,9 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 
 .item-ckb-readonly-c {
 	background-position:-39px -13px;
+}
+.item-radio:focus{
+	outline:1px dotted black;
 }
 .item-radio-img,.grid-radio,.table-radio{
 	width:13px;
@@ -356,6 +360,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 }
 .item-radio-option{	
 	padding:3px;
+	position: relative;
 }
 .item-btn {
     cursor:pointer;

@@ -5,7 +5,7 @@
  * http://www.hand-china.com
  * 
  * author:牛佳庆
- * revision:$Rev: 6490 $
+ * revision:$Rev: 6538 $
  */
 html, body {
 	margin:0; 
@@ -52,6 +52,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	height:100%;
 	left:0;
 	top:0;
+	outline:none;
 }
 /**Item**/
 .item-clear{
@@ -311,6 +312,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .item-ckb {
 	float:left;
 	margin-top: 4px;
+	outline:none;
 }
 .grid-select-all .grid-rowbox .item-ckb-u,.grid-select-all .grid-rowbox .item-ckb-c,
 .table-select-all .table-rowbox .item-ckb-u,.table-select-all .table-rowbox .item-ckb-c{
@@ -338,6 +340,9 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 
 .item-ckb-readonly-c {
 	background-position:-39px -13px;
+}
+.item-radio:focus{
+	outline:1px dotted black;
 }
 .item-radio-img,.grid-radio,.table-radio{
 	width:13px;
@@ -374,6 +379,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 }
 .item-radio-option{	
 	padding:3px;
+	position: relative;
 }
 .item-btn {
     cursor:pointer;

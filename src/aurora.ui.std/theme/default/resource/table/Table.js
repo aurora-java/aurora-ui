@@ -574,7 +574,6 @@ $A.Table = Ext.extend($A.Component,{
         this.selectTr = Ext.get(this.id+___+record.id);
         if(this.selectTr)this.selectTr.addClass(ROW_SELECT);
         //this.focusRow(row);
-        this.selectRecord = record
         if(locate!==false && r != null) {
 //          this.dataset.locate(r);
             ds.locate.defer(5, ds,[r,false]);
@@ -826,9 +825,7 @@ $A.Table = Ext.extend($A.Component,{
     onIndexChange:function(ds, r){
         var index = this.getDataIndex(r.id);
         if(index == -1)return;
-//        if(r != this.selectRecord){
-            this.selectRow(index, false);
-//        }
+        this.selectRow(index, false);
     },
     onFieldChange : function(ds, record, field, type, value){
         if(type == REQUIRED){
