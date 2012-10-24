@@ -5730,7 +5730,7 @@ $A.DateField = Ext.extend($A.Component, {
     	}else{
     		_date =  td.getAttributeNS('','_date');
 			if(_date && _date != '0'){
-		    	sf.fireEvent("select",sf, new Date(Number(_date)));
+		    	sf.fireEvent("select",e,t,sf, new Date(Number(_date)));
 			}
     	}
     },
