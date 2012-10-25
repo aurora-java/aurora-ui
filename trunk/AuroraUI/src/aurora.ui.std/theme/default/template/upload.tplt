@@ -3,7 +3,7 @@
 <SCRIPT LANGUAGE="JavaScript">
 window.${id}_download_path = '${downloadurl}';
 function ${id}(){
-    var jsid = Aurora.getCookie('JSID');
+    var jsid = Aurora.getCookie('JSID');debugger
     var jsessionid = Aurora.getCookie('JSESSIONID');
     var settings = {
         upload_url : '${uploadurl};jsessionid='+jsessionid+'?JSID='+jsid,
