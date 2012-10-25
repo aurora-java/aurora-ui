@@ -24,9 +24,7 @@ $A.Lov = Ext.extend($A.TextField,{
     initComponent : function(config){
         $A.Lov.superclass.initComponent.call(this,config);
         this.para = {};
-        if(!Ext.isEmpty(this.lovurl)){
-            this.lovurl = this.processParmater(this.lovurl);
-        }else if(!Ext.isEmpty(this.lovservice)){
+        if(!Ext.isEmpty(this.lovservice)){
             this.lovservice = this.processParmater(this.lovservice);           
         }else if(!Ext.isEmpty(this.lovmodel)){
             this.lovmodel = this.processParmater(this.lovmodel);
@@ -381,14 +379,12 @@ $A.Lov = Ext.extend($A.TextField,{
         }
     },
     getLovPara : function(){
-        var para = Ext.apply({},this.para);
-        var field;
-        if(this.record) field = this.record.getMeta().getField(this.binder.name);
-        if(field){
-            var lovpara = field.get('lovpara'); 
-            if(lovpara)Ext.apply(para,lovpara);
-        }
-        return para;
+        return Ext.apply({},this.getFieldPara(),this.para);
+    },
+    getFieldPara : function(obj){
+		return (obj = this.record) 
+			&& (obj = obj.getMeta().getField(this.binder.name))
+			&& Ext.apply({},obj.get('lovpara'));
     },
     fetchRecord : function(){
         if(this.readonly == true) return;
@@ -416,7 +412,7 @@ $A.Lov = Ext.extend($A.TextField,{
         }
         $A.slideBarEnable = $A.SideBar.enable;
         $A.SideBar.enable = false;
-        if(Ext.isEmpty(v) || !Ext.isEmpty(this.lovurl)) {
+        if(Ext.isEmpty(v) || (Ext.isEmpty(this.lovservice)&&Ext.isEmpty(this.lovmodel))) {
             this.fetching = false;
             record.isReady=true;
             $A.SideBar.enable = $A.slideBarEnable;
@@ -500,7 +496,8 @@ $A.Lov = Ext.extend($A.TextField,{
         var url;
         var lp = Ext.urlEncode(this.getLovPara())
         if(!Ext.isEmpty(this.lovurl)){
-            url = this.lovurl+'?' + Ext.urlEncode(this.getLovPara()) + '&';
+        	var fp = Ext.urlEncode(this.getFieldPara());
+            url = this.lovurl + (this.lovurl.indexOf('?') === -1 ? '?' : '&')+(!Ext.isEmpty(fp)?fp + '&':'');
         }else if(!Ext.isEmpty(this.lovservice)){
             
 //            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';
