@@ -267,7 +267,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     handleKeyUp : function(e){
         if(e.getKey() == 9){
-            this.showFirstEditor();
+            this.showEditorByRecord();
         }
     },
     handleKeyDown : function(e){
@@ -291,7 +291,7 @@ A.Grid = Ext.extend(A.Component,{
             }
         }else{
             if(key == 9){
-                sf.showFirstEditor();
+                sf.showEditorByRecord();
             }else if(key == 38 || key == 40 || key == 33 || key == 34) {
                 if(ds.loading == TRUE) return;
 //                var row;
@@ -1090,12 +1090,15 @@ A.Grid = Ext.extend(A.Component,{
             }).defer(10);
         }           
     },
-    showFirstEditor : function(){
-        var sf = this,record = sf.dataset.data[0];
-        EACH(sf.columns,function(col){
-            if(col.hidden !=TRUE && sf.getEditor(col,record)!=_N){
-                sf.fireEvent(EVT_CELL_CLICK, sf, 0, col.name, record,function(){}); 
-                sf.fireEvent(EVT_ROW_CLICK, sf, 0, record);
+    showEditorByRecord : function(record){
+    	var sf = this,
+    		ds = sf.dataset,
+    		row = record?ds.indexOf(record):0;
+    	record = record||ds.getAt(0);
+    	EACH(sf.columns,function(col){
+    		if(col.hidden !=TRUE && sf.getEditor(col,record)!=_N){
+    			sf.fireEvent(EVT_CELL_CLICK, sf, row, col.name, record,function(){});	
+        		sf.fireEvent(EVT_ROW_CLICK, sf, row, record);
                 name = col.name;
                 return FALSE;
             }
