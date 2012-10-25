@@ -565,12 +565,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @return {Aurora.Record} record 返回创建的record对象
      */
     create : function(data, index){
-        var dirty = (data) ? true : false;
     	if(Ext.isNumber(data)){
     		index = data;
-    		data = {};
-    	}else
-        	data = data||{}
+    		data = null;
+    	}
+    	var dirty = !!data;
+    	data = data||{}
         if(this.fireEvent("beforecreate", this, data)){
     //      if(valid !== false) if(!this.validCurrent())return;
             var dd = {};
