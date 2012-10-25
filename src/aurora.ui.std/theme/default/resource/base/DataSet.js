@@ -565,6 +565,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @return {Aurora.Record} record 返回创建的record对象
      */
     create : function(data, index){
+        var dirty = (data) ? true : false;
     	if(Ext.isNumber(data)){
     		index = data;
     		data = {};
@@ -584,6 +585,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
             var data = Ext.apply(data||{},dd);
             var record = new $A.Record(data);
+            if(dirty)record.dirty = true;
             this.add(record,index)
     //        var index = (this.currentPage-1)*this.pagesize + this.data.length;
     //        this.locate(index, true);
@@ -1232,7 +1234,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         for(var i=0,l=items.length;i<l;i++){
             var r = items[i];
             var isAdd = r.dirty;
-//            var isAdd = r.dirty || r.isNew
+//            var isAdd = r.dirty || r.isNew;
             var d = Ext.apply({}, r.data);
             d['_id'] = r.id;
             d['_status'] = r.isNew ? 'insert' : 'update';
@@ -1252,6 +1254,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	                }
             	}
             }
+            
             if(isAdd||selected){
                 datas.push(d);              
             }
