@@ -947,7 +947,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         this.processCurrentRow();
         if(this.selectionmodel == 'single'){
-        	var r = this.getAt(index - this.pagesize*(this.gotoPage-1)-1)
+        	var r = this.getAt(index - this.pagesize*(this.currentPage-1)-1)
         	if(this.execSelectFunction(r))
         		this.select(r);
         }
