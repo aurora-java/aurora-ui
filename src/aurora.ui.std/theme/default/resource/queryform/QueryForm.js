@@ -53,7 +53,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 		if(sf.isopen && sf.hasbody){
 			input.readonly = false;
 			input.initStatus();
-//			sf.qds.reset();
+			sf.qds.reset();
 			sf.isopen = false;
 			sf.body.hide();
 			sf.bodyWrap.setHeight(0,true);
