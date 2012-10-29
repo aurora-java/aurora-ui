@@ -1100,9 +1100,8 @@ A.Grid = Ext.extend(A.Component,{
     	record = record||ds.getAt(0);
     	EACH(sf.columns,function(col){
     		if(col.hidden !=TRUE && sf.getEditor(col,record)!=_N){
-    			sf.fireEvent(EVT_CELL_CLICK, sf, row, col.name, record,function(){});	
+    			sf.fireEvent(EVT_CELL_CLICK, sf, row, col.name, record,function(){});
         		sf.fireEvent(EVT_ROW_CLICK, sf, row, record);
-                name = col.name;
                 return FALSE;
             }
         });
