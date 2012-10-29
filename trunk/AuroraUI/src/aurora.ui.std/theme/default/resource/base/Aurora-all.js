@@ -4565,7 +4565,8 @@ $A.CheckBox = Ext.extend($A.Component,{
     onKeyDown : function(e){
     	var keyCode = e.keyCode;
     	if(keyCode == 32){
-    		this.onClick.call(this,e)
+    		this.onClick.call(this,e);
+    		e.stopEvent();
     	}
     },
 	onClick: function(event){
@@ -8073,7 +8074,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 		if(sf.isopen && sf.hasbody){
 			input.readonly = false;
 			input.initStatus();
-//			sf.qds.reset();
+			sf.qds.reset();
 			sf.isopen = false;
 			sf.body.hide();
 			sf.bodyWrap.setHeight(0,true);
