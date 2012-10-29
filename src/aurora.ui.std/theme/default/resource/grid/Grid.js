@@ -1277,6 +1277,8 @@ A.Grid = Ext.extend(A.Component,{
                     Ext.fly(DOC_EL).un(EVT_MOUSE_DOWN, sf.onEditorBlur, sf);
 //                  var ed = sf.currentEditor.editor;
                     ed.move(-10000,-10000);
+                    var view = ed.autocompleteview;
+                    if(view)view.hide();
                     ed.blur();
                     ed.isFireEvent = FALSE;
                     ed.isHidden = TRUE;

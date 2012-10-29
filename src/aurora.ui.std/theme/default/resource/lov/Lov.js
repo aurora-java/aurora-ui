@@ -74,8 +74,13 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     onTriggerClick : function(e){
     	e.stopEvent();
-    	if(this.fireEvent('beforetriggerclick',this)){
-    		this.showLovWindow();
+    	var sf = this,view = sf.autocompleteview;
+    	if(sf.fireEvent('beforetriggerclick',sf)){
+    		if(view){
+    			view.hide();
+    			sf.fetchRecord();
+    		}
+    		sf.showLovWindow();
     	}
     },
     destroy : function(){
@@ -511,6 +516,10 @@ $A.Lov = Ext.extend($A.TextField,{
             this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30)+"&lovautoquery="+this.lovautoquery+"&lovlabelwidth="+this.lovlabelwidth, height:this.lovheight||400,width:this.lovwidth||400});
             this.win.on('close',this.onWinClose,this);
         }
+    },
+    isEventFromComponent:function(el){
+    	var popup = this.autocompleteview;
+    	return $A.Lov.superclass.isEventFromComponent.call(this,el) || (popup && popup.wrap.contains(el));
     }
 });
 
