@@ -129,8 +129,11 @@ A.Grid = Ext.extend(A.Component,{
 //        sf.overId = NULL;
         sf.selectedId = NULL;
         sf.lockWidth = 0;
-        sf.autofocus = config.autofocus||TRUE;
+        sf.autofocus = TRUE;
         A.Grid.superclass.constructor.call(sf,config);
+        $A.onReady(function(){
+        	sf.autofocus && sf.focus();
+        });
     },
     initComponent:function(config){
         A.Grid.superclass.initComponent.call(this, config);
