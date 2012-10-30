@@ -1308,7 +1308,7 @@ $A.showValidTopMsg = function(ds) {
 		d.show(true);
 	}					
 }
-//Ext.get(document.documentElement).on('keydown',function(e){
+Ext.fly(document.documentElement).on('keydown',function(e,t){
 //	if(e.altKey&&e.keyCode == 76){
 //		if(!$A.logWindow) {
 //			$A.logWindow = new $A.Window({modal:false, url:'log.screen',title:'AjaxWatch', height:550,width:530});	
@@ -1317,7 +1317,9 @@ $A.showValidTopMsg = function(ds) {
 //			})
 //		}
 //	}
-//})
+	var tagName = t.tagName.toUpperCase();
+	e.keyCode == 8 && tagName != 'INPUT' && tagName != 'TEXTAREA' && e.stopEvent();
+})
 $A.startCustomization = function(){
     var cust = $A.CmpManager.get('_customization');
     if(cust==null){
