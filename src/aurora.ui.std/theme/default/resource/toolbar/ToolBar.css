@@ -4,7 +4,7 @@
 	overflow: hidden;	
 	cursor: default;	
 	background-repeat: repeat-x;	
-	white-space: nowrap;	
+	/*white-space: nowrap;*/
 	height: 25px;
 }
 .item-toolbar div.sep {
