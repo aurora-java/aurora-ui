@@ -1,0 +1,20 @@
+<table border="0" cellPadding="0" cellSpacing="0" class="${wrapClass} item-rtf" style="border:none;width:${width}px;${style}" id="${id}">
+    <tr> 
+        <td class="tl" width="3"/>    
+        <td class="tm" style="border-top:1px solid #bababa;border-bottom:1px solid #bababa">
+            <DIV style="position:relative;padding-left:3px;padding-right:20px">
+                <DIV style="width:100%">
+                    <INPUT tabindex="${tabindex}" class="item-textField" atype="field.input" autocomplete="off" value="${value}"/>
+                </DIV>
+                <DIV class="item-trigger item-comboButton" atype="triggerfield.trigger" hideFocus></DIV>
+            </DIV>
+            <DIV class="item-popup item-comboBox-view" atype="triggerfield.popup" style="width:170px;"></DIV>
+            <DIV class="item-shadow" atype="triggerfield.shadow"></DIV>
+        </td> 
+        <td class="tr" width="3"/>
+    </tr>
+</table>
+<script>
+    	new Aurora.ComboBox(${config});
+		${binding}
+</script>
