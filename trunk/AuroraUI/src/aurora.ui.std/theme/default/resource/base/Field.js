@@ -210,12 +210,20 @@ $A.Field = Ext.extend($A.Component,{
         return (rder!=null) ? rder.call(window,v) : v;
     },
     getRawValue : function(){
-        var v = this.el.getValue();
-        if(v === this.emptytext || v === undefined){
-            v = '';
+        var sf = this,v = sf.el.getValue(),typecase = sf.typecase;
+        v = v === sf.emptytext || v === undefined?'':v;
+        if(sf.isDbc(v)){
+            v = sf.dbc2sbc(v);
         }
+        if(typecase){
+	    	if(typecase == 'upper'){
+		    	v = v.toUpperCase();
+	        }else if(typecase == 'lower') {
+	        	v = v.toLowerCase();
+	        }
+    	}
         return v;
-    },   
+    },
 //    getValue : function(){
 //    	var v= this.value;
 //		v=(v === null || v === undefined ? '' : v);
@@ -344,5 +352,30 @@ $A.Field = Ext.extend($A.Component,{
     	this.setValue('', true);
     	this.clearInvalid();
         this.applyEmptyText();
+    },
+    isDbc : function(s){
+        var dbc = false;
+        for(var i=0;i<s.length;i++){
+            var c = s.charCodeAt(i);
+            if((c>65248)||(c==12288)) {
+                dbc = true
+                break;
+            }
+        }
+        return dbc;
+    },
+    dbc2sbc : function(str){
+        var result = [];
+        for(var i=0;i<str.length;i++){
+            var code = str.charCodeAt(i);//获取当前字符的unicode编码
+            if (code >= 65281 && code <= 65373) {//在这个unicode编码范围中的是所有的英文字母已及各种字符
+                result.push(String.fromCharCode(code - 65248));//把全角字符的unicode编码转换为对应半角字符的unicode码                
+            } else if (code == 12288){//空格
+                result.push(' ');
+            } else {
+                result.push(str.charAt(i));
+            }
+        }
+        return result.join('');
     }
 })
