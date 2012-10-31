@@ -1308,7 +1308,7 @@ $A.showValidTopMsg = function(ds) {
 		d.show(true);
 	}					
 }
-//Ext.get(document.documentElement).on('keydown',function(e){
+Ext.fly(document.documentElement).on('keydown',function(e,t){
 //	if(e.altKey&&e.keyCode == 76){
 //		if(!$A.logWindow) {
 //			$A.logWindow = new $A.Window({modal:false, url:'log.screen',title:'AjaxWatch', height:550,width:530});	
@@ -1317,7 +1317,9 @@ $A.showValidTopMsg = function(ds) {
 //			})
 //		}
 //	}
-//})
+	var tagName = t.tagName.toUpperCase();
+	e.keyCode == 8 && tagName != 'INPUT' && tagName != 'TEXTAREA' && e.stopEvent();
+})
 $A.startCustomization = function(){
     var cust = $A.CmpManager.get('_customization');
     if(cust==null){
@@ -1461,16 +1463,16 @@ $A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_sta
 
 
 $A.isChinese = function(value){
-	return /^[\u4E00-\u9FA5]+$/.test(value.trim());
+	return /^[\u4E00-\u9FA5_%]+$/.test(value.trim());
 }
 $A.isLetter = function(value){
-	return /^[a-zA-Z]+$/.test(value.trim());
+	return /^[a-zA-Z_%]+$/.test(value.trim());
 }
 $A.isUpperCase = function(value){
-	return /^[A-Z]+$/.test(value.trim());
+	return /^[A-Z_%]+$/.test(value.trim());
 }
 $A.isLowerCase = function(value){
-	return /^[a-z]+$/.test(value.trim());
+	return /^[a-z_%]+$/.test(value.trim());
 }
 $A.isNumber = function(value){
 	return Ext.isNumber(Number(value));
@@ -7165,8 +7167,13 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     onTriggerClick : function(e){
     	e.stopEvent();
-    	if(this.fireEvent('beforetriggerclick',this)){
-    		this.showLovWindow();
+    	var sf = this,view = sf.autocompleteview;
+    	if(sf.fireEvent('beforetriggerclick',sf)){
+    		if(view){
+    			view.hide();
+    			sf.fetchRecord();
+    		}
+    		sf.showLovWindow();
     	}
     },
     destroy : function(){
@@ -7602,6 +7609,10 @@ $A.Lov = Ext.extend($A.TextField,{
             this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30)+"&lovautoquery="+this.lovautoquery+"&lovlabelwidth="+this.lovlabelwidth, height:this.lovheight||400,width:this.lovwidth||400});
             this.win.on('close',this.onWinClose,this);
         }
+    },
+    isEventFromComponent:function(el){
+    	var popup = this.autocompleteview;
+    	return $A.Lov.superclass.isEventFromComponent.call(this,el) || (popup && popup.wrap.contains(el));
     }
 });
 

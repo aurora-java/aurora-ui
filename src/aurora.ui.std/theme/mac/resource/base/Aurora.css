@@ -63,7 +63,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 }
 .item-wrap {
 	BORDER: #bababa 1px solid;
-	background-color:#ffffff;
+	background:#fff url(text-bg.gif) repeat-x 0px 0px ;
 	Z-INDEX: 20;
 	HEIGHT: 20px;
 	overflow:hidden;
@@ -74,12 +74,9 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	vertical-align:middle;
 }
 .item-focus {
-	border:1px solid blue;
-	background-color:#e2f7ff;
+	background:#e2f7ff;
 }
-.item-focus input {
-	background-color:#e2f7ff;
-}
+
 .item-notBlank{
 	background:#fff9c2;
 }
