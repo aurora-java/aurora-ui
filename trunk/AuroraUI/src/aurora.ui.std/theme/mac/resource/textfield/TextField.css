@@ -1,0 +1,31 @@
+.item-textField {
+    border:0;  
+    height:17px;
+    line-height:16px;
+    padding:0;
+    padding-top:2px; 
+    background-color:transparent; 
+    width:100%;
+}
+.ext-ie6 .item-textField{
+    font-size:12px;
+}
+.item-notBlank, .item-notBlank .item-textField{
+    background:#fff9c2;
+}
+.item-emptyText .item-textField{
+    color:#bbb !important;
+}
+.item-readOnly, .item-readOnly .item-textField {
+    background:#DBDBDB;
+}
+.item-invalid, .item-invalid .item-textField{
+    background:#FFB9AC;
+}
+
+.item-rtf .tl {
+    background:url(../textfield/lt.gif) no-repeat;
+}
+.item-rtf .tr {
+    background:url(../textfield/rt.gif) no-repeat;
+}

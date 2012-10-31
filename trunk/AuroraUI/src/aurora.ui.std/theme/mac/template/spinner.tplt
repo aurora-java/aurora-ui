@@ -1,0 +1,21 @@
+<table border="0" cellPadding="0" cellSpacing="0" class="${wrapClass} item-rtf" style="border:none;width:${width}px;${style}" id="${id}">
+    <tr> 
+        <td class="tl" width="3"/>    
+        <td class="tm" style="border-top:1px solid #bababa;border-bottom:1px solid #bababa">
+            <DIV style="position:relative;padding-right:22px">
+                <DIV style="width:100%">
+                    <INPUT tabindex="${tabindex}" type="${inputtype}" class="item-textField item-spinner" atype="field.input" ${readonly} autocomplete="off" value="${value}" />
+                </DIV>
+                <DIV class="item-trigger item-spinner-btn" atype="triggerfield.trigger" hideFocus>
+                    <span class="item-spinner-plus"><div></div></span>
+                    <span class="item-spinner-minus"><div></div></span>
+                </DIV>
+            </DIV>
+        </td> 
+        <td class="tr" width="3"/>
+    </tr>
+</table>
+<script>
+	new Aurora.Spinner(${config});
+	${binding}
+</script>
