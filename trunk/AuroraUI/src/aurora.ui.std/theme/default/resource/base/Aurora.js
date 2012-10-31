@@ -1463,16 +1463,16 @@ $A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_sta
 
 
 $A.isChinese = function(value){
-	return /^[\u4E00-\u9FA5]+$/.test(value.trim());
+	return /^[\u4E00-\u9FA5_%]+$/.test(value.trim());
 }
 $A.isLetter = function(value){
-	return /^[a-zA-Z]+$/.test(value.trim());
+	return /^[a-zA-Z_%]+$/.test(value.trim());
 }
 $A.isUpperCase = function(value){
-	return /^[A-Z]+$/.test(value.trim());
+	return /^[A-Z_%]+$/.test(value.trim());
 }
 $A.isLowerCase = function(value){
-	return /^[a-z]+$/.test(value.trim());
+	return /^[a-z_%]+$/.test(value.trim());
 }
 $A.isNumber = function(value){
 	return Ext.isNumber(Number(value));

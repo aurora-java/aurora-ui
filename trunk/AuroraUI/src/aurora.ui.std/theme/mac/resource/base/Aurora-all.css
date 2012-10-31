@@ -63,7 +63,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 }
 .item-wrap {
 	BORDER: #bababa 1px solid;
-	background-color:#ffffff;
+	background:#fff url(text-bg.gif) repeat-x 0px 0px ;
 	Z-INDEX: 20;
 	HEIGHT: 20px;
 	overflow:hidden;
@@ -74,12 +74,9 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	vertical-align:middle;
 }
 .item-focus {
-	border:1px solid blue;
-	background-color:#e2f7ff;
+	background:#e2f7ff;
 }
-.item-focus input {
-	background-color:#e2f7ff;
-}
+
 .item-notBlank{
 	background:#fff9c2;
 }
@@ -569,29 +566,31 @@ button div {
     height:17px;
     line-height:16px;
     padding:0;
-    padding-top:2px;  
+    padding-top:2px; 
+    background-color:transparent; 
     width:100%;
 }
 .ext-ie6 .item-textField{
     font-size:12px;
 }
 .item-notBlank, .item-notBlank .item-textField{
-	background:#fff9c2;
+    background:#fff9c2;
 }
 .item-emptyText .item-textField{
-	color:#bbb !important;
+    color:#bbb !important;
 }
 .item-readOnly, .item-readOnly .item-textField {
-	background:#DBDBDB;
+    background:#DBDBDB;
 }
 .item-invalid, .item-invalid .item-textField{
-	background:#FFB9AC;
+    background:#FFB9AC;
 }
+
 .item-rtf .tl {
-    background:url(../textfield/ql.png) no-repeat;
+    background:url(../textfield/lt.gif) no-repeat;
 }
 .item-rtf .tr {
-    background:url(../textfield/qr.png) no-repeat;
+    background:url(../textfield/rt.gif) no-repeat;
 }
 .item-numberField {
 	padding-right:3px;

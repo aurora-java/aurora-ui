@@ -9,6 +9,7 @@
         <view-component elementName="tree" category="Tree" description="tree组件"  nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="treeGrid" category="Grid" description="treeGrid组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="label" category="View" description="label组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="currencyLabel" category="View" description="币种显示组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="imageCode" category="View" description="验证码组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="button" category="Button" description="按钮组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="checkBox" category="Input" description="checkbox组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
@@ -22,6 +23,7 @@
         <view-component elementName="textField" category="Input" description="文本输入组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="passWord" category="Input" description="密码输入组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" defaultTemplate="textField.tplt"/>
         <view-component elementName="numberField" category="Input" description="数字输入组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
+        <view-component elementName="currencyField" category="Input" description="货币输入组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
         <view-component elementName="spinner" category="Input" description="spinner组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
         <view-component elementName="dateField" category="Input" description="dateField组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="datePicker" category="Input" description="日期组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
