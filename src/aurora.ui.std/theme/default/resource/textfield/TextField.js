@@ -7,16 +7,19 @@
  * @param {Object} config 配置对象. 
  */
 $A.TextField = Ext.extend($A.Field,{
-	constructor: function(config) {
-        $A.TextField.superclass.constructor.call(this, config);        
-    },
+//	constructor: function(config) {
+//        $A.TextField.superclass.constructor.call(this, config);        
+//    },
     initComponent : function(config){
-    	$A.TextField.superclass.initComponent.call(this, config);    	
+    	$A.TextField.superclass.initComponent.call(this, config);   
+    	if(this.typecase){
+	    	this.el.setStyle('text-transform',this.typecase+'case');
+    	}
     },
-    initEvents : function(){
-    	$A.TextField.superclass.initEvents.call(this);   
-    },
-    processListener : function(ou){
+//    initEvents : function(){
+//    	$A.TextField.superclass.initEvents.call(this);   
+//    },
+    /*processListener : function(ou){
     	$A.TextField.superclass.processListener.call(this, ou);
     	if(this.typecase){
     		if(!window.clipboardData){
@@ -48,13 +51,13 @@ $A.TextField = Ext.extend($A.Field,{
         }else if(this.typecase == 'lower') {
         	this.setValue(this.getRawValue().toLowerCase());
         }
-    },
-    destroy : function(){
-        $A.TextField.superclass.destroy.call(this);
-    },
+    },*/
+//    destroy : function(){
+//        $A.TextField.superclass.destroy.call(this);
+//    },
     isCapsLock: function(e){
-        var keyCode  =  e.getKey();
-        var isShift  =  e.shiftKey;
+        var keyCode  =  e.getKey(),
+        	isShift  =  e.shiftKey;
         if (((keyCode >= 65&&keyCode<=90)&&!isShift)||((keyCode>=97&&keyCode<=122)&&isShift)){
         	if(this.dcl!=true)
             $A.showWarningMessage(_lang['textfield.warn'], _lang['textfield.warn.capslock']);
@@ -66,7 +69,7 @@ $A.TextField = Ext.extend($A.Field,{
     onKeyPress : function(e){
     	$A.TextField.superclass.onKeyPress.call(this,e);
     	if(this.detectCapsLock) this.isCapsLock(e);
-		var keyCode = e.getKey();
+		/*var keyCode = e.getKey();
 		var code = keyCode;
 		if(this.typecase&&!e.ctrlKey&&!this.readonly){
         	if(this.typecase == 'upper'){
@@ -90,31 +93,6 @@ $A.TextField = Ext.extend($A.Field,{
                 d.selectionStart=s+1;
                 d.selectionEnd=d.selectionStart;
             }
-    	}
-    },
-    isDbc : function(s){
-        var dbc = false;
-        for(var i=0;i<s.length;i++){
-            var c = s.charCodeAt(i);
-            if((c>65248)||(c==12288)) {
-                dbc = true
-                break;
-            }
-        }
-        return dbc;
-    },
-    dbc2sbc : function(str){
-        var result = '';
-        for(var i=0;i<str.length;i++){
-            code = str.charCodeAt(i);//获取当前字符的unicode编码
-            if (code >= 65281 && code <= 65373) {//在这个unicode编码范围中的是所有的英文字母已及各种字符
-                result += String.fromCharCode(str.charCodeAt(i) - 65248);//把全角字符的unicode编码转换为对应半角字符的unicode码                
-            } else if (code == 12288){//空格
-                result += String.fromCharCode(str.charCodeAt(i) - 12288 + 32);
-            } else {
-                result += str.charAt(i);
-            }
-        }
-        return result;
+    	}*/
     }
 })

@@ -76,7 +76,7 @@ $A.Lov = Ext.extend($A.TextField,{
     	e.stopEvent();
     	var sf = this,view = sf.autocompleteview;
     	if(sf.fireEvent('beforetriggerclick',sf)){
-    		if(view){
+    		if(view.isShow){
     			view.hide();
     			sf.fetchRecord();
     		}
@@ -97,12 +97,14 @@ $A.Lov = Ext.extend($A.TextField,{
         this.el.setStyle("width",(w-20)+"px");
     },
     onChange : function(e){
-    	if(this.fetchremote == true||(this.autocomplete&&this.needFetch))
-			this.fetchRecord();
+    	var sf = this;
+    	A.Lov.superclass.onChange.call(sf);
+    	if(sf.fetchremote||(sf.autocomplete&&sf.needFetch))
+			sf.fetchRecord();
     },
     onKeyUp : function(e){
         this.fireEvent('keyup', this, e);
-        if(this.autocomplete){
+        if(this.autocomplete && !Ext.isEmpty(this.lovservice||this.lovmodel)){
         	var v=this.getRawValue(),view=this.autocompleteview,code = e.keyCode;
         	//if((code > 47 && code < 58) || (code > 64 && code < 91) || code == 8 || code == 46 || code == 13 || code == 32 || code == 16 || code == 17){
 	        if((code < 37 || code > 40)&&code != 13 && code !=27 && code != 9 && code!=17){
