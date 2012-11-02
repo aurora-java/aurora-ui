@@ -1237,7 +1237,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //            var isAdd = r.dirty || r.isNew;
             var d = Ext.apply({}, r.data);
             d['_id'] = r.id;
-            d['_status'] = r.isNew ? 'insert' : 'update';
             for(var k in r.data){
             	if(fields && fields.indexOf(k)==-1){
             		delete d[k];
@@ -1763,6 +1762,9 @@ $A.Record.prototype = {
     },
     onMetaClear : function(meta){
         this.ds.onMetaChange(this,meta);
+    },
+    setDirty : function(dirty){
+        this.dirty = dirty;
     }
 }
 $A.Record.Meta = function(r){
