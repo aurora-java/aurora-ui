@@ -7115,7 +7115,7 @@ $A.Lov = Ext.extend($A.TextField,{
     	e.stopEvent();
     	var sf = this,view = sf.autocompleteview;
     	if(sf.fireEvent('beforetriggerclick',sf)){
-    		if(view.isShow){
+    		if(view && view.isShow){
     			view.hide();
     			sf.fetchRecord();
     		}
