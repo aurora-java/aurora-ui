@@ -98,7 +98,7 @@ $A.Lov = Ext.extend($A.TextField,{
     },
     onChange : function(e){
     	var sf = this;
-    	A.Lov.superclass.onChange.call(sf);
+    	$A.Lov.superclass.onChange.call(sf);
     	if(sf.fetchremote||(sf.autocomplete&&sf.needFetch))
 			sf.fetchRecord();
     },
