@@ -45,28 +45,24 @@ $A.Radio = Ext.extend($A.Component, {
 	onBlur : function(){
 		this.fireEvent('blur',this);
 	},
-    onKeyDown:function(e){
-        this.fireEvent('keydown', this, e);
-        var keyCode = e.keyCode;
+	onKeyDown:function(e){
+        var sf = this,keyCode = e.keyCode,
+        	options = sf.options,
+        	valueField = sf.valueField;
+        sf.fireEvent('keydown', sf, e);
         if(keyCode == 13)  {
-            var sf = this;
-            setTimeout(function(){
-                sf.fireEvent('enterdown', sf, e)
-            },5);
-        }else if(keyCode==40 || keyCode==39){
-            var vi = this.getValueItem();
-            var i = this.options.indexOf(vi);
-            if(i+1 < this.options.length){
-                var v = this.options[i+1][this.valueField];
-                this.setValue(v)
-            }
-        }else if(keyCode==38 || keyCode==37){
-            var vi = this.getValueItem();
-            var i = this.options.indexOf(vi);
-            if(i-1 >=0){
-                var v = this.options[i-1][this.valueField];
-                this.setValue(v)
-            }
+            (function(){
+                sf.fireEvent('enterdown', sf, e);
+            }).defer(5);
+        }else{
+        	var i = options.indexOf(sf.getValueItem());
+        	if(keyCode==40 || keyCode==39){
+	            ++i < options.length && sf.setValue(options[i][valueField]);
+	            e.stopEvent();
+	        }else if(keyCode==38 || keyCode==37){
+	            --i >=0 && sf.setValue(options[i][valueField]);
+	            e.stopEvent();
+	        }
         }
     },
 	initEvents:function(){
