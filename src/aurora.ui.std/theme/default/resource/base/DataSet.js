@@ -16,6 +16,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
         this.pageid = config.pageid;
         this.spara = {};
+        this.notification = config.notification;
         this.selected = [];
         this.sorttype = config.sorttype||'remote';
         this.maxpagesize = config.maxpagesize || 1000;
@@ -75,6 +76,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         return nds;
     },
     destroy : function(){
+        this.processListener('un');
     	if(this.qtId){
 			Ext.Ajax.abort(this.qtId);
 		}
@@ -231,6 +233,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         c.totalPage = this.totalPage;
         c.fields = this.fields;
         return c;
+    },
+    processListener: function(ou){
+        if(this.notification){
+            $A.manager[ou]('beforeunload',this.onBeforeUnload,this)
+        }
+    },
+    onBeforeUnload : function(ms){
+        if(this.isModified()){
+            ms.add(this.notification);
+        }
     },
     initEvents : function(){
         this.addEvents( 
@@ -432,7 +444,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @param {Object} res 返回结果res.
              */
             'submitfailed'
-        );      
+        );
+        this.processListener('on');
     },
     addField : function(fd,notCheck){
         if(notCheck !== true){
