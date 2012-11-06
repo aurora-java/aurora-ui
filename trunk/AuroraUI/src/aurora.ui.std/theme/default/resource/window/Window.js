@@ -298,6 +298,17 @@ $A.Window = Ext.extend($A.Component,{
 //    	if((ty+this.height)>= (sh-30)) ty = Math.max(sh - this.height - 30,0);
     	this.proxy.moveTo(tx,ty);
     },
+    checkDataSetNotification : function (){
+        var r = Aurora.checkNotification(this.cmps);
+        if(r){
+            var sf = this;
+            $A.showConfirm(_lang['dataset.info'], r, function(){
+                sf.close(true);                
+            })
+            return false;
+        }
+        return true;
+    },
     showLoading : function(){
     	this.body.update(_lang['window.loading']);
     	this.body.setStyle('text-align','center');
@@ -337,7 +348,8 @@ $A.Window = Ext.extend($A.Component,{
     	this.closeBtn.removeClass("win-btn-down");
     	Ext.get(document.documentElement).un("mouseup", this.onCloseUp, this);
     },
-    close : function(){
+    close : function(nocheck){
+        if(!nocheck && !this.checkDataSetNotification()) return;
     	if(this.fireEvent('beforeclose',this)){
 	    	$A.WindowManager.remove(this);
 	    	if(this.fullScreen){
