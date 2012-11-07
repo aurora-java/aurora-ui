@@ -6,6 +6,7 @@ var DOC = document,
     FALSE = false,
     TRUE = true,
     NULL = null,
+    CheckBox = A.CheckBox,
     _ = '_',
     __ = '__',
     _O = '.',
@@ -131,7 +132,7 @@ A.Grid = Ext.extend(A.Component,{
         sf.lockWidth = 0;
         sf.autofocus = TRUE;
         A.Grid.superclass.constructor.call(sf,config);
-        $A.onReady(function(){
+        A.onReady(function(){
         	sf.autofocus && sf.focus();
         });
     },
@@ -397,7 +398,7 @@ A.Grid = Ext.extend(A.Component,{
         if(editor!=_N){
             var edi = A.CmpManager.get(editor);
             //这里对于checkbox可能会存在问题
-            if(edi && (edi instanceof A.CheckBox)){
+            if(edi && (edi instanceof CheckBox)){
                 xtype = CELL_CHECK;
             }else{
                 cls = CELL_EDITOR;
@@ -487,7 +488,8 @@ A.Grid = Ext.extend(A.Component,{
         
     },
     renderText : function(record,col,value){        
-        var renderer = col.renderer;
+        var renderer = col.renderer,
+        	value = $A.escapeHtml(value);
         if(renderer){//&&!IS_EMPTY(value)  去掉对value是否为空的判断
             var rder = A.getRenderer(renderer);
             if(rder == NULL){
@@ -770,7 +772,7 @@ A.Grid = Ext.extend(A.Component,{
         /*
         if(editor == _N){       
             div.removeClass(CELL_EDITOR);
-        }else if(editor != _N || ($(editor) instanceof A.CheckBox)){
+        }else if(editor != _N || ($(editor) instanceof CheckBox)){
             var cell = this.createCell(c,record,FALSE);
             div.parent().update(cell)
         }else{
@@ -785,7 +787,7 @@ A.Grid = Ext.extend(A.Component,{
         if(div){
             var c = sf.findColByName(name),
                 editor = sf.getEditor(c,record);            
-            if(editor!=_N && ($(editor) instanceof A.CheckBox)){
+            if(editor!=_N && ($(editor) instanceof CheckBox)){
                 sf.renderEditor(div,record,c,editor);
             }else{
                 //考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
@@ -1017,7 +1019,7 @@ A.Grid = Ext.extend(A.Component,{
         if(div){
             if(editor == _N){
                 div.removeClass(CELL_EDITOR);
-            }else if(!$(editor) instanceof A.CheckBox){
+            }else if(!$(editor) instanceof CheckBox){
                 div.addClass(CELL_EDITOR);
             }
         }
@@ -1066,7 +1068,7 @@ A.Grid = Ext.extend(A.Component,{
                     name:name,
                     editor:ed
                 };
-                if(ed instanceof A.CheckBox){
+                if(ed instanceof CheckBox){
                     ed.move(xy[0],xy[1]-4);
                     if(callback)
                         ed.focus()
@@ -1961,21 +1963,22 @@ A.Grid = Ext.extend(A.Component,{
      * 以下函数和复合编辑器相关
      */
     createCompositeEditor : function(name,colspan,record,obj){
-        var id = this.id,ds = this.dataset,rid = record.id,col = this.findColByName(name),
-            crow = col.lock ? Ext.get(this.id+$L+rid) : Ext.get(this.id+$U+rid),          
-            trow = col.lock ? Ext.get(this.id+$U+rid) : Ext.get(this.id+$L+rid),
-            bt = col.lock ? this.lbt : this.ubt;
-        if(this.currentEditor && this.currentEditor.editor instanceof $A.CheckBox) this.hideEditor();
-        var table = bt.dom,ltb = table.tBodies[0],ltr = document.createElement(TR);
-        ltr.id = this.id+'_cmp_'+name+'_'+rid;
-        var td = document.createElement(TD);
+        var sf = this,lock = col.lock,
+        	id = sf.id,ds = sf.dataset,rid = record.id,col = sf.findColByName(name),
+            crow = Ext.get(id+(lock ? $L : $U)+rid),          
+            trow = Ext.get(id+(lock ? $U : $L)+rid),
+            bt = lock ? sf.lbt : sf.ubt;
+        if(sf.currentEditor && sf.currentEditor.editor instanceof CheckBox) sf.hideEditor();
+        var table = bt.dom,ltb = table.tBodies[0],ltr = document.createElement(TR),
+        	td = document.createElement(TD);
+        ltr.id = id+'_cmp_'+name+_+rid;
         td.colSpan= colspan;
         td.innerHTML = obj.html;
         ltr.appendChild(td);
         if(ds.indexOf(record)>=ds.data.length-1){
             ltb.appendChild(ltr);
         }else{
-            var tr = Ext.get(this.id+(col.lock ? $L : $U) + (++rid));                            
+            var tr = Ext.get(id+(lock ? $L : $U) + (++rid));                            
             ltb.insertBefore(ltr,tr.dom);
         }
         
@@ -1990,7 +1993,7 @@ A.Grid = Ext.extend(A.Component,{
         var html = [];
         map.name = name;
         if(columns.find('name',name)) {
-            html.push('<tr id="'+this.id+'_cmp_'+name+'_'+record.id+'"><td colSpan="'+colspan+'">');
+            html.push('<tr id="',this.id,'_cmp_',name,_,record.id,'"><td colSpan="',colspan,'">');
             html.push(obj.html);
             html.push('</td></tr>')
             map.html = html.join('');
@@ -1999,17 +2002,18 @@ A.Grid = Ext.extend(A.Component,{
         }
     },
     removeCompositeEditor : function(name,record){
-        var id = this.id,rid = record.id,col = this.findColByName(name),
-            crow = col.lock ? Ext.get(this.id+$L+rid) : Ext.get(this.id+$U+rid),          
-            trow = col.lock ? Ext.get(this.id+$U+rid) : Ext.get(this.id+$L+rid);
-        if(this.currentEditor.editor instanceof $A.CheckBox) this.hideEditor();
+        var sf = this,lock = col.lock,
+        	id = sf.id,rid = record.id,col = sf.findColByName(name),
+            crow = Ext.get(id+(lock ? $L : $U)+rid),          
+            trow = Ext.get(id+(lock ? $U : $L)+rid);
+        if(sf.currentEditor.editor instanceof CheckBox) sf.hideEditor();
         if(trow)trow.setHeight(22);
         Ext.each(crow.dom.childNodes,function(c){
             var di = Ext.get(c).getAttributeNS(_N,DATA_INDEX);
             if(di == name) return false;
             c.rowSpan=1;
         })
-        var d =Ext.get(this.id+'_cmp_'+name+'_'+rid);
+        var d =Ext.get(id+'_cmp_'+name+_+rid);
         if(d)d.remove();
     }
 });
