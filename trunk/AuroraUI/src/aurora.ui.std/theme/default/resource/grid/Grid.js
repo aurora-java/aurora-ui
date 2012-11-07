@@ -829,6 +829,9 @@ A.Grid = Ext.extend(A.Component,{
             urow = Ext.get(sf.id+$U+record.id);
         if(lrow)lrow.remove();        
         if(urow)urow.remove();
+        EACH(sf.columns,function(col){
+            if(col.name)sf.removeCompositeEditor(col.name,record);
+        });
         if(Ext.isIE||Ext.isIE9)sf.syncScroll();
         sf.clearDomRef();
         A.Masker.unmask(sf.wb);
@@ -2002,18 +2005,17 @@ A.Grid = Ext.extend(A.Component,{
         }
     },
     removeCompositeEditor : function(name,record){
-        var sf = this,lock = col.lock,
-        	id = sf.id,rid = record.id,col = sf.findColByName(name),
-            crow = Ext.get(id+(lock ? $L : $U)+rid),          
-            trow = Ext.get(id+(lock ? $U : $L)+rid);
-        if(sf.currentEditor.editor instanceof CheckBox) sf.hideEditor();
+        var id = this.id,rid = record.id,col = this.findColByName(name),
+            crow = col.lock ? Ext.get(this.id+$L+rid) : Ext.get(this.id+$U+rid),          
+            trow = col.lock ? Ext.get(this.id+$U+rid) : Ext.get(this.id+$L+rid);
+        if(this.currentEditor && this.currentEditor.editor instanceof $A.CheckBox) this.hideEditor();
         if(trow)trow.setHeight(22);
-        Ext.each(crow.dom.childNodes,function(c){
+        Ext.each(crow&&crow.dom.childNodes,function(c){
             var di = Ext.get(c).getAttributeNS(_N,DATA_INDEX);
             if(di == name) return false;
             c.rowSpan=1;
         })
-        var d =Ext.get(id+'_cmp_'+name+_+rid);
+        var d =Ext.get(this.id+'_cmp_'+name+'_'+rid);
         if(d)d.remove();
     }
 });
