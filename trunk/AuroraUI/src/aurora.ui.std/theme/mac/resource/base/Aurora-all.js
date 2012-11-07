@@ -14,7 +14,7 @@
  
 Ext.Ajax.timeout = 1800000;
 
-$A = Aurora = {version: '1.0',revision:'$Rev: 6621 $'};
+$A = Aurora = {version: '1.0',revision:'$Rev: 6653 $'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){
     if($A.winWidth != $A.getViewportWidth() || $A.winHeight != $A.getViewportHeight()){
@@ -1533,6 +1533,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(config.listeners){
             this.on(config.listeners);
         }
+        this.validateEnable = true;
         this.pageid = config.pageid;
         this.spara = {};
         this.notification = config.notification;
@@ -2548,6 +2549,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         return this.validate(true,false)
     },
     /**
+     * 设置dataset是否进行校验
+     * @return {Boolean} enable 是否校验.
+     */
+    setValidateEnable : function(enable){
+        this.validateEnable = enable;
+    },
+    
+    /**
      * 对当前数据集进行校验.
      * @return {Boolean} valid 校验结果.
      */
@@ -2795,7 +2804,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         return datas;
     },
     doSubmit : function(url, items){
-        if(!this.validate()){           
+        if(this.validateEnable && !this.validate()){           
             return;
         }
         this.fireBindDataSetEvent("submit",url,items);
@@ -2850,7 +2859,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         var r=this.getCurrentRecord();
         if(!r)return;
         this.wait(true,function(){
-    		if(this.validate())$A.post(url,r.data);
+    		if(this.validateEnable && !this.validate()) return;
+            $A.post(url,r.data);
     	},this);
     },
     /**

@@ -517,7 +517,7 @@ A.Grid = Ext.extend(A.Component,{
         for(var i=0,l=cols.length;i<l;i++){
             var c = cols[i];
             if(c.hidden)continue;
-            sb.push('<th ',DATA_INDEX,'="',c.name,'" style="height:0px;width:',c.hidden === TRUE?0:c.width,PX,'"></th>');
+            sb.push('<th ',DATA_INDEX,'="',c.name,'" style="height:0px;width:',c.width,PX,'"></th>');
         }
         sb.push('</tr>');
         return sb.join(_N);
@@ -1521,7 +1521,10 @@ A.Grid = Ext.extend(A.Component,{
         sf.unlockWidth = uw;
         sf.lockWidth = lw;
         if(hth) hth.setStyle(WIDTH, size+PX);
-        if(bth) bth.setStyle(WIDTH, size+PX);
+        if(bth) {
+            bth.setStyle(WIDTH, size+PX);
+            bth.setStyle("display", size==0 ? 'none' : '');
+        }
         var mlw = Math.max(sf.width - lw,0);
         if(sf.fb){
             sf.fb.child(SELECT_TH_DATAINDEX+name+_K).setStyle(WIDTH, size+PX);
@@ -1541,6 +1544,7 @@ A.Grid = Ext.extend(A.Component,{
         if(sf.lht)sf.lht.setStyle(WIDTH,lw+PX);
         if(sf.lbt)sf.lbt.setStyle(WIDTH,lw+PX);
         sf.uc.setStyle(WIDTH,mlw+PX);
+        
         sf.uh.setStyle(WIDTH,mlw+PX);
         sf.ub.setStyle(WIDTH,mlw+PX);
         sf.uht.setStyle(WIDTH,uw+PX);
