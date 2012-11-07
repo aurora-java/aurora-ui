@@ -1966,8 +1966,7 @@ A.Grid = Ext.extend(A.Component,{
      * 以下函数和复合编辑器相关
      */
     createCompositeEditor : function(name,colspan,record,obj){
-        var sf = this,lock = col.lock,
-        	id = sf.id,ds = sf.dataset,rid = record.id,col = sf.findColByName(name),
+        var sf = this,id = sf.id,ds = sf.dataset,rid = record.id,col = sf.findColByName(name),lock = col.lock,
             crow = Ext.get(id+(lock ? $L : $U)+rid),          
             trow = Ext.get(id+(lock ? $U : $L)+rid),
             bt = lock ? sf.lbt : sf.ubt;
@@ -2008,7 +2007,7 @@ A.Grid = Ext.extend(A.Component,{
         var id = this.id,rid = record.id,col = this.findColByName(name),
             crow = col.lock ? Ext.get(this.id+$L+rid) : Ext.get(this.id+$U+rid),          
             trow = col.lock ? Ext.get(this.id+$U+rid) : Ext.get(this.id+$L+rid);
-        if(this.currentEditor && this.currentEditor.editor instanceof $A.CheckBox) this.hideEditor();
+        if(this.currentEditor && this.currentEditor.editor instanceof CheckBox) this.hideEditor();
         if(trow)trow.setHeight(22);
         Ext.each(crow&&crow.dom.childNodes,function(c){
             var di = Ext.get(c).getAttributeNS(_N,DATA_INDEX);
