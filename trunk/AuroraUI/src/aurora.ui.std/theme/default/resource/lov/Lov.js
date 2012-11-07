@@ -36,7 +36,6 @@ $A.Lov = Ext.extend($A.TextField,{
         			if(maps[i].to == name)this.autocompletefield = maps[i].from;
         		}
         	}
-        	this.fetchremote = false;
         	this.autocompleteview = new $A.Popup({});
         	if(!this.optionDataSet)this.optionDataSet = new $A.DataSet({id:this.id+"_autocomplete_ds",autocount:false})
         }
@@ -99,7 +98,7 @@ $A.Lov = Ext.extend($A.TextField,{
     onChange : function(e){
     	var sf = this;
     	$A.Lov.superclass.onChange.call(sf);
-    	if(sf.fetchremote||(sf.autocomplete&&sf.needFetch))
+    	if(sf.fetchremote && (sf.autocomplete?sf.needFetch:true))
 			sf.fetchRecord();
     },
     onKeyUp : function(e){
