@@ -1287,6 +1287,7 @@ A.Grid = Ext.extend(A.Component,{
                     ed.move(-10000,-10000);
                     var view = ed.autocompleteview;
                     if(view)view.hide();
+                    ed.onBlur();//blur异步触发onblur，引起dataset当前指针变化到下一行，引起数据错位
                     ed.blur();
                     ed.isFireEvent = FALSE;
                     ed.isHidden = TRUE;
