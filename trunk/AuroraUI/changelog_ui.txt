@@ -1,5 +1,13 @@
 Release ()
 ------------------------------------
+* 增加CurrencyField和CurrencyLabel金额组件
+* TextField增加restrict,restrictInfo属性.
+* Grid增加复合编辑器功能
+* 增加DataSet未保存提示功能，增加notification属性
+* Grid修订html注入bug
+
+Release (2012-10-10)
+------------------------------------
 * Grid的column增加maxAdjustWidth属性，用于限制列宽度自适应的最大值。
 * 增强所有editor，通过设置style="width:100%"能自适应宽度
 * Button禁用时的图片改为灰色
