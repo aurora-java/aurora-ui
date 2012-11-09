@@ -25,7 +25,29 @@ $A.TextField = Ext.extend($A.Field,{
         }
     }, 
     onKeyPress : function(e){
-    	$A.TextField.superclass.onKeyPress.call(this,e);
-    	if(this.detectCapsLock) this.isCapsLock(e);
+    	var sf = this,k = e.getCharCode(),
+    		restrict = sf.restrict,
+    		restrictinfo = sf.restrictinfo;
+        if((Ext.isGecko || Ext.isOpera) && (e.isSpecialKey() || k == 8 || k == 46)){//BACKSPACE or DELETE
+            return;
+        }
+    	if(restrict && !new RegExp('['+restrict+']').test(String.fromCharCode(k))){
+    		if(restrictinfo)$A.ToolTip.show(sf.id,restrictinfo);
+            e.stopEvent();
+            return;
+    	}
+    	$A.TextField.superclass.onKeyPress.call(sf,e);
+    	if(sf.detectCapsLock) sf.isCapsLock(e);
+    },
+    processValue : function(v){
+    	var sf = this,
+    		restrict = sf.restrict,
+    		restrictinfo = sf.restrictinfo,
+    		vv = v;
+    	if(restrict){
+    		v = String(v).replace(new RegExp('[^'+restrict+']','mg'),'');
+    		if(restrictinfo && v != vv)$A.ToolTip.show(sf.id,restrictinfo);
+    	}
+        return v;
     }
 })

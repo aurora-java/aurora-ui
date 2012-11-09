@@ -17,39 +17,28 @@ $A.NumberField = Ext.extend($A.TextField,{
         $A.NumberField.superclass.constructor.call(this, config);
     },
     initComponent : function(config){
-    	$A.NumberField.superclass.initComponent.call(this, config); 
-    	this.allowed = this.baseChars+'';
-        if(this.allowdecimals){
-            this.allowed += this.decimalSeparator;
+    	var sf = this;
+    	$A.NumberField.superclass.initComponent.call(sf, config); 
+    	sf.restrict = sf.baseChars+'';
+    	sf.restrictinfo = _lang['numberfield.only'];
+        if(sf.allowdecimals){
+            sf.restrict += sf.decimalSeparator;
         }
-        if(this.allownegative){
-            this.allowed += "-";
+        if(sf.allownegative){
+            sf.restrict += "-";
         }
     },
-    initEvents : function(){
-    	$A.NumberField.superclass.initEvents.call(this);
-    },
-    onKeyPress : function(e){
-        var k = e.keyCode;
-        if((Ext.isGecko || Ext.isOpera) && (e.isSpecialKey() || k == 8 || k == 46)){//BACKSPACE or DELETE
-            return;
-        }
-        var c = e.getCharCode();
-        if(this.allowed.indexOf(String.fromCharCode(c)) === -1){
-        	$A.ToolTip.show(this.id,_lang['numberfield.only']);
-            e.stopEvent();
-            return;
-        }
-        $A.NumberField.superclass.onKeyPress.call(this, e); 
-    },
+//    initEvents : function(){
+//    	$A.NumberField.superclass.initEvents.call(this);
+//    },
     onBlur : function(e){
     	$A.ToolTip.hide();
     	$A.NumberField.superclass.onBlur.call(this,e);
     },
     formatValue : function(v){
-    	var rv = this.fixPrecision(this.parseValue(v))        
-        if(this.allowformat)rv = $A.formatNumber(rv);
-        return $A.NumberField.superclass.formatValue.call(this,rv);
+    	var sf = this,rv = sf.fixPrecision(sf.parseValue(v))        
+        if(sf.allowformat)rv = $A.formatNumber(rv);
+        return $A.NumberField.superclass.formatValue.call(sf,rv);
     },
     processMaxLength : function(rv){
     	var s=rv.split('.'),isNegative=false;
@@ -64,17 +53,19 @@ $A.NumberField = Ext.extend($A.TextField,{
         return this.parseValue(v);
     },
     onFocus : function(e) {
-    	if(!this.readonly && this.allowformat) {
-            this.setRawValue($A.removeNumberFormat(this.getRawValue()));
+    	var sf = this;
+    	if(!sf.readonly && sf.allowformat) {
+            sf.setRawValue($A.removeNumberFormat(sf.getRawValue()));
         }
-    	$A.NumberField.superclass.onFocus.call(this,e);
+    	$A.NumberField.superclass.onFocus.call(sf,e);
     },
     parseValue : function(value){
+    	var sf = this;
     	value = String(value);
 		if(value.indexOf(",")!=-1)value=value.replace(/,/g,"");
-    	if(!this.allownegative)value = value.replace('-','');
-    	if(!this.allowdecimals)value = value.indexOf(".")==-1?value:value.substring(0,value.indexOf("."));
-        value = parseFloat(this.fixPrecision(value.replace(this.decimalSeparator, ".")));
+    	if(!sf.allownegative)value = value.replace('-','');
+    	if(!sf.allowdecimals)value = value.indexOf(".")==-1?value:value.substring(0,value.indexOf("."));
+        value = parseFloat(sf.fixPrecision(value.replace(sf.decimalSeparator, ".")));
         return isNaN(value) ? '' : value;
     },
     fixPrecision : function(value){
