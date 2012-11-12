@@ -8,10 +8,15 @@
  */
 $A.TextField = Ext.extend($A.Field,{
     initComponent : function(config){
-    	$A.TextField.superclass.initComponent.call(this, config);   
-    	if(this.typecase){
-	    	this.el.setStyle('text-transform',this.typecase+'case');
+    	$A.TextField.superclass.initComponent.call(this, config);
+    	var sf = this,
+    		restrict = sf.restrict,
+    		typecase = sf.typecase;
+    	if(restrict){
+    		sf.restrict = restrict.replace(/^\[|\]$/mg,'');
     	}
+    	typecase &&
+	    	sf.el.setStyle('text-transform',typecase+'case');
     },
     isCapsLock: function(e){
         var keyCode  =  e.getKey(),
