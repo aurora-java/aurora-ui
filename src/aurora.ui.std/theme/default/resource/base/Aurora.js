@@ -1400,6 +1400,12 @@ $A.escapeHtml = function(str){
     return String(str).replace(/&/gm,'&amp;')
     .replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
 }
+$A.unescapeHtml = function(str){
+	if(Ext.isEmpty(str) || !Ext.isString(str))
+        return str;
+    return String(str).replace(/&amp;/gm,'&')
+    .replace(/&lt;/gm,'<').replace(/&gt;/gm,'>');
+}
 $A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_state){
     var p={"parameter":{"_column_config_":{}}},columns=[],parentMap={},
         _parentColumn=function(pcl,cl){

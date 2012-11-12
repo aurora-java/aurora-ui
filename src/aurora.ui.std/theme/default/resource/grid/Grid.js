@@ -450,7 +450,7 @@ A.Grid = Ext.extend(A.Component,{
         return sb.join(_N);
     },
     createRow : function(type, row, cols, item){
-        var sf = this,obj = {},rowSpan = null,found = false,
+        var sf = this,obj = {},rowSpan = NULL,found = FALSE,
             css=sf.parseCss(sf.renderRow(item,row));
             sf.fireEvent(EVT_CREATE_ROW, sf, row, item, obj, cols);
         if(obj.height) css.style = css.style = ';height:'+obj.height + 'px;';
@@ -458,9 +458,9 @@ A.Grid = Ext.extend(A.Component,{
         for(var i=0,l=cols.length;i<l;i++){
             if(cols[i].hidden)continue;
             if(obj.name && !obj.height && !found) {
-                rowSpan = null;
+                rowSpan = NULL;
                 if(cols[i].name == obj.name) {
-                    found = true;
+                    found = TRUE;
                 }else{
                     rowSpan = 2;
                 }
@@ -601,13 +601,13 @@ A.Grid = Ext.extend(A.Component,{
         this.wb.focus();
     },
     onFocus : function(){
-        this.hasFocus = true;
+        this.hasFocus = TRUE;
     },
     blur : function(){
         this.wb.blur();
     },
     onBlur : function(){
-        this.hasFocus = false;
+        this.hasFocus = FALSE;
     },
     renderLockArea : function(){
         var sf = this,cols = sf.lockColumns,
@@ -690,7 +690,7 @@ A.Grid = Ext.extend(A.Component,{
             Ext.fly(ltr).set({style:css.style});
             EACH(columns,function(col){
                 if(col.lock === TRUE){
-                    if(col.hidden) return true;
+                    if(col.hidden) return TRUE;
                     var td = DOC.createElement(TD);
                     if(col.type == ROW_CHECK) {
                         Ext.fly(td).set({recordid:record.id,atype:GRID$ROWCHECK})
@@ -740,7 +740,7 @@ A.Grid = Ext.extend(A.Component,{
         Ext.fly(utr).set({style:css.style});
         EACH(columns,function(col){
             if(col.lock !== TRUE){
-                if(col.hidden) return true;
+                if(col.hidden) return TRUE;
                 var td = DOC.createElement(TD);
                 td.style.visibility=col.hidden === TRUE ? HIDDEN : VISIBLE;
                 td.style.textAlign=col.align||LEFT;
@@ -781,29 +781,28 @@ A.Grid = Ext.extend(A.Component,{
         */
     },
     onUpdate : function(ds,record, name, value){
-        this.setSelectStatus(record);
         var sf = this,
-            div = Ext.get([sf.id,name,record.id].join(_));
-        if(div){
+            div,ediv,text;
+        sf.setSelectStatus(record);
+        if(div = Ext.get([sf.id,name,record.id].join(_))){
             var c = sf.findColByName(name),
                 editor = sf.getEditor(c,record);            
             if(editor!=_N && ($(editor) instanceof CheckBox)){
                 sf.renderEditor(div,record,c,editor);
             }else{
                 //考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
-                div.update(sf.renderText(record,c,value));
+                div.update(text = sf.renderText(record,c,value))
+					.set({'title':$A.unescapeHtml(text)});
             }
         }
         EACH(sf.columns,function(c){
-            if(c.name != name) {
-                var ediv = Ext.get([sf.id,c.name,record.id].join(_));
-                if(ediv) {
-                    if(c.editorfunction){
-                        sf.renderEditor(ediv,record, c, sf.getEditor(c,record));
-                    }
-                    if(c.renderer){
-                        ediv.update(sf.renderText(record,c, record.get(c.name)));
-                    }
+            if(c.name != name && (ediv = Ext.get([sf.id,c.name,record.id].join(_)))) {
+                if(c.editorfunction){
+                    sf.renderEditor(ediv,record, c, sf.getEditor(c,record));
+                }
+                if(c.renderer){
+                    ediv.update(text = sf.renderText(record,c, record.get(c.name)))
+                    	.set({'title':text});
                 }
             }
         });
@@ -920,18 +919,15 @@ A.Grid = Ext.extend(A.Component,{
         w.select($ITEM_CKB_SELF).removeClass(ITEM_CKB_SELF);
     },
     onDblclick : function(e,t){
-        var target = Ext.fly(t).parent('td[atype=grid-cell]');
-        if(target){
-            var ds = this.dataset,
-                rid = target.getAttributeNS(_N,RECORD_ID),
-                record = ds.findById(rid),
-                row = ds.indexOf(record),
-                name = target.getAttributeNS(_N,DATA_INDEX);
-            this.fireEvent(EVT_DBLCLICK, this, record, row, name)
+        if(t = Ext.fly(t).parent('td[atype=grid-cell]')){
+            var sf = this,
+            	ds = sf.dataset,
+                record = ds.findById(t.getAttributeNS(_N,RECORD_ID));
+            sf.fireEvent(EVT_DBLCLICK, sf, record, ds.indexOf(record), t.getAttributeNS(_N,DATA_INDEX));
         }
     },
     onClick : function(e,t) {
-        var target = Ext.fly(t).parent(TD);
+        var target = (t = Ext.fly(t)).parent(TD);
         if(target){
             var sf = this,
                 atype = target.getAttributeNS(_N,ATYPE),
@@ -941,7 +937,7 @@ A.Grid = Ext.extend(A.Component,{
                 var record = ds.findById(rid),
                     row = ds.indexOf(record),
                     name = target.getAttributeNS(_N,DATA_INDEX);
-                sf.fireEvent(EVT_CELL_CLICK, sf, row, name, record);
+                sf.fireEvent(EVT_CELL_CLICK, sf, row, name, record,!t.hasClass('grid-ckb'));
                 //sf.adjustColumn(name);
                 //sf.showEditor(row,name);
                 sf.fireEvent(EVT_ROW_CLICK, sf, row, record);
@@ -1095,7 +1091,7 @@ A.Grid = Ext.extend(A.Component,{
                     ed.focus();
                     sf.editing = TRUE;
                     ed.on(EVT_SELECT,sf.onEditorSelect,sf);
-                    if(callback)callback(ed)
+                    if(Ext.isFunction(callback))callback(ed)
                     sf.fireEvent(EVT_EDITOR_SHOW, sf, ed, row, name, record);
                 }
             }).defer(10);
@@ -1206,11 +1202,12 @@ A.Grid = Ext.extend(A.Component,{
     },
     showEditorBy : function(dir){
         var sf = this,
-            callback = function(e){
+            callback = true,
+//            function(e){
 //                  if(e instanceof A.Lov){
 //                      e.showLovWindow();
 //                  }
-            },
+//            },
             ed = sf.findEditorBy(dir);
         if(ed){
             sf.hideEditor();
@@ -1296,7 +1293,7 @@ A.Grid = Ext.extend(A.Component,{
                 }
             }
             //TODO
-//            sf.currentEditor = null;
+//            sf.currentEditor = NULL;
         }
     },
     onEditorBlur : function(e,t){
@@ -1954,7 +1951,7 @@ A.Grid = Ext.extend(A.Component,{
     doExport : function(){
         var sf = this,opt = sf.exportOptions;
         sf.initColumnPrompt();
-        A.doExport(sf.dataset,sf.columns,null,opt.type,opt.separator,opt.filename);
+        A.doExport(sf.dataset,sf.columns,NULL,opt.type,opt.separator,opt.filename);
         delete sf.exportOptions;
     },
     destroy: function(){
@@ -1988,7 +1985,7 @@ A.Grid = Ext.extend(A.Component,{
         if(trow)trow.setHeight(obj.height);
         Ext.each(crow.dom.childNodes,function(c){
             var di = Ext.get(c).getAttributeNS(_N,DATA_INDEX);
-            if(di == name) return false;
+            if(di == name) return FALSE;
             c.rowSpan=2;
         })
     },
@@ -2005,17 +2002,17 @@ A.Grid = Ext.extend(A.Component,{
         }
     },
     removeCompositeEditor : function(name,record){
-        var id = this.id,rid = record.id,col = this.findColByName(name),
-            crow = col.lock ? Ext.get(this.id+$L+rid) : Ext.get(this.id+$U+rid),          
-            trow = col.lock ? Ext.get(this.id+$U+rid) : Ext.get(this.id+$L+rid);
-        if(this.currentEditor && this.currentEditor.editor instanceof CheckBox) this.hideEditor();
+        var sf = this,id = sf.id,rid = record.id,col = sf.findColByName(name),
+        	lock = col.lock,
+            crow = Ext.get(id+(lock ? $L : $U) + rid),          
+            trow = Ext.get(id+(lock ? $U : $L) + rid);
+        if(sf.currentEditor && sf.currentEditor.editor instanceof CheckBox) sf.hideEditor();
         if(trow)trow.setHeight(22);
         Ext.each(crow&&crow.dom.childNodes,function(c){
-            var di = Ext.get(c).getAttributeNS(_N,DATA_INDEX);
-            if(di == name) return false;
+            if(Ext.get(c).getAttributeNS(_N,DATA_INDEX) == name) return FALSE;
             c.rowSpan=1;
-        })
-        var d =Ext.get(this.id+'_cmp_'+name+'_'+rid);
+        });
+        var d =Ext.get(id+'_cmp_'+name+_+rid);
         if(d)d.remove();
     }
 });
