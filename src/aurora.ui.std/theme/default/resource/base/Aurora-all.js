@@ -668,15 +668,21 @@ $A.SideBar = function(){
     var m = {
         enable:true,
         bar:null,
-        show : function(msg){
+        show : function(obj){
+            var msg = obj.msg;
             if(!this.enable)return;
 //            this.hide();
             var sf = this;
             if(parent.showSideBar){
-                parent.showSideBar(msg)
+                parent.showSideBar(msg||'')
             }else{
                 this.hide();
-                var p = '<div class="item-slideBar">'+msg+'</div>';
+                var p;
+                if(msg){
+                    p = '<div class="item-slideBar">'+msg+'</div>';
+                }else{
+                    p = obj.html;
+                }
                 this.bar = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
                 this.bar.setStyle('z-index', 999999);
                 var screenWidth = $A.getViewportWidth();
@@ -686,7 +692,7 @@ $A.SideBar = function(){
 //                this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
                     setTimeout(function(){
                        sf.hide();
-                    }, 2000);            
+                    }, obj.duration||2000);            
 //                },'easeOut','run');
             }
         },
@@ -855,7 +861,7 @@ $A.doEvalScript = function(){
         }
         return;
     }
-    var sf = o.sf, html=o.html, loadScripts=o.loadScripts, callback=o.callback, host=o.host;
+    var sf = o.sf, html=o.html, loadScripts=o.loadScripts, callback=o.callback, host=o.host,id=o.id;
     var dom = sf.dom;
     
     if(host) window['__host'] = host;
@@ -1003,6 +1009,7 @@ Ext.Element.prototype.update = function(html, loadScripts, callback,host){
             loadScripts:loadScripts,
             callback:callback,
             host:host,
+            id:id,
             sf:sf
         });
         if(!$A.evaling)
@@ -1176,7 +1183,7 @@ $A.manager.on('ajaxcomplete',function(){
     $A.Status.hide();
 })
 $A.manager.on('ajaxsuccess',function(){
-    $A.SideBar.show(_lang['eventmanager.success'])
+    $A.SideBar.show({msg:_lang['eventmanager.success']})
 })
 
 $A.regEvent = function(name, hanlder){
@@ -1399,6 +1406,12 @@ $A.escapeHtml = function(str){
         return str;
     return String(str).replace(/&/gm,'&amp;')
     .replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
+}
+$A.unescapeHtml = function(str){
+    if(Ext.isEmpty(str) || !Ext.isString(str))
+        return str;
+    return String(str).replace(/&amp;/gm,'&')
+    .replace(/&lt;/gm,'<').replace(/&gt;/gm,'>');
 }
 $A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_state){
     var p={"parameter":{"_column_config_":{}}},columns=[],parentMap={},
@@ -4894,10 +4907,15 @@ $A.Radio = Ext.extend($A.Component, {
  */
 $A.TextField = Ext.extend($A.Field,{
     initComponent : function(config){
-    	$A.TextField.superclass.initComponent.call(this, config);   
-    	if(this.typecase){
-	    	this.el.setStyle('text-transform',this.typecase+'case');
+    	$A.TextField.superclass.initComponent.call(this, config);
+    	var sf = this,
+    		restrict = sf.restrict,
+    		typecase = sf.typecase;
+    	if(restrict){
+    		sf.restrict = restrict.replace(/^\[|\]$/mg,'');
     	}
+    	typecase &&
+	    	sf.el.setStyle('text-transform',typecase+'case');
     },
     isCapsLock: function(e){
         var keyCode  =  e.getKey(),
@@ -4911,8 +4929,30 @@ $A.TextField = Ext.extend($A.Field,{
         }
     }, 
     onKeyPress : function(e){
-    	$A.TextField.superclass.onKeyPress.call(this,e);
-    	if(this.detectCapsLock) this.isCapsLock(e);
+    	var sf = this,k = e.getCharCode(),
+    		restrict = sf.restrict,
+    		restrictinfo = sf.restrictinfo;
+        if((Ext.isGecko || Ext.isOpera) && (e.isSpecialKey() || k == 8 || k == 46)){//BACKSPACE or DELETE
+            return;
+        }
+    	if(restrict && !new RegExp('['+restrict+']').test(String.fromCharCode(k))){
+    		if(restrictinfo)$A.ToolTip.show(sf.id,restrictinfo);
+            e.stopEvent();
+            return;
+    	}
+    	$A.TextField.superclass.onKeyPress.call(sf,e);
+    	if(sf.detectCapsLock) sf.isCapsLock(e);
+    },
+    processValue : function(v){
+    	var sf = this,
+    		restrict = sf.restrict,
+    		restrictinfo = sf.restrictinfo,
+    		vv = v;
+    	if(restrict){
+    		v = String(v).replace(new RegExp('[^'+restrict+']','mg'),'');
+    		if(restrictinfo && v != vv)$A.ToolTip.show(sf.id,restrictinfo);
+    	}
+        return v;
     }
 })
 /**
@@ -4934,39 +4974,28 @@ $A.NumberField = Ext.extend($A.TextField,{
         $A.NumberField.superclass.constructor.call(this, config);
     },
     initComponent : function(config){
-    	$A.NumberField.superclass.initComponent.call(this, config); 
-    	this.allowed = this.baseChars+'';
-        if(this.allowdecimals){
-            this.allowed += this.decimalSeparator;
+    	var sf = this;
+    	$A.NumberField.superclass.initComponent.call(sf, config); 
+    	sf.restrict = sf.baseChars+'';
+    	sf.restrictinfo = _lang['numberfield.only'];
+        if(sf.allowdecimals){
+            sf.restrict += sf.decimalSeparator;
         }
-        if(this.allownegative){
-            this.allowed += "-";
+        if(sf.allownegative){
+            sf.restrict += "-";
         }
     },
-    initEvents : function(){
-    	$A.NumberField.superclass.initEvents.call(this);
-    },
-    onKeyPress : function(e){
-        var k = e.keyCode;
-        if((Ext.isGecko || Ext.isOpera) && (e.isSpecialKey() || k == 8 || k == 46)){//BACKSPACE or DELETE
-            return;
-        }
-        var c = e.getCharCode();
-        if(this.allowed.indexOf(String.fromCharCode(c)) === -1){
-        	$A.ToolTip.show(this.id,_lang['numberfield.only']);
-            e.stopEvent();
-            return;
-        }
-        $A.NumberField.superclass.onKeyPress.call(this, e); 
-    },
+//    initEvents : function(){
+//    	$A.NumberField.superclass.initEvents.call(this);
+//    },
     onBlur : function(e){
     	$A.ToolTip.hide();
     	$A.NumberField.superclass.onBlur.call(this,e);
     },
     formatValue : function(v){
-    	var rv = this.fixPrecision(this.parseValue(v))        
-        if(this.allowformat)rv = $A.formatNumber(rv);
-        return $A.NumberField.superclass.formatValue.call(this,rv);
+    	var sf = this,rv = sf.fixPrecision(sf.parseValue(v))        
+        if(sf.allowformat)rv = $A.formatNumber(rv);
+        return $A.NumberField.superclass.formatValue.call(sf,rv);
     },
     processMaxLength : function(rv){
     	var s=rv.split('.'),isNegative=false;
@@ -4981,17 +5010,19 @@ $A.NumberField = Ext.extend($A.TextField,{
         return this.parseValue(v);
     },
     onFocus : function(e) {
-    	if(!this.readonly && this.allowformat) {
-            this.setRawValue($A.removeNumberFormat(this.getRawValue()));
+    	var sf = this;
+    	if(!sf.readonly && sf.allowformat) {
+            sf.setRawValue($A.removeNumberFormat(sf.getRawValue()));
         }
-    	$A.NumberField.superclass.onFocus.call(this,e);
+    	$A.NumberField.superclass.onFocus.call(sf,e);
     },
     parseValue : function(value){
+    	var sf = this;
     	value = String(value);
 		if(value.indexOf(",")!=-1)value=value.replace(/,/g,"");
-    	if(!this.allownegative)value = value.replace('-','');
-    	if(!this.allowdecimals)value = value.indexOf(".")==-1?value:value.substring(0,value.indexOf("."));
-        value = parseFloat(this.fixPrecision(value.replace(this.decimalSeparator, ".")));
+    	if(!sf.allownegative)value = value.replace('-','');
+    	if(!sf.allowdecimals)value = value.indexOf(".")==-1?value:value.substring(0,value.indexOf("."));
+        value = parseFloat(sf.fixPrecision(value.replace(sf.decimalSeparator, ".")));
         return isNaN(value) ? '' : value;
     },
     fixPrecision : function(value){
