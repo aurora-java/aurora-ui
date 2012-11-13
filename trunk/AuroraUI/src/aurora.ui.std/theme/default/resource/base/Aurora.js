@@ -668,15 +668,21 @@ $A.SideBar = function(){
     var m = {
         enable:true,
         bar:null,
-        show : function(msg){
+        show : function(obj){
+            var msg = obj.msg;
             if(!this.enable)return;
 //            this.hide();
             var sf = this;
             if(parent.showSideBar){
-                parent.showSideBar(msg)
+                parent.showSideBar(msg||'')
             }else{
                 this.hide();
-                var p = '<div class="item-slideBar">'+msg+'</div>';
+                var p;
+                if(msg){
+                    p = '<div class="item-slideBar">'+msg+'</div>';
+                }else{
+                    p = obj.html;
+                }
                 this.bar = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
                 this.bar.setStyle('z-index', 999999);
                 var screenWidth = $A.getViewportWidth();
@@ -686,7 +692,7 @@ $A.SideBar = function(){
 //                this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
                     setTimeout(function(){
                        sf.hide();
-                    }, 2000);            
+                    }, obj.duration||2000);            
 //                },'easeOut','run');
             }
         },
@@ -855,7 +861,7 @@ $A.doEvalScript = function(){
         }
         return;
     }
-    var sf = o.sf, html=o.html, loadScripts=o.loadScripts, callback=o.callback, host=o.host;
+    var sf = o.sf, html=o.html, loadScripts=o.loadScripts, callback=o.callback, host=o.host,id=o.id;
     var dom = sf.dom;
     
     if(host) window['__host'] = host;
@@ -1003,6 +1009,7 @@ Ext.Element.prototype.update = function(html, loadScripts, callback,host){
             loadScripts:loadScripts,
             callback:callback,
             host:host,
+            id:id,
             sf:sf
         });
         if(!$A.evaling)
@@ -1176,7 +1183,7 @@ $A.manager.on('ajaxcomplete',function(){
     $A.Status.hide();
 })
 $A.manager.on('ajaxsuccess',function(){
-    $A.SideBar.show(_lang['eventmanager.success'])
+    $A.SideBar.show({msg:_lang['eventmanager.success']})
 })
 
 $A.regEvent = function(name, hanlder){
@@ -1401,7 +1408,7 @@ $A.escapeHtml = function(str){
     .replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
 }
 $A.unescapeHtml = function(str){
-	if(Ext.isEmpty(str) || !Ext.isString(str))
+    if(Ext.isEmpty(str) || !Ext.isString(str))
         return str;
     return String(str).replace(/&amp;/gm,'&')
     .replace(/&lt;/gm,'<').replace(/&gt;/gm,'>');
