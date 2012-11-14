@@ -356,10 +356,10 @@ A.Grid = Ext.extend(A.Component,{
             ds.pagesize=Math.round(((sf.ub.getHeight()||parseFloat(sf.ub.dom.style.height))-16)/25);
         }
         sf.processDataSetLiestener(ON);
-        sf.onLoad();
-//        Ext.onReady(function(){
-//            sf.onLoad();
-//        })
+//        sf.onLoad();
+        $A.onReady(function(){
+            sf.onLoad();
+        })
     },
     initTemplate : function(){
         var sf = this;
@@ -385,7 +385,7 @@ A.Grid = Ext.extend(A.Component,{
             name:col.name
         }
     },
-    createCell : function(col,record,includTd,rowSpan){
+    createCell : function(col,record,includTd,rowSpan){debugger
         var sf = this,
             data = sf.createTemplateData(col,record),
             cellTpl,
