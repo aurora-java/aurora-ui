@@ -385,7 +385,7 @@ A.Grid = Ext.extend(A.Component,{
             name:col.name
         }
     },
-    createCell : function(col,record,includTd,rowSpan){debugger
+    createCell : function(col,record,includTd,rowSpan){
         var sf = this,
             data = sf.createTemplateData(col,record),
             cellTpl,
