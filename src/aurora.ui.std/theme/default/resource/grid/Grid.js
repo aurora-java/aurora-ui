@@ -357,6 +357,7 @@ A.Grid = Ext.extend(A.Component,{
         }
         sf.processDataSetLiestener(ON);
 //        sf.onLoad();
+        //直接onLoad导致Grid无法获取单选框的Editor，无法渲染界面
         $A.onReady(function(){
             sf.onLoad();
         })
