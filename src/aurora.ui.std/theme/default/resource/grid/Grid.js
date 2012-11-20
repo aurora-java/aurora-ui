@@ -1979,7 +1979,8 @@ A.Grid = Ext.extend(A.Component,{
         if(ds.indexOf(record)>=ds.data.length-1){
             ltb.appendChild(ltr);
         }else{
-            var tr = Ext.get(id+(lock ? $L : $U) + (++rid));                            
+            var nr = ds.getAt(ds.indexOf(record)+1);
+            var tr = Ext.get(id+(lock ? $L : $U) + nr.id);                            
             ltb.insertBefore(ltr,tr.dom);
         }
         
