@@ -1,5 +1,5 @@
-<DIV class="${wrapClass}" style="width:${width}px;${style}" id="${id}" >
-	<DIV style="position:relative;padding-right:23px">
+<DIV class="${wrapClass} item-tf" style="position:relative;width:${width}px;${style}" id="${id}" >
+	<DIV style="padding-right:23px">
 		<DIV style="width:100%">
 			<INPUT tabindex="${tabindex}" type="${inputtype}" class="item-textField item-spinner" atype="field.input" ${readonly} autocomplete="off" value="${value}" />
 		</DIV>

@@ -227,6 +227,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //            this.store.filter(this.displayField, q);
 //        }
 		var ds = this.optionDataSet;
+        if(ds)
 		if(Ext.isEmpty(q)){
 			ds.clearFilter();
 		}else{

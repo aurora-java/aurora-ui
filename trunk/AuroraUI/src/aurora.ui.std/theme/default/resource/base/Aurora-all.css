@@ -70,6 +70,9 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	HEIGHT: 20px;
 	overflow:hidden;
 }
+.item-tf {
+    background:#fff url(text-bg.gif) repeat-x 0px 0px ;
+}
 .item-label {
 	HEIGHT: 22px;
 	line-height:22px;
@@ -77,7 +80,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 }
 .item-focus {
 	border:1px solid blue;
-	background-color:#e2f7ff;
+	background:#e2f7ff;
 }
 .item-focus input {
 	background-color:#e2f7ff;
@@ -571,7 +574,7 @@ button div {
 }
 .item-btn-icon div {
     background-position: 1px;
-    padding-left:16px;
+    padding-left:13px;
     background-repeat: no-repeat;
 }
 .item-btn-disabled *{
@@ -583,9 +586,20 @@ button div {
 .item-btn-tl, .item-btn-tr, .item-btn-tc, .item-btn-ml, .item-btn-mr, .item-btn-mc, .item-btn-bl, .item-btn-br, .item-btn-bc{
     background-image:url(../button/btn.gif);
 }
+.item-btn-nr {
+    font-size:1px;
+    line-height:1px;
+    width:60px;
+    height:22px;
+    background-image:url(../button/btn_nr.png);
+}
+.item-btn-nr button{
+    color:#fff;
+    margin-left:8px;
+} 
 .item-textField {
     border:0;  
-    height:17px;
+    height:18px;
     line-height:16px;
     padding:0;
     padding-top:2px; 
@@ -595,9 +609,11 @@ button div {
 .ext-ie6 .item-textField{
     font-size:12px;
 }
+/*
 .item-notBlank, .item-notBlank .item-textField{
 	background:#fff9c2;
 }
+*/
 .item-emptyText .item-textField{
 	color:#bbb !important;
 }

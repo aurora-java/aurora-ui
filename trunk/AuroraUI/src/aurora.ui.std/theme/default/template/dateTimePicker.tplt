@@ -1,4 +1,4 @@
-<DIV class="${wrapClass}" style="width:${width}px;${style}" id="${id}">
+<DIV class="${wrapClass} item-tf" style="width:${width}px;${style}" id="${id}">
 	<DIV style="position:relative;padding-left:3px;padding-right:20px">
 		<DIV style="width:100%">
 			<INPUT tabindex="${tabindex}" class="item-textField" atype="field.input" ${readonly} autocomplete="off" value="${value}" />

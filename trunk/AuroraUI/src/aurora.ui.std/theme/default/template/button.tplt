@@ -12,7 +12,8 @@
 		</TR>
 		<TR>
 			<TD class="item-btn-bl"><I></I></TD>
-			<TD class="item-btn-bc"></TD><TD class="item-btn-br"><I></I></TD>
+			<TD class="item-btn-bc"></TD>
+            <TD class="item-btn-br"><I></I></TD>
 		</TR>
 	</TBODY>
 </TABLE>
