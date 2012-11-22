@@ -1,6 +1,6 @@
 .item-textField {
     border:0;  
-    height:17px;
+    height:18px;
     line-height:16px;
     padding:0;
     padding-top:2px; 
@@ -10,9 +10,11 @@
 .ext-ie6 .item-textField{
     font-size:12px;
 }
+/*
 .item-notBlank, .item-notBlank .item-textField{
 	background:#fff9c2;
 }
+*/
 .item-emptyText .item-textField{
 	color:#bbb !important;
 }

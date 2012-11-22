@@ -10,7 +10,8 @@
 html, body {
 	margin:0; 
 	padding:0;
-	background-color:#ffffff;
+    background: #ffffff url(mac_background.png) 0px 0px repeat;
+
 }
 html, body,input, button , textarea {
 	font-family: 微软雅黑,宋体,sans-serif !important;/**/
@@ -62,11 +63,15 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	font-size:0;
 }
 .item-wrap {
-	BORDER: #bababa 1px solid;
-	background:#fff url(text-bg.gif) repeat-x 0px 0px ;
-	Z-INDEX: 20;
-	HEIGHT: 20px;
-	overflow:hidden;
+    BORDER: #bababa 1px solid;
+    background-color:#ffffff;
+    WIDTH: 100%;
+    Z-INDEX: 20;
+    HEIGHT: 20px;
+    overflow:hidden;
+}
+.item-tf {
+    background:#fff url(text-bg.gif) repeat-x 0px 0px ;
 }
 .item-label {
 	HEIGHT: 22px;
@@ -205,10 +210,18 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 
 /** 布局 **/
 .layout-form {
-	background-color:#fff;
+	border:1px solid #ededed;
+	-webkit-border-radius:4px;
+    border-radius:4px;
+    background-color:#fcfcfc;
+    
+    -moz-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
+    -webkit-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
+    box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
+    filter: progid:DXImageTransform.Microsoft.Shadow(color='#969696', Direction=180, Strength=4);
 }
 .layout-title {
-	border:1px solid #cccccc;
+	/*border:1px solid #cccccc;*/
 }
 .layout-td-con {
 	vertical-align:top;
@@ -230,12 +243,12 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 }
 
 .form_head {
-    border-left:1px solid #ffffff;
-    border-bottom:1px solid #bbbbbb;
-    height:25px;
-    COLOR: #055a78; 
-    background:url(../toolbar/toolbar_bg.gif) repeat-x;
-    padding-left:5px;
+    height:26px;
+    font-weight:bold;
+    font-size:16px;
+}
+.form_body {
+    
 }
 /*
 .form_head {
@@ -280,4 +293,21 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     background-color:#fff;
     line-height:28px;
     height:30px;    
+}
+.screenTopToolbar {
+    border-bottom:1px solid #ccc;
+    background:url(top_toolbar.jpg)
+}
+.screenTopToolbar div.sep {
+    font-size: 1px; 
+    border-right:1px solid #fff;
+    border-left:1px solid #ccc;
+    margin-left: 1px;
+    margin-right: 1px;  
+    background-repeat: no-repeat;
+    height: 100%;   
+    moz-user-select: none;
+}
+.screenTopToolbar .item-btn-tl,.screenTopToolbar .item-btn-tr,.screenTopToolbar .item-btn-tc,.screenTopToolbar .item-btn-ml,.screenTopToolbar .item-btn-mr,.screenTopToolbar .item-btn-mc,.screenTopToolbar .item-btn-bl,.screenTopToolbar .item-btn-br,.screenTopToolbar .item-btn-bc{
+    background-image:none;
 }

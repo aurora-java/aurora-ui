@@ -188,7 +188,7 @@ button div {
 }
 .item-btn-icon div {
     background-position: 1px;
-    padding-left:16px;
+    padding-left:13px;
     background-repeat: no-repeat;
 }
 .item-btn-disabled *{
@@ -200,3 +200,14 @@ button div {
 .item-btn-tl, .item-btn-tr, .item-btn-tc, .item-btn-ml, .item-btn-mr, .item-btn-mc, .item-btn-bl, .item-btn-br, .item-btn-bc{
     background-image:url(../button/btn.gif);
 }
+.item-btn-nr {
+    font-size:1px;
+    line-height:1px;
+    width:60px;
+    height:22px;
+    background-image:url(../button/btn_nr.png);
+}
+.item-btn-nr button{
+    color:#fff;
+    margin-left:8px;
+} 

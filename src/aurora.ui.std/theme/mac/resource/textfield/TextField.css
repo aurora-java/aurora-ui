@@ -10,9 +10,11 @@
 .ext-ie6 .item-textField{
     font-size:12px;
 }
+/*
 .item-notBlank, .item-notBlank .item-textField{
     background:#fff9c2;
 }
+*/
 .item-emptyText .item-textField{
     color:#bbb !important;
 }
