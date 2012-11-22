@@ -177,7 +177,7 @@ public class PatchAll {
 		File current = new File(".");
 		while(it.hasNext()){
 			String name = (String)it.next();
-			File file = new File(current, dir+name);file.exists();
+			File file = new File(current, dir+name);//file.exists();
 			if((null == file || !file.exists()) && !THEME_DEFAULT_DIR.equals(dir)){
 				file = new File(current, THEME_DEFAULT_DIR+name);
 			}
