@@ -7,10 +7,14 @@
  * author:牛佳庆
  * revision:$Rev: 6270 $
  */
+.refresh {
+    overflow:hidden;
+}
 html, body {
 	margin:0; 
 	padding:0;
     background: #ffffff url(mac_background.png) 0px 0px repeat;
+    overflow:auto;
 
 }
 html, body,input, button , textarea {
@@ -295,8 +299,16 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     height:30px;    
 }
 .screenTopToolbar {
-    border-bottom:1px solid #ccc;
-    background:url(top_toolbar.jpg)
+    background:url(top_toolbar.jpg) center bottom;
+}
+.screenNavTitle{
+    line-height:25px;
+    background-color:#fff;
+    border-bottom:1px dotted  #ccc;
+    padding-left:10px;
+    font-size:12px;
+    font-weight:bold;
+    background:#fff url(navTitle.jpg) 0px 0px no-repeat;
 }
 .screenTopToolbar div.sep {
     font-size: 1px; 

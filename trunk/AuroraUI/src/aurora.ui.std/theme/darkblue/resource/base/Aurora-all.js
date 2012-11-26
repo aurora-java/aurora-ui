@@ -3640,17 +3640,23 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     },
     windowResizeListener : function(){
     	var ht,wd;
-        if(this.marginheight){
-            ht = Aurora.getViewportHeight();
-            this.setHeight(ht-this.marginheight);           
-        }
-        if(this.marginwidth){
+        var _rc = 'refresh';
+        Ext.getBody().addClass(_rc);
+//        Ext.getBody().setStyle('overflow','hidden')
+        if(!Ext.isEmpty(this.marginwidth)){
             wd = Aurora.getViewportWidth();
             var v = wd-this.marginwidth;
             this.setWidth(v);
             //非标准做法,中集特殊要求！
             //this.setWidth(v < this.initConfig.width ? v : this.initConfig.width);
         }
+        if(!Ext.isEmpty(this.marginheight)){
+            ht = Aurora.getViewportHeight();
+            this.setHeight(ht-this.marginheight);           
+        }
+        
+        Ext.getBody().removeClass(_rc);
+//        Ext.getBody().setStyle('overflow','auto');
     },
     isEventFromComponent:function(el){
     	return this.wrap.contains(el)||this.wrap.dom === (el.dom?el.dom:el);
