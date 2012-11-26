@@ -4,7 +4,7 @@
 	-moz-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
     -webkit-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
     box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
-    filter: progid:DXImageTransform.Microsoft.Shadow(color='#969696', Direction=180, Strength=4);
+    /*filter: progid:DXImageTransform.Microsoft.Shadow(color='#969696', Direction=180, Strength=4);*/
 }
 .item-grid {		
 	/*position:relative;*/
@@ -32,7 +32,7 @@
     -moz-box-shadow: 0px 2px 6px #aaaaaa;
     -webkit-box-shadow: 0px 2px 6px #aaaaaa;
     box-shadow: 0px 2px 6px #aaaaaa;
-    filter: progid:DXImageTransform.Microsoft.Shadow(color='#969696', Direction=180, Strength=4);
+    /*filter: progid:DXImageTransform.Microsoft.Shadow(color='#969696', Direction=180, Strength=4);*/
 }
 .grid-lb table, .grid-lh table,  .grid-uh table, .grid-ub table{
 	table-layout:fixed;

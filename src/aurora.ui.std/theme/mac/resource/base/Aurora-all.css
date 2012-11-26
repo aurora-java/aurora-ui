@@ -7,10 +7,14 @@
  * author:牛佳庆
  * revision:$Rev: 6270 $
  */
+.refresh {
+    overflow:hidden;
+}
 html, body {
 	margin:0; 
 	padding:0;
     background: #ffffff url(mac_background.png) 0px 0px repeat;
+    overflow:auto;
 
 }
 html, body,input, button , textarea {
@@ -295,8 +299,16 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     height:30px;    
 }
 .screenTopToolbar {
-    border-bottom:1px solid #ccc;
-    background:url(top_toolbar.jpg)
+    background:url(top_toolbar.jpg) center bottom;
+}
+.screenNavTitle{
+    line-height:25px;
+    background-color:#fff;
+    border-bottom:1px dotted  #ccc;
+    padding-left:10px;
+    font-size:12px;
+    font-weight:bold;
+    background:#fff url(navTitle.jpg) 0px 0px no-repeat;
 }
 .screenTopToolbar div.sep {
     font-size: 1px; 
@@ -861,6 +873,16 @@ button div {
 .item-btn-pressed .item-btn-tl,.item-btn-pressed .item-btn-tr,.item-btn-pressed .item-btn-tc,.item-btn-pressed .item-btn-ml,.item-btn-pressed .item-btn-mr,.item-btn-pressed .item-btn-mc,.item-btn-pressed .item-btn-bl,.item-btn-pressed .item-btn-br,.item-btn-pressed .item-btn-bc{
 	background-image:url(../button/btn.gif);
 }
+
+.screenTopToolbar .item-btn-over div {
+    color:#4AB6E3;
+    text-decoration:underline;
+}
+.screenTopToolbar .item-btn-tl,.screenTopToolbar .item-btn-tr,.screenTopToolbar .item-btn-tc,.screenTopToolbar .item-btn-ml,.screenTopToolbar .item-btn-mr,.screenTopToolbar .item-btn-mc,.screenTopToolbar .item-btn-bl,.screenTopToolbar .item-btn-br,.screenTopToolbar .item-btn-bc{
+    background-image:none;
+}
+
+
 .nav-label {
 	height:20px;
 	line-height:20px;

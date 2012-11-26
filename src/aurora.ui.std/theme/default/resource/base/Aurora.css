@@ -11,6 +11,7 @@ html, body {
 	margin:0; 
 	padding:0;
 	background-color:#ffffff;
+    overflow:auto;
 }
 html, body,input, button , textarea {
 	font-family: 微软雅黑,宋体,sans-serif !important;/**/
@@ -78,13 +79,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	line-height:22px;
 	vertical-align:middle;
 }
-.item-focus {
-	border:1px solid blue;
-	background:#e2f7ff;
-}
-.item-focus input {
-	background-color:#e2f7ff;
-}
+
 .item-notBlank{
 	background:#fff9c2;
 }
@@ -99,6 +94,13 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 }
 .item-draggable {
 	cursor:move;
+}
+.item-focus {
+    border:1px solid blue;
+    background:#e2f7ff;
+}
+.item-focus input {
+    background-color:#e2f7ff;
 }
 .item-slideBar {
 	top:10px;
