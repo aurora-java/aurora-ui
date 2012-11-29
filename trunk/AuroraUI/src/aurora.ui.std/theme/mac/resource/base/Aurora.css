@@ -302,12 +302,10 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 }
 .screenNavTitle{
     line-height:25px;
-    background-color:#fff;
     border-bottom:1px dotted  #ccc;
-    padding-left:10px;
     font-size:12px;
     font-weight:bold;
-    background:#fff url(navTitle.jpg) 0px 0px no-repeat;
+    /*background:#fff url(navTitle.jpg) 0px 0px no-repeat;*/
 }
 .screenTopToolbar div.sep {
     font-size: 1px; 
