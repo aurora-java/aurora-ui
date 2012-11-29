@@ -14,7 +14,6 @@ html, body {
 	margin:0; 
 	padding:0;
     background: #ffffff url(mac_background.png) 0px 0px repeat;
-    overflow:auto;
 
 }
 html, body,input, button , textarea {
@@ -222,7 +221,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     -moz-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
     -webkit-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
     box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
-    filter: progid:DXImageTransform.Microsoft.Shadow(color='#969696', Direction=180, Strength=4);
+    /*filter: progid:DXImageTransform.Microsoft.Shadow(color='#969696', Direction=180, Strength=4);*/
 }
 .layout-title {
 	/*border:1px solid #cccccc;*/
@@ -903,10 +902,20 @@ button div {
 }
 .win-wrap {
 	border:1px solid #808080; 
-	TABLE-LAYOUT: fixed; 
 	/**z-index: 40;#c2d5dc;**/ 
-	POSITION: absolute; 
+	POSITION: absolute;
+	-webkit-border-radius:4px;
+    border-radius:4px;
 }
+.win-shadow {
+    -webkit-border-radius:4px;
+    border-radius:4px;
+}
+.win-cap {
+    -webkit-border-radius:4px;
+    border-radius:4px;
+}
+
 .win-fs {
 	FONT-SIZE: 1px;	
 	WIDTH: 1px;	
@@ -922,6 +931,10 @@ button div {
 .win-caption {
 	height: 21px;
 	border-bottom:1px solid #808080;
+	-webkit-border-top-right-radius:4px;
+	-webkit-border-top-left-radius:4px;
+    border-top-right-radius:4px;
+    border-top-left-radius:4px;
 	background:url(../window/window-header.gif) repeat-x;
 }
 .win-caption-label div {
@@ -933,28 +946,30 @@ button div {
 	COLOR: #055a78;
 	overflow:hidden; 
 	height: 23px;
-	line-height:23px;
-	
+	line-height:23px;	
 }
 .win-caption-button {
     vertical-align:top;
+    WIDTH: 36px; 
 }
 .win-close{
-	background-image: url(../window/win_close.gif);
+	background-image: url(../window/close.png);
 	/*background-position:0px 0px;*/
-	WIDTH: 45px; 
+	position:absolute;
+	top:-15px;
+	right:10px;
+	z-index:1;
+	WIDTH: 36px; 
+	height:36px;
 	CURSOR: pointer; 
 	BACKGROUND-REPEAT: no-repeat; 
-	HEIGHT: 17px; 
 	BACKGROUND-COLOR: transparent;
 }
-.win-btn-over {
-    background-position:0px -17px;
-}
-.win-btn-down{
-    background-position:0px -34px;
-}
 .win-body {
+	-webkit-border-bottom-right-radius:4px;
+	-webkit-border-bottom-left-radius:4px;
+    border-bottom-right-radius:4px;
+    border-bottom-left-radius:4px;
 	BACKGROUND-COLOR: #ffffff;
 }
 .win-content{
@@ -963,6 +978,10 @@ button div {
 	overflow:auto;
 	overflow-x:hidden;
 	position:relative;
+	-webkit-border-bottom-right-radius:4px;
+    -webkit-border-bottom-left-radius:4px;
+    border-bottom-right-radius:4px;
+    border-bottom-left-radius:4px;
 	/*overflow:hidden;*/ 
 }
 .win-alert {

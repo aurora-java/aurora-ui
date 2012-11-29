@@ -50,7 +50,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 					this.setValue(raw)
 				}else{
 					var record = this.getRecordByDisplay(raw);
-					this.setValue(record&&record.get(this.displayfield)||'');
+					this.setValue(record && this.getRenderText(record)||'');
 				}
 			}
         }
@@ -59,7 +59,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
     	if(!this.optionDataSet)return null;
 		var record = null;
 		Ext.each(this.optionDataSet.getAll(),function(r){
-			if(r.get(this.displayfield) == name){
+			if(this.getRenderText(r) == name){
 				record = r;
 				return false;
 			}
@@ -203,7 +203,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //		if(this.inKeyMode){ // prevent key nav and mouse over conflicts
 //            return;
 //        }
-        this.selectItem(t.tabIndex);        
+        this.selectItem(t.tabIndex);
 	},
 	onSelect:function(target){
 		var index = target.tabIndex;
@@ -260,7 +260,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		}
 	},
 	getRenderText : function(record){
-        var rder = $A.getRenderer(this.renderer);
+        var rder = $A.getRenderer(this.displayrenderer);
         if(rder){
             return rder.call(window,this,record);
         }else{

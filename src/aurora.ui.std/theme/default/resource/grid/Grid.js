@@ -457,7 +457,7 @@ A.Grid = Ext.extend(A.Component,{
         if(obj.height) css.style = css.style = ';height:'+obj.height + 'px;';
         var sb = ['<tr id="',sf.id,type,item.id,'" class="',(row % 2==0 ? _N : ROW_ALT),css.cls,'"','style="',css.style,'">'];
         for(var i=0,l=cols.length;i<l;i++){
-            if(cols[i].hidden)continue;
+            if(cols[i].hidden) continue;
             if(obj.name && !obj.height && !found) {
                 rowSpan = NULL;
                 if(cols[i].name == obj.name) {
