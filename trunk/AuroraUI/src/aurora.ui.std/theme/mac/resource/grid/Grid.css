@@ -39,7 +39,8 @@
 }
 .grid-hl{
 	position:static !important;
-	position:absolute;	
+	position:absolute;
+	
 }
 .grid-fs{
 	FONT-SIZE: 1px;	

@@ -44,6 +44,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 		input.initStatus();
 //		sf.qds.reset();
 		sf.isopen = true;
+        sf.bodyWrap.parent('TBODY').setStyle('display','block');
 		sf.bodyWrap.setHeight(body.getHeight(),{
 			callback:function(){if(sf.isopen)body.show();}
 		});
@@ -56,6 +57,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 			sf.qds.reset();
 			sf.isopen = false;
 			sf.body.hide();
+            sf.bodyWrap.parent('TBODY').setStyle('display','none');
 			sf.bodyWrap.setHeight(0,true);
 		}
 	},

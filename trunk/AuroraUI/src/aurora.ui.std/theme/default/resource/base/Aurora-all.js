@@ -2115,7 +2115,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		index = data;
     		data = null;
     	}
-    	var dirty = !!data;
+//    	var dirty = !!data;//MAS云新增特性
     	data = data||{}
         if(this.fireEvent("beforecreate", this, data)){
     //      if(valid !== false) if(!this.validCurrent())return;
@@ -2131,7 +2131,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
             var data = Ext.apply(data||{},dd);
             var record = new $A.Record(data);
-            if(dirty)record.dirty = true;
+//            if(dirty)record.dirty = true;//MAS云新增特性
             this.add(record,index)
     //        var index = (this.currentPage-1)*this.pagesize + this.data.length;
     //        this.locate(index, true);
@@ -2787,8 +2787,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(selected) items = this.getSelected();
         for(var i=0,l=items.length;i<l;i++){
             var r = items[i];
-            var isAdd = r.dirty;
-//            var isAdd = r.dirty || r.isNew;
+//            var isAdd = r.dirty; //MAS云新增特性
+            var isAdd = r.dirty || r.isNew;
+            
             var d = Ext.apply({}, r.data);
             d['_id'] = r.id;
             d['_status'] = r.isNew ? 'insert' : 'update';
@@ -5327,7 +5328,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 					this.setValue(raw)
 				}else{
 					var record = this.getRecordByDisplay(raw);
-					this.setValue(record&&record.get(this.displayfield)||'');
+					this.setValue(record && this.getRenderText(record)||'');
 				}
 			}
         }
@@ -5336,7 +5337,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
     	if(!this.optionDataSet)return null;
 		var record = null;
 		Ext.each(this.optionDataSet.getAll(),function(r){
-			if(r.get(this.displayfield) == name){
+			if(this.getRenderText(r) == name){
 				record = r;
 				return false;
 			}
@@ -5480,7 +5481,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //		if(this.inKeyMode){ // prevent key nav and mouse over conflicts
 //            return;
 //        }
-        this.selectItem(t.tabIndex);        
+        this.selectItem(t.tabIndex);
 	},
 	onSelect:function(target){
 		var index = target.tabIndex;
@@ -5537,7 +5538,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		}
 	},
 	getRenderText : function(record){
-        var rder = $A.getRenderer(this.renderer);
+        var rder = $A.getRenderer(this.displayrenderer);
         if(rder){
             return rder.call(window,this,record);
         }else{
@@ -6612,14 +6613,14 @@ $A.Window = Ext.extend($A.Component,{
         var key = e.getKey();
         if(key == 9){
             var fk,lk,ck,cmp
-            for(var key in this.cmps){
-                cmp = this.cmps[key];
+            for(var k in this.cmps){
+                cmp = this.cmps[k];
                 if(!fk && cmp.focus){
-                    fk=key;
+                    fk=k;
                 }
-                lk=key;
+                lk=k;
                 if(cmp.hasFocus){
-                    ck = key;
+                    ck = k;
                 }
             }
             if(e.shiftKey){
@@ -6629,8 +6630,8 @@ $A.Window = Ext.extend($A.Component,{
             }
             if(ck==lk){
                 e.stopEvent();
-                if(cmp.blur)cmp.blur();
-                this.cmps[fk].focus();
+                if(cmp && cmp.blur)cmp.blur();
+                fk && this.cmps[fk].focus();
             }
         }else if(key == 27){
 			e.stopEvent();
@@ -6688,7 +6689,7 @@ $A.Window = Ext.extend($A.Component,{
     	return body.scrollLeft>0||body.scrollWidth>body.clientWidth;
     },
     getShadowTemplate: function(){
-    	return ['<DIV class="item-shadow"></DIV>']
+    	return ['<DIV class="win-shadow item-shadow"></DIV>']
     },
     getTemplate : function() {
         return [
@@ -6696,7 +6697,7 @@ $A.Window = Ext.extend($A.Component,{
 			'<TBODY>',
 			'<TR style="height:23px;" >',
 				'<TD class="win-caption">',
-					'<TABLE cellSpacing="0" unselectable="on"  onselectstart="return false;" style="height:23px;-moz-user-select:none;"  cellPadding="0" width="100%" border="0" unselectable="on">',
+					'<TABLE cellSpacing="0" class="win-cap" unselectable="on"  onselectstart="return false;" style="height:23px;-moz-user-select:none;"  cellPadding="0" width="100%" border="0" unselectable="on">',
 						'<TBODY>',
 						'<TR>',
 							'<TD unselectable="on" class="win-caption-label" atype="window.head" width="99%">',
@@ -6748,7 +6749,7 @@ $A.Window = Ext.extend($A.Component,{
         this.proxy.show();
     	Ext.get(document.documentElement).on("mousemove", sf.onMouseMove, sf);
     	Ext.get(document.documentElement).on("mouseup", sf.onMouseUp, sf);
-        sf.focus();
+//        sf.focus();
     },
     onMouseUp : function(e){
     	var sf = this; 
@@ -8115,6 +8116,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 		input.initStatus();
 //		sf.qds.reset();
 		sf.isopen = true;
+        sf.bodyWrap.parent('TBODY').setStyle('display','block');
 		sf.bodyWrap.setHeight(body.getHeight(),{
 			callback:function(){if(sf.isopen)body.show();}
 		});
@@ -8127,6 +8129,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 			sf.qds.reset();
 			sf.isopen = false;
 			sf.body.hide();
+            sf.bodyWrap.parent('TBODY').setStyle('display','none');
 			sf.bodyWrap.setHeight(0,true);
 		}
 	},

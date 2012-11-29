@@ -5,13 +5,15 @@
  * http://www.hand-china.com
  * 
  * author:牛佳庆
- * revision:$Rev: 6754 $
+ * revision:$Rev: 6766 $
  */
+.refresh {
+    overflow:hidden;
+}
 html, body {
 	margin:0; 
 	padding:0;
 	background-color:#ffffff;
-    overflow:auto;
 }
 html, body,input, button , textarea {
 	font-family: 微软雅黑,宋体,sans-serif !important;/**/
@@ -931,7 +933,7 @@ button div {
 	width:100%;
 	height:100%;
 	overflow:auto;
-	overflow-x:hidden;
+	/*overflow-x:hidden;*/ 
 	position:relative;
 	/*overflow:hidden;*/ 
 }

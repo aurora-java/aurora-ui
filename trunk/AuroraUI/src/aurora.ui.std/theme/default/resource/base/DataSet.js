@@ -583,7 +583,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     		index = data;
     		data = null;
     	}
-    	var dirty = !!data;
+//    	var dirty = !!data;//MAS云新增特性
     	data = data||{}
         if(this.fireEvent("beforecreate", this, data)){
     //      if(valid !== false) if(!this.validCurrent())return;
@@ -599,7 +599,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
             var data = Ext.apply(data||{},dd);
             var record = new $A.Record(data);
-            if(dirty)record.dirty = true;
+//            if(dirty)record.dirty = true;//MAS云新增特性
             this.add(record,index)
     //        var index = (this.currentPage-1)*this.pagesize + this.data.length;
     //        this.locate(index, true);
@@ -1255,8 +1255,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(selected) items = this.getSelected();
         for(var i=0,l=items.length;i<l;i++){
             var r = items[i];
-            var isAdd = r.dirty;
-//            var isAdd = r.dirty || r.isNew;
+//            var isAdd = r.dirty; //MAS云新增特性
+            var isAdd = r.dirty || r.isNew;
+            
             var d = Ext.apply({}, r.data);
             d['_id'] = r.id;
             d['_status'] = r.isNew ? 'insert' : 'update';
