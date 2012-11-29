@@ -1,0 +1,72 @@
+.item-toolbar {	
+	background-image: url(../toolbar/toolbar_bg.gif);	
+	border:1px solid #cccccc;
+	overflow: hidden;	
+	cursor: default;	
+	background-repeat: repeat-x;	
+	/*white-space: nowrap;*/
+	height: 25px;
+}
+.item-toolbar div.sep {
+	background-position: 50% 50%;
+	font-size: 1px;	
+	background-image: url(../toolbar/toolbar_sep.gif);		
+	margin-left: 0px;	
+	width: 2px;	
+	margin-right: 1px;	
+	background-repeat: no-repeat;	
+	top: 1px;	
+	height: 25px;	
+	moz-user-select: none
+	width:2px;
+}
+.item-toolbar .item-btn button {
+	/*
+	padding-left:1px;
+	padding-right:1px;
+	*/
+}
+.item-toolbar .item-btn-icon div{
+	/*padding-left:17px;*/
+}
+.item-toolbar .item-btn-icon-text div {
+	/*padding-left:16px !important;*/
+	padding-left:17px;
+}
+.item-toolbar .item-btn-tl,.item-toolbar .item-btn-tr,.item-toolbar .item-btn-tc,.item-toolbar .item-btn-ml,.item-toolbar .item-btn-mr,.item-toolbar .item-btn-mc,.item-toolbar .item-btn-bl,.item-toolbar .item-btn-br,.item-toolbar .item-btn-bc{
+	background-image:none;
+}
+.item-btn-over .item-btn-tl,.item-btn-over .item-btn-tr,.item-btn-over .item-btn-tc,.item-btn-over .item-btn-ml,.item-btn-over .item-btn-mr,.item-btn-over .item-btn-mc,.item-btn-over .item-btn-bl,.item-btn-over .item-btn-br,.item-btn-over .item-btn-bc{
+	background-image:url(../button/btn.gif);
+}
+.item-btn-pressed .item-btn-tl,.item-btn-pressed .item-btn-tr,.item-btn-pressed .item-btn-tc,.item-btn-pressed .item-btn-ml,.item-btn-pressed .item-btn-mr,.item-btn-pressed .item-btn-mc,.item-btn-pressed .item-btn-bl,.item-btn-pressed .item-btn-br,.item-btn-pressed .item-btn-bc{
+	background-image:url(../button/btn.gif);
+}
+
+.screenTopToolbar .item-btn-over div {
+    color:#4AB6E3;
+    text-decoration:underline;
+}
+.screenTopToolbar .item-btn-tl,.screenTopToolbar .item-btn-tr,.screenTopToolbar .item-btn-tc,.screenTopToolbar .item-btn-ml,.screenTopToolbar .item-btn-mr,.screenTopToolbar .item-btn-mc,.screenTopToolbar .item-btn-bl,.screenTopToolbar .item-btn-br,.screenTopToolbar .item-btn-bc{
+    background-image:none;
+}
+
+
+.nav-label {
+	height:20px;
+	line-height:20px;
+	text-align:center;
+}
+.simple-navbar{
+	font-size: 12px;
+	background-image: none;
+}
+.nav-label a,.nav-label b,.nav-label span{
+    margin: 3px;
+}
+.nav-prepage div, .nav-prepage div, .nav-firstpage div, .nav-lastpage div, .nav-nextpage div, .nav-refresh div{
+	background-image:url(../toolbar/navigation.gif);
+}
+.grid-add div,.grid-delete div,.grid-save div,.grid-clear div,.grid-excel div,.grid-cust div{
+	background-image:url(../toolbar/toolbar_btn.gif);
+}

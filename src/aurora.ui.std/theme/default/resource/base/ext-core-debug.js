@@ -5032,7 +5032,7 @@ Ext.EventManager = function(){
         docReadyEvent = new Ext.util.Event();
         if (Ext.isGecko || Ext.isOpera) {
             DOC.addEventListener(DOMCONTENTLOADED, fireDocReady, false);
-        } else if (Ext.isIE){
+        } else if (Ext.isIE || Ext.isIE9){
             DOC.write("<s"+'cript id=' + IEDEFERED + ' defer="defer" src="/'+'/:"></s'+"cript>");
             DOC.getElementById(IEDEFERED).onreadystatechange = function(){
                 if(this.readyState == COMPLETE){
