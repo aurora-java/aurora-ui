@@ -250,7 +250,7 @@ $A.getViewportHeight = function(){
  * @return {Number} 页面可视宽度
  */
 $A.getViewportWidth = function() {
-    if(Ext.isIE){
+    if(Ext.isIE||Ext.isIE9||Ext.isIE10){
         return Ext.isStrict ? document.documentElement.clientWidth :
                  document.body.clientWidth;
     }else{

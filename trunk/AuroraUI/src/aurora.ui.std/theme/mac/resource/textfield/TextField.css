@@ -1,9 +1,9 @@
 .item-textField {
     border:0;  
-    height:19px;
-    line-height:19px;
+    height:18px;
+    line-height:16px;
     padding:0;
-    float:left; 
+    padding-top:2px; 
     background-color:transparent; 
     width:100%;
 }

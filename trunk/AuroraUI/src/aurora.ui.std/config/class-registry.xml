@@ -9,6 +9,7 @@
 	<feature-attach elementName="checkBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.CheckBox" />
 	<feature-attach elementName="radio" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Radio" />
 	<feature-attach elementName="button" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Button" />
+    <feature-attach elementName="roundButton" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.RoundButton" />
 	<feature-attach elementName="toolBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ToolBar" />
 	<feature-attach elementName="navBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.NavBar" />
 	<feature-attach elementName="menuBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.MenuBar" />
@@ -27,6 +28,7 @@
 	<feature-attach elementName="table" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Table" />
 	<feature-attach elementName="dataSet" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.DataSet" />
 	<feature-attach elementName="form" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Form" />
+    <feature-attach elementName="screenTitle" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ScreenTitle" />
 	<feature-attach elementName="queryForm" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.QueryForm" />
 	<feature-attach elementName="fieldSet" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.FieldSet" />
 	<feature-attach elementName="box" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Box" />

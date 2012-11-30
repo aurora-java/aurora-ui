@@ -250,7 +250,7 @@ $A.getViewportHeight = function(){
  * @return {Number} 页面可视宽度
  */
 $A.getViewportWidth = function() {
-    if(Ext.isIE){
+    if(Ext.isIE||Ext.isIE9||Ext.isIE10){
         return Ext.isStrict ? document.documentElement.clientWidth :
                  document.body.clientWidth;
     }else{
@@ -3644,16 +3644,16 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         var _rc = 'refresh';
         Ext.getBody().addClass(_rc);
 //        Ext.getBody().setStyle('overflow','hidden')
+        if(!Ext.isEmpty(this.marginheight)){
+            ht = Aurora.getViewportHeight();
+            this.setHeight(ht-this.marginheight);           
+        }
         if(!Ext.isEmpty(this.marginwidth)){
             wd = Aurora.getViewportWidth();
             var v = wd-this.marginwidth;
             this.setWidth(v);
             //非标准做法,中集特殊要求！
             //this.setWidth(v < this.initConfig.width ? v : this.initConfig.width);
-        }
-        if(!Ext.isEmpty(this.marginheight)){
-            ht = Aurora.getViewportHeight();
-            this.setHeight(ht-this.marginheight);           
         }
         
         Ext.getBody().removeClass(_rc);
