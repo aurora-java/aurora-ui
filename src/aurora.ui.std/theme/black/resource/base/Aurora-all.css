@@ -43,7 +43,12 @@ A:link { COLOR: #005a78; TEXT-DECORATION: none}
 A:visited {COLOR: #005a78; TEXT-DECORATION: none}
 A:active {COLOR: #005a78;TEXT-DECORATION: none}
 A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
-
+.screenTitle{
+    float:left;
+    line-height:45px;
+    border-bottom:1px dotted  #ccc;
+    font-size:18px;
+}
 .aurora-cover{
 	position: fixed;
 	overflow: hidden;
@@ -310,6 +315,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .screenTopToolbar .item-btn-tl,.screenTopToolbar .item-btn-tr,.screenTopToolbar .item-btn-tc,.screenTopToolbar .item-btn-ml,.screenTopToolbar .item-btn-mr,.screenTopToolbar .item-btn-mc,.screenTopToolbar .item-btn-bl,.screenTopToolbar .item-btn-br,.screenTopToolbar .item-btn-bc{
     background-image:none;
 }
+
 .item-ckb,.grid-ckb,.table-ckb{
 	width:13px;
 	height:13px;
@@ -601,6 +607,37 @@ button div {
     color:#fff;
     margin-left:8px;
 } 
+
+.item-rbtn button {
+    color:#fff;
+}
+.item-rbtn .tl,.item-rbtn .tr {
+	width:10px;
+	
+}
+.item-rbtn i{
+    font-size:1px;
+    line-height:1px;
+    width:10px;
+    display:block;
+    overflow:hidden;
+}
+.item-rbtn .tm {
+    vertical-align: middle;
+    text-align:center;
+    padding:0 5px;
+    cursor:pointer;
+    white-space:nowrap;
+}
+.item-rbtn-blue .tl {
+	background:transparent url(../button/tl.png) no-repeat;
+}
+.item-rbtn-blue .tm {
+	background:transparent url(../button/tm.png) repeat-x;
+}
+.item-rbtn-blue .tr {
+	background:transparent url(../button/tr.png) no-repeat;
+}
 .item-textField {
     border:0;  
     height:18px;

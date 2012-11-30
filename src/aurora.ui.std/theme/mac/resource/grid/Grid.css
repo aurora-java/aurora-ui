@@ -100,9 +100,15 @@
     text-overflow:ellipsis
 }
 .cell-editor {
-	/*border:1px solid #ccc;*/
+	border:1px solid #fff;
 	margin:0px;
 	height:20px;
+}
+.row-alt .cell-editor {
+    border:1px solid #f3f3f3;
+}
+.row-selected .cell-editor {
+	border:1px solid #dfeaf5;
 }
 .grid-ub table {
 	border-right:1px solid #ededed;

@@ -43,7 +43,12 @@ A:link { COLOR: #005a78; TEXT-DECORATION: none}
 A:visited {COLOR: #005a78; TEXT-DECORATION: none}
 A:active {COLOR: #005a78;TEXT-DECORATION: none}
 A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
-
+.screenTitle{
+    float:left;
+    line-height:45px;
+    border-bottom:1px dotted  #ccc;
+    font-size:18px;
+}
 .aurora-cover{
 	position: fixed;
 	overflow: hidden;
@@ -310,6 +315,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .screenTopToolbar .item-btn-tl,.screenTopToolbar .item-btn-tr,.screenTopToolbar .item-btn-tc,.screenTopToolbar .item-btn-ml,.screenTopToolbar .item-btn-mr,.screenTopToolbar .item-btn-mc,.screenTopToolbar .item-btn-bl,.screenTopToolbar .item-btn-br,.screenTopToolbar .item-btn-bc{
     background-image:none;
 }
+
 .item-ckb,.grid-ckb,.table-ckb{
 	width:13px;
 	height:13px;

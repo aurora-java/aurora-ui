@@ -44,7 +44,12 @@ A:link { COLOR: #005a78; TEXT-DECORATION: none}
 A:visited {COLOR: #005a78; TEXT-DECORATION: none}
 A:active {COLOR: #005a78;TEXT-DECORATION: none}
 A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
-
+.screenTitle{
+    float:left;
+    line-height:45px;
+    border-bottom:1px dotted  #ccc;
+    font-size:18px;
+}
 .aurora-cover{
 	position: fixed;
 	overflow: hidden;
@@ -214,10 +219,12 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 /** 布局 **/
 .layout-form {
 	border:1px solid #ededed;
-	-webkit-border-radius:4px;
-    border-radius:4px;
+	-webkit-border-top-right-radius:4px;
+	-webkit-border-top-left-radius:4px;
+    border-top-right-radius:4px;
+    border-top-left-radius:4px;
     background-color:#fcfcfc;
-    
+    padding:5px;
     -moz-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
     -webkit-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
     box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
@@ -296,29 +303,6 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     background-color:#fff;
     line-height:28px;
     height:30px;    
-}
-.screenTopToolbar {
-    background:url(top_toolbar.jpg) center bottom;
-}
-.screenNavTitle{
-    line-height:25px;
-    border-bottom:1px dotted  #ccc;
-    font-size:12px;
-    font-weight:bold;
-    /*background:#fff url(navTitle.jpg) 0px 0px no-repeat;*/
-}
-.screenTopToolbar div.sep {
-    font-size: 1px; 
-    border-right:1px solid #fff;
-    border-left:1px solid #ccc;
-    margin-left: 1px;
-    margin-right: 1px;  
-    background-repeat: no-repeat;
-    height: 100%;   
-    moz-user-select: none;
-}
-.screenTopToolbar .item-btn-tl,.screenTopToolbar .item-btn-tr,.screenTopToolbar .item-btn-tc,.screenTopToolbar .item-btn-ml,.screenTopToolbar .item-btn-mr,.screenTopToolbar .item-btn-mc,.screenTopToolbar .item-btn-bl,.screenTopToolbar .item-btn-br,.screenTopToolbar .item-btn-bc{
-    background-image:none;
 }
 .item-ckb,.grid-ckb,.table-ckb{
 	width:13px;
@@ -611,12 +595,43 @@ button div {
     color:#fff;
     margin-left:8px;
 } 
+
+.item-rbtn button {
+    color:#fff;
+}
+.item-rbtn .tl,.item-rbtn .tr {
+	width:10px;
+	
+}
+.item-rbtn i{
+    font-size:1px;
+    line-height:1px;
+    width:10px;
+    display:block;
+    overflow:hidden;
+}
+.item-rbtn .tm {
+    vertical-align: middle;
+    text-align:center;
+    padding:0 5px;
+    cursor:pointer;
+    white-space:nowrap;
+}
+.item-rbtn-blue .tl {
+	background:transparent url(../button/tl.png) no-repeat;
+}
+.item-rbtn-blue .tm {
+	background:transparent url(../button/tm.png) repeat-x;
+}
+.item-rbtn-blue .tr {
+	background:transparent url(../button/tr.png) no-repeat;
+}
 .item-textField {
     border:0;  
-    height:19px;
-    line-height:19px;
+    height:18px;
+    line-height:16px;
     padding:0;
-    float:left; 
+    padding-top:2px; 
     background-color:transparent; 
     width:100%;
 }
@@ -871,12 +886,28 @@ button div {
 	background-image:url(../button/btn.gif);
 }
 
-.screenTopToolbar .item-btn-over div {
-    color:#4AB6E3;
-    text-decoration:underline;
+.screenTopToolbar {
+    /*background:url(top_toolbar.jpg) center bottom;*/
+}
+.screenTopToolbar div.sep {
+    font-size: 1px; 
+    border-right:1px solid #fff;
+    border-left:1px solid #ccc;
+    margin-left: 1px;
+    margin-right: 1px;  
+    background-repeat: no-repeat;
+    height: 100%;   
+    moz-user-select: none;
 }
 .screenTopToolbar .item-btn-tl,.screenTopToolbar .item-btn-tr,.screenTopToolbar .item-btn-tc,.screenTopToolbar .item-btn-ml,.screenTopToolbar .item-btn-mr,.screenTopToolbar .item-btn-mc,.screenTopToolbar .item-btn-bl,.screenTopToolbar .item-btn-br,.screenTopToolbar .item-btn-bc{
     background-image:none;
+}
+.screenTopToolbar .item-btn-over div {
+    color:#4AB6E3;
+}
+.item-btn-r div {
+    color:#fff;
+    text-decoration:none;
 }
 
 

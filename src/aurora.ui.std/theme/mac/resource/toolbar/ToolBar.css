@@ -43,12 +43,28 @@
 	background-image:url(../button/btn.gif);
 }
 
-.screenTopToolbar .item-btn-over div {
-    color:#4AB6E3;
-    text-decoration:underline;
+.screenTopToolbar {
+    /*background:url(top_toolbar.jpg) center bottom;*/
+}
+.screenTopToolbar div.sep {
+    font-size: 1px; 
+    border-right:1px solid #fff;
+    border-left:1px solid #ccc;
+    margin-left: 1px;
+    margin-right: 1px;  
+    background-repeat: no-repeat;
+    height: 100%;   
+    moz-user-select: none;
 }
 .screenTopToolbar .item-btn-tl,.screenTopToolbar .item-btn-tr,.screenTopToolbar .item-btn-tc,.screenTopToolbar .item-btn-ml,.screenTopToolbar .item-btn-mr,.screenTopToolbar .item-btn-mc,.screenTopToolbar .item-btn-bl,.screenTopToolbar .item-btn-br,.screenTopToolbar .item-btn-bc{
     background-image:none;
+}
+.screenTopToolbar .item-btn-over div {
+    color:#4AB6E3;
+}
+.item-btn-r div {
+    color:#fff;
+    text-decoration:none;
 }
 
 
