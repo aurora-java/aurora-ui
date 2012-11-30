@@ -64,10 +64,11 @@ Ext.apply = function(o, c, defaults){
         isIE7 = isIE && check(/msie 7/),
         isIE8 = isIE && check(/msie 8/),
         isIE9 = isIE && check(/msie 9/),			//Add by Hugh
+        isIE10 = isIE && check(/msie 10/),			//Add by Hugh
         //isIE6 = isIE && !isIE7 && !isIE8,
-        isIE6 = isIE && !isIE7 && !isIE8 && !isIE9,	//Modify by Hugh
+        isIE6 = isIE && !isIE7 && !isIE8 && !isIE9 && !isIE10,	//Modify by Hugh
         //isIE = (isIE && check(/msie 9/)) ? false : isIE,
-        isIE = isIE9 ? false : isIE,				//Modify by Hugh
+        isIE = isIE9 || isIE10 ? false : isIE,				//Modify by Hugh
         isGecko = !isWebKit && check(/gecko/),
         isGecko2 = isGecko && check(/rv:1\.8/),
         isGecko3 = isGecko && check(/rv:1\.9/),
@@ -718,6 +719,11 @@ function(el){
          * @type Boolean
          */
         isIE9 : isIE9,
+        /**
+         * True if the detected browser is Internet Explorer 10.x.
+         * @type Boolean
+         */
+        isIE10 : isIE10,
         /**
          * True if the detected browser uses the Gecko layout engine (e.g. Mozilla, Firefox).
          * @type Boolean
