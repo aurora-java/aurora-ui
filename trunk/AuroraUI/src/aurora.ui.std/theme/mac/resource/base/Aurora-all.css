@@ -47,7 +47,6 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .screenTitle{
     float:left;
     line-height:45px;
-    border-bottom:1px dotted  #ccc;
     font-size:18px;
 }
 .aurora-cover{
@@ -961,9 +960,15 @@ button div {
 }
 .nav-prepage div, .nav-prepage div, .nav-firstpage div, .nav-lastpage div, .nav-nextpage div, .nav-refresh div{
 	background-image:url(../toolbar/navigation.gif);
+	background-repeat:no-repeat;
 }
 .grid-add div,.grid-delete div,.grid-save div,.grid-clear div,.grid-excel div,.grid-cust div{
 	background-image:url(../toolbar/toolbar_btn.gif);
+	background-repeat:no-repeat;
+}
+.grid-add2 div,.grid-delete2 div,.grid-save2 div,.grid-clear2 div,.grid-excel2 div,.grid-cust2 div{
+    background-image:url(../toolbar/toolbar_btn.png);
+    background-repeat:no-repeat;
 }
 .win-wrap {
 	border:1px solid #acacac; 
@@ -997,7 +1002,7 @@ button div {
 }
 .win-caption {
 	height: 21px;
-	border-bottom:1px solid #808080;
+	border-bottom:1px solid #acacac;
 	-webkit-border-top-right-radius:4px;
 	-webkit-border-top-left-radius:4px;
     border-top-right-radius:4px;
