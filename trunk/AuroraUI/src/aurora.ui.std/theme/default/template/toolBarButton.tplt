@@ -1,4 +1,4 @@
-<table class="${wrapClass} item-btn-r" style="${style};width:${width}px;" id="${id}" cellSpacing="0">
+<table class="${wrapClass} " style="${style};width:${width}px;" id="${id}" cellSpacing="0">
     <tr> 
         <td class="tl"><I></I></td>    
         <td class="tm">

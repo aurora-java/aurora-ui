@@ -14,7 +14,7 @@
  
 Ext.Ajax.timeout = 1800000;
 
-$A = Aurora = {version: '1.0',revision:'$Rev: 6707 $'};
+$A = Aurora = {version: '1.0',revision:'$Rev: 6799 $'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){
     if($A.winWidth != $A.getViewportWidth() || $A.winHeight != $A.getViewportHeight()){
@@ -6552,7 +6552,7 @@ $A.Window = Ext.extend($A.Component,{
         if(sf.url){
             urlAtt = 'url="'+sf.url+'"';
         }
-        sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,url:urlAtt}, true);
+        sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,url:urlAtt,clz:sf.fullScreen ? 'full-window' : ''}, true);
         sf.wrap.cmps = sf.cmps;
         sf.shadow = shadowTpl.insertFirst(document.body, {}, true);
         sf.shadow.setWidth(sf.wrap.getWidth());
@@ -6693,7 +6693,7 @@ $A.Window = Ext.extend($A.Component,{
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap" style="left:-1000px;top:-1000px;width:{width}px;outline:none" cellSpacing="0" cellPadding="0" hideFocus tabIndex="-1" border="0" {url}>',
+            '<TABLE class="win-wrap {clz}" style="left:-1000px;top:-1000px;width:{width}px;outline:none" cellSpacing="0" cellPadding="0" hideFocus tabIndex="-1" border="0" {url}>',
 			'<TBODY>',
 			'<TR style="height:23px;" >',
 				'<TD class="win-caption">',
@@ -6798,7 +6798,7 @@ $A.Window = Ext.extend($A.Component,{
     },
     initProxy : function(){
     	var sf = this; 
-    	var p = '<DIV style="border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: default; POSITION: absolute; TOP: 0px; HEIGHT: 621px;" unselectable="on"></DIV>'
+    	var p = '<DIV style="border:1px dashed black;Z-INDEX: 10000; LEFT: 0px; WIDTH: 100%; CURSOR: move; POSITION: absolute; TOP: 0px; HEIGHT: 621px;-moz-user-select:none;" unselectable="on"  onselectstart="return false;"></DIV>'
     	sf.proxy = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
 //    	sf.proxy.hide();
     	var xy = sf.wrap.getXY();

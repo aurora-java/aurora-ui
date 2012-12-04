@@ -14,7 +14,7 @@
 	-moz-user-select:none;
 	width:100%;
 	overflow: hidden;
-	background: url(../toolbar/toolbar_bg.gif) repeat-x; /*../grid/sky_blue_grid.gif*/
+	background: url(../grid/grid_bg.gif) repeat-x; /*../grid/sky_blue_grid.gif*/
 	border-bottom:none !important;
 	border-bottom:1px solid #cccccc;/*a4bed4*/
 }
@@ -77,8 +77,8 @@
 	float:right;
 }
 .grid-hc {
-	/*border-right:1px solid #cccccc;*/
-	border-bottom:1px solid #cccccc;/*a4bed4*/
+	border-right:1px solid #ededed;
+	border-bottom:1px solid #ededed;/*a4bed4*/
 	/*background: url(../grid/grid_bg.gif) repeat-x;*/
 	color: #055a78;	
 	padding:0px;
