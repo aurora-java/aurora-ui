@@ -65,6 +65,7 @@
 	<feature-attach elementName="comment" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Comment"/>
 	<feature-attach elementName="hotKey" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.HotKey"/>
 	
+	<feature-attach elementName="code" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Code"/>
 	<feature-attach elementName="graphic" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Graphic"/>
     <feature-attach elementName="upload" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Upload"/>
 	<feature-attach elementName="link" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Link"/>

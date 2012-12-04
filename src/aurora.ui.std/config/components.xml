@@ -65,6 +65,7 @@
         
         
         
+        <view-component elementName="code" category="View" description="纯文本显示组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Code" />
         <view-component elementName="chart" category="Chart" description="图表组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="graphic" category="Chart" description="图形组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="upload" category="Input" description="上传组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
