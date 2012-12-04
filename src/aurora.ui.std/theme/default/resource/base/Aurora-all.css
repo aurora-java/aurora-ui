@@ -629,14 +629,50 @@ button div {
     cursor:pointer;
     white-space:nowrap;
 }
-.item-rbtn-blue .tl {
-	background:transparent url(../button/tl.png) no-repeat;
+.item-rbtn-blue .tl,.item-rbtn-blue .tm , .item-rbtn-blue .tr{
+	background-image:url(../button/rbtn.png);
 }
-.item-rbtn-blue .tm {
-	background:transparent url(../button/tm.png) repeat-x;
+.item-rbtn-red .tl,.item-rbtn-red .tm , .item-rbtn-red .tr{
+    background-image:url(../button/rrtn.png);
 }
-.item-rbtn-blue .tr {
-	background:transparent url(../button/tr.png) no-repeat;
+.item-rbtn-green .tl,.item-rbtn-green .tm , .item-rbtn-green .tr{
+    background-image:url(../button/rgtn.png);
+}
+
+.item-rbtn .tl {
+    background-position: 0px 0px;
+    background-repeat:no-repeate;
+}
+.item-rbtn .tm {
+	background-position: 0px -75px;
+	background-repeat:repeat-x;
+}
+.item-rbtn .tr {
+	background-position: -11px 0px;
+	background-repeat:no-repeate;
+}
+
+
+.item-btn-over  .tl {
+    background-position: 0px -25px;
+}
+.item-btn-over .tm {
+    background-position: 0px -100px;
+}
+.item-btn-over .tr {
+    background-position: -11px -25px;
+}
+
+
+
+.item-btn-pressed  .tl {
+    background-position: 0px -50px;
+}
+.item-btn-pressed .tm {
+    background-position: 0px -125px;
+}
+.item-btn-pressed .tr {
+    background-position: -11px -50px;
 }
 .item-textField {
     border:0;  
