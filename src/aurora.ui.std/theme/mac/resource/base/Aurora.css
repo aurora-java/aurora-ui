@@ -47,7 +47,6 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .screenTitle{
     float:left;
     line-height:45px;
-    border-bottom:1px dotted  #ccc;
     font-size:18px;
 }
 .aurora-cover{
