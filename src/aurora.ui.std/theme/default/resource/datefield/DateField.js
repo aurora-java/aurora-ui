@@ -60,7 +60,7 @@ $A.DateField = Ext.extend($A.Component, {
     	this.body[ou]('mousewheel',this.onMouseWheel,this);	
     	this.body[ou]("mouseover", this.onMouseOver, this);
     	this.body[ou]("mouseout", this.onMouseOut, this);
-    	this.body[ou]("mouseup",this.onSelect,this);
+    	this.body[ou]("click",this.onSelect,this);
     	this.yearSpan[ou]("click",this.onViewShow,this);
     	this.monthSpan[ou]("click",this.onViewShow,this);
     	//this.body[ou]("keydown",this.onKeyDown,this);
