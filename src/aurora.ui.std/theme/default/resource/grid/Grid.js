@@ -1060,7 +1060,9 @@ A.Grid = Ext.extend(A.Component,{
                     xy = dom.getXY(),ced;
                 ed.bind(ds, name);
                 ed.render(record);
+                if(Ext.isIE)ed.processListener('un');
                 ed.el.on(EVT_KEY_DOWN, sf.onEditorKeyDown,sf);
+                if(Ext.isIE)ed.processListener('on');
                 Ext.fly(DOC_EL).on(EVT_MOUSE_DOWN, sf.onEditorBlur, sf);
                 ced = sf.currentEditor = {
                     record:record,
