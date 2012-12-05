@@ -46,11 +46,14 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		if (c != 8 && c!=9 && c!=37 && c!=39 && c != 46 && (c < 48 || c > 57 || e.shiftKey)) {
 			e.stopEvent();
 			return;
-		} else if(this.value&&this.value instanceof Date){
-			var date=new Date(this.value.getTime());
-			this.processDate(date);
-	    	this.setValue(date);
-	    	//this.fireEvent('select',this, date);
+		} else{
+			if(this.value&&this.value instanceof Date){
+				var date=new Date(this.value.getTime());
+				this.processDate(date);
+		    	this.setValue(date);
+		    	//this.fireEvent('select',this, date);
+			}
+			this.draw(new Date(this.dateFields[0].year,this.dateFields[0].month - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value));
 		}
 	},
     onDateFocus : function(e) {
@@ -61,7 +64,6 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		var el=e.target;
 		Ext.fly(el.parentNode).removeClass("item-dateField-input-focus");
 		if(!el.value.match(/^[0-9]*$/))el.value=el.oldValue||"";
-		else this.draw(new Date(this.dateFields[0].year,this.dateFields[0].month - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value));
 	},
 	predraw : function(date,noSelect){
 		$A.DateTimePicker.superclass.predraw.call(this,date,noSelect);

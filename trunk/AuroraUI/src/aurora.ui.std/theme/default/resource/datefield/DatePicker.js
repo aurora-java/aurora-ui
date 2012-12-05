@@ -16,6 +16,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
 		this.initFormat();
+		this.initDatePicker();
 	},
 	initFormat : function(){
 		this.format=this.format||$A.defaultDateFormat;
@@ -69,7 +70,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	}
     },
     initFooter : function(){
-    	if(!this.now)this.now=new Ext.Template(this.nowTpl).append(this.popup.child("div.item-dateField-foot").dom,{now:_lang['datepicker.today'],title:new Date().format(this.format)},true);;
+    	if(!this.now)this.now=new Ext.Template(this.nowTpl).append(this.popup.child("div.item-dateField-foot").dom,{now:_lang['datepicker.today'],title:new Date().format(this.format)},true);
     	var now = new Date();
     	this.now.set({"_date":new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0).getTime()});
     },
@@ -242,8 +243,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	return date;
     },
     expand : function(){
-        this.initDatePicker();
-    	this.selectDay = this.getValue();
+        this.selectDay = this.getValue();
 		this.predraw(this.selectDay);
     	$A.DatePicker.superclass.expand.call(this);
     },
