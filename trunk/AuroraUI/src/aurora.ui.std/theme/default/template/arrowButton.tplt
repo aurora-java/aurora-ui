@@ -1,0 +1,13 @@
+<table class="${wrapClass} " style="${style};width:${width}px;" id="${id}" cellSpacing="0">
+    <tr> 
+        <td class="atl ${left}"><I></I></td>    
+        <td class="atm">
+            <BUTTON tabIndex="${tabindex}" type="button" hidefocus="true" atype="btn" title="${title}" style="height:${height}px;" class="${btnclass}"><div style="background-position-y:2px;text-decoration:none;line-height:20px;height:22px;${btnstyle}">${text}</div></BUTTON>
+        </td> 
+        <td class="atr ${right}"><I></I></td>    
+    </tr>
+</table>
+<script>
+    new Aurora.Button(${config});
+    ${binding}
+</script>

@@ -200,24 +200,13 @@ button div {
 .item-btn-tl, .item-btn-tr, .item-btn-tc, .item-btn-ml, .item-btn-mr, .item-btn-mc, .item-btn-bl, .item-btn-br, .item-btn-bc{
     background-image:url(../button/btn.gif);
 }
-.item-btn-nr {
-    font-size:1px;
-    line-height:1px;
-    width:60px;
-    height:22px;
-    background-image:url(../button/btn_nr.png);
-}
-.item-btn-nr button{
-    color:#fff;
-    margin-left:8px;
-} 
+ 
 
 .item-rbtn button {
     color:#fff;
 }
 .item-rbtn .tl,.item-rbtn .tr {
 	width:10px;
-	
 }
 .item-rbtn i{
     font-size:1px;
@@ -266,9 +255,6 @@ button div {
 .item-btn-over .tr {
     background-position: -11px -25px;
 }
-
-
-
 .item-btn-pressed  .tl {
     background-position: 0px -50px;
 }
@@ -277,4 +263,119 @@ button div {
 }
 .item-btn-pressed .tr {
     background-position: -11px -50px;
+}
+
+
+.item-rtbtn .rtl,.item-rtbtn .rtr {
+    width:6px;
+}
+.item-rtbtn i{
+    font-size:1px;
+    line-height:1px;
+    width:6px;
+    display:block;
+    overflow:hidden;
+}
+.item-rtbtn  {
+    font-size:1px;
+    line-height:1px;
+    height:32px;
+}
+
+.item-rtbtn .rtl,.item-rtbtn .rtm , .item-rtbtn .rtr{
+    background-image:url(../button/rtbtn.png);
+}
+.item-rtbtn .rtl {
+    background-position: 0px 0px;
+    background-repeat:no-repeate;
+}
+.item-rtbtn .rtm {
+	text-align:center;
+    background-position: 0px -104px;
+    background-repeat:repeat-x;
+}
+.item-rtbtn .rtr {
+    background-position: -6px 0px;
+    background-repeat:no-repeate;
+}
+.item-btn-over  .rtl {
+    background-position: 0px -35px;
+}
+.item-btn-over .rtm {
+    background-position: 0px -139px;
+}
+.item-btn-over .rtr {
+    background-position: -6px -35px;
+}
+.item-btn-pressed  .rtl {
+    background-position: 0px -70px;
+}
+.item-btn-pressed .rtm {
+    background-position: 0px -174px;
+}
+.item-btn-pressed .rtr {
+    background-position: -6px -70px;
+}
+
+
+
+.item-abtn .atl,.item-abtn .atr,.item-abtn i{
+    width:9px;
+}
+.item-abtn i,.item-abtn i{
+    font-size:1px;
+    line-height:1px;
+    width:9px;
+    display:block;
+    overflow:hidden;
+}
+.arbtn .atr i,.albtn .atl i{
+    font-size:1px;
+    line-height:1px;
+    width:17px;
+    display:block;
+    overflow:hidden;
+}
+.item-abtn  {
+    font-size:1px;
+    line-height:1px;
+    height:32px;
+    color:#000;
+    text-align:center;
+}
+.arbtn .atl,.arbtn .atm , .arbtn .atr{
+    background-image:url(../button/arbtn.png);
+    background-repeat:no-repeate;
+}
+.albtn .atl,.albtn .atm , .albtn .atr{
+    background-image:url(../button/albtn.png);
+    background-repeat:no-repeate;
+}
+.item-abtn .atm {
+    background-repeat:repeat-x;
+    background-position: 0px -108px;
+}
+.arbtn .atl, .albtn .atr {
+    background-position: 0px -537px;
+    background-repeat:no-repeate;
+}
+
+.item-btn-over .atl,.item-btn-over .atr{
+    background-position: 0px -252px;
+}
+.item-btn-over .atm {
+    background-position: 0px -144px;
+}
+.item-btn-over .arrow {
+    background-position: 0px -36px;
+}
+
+.item-btn-pressed .atl, .item-btn-pressed  .atr {
+    background-position: 0px -288px;
+}
+.item-btn-pressed .atm {
+    background-position: 0px -180px;
+}
+.item-btn-pressed .arrow {
+    background-position: 0px -72px;
 }
