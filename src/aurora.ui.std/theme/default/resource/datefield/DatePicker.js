@@ -25,8 +25,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
             this.initDateField();
             this.initFooter();
             this.inited = true;
-            this.processListener('un');
-            this.processListener('on');
+//            this.processListener('un');
+//            this.processListener('on');
         }
     },
     initDateField:function(){
@@ -41,7 +41,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	    			enablebesidedays:'none',
 	    			dayrenderer:this.dayrenderer,
 	    			listeners:{
-	    				"select":this.onSelect.createDelegate(this),
+//	    				"select":this.onSelect.createDelegate(this),
 	    				"draw":this.onDraw.createDelegate(this),
 	    				"mouseover":this.mouseOver.createDelegate(this),
 	    				"mouseout":this.mouseOut.createDelegate(this)
@@ -87,7 +87,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     processListener : function(ou){
     	$A.DatePicker.superclass.processListener.call(this,ou);
     	this.el[ou]('click',this.mouseOut, this);
-    	if(this.now)this.now[ou]("click", this.onSelect, this);
+    	this.popup[ou]("click", this.onSelect, this);
     },
     mouseOver: function(cmp,e){
     	if(this.focusField)this.focusField.out();
