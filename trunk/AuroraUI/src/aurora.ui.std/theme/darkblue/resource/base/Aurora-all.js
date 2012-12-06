@@ -5696,7 +5696,7 @@ $A.DateField = Ext.extend($A.Component, {
     	this.body[ou]('mousewheel',this.onMouseWheel,this);	
     	this.body[ou]("mouseover", this.onMouseOver, this);
     	this.body[ou]("mouseout", this.onMouseOut, this);
-    	this.body[ou]("mouseup",this.onSelect,this);
+    	this.body[ou]("click",this.onSelect,this);
     	this.yearSpan[ou]("click",this.onViewShow,this);
     	this.monthSpan[ou]("click",this.onViewShow,this);
     	//this.body[ou]("keydown",this.onKeyDown,this);
@@ -5949,6 +5949,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
 		this.initFormat();
+		this.initDatePicker();
 	},
 	initFormat : function(){
 		this.format=this.format||$A.defaultDateFormat;
@@ -5958,8 +5959,8 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
             this.initDateField();
             this.initFooter();
             this.inited = true;
-            this.processListener('un');
-            this.processListener('on');
+//            this.processListener('un');
+//            this.processListener('on');
         }
     },
     initDateField:function(){
@@ -5974,7 +5975,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 	    			enablebesidedays:'none',
 	    			dayrenderer:this.dayrenderer,
 	    			listeners:{
-	    				"select":this.onSelect.createDelegate(this),
+//	    				"select":this.onSelect.createDelegate(this),
 	    				"draw":this.onDraw.createDelegate(this),
 	    				"mouseover":this.mouseOver.createDelegate(this),
 	    				"mouseout":this.mouseOut.createDelegate(this)
@@ -6002,7 +6003,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	}
     },
     initFooter : function(){
-    	if(!this.now)this.now=new Ext.Template(this.nowTpl).append(this.popup.child("div.item-dateField-foot").dom,{now:_lang['datepicker.today'],title:new Date().format(this.format)},true);;
+    	if(!this.now)this.now=new Ext.Template(this.nowTpl).append(this.popup.child("div.item-dateField-foot").dom,{now:_lang['datepicker.today'],title:new Date().format(this.format)},true);
     	var now = new Date();
     	this.now.set({"_date":new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0).getTime()});
     },
@@ -6020,7 +6021,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     processListener : function(ou){
     	$A.DatePicker.superclass.processListener.call(this,ou);
     	this.el[ou]('click',this.mouseOut, this);
-    	if(this.now)this.now[ou]("click", this.onSelect, this);
+    	this.popup[ou]("click", this.onSelect, this);
     },
     mouseOver: function(cmp,e){
     	if(this.focusField)this.focusField.out();
@@ -6175,8 +6176,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	return date;
     },
     expand : function(){
-        this.initDatePicker();
-    	this.selectDay = this.getValue();
+        this.selectDay = this.getValue();
 		this.predraw(this.selectDay);
     	$A.DatePicker.superclass.expand.call(this);
     },
@@ -6281,11 +6281,14 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		if (c != 8 && c!=9 && c!=37 && c!=39 && c != 46 && (c < 48 || c > 57 || e.shiftKey)) {
 			e.stopEvent();
 			return;
-		} else if(this.value&&this.value instanceof Date){
-			var date=new Date(this.value.getTime());
-			this.processDate(date);
-	    	this.setValue(date);
-	    	//this.fireEvent('select',this, date);
+		} else{
+			if(this.value&&this.value instanceof Date){
+				var date=new Date(this.value.getTime());
+				this.processDate(date);
+		    	this.setValue(date);
+		    	//this.fireEvent('select',this, date);
+			}
+			this.draw(new Date(this.dateFields[0].year,this.dateFields[0].month - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value));
 		}
 	},
     onDateFocus : function(e) {
@@ -6296,7 +6299,6 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		var el=e.target;
 		Ext.fly(el.parentNode).removeClass("item-dateField-input-focus");
 		if(!el.value.match(/^[0-9]*$/))el.value=el.oldValue||"";
-		else this.draw(new Date(this.dateFields[0].year,this.dateFields[0].month - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value));
 	},
 	predraw : function(date,noSelect){
 		$A.DateTimePicker.superclass.predraw.call(this,date,noSelect);
