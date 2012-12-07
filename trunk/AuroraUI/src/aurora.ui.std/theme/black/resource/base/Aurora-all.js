@@ -2431,6 +2431,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //        if(!this.execSelectFunction(r))return;
         if(this.fireEvent("beforeselect",this,r)){
             if(this.selectionmodel == 'multiple'){
+                
                 this.selected.add(r);
                 this.fireEvent('select', this, r , isSelectAll);
             }else{
@@ -3132,6 +3133,12 @@ $A.Record = function(data, fields){
      * @property
      */
     this.isReady=true;
+    /**
+     * 是否被选中
+     * @type Boolean
+     * @property
+     */
+    this.isSelected = false;
     this.meta = new $A.Record.Meta(this);
     if(fields)this.initFields(fields);
 };
@@ -5217,9 +5224,9 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	}
     	this.shadow.remove();
     	this.popup.remove();
+    	$A.TriggerField.superclass.destroy.call(this);
     	delete this.popup;
     	delete this.shadow;
-    	$A.TriggerField.superclass.destroy.call(this);
 	},
     triggerBlur : function(e){
     	if(this.popup.dom != e.target && !this.popup.contains(e.target) && !this.wrap.contains(e.target)){    		
@@ -5966,7 +5973,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     initDateField:function(){
     	this.popup.setStyle({'width':150*this.viewsize+'px'})
     	if(this.dateFields.length==0){
-    		window['__host']=this;
+//    		window['__host']=this;
     		for(var i=0;i<this.viewsize;i++){
 	    		var cfg = {
 	    			id:this.id+'_df'+i,
@@ -5999,7 +6006,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
 		    	}else Ext.fly(this.id+'_df'+i).dom.style.cssText="border-right:1px solid #BABABA";
 		    	this.dateFields.add(new $A.DateField(cfg));
     		}
-    		window['__host']=null;
+//    		window['__host']=null;
     	}
     },
     initFooter : function(){
@@ -6186,21 +6193,28 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     destroy : function(){
     	$A.DatePicker.superclass.destroy.call(this);
+    	var sf = this;
+        Ext.each(this.dateFields,function(cmp){
+            try{
+                  cmp.destroy();
+              }catch(e){
+                  alert('销毁datePicker出错: ' + e)
+              };
+        })
     	delete this.format;
     	delete this.viewsize;
-    	var sf = this;
-        setTimeout(function(){
-        	for(var key in sf.cmps){
-        		var cmp = sf.cmps[key];
-        		if(cmp.destroy){
-        			try{
-        				cmp.destroy();
-        			}catch(e){
-        				alert('销毁window出错: ' + e)
-        			}
-        		}
-        	}
-        },10)
+//        setTimeout(function(){
+//        	for(var key in sf.cmps){
+//        		var cmp = sf.cmps[key];
+//        		if(cmp.destroy){
+//        			try{
+//        				cmp.destroy();
+//        			}catch(e){
+//        				alert('销毁window出错: ' + e)
+//        			}
+//        		}
+//        	}
+//        },10)
 	},
 	predraw : function(date){
 		if(date && date instanceof Date){
@@ -8074,7 +8088,7 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
 });
 $A.QueryForm = Ext.extend($A.Component,{
 	initComponent:function(config){
-		$A.QueryForm.superclass.initComponent(config);
+		$A.QueryForm.superclass.initComponent.call(this,config);
 		var sf = this,wrap= sf.bodyWrap = sf.wrap.child('.form_body_wrap');
 		if(wrap){
 			sf.body = wrap.first();

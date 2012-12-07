@@ -70,9 +70,9 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	}
     	this.shadow.remove();
     	this.popup.remove();
+    	$A.TriggerField.superclass.destroy.call(this);
     	delete this.popup;
     	delete this.shadow;
-    	$A.TriggerField.superclass.destroy.call(this);
 	},
     triggerBlur : function(e){
     	if(this.popup.dom != e.target && !this.popup.contains(e.target) && !this.wrap.contains(e.target)){    		
