@@ -47,9 +47,13 @@ $A.QueryForm = Ext.extend($A.Component,{
 //		sf.qds.reset();
 		sf.isopen = true;
         sf.bodyWrap.parent('TBODY').setStyle('display','block');
-		sf.bodyWrap.setHeight(body.getHeight(),{
-			callback:function(){if(sf.isopen)body.show();}
-		});
+        if(sf.isopen)body.show()
+        sf.bodyWrap.setHeight(body.getHeight()+10);
+        sf.bodyWrap.setWidth(sf.wrap.getWidth());
+        sf.bodyWrap.fadeIn();
+//		sf.bodyWrap.setHeight(body.getHeight()+10,{
+//			callback:function(){if(sf.isopen)body.show();}
+//		});
 	},
 	close : function(){
 		var sf = this,input = sf.searchInput;
