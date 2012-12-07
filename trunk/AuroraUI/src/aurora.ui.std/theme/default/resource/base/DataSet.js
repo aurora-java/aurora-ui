@@ -898,8 +898,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(this.selected.indexOf(r) != -1)return;
 //        if(!this.execSelectFunction(r))return;
         if(this.fireEvent("beforeselect",this,r)){
+        	r.isSelected = true;
             if(this.selectionmodel == 'multiple'){
-                
                 this.selected.add(r);
                 this.fireEvent('select', this, r , isSelectAll);
             }else{
@@ -921,6 +921,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(!r) return;
         if(this.selected.indexOf(r) == -1) return;
         this.selected.remove(r);
+        r.isSelected = false;
         this.fireEvent('unselect', this, r , isSelectAll);
     },
     execSelectFunction:function(r){
