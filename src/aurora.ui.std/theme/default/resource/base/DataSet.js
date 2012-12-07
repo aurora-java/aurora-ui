@@ -899,6 +899,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //        if(!this.execSelectFunction(r))return;
         if(this.fireEvent("beforeselect",this,r)){
             if(this.selectionmodel == 'multiple'){
+                
                 this.selected.add(r);
                 this.fireEvent('select', this, r , isSelectAll);
             }else{
@@ -1600,6 +1601,12 @@ $A.Record = function(data, fields){
      * @property
      */
     this.isReady=true;
+    /**
+     * 是否被选中
+     * @type Boolean
+     * @property
+     */
+    this.isSelected = false;
     this.meta = new $A.Record.Meta(this);
     if(fields)this.initFields(fields);
 };

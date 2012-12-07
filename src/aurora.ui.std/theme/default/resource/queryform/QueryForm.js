@@ -1,6 +1,6 @@
 $A.QueryForm = Ext.extend($A.Component,{
 	initComponent:function(config){
-		$A.QueryForm.superclass.initComponent(config);
+		$A.QueryForm.superclass.initComponent.call(this,config);
 		var sf = this,wrap= sf.bodyWrap = sf.wrap.child('.form_body_wrap');
 		if(wrap){
 			sf.body = wrap.first();

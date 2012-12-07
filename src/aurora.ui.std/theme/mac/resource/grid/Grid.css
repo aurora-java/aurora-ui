@@ -8,6 +8,7 @@
 }
 .item-grid {		
 	/*position:relative;*/
+	background-color:#f8f8f8;
 }
 .grid-lh, .grid-uh {
 	cursor: default;
@@ -103,12 +104,13 @@
 	border:1px solid #fff;
 	margin:0px;
 	height:20px;
+	background-color:#fff;
 }
 .row-alt .cell-editor {
-    border:1px solid #f3f3f3;
+    /*border:1px solid #f3f3f3;*/
 }
 .row-selected .cell-editor {
-	border:1px solid #dfeaf5;
+	border:1px solid #ccc;
 }
 .grid-ub table {
 	border-right:1px solid #ededed;
@@ -159,4 +161,10 @@
 }
 .row-selected {
 	background-color:#dfeaf5;
+}
+.item-notBlank{
+    background:#fff9c2;
+}
+.item-invalid{
+    background:#FFB9AC;
 }
