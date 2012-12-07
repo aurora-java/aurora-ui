@@ -46,8 +46,8 @@ A:active {COLOR: #005a78;TEXT-DECORATION: none}
 A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .screenTitle{
     float:left;
-    line-height:45px;
-    font-size:18px;
+    font-size:20px;
+    margin-top:12px;
 }
 .aurora-cover{
 	position: fixed;
@@ -218,10 +218,8 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 /** 布局 **/
 .layout-form {
 	border:1px solid #ccc;
-	-webkit-border-top-right-radius:4px;
-	-webkit-border-top-left-radius:4px;
-    border-top-right-radius:4px;
-    border-top-left-radius:4px;
+	-webkit-radius:4px;
+    border-radius:4px;
     background-color:#fcfcfc;
     padding:5px;
     -moz-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
@@ -302,6 +300,34 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     background-color:#fff;
     line-height:28px;
     height:30px;    
+}
+.query-form {
+	border:1px solid #ccc;
+    -webkit-radius:4px;
+    border-radius:4px;
+    -moz-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
+    -webkit-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
+    box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
+    
+}
+.query-form  .query_form_head {
+    padding:5px;
+    -webkit-radius:4px;
+    border-radius:4px;
+    color:#fff;
+    background: #fcfcfc url(../base/queryform.gif) repeat-x;
+}
+.query-form .form_body_wrap {
+    padding:5px;
+    position:absolute;
+    background-color:#fcfcfc;
+    border:1px solid #ccc;
+    -webkit-radius:4px;
+    border-radius:4px;
+	-moz-box-shadow: 0px 4px 16px rgba(0,0,0,0.5);  
+    -webkit-box-shadow: 0px 4px 16px rgba(0,0,0,0.5);
+    box-shadow:0px 4px 16px rgba(0,0,0,0.5);
+    z-index:1;
 }
 .item-ckb,.grid-ckb,.table-ckb{
 	width:13px;
@@ -1136,6 +1162,10 @@ button div {
 	CURSOR: pointer; 
 	BACKGROUND-REPEAT: no-repeat; 
 	BACKGROUND-COLOR: transparent;
+}
+.full-window .win-caption-button {
+    vertical-align:middle;
+    WIDTH: auto;
 }
 .full-window .win-close{
     background-image: url(../window/win_close.png);

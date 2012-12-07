@@ -6750,6 +6750,22 @@ $A.Window = Ext.extend($A.Component,{
 	    	this.shadow.setStyle('z-index', zindex+4);
 	    	if(this.modal) $A.Cover.cover(this.wrap);
     	}
+        
+        //去除下面window遮盖的透明度
+        var alls = $A.WindowManager.getAll()
+        for(var i=0;i<alls.length;i++){
+            var pw = alls[i];
+            if(pw != this){
+                var cover = $A.Cover.container[pw.wrap.id];
+                if(cover)cover.setStyle({
+                    filter: 'alpha(opacity=0)',
+                    opacity: '0',
+                    mozopacity: '0'
+                })
+            }
+        }
+        
+        
 //    	$A.focusWindow = this;    	
     },
     onMouseDown : function(e){
@@ -6851,6 +6867,31 @@ $A.Window = Ext.extend($A.Component,{
 	    	this.destroy();
 	    	this.fireEvent('close', this);
     	}
+        
+        //去除下面window遮盖的透明度
+        var alls = $A.WindowManager.getAll()
+        for(var i=0;i<alls.length-1;i++){
+            var pw = alls[i];
+            if(pw != this){
+                var cover = $A.Cover.container[pw.wrap.id];
+                if(cover)cover.setStyle({
+                    filter: 'alpha(opacity=0)',
+                    opacity: '0',
+                    mozopacity: '0'
+                })
+            }
+        }
+        
+        
+        var cw = alls[alls.length-1];
+        if(cw){
+            var cover = $A.Cover.container[cw.wrap.id];
+            if(cover)cover.setStyle({
+                filter: '',
+                opacity: '',
+                mozopacity: ''
+            })
+        }
     },
     clearBody : function(){
     	for(var key in this.cmps){
@@ -7028,7 +7069,7 @@ $A.showErrorMessage = function(title,msg,callback,width,height){
 }
 
 $A.showTypeMessage = function(title, msg,width,height,css,callback){
-	var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
+	var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-70)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
 	return $A.showOkWindow(title, msg, width, height,callback);	
 } 
 /**
@@ -7045,7 +7086,7 @@ $A.showTypeMessage = function(title, msg,width,height,css,callback){
 $A.showConfirm = function(title, msg, okfun,cancelfun, width, height){
 	width = width||300;
 	height = height||100;
-    var msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
+    var msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-70)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
     return $A.showOkCancelWindow(title, msg, okfun,cancelfun, width, height);  	
 }
 //$A.hideWindow = function(){
@@ -8095,8 +8136,8 @@ $A.QueryForm = Ext.extend($A.Component,{
 			sf.hasbody = true;
 			if(!sf.isopen)sf.body.hide();
 		}
-		sf.searchInput = $(sf.id + '_query');
-		sf.rds = $(sf.resulttarget);
+		sf.searchInput = $A.CmpManager.get(sf.id + '_query');
+		sf.rds = $A.CmpManager.get(sf.resulttarget);
 	},
 	bind : function(ds){
 		if(Ext.isString(ds)){
@@ -8109,10 +8150,10 @@ $A.QueryForm = Ext.extend($A.Component,{
 			input = sf.searchInput,
 			queryhook = sf.queryhook,
 			queryfield = sf.queryfield;
-		if(input && (queryhook || queryfield)){
-			var value = input.getValue(),
-				qds = sf.qds;
-			if(!sf.isopen){
+		if(sf.rds && (queryhook || queryfield)){
+			if(!sf.isopen && input){
+				var value = input.getValue(),
+					qds = sf.qds;
 				if(queryhook){
 					queryhook(value,qds);
 	//				Ext.iterate(queryhook(value),function(key,v){
@@ -8127,15 +8168,21 @@ $A.QueryForm = Ext.extend($A.Component,{
 	open : function(){
 		var sf = this,body = sf.body,input = sf.searchInput;
 		if(sf.isopen && sf.hasbody)return;
-		input.readonly = true;
-		input.setValue('');
-		input.initStatus();
+		if(input){
+			input.readonly = true;
+			input.setValue('');
+			input.initStatus();
+		}
 //		sf.qds.reset();
 		sf.isopen = true;
         sf.bodyWrap.parent('TBODY').setStyle('display','block');
-		sf.bodyWrap.setHeight(body.getHeight(),{
-			callback:function(){if(sf.isopen)body.show();}
-		});
+        if(sf.isopen)body.show()
+        sf.bodyWrap.setHeight(body.getHeight()+10);
+        sf.bodyWrap.setWidth(sf.wrap.getWidth());
+        sf.bodyWrap.fadeIn();
+//		sf.bodyWrap.setHeight(body.getHeight()+10,{
+//			callback:function(){if(sf.isopen)body.show();}
+//		});
 	},
 	close : function(){
 		var sf = this,input = sf.searchInput;

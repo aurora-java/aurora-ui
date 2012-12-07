@@ -64,6 +64,10 @@
 	BACKGROUND-REPEAT: no-repeat; 
 	BACKGROUND-COLOR: transparent;
 }
+.full-window .win-caption-button {
+    vertical-align:middle;
+    WIDTH: auto;
+}
 .full-window .win-close{
     background-image: url(../window/win_close.png);
     background-position:0px 2px;
