@@ -7,8 +7,8 @@ $A.QueryForm = Ext.extend($A.Component,{
 			sf.hasbody = true;
 			if(!sf.isopen)sf.body.hide();
 		}
-		sf.searchInput = $(sf.id + '_query');
-		sf.rds = $(sf.resulttarget);
+		sf.searchInput = $A.CmpManager.get(sf.id + '_query');
+		sf.rds = $A.CmpManager.get(sf.resulttarget);
 	},
 	bind : function(ds){
 		if(Ext.isString(ds)){
@@ -21,10 +21,10 @@ $A.QueryForm = Ext.extend($A.Component,{
 			input = sf.searchInput,
 			queryhook = sf.queryhook,
 			queryfield = sf.queryfield;
-		if(input && (queryhook || queryfield)){
-			var value = input.getValue(),
-				qds = sf.qds;
-			if(!sf.isopen){
+		if(sf.rds && (queryhook || queryfield)){
+			if(!sf.isopen && input){
+				var value = input.getValue(),
+					qds = sf.qds;
 				if(queryhook){
 					queryhook(value,qds);
 	//				Ext.iterate(queryhook(value),function(key,v){
@@ -39,9 +39,11 @@ $A.QueryForm = Ext.extend($A.Component,{
 	open : function(){
 		var sf = this,body = sf.body,input = sf.searchInput;
 		if(sf.isopen && sf.hasbody)return;
-		input.readonly = true;
-		input.setValue('');
-		input.initStatus();
+		if(input){
+			input.readonly = true;
+			input.setValue('');
+			input.initStatus();
+		}
 //		sf.qds.reset();
 		sf.isopen = true;
         sf.bodyWrap.parent('TBODY').setStyle('display','block');
