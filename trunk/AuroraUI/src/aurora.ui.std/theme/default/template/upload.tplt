@@ -1,5 +1,5 @@
 <span style="display:${showupload}"><span id="${id}"></span></span>
-<div style="height:1px;background-color:#666;font-size:0px"> </div>
+<div style="height:1px;background-color:#666;font-size:0px;display:${linestyle}"> </div>
 <SCRIPT LANGUAGE="JavaScript">
 window.${id}_download_path = '${downloadurl}';
 function ${id}(){

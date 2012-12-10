@@ -5496,7 +5496,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		var record = this.optionDataSet.getAt(index),
 			value = record.get(this.valuefield),
 			display = this.getRenderText(record);//record.get(this.displayfield);
-		this.setValue(display);
+		this.setValue(display,null,record);
 		this.fireEvent('select',this, value, display, record);
 	},
 	initQuery: function(){//事件定义中调用
@@ -5606,14 +5606,14 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //		}
 //		return this.text;
 //	},
-	setValue: function(v, silent){
+	setValue: function(v, silent,vr){
         $A.ComboBox.superclass.setValue.call(this, v, silent);
         var r = this.record;
         if(r){
 			var field = r.getMeta().getField(this.binder.name);
 			if(field){
 				var raw = this.getRawValue(),
-					record = this.getRecordByDisplay(raw);
+					record = vr||this.getRecordByDisplay(raw);
 				Ext.each(field.get('mapping'),function(map){
 					var vl = record ? record.get(map.from) : (this.fetchrecord===false?raw:'');
 //    					var vl = record ? (record.get(map.from)||'') : '';
