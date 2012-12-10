@@ -162,9 +162,9 @@
 .row-selected {
 	background-color:#dfeaf5;
 }
-.item-notBlank{
+.item-grid .item-notBlank{
     background:#fff9c2;
 }
-.item-invalid{
+.item-grid .item-invalid{
     background:#FFB9AC;
 }
