@@ -2430,8 +2430,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(this.selected.indexOf(r) != -1)return;
 //        if(!this.execSelectFunction(r))return;
         if(this.fireEvent("beforeselect",this,r)){
+        	r.isSelected = true;
             if(this.selectionmodel == 'multiple'){
-                
                 this.selected.add(r);
                 this.fireEvent('select', this, r , isSelectAll);
             }else{
@@ -2453,6 +2453,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(!r) return;
         if(this.selected.indexOf(r) == -1) return;
         this.selected.remove(r);
+        r.isSelected = false;
         this.fireEvent('unselect', this, r , isSelectAll);
     },
     execSelectFunction:function(r){
@@ -5406,6 +5407,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
     		this.timeoutId = function(){
     			this.doQuery(this.getRawValue());
     			this.correctViewSize();
+                this.syncPopup();
     			delete this.timeoutId;
     		}.defer(300,this);
     	}
@@ -6599,7 +6601,7 @@ $A.Window = Ext.extend($A.Component,{
     	   this.closeBtn[ou]("mousedown", this.onCloseDown,  this);
     	}
         if(!this.modal) this.wrap[ou]("click", this.toFront, this);
-        this.wrap[ou]("keydown", this.onKeyDown,  this);
+//        this.wrap[ou]("keydown", this.onKeyDown,  this);
     	if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
     },
     initEvents : function(){
@@ -6625,7 +6627,7 @@ $A.Window = Ext.extend($A.Component,{
          */
     	'load');    	
     },
-    onKeyDown : function(e){
+    onFocusKeyDown : function(e){
         var key = e.getKey();
         if(key == 9){
             var fk,lk,ck,cmp
@@ -8163,6 +8165,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 					if(qds.getCurrentRecord())qds.getCurrentRecord().set(queryfield,value);
 			}
 			sf.rds.query();	
+            sf.close();
 		}
 	},
 	open : function(){
@@ -8189,7 +8192,7 @@ $A.QueryForm = Ext.extend($A.Component,{
 		if(sf.isopen && sf.hasbody){
 			input.readonly = false;
 			input.initStatus();
-			sf.qds.reset();
+//			sf.qds.reset();
 			sf.isopen = false;
 			sf.body.hide();
             sf.bodyWrap.parent('TBODY').setStyle('display','none');

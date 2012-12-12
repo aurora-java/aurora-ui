@@ -121,6 +121,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
     		this.timeoutId = function(){
     			this.doQuery(this.getRawValue());
     			this.correctViewSize();
+                this.syncPopup();
     			delete this.timeoutId;
     		}.defer(300,this);
     	}

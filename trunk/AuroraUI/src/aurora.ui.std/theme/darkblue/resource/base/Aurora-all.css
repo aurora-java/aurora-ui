@@ -314,7 +314,34 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .screenTopToolbar .item-btn-tl,.screenTopToolbar .item-btn-tr,.screenTopToolbar .item-btn-tc,.screenTopToolbar .item-btn-ml,.screenTopToolbar .item-btn-mr,.screenTopToolbar .item-btn-mc,.screenTopToolbar .item-btn-bl,.screenTopToolbar .item-btn-br,.screenTopToolbar .item-btn-bc{
     background-image:none;
 }
-
+.query-form {
+    border:1px solid #ccc;
+    -webkit-radius:4px;
+    border-radius:4px;
+    -moz-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
+    -webkit-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
+    box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
+    
+}
+.query-form  .query_form_head {
+    padding:5px;
+    -webkit-radius:4px;
+    border-radius:4px;
+    color:#fff;
+    background-color: #fcfcfc;
+}
+.query-form .form_body_wrap {
+    padding:5px;
+    position:absolute;
+    background-color:#fcfcfc;
+    border:1px solid #ccc;
+    -webkit-radius:4px;
+    border-radius:4px;
+    -moz-box-shadow: 0px 4px 16px rgba(0,0,0,0.5);  
+    -webkit-box-shadow: 0px 4px 16px rgba(0,0,0,0.5);
+    box-shadow:0px 4px 16px rgba(0,0,0,0.5);
+    z-index:1;
+}
 .item-ckb,.grid-ckb,.table-ckb{
 	width:13px;
 	height:13px;
@@ -866,6 +893,10 @@ button div {
 }
 .grid-add div,.grid-delete div,.grid-save div,.grid-clear div,.grid-excel div,.grid-cust div{
 	background-image:url(../toolbar/toolbar_btn.gif);
+}
+.grid-add2 div,.grid-delete2 div,.grid-save2 div,.grid-clear2 div,.grid-excel2 div,.grid-cust2 div{
+    background-image:url(../toolbar/toolbar_btn.png);
+    background-repeat:no-repeat;
 }
 .win-wrap {
 	border:1px solid #808080; 

@@ -60,3 +60,7 @@
 .grid-add div,.grid-delete div,.grid-save div,.grid-clear div,.grid-excel div,.grid-cust div{
 	background-image:url(../toolbar/toolbar_btn.gif);
 }
+.grid-add2 div,.grid-delete2 div,.grid-save2 div,.grid-clear2 div,.grid-excel2 div,.grid-cust2 div{
+    background-image:url(../toolbar/toolbar_btn.png);
+    background-repeat:no-repeat;
+}

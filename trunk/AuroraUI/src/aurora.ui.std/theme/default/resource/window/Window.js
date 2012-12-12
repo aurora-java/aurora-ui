@@ -106,7 +106,7 @@ $A.Window = Ext.extend($A.Component,{
     	   this.closeBtn[ou]("mousedown", this.onCloseDown,  this);
     	}
         if(!this.modal) this.wrap[ou]("click", this.toFront, this);
-        this.wrap[ou]("keydown", this.onKeyDown,  this);
+//        this.wrap[ou]("keydown", this.onKeyDown,  this);
     	if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
     },
     initEvents : function(){
@@ -132,7 +132,7 @@ $A.Window = Ext.extend($A.Component,{
          */
     	'load');    	
     },
-    onKeyDown : function(e){
+    onFocusKeyDown : function(e){
         var key = e.getKey();
         if(key == 9){
             var fk,lk,ck,cmp
