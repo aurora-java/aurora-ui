@@ -305,6 +305,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	border:1px solid #ccc;
     -webkit-radius:4px;
     border-radius:4px;
+    margin-bottom:10px;
     -moz-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
     -webkit-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
     box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
@@ -1170,9 +1171,8 @@ button div {
 .full-window .win-close{
     background-image: url(../window/win_close.png);
     background-position:0px 2px;
-    position:static;
-    top:0px;
-    right:0px;
+    top:4px;
+    right:5px;
     z-index:1;
     WIDTH: 16px; 
     height:16px;
