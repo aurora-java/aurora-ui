@@ -6,6 +6,7 @@ Release ()
 * 增加DataSet未保存提示功能，增加notification属性
 * Grid修订html注入bug
 * 新增Code组件，用于输出Code中的文本。
+* Table增加组合快捷键ctrl+上下左右
 
 Release (2012-10-10)
 ------------------------------------
