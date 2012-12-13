@@ -233,7 +233,10 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		if(Ext.isEmpty(q)){
 			ds.clearFilter();
 		}else{
-			var reg = new RegExp(q+".*","i"),field = this.displayfield;
+			var reg = new RegExp(q.replace(/[+?.^$\[\](){}\\|]/g,function(v){
+					return '\\'+v;
+				}),'i'),
+				field = this.displayfield;
 	        ds.filter(function(r){
 	        	return reg.test(r.get(field));
 	        },this);
