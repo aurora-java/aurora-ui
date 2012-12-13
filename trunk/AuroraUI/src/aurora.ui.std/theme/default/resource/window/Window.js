@@ -257,22 +257,6 @@ $A.Window = Ext.extend($A.Component,{
 	    	this.shadow.setStyle('z-index', zindex+4);
 	    	if(this.modal) $A.Cover.cover(this.wrap);
     	}
-        
-        //去除下面window遮盖的透明度
-        var alls = $A.WindowManager.getAll()
-        for(var i=0;i<alls.length;i++){
-            var pw = alls[i];
-            if(pw != this){
-                var cover = $A.Cover.container[pw.wrap.id];
-                if(cover)cover.setStyle({
-                    filter: 'alpha(opacity=0)',
-                    opacity: '0',
-                    mozopacity: '0'
-                })
-            }
-        }
-        
-        
 //    	$A.focusWindow = this;    	
     },
     onMouseDown : function(e){
@@ -374,31 +358,6 @@ $A.Window = Ext.extend($A.Component,{
 	    	this.destroy();
 	    	this.fireEvent('close', this);
     	}
-        
-        //去除下面window遮盖的透明度
-        var alls = $A.WindowManager.getAll()
-        for(var i=0;i<alls.length-1;i++){
-            var pw = alls[i];
-            if(pw != this){
-                var cover = $A.Cover.container[pw.wrap.id];
-                if(cover)cover.setStyle({
-                    filter: 'alpha(opacity=0)',
-                    opacity: '0',
-                    mozopacity: '0'
-                })
-            }
-        }
-        
-        
-        var cw = alls[alls.length-1];
-        if(cw){
-            var cover = $A.Cover.container[cw.wrap.id];
-            if(cover)cover.setStyle({
-                filter: '',
-                opacity: '',
-                mozopacity: ''
-            })
-        }
     },
     clearBody : function(){
     	for(var key in this.cmps){
@@ -576,7 +535,7 @@ $A.showErrorMessage = function(title,msg,callback,width,height){
 }
 
 $A.showTypeMessage = function(title, msg,width,height,css,callback){
-	var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-70)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
+	var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
 	return $A.showOkWindow(title, msg, width, height,callback);	
 } 
 /**
@@ -593,7 +552,7 @@ $A.showTypeMessage = function(title, msg,width,height,css,callback){
 $A.showConfirm = function(title, msg, okfun,cancelfun, width, height){
 	width = width||300;
 	height = height||100;
-    var msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-70)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
+    var msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-60)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
     return $A.showOkCancelWindow(title, msg, okfun,cancelfun, width, height);  	
 }
 //$A.hideWindow = function(){
