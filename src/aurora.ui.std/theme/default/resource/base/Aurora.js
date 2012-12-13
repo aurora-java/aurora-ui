@@ -93,6 +93,9 @@ $A.setTheme = function(theme){
         window.location.reload();
     }
 }
+$A.getTheme = function(){
+    return this.getCookie("app_theme");
+}
 $A.CmpManager = function(){
     return {
         put : function(id, cmp){

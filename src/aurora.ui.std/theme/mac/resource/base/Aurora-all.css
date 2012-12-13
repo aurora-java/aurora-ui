@@ -641,7 +641,9 @@ button div {
 .item-rbtn-green .tl,.item-rbtn-green .tm , .item-rbtn-green .tr{
     background-image:url(../button/rgtn.png);
 }
-
+.item-rbtn-gray .tl,.item-rbtn-gray .tm , .item-rbtn-gray .tr{
+    background-image:url(../button/rgytn.png);
+}
 .item-rbtn .tl {
     background-position: 0px 0px;
     background-repeat:no-repeate;
@@ -770,6 +772,7 @@ button div {
     background-repeat:no-repeate;
 }
 
+
 .item-btn-over .atl,.item-btn-over .atr{
     background-position: 0px -252px;
 }
@@ -788,6 +791,13 @@ button div {
 }
 .item-btn-pressed .arrow {
     background-position: 0px -72px;
+}
+
+.item-rbtn-blue div,.item-rbtn-red div,.item-rbtn-green div {
+    color:#fff;
+}
+.item-rbtn-gray div{
+    color:#4f5459;
 }
 .item-textField {
     border:0;  
@@ -1066,7 +1076,7 @@ button div {
     background-image:none;
 }
 .screenTopToolbar .item-btn-over div {
-    color:#4AB6E3;
+    /*color:#4AB6E3;*/
 }
 .item-btn-r div {
     color:#fff;

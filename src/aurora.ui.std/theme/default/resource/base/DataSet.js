@@ -941,7 +941,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Number} index 指针位置.
      */
     locate : function(index, force){
-//        if(this.currentIndex === index && force !== true) return;
+        if(this.currentIndex === index && force !== true) return;
         if(this.fetchall == true && index > ((this.currentPage-1)*this.pagesize + this.data.length)) return;
         //对于没有autcount的,判断最后一页
         if(!this.autocount && index > ((this.currentPage-1)*this.pagesize + this.data.length) && this.data.length < this.pagesize) return;
@@ -1504,7 +1504,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 datas.push(item);
             }
         }else if(records.length == 0){
-            this.currentIndex  = 1
+            this.currentIndex  = 0
         }       
         this.loading = false;
         this.loadData(datas, total, options);

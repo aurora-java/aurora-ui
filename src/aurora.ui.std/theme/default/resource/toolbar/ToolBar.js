@@ -110,9 +110,13 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	}else{
 	    	var from = ((this.dataSet.currentPage-1)*this.dataSet.pagesize+1);
 	    	var to = this.dataSet.currentPage*this.dataSet.pagesize;
-	    	if(to>this.dataSet.totalCount) to = this.dataSet.totalCount;
+	    	if(to>this.dataSet.totalCount && this.dataSet.totalCount > from) to = this.dataSet.totalCount;
 	    	if(to==0) from =0;
-	    	return _lang['toolbar.visible'] + from + ' - ' + to + ' '+ _lang['toolbar.total'] + this.dataSet.totalCount + _lang['toolbar.item'];
+            var theme = $A.getTheme();
+            if(theme == 'mac')
+                return _lang['toolbar.visible'] + ' ' + from + ' - ' + to ;                
+            else 
+                return _lang['toolbar.visible'] + ' ' +  from + ' - ' + to + ' '+ _lang['toolbar.total'] + this.dataSet.totalCount + _lang['toolbar.item'];
     	}
     },
     createAnchor : function(text,page){
