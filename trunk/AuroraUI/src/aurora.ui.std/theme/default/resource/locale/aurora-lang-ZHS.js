@@ -50,6 +50,10 @@ _lang['toolbar.pageSize'] = '每页显示';
 _lang['toolbar.pageSize2'] = '条';
 _lang['toolbar.maxPageSize'] = '每页显示数最大为';
 _lang['toolbar.errormsg'] = '输入有误';
+_lang['toolbar.firstPage'] = '首页';
+_lang['toolbar.prePage'] = '上一页';
+_lang['toolbar.nextPage'] = '下一页';
+_lang['toolbar.lastPage'] = '尾页';
 
 _lang['window.loading'] = '正在加载...';
 _lang['window.error'] = '错误';

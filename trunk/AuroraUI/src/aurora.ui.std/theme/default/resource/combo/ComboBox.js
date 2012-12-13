@@ -195,7 +195,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		    return;
 		}		
 		this.onSelect(t);
-		this.collapse();		
+		this.collapse();
 	},	
 //	onViewOver:function(e,t){
 //		this.inKeyMode = false;
@@ -214,6 +214,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			display = this.getRenderText(record);//record.get(this.displayfield);
 		this.setValue(display,null,record);
 		this.fireEvent('select',this, value, display, record);
+        
 	},
 	initQuery: function(){//事件定义中调用
 		this.doQuery();

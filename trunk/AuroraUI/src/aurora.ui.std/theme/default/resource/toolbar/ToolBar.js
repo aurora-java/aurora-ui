@@ -49,7 +49,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     onLoad : function(){
     	this.navInfo.update(this.creatNavInfo());
     	if(this.type != "simple" && this.type != "tiny"){
-	    	this.pageInput.setValue(this.dataSet.currentPage);
+	    	this.pageInput.setRawValue(this.dataSet.currentPage);
 	    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
 	    	if(this.pageSizeInput&&!this.pageSizeInput.optionDataSet){
 	    		var pageSize=[10,20,50,100];
@@ -73,8 +73,8 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     		var html=[],ds=this.dataSet,currentPage=ds.currentPage,totalPage=ds.totalPage;
     		if(totalPage){
     			html.push('<span>共'+totalPage+'页</span>');
-    			html.push(currentPage == 1 ? '<span>首页</span>' : this.createAnchor('首页',1));
-    			html.push(currentPage == 1 ? '<span>上一页</span>' : this.createAnchor('上一页',currentPage-1));
+    			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : this.createAnchor(_lang['toolbar.firstPage'],1));
+    			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : this.createAnchor(_lang['toolbar.prePage'],currentPage-1));
     			for(var i = 1 ; i < 4 && i <= totalPage ; i++){
     				html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
     			}
@@ -96,15 +96,15 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     					html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
 	    			}
     			}
-	    		html.push(currentPage == totalPage ? '<span>下一页</span>' : this.createAnchor('下一页',currentPage+1));
-    			html.push(currentPage == totalPage ? '<span>尾页</span>' : this.createAnchor('尾页',totalPage));
+	    		html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.nextPage']+'</span>' : this.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
+    			html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.lastPage']+'</span>' : this.createAnchor(_lang['toolbar.lastPage'],totalPage));
     		}
     		return html.join('');
     	}else if(this.type == 'tiny'){
     		var html=[],ds=this.dataSet,currentPage=ds.currentPage;
-    		html.push(currentPage == 1 ? '<span>首页</span>' : this.createAnchor('首页',1));
-			html.push(currentPage == 1 ? '<span>上一页</span>' : this.createAnchor('上一页',currentPage-1));
-    		html.push(this.createAnchor('下一页',currentPage+1));
+    		html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : this.createAnchor(_lang['toolbar.firstPage'],1));
+			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : this.createAnchor(_lang['toolbar.prePage'],currentPage-1));
+    		html.push(this.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
     		html.push('<span>第'+currentPage+'页</span>');
     		return html.join('');
     	}else{
@@ -122,14 +122,22 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	html.push('<span>···</span>');
     },
     onPageChange : function(el,value,oldvalue){
-    	if(this.dataSet.totalPage == 0){
-    		el.setValue(1);
-    	}else if(isNaN(value) || value<=0 || value>this.dataSet.totalPage){
-    		el.setValue(oldvalue)
-    	}else if(this.dataSet.currentPage!=value){
-	    	this.dataSet.goPage(value);
-    	}
+        if(isNaN(value) || value<=0 ){
+            el.setValue(oldvalue)
+        }else{
+            this.dataSet.goPage(value);
+        }
     },
+    
+//    onPageChange : function(el,value,oldvalue){
+//    	if(this.dataSet.totalPage == 0){
+//    		el.setValue(1);
+//    	}else if(isNaN(value) || value<=0 || value>this.dataSet.totalPage){
+//    		el.setValue(oldvalue)
+//    	}else if(this.dataSet.currentPage!=value){
+//	    	this.dataSet.goPage(value);
+//    	}
+//    },
     onPageSizeChange : function(el,value,oldvalue){
     	var max = this.dataSet.maxpagesize;
     	if(isNaN(value) || value<=0){
