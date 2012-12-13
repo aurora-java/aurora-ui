@@ -146,9 +146,11 @@ $A.Lov = Ext.extend($A.TextField,{
             if(keyCode == 13 ) {
     	    	if(this.selectedIndex != null){
     	    		this.blur();
-        			this.onSelect(this.selectedIndex);
-    				this.autocompleteview.hide();
-        			this.focus();
+    	    		(function(){
+	        			this.onSelect(this.selectedIndex);
+	    				this.autocompleteview.hide();
+	        			this.focus();
+    	    		}).defer(10,this);
         		}else{
         			this.autocompleteview.hide();
     	    		var sf = this;
