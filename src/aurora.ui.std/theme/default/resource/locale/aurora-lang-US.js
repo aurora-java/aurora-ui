@@ -50,6 +50,10 @@ _lang['toolbar.pageSize'] = 'Per Page';
 _lang['toolbar.pageSize2'] = '';
 _lang['toolbar.maxPageSize'] = 'The max count of records per page is ';
 _lang['toolbar.errormsg'] = 'Invalid input';
+_lang['toolbar.firstPage'] = 'First Page';
+_lang['toolbar.prePage'] = 'Previous Page';
+_lang['toolbar.nextPage'] = 'Next Page';
+_lang['toolbar.lastPage'] = 'Last page';
 
 _lang['window.loading'] = 'Loading...';
 _lang['window.error'] = 'Error';
