@@ -4421,7 +4421,7 @@ $A.HotKey = function(){
 		hosts = {},
 		enable = true;
 		onKeyDown = function(e,t){
-			var key = e.keyCode,bind = [],handler;
+			var key = e.keyCode,bind = [],handler,sf = this;
 			if(key!=16 && key!=17 && key!=18 ){
 				e.ctrlKey &&
 					bind.push(CTRL);
@@ -4430,14 +4430,23 @@ $A.HotKey = function(){
 				e.shiftKey &&
 					bind.push(SHIFT);
 				bind.push(String.fromCharCode(key));
-				handler = hosts[this.id][bind.join('+').toUpperCase()];
+				handler = hosts[sf.id][bind.join('+').toUpperCase()];
 				if(handler){
 					e.stopEvent();
 					if(enable){
 						enable = false;
-						Ext.each(handler,function(fn){
-							return fn();
-						});
+						var focuser = Ext.get(t),
+							tagName = t.tagName.toLowerCase(),
+							fns = function(e){
+								Ext.each(handler,function(fn){
+									return fn();
+								});
+								focuser.un('focus',fns);
+							}
+						if(tagName=='input' || tagName=='textarea')
+							focuser.on('focus',fns).blur().focus();
+						else
+							fns();
 					}
 				}
 			}
@@ -4452,7 +4461,7 @@ $A.HotKey = function(){
 		pub = {
 			addHandler : function(bind,handler){
 				var binds = bind.toUpperCase().split('+'),key=[],
-					host = window['__host']||Ext.get(document.documentElement),
+					host = window['__host']||Ext.getBody(),
 					id = host.id,
 					keys = hosts[id];
 				if(!keys){
@@ -5522,7 +5531,10 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		if(Ext.isEmpty(q)){
 			ds.clearFilter();
 		}else{
-			var reg = new RegExp(q+".*","i"),field = this.displayfield;
+			var reg = new RegExp(q.replace(/[+?*.^$\[\](){}\\|]/g,function(v){
+					return '\\'+v;
+				}),'i'),
+				field = this.displayfield;
 	        ds.filter(function(r){
 	        	return reg.test(r.get(field));
 	        },this);
@@ -7353,9 +7365,11 @@ $A.Lov = Ext.extend($A.TextField,{
             if(keyCode == 13 ) {
     	    	if(this.selectedIndex != null){
     	    		this.blur();
-        			this.onSelect(this.selectedIndex);
-    				this.autocompleteview.hide();
-        			this.focus();
+    	    		(function(){
+	        			this.onSelect(this.selectedIndex);
+	    				this.autocompleteview.hide();
+	        			this.focus();
+    	    		}).defer(10,this);
         		}else{
         			this.autocompleteview.hide();
     	    		var sf = this;
