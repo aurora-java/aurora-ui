@@ -121,7 +121,7 @@ $A.Lov = Ext.extend($A.TextField,{
 				        }
 				        sf.optionDataSet.setQueryUrl(url);
 				       	sf.pagesize=sf.autocompletepagesize;
-	        			sf.optionDataSet.setQueryParameter(sf.autocompletefield,'%'+v.trim()+'%');
+	        			sf.optionDataSet.setQueryParameter(sf.autocompletefield,v.trim());
 	        			view.show();
 	        			sf.optionDataSet.query();
 	        			delete sf.showCompleteId;
