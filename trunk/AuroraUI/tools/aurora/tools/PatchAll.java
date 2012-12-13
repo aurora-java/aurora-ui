@@ -130,7 +130,7 @@ public class PatchAll {
 		
 		pa.compressAllFiles(compressTouchJs,TOUCH_DIR,"js");
 		pa.compressAllFiles(compressTouchCss,TOUCH_DIR,"css");
-		
+
 //		System.out.println(pa.lineNum);
 	}
 	
