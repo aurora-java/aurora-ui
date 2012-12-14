@@ -76,6 +76,7 @@
 }
 .grid-ua {
 	float:right;
+	overflow:hidden;
 }
 .grid-hc {
 	border-right:1px solid #ededed;

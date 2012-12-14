@@ -8211,7 +8211,7 @@ $A.QueryForm = Ext.extend($A.Component,{
         sf.bodyWrap.parent('TBODY').setStyle('display','block');
         if(sf.isopen)body.show()
         sf.bodyWrap.setHeight(body.getHeight()+10);
-        sf.bodyWrap.setWidth(sf.wrap.getWidth());
+//        sf.bodyWrap.setWidth(sf.wrap.getWidth());
         sf.bodyWrap.fadeIn();
 //		sf.bodyWrap.setHeight(body.getHeight()+10,{
 //			callback:function(){if(sf.isopen)body.show();}

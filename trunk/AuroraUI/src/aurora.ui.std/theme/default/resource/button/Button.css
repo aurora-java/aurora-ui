@@ -3,14 +3,17 @@
     white-space: nowrap;
 }
 .ext-ie .item-btn button {
-    width:1px;
-    /*padding-top:2px;*/
+    /*width:1px;
+    padding-top:2px;*/
 }
 .ext-gecko .item-btn button{
     padding-top:0;
 }
 .item-btn td {
     padding:0 !important;
+}
+.titem-btn .item-btn-ml,.titem-btn .item-btn-mr{
+     padding:0 !important;
 }
 .item-btn button {
     border:0 none;
@@ -82,10 +85,6 @@ button div {
     padding:0 5px;
     cursor:pointer;
     white-space:nowrap;
-}
-.item-btn-bc{
-    height:2px;
-    background:repeat-x 0 -16px;
 }
 .ext-strict .ext-ie6 .item-btn-mc, .ext-strict .ext-ie7 .item-btn-mc {
     height: 100%;
@@ -191,12 +190,7 @@ button div {
     padding-left:13px;
     background-repeat: no-repeat;
 }
-.item-btn-disabled *{
-    cursor:default !important;
-    color:#ccc;
-    -webkit-filter:grayscale();
-    filter:gray;
-}
+
 .item-btn-tl, .item-btn-tr, .item-btn-tc, .item-btn-ml, .item-btn-mr, .item-btn-mc, .item-btn-bl, .item-btn-br, .item-btn-bc{
     background-image:url(../button/btn.gif);
 }
@@ -388,4 +382,14 @@ button div {
 }
 .item-rbtn-gray div{
     color:#4f5459;
+}
+.item-btn-disabled *{
+    -webkit-filter:grayscale();
+    filter:gray;
+    -moz-opacity:0.9;
+    opacity:0.9;
+}
+.item-btn-disabled div {
+	cursor:default !important;
+    color:#ccc;
 }
