@@ -1105,6 +1105,8 @@ A.Grid = Ext.extend(A.Component,{
             ds = sf.dataset,
             row = record?ds.indexOf(record):0;
         record = record||ds.getAt(0);
+        if(!record && sf.autoappend) record = ds.create();
+        if(record)
         EACH(sf.columns,function(col){
             if(col.hidden !=TRUE && sf.getEditor(col,record)!=_N){
                 sf.fireEvent(EVT_CELL_CLICK, sf, row, col.name, record,function(){});
