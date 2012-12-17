@@ -1443,7 +1443,7 @@ $A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_sta
         }
         p["parameter"]["_column_config_"]["column"]=columns;
         p["_generate_state"]=Ext.isEmpty(generate_state)?true:generate_state;
-        p["_format"]=type||"xls";
+        p["_format"]=type||"xlsx";
         if(separator)p["separator"]=separator;
         if(filename)p["_file_name_"]=filename;
         if(mergeCols){
