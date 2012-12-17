@@ -1471,7 +1471,7 @@ A.Grid = Ext.extend(A.Component,{
             });
         }
         return r;
-    }, 
+    },
     /**
      * 选中高亮某行.
      * @param {Number} row 行号
@@ -1480,32 +1480,42 @@ A.Grid = Ext.extend(A.Component,{
         var sf = this,
             ds = sf.dataset,record = ds.getAt(row),
             r = (ds.currentPage-1)*ds.pagesize + row+1;
-        if(sf.selectedId) {
-            var pstr = Ext.DomQuery.select('[_row='+sf.selectedId+']',sf.wrap.dom);
-            for(var i=0,l=pstr.length;i<l;i++){
-                Ext.fly(pstr[i]).removeClass(ROW_SELECT);
-            }
-        }
         sf.selectedId = record.id;
-        var str = Ext.DomQuery.select('[_row='+sf.selectedId+']',sf.wrap.dom);
-        for(var i=0,l=str.length;i<l;i++){
-            Ext.fly(str[i]).addClass(ROW_SELECT);
-        }
+        if(sf.selectlockTr) sf.selectlockTr.removeClass(ROW_SELECT);
+        //if(sf.selectUnlockTr) sf.selectUnlockTr.setStyle(sf.bgc,_N);
+        if(sf.selectUnlockTr) sf.selectUnlockTr.removeClass(ROW_SELECT);
+        sf.selectUnlockTr = Ext.get(sf.id+$U+record.id);
+        if(sf.selectUnlockTr)sf.selectUnlockTr.addClass(ROW_SELECT);
+        //if(sf.selectUnlockTr)sf.selectUnlockTr.setStyle(sf.bgc,sf.scor);
         
-//        if(sf.selectlockTr) sf.selectlockTr.removeClass(ROW_SELECT);
-//        //if(sf.selectUnlockTr) sf.selectUnlockTr.setStyle(sf.bgc,_N);
-//        if(sf.selectUnlockTr) sf.selectUnlockTr.removeClass(ROW_SELECT);
-//        
-//        sf.selectUnlockTr = Ext.get(sf.id+$U+record.id);
-//        if(sf.selectUnlockTr)sf.selectUnlockTr.addClass(ROW_SELECT);
-//        sf.selectlockTr = Ext.get(sf.id+$L+record.id);
-//        if(sf.selectlockTr)sf.selectlockTr.addClass(ROW_SELECT);
+        sf.selectlockTr = Ext.get(sf.id+$L+record.id);
+        if(sf.selectlockTr)sf.selectlockTr.addClass(ROW_SELECT);
         sf.focusRow(row);
         if(locate!==FALSE && r != NULL) {
 //          sf.dataset.locate(r);
             ds.locate.defer(5, ds,[r,FALSE]);
         }
     },
+//    selectRow : function(row, locate){
+//        var sf = this,
+//            ds = sf.dataset,record = ds.getAt(row),
+//            r = (ds.currentPage-1)*ds.pagesize + row+1;
+//        if(sf.selectedId) {
+//            var pstr = Ext.DomQuery.select('[_row='+sf.selectedId+']',sf.wrap.dom);
+//            for(var i=0,l=pstr.length;i<l;i++){
+//                Ext.fly(pstr[i]).removeClass(ROW_SELECT);
+//            }
+//        }
+//        sf.selectedId = record.id;
+//        var str = Ext.DomQuery.select('[_row='+sf.selectedId+']',sf.wrap.dom);
+//        for(var i=0,l=str.length;i<l;i++){
+//            Ext.fly(str[i]).addClass(ROW_SELECT);
+//        }
+//        sf.focusRow(row);
+//        if(locate!==FALSE && r != NULL) {
+//            ds.locate.defer(5, ds,[r,FALSE]);
+//        }
+//    },
     /**
      * 设置某列的宽度.
      * @param {String} name 列的name
