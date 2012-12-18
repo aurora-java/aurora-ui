@@ -928,6 +928,10 @@ A.Table = Ext.extend(A.Component,{
     },
     onAjaxFailed : function(res,opt){
         A.Masker.unmask(this.wrap);
+    },
+    destroy: function(){
+        A.Table.superclass.destroy.call(this);
+        this.processDataSetLiestener('un');
     }
 })
 })($A);
