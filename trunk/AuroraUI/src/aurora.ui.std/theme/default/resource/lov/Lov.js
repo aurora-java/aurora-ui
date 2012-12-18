@@ -1,3 +1,14 @@
+(function(A){
+var _N = '',
+	TR$TABINDEX = 'tr[tabindex]',
+	WIDTH = 'width',
+	PX = 'px',
+	SELECTED_CLS = 'autocomplete-selected',
+	EVT_CLICK = 'click',
+	EVT_MOUSE_MOVE = 'mousemove',
+	EVT_COMMIT = 'commit',
+	EVT_BEFORE_TRIGGER_CLICK = 'beforetriggerclick';
+
 /**
  * @class Aurora.Lov
  * @extends Aurora.TextField
@@ -6,40 +17,52 @@
  * @constructor
  * @param {Object} config 配置对象. 
  */
-$A.Lov = Ext.extend($A.TextField,{
-	selectedClass:'autocomplete-selected',
-	viewClass:'item-comboBox-view',
+A.Lov = Ext.extend(A.TextField,{
     constructor: function(config) {
-        this.isWinOpen = false;
-        this.fetching = false;
-        this.fetchremote = true;
-        this.needFetch = true;
-        this.autocompletesize = 2;
-        this.autocompletedelay = 500;
-        this.autocompletepagesize = 10;
-        this.maxHeight = 240;
-        this.context = config.context||'';
-        $A.Lov.superclass.constructor.call(this, config);        
+    	var sf = this;
+        sf.isWinOpen = false;
+        sf.fetching = false;
+        sf.fetchremote = true;
+        sf.maxHeight = 240;
+        A.Lov.superclass.constructor.call(sf, config);        
     },
     initComponent : function(config){
-        $A.Lov.superclass.initComponent.call(this,config);
-        this.para = {};
-        if(!Ext.isEmpty(this.lovservice)){
-            this.lovservice = this.processParmater(this.lovservice);           
-        }else if(!Ext.isEmpty(this.lovmodel)){
-            this.lovmodel = this.processParmater(this.lovmodel);
-        }
-        if(this.autocomplete = this.autocomplete == "true"){
-        	if(!this.autocompletefield){
-        		var maps = this.getMapping(),name = this.binder.name;
-        		for(var i=0;i<maps.length;i++){
-        			if(maps[i].to == name)this.autocompletefield = maps[i].from;
-        		}
-        	}
-        	this.autocompleteview = new $A.Popup({});
-        	if(!this.optionDataSet)this.optionDataSet = new $A.DataSet({id:this.id+"_autocomplete_ds",autocount:false})
-        }
-        this.trigger = this.wrap.child('div[atype=triggerfield.trigger]');
+    	var sf = this;
+        A.Lov.superclass.initComponent.call(this,config);
+//        	lovservice = sf.lovservice,
+//        	lovmodel = sf.lovmodel,
+//        	autocomplete = sf.autocomplete;
+//        	field = sf.autocompletefield,
+//        	view = sf.autocompleteview;
+//        if(!Ext.isEmpty(lovservice)){
+//            svc = sf.lovservice = sf.processParmater(lovservice);           
+//        }else if(!Ext.isEmpty(lovmodel)){
+//            svc = sf.lovmodel = sf.processParmater(lovmodel);
+//        }
+//        if(sf.autocomplete && svc){
+//        	if(!field){
+//        		Ext.each(sf.getMapping(),function(map){
+//        			if(map.to == sf.binder.name) field = sf.autocompletefield = map.from;
+//        		});
+//        	}
+//        	if(view){
+//        		view.destroy();
+//        		view.un('select',sf.onViewSelect,sf);
+//        	}
+//        	view = sf.autocompleteview = new A.AutoCompleteView({
+//        		id:sf.id,
+//        		el:sf.el,
+//        		url:sf.context + 'autocrud/'+svc+'/query',
+//        		name:field,
+//        		size:sf.autocompletesize,
+//        		pagesize:sf.autocompletepagesize,
+//        		renderer:sf.autocompleterenderer,
+//        		binder : sf.binder
+//        	});
+//        	view.bind(sf);
+//        	view.on('select',sf.onViewSelect,sf);
+//        }
+        sf.trigger = sf.wrap.child('div[atype=triggerfield.trigger]');
     },
     processParmater:function(url){
         var li = url.indexOf('?')
@@ -50,11 +73,12 @@ $A.Lov = Ext.extend($A.TextField,{
         return url;
     },
     processListener: function(ou){
-        $A.Lov.superclass.processListener.call(this,ou);
-        this.trigger[ou]('click',this.onTriggerClick, this, {preventDefault:true})
+    	var sf = this,view = sf.autocompleteview;
+        A.Lov.superclass.processListener.call(sf,ou);
+        sf.trigger[ou](EVT_CLICK,sf.onTriggerClick, sf, {preventDefault:true});
     },
     initEvents : function(){
-        $A.Lov.superclass.initEvents.call(this);
+        A.Lov.superclass.initEvents.call(this);
         this.addEvents(
         /**
          * @event commit
@@ -63,311 +87,117 @@ $A.Lov = Ext.extend($A.TextField,{
          * @param {Aurora.Record} r1 当前lov绑定的Record
          * @param {Aurora.Record} r2 选中的Record. 
          */
-        'commit',
+        EVT_COMMIT,
         /**
          * @event beforetriggerclick
          * 点击弹出框按钮之前的事件。
          * @param {Aurora.Lov} lov 当前Lov组件.
          */
-        'beforetriggerclick');
+        EVT_BEFORE_TRIGGER_CLICK);
     },
     onTriggerClick : function(e){
     	e.stopEvent();
     	var sf = this,view = sf.autocompleteview;
-    	if(sf.fireEvent('beforetriggerclick',sf)){
-    		if(view && view.isShow){
-    			view.hide();
-    			sf.fetchRecord();
-    		}
+    	if(sf.fireEvent(EVT_BEFORE_TRIGGER_CLICK,sf)){
     		sf.showLovWindow();
     	}
     },
     destroy : function(){
-    	if(this.qtId){
-    		Ext.Ajax.abort(this.qtId);
+    	var sf = this;
+    	if(sf.qtId){
+    		Ext.Ajax.abort(sf.qtId);
     	}
-    	if(this.optionDataSet){
-    		this.optionDataSet.destroy();
-    	}
-        $A.Lov.superclass.destroy.call(this);
+        A.Lov.superclass.destroy.call(sf);
     },
     setWidth: function(w){
-        this.wrap.setStyle("width",(w+3)+"px");
-        this.el.setStyle("width",(w-20)+"px");
+        this.wrap.setStyle(WIDTH,(w+3)+PX);
+        this.el.setStyle(WIDTH,(w-20)+PX);
     },
     onChange : function(e){
     	var sf = this;
-    	$A.Lov.superclass.onChange.call(sf);
-    	if(sf.fetchremote && (sf.autocomplete?sf.needFetch:true))
+    	A.Lov.superclass.onChange.call(sf);
+    	if(sf.fetchremote && (sf.autocomplete?!sf.autocompleteview.isLoaded:true))
 			sf.fetchRecord();
-    },
-    onKeyUp : function(e){
-        this.fireEvent('keyup', this, e);
-        if(this.autocomplete && !Ext.isEmpty(this.lovservice||this.lovmodel)){
-        	var v=this.getRawValue(),view=this.autocompleteview,code = e.keyCode;
-        	//if((code > 47 && code < 58) || (code > 64 && code < 91) || code == 8 || code == 46 || code == 13 || code == 32 || code == 16 || code == 17){
-	        if((code < 37 || code > 40)&&code != 13 && code !=27 && code != 9 && code!=17){
-        		if(v.length >= this.autocompletesize){
-	        		var sf=this;
-	        		if(this.showCompleteId)clearTimeout(this.showCompleteId);
-	        		this.showCompleteId=setTimeout(function(){
-	        			var url;
-                        var lp = Ext.urlEncode(sf.getLovPara())
-			        	if(!Ext.isEmpty(sf.lovservice)){
-//				            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice +'&'+ Ext.urlEncode(sf.getLovPara());
-                            url = sf.context + 'autocrud/'+sf.lovservice+'/query' + (!Ext.isEmpty(lp) ? '?' + lp : '');
-				        }else if(!Ext.isEmpty(sf.lovmodel)){
-				            url = sf.context + 'autocrud/'+sf.lovmodel+'/query' + (!Ext.isEmpty(lp) ? '?' + lp : '');
-				        }
-				        sf.optionDataSet.setQueryUrl(url);
-				       	sf.pagesize=sf.autocompletepagesize;
-	        			sf.optionDataSet.setQueryParameter(sf.autocompletefield,v.trim());
-	        			view.show();
-	        			sf.optionDataSet.query();
-	        			delete sf.showCompleteId;
-	        		},this.autocompletedelay);
-	        	}else{
-	        		if(this.showCompleteId){
-	        			clearTimeout(this.showCompleteId);
-	        			delete this.showCompleteId;
-	        		}
-	        		if(view.isShow){
-	        			view.hide();
-	        			view.on('show',this.autoCompleteShow,this);
-	        		}
-	        	}
-        	}
-        }
     },
     onKeyDown : function(e){
         if(this.isWinOpen)return;       
-        var keyCode = e.keyCode;
-        if(this.autocomplete && this.autocompleteview && this.autocompleteview.isShow){
-            if(keyCode == 13 ) {
-    	    	if(this.selectedIndex != null){
-    	    		this.blur();
-    	    		(function(){
-	        			this.onSelect(this.selectedIndex);
-	    				this.autocompleteview.hide();
-	        			this.focus();
-    	    		}).defer(10,this);
-        		}else{
-        			this.autocompleteview.hide();
-    	    		var sf = this;
-    	    		setTimeout(function(){
-    	    			sf.fireEvent('enterdown', sf, e)
-    	    		},5);
-        		}
-            }else if(keyCode == 27 || keyCode == 9){
-            	this.autocompleteview.hide();
-            	this.blur();
-            }else if(this.optionDataSet.getAll().length > 0){
-    	        if(keyCode == 38){
-    	        	this.selectItem(this.selectedIndex == null ? -1 : this.selectedIndex - 1);
-    	        }else if(keyCode == 40){
-    	        	this.selectItem(this.selectedIndex == null ? 0 : this.selectedIndex + 1);
-    	        }
-            }
-        }else{
+        var sf = this,keyCode = e.keyCode,
+        	view = sf.autocompleteview;
+        if(!view || !view.isShow){
         	if(!e.ctrlKey && keyCode == 40){
         		e.stopEvent();
-        		this.showLovWindow();
+        		sf.showLovWindow();
         	}
-            $A.Lov.superclass.onKeyDown.call(this,e);
+            A.Lov.superclass.onKeyDown.call(sf,e);
         }
     },
-    onFocus : function(e){
-    	if(this.autocomplete){
-    		this.autocompleteview.bind(this.optionDataSet,this);
-    		//this.wrap.appendChild(this.autocompleteview.wrap);
-    		this.autocompleteview.on('show',this.autoCompleteShow,this);
-    	}
-    	$A.Lov.superclass.onFocus.call(this,e);
-    },
-    onBlur : function(e){
-    	if(this.autocomplete){
-    		if(this.showCompleteId){
-    			clearTimeout(this.showCompleteId);
-    			delete this.showCompleteId;
-    		}
-    		(this.tempview||this.autocompleteview).un('show',this.autoCompleteShow,this);
-    	}
-    	$A.Lov.superclass.onBlur.call(this,e);
-    },
-    autoCompleteShow : function(){
-    	this.autoCompletePosition();
-    	var view = this.autocompleteview;
-    	view.addClass(this.viewClass);
-		view.update('');
-		view.wrap.on('click', this.onViewClick,this);
-    	view.on('beforerender',this.onQuery,this);
-		view.on('render',this.onRender,this);
-    	view.on('hide',this.autoCompleteHide,this);
-    },
-    autoCompleteHide : function(){
-    	this.needFetch = true;
-		Ext.Ajax.abort(this.optionDataSet.qtId);
-    	var view = this.autocompleteview;
-    	view.wrap.un('click', this.onViewClick,this);
-		view.wrap.un('mousemove',this.onViewMove,this);
-    	view.un('show',this.autoCompleteShow,this);
-    	view.un('beforerender',this.onQuery,this);
-    	view.un('render',this.onRender,this);
-    	view.un('hide',this.autoCompleteHide,this);
-    },
-    autoCompletePosition:function(){
-    	var xy = this.wrap.getXY(),
-			W=this.autocompleteview.getWidth(),H=this.autocompleteview.getHeight(),
-			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
-			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3,
-			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
-			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
-    	this.autocompleteview.moveTo(x,y);
-    },
-    onViewClick:function(e,t){
-    	t = Ext.fly(t);
-		t = (t.parent('TR')||t).dom;
-		if(t.tagName!='TR'){
-		    return;
-		}		
-		this.onSelect(t);
-		this.autocompleteview.hide();
-		this.focus();
-	},	
-	onViewMove:function(e,t){
-		t = Ext.fly(t);
-		t = t.parent('TR')||t;
-        this.selectItem(t.dom.tabIndex);        
-	},
-	onSelect : function(target){
-		var index = Ext.isNumber(target)?target:target.tabIndex;
-		if(index<-1){
-			if(!this.needFetch)this.fetchRecord();
-			return;
-		}
-		var record = this.optionDataSet.getAt(index);
-		this.commit(record);
-	},
-    onQuery : function(){
-    	var view = this.autocompleteview;
-    	view.update('<table cellspacing="0" cellpadding="2"><tr tabIndex="-2"><td>'+_lang['lov.query']+'</td></tr></table>');
-    	view.wrap.un('mousemove',this.onViewMove,this);
-    	this.correctViewSize();
-    },
-    onRender : function(){
-    	var datas = this.optionDataSet.getAll();
-		var l=datas.length,view = this.autocompleteview;
-		var sb = ['<table class="autocomplete" cellspacing="0" cellpadding="2">'];
-		this.selectedIndex = null;
-		if(l==0){
-			sb.add('<tr tabIndex="-2"><td>'+_lang['lov.notfound']+'</td></tr></table>');
-			view.update(sb.join(''));
+	onViewSelect : function(r){
+		var sf = this;
+		if(!r){
+			if(sf.autocompleteview.isLoaded)
+				sf.fetchRecord();
 		}else{
-			var displayFields = this.binder.ds.getField(this.binder.name).getPropertity('displayFields');
-            if(displayFields && displayFields.length){
-            	sb.add('<tr tabIndex="-2" class="autocomplete-head">');
-            	for(var i = 0,ll = displayFields.length;i < ll;i++){
-            		sb.add('<td>'+displayFields[i].prompt+'</td>');
-            	}
-				sb.add('</tr>');
-            }
-			for(var i=0;i<l;i++){
-				var text = this.getRenderText(datas[i],displayFields);
-				sb.add('<tr tabIndex="'+i+'"'+(i%2==1?' class="autocomplete-row-alt"':'')+'>'+text+'</tr>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
-			}
-			sb.add('</table>');
-			view.update(sb.join(''));	
-			view.wrap.on('mousemove',this.onViewMove,this);
-			this.needFetch=false;
+			sf.commit(r);
 		}
-		this.correctViewSize();
-    },
-    correctViewSize: function(){
-		var widthArray = [],view = this.autocompleteview,table = view.wrap.child('table');
-		if(table.getWidth() < 150)table.setWidth(150);
-		var lh = Math.min(table.getHeight()+2,this.maxHeight); 
-		view.setHeight(lh<20?20:lh);
-		var mw = view.wrap.getWidth();
-    	view.setWidth(mw);
-		this.autoCompletePosition();
+		sf.focus();
 	},
-    selectItem:function(index){
-		if(Ext.isEmpty(index)||index < -1){
-			return;
-		}	
-		var node = this.getNode(index);	
-		if(node && node.tabIndex!=this.selectedIndex){
-			if(!Ext.isEmpty(this.selectedIndex)){							
-				Ext.fly(this.getNode(this.selectedIndex)).removeClass(this.selectedClass);
-			}
-			this.selectedIndex=node.tabIndex;			
-			Ext.fly(node).addClass(this.selectedClass);					
-		}			
-	},
-	getNode:function(index){
-		var nodes = this.autocompleteview.wrap.select('tr[tabindex!=-2]').elements,l = nodes.length;
-		if(index >= l) index =  index % l;
-		else if (index < 0) index = l + index % l;
-		return nodes[index];
-	},
-    getRenderText : function(record,displayFields){
-        var rder = $A.getRenderer(this.autocompleterenderer);
-        var text = '&#160;';
-        if(rder){
-            text = rder.call(window,this,record);
-        }else{
-        	if(displayFields){
-            	text = '';
-            	for(var i = 0,l = displayFields.length;i < l;i++){
-            		var v = record.get(displayFields[i].name);
-            		text += '<td>'+(Ext.isEmpty(v)?'&#160;':v)+'</td>';
-            	}
-            }else{
-            	var v = record.get(this.autocompletefield);
-            	text = '<td>'+(Ext.isEmpty(v)?'&#160;':v)+'</td>';
-            }
+    createListView : function(datas,binder,isRecord){
+    	var sb = ['<table class="autocomplete" cellspacing="0" cellpadding="2">'],
+    		displayFields = binder.ds.getField(binder.name).getPropertity('displayFields');
+        if(displayFields && displayFields.length){
+        	sb.push('<tr tabIndex="-2" class="autocomplete-head">');
+        	Ext.each(displayFields,function(field){
+        		sb.push('<td>',field.prompt,'</td>');
+        	});
+			sb.push('</tr>');
         }
-		return text;
+		for(var i=0,l=datas.length;i<l;i++){
+			var d = datas[i];
+			sb.push('<tr tabIndex="',i,'"',i%2==1?' class="autocomplete-row-alt"':_N,'>',this.getRenderText(isRecord?d:new $A.Record(d),displayFields),'</tr>');	//sf.litp.applyTemplate(d)等数据源明确以后再修改		
+		}
+		sb.push('</table>');
+		return sb;
+    },
+    getRenderText : function(record,displayFields){
+        var sf = this,
+        	rder = A.getRenderer(sf.autocompleterenderer),
+        	text = [],
+        	fn = function(t){
+        		var v = record.get(t);
+        		text.push('<td>',Ext.isEmpty(v)?'&#160;':v,'</td>');
+        	};
+        if(rder){
+            text.push(rder.call(window,sf,record));
+        }else if(displayFields){
+        	Ext.each(displayFields,function(field){
+        		fn(field.name);
+        	});
+        }else{
+        	fn(sf.autocompletefield)
+        }
+		return text.join(_N);
 	},
-//  onKeyDown : function(e){
-//        if(e.getKey() == 13) {
-//          this.showLovWindow();
-//        }else {
-//          $A.TriggerField.superclass.onKeyDown.call(this,e);
-//        }
-//    },
     canHide : function(){
-        return this.isWinOpen == false
+        return this.isWinOpen == false;
     },
     commit:function(r,lr,mapping){
-        if(this.win) this.win.close();
-//        this.setRawValue('')
-        var record = lr ? lr : this.record;
+        var sf = this,record = lr || sf.record;
+        if(sf.win) sf.win.close();
+//        sf.setRawValue(_N)
         if(record && r){
-            var mapping = mapping || this.getMapping();
-            for(var i=0;i<mapping.length;i++){
-                var map = mapping[i], from = r.get(map.from);
-                record.set(map.to,Ext.isEmpty(from)?'':from);
-            }
+        	Ext.each(mapping || sf.getMapping(),function(map){
+        		var from = r.get(map.from);
+                record.set(map.to,Ext.isEmpty(from)?_N:from);
+        	});
         }
 //        else{
-//          this.setValue()
+//          sf.setValue()
 //        }
         
-        this.fireEvent('commit', this, record, r)
-    },
-    getMapping: function(){
-        var mapping
-        if(this.record){
-            var field = this.record.getMeta().getField(this.binder.name);
-            if(field){
-                mapping = field.get('mapping');
-            }
-        }
-        return mapping ? mapping : [{from:this.binder.name,to:this.binder.name}];
+        sf.fireEvent(EVT_COMMIT, sf, record, r)
     },
 //  setValue: function(v, silent){
-//      $A.Lov.superclass.setValue.call(this, v, silent);
+//      A.Lov.superclass.setValue.call(this, v, silent);
 //      if(this.record && this.dataRecord && silent !== true){
 //          var mapping = this.getMapping();
 //          for(var i=0;i<mapping.length;i++){
@@ -377,147 +207,129 @@ $A.Lov = Ext.extend($A.TextField,{
 //      }
 //  },
     onWinClose: function(){
-        this.isWinOpen = false;
-        this.win = null;
+    	var sf = this;
+        sf.isWinOpen = false;
+        sf.win = null;
         if(!Ext.isIE6 && !Ext.isIE7){//TODO:不知什么地方会导致冲突,ie6 ie7 会死掉 
-            this.focus();
+            sf.focus();
         }else{
-        	var sf = this;
-        	setTimeout(function(){sf.focus()},10)	
+        	(function(){sf.focus()}).defer(10);
         }
     },
     getLovPara : function(){
-        return Ext.apply({},this.getFieldPara(),this.para);
-    },
-    getFieldPara : function(obj){
-		return (obj = this.record) 
-			&& (obj = obj.getMeta().getField(this.binder.name))
-			&& Ext.apply({},obj.get('lovpara'));
+    	return this.getPara();
     },
     fetchRecord : function(){
-        if(this.readonly == true) return;
-        this.fetching = true;
-        var v = this.getRawValue(),url;
-        
-        if(!Ext.isEmpty(this.lovservice)){
-//            url = this.context + 'sys_lov.svc?svc='+this.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
-            url = this.context + 'autocrud/'+this.lovservice+'/query?pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
-        }else if(!Ext.isEmpty(this.lovmodel)){
-            url = this.context + 'autocrud/'+this.lovmodel+'/query?pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(this.getLovPara());
+    	var sf = this;
+        if(sf.readonly == true) return;
+        sf.fetching = true;
+        var v = sf.getRawValue(),url,
+        	svc = sf.service,
+        	mapping = sf.getMapping(),
+        	record = sf.record,p = {},
+        	binder = sf.binder,
+        	sidebar = A.SideBar;
+        if(!Ext.isEmpty(svc)){
+//            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(sf.getLovPara());
+            url = Ext.urlAppend(sf.context + 'autocrud/'+svc+'/query?pagenum=1&_fetchall=false&_autocount=false', Ext.urlEncode(sf.getLovPara()));
         }
-        var record = this.record;
-        if(record == null && this.binder)
-        	record = this.binder.ds.create({},false);
+        if(record == null && binder)
+        	record = binder.ds.create({},false);
         record.isReady=false;
-        var p = {};
-        var mapping = this.getMapping();
-        for(var i=0;i<mapping.length;i++){
-            var map = mapping[i];           
-            if(this.binder.name == map.to){
+        Ext.each(mapping,function(map){
+            if(binder.name == map.to){
                 p[map.from]=v;
             }
-            record.set(map.to,'');          
-        }
-        $A.slideBarEnable = $A.SideBar.enable;
-        $A.SideBar.enable = false;
-        if(Ext.isEmpty(v) || (Ext.isEmpty(this.lovservice)&&Ext.isEmpty(this.lovmodel))) {
-            this.fetching = false;
+            record.set(map.to,_N);          
+        });
+        A.slideBarEnable = sidebar.enable;
+        sidebar.enable = false;
+        if(Ext.isEmpty(v) || Ext.isEmpty(svc)) {
+            sf.fetching = false;
             record.isReady=true;
-            $A.SideBar.enable = $A.slideBarEnable;
+            sidebar.enable = A.slideBarEnable;
             return;
         }
-        this.setRawValue(_lang['lov.query'])
-        this.qtId = $A.request({url:url, para:p, success:function(res){
-            var r = new $A.Record({});
+        sf.setRawValue(_lang['lov.query'])
+        sf.qtId = A.request({url:url, para:p, success:function(res){
+            var r = new A.Record({});
             if(res.result.record){
                 var datas = [].concat(res.result.record),l = datas.length;
                 if(l>0){
-                	if(this.fetchsingle && l>1){
-                		var sb=['<table class="autocomplete" cellspacing="0" cellpadding="2">'],
-                			displayFields = this.binder.ds.getField(this.binder.name).getPropertity('displayFields');
-            			if(displayFields && displayFields.length){
-            				sb.add('<tr tabIndex="-2" class="autocomplete-head">');
-			            	for(var i = 0,ll = displayFields.length;i < ll;i++){
-			            		sb.add('<td>'+displayFields[i].prompt+'</td>');
-			            	}
-							sb.add('</tr>');
-            			}
-            			for(var i=0;i<l;i++){
-							var text = this.getRenderText(new $A.Record(datas[i]),displayFields);
-							sb.add('<tr tabIndex="'+i+'"'+(i%2==1?' class="autocomplete-row-alt"':'')+'>'+text+'</tr>');	//this.litp.applyTemplate(d)等数据源明确以后再修改		
-						}
-						sb.add('</table>');
-						var div = new Ext.Template('<div style="position:absolute;left:0;top:0">{sb}</div>').append(document.body,{'sb':sb.join('')},true),
-                			cmp = new $A.Window({id:this.id+'_fetchmulti',closeable:true,title:'请选择', height:Math.max(div.getHeight(),300),width:Math.max(div.getWidth(),200)});
-                		cmp.on('close',function(){
-                			if(this.tempview){
-	                			this.autocompleteview = this.tempview;
-	                			delete this.tempview;
-                			}else this.autocompleteview = null;
-                		},this);
-                		if(this.autocompleteview)this.tempview = this.autocompleteview;
-            			this.autocompleteview = {};
-                		(this.autocompleteview.wrap = cmp.body).update(sb.join(''));
+                	if(sf.fetchsingle && l>1){
+                		var sb = sf.createListView(datas,binder).join(_N),
+							div = new Ext.Template('<div style="position:absolute;left:0;top:0">{sb}</div>').append(document.body,{'sb':sb},true),
+                			cmp = sf.fetchSingleWindow =  new A.Window({id:sf.id+'_fetchmulti',closeable:true,title:'请选择', height:Math.min(div.getHeight(),sf.maxHeight),width:Math.max(div.getWidth(),200)});
                 		div.remove();
-                		cmp.body.child('table').setWidth('100%')
-                		cmp.body.on('mousemove',this.onViewMove,this);
-                		cmp.body.on('dblclick',function(e,t){
-							t = Ext.fly(t).parent('TR');
-							var index = t.dom.tabIndex;
-							if(index<-1)return;
-							var r2 = new $A.Record(datas[index]);
-							this.commit(r2,record,mapping);
-							cmp.close();
-                		},this);
+                		cmp.body.update(sb)
+                			.on(EVT_MOUSE_MOVE,sf.onViewMove,sf)
+                			.on('dblclick',function(e,t){
+								t = Ext.fly(t).parent(TR$TABINDEX);
+								var index = t.dom.tabIndex;
+								if(index<-1)return;
+								var r2 = new A.Record(datas[index]);
+								sf.commit(r2,record,mapping);
+								cmp.close();
+	                		})
+                			.child('table').setWidth('100%');
                 	}else{
-	                    var data = datas[0];
-	                    r = new $A.Record(data);
+	                    r = new A.Record(datas[0]);
                 	}
                 }
             }
-            this.fetching = false;
-            this.setRawValue('');
-            this.commit(r,record,mapping);
+            sf.fetching = false;
+            sf.setRawValue(_N);
+            sf.commit(r,record,mapping);
             record.isReady=true;
-            $A.SideBar.enable = $A.slideBarEnable;
-        }, error:this.onFetchFailed, scope:this});
+            sidebar.enable = A.slideBarEnable;
+        }, error:sf.onFetchFailed, scope:sf});
     },
+    onViewMove:function(e,t){
+        this.selectItem((Ext.fly(t).findParent(TR$TABINDEX)||t).tabIndex);        
+	},
+	selectItem:function(index){
+		if(Ext.isEmpty(index)||index < -1){
+			return;
+		}	
+		var sf = this,node = sf.getNode(index),selectedIndex = sf.selectedIndex;	
+		if(node && node.tabIndex!=selectedIndex){
+			if(!Ext.isEmpty(selectedIndex)){							
+				Ext.fly(sf.getNode(selectedIndex)).removeClass(SELECTED_CLS);
+			}
+			sf.selectedIndex=node.tabIndex;			
+			Ext.fly(node).addClass(SELECTED_CLS);					
+		}			
+	},
+	getNode:function(index){
+		var nodes = this.fetchSingleWindow.body.query('tr[tabindex!=-2]'),l = nodes.length;
+		if(index >= l) index =  index % l;
+		else if (index < 0) index = l + index % l;
+		return nodes[index];
+	},
     onFetchFailed: function(res){
         this.fetching = false;
-        $A.SideBar.enable = $A.slideBarEnable;
+        A.SideBar.enable = A.slideBarEnable;
     },    
-//  onBlur : function(e){
-////        if(this.isEventFromComponent(e.target)) return;
-////        var sf = this;
-////        setTimeout(function(){
-////            if(!this.isWinOpen){
-////            }
-////        })
-//      if(!this.fetching)
-//        $A.Lov.superclass.onBlur.call(this,e);
-//    },
-    showLovWindow : function(){        
-        if(this.fetching||this.isWinOpen||this.readonly) return;
+    showLovWindow : function(){    
+    	var sf = this;
+        if(sf.fetching||sf.isWinOpen||sf.readonly) return;
         
-        var v = this.getRawValue();
-        this.blur();
-        var url;
-        var lp = Ext.urlEncode(this.getLovPara())
-        if(!Ext.isEmpty(this.lovurl)){
-        	var fp = Ext.urlEncode(this.getFieldPara());
-            url = this.lovurl + (this.lovurl.indexOf('?') === -1 ? '?' : '&')+(!Ext.isEmpty(fp)?fp + '&':'');
-        }else if(!Ext.isEmpty(this.lovservice)){
-            
-//            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';
-            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovservice+'/query'+ (!Ext.isEmpty(lp) ? '?' + lp : ''))+'&service='+this.lovservice+'&';
-        }else if(!Ext.isEmpty(this.lovmodel)){
-            url = this.context + 'sys_lov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query'+ (!Ext.isEmpty(lp) ? '?' + lp : ''))+'&service='+this.lovmodel+'&';
-        }
+        var v = sf.getRawValue(),
+        	lovurl = sf.lovurl,
+    		svc = sf.service,ctx = sf.context,
+    		w = sf.lovwidth||400,
+			url;
+        sf.blur();
+        if(!Ext.isEmpty(lovurl)){
+            url = Ext.urlAppend(lovurl,Ext.urlEncode(sf.getFieldPara()));
+        }else if(!Ext.isEmpty(svc)){
+//              url = sf.context + 'sys_lov.screen?url='+encodeURIComponent(sf.context + 'sys_lov.svc?svc='+sf.lovservice + '&'+ Ext.urlEncode(sf.getLovPara()))+'&service='+sf.lovservice+'&';
+            url = ctx + 'sys_lov.screen?url='+encodeURIComponent(Ext.urlAppend(ctx + 'autocrud/'+svc+'/query',Ext.urlEncode(sf.getLovPara())))+'&service='+svc;
+    	}
         if(url) {
-	        this.isWinOpen = true;
-	        //alert(this.lovlabelwidth+' '+this.lovgridheight)
-            this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30)+"&lovautoquery="+this.lovautoquery+"&lovlabelwidth="+this.lovlabelwidth, height:this.lovheight||400,width:this.lovwidth||400});
-            this.win.on('close',this.onWinClose,this);
+	        sf.isWinOpen = true;
+            sf.win = new A.Window({title:sf.title||'Lov', url:Ext.urlAppend(url,"lovid="+sf.id+"&key="+encodeURIComponent(v)+"&gridheight="+(sf.lovgridheight||350)+"&innerwidth="+(w-30)+"&lovautoquery="+sf.lovautoquery+"&lovlabelwidth="+sf.lovlabelwidth), height:sf.lovheight||400,width:w});
+            sf.win.on('close',sf.onWinClose,sf);
         }
     },
     isEventFromComponent:function(el){
@@ -526,64 +338,78 @@ $A.Lov = Ext.extend($A.TextField,{
     }
 });
 
-$A.Popup = Ext.extend($A.Component,{
+})($A);
+/*(function(A){
+var TEMPLATE = ['<div tabIndex="-2" class="item-popup" style="visibility:hidden;background-color:#fff;">','</div>'],
+    SHADOW_TEMPLATE = ['<div class="item-shadow" style="visibility:hidden;">','</div>'],
+    EVT_MOUSE_DOWN = 'mousedown',
+	EVT_SHOW = 'show',
+	EVT_HIDE = 'hide',
+	EVT_RENDER = 'render',
+	EVT_BEFORE_RENDER = 'beforerender';
+A.Popup = Ext.extend(A.Component,{
 	constructor : function(config) {
-		var id = 'aurora-item-popup',popup = $A.CmpManager.get(id);
+		var id = 'aurora-item-popup',popup = A.CmpManager.get(id);
 		if(popup)return popup;
 		config.id=id;
-        $A.Popup.superclass.constructor.call(this, config);
+        A.Popup.superclass.constructor.call(this, config);
     },
     initComponent : function(config){
-        $A.Popup.superclass.initComponent.call(this,config);
-    	this.wrap = new Ext.Template(this.tpl).insertFirst(document.body,{width:this.width,height:this.height},true);
-    	this.shadow = new Ext.Template(this.shadowtpl).insertFirst(document.body,{width:this.width,height:this.height},true);
+    	var sf = this;
+        A.Popup.superclass.initComponent.call(sf,config);
+    	sf.wrap = new Ext.Template(TEMPLATE).insertFirst(document.body,{width:sf.width,height:sf.height},true);
+    	sf.shadow = new Ext.Template(SHADOW_TEMPLATE).insertFirst(document.body,{width:sf.width,height:sf.height},true);
     },
     initEvents : function(){
-        $A.Popup.superclass.initEvents.call(this);
+        A.Popup.superclass.initEvents.call(this);
         this.addEvents(
-        	'show',
-        	'hide',
-        	'beforerender',
-        	'render'
+        	EVT_SHOW,
+        	EVT_HIDE,
+        	EVT_BEFORE_RENDER,
+        	EVT_RENDER
         );
     },
     processDataSet: function(ou){
-		if(this.optionDataSet){
-            this.optionDataSet[ou]('load', this.onDataSetLoad, this);
-            this.optionDataSet[ou]('query', this.onDataSetQuery, this);
+    	var sf = this,ds = sf.optionDataSet;
+		if(ds){
+            ds[ou]('load', sf.onDataSetLoad, sf);
+            ds[ou]('query', sf.onDataSetQuery, sf);
 		}
 	},
 	
 	onDataSetQuery : function(){
-		this.fireEvent('beforerender',this)
+		this.fireEvent(EVT_BEFORE_RENDER,this)
 	},
 	onDataSetLoad : function(){
-		this.fireEvent('render',this)
+		this.fireEvent(EVT_RENDER,this)
 	},
-	update : function(){
-		this.wrap.update.apply(this.wrap,Ext.toArray(arguments));
-	},
+//	update : function(){
+//		this.wrap.update.apply(this.wrap,Ext.toArray(arguments));
+//	},
     show : function(){
-    	if(!this.isShow){
-    		this.isShow=true;
-	    	this.fireEvent('show',this);
-	    	this.wrap.show();
-	    	this.shadow.show();
-	    	Ext.get(document).on('mousedown',this.trigger,this);
+    	var sf = this;
+    	if(!sf.isShow){
+    		sf.isShow=true;
+	    	sf.fireEvent(EVT_SHOW,sf);
+	    	sf.wrap.show();
+	    	sf.shadow.show();
+	    	Ext.get(document).on(EVT_MOUSE_DOWN,sf.trigger,sf);
     	}
     },
     trigger : function(e){
-    	if(!this.wrap.contains(e.target) && !this.wrap.contains(e.target) &&(!this.owner||!this.owner.wrap.contains(e.target))){ 
-    		this.hide();
+    	var sf = this;
+    	if(!sf.wrap.contains(e.target) &&(!sf.owner||!sf.owner.wrap.contains(e.target))){ 
+    		sf.hide();
     	}
     },
     hide : function(e){
-    	if(this.isShow){
-    		this.isShow=false;
-	    	this.fireEvent('hide',this)
-	    	Ext.get(document).un('mousedown',this.trigger,this)
-	    	this.wrap.hide();
-	    	this.shadow.hide();
+    	var sf = this;
+    	if(sf.isShow){
+    		sf.isShow=false;
+	    	sf.fireEvent(EVT_HIDE,sf)
+	    	Ext.get(document).un(EVT_MOUSE_DOWN,sf.trigger,sf)
+	    	sf.wrap.hide();
+	    	sf.shadow.hide();
     	}
     },
     moveTo : function(x,y){
@@ -605,24 +431,26 @@ $A.Popup = Ext.extend($A.Component,{
     	return this.wrap.getWidth();
     },
     addClass : function(className){
-		if(this.customClass == className)return;
-    	if(this.customClass)this.wrap.removeClass(this.customClass);
-    	this.customClass = className;
-    	this.wrap.addClass(this.customClass);
+    	this.wrap.dom.className = "item-popup "+className;
+//		if(this.customClass == className)return;
+//    	if(this.customClass)this.wrap.removeClass(this.customClass);
+//    	this.customClass = className;
+//    	this.wrap.addClass(this.customClass);
     },
     bind : function(ds,cmp){
-    	this.owner = cmp;
-    	if(this.optionDataSet != ds){
-    		this.processDataSet('un');
-    		this.optionDataSet = ds;
-			this.processDataSet('on');
+    	var sf = this;
+    	sf.owner = cmp;
+    	if(sf.optionDataSet != ds){
+    		sf.processDataSet('un');
+    		sf.optionDataSet = ds;
+			sf.processDataSet('on');
     	}
     },
     destroy : function(){
-    	$A.Popup.superclass.destroy.call(this);
+    	A.Popup.superclass.destroy.call(this);
     	this.processDataSet('un');
     	delete this.shadow;
-    },
-    tpl : ['<div tabIndex="-2" class="item-popup" style="visibility:hidden;background-color:#fff;">','</div>'],
-    shadowtpl : ['<div class="item-shadow" style="visibility:hidden;">','</div>']
+    }
 });
+
+})($A);*/
