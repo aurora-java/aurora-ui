@@ -1533,7 +1533,7 @@ window.onbeforeunload = function(){
     $A.manager.fireEvent('beforeunload', message);
     if(message.length != 0 ) return message[0];
 }
-if(Ext.isIE){//for fix IE event's sequence bug
+if(Ext.isIE){//for fix IE event's order bug
 (function(){
 	var elProto = Ext.Element.prototype,
 		on = elProto.on,
