@@ -32,7 +32,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     		[ou]('blur',sf.onBlur,sf);
     	ds[ou]('load', sf.onLoad, sf);
             ds[ou]('query', sf.onQuery, sf);
-		sf.wrap.on(EVT_CLICK, sf.onClick,sf)
+		sf.wrap[ou](EVT_CLICK, sf.onClick,sf)
     },
     initEvents : function(){
     	$A.AutoCompleteView.superclass.initEvents.call(this);
@@ -49,11 +49,11 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     	Ext.apply(this,obj);
     },
     destroy : function(){
-    	var sf = this;
+    	var sf = this,wrap = sf.wrap;
     	sf.ds.destroy();
-    	sf.wrap.remove();
     	sf.shadow.remove();
     	$A.AutoCompleteView.superclass.destroy.call(sf);
+    	wrap.remove();
     	delete sf.ds;
     	delete sf.shadow;
     },
