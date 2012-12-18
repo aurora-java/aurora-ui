@@ -1060,9 +1060,9 @@ A.Grid = Ext.extend(A.Component,{
                     xy = dom.getXY(),ced;
                 ed.bind(ds, name);
                 ed.render(record);
-                if(Ext.isIE)ed.processListener('un');
+//                if(Ext.isIE)ed.processListener('un');
                 ed.el.on(EVT_KEY_DOWN, sf.onEditorKeyDown,sf);
-                if(Ext.isIE)ed.processListener('on');
+//                if(Ext.isIE)ed.processListener('on');
                 Ext.fly(DOC_EL).on(EVT_MOUSE_DOWN, sf.onEditorBlur, sf);
                 ced = sf.currentEditor = {
                     record:record,
@@ -1304,7 +1304,7 @@ A.Grid = Ext.extend(A.Component,{
     onEditorBlur : function(e,t){
         var sf = this,ced = sf.currentEditor;
         if(ced && !ced.editor.isEventFromComponent(t)) {  
-            sf.hideEditor.defer(Ext.isIE9?10:0,sf);
+            sf.hideEditor.defer(Ext.isIE||Ext.isIE9?10:0,sf);
         }
     },
     onLockHeadMove : function(e){
@@ -1350,7 +1350,7 @@ A.Grid = Ext.extend(A.Component,{
                     return;
                 }
                 var d = target.child(DIV),
-                    of = index,
+//                    of = index,
                     ot = _N;
 //                ds.setQueryParameter('ORDER_FIELD', index);
                 if(sf.currentSortTarget){
@@ -1373,7 +1373,7 @@ A.Grid = Ext.extend(A.Component,{
 //                    delete ds.qpara['ORDER_TYPE'];
                 }
 //                if(ds.getAll().length!=0)ds.query();
-                ds.sort(of,ot);
+                ds.sort(index,ot);
             }
         }else if(atype==GRID$ROWCHECK){
             var cb = target.child(SELECT_DIV_ATYPE);

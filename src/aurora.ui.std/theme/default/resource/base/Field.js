@@ -15,37 +15,47 @@ $A.Field = Ext.extend($A.Component,{
 	constructor: function(config) {
 		config.required = config.required || false;
 		config.readonly = config.readonly || false;
-        $A.Field.superclass.constructor.call(this, config);
+		config.autocomplete = config.autocomplete || false;
+		config.autocompletefield = config.autocompletefield || null;
+		config.autocompletesize = config.autocompletesize||2;
+        config.autocompletepagesize = config.autocompletepagesize || 10;
+        this.context = config.context||'';
+		$A.Field.superclass.constructor.call(this, config);
     },
     initElements : function(){
     	this.el = this.wrap.child('input[atype=field.input]'); 
     },
     initComponent : function(config){
-    	$A.Field.superclass.initComponent.call(this, config);
-    	this.initElements();
-    	this.originalValue = this.getValue();
-    	this.applyEmptyText();
-    	this.initStatus();
-    	if(this.hidden == true){
-    		this.setVisible(false)
-    	}
+    	var sf = this;
+    	$A.Field.superclass.initComponent.call(sf, config);
+    	sf.service = sf.autocompleteservice || sf.lovservice || sf.lovmodel;
+    	sf.para = {}
+    	sf.initElements();
+    	sf.originalValue = sf.getValue();
+    	sf.applyEmptyText();
+    	sf.initStatus();
+    	sf.hidden && sf.setVisible(false);
+    	sf.initService()
+    	sf.initAutoComplete();
     },
     processListener: function(ou){
-    	$A.Field.superclass.processListener.call(this, ou);
-//    	this.el[ou](Ext.isIE || Ext.isSafari3 ? "keydown" : "keypress", this.fireKey,  this);
-    	this.el[ou]("focus", this.onFocus,  this);
-    	this.el[ou]("blur", this.onBlur,  this);
-    	this.el[ou]("change", this.onChange, this);
-    	this.el[ou]("keyup", this.onKeyUp, this);
-        this.el[ou]("keydown", this.onKeyDown, this);
-        this.el[ou]("keypress", this.onKeyPress, this);
-        this.el[ou]("mouseup", this.onMouseUp, this);
-//        this.el[ou]("mouseover", this.onMouseOver, this);
-//        this.el[ou]("mouseout", this.onMouseOut, this);
+    	var sf = this;
+    	$A.Field.superclass.processListener.call(sf, ou);
+//    	sf.el[ou](Ext.isIE || Ext.isSafari3 ? "keydown" : "keypress", sf.fireKey,  sf);
+    	sf.el[ou]("focus", sf.onFocus,  sf)
+    		[ou]("blur", sf.onBlur,  sf)
+    		[ou]("change", sf.onChange, sf)
+    		[ou]("keyup", sf.onKeyUp, sf)
+        	[ou]("keydown", sf.onKeyDown, sf)
+        	[ou]("keypress", sf.onKeyPress, sf)
+        	[ou]("mouseup", sf.onMouseUp, sf);
+//        	[ou]("mouseover", sf.onMouseOver, sf)
+//        	[ou]("mouseout", sf.onMouseOut, sf);
     },
     processMouseOverOut : function(ou){
-        this.el[ou]("mouseover", this.onMouseOver, this);
-        this.el[ou]("mouseout", this.onMouseOut, this);
+    	var sf = this;
+        sf.el[ou]("mouseover", sf.onMouseOver, sf)
+        	[ou]("mouseout", sf.onMouseOut, sf);
     },
     initEvents : function(){
     	$A.Field.superclass.initEvents.call(this);
@@ -80,7 +90,13 @@ $A.Field = Ext.extend($A.Component,{
         'enterdown');
     },
     destroy : function(){
-    	$A.Field.superclass.destroy.call(this);
+    	var sf = this,view = sf.autocompleteview;
+    	$A.Field.superclass.destroy.call(sf);
+    	if(view){
+    		view.destroy();
+    		view.un('select',sf.onViewSelect,sf);
+    		delete sf.autocompleteview;
+        }
     	delete this.el;
     },
 	setWidth: function(w){
@@ -92,17 +108,19 @@ $A.Field = Ext.extend($A.Component,{
 		this.el.setStyle("height",(h-2)+"px");
 	},
 	setVisible: function(v){
-		if(v==true)
-			this.wrap.show();
-		else
-			this.wrap.hide();
+		this.wrap[v?'show':'hide']();
+//		if(v==true)
+//			this.wrap.show();
+//		else
+//			this.wrap.hide();
 	},
     initStatus : function(){
-    	this.clearInvalid();
-    	this.initRequired(this.required);
-    	this.initReadOnly(this.readonly);
-    	this.initEditable(this.editable);
-    	this.initMaxLength(this.maxlength);
+    	var sf = this;
+    	sf.clearInvalid();
+    	sf.initRequired(sf.required);
+    	sf.initReadOnly(sf.readonly);
+    	sf.initEditable(sf.editable);
+    	sf.initMaxLength(sf.maxlength);
     },
 //    onMouseOver : function(e){
 //    	$A.ToolTip.show(this.id, "测试");
@@ -115,16 +133,15 @@ $A.Field = Ext.extend($A.Component,{
         this.fireEvent('keyup', this, e);
     },
     onKeyDown : function(e){
-        this.fireEvent('keydown', this, e);        
-        var keyCode = e.keyCode;
-        if(this.isEditor==true && keyCode == 9) e.stopEvent();
+        var sf = this,keyCode = e.keyCode;
+        sf.fireEvent('keydown', sf, e);        
+        if(sf.isEditor==true && keyCode == 9) e.stopEvent();
         if(keyCode == 13 || keyCode == 27) {//13:enter  27:esc
-        	this.blur();//为了获取到新的值
+        	sf.blur();//为了获取到新的值
         	if(keyCode == 13) {
-        		var sf = this;
-        		setTimeout(function(){
-        			sf.fireEvent('enterdown', sf, e)
-        		},5);
+        		(function(){
+        			sf.fireEvent('enterdown', sf, e);
+        		}).defer(5);
         	}
         }
     },
@@ -136,58 +153,51 @@ $A.Field = Ext.extend($A.Component,{
 //    },
     onFocus : function(e){
         //(Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
-    	this.select();
-        if(!this.hasFocus){
-            this.hasFocus = true;
-            this.startValue = this.getValue();
-            if(!this.readonly && this.emptytext){
-	            if(this.el.dom.value == this.emptytext){
-	                this.setRawValue('');
-	            }
-	            this.wrap.removeClass(this.emptyTextCss);
+    	var sf = this;
+    	sf.select();
+        if(!sf.hasFocus){
+            sf.hasFocus = true;
+            sf.startValue = sf.getValue();
+            if(sf.emptytext && !sf.readonly){
+	            sf.el.dom.value == sf.emptytext && sf.setRawValue('');
+	            sf.wrap.removeClass(sf.emptyTextCss);
 	        }
-	        this.wrap.addClass(this.focusCss);
-            this.fireEvent("focus", this);
+	        sf.wrap.addClass(sf.focusCss);
+            sf.fireEvent("focus", sf);
         }
     },
     onMouseUp : function(e){
-    	if(this.isSelect)
-    		e.stopEvent();
+    	this.isSelect && e.stopEvent();
     	this.isSelect = false;
     },
     processValue : function(v){
     	return v;
     },
     onBlur : function(e){
-    	if(this.hasFocus){
-	        this.hasFocus = false;
-	        if(!this.readonly){
-		        var rv = this.getRawValue();
-	           	rv = this.processMaxLength(rv);
-		        rv = this.processValue(rv);
-	//	        if(String(rv) !== String(this.startValue)){
-	//	            this.fireEvent('change', this, rv, this.startValue);
-	//	        } 
-	            
-		        this.setValue(rv);
-	        }
-	        this.wrap.removeClass(this.focusCss);
-	        this.fireEvent("blur", this);
+    	var sf = this;
+    	if(sf.hasFocus){
+	        sf.hasFocus = false;
+//	        var rv = sf.getRawValue();
+//           	rv = sf.processMaxLength(rv);
+//	        rv = sf.processValue(rv);
+//	        if(String(rv) !== String(sf.startValue)){
+//	            sf.fireEvent('change', sf, rv, sf.startValue);
+//	        } 
+            
+	        !sf.readonly && sf.setValue(sf.processValue(sf.processMaxLength(sf.getRawValue())));
+	        sf.wrap.removeClass(sf.focusCss);
+	        sf.fireEvent("blur", sf);
     	}
     },
     processMaxLength : function(rv){
-    	var sb = [];
+    	var sb = [],cLength = $A.defaultChineseLength;
         if(this.isOverMaxLength(rv)){
-            for (i = 0,k=0; i < rv.length;i++) {
-                var cr = rv.charAt(i);
-                var cl = cr.match(/[^\x00-\xff]/g);
-                if (cl !=null && cl.length>0) {
-                    k=k+$A.defaultChineseLength;
-                } else {
-                    k=k+1
-                }
+            for (var i = 0,k=0; i < rv.length;i++) {
+                var cr = rv.charAt(i),
+                	cl = cr.match(/[^\x00-\xff]/g);
+                k+=cl !=null && cl.length>0?cLength:1;
                 if(k<=this.maxlength) {
-                    sb[sb.length] = cr
+                	sb.push(cr);
                 }else{
                     break;
                 }
@@ -197,17 +207,17 @@ $A.Field = Ext.extend($A.Component,{
         return rv;
     },
     setValue : function(v, silent){
-    	if(this.emptytext && this.el && v !== undefined && v !== null && v !== ''){
-            this.wrap.removeClass(this.emptyTextCss);
+    	var sf = this;
+    	if(sf.emptytext && sf.el && !Ext.isEmpty(v)){
+            sf.wrap.removeClass(sf.emptyTextCss);
         }
-        this.setRawValue(this.formatValue((v === null || v === undefined ? '' : v)));
-        this.applyEmptyText();
-    	$A.Field.superclass.setValue.call(this,v, silent);
+        sf.setRawValue(sf.formatValue(Ext.isEmpty(v)? '' : v));
+        sf.applyEmptyText();
+    	$A.Field.superclass.setValue.call(sf,v, silent);
     },
     formatValue : function(v){
-        var rder = null;
-        if(this.renderer) rder = $A.getRenderer(this.renderer);
-        return (rder!=null) ? rder.call(window,v) : v;
+        var rder = this.renderer?$A.getRenderer(this.renderer):null;
+        return rder!=null ? rder(v) : v;
     },
     getRawValue : function(){
         var sf = this,v = sf.el.getValue(),typecase = sf.typecase;
@@ -230,14 +240,10 @@ $A.Field = Ext.extend($A.Component,{
 //		return v;
 //    },
     initRequired : function(required){
-    	if(this.crrentRequired == required)return;
+    	if(this.currentRequired == required)return;
 		this.clearInvalid();    	
-    	this.crrentRequired = required;
-    	if(required){
-    		this.wrap.addClass(this.requiredCss);
-    	}else{
-    		this.wrap.removeClass(this.requiredCss);
-    	}
+    	this.currentRequired = required;
+    	this.wrap[required?'addClass':'removeClass'](this.requiredCss);
     },
     initEditable : function(editable){
     	this.el.dom.readOnly = this.readonly? true :(editable === false);
@@ -246,24 +252,15 @@ $A.Field = Ext.extend($A.Component,{
     	if(this.currentReadOnly == readonly)return;
     	this.currentReadOnly = readonly;
     	this.el.dom.readOnly = readonly;
-    	if(readonly){
-    		this.wrap.addClass(this.readOnlyCss);
-    	}else{
-    		this.wrap.removeClass(this.readOnlyCss);
-    	}
+    	this.wrap[readonly?'addClass':'removeClass'](this.readOnlyCss);
     },
     isOverMaxLength : function(str){
         if(!this.maxlength) return false;
-        var c = 0;
-        for (i = 0; i < str.length; i++) {
-            var cr = str.charAt(i);
-            var cl = cr.match(/[^\x00-\xff]/g);
+        var c = 0,i = 0,cLength = $A.defaultChineseLength;
+        for (; i < str.length; i++) {
+            var cl = str.charAt(i).match(/[^\x00-\xff]/g);
 //            var st = escape(str.charAt(i));
-            if (cl !=null &&cl.length >0) {
-                c=c+$A.defaultChineseLength;
-            } else {
-                c=c+1;
-            }
+            c+=cl !=null && cl.length>0?cLength:1;
         }
         return c > this.maxlength;
     },
@@ -271,11 +268,89 @@ $A.Field = Ext.extend($A.Component,{
     	if(maxlength)
     	this.el.dom.maxLength=maxlength;
     },
-    applyEmptyText : function(){
-        if(this.emptytext && this.getRawValue().length < 1){
-            this.setRawValue(this.emptytext);
-            this.wrap.addClass(this.emptyTextCss);
+    initService : function(){
+    	var sf = this,svc = sf.service;
+    	if(svc){
+    		sf.service = sf.processParmater(svc);
+    	}
+    },
+    initAutoComplete : function(){
+    	var sf = this,
+    		svc = sf.service,
+        	view = sf.autocompleteview,
+    		field = sf.autocompletefield,
+    		name = sf.binder && sf.binder.name;
+    	if(sf.autocomplete && svc){
+        	if(!view){
+	        	view = sf.autocompleteview = new $A.AutoCompleteView({
+	        		id:sf.id,
+					el:sf.el,
+	        		cmp:sf
+	        	});
+        		view.on('select',sf.onViewSelect,sf);
+        	}else if(!view.active){
+        		view.processListener('on');
+        	}
+			view.active = true;	
+        	if(!field){
+        		Ext.each(sf.getMapping(),function(map){
+        			if(map.to == name) field = sf.autocompletefield = map.from;
+        		});
+        		if(!field)field = name;
+        	}
+        	view.bind({
+        		url:sf.context + 'autocrud/'+svc+'/query',
+        		name:field,
+        		size:sf.autocompletesize,
+        		pagesize:sf.autocompletepagesize,
+        		renderer:sf.autocompleterenderer,
+				binder:sf.binder
+        	});
+        }else if(view){
+    		view.processListener('un');
+    		view.active = false;
         }
+    },
+    onViewSelect : function(r){
+    	var sf = this,record = sf.record;
+    	Ext.each(sf.getMapping(),function(map){
+    		var from = r.get(map.from);
+            record.set(map.to,Ext.isEmpty(from)?'':from);
+    	});
+    	sf.focus();
+    },
+    getMapping: function(){
+        var mapping,r = this.record,name = this.binder.name;
+        if(r){
+            var field = r.getMeta().getField(name);
+            if(field){
+                mapping = field.get('mapping');
+            }
+        }
+        return mapping ? mapping : [{from:name,to:name}];
+    },
+    applyEmptyText : function(){
+    	var sf = this,emptytext = sf.emptytext;
+        if(emptytext && sf.getRawValue().length < 1){
+            sf.setRawValue(emptytext);
+            sf.wrap.addClass(sf.emptyTextCss);
+        }
+    },
+    processParmater:function(url){
+        var li = url.indexOf('?')
+        if(li!=-1){
+            this.para = Ext.urlDecode(url.substring(li+1,url.length));
+            return url.substring(0,li);
+        } 
+        return url;
+    },
+    getPara : function(){
+    	return Ext.apply({},this.getFieldPara(),this.para);
+    },
+    getFieldPara : function(obj){
+		return (obj = this.record) 
+			&& (obj = obj.getMeta().getField(this.binder.name))
+			&& Ext.apply({},obj.get('lovpara'));
     },
 //    validate : function(){
 //        if(this.readonly || this.validateValue(this.getValue())){
@@ -330,21 +405,21 @@ $A.Field = Ext.extend($A.Component,{
         this.isSelect = true;
     },
     setRawValue : function(v){
-        if(this.el.dom.value === (v === null || v === undefined ? '' : v)) return;
-        return this.el.dom.value = (v === null || v === undefined ? '' : v);
+    	var dom = this.el.dom;
+        if(dom.value === (v = Ext.isEmpty(v)?'':v)) return;
+        return dom.value = v;
     },
     reset : function(){
-    	this.setValue(this.originalValue);
-        this.clearInvalid();
-        this.applyEmptyText();
+    	var sf = this;
+    	sf.setValue(sf.originalValue);
+        sf.clearInvalid();
+        sf.applyEmptyText();
     },
     focus : function(){
-//    	if(this.readonly) return;
     	this.el.dom.focus();
     	this.fireEvent('focus', this);
     },
     blur : function(){
-//    	if(this.readonly) return;
     	this.el.blur();
     	this.fireEvent('blur', this);
     },
@@ -378,4 +453,4 @@ $A.Field = Ext.extend($A.Component,{
         }
         return result.join('');
     }
-})
+});

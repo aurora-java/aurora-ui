@@ -1533,3 +1533,38 @@ window.onbeforeunload = function(){
     $A.manager.fireEvent('beforeunload', message);
     if(message.length != 0 ) return message[0];
 }
+if(Ext.isIE){//for fix IE event's sequence bug
+(function(){
+	var elProto = Ext.Element.prototype,
+		on = elProto.on,
+		un = elProto.un,
+		objs={};
+	elProto.on = elProto.addListener = function(eventName, handler, scope, opt){
+		var sf = this,listeners = objs[sf.id]||(objs[sf.id] = []);
+		Ext.each(listeners,function(obj){
+			un.call(sf,obj.eventName, obj.handler, obj.scope);
+		});
+		listeners.unshift({
+			eventName:eventName,
+			handler:handler,
+			scope:scope,
+			opt:opt
+		});
+		Ext.each(listeners,function(obj){
+			on.call(sf,obj.eventName, obj.handler, obj.scope, obj.opt);
+		});
+		return sf;
+	}
+	elProto.un = elProto.removeListener = function(eventName, handler, scope){
+		var sf = this,listeners = objs[sf.id],
+			index = Ext.each(listeners,function(obj){
+			if(obj.eventName === eventName && obj.handler == handler && obj.scope == scope){
+				return false;
+			}
+		});
+		if(!Ext.isEmpty(index))listeners.splice(index,1);
+		un.call(sf,eventName, handler, scope);
+		return sf;
+	}
+})();
+};
