@@ -1541,17 +1541,20 @@ if(Ext.isIE){//for fix IE event's order bug
 		objs={};
 	elProto.on = elProto.addListener = function(eventName, handler, scope, opt){
 		var sf = this,listeners = objs[sf.id]||(objs[sf.id] = []);
+		sf.un(eventName, handler, scope);
+		on.call(sf,eventName,handler, scope, opt);
 		Ext.each(listeners,function(obj){
-			un.call(sf,obj.eventName, obj.handler, obj.scope);
+			var _e = obj.eventName,
+				_h = obj.handler,
+				_s = obj.scope;
+			un.call(sf,_e, _h, _s);
+			on.call(sf,_e, _h, _s, obj.opt);
 		});
 		listeners.unshift({
 			eventName:eventName,
 			handler:handler,
 			scope:scope,
 			opt:opt
-		});
-		Ext.each(listeners,function(obj){
-			on.call(sf,obj.eventName, obj.handler, obj.scope, obj.opt);
 		});
 		return sf;
 	}
@@ -1562,7 +1565,9 @@ if(Ext.isIE){//for fix IE event's order bug
 				return false;
 			}
 		});
-		if(!Ext.isEmpty(index))listeners.splice(index,1);
+		if(Ext.isDefined(index)){
+			listeners.splice(index,1);
+		}
 		un.call(sf,eventName, handler, scope);
 		return sf;
 	}
