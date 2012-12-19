@@ -99,9 +99,9 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 //            	sf.el.blur();
             }else if(sf.ds.getAll().length > 0){
     	        if(keyCode == 38){
-    	        	sf.selectItem(index == null ? -1 : index - 1);
+    	        	sf.selectItem(index == null ? -1 : index - 1,true);
     	        }else if(keyCode == 40){
-    	        	sf.selectItem(index == null ? 0 : index + 1);
+    	        	sf.selectItem(index == null ? 0 : index + 1,true);
     	        }
             }
 		}
@@ -159,19 +159,36 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 		}
 		sf.fireEvent('select',r);
 	},
-	selectItem:function(index){
+	selectItem:function(index,focus){
 		if(Ext.isEmpty(index)||index < -1){
 			return;
 		}	
-		var sf = this,node = sf.getNode(index),selectedIndex = sf.selectedIndex;	
-		if(node && node.tabIndex!=selectedIndex){
+		var sf = this,node = sf.getNode(index),selectedIndex = sf.selectedIndex;
+		index = node.tabIndex;
+		if(node && index!=selectedIndex){
 			if(!Ext.isEmpty(selectedIndex)){							
 				Ext.fly(sf.getNode(selectedIndex)).removeClass(SELECTED_CLS);
 			}
-			sf.selectedIndex=node.tabIndex;			
+			sf.selectedIndex=index;			
+			if(focus)sf.focusRow(index);			
 			Ext.fly(node).addClass(SELECTED_CLS);					
 		}			
 	},
+	focusRow : function(row){
+        var binder = this.binder,
+        	displayFields = binder?binder.ds.getField(binder.name).getPropertity('displayFields'):null,
+        	head = displayFields && displayFields.length?23:0,
+        	r = 22,
+            ub = this.wrap,
+            stop = ub.getScroll().top,
+            h = ub.getHeight(),
+            sh = ub.dom.scrollWidth > ub.dom.clientWidth? 16 : 0;
+        if(row*r<stop){
+            ub.scrollTo('top',row*r-1)
+        }else if((row+1)*r + head>(stop+h-sh)){//this.ub.dom.scrollHeight
+            ub.scrollTo('top', (row+1)*r-h + sh+head);
+        }
+    },
 	getNode:function(index){
 		var nodes = this.wrap.query('tr[tabindex!=-2]'),l = nodes.length;
 		if(index >= l) index =  index % l;
