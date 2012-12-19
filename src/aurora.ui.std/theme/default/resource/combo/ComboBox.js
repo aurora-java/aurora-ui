@@ -7,7 +7,7 @@
  * @param {Object} config 配置对象. 
  */
 $A.ComboBox = Ext.extend($A.TriggerField, {	
-	maxHeight:200,
+	maxHeight:100,
 	blankOption:true,
 	rendered:false,
 	selectedClass:'item-comboBox-selected',	
@@ -78,7 +78,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		this.currentIndex = this.getIndex(v);
 //		if(!this.currentIndex) return;
 		if (!Ext.isEmpty(v)) {				
-			this.selectItem(this.currentIndex)
+			this.selectItem(this.currentIndex,true);
 		}		
 	},
     onKeyDown: function(e){
@@ -90,12 +90,12 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
             if(keyCode == 38){
                 current --;
                 if(current>=0){
-                    this.selectItem(current)
+                    this.selectItem(current,true)
                 }            
             }else if(keyCode == 40){
                 current ++;
                 if(current<this.view.dom.childNodes.length){
-                    this.selectItem(current)
+                    this.selectItem(current,true)
                 }
             }
         }else if(this.inKeyMode && keyCode == 13){
@@ -116,14 +116,14 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
     	if(this.readonly)return;
     	var c = e.keyCode;
     	if(!e.isSpecialKey()||c==8||c==46){
-    		if(this.timeoutId)
-    			clearTimeout(this.timeoutId)
-    		this.timeoutId = function(){
+//    		if(this.timeoutId)
+//    			clearTimeout(this.timeoutId)
+//    		this.timeoutId = function(){
     			this.doQuery(this.getRawValue());
     			this.correctViewSize();
                 this.syncPopup();
-    			delete this.timeoutId;
-    		}.defer(300,this);
+//    			delete this.timeoutId;
+//    		}.defer(300,this);
     	}
     	$A.ComboBox.superclass.onKeyUp.call(this,e);
     },
@@ -276,7 +276,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //		this.view.update('');
 //		this.selectedIndex = null;
 //	},
-	selectItem:function(index){
+	selectItem:function(index,focus){
 		if(Ext.isEmpty(index)){
 			return;
 		}	
@@ -287,10 +287,23 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			if(!Ext.isEmpty(sindex)){							
 				Ext.fly(this.getNode(sindex)).removeClass(cls);
 			}
-			this.selectedIndex=node.tabIndex;			
+			this.selectedIndex=node.tabIndex;	
+			if(focus)this.focusRow(this.selectedIndex);
 			Ext.fly(node).addClass(cls);					
 		}			
 	},
+	focusRow : function(row){
+        var r = 20,
+            ub = this.popup,
+            stop = ub.getScroll().top,
+            h = ub.getHeight(),
+            sh = ub.dom.scrollWidth > ub.dom.clientWidth? 16 : 0;
+        if(row*r<stop){
+            ub.scrollTo('top',row*r-1)
+        }else if((row+1)*r>(stop+h-sh)){//this.ub.dom.scrollHeight
+            ub.scrollTo('top', (row+1)*r-h + sh);
+        }
+    },
 	getNode:function(index){		
 		return this.view.dom.childNodes[index];
 	},	
