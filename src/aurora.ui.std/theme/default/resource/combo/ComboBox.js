@@ -83,32 +83,34 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
     onKeyDown: function(e){
         if(this.readonly)return;
-        var current = Ext.isEmpty(this.selectedIndex) ? -1 : this.selectedIndex,
-        	keyCode = e.keyCode;
-        if(keyCode == 40||keyCode == 38){
-            this.inKeyMode = true;
-            if(keyCode == 38){
-                current --;
-                if(current>=0){
-                    this.selectItem(current)
-                }            
-            }else if(keyCode == 40){
-                current ++;
-                if(current<this.view.dom.childNodes.length){
-                    this.selectItem(current)
-                }
-            }
-        }else if(this.inKeyMode && keyCode == 13){
-            this.inKeyMode = false;
-            var cls = this.selectedClass;
-            Ext.each(this.view.dom.childNodes,function(t){
-                if(Ext.fly(t).hasClass(cls)){
-                    this.onSelect(t)
-                    return false;
-                }
-            },this);
-            this.collapse();
-        } else {
+        if(this.isExpanded()){
+	        var current = Ext.isEmpty(this.selectedIndex) ? -1 : this.selectedIndex,
+	        	keyCode = e.keyCode;
+	        if(keyCode == 40||keyCode == 38){
+	            this.inKeyMode = true;
+	            if(keyCode == 38){
+	                current --;
+	                if(current>=0){
+	                    this.selectItem(current)
+	                }            
+	            }else if(keyCode == 40){
+	                current ++;
+	                if(current<this.view.dom.childNodes.length){
+	                    this.selectItem(current)
+	                }
+	            }
+	        }else if(this.inKeyMode && keyCode == 13){
+	            this.inKeyMode = false;
+	            var cls = this.selectedClass;
+	            Ext.each(this.view.dom.childNodes,function(t){
+	                if(Ext.fly(t).hasClass(cls)){
+	                    this.onSelect(t)
+	                    return false;
+	                }
+	            },this);
+	            this.collapse();
+	        } 
+    	}else {
         	$A.ComboBox.superclass.onKeyDown.call(this,e);
         }
     },
