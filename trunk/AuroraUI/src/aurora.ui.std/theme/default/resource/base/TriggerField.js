@@ -26,6 +26,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     processListener: function(ou){
     	$A.TriggerField.superclass.processListener.call(this, ou);
     	this.trigger[ou]('click',this.onTriggerClick, this, {preventDefault:true})
+    	this.popup[ou]('click',this.onPopupClick, this)
     },
     /**
      * 判断当时弹出面板是否展开
@@ -39,9 +40,14 @@ $A.TriggerField = Ext.extend($A.TextField,{
 		this.wrap.setStyle("width",(w+3)+"px");
 		this.el.setStyle("width",(w-20)+"px");
 	},
+	onPopupClick : function(){
+		this.hasExpanded = true;
+		this.el.focus();	
+	},
     onFocus : function(){
         $A.TriggerField.superclass.onFocus.call(this);
-        if(!this.readonly && !this.isExpanded())this.expand();
+        if(!this.readonly && !this.isExpanded() && !this.hasExpanded)this.expand();
+        this.hasExpanded = false;
     },
     onBlur : function(e){
 //        if(this.isEventFromComponent(e.target)) return;
