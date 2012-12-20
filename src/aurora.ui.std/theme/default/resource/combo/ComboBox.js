@@ -37,10 +37,10 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
          */
 		'select');
 	},
-	onTriggerClick : function() {
-		this.doQuery();
-		$A.ComboBox.superclass.onTriggerClick.call(this);		
-	},
+//	onTriggerClick : function() {
+//		this.doQuery();
+//		$A.ComboBox.superclass.onTriggerClick.call(this);		
+//	},
 	onBlur : function(e){
         if(this.hasFocus){
 			$A.ComboBox.superclass.onBlur.call(this,e);
@@ -71,8 +71,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
      */
 	expand:function(){
 		if(!this.optionDataSet)return;
-		if(this.rendered===false)this.initQuery();
-		this.correctViewSize();
+		if(this.rendered===false)this.doQuery();
 		$A.ComboBox.superclass.expand.call(this);
 		var v = this.getValue();
 		this.currentIndex = this.getIndex(v);
@@ -120,8 +119,11 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //    			clearTimeout(this.timeoutId)
 //    		this.timeoutId = function(){
     			this.doQuery(this.getRawValue());
-    			this.correctViewSize();
-                this.syncPopup();
+    			if(!this.isExpanded())
+    				$A.ComboBox.superclass.expand.call(this);
+                else
+                	this.syncPopup();
+                this.rendered = false;
 //    			delete this.timeoutId;
 //    		}.defer(300,this);
     	}
@@ -134,7 +136,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		$A.ComboBox.superclass.collapse.call(this);
 		if(!Ext.isEmpty(this.currentIndex))
 			Ext.fly(this.getNode(this.currentIndex)).removeClass(this.selectedClass);
-		this.doQuery();
+//		this.doQuery();
 	},
 	clearOptions : function(){
 	   this.processDataSet('un');
@@ -179,6 +181,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			this.initList();
 			this.rendered = true;
 		}       
+		this.correctViewSize();
 	},
 	correctViewSize: function(){
 		var widthArray = [],
@@ -216,9 +219,9 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		this.fireEvent('select',this, value, display, record);
         
 	},
-	initQuery: function(){//事件定义中调用
-		this.doQuery();
-	},
+//	initQuery: function(){//事件定义中调用
+//		this.doQuery();
+//	},
 	doQuery : function(q) {		
 //		if(q === undefined || q === null){
 //			q = '';
