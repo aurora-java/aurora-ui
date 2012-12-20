@@ -2017,6 +2017,7 @@ A.Grid = Ext.extend(A.Component,{
             if(di == name) return FALSE;
             c.rowSpan=2;
         })
+        this.hideEditor();
     },
     createCompositeRow : function(name,map,obj,colspan,record,columns){
         var html = [];
