@@ -164,8 +164,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 			return;
 		}	
 		var sf = this,node = sf.getNode(index),selectedIndex = sf.selectedIndex;
-		index = node.tabIndex;
-		if(node && index!=selectedIndex){
+		if(node && (index = node.tabIndex)!=selectedIndex){
 			if(!Ext.isEmpty(selectedIndex)){							
 				Ext.fly(sf.getNode(selectedIndex)).removeClass(SELECTED_CLS);
 			}
