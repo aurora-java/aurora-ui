@@ -7,7 +7,7 @@
  * @param {Object} config 配置对象. 
  */
 $A.ComboBox = Ext.extend($A.TriggerField, {	
-	maxHeight:100,
+	maxHeight:200,
 	blankOption:true,
 	rendered:false,
 	selectedClass:'item-comboBox-selected',	
