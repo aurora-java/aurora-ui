@@ -15,7 +15,8 @@
         <view-component elementName="toolbarButton" category="Button" description="按钮组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="gridButton" category="Button" description="按钮组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" defaultTemplate="toolbarButton.tplt"/>
         <view-component elementName="roundButton" category="Button" description="按钮组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
-        <view-component elementName="arrowButton" category="Button" description="箭头按钮" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
+        <view-component elementName="nextButton" category="Button" description="向后按钮" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" defaultTemplate="arrowButton.tplt"/>
+        <view-component elementName="preButton" category="Button" description="向前按钮" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" defaultTemplate="arrowButton.tplt"/>
         <view-component elementName="checkBox" category="Input" description="checkbox组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="radio" category="Input" description="radio组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="navBar" category="Navigation" description="表格导航组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>

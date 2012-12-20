@@ -27,9 +27,6 @@ $A.QueryForm = Ext.extend($A.Component,{
 					qds = sf.qds;
 				if(queryhook){
 					queryhook(value,qds);
-	//				Ext.iterate(queryhook(value),function(key,v){
-	//					qds.setQueryParameter(key,v);
-	//				});
 				}else if(queryfield)
 					if(qds.getCurrentRecord())qds.getCurrentRecord().set(queryfield,value);
 			}
@@ -38,32 +35,17 @@ $A.QueryForm = Ext.extend($A.Component,{
 		}
 	},
 	open : function(){
-		var sf = this,body = sf.body,input = sf.searchInput;
+		var sf = this,body = sf.body;
 		if(sf.isopen && sf.hasbody)return;
-		if(input){
-			input.readonly = true;
-			input.setValue('');
-			input.initStatus();
-		}
-//		sf.qds.reset();
 		sf.isopen = true;
         sf.bodyWrap.parent('TBODY').setStyle('display','block');
         if(sf.isopen)body.show()
         sf.bodyWrap.setHeight(body.getHeight()+10);
-//        sf.bodyWrap.setWidth(sf.wrap.getWidth());
         sf.bodyWrap.fadeIn();
-//		sf.bodyWrap.setHeight(body.getHeight()+10,{
-//			callback:function(){if(sf.isopen)body.show();}
-//		});
 	},
 	close : function(){
-		var sf = this,input = sf.searchInput;
+		var sf = this;
 		if(sf.isopen && sf.hasbody){
-            if(input){
-    			input.readonly = false;
-    			input.initStatus();
-            }
-//			sf.qds.reset();
 			sf.isopen = false;
 			sf.body.hide();
             sf.bodyWrap.parent('TBODY').setStyle('display','none');
@@ -77,8 +59,4 @@ $A.QueryForm = Ext.extend($A.Component,{
 		if(this.searchInput)this.searchInput.setValue('');
 		this.qds.reset();
 	}
-//	,
-//	setSearchMapping : function(mapping){
-//		this.mapping = mapping;
-//	}
 });

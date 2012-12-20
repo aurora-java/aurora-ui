@@ -11,7 +11,8 @@
 	<feature-attach elementName="button" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Button" />
     <feature-attach elementName="toolbarButton" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ToolBarButton" />
     <feature-attach elementName="roundButton" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.RoundButton" />
-    <feature-attach elementName="arrowButton" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ArrowButton" />
+    <feature-attach elementName="nextButton" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.NextButton" />
+    <feature-attach elementName="preButton" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.PreButton" />
     <feature-attach elementName="gridButton" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.GridButton" />
 	<feature-attach elementName="toolBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ToolBar" />
 	<feature-attach elementName="navBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.NavBar" />
