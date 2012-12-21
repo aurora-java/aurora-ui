@@ -1080,12 +1080,13 @@ A.Grid = Ext.extend(A.Component,{
                     //dom.setStyle(OUTLINE,OUTLINE_V);
                 }else{
                     var p = dom.parent();
-                    if(ed instanceof A.Field){
+                    if(ed instanceof A.Field && !ed instanceof A.TextArea){
                         ed.el.setStyle('text-align',col.align||LEFT)
                     }
                     ed.move(xy[0],xy[1]);
 //                    ed.setHeight(p.getHeight()-5);
 //                    ed.setWidth(p.getWidth()-7);
+                    if(!ed instanceof A.TextArea)
                     ed.setHeight(dom.getHeight()-2);
                     ed.setWidth(dom.getWidth()-5);
                     ed.isEditor = TRUE;
