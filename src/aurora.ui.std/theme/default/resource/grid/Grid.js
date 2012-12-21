@@ -353,7 +353,7 @@ A.Grid = Ext.extend(A.Component,{
         var sf = this;
         sf.dataset = ds;
         if(ds.autopagesize===TRUE){
-            ds.pagesize=Math.round(((sf.ub.getHeight()||parseFloat(sf.ub.dom.style.height))-16)/25);
+            ds.pagesize=Math.round(((sf.ub.getHeight()||parseFloat(sf.ub.dom.style.height))-26)/25);
         }
         sf.processDataSetLiestener(ON);
 //        sf.onLoad();
