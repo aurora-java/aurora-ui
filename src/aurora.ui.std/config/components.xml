@@ -77,5 +77,8 @@
         <view-component elementName="listView" category="Grid" description="listView" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ListView" />
         <view-component elementName="formView" category="Grid" description="listView" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.FormView" />
         <view-component elementName="dashboard" category="Chart" description="仪表图" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="viewFieldSet" category="Layout" description="FieldSet视图" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ViewFieldSet" />
+        <view-component elementName="viewForm" category="Layout" description="Form视图" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ViewForm" />
+        <view-component elementName="viewItem" category="Layout" description="视图项" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ViewItem" />
     </components>
 </package>
