@@ -126,7 +126,9 @@ A.Lov = Ext.extend(A.TextField,{
         if(!view || !view.isShow){
         	if(!e.ctrlKey && keyCode == 40){
         		e.stopEvent();
-        		sf.showLovWindow();
+        		if(sf.fireEvent(EVT_BEFORE_TRIGGER_CLICK,sf)){
+        			sf.showLovWindow();
+        		}
         	}
             A.Lov.superclass.onKeyDown.call(sf,e);
         }
