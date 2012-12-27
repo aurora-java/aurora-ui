@@ -4213,7 +4213,8 @@ $A.Field = Ext.extend($A.Component,{
         		size:sf.autocompletesize,
         		pagesize:sf.autocompletepagesize,
         		renderer:sf.autocompleterenderer,
-				binder:sf.binder
+				binder:sf.binder,
+				fetchremote:sf.fetchremote === false?false:true
         	});
         }else if(view){
     		view.processListener('un');
@@ -4670,6 +4671,10 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 			sb;
 		sf.selectedIndex = null;
 		if(l==0){
+			if(sf.fetchremote === false){
+				sf.hide();
+				return;
+			}
 			sb = [AUTO_COMPLATE_TABLE_START,'<tr tabIndex="-2"><td>',_lang['lov.notfound'],'</td></tr></table>'];
 		}else{
 			sb = sf.createListView(datas,sf.binder);
@@ -4718,7 +4723,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
         		sf.showCompleteId=function(){
         			var ds = sf.ds;
 			        ds.setQueryUrl(Ext.urlAppend(svc , Ext.urlEncode(cmp?cmp.getPara():sf.para)));
-			       	ds.setQueryParameter(sf.name,'%'+v+'%');
+			       	ds.setQueryParameter(sf.name,v);
         			ds.pagesize = sf.pagesize;
         			sf.show();
         			ds.query();
@@ -7890,7 +7895,8 @@ A.Lov = Ext.extend(A.TextField,{
         	mapping = sf.getMapping(),
         	record = sf.record,p = {},
         	binder = sf.binder,
-        	sidebar = A.SideBar;
+        	sidebar = A.SideBar,
+        	autocompletefield = sf.autocompletefield;
         if(!Ext.isEmpty(svc)){
 //            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(sf.getLovPara());
             url = Ext.urlAppend(sf.context + 'autocrud/'+svc+'/query?pagenum=1&_fetchall=false&_autocount=false', Ext.urlEncode(sf.getLovPara()));
@@ -7898,12 +7904,19 @@ A.Lov = Ext.extend(A.TextField,{
         if(record == null && binder)
         	record = binder.ds.create({},false);
         record.isReady=false;
-        Ext.each(mapping,function(map){
-            if(binder.name == map.to){
-                p[map.from]=v;
-            }
-            record.set(map.to,_N);          
-        });
+        if(autocompletefield){
+        	p[autocompletefield] = v;
+	        Ext.each(mapping,function(map){
+	            record.set(map.to,_N);          
+	        });
+        }else{
+	        Ext.each(mapping,function(map){
+	            if(binder.name == map.to){
+	                p[map.from]=v;
+	            }
+	            record.set(map.to,_N);          
+	        });
+        }
         A.slideBarEnable = sidebar.enable;
         sidebar.enable = false;
         if(Ext.isEmpty(v) || Ext.isEmpty(svc)) {
