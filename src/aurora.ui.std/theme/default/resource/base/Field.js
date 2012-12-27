@@ -304,7 +304,8 @@ $A.Field = Ext.extend($A.Component,{
         		size:sf.autocompletesize,
         		pagesize:sf.autocompletepagesize,
         		renderer:sf.autocompleterenderer,
-				binder:sf.binder
+				binder:sf.binder,
+				fetchremote:sf.fetchremote === false?false:true
         	});
         }else if(view){
     		view.processListener('un');

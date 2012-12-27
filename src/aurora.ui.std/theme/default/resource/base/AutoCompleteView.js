@@ -70,6 +70,10 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 			sb;
 		sf.selectedIndex = null;
 		if(l==0){
+			if(sf.fetchremote === false){
+				sf.hide();
+				return;
+			}
 			sb = [AUTO_COMPLATE_TABLE_START,'<tr tabIndex="-2"><td>',_lang['lov.notfound'],'</td></tr></table>'];
 		}else{
 			sb = sf.createListView(datas,sf.binder);
@@ -118,7 +122,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
         		sf.showCompleteId=function(){
         			var ds = sf.ds;
 			        ds.setQueryUrl(Ext.urlAppend(svc , Ext.urlEncode(cmp?cmp.getPara():sf.para)));
-			       	ds.setQueryParameter(sf.name,'%'+v+'%');
+			       	ds.setQueryParameter(sf.name,v);
         			ds.pagesize = sf.pagesize;
         			sf.show();
         			ds.query();

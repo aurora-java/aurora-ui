@@ -126,9 +126,7 @@ A.Lov = Ext.extend(A.TextField,{
         if(!view || !view.isShow){
         	if(!e.ctrlKey && keyCode == 40){
         		e.stopEvent();
-        		if(sf.fireEvent(EVT_BEFORE_TRIGGER_CLICK,sf)){
-        			sf.showLovWindow();
-        		}
+        		sf.showLovWindow();
         	}
             A.Lov.superclass.onKeyDown.call(sf,e);
         }
@@ -230,7 +228,8 @@ A.Lov = Ext.extend(A.TextField,{
         	mapping = sf.getMapping(),
         	record = sf.record,p = {},
         	binder = sf.binder,
-        	sidebar = A.SideBar;
+        	sidebar = A.SideBar,
+        	autocompletefield = sf.autocompletefield;
         if(!Ext.isEmpty(svc)){
 //            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(sf.getLovPara());
             url = Ext.urlAppend(sf.context + 'autocrud/'+svc+'/query?pagenum=1&_fetchall=false&_autocount=false', Ext.urlEncode(sf.getLovPara()));
@@ -238,12 +237,19 @@ A.Lov = Ext.extend(A.TextField,{
         if(record == null && binder)
         	record = binder.ds.create({},false);
         record.isReady=false;
-        Ext.each(mapping,function(map){
-            if(binder.name == map.to){
-                p[map.from]=v;
-            }
-            record.set(map.to,_N);          
-        });
+        if(autocompletefield){
+        	p[autocompletefield] = v;
+	        Ext.each(mapping,function(map){
+	            record.set(map.to,_N);          
+	        });
+        }else{
+	        Ext.each(mapping,function(map){
+	            if(binder.name == map.to){
+	                p[map.from]=v;
+	            }
+	            record.set(map.to,_N);          
+	        });
+        }
         A.slideBarEnable = sidebar.enable;
         sidebar.enable = false;
         if(Ext.isEmpty(v) || Ext.isEmpty(svc)) {
