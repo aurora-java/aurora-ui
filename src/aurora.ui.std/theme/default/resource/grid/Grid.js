@@ -436,7 +436,7 @@ A.Grid = Ext.extend(A.Component,{
 //                width:col.width-4,//-11
                 width:data.width-sp,//-11
                 text:t,
-                title:String(t).replace(/<[^<>]*>/mg,_N)
+                title:$A.unescapeHtml(String(t).replace(/<[^<>]+>/mg,_N))
             })
             cellTpl =  sf.cellTpl;
             if(xtype == ROW_NUMBER) {
@@ -793,7 +793,7 @@ A.Grid = Ext.extend(A.Component,{
             }else{
                 //考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
                 div.update(text = sf.renderText(record,c,value))
-                    .set({'title':$A.unescapeHtml(text)});
+                    .set({'title':$A.unescapeHtml(String(text).replace(/<[^<>]+>/mg,_N))});
             }
         }
         EACH(sf.columns,function(c){
@@ -803,7 +803,7 @@ A.Grid = Ext.extend(A.Component,{
                 }
                 if(c.renderer){
                     ediv.update(text = sf.renderText(record,c, record.get(c.name)))
-                        .set({'title':text});
+                        .set({'title':$A.unescapeHtml(String(text).replace(/<[^<>]+>/mg,_N))});
                 }
             }
         });
