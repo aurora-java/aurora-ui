@@ -9,6 +9,7 @@ Release ()
 * Table增加组合快捷键ctrl+上下左右
 * 抽象Lov的autoComplete功能，使之适用于所有输入控件。
 * 优化IE6，IE7，IE8的事件模型，解决了事件顺序与W3C标准事件顺序相反的问题。
+* Grid的Column增加exportDataType属性，用于指定导出数据的类型。
 
 Release (2012-10-10)
 ------------------------------------
