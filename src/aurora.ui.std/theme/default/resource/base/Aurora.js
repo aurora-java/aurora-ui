@@ -1437,6 +1437,7 @@ $A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_sta
                 if(column.width)c.width=column.width;
                 if(column.name)c.name=column.exportfield||column.name;
                 if(column.exportdatatype)c.datatype = column.exportdatatype;
+                if(column.exportdataformat)c.dataformat = column.exportdataformat;
                 c.align=column.align||"left";
                 var o=column._parent?_parentColumn(column._parent,c):c;
                 if(o)columns.add(o);
