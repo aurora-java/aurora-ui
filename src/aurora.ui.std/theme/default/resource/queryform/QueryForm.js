@@ -10,6 +10,15 @@ $A.QueryForm = Ext.extend($A.Component,{
 		sf.searchInput = $A.CmpManager.get(sf.id + '_query');
 		sf.rds = $A.CmpManager.get(sf.resulttarget);
 	},
+	processListener: function(ou){
+    	$A.QueryForm.superclass.processListener.call(this, ou);
+    	Ext.fly(document)[ou]('click',this.formBlur,this);
+    },
+    formBlur : function(e,t){
+    	if(!this.isEventFromComponent(t)){
+    		this.close();
+    	}
+    },
 	bind : function(ds){
 		if(Ext.isString(ds)){
 			ds = $(ds);
