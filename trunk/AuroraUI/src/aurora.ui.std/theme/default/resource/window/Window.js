@@ -105,7 +105,7 @@ $A.Window = Ext.extend($A.Component,{
            this.closeBtn[ou]("mouseout", this.onCloseOut,  this);
            this.closeBtn[ou]("mousedown", this.onCloseDown,  this);
         }
-        if(!this.modal) this.wrap[ou]("click", this.toFront, this);
+        this.wrap[ou]("click", this.onClick, this,{stopPropagation:true});
         this.wrap[ou]("keydown", this.onKeyDown,  this);
         if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
     },
@@ -131,6 +131,9 @@ $A.Window = Ext.extend($A.Component,{
          * @param {Window} this 当前窗口.
          */
         'load');        
+    },
+    onClick : function(e){
+    	if(!this.modal)this.toFront();
     },
     onKeyDown : function(e){
         var key = e.getKey();

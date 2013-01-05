@@ -26,7 +26,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     processListener: function(ou){
     	$A.TriggerField.superclass.processListener.call(this, ou);
     	this.trigger[ou]('click',this.onTriggerClick, this, {preventDefault:true})
-    	this.popup[ou]('click',this.onPopupClick, this)
+    	this.popup[ou]('click',this.onPopupClick, this,{stopPropagation:true})
     },
     /**
      * 判断当时弹出面板是否展开
@@ -67,8 +67,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	$A.TriggerField.superclass.onKeyDown.call(this,e);
     },
     isEventFromComponent:function(el){
-    	var isfrom = $A.TriggerField.superclass.isEventFromComponent.call(this,el);
-    	return isfrom || this.popup.contains(el);
+    	return $A.TriggerField.superclass.isEventFromComponent.call(this,el) || this.popup.dom == el || this.popup.contains(el);
     },
 	destroy : function(){
 		if(this.isExpanded()){
@@ -80,8 +79,8 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	delete this.popup;
     	delete this.shadow;
 	},
-    triggerBlur : function(e){
-    	if(this.popup.dom != e.target && !this.popup.contains(e.target) && !this.wrap.contains(e.target)){    		
+    triggerBlur : function(e,t){
+    	if(!this.isEventFromComponent(t)){    		
             if(this.isExpanded()){
 	    		this.collapse();
 	    	}	    	
