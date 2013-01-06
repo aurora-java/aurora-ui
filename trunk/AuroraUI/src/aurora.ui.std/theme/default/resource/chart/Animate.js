@@ -32,7 +32,7 @@ provides: [Core, MooTools, Type, typeOf, instanceOf, Native]
 
 ...
 */
-
+if(!window.$_){
 (function(){
 
 this.MooTools = {
@@ -5967,4 +5967,4 @@ Swiff.remote = function(obj, fn){
 };
 
 })();
-
+}
