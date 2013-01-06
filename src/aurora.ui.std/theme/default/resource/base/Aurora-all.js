@@ -1436,6 +1436,8 @@ $A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_sta
                 var c={prompt:column.prompt}
                 if(column.width)c.width=column.width;
                 if(column.name)c.name=column.exportfield||column.name;
+                if(column.exportdatatype)c.datatype = column.exportdatatype;
+                if(column.exportdataformat)c.dataformat = column.exportdataformat;
                 c.align=column.align||"left";
                 var o=column._parent?_parentColumn(column._parent,c):c;
                 if(o)columns.add(o);
@@ -5619,7 +5621,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     processListener: function(ou){
     	$A.TriggerField.superclass.processListener.call(this, ou);
     	this.trigger[ou]('click',this.onTriggerClick, this, {preventDefault:true})
-    	this.popup[ou]('click',this.onPopupClick, this)
+    	this.popup[ou]('click',this.onPopupClick, this,{stopPropagation:true})
     },
     /**
      * 判断当时弹出面板是否展开
@@ -5660,8 +5662,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	$A.TriggerField.superclass.onKeyDown.call(this,e);
     },
     isEventFromComponent:function(el){
-    	var isfrom = $A.TriggerField.superclass.isEventFromComponent.call(this,el);
-    	return isfrom || this.popup.contains(el);
+    	return $A.TriggerField.superclass.isEventFromComponent.call(this,el) || this.popup.dom == el || this.popup.contains(el);
     },
 	destroy : function(){
 		if(this.isExpanded()){
@@ -5673,8 +5674,8 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	delete this.popup;
     	delete this.shadow;
 	},
-    triggerBlur : function(e){
-    	if(this.popup.dom != e.target && !this.popup.contains(e.target) && !this.wrap.contains(e.target)){    		
+    triggerBlur : function(e,t){
+    	if(!this.isEventFromComponent(t)){    		
             if(this.isExpanded()){
 	    		this.collapse();
 	    	}	    	
@@ -7076,7 +7077,7 @@ $A.Window = Ext.extend($A.Component,{
            this.closeBtn[ou]("mouseout", this.onCloseOut,  this);
            this.closeBtn[ou]("mousedown", this.onCloseDown,  this);
         }
-        if(!this.modal) this.wrap[ou]("click", this.toFront, this);
+        this.wrap[ou]("click", this.onClick, this,{stopPropagation:true});
         this.wrap[ou]("keydown", this.onKeyDown,  this);
         if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
     },
@@ -7102,6 +7103,9 @@ $A.Window = Ext.extend($A.Component,{
          * @param {Window} this 当前窗口.
          */
         'load');        
+    },
+    onClick : function(e){
+    	if(!this.modal)this.toFront();
     },
     onKeyDown : function(e){
         var key = e.getKey();
@@ -8455,6 +8459,15 @@ $A.QueryForm = Ext.extend($A.Component,{
 		sf.searchInput = $A.CmpManager.get(sf.id + '_query');
 		sf.rds = $A.CmpManager.get(sf.resulttarget);
 	},
+	processListener: function(ou){
+    	$A.QueryForm.superclass.processListener.call(this, ou);
+    	Ext.fly(document)[ou]('click',this.formBlur,this);
+    },
+    formBlur : function(e,t){
+    	if(!this.isEventFromComponent(t)){
+    		this.close();
+    	}
+    },
 	bind : function(ds){
 		if(Ext.isString(ds)){
 			ds = $(ds);
