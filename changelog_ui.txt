@@ -11,6 +11,7 @@ Release ()
 * 优化IE6，IE7，IE8的事件模型，解决了事件顺序与W3C标准事件顺序相反的问题。
 * Grid的Column增加exportDataType属性，用于指定导出数据的类型。
 * Grid的Column增加exportDataFormat属性，用于格式化导出的数据。
+* 新增窗口Aurora.showYesNoCancelWindow方法。
 
 Release (2012-10-10)
 ------------------------------------

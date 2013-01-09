@@ -58,6 +58,8 @@ _lang['toolbar.lastPage'] = 'Last page';
 _lang['window.loading'] = 'Loading...';
 _lang['window.error'] = 'Error';
 _lang['window.button.ok'] = 'OK';
+_lang['window.button.yes'] = 'Yes';
+_lang['window.button.no'] = 'No';
 _lang['window.button.cancel'] = 'Cancel';
 _lang['window.upload.title'] = 'Upload';
 
