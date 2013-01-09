@@ -632,7 +632,7 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
         okbtnhtml = $A.Button.getTemplate(okid,_lang['window.button.ok']),
         cancelbtnhtml = $A.Button.getTemplate(cancelid,_lang['window.button.cancel']),
         cmp = new $A.Window({id:'aurora-msg-ok-cancel'+id,closeable:true,title:title, height:height||100,width:width||300});
-        if(msg){
+        if(!Ext.isEmpty(msg,true)){
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
                 var okbtn = $(okid);
                 var cancelbtn = $(cancelid);
@@ -644,6 +644,41 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
                 });
                 cancelbtn.on('click',function(){
                     if(cancelfun && cancelfun.call(this,cmp) === false)return;
+                    cmp.close();
+                });
+            });
+        }
+    //}
+    return cmp;
+}
+$A.showYesNoCancelWindow = function(title, msg, yesfun,nofun,width, height){
+    //var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
+    //if(cmp == null) {
+        var id = Ext.id(),
+        	yesid = 'aurora-msg-yes'+id,
+        	noid = 'aurora-msg-no'+id,
+        	cancelid = 'aurora-msg-cancel'+id,
+	        yesbtnhtml = $A.Button.getTemplate(yesid,_lang['window.button.yes']),
+	        nobtnhtml = $A.Button.getTemplate(noid,_lang['window.button.no']),
+	        cancelbtnhtml = $A.Button.getTemplate(cancelid,_lang['window.button.cancel']),
+        	cmp = new $A.Window({id:'aurora-msg-yes-no-cancel'+id,closeable:true,title:title, height:height||100,width:width||300});
+        if(!Ext.isEmpty(msg,true)){
+            cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+yesbtnhtml+'</td><td>'+nobtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
+                var yesbtn = $(yesid),
+                	nobtn = $(noid),
+                	cancelbtn = $(cancelid);
+                cmp.cmps[yesid] = yesbtn;
+                cmp.cmps[noid] = nobtn;
+                cmp.cmps[cancelid] = cancelbtn;
+                yesbtn.on('click',function(){
+                    if(yesfun && yesfun.call(this,cmp) === false)return;
+                    cmp.close();
+                });
+                nobtn.on('click',function(){
+                    if(nofun && nofun.call(this,cmp) === false)return;
+                    cmp.close();
+                });
+                cancelbtn.on('click',function(){
                     cmp.close();
                 });
             });
@@ -668,7 +703,7 @@ $A.showOkWindow = function(title, msg, width, height,callback){
         var id = Ext.id(),yesid = 'aurora-msg-yes'+id,
         btnhtml = $A.Button.getTemplate(yesid,_lang['window.button.ok']),
         cmp = new $A.Window({id:'aurora-msg-ok'+id,closeable:true,title:title, height:height,width:width});
-        if(msg){
+        if(!Ext.isEmpty(msg,true)){
             cmp.body.update(msg+ '<center>'+btnhtml+'</center>',true,function(){
                 var btn = $(yesid);
                 cmp.cmps[yesid] = btn;

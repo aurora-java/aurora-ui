@@ -58,6 +58,8 @@ _lang['toolbar.lastPage'] = '尾页';
 _lang['window.loading'] = '正在加载...';
 _lang['window.error'] = '错误';
 _lang['window.button.ok'] = '确定';
+_lang['window.button.yes'] = '是';
+_lang['window.button.no'] = '否';
 _lang['window.button.cancel'] = '取消';
 _lang['window.upload.title'] = '上传附件';
 
