@@ -5036,15 +5036,37 @@ Ext.EventManager = function(){
         var COMPLETE = "complete";
 
         docReadyEvent = new Ext.util.Event();
-        if (Ext.isGecko || Ext.isOpera) {
+        if (Ext.isGecko || Ext.isOpera || Ext.isIE9) {
             DOC.addEventListener(DOMCONTENTLOADED, fireDocReady, false);
-        } else if (Ext.isIE || Ext.isIE9){
-            DOC.write("<s"+'cript id=' + IEDEFERED + ' defer="defer" src="/'+'/:"></s'+"cript>");
+        } else if (Ext.isIE){
+            /*DOC.write("<s"+'cript id=' + IEDEFERED + ' defer="defer" src="/'+'/:"></s'+"cript>");
             DOC.getElementById(IEDEFERED).onreadystatechange = function(){
                 if(this.readyState == COMPLETE){
                     fireDocReady();
                 }
-            };
+            };*/
+        	var top = false;
+        	try {
+				top = window.frameElement == null && DOC.documentElement;
+			} catch(e) {}
+
+			if (top && top.doScroll ) {
+	        	(function(){
+		        	try {
+				        top.doScroll("left");
+				    } catch(error) {
+				        setTimeout(arguments.callee,0);
+				       	return;
+				    }
+				    fireDocReady();
+	        	})();
+			}
+        	DOC.onreadystatechange = function() {
+		        if (DOC.readyState == COMPLETE) {
+		            DOC.onreadystatechange = null;
+		            fireDocReady();
+		        }
+		    };
         } else if (Ext.isWebKit){
             docReadyProcId = setInterval(function(){
                 if(DOC.readyState == COMPLETE) {
