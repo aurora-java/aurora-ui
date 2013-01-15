@@ -10,7 +10,7 @@ function ${id}(){
     };
     Ext.apply(settings, {
         button_placeholder_id: "${id}",
-        post_params: {"source_type" : "${sourcetype}","pkvalue":${pkvalue},"JSID":jsid||''},
+        post_params: {"source_type" : "${sourcetype}","pkvalue":"${pkvalue}","JSID":jsid||''},
         button_width: "${buttonwidth}",
         button_height: "23",
         debug: false,
@@ -28,7 +28,7 @@ function ${id}(){
                 file_name : file.name,
                 file_size : file.size,
                 table_name: "${sourcetype}",
-                table_pk_value : ${pkvalue},
+                table_pk_value : "${pkvalue}",
                 percent : 0
             });
             $('${id}_ds').add(record,0)
@@ -41,7 +41,7 @@ function ${id}(){
                 record.set('creation_time',new Date())
                 record.commit();
             }
-            $('${id}').fireEvent("upload", this, ${pkvalue},'${sourcetype}',serverData);
+            $('${id}').fireEvent("upload", this, "${pkvalue}",'${sourcetype}',serverData);
         },
         file_queue_error_handler : function(file, code, message) {
             try {
