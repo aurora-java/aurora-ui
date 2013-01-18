@@ -6620,13 +6620,16 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.shadow.setHeight(this.popup.getHeight());
     },
     onSelect: function(e,t){
-		if((Ext.fly(t).hasClass('item-day'))&& Ext.fly(t).getAttributeNS("",'_date') != '0'){
-    		var date=new Date(parseInt(Ext.fly(t).getAttributeNS("",'_date')));
-	    	this.collapse();
-            this.processDate(date);            
-	    	this.setValue(date);
-	    	this.fireEvent('select',this, date);
-    	}
+//    	if(((t =Ext.fly(t)).hasClass('item-day'))){
+			var _date =  Ext.fly(t).getAttributeNS('','_date');
+			if(_date && _date != '0'){
+	    		var sf = this,date=new Date(Number(_date));
+		    	sf.collapse();
+	            sf.processDate(date);            
+		    	sf.setValue(date);
+		    	sf.fireEvent("select",sf, date);
+			}
+//    	}
     },
     wrapDate : function(d){},
     processDate : function(d){},
