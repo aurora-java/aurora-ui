@@ -16,6 +16,9 @@ Version-1.3.13 (2013-1-10)
 * 改进QueryForm组件功能
 * 增加自定义报表
 * Lov的客户化
+* BM的WebService创建默认返回格式
+* 修订DatePicker的bug
+* Chart的yAxi可通过绑定的ds的record中的prompt字段和type字段显示图的标题和类型
 
 Release (2012-10-10)
 ------------------------------------
