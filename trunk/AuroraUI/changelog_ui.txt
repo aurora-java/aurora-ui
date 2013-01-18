@@ -14,6 +14,8 @@ Version-1.3.13 (2013-1-10)
 * 新增窗口Aurora.showYesNoCancelWindow方法。
 * 修订Ext.onReady的bug
 * 改进QueryForm组件功能
+* 增加自定义报表
+* Lov的客户化
 
 Release (2012-10-10)
 ------------------------------------
