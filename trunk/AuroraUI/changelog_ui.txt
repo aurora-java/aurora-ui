@@ -1,4 +1,4 @@
-Release ()
+Version-1.3.13 (2013-1-10)
 ------------------------------------
 * 增加CurrencyField和CurrencyLabel金额组件
 * TextField增加restrict,restrictInfo属性.
