@@ -1927,16 +1927,17 @@ A.Grid = Ext.extend(A.Component,{
                 }else n++;
             });
             if(exportall)msg[7]=ITEM_CKB_C;
-            msg.push('</tbody></table></div></div>');
+            msg.push('</tbody></table></div></div>',
+            '<div style="margin:15px;width:270px;color:red">',_lang['grid.export.confirmMsg'],'</div>');
         sf.exportwindow = A.showOkCancelWindow(_lang['grid.export.config'],msg.join(_N),function(win2){
-            A.showConfirm(_lang['grid.export.confirm'],_lang['grid.export.confirmMsg'],function(win){
+            //A.showConfirm(_lang['grid.export.confirm'],_lang['grid.export.confirmMsg'],function(win){
                 sf.doExport();
-                win.close();
+                //win.close();
                 win2.body.un(EVT_CLICK,sf.onExportClick,sf);
-                win2.close();
-            });
-            return FALSE;
-        },NULL,NULL,300);
+                //win2.close();
+            //});
+            //return FALSE;
+        },NULL,NULL,350);
         sf.exportwindow.body.on(EVT_CLICK,sf.onExportClick,sf);
     },
     initColumnPrompt : function(){
