@@ -166,15 +166,15 @@ A.Grid = Ext.extend(A.Component,{
         var sf = this;
         A.Grid.superclass.processListener.call(sf, ou);
         sf.wrap[ou]("mouseover", sf.onMouseOver, sf)
-            [ou]("mouseout", sf.onMouseOut, sf)
+            [ou]("mouseout", sf.onMouseOut, sf);
 //          [ou](EVT_CLICK,sf.focus,sf)
-            [ou]("focus",sf.onFocus,sf)
-            [ou]("blur",sf.onBlur,sf);
         if(sf.canwheel !== FALSE){
             sf.wb[ou]('mousewheel',sf.onMouseWheel,sf);
         }
         sf.wb[ou](Ext.isOpera ? "keypress" : EVT_KEY_DOWN, sf.handleKeyDown,  sf)
-            [ou]("keyup", sf.handleKeyUp,  sf);
+            [ou]("keyup", sf.handleKeyUp,  sf)
+            [ou]("focus",sf.onFocus,sf)
+            [ou]("blur",sf.onBlur,sf);
         sf.ub[ou]('scroll',sf.syncScroll, sf)
             [ou](EVT_CLICK,sf.onClick, sf)
             [ou](EVT_DBLCLICK,sf.onDblclick, sf);
@@ -296,6 +296,7 @@ A.Grid = Ext.extend(A.Component,{
         }else{
             if(key == 9){
                 sf.showEditorByRecord();
+                e.preventDefault();
             }else if(key == 38 || key == 40 || key == 33 || key == 34) {
                 if(ds.loading == TRUE) return;
 //                var row;
