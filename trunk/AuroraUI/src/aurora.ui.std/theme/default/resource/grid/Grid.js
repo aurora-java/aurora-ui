@@ -296,7 +296,6 @@ A.Grid = Ext.extend(A.Component,{
         }else{
             if(key == 9){
                 sf.showEditorByRecord();
-                e.preventDefault();
             }else if(key == 38 || key == 40 || key == 33 || key == 34) {
                 if(ds.loading == TRUE) return;
 //                var row;

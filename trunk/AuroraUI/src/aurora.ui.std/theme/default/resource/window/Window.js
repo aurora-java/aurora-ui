@@ -141,10 +141,10 @@ $A.Window = Ext.extend($A.Component,{
             var fk,lk,ck,cmp
             for(var k in this.cmps){
                 cmp = this.cmps[k];
-                if(!fk && cmp.focus){
-                    fk=k;
+                if(cmp.focus){
+                    if(!fk)fk=k;
+	                lk=k;
                 }
-                lk=k;
                 if(cmp.hasFocus){
                     ck = k;
                 }
