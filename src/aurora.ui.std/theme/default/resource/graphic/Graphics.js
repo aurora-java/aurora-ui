@@ -131,7 +131,9 @@ var DOC=document,
 					ret = rgba[3];
 				}
 			}else if (rgba && !isNaN(rgba[0])) {
-				if (format === 'rgb') {
+				if(format === 'hex'){
+					ret = '#'+ plus(Number(rgba[0]).toString(16))+plus(Number(rgba[1]).toString(16))+plus(Number(rgba[2]).toString(16));
+				}else if (format === 'rgb') {
 					ret = 'rgb(' + rgba[0] + ',' + rgba[1] + ',' + rgba[2] + ')';
 				} else {
 					ret = 'rgba(' + rgba.join(',') + ')';
@@ -879,7 +881,7 @@ var pub ={
 		initSVGElement : function(){
 			var gradient = this.createGradient(this.fillcolor.get('gradient')),
 				fillcolor = this.fillcolor.get(),
-				strokecolor = this.strokecolor.get();
+				strokecolor = this.strokecolor.get('hex');
 			if(this.x||this.y) {
 				if(this.strokewidth&&this.strokewidth%2==1&&!this.shadow)
 					transform(this.wrap,this.x+0.5,this.y+0.5);
@@ -898,7 +900,7 @@ var pub ={
 	    	var config = {d:this.d,fill:gradient};
 	    	if(this.strokewidth){
 		    	if(!this.el.dom.style.stroke){
-		    		strokecolor = this.el.dom.style.stroke = "rgba(0,0,0,0)";
+		    		strokecolor = this.el.dom.style.stroke = "#000000";
 		    	}
 		    	if(this.startarrow || this.endarrow){
 		    		var a = this.d.match(numberReg),l = a.length;
@@ -1295,7 +1297,7 @@ var pub ={
 			defs = newSVG('defs');
 			config.root.insertFirst(defs);
 		}
-		var color = config.color||'rgba(0,0,0,1)',opacity = config.opacity||1,width = config.width||2,
+		var color = config.color||'#000000',opacity = config.opacity||1,width = config.width||2,
 			id = '-' + color + '-' + opacity * 100,vb = '0 0 100 100';
 		if(Ext.isIE9){
 			id += '-' + width;
