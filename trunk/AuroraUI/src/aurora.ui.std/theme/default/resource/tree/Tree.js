@@ -265,22 +265,26 @@ $A.Tree = Ext.extend($A.Component,{
 			rtnode,
 			process = function(item){
 				var children = item.children,
-					checked1 = 0;
+					checked1 = 0,
+					checked2 = 0;
 				Ext.each(children,function(node){
 	                if(node.children.length >0){
 	                    process(node);
 	                } 
 				});
 	            Ext.each(children,function(node){
-	                if(node.checked==1){
+	                if(node.checked==2){
+	                	checked2=1;
+	                }else if(node.checked==1){
 	                    checked1++;
+	                    checked2=1
 	                }
 	            });
-	            if(checked1==0){
+	            if(checked1==0&&checked2==0){
 	            	item.checked = 0;
 	            }else if(children.length==checked1){
 	                item.checked = 1;
-	            }else {
+	            }else if(checked2!=0){
 	                item.checked = 2;
 	            }
 			};

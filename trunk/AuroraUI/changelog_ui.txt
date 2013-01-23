@@ -2,6 +2,7 @@
 * 简化export的提示框
 * Component增加tabIndex属性
 * 修正Window中按Tab键会定位出去的Bug
+* 修正Tree上的checkbox初始选中状态显示不正确的BUG
 
 Version-1.3.13 (2013-1-10)
 ------------------------------------
