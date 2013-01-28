@@ -33,3 +33,103 @@
     height:15px;
     background-image: url(atm3.gif);
 }
+.up_card {
+	width: 280px;
+	height: 44px;
+	background-color:#DCF2DE;
+	float: left;
+	position: relative;
+	line-height: 16px;
+	margin: 0 4px 4px 0;
+	border-radius: 3px;
+}
+.up_card .icon {
+	margin: 7px 0 0 4px;
+    width: 32px;
+    height: 32px;
+    background-image: url(fileico_v4.png);
+    background-repeat: no-repeat;
+    background-position: -672px -64px;
+}
+.clear_line {
+	clear: both;
+	height: 0;
+	font-size: 0;
+	line-height: 0;
+	overflow: visible;
+	visibility: hidden;
+}
+.up_card .j {
+	width: 180px;
+	height: 16px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: #666;
+	position: absolute;
+	left: 41px;
+	top: 5px;
+}
+.up_card .l {
+	position: absolute;
+	right: 6px;
+	top: 5px;
+}
+.up_card .k {
+	height: 16px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: #B0B0B0;
+	position: absolute;
+	left: 41px;
+	top: 21px;
+	line-height: 160%;
+	overflow: visible;
+}
+.up_card .d{
+    margin-left:15px;
+}
+
+.up_card .icon-xls,.up_card .icon-xlsx {
+    background-position: -32px -64px
+}
+.up_card .icon-doc,.up_card .icon-docx {
+    background-position: -64px -64px
+}
+.up_card .icon-ppt,.up_card .icon-pptx {
+    background-position: -96px -64px
+}
+.up_card  .icon-rar {
+    background-position: -160px -64px
+}
+.up_card .icon-zip {
+    background-position: -192px -64px
+}
+.up_card .icon-html{
+    background-position: -288px -64px
+}
+.up_card .icon-js{
+    background-position: -320px -64px
+}
+.up_card .icon-xml,.up_card .icon-css{
+    background-position: -352px -64px
+}
+.up_card .icon-pdf{
+    background-position: -512px -64px
+}
+.up_card .icon-txt{
+    background-position: -672px -64px
+}
+.up_card .icon-jpg {
+    background-position: 0 -96px
+}
+.up_card .icon-gif{
+    background-position: -32px -96px
+}
+.up_card .icon-png{
+    background-position: -64px -96px
+}
+.up_card .icon-bmp{
+    background-position: -96px -96px
+}

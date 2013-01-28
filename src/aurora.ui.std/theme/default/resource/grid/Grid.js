@@ -691,7 +691,7 @@ A.Grid = Ext.extend(A.Component,{
             Ext.fly(ltr).set({style:css.style,_row:record.id});
             EACH(columns,function(col){
                 if(col.lock === TRUE){
-                    if(col.hidden) return TRUE;
+                    if(col.hidden && col.visiable == false) return TRUE;
                     var td = DOC.createElement(TD);
                     if(col.type == ROW_CHECK) {
                         Ext.fly(td).set({recordid:record.id,atype:GRID$ROWCHECK})
@@ -741,7 +741,7 @@ A.Grid = Ext.extend(A.Component,{
         Ext.fly(utr).set({style:css.style,_row:record.id});
         EACH(columns,function(col){
             if(col.lock !== TRUE){
-                if(col.hidden) return TRUE;
+                if(col.hidden && col.visiable == false) return TRUE;
                 var td = DOC.createElement(TD);
                 td.style.visibility=col.hidden === TRUE ? HIDDEN : VISIBLE;
                 td.style.textAlign=col.align||LEFT;
@@ -1552,7 +1552,6 @@ A.Grid = Ext.extend(A.Component,{
         if(hth) hth.setStyle(WIDTH, size+PX);
         if(bth) {
             bth.setStyle(WIDTH, size+PX);
-            bth.setStyle("display", size==0 ? 'none' : '');
         }
         var mlw = Math.max(sf.width - lw,0);
         if(sf.fb){
@@ -1637,7 +1636,7 @@ A.Grid = Ext.extend(A.Component,{
      */
     showColumn : function(name){
         var col = this.findColByName(name);
-        if(col){
+        if(col && col.visiable != false){
             if(col.hidden === TRUE){
                 delete col.hidden;
                 col.forexport = TRUE;
@@ -1661,7 +1660,7 @@ A.Grid = Ext.extend(A.Component,{
      */
     hideColumn : function(name){
         var col = this.findColByName(name);
-        if(col){
+        if(col && col.visiable != false){
             if(col.hidden !== TRUE){
                 col.hiddenwidth = col.width;
                 this.setColumnSize(name, 0, FALSE);

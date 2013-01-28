@@ -25,7 +25,18 @@ function cancelUpload(did,id) {
     var upid = did.replaceAll('_ds','');
 	var record = ds.findById(id);
 	if (record) {
-		window[upid].cancelUpload(record.get('file_id'));
+        if($A.uploadcmps && $A.uploadcmps.length >0){
+            Ext.each($A.uploadcmps,function(uploader){
+                var xhr = uploader.map[record.get('file_id')];
+                if(xhr){
+                    try{
+                    xhr.abort();
+                    }catch(e){}
+                }
+            })
+        }else {
+            window[upid].cancelUpload(record.get('file_id'));
+        }
 		record.set('percent', -1);
 	}
 
@@ -82,129 +93,71 @@ function atmRenderer(value, record, name, canDelete) {
 function atmNotDeleteRenderer(value, record, name) {
     return atmRenderer(value,record,name,false)
 }
-// ------------------------------------
-/*
-function fileQueued(file) {
-	$('upload_ds').create({
-		file_id : file.id,
-		file_name : file.name,
-		file_size : file.size, 
-		percent : 0
-	})
-}
 
-function uploadSuccess(file, serverData) {
-	try {
-		var record = $('upload_ds').find('file_id', file.id);
-		if (record) {
-			record.set('status', 1);
-		}
-
-	} catch (ex) {
-		this.debug(ex);
-	}
-}
-
-function fileQueuedError(file, code, message) {
-	try {
-		var msg;
-		switch (code) {
-			case SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED :
-				msg = '超出上传文件数量限制';
-				break;
-			case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT :
-				msg = '超出上传文件大小限制! (不能超过'
-						+ window.formatFileSize(1024
-								* window.swfUpload.settings.file_size_limit)
-						+ ')';
-				break;
-			case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE :
-				msg = '文件不能为空';
-				break;
-			case SWFUpload.QUEUE_ERROR.INVALID_FILETYPE :
-				msg = '不能上传此文件类型!<br/>(仅限于 '
-						+ window.swfUpload.settings.file_types + ')';
-				break;
-			default :
-				if (file !== null) {
-					alert("Unhandled Error");
-				}
-				break;
-		}
-		if (msg) {
-			Aurora.showErrorMessage('错误', msg);
-		}
-	} catch (e) {
-	}
-}
-
-function fileDialogComplete(numFilesSelected, numFilesQueued) {
-	try {
-		this.startUpload();
-	} catch (ex) {
-		this.debug(ex);
-	}
-}
-
-function uploadProgress(file, bytesLoaded, bytesTotal) {
-	try {
-		var percent = Math.ceil((bytesLoaded / bytesTotal) * 100);
-		var record = $('upload_ds').find('file_id', file.id);
-		if (record) {
-			record.set('percent', percent);
-		}
-	} catch (ex) {
-		alert(ex)
-	}
-}
-
-function uploadError(file, code, message) {
-	var msg;
-	switch (code) {
-		case SWFUpload.UPLOAD_ERROR.HTTP_ERROR :
-			switch (message) {
-				case '404' :
-					msg = "上传地址不正确";
-					break;
-				case '500' :
-					msg = "服务端发生错误";
-					break;
-				default :
-					msg = "网络连接失败";
-					break;
-			}
-			break;
-		case SWFUpload.UPLOAD_ERROR.MISSING_UPLOAD_URL :
-			msg = "上传地址错误";
-			break;
-		case SWFUpload.UPLOAD_ERROR.IO_ERROR :
-			msg = "IO错误";
-			break;
-		case SWFUpload.UPLOAD_ERROR.SECURITY_ERROR :
-			msg = "安全错误";
-			break;
-		case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED :
-			msg = "网络连接失败";
-			break;
-		case SWFUpload.UPLOAD_ERROR.UPLOAD_FAILED :
-			msg = "上传失败";
-			break;
-		case SWFUpload.UPLOAD_ERROR.SPECIFIED_FILE_ID_NOT_FOUND :
-			msg = "文件ID没有找到";
-			break;
-		case SWFUpload.UPLOAD_ERROR.FILE_VALIDATION_FAILED :
-			msg = "文件大小或类型出错";
-			break;
-		case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED :
-			msg = "文件停止上传";
-			break;
-	}
-	if (msg) {
-		Aurora.showErrorMessage('错误', msg);
-		var record = $('upload_ds').find('file_id', file.id);
-		if (record) {
-			record.set('status', 0);
-		}
-	}
-}
-*/
+$A.UploadList = Ext.extend($A.Component,{
+    initComponent : function(config){
+        $A.UploadList.superclass.initComponent.call(this, config);
+        this.drawList();
+    },
+    processListener: function(ou){
+        $A.UploadList.superclass.processListener.call(this,ou);
+        var sf = this,bt = sf.bindtarget;
+        if(bt){
+            var ds = $(bt);
+            ds[ou]('update', sf.onUpdate, sf);
+            ds[ou]('add', sf.onAdd, sf);
+            ds[ou]('remove', sf.onRemove, sf);
+        }
+    },
+    onUpdate : function(ds,record, name, value){
+        var percent = record.get('percent');
+        var status = record.get('status');
+        if (Ext.isEmpty(percent) || status == 1) {
+            if(this.showdelete) {
+                this.wrap.child("#atm_"+record.id).child('.l').update('<a href="javascript:deleteFileRecord(\''+this.bindtarget +'\','+ record.id + ')">删除</a>');
+            }else {
+                this.wrap.child("#atm_"+record.id).child('.l').update('');
+            }
+            this.wrap.child("#atm_"+record.id).child('.j').update('<a target="_self" href="'+this.downloadurl+'?attachment_id='+record.get('attachment_id')+'\" title="'+record.get("file_name")+'">'+record.get('file_name')+'</a>');
+            this.wrap.child("#atm_"+record.id).child('.k').update(formatFileSize(record.get('file_size'))+'<span class="d">'+Aurora.formatDateTime(record.get('creation_time'))+'</span>');
+        } else if (percent == -1) {
+            this.wrap.child("#atm_"+record.id).child('.l').update('');
+            this.wrap.child("#atm_"+record.id).child('.k').update('<div style="color:#FD99A8">已取消</div>');
+        } else {
+            this.wrap.child("#atm_"+record.id).child('.pbar').setStyle('width',percent+'px');
+        }
+    },
+    onAdd: function(ds,record,row){
+        var html = [];
+        var tys = record.get('file_name').split('.');
+        var type = tys[tys.length-1];
+        html.push('<div class="up_card" id="atm_'+record.id+'">');
+        html.push('<div class="icon icon-'+type+'"> </div>');
+        html.push('<div class="j">'+record.get('file_name')+'</div>');
+        html.push('<div class="l"><a href="javascript:cancelUpload(\''+ ds.id + '\',' + record.id + ')">取消上传</a></div>');
+        html.push('<div class="k"><div style="margin-top:3px;border:1px solid #ccc;height:9px;width:102px;"><div class="pbar" style="height:7px;margin:1px;width:0px;background-color:#4ec745"></div></div></div>');
+        html.push('</div><div class="clear_line"/>');        
+        this.wrap.last().remove();
+        Ext.DomHelper.insertHtml("beforeEnd", this.wrap.dom, html.join(''));
+    },
+    drawList: function(){
+        var ds = $(this.bindtarget);
+        var html = [];
+        Ext.each(ds.getAll(),function(record){
+            var tys = record.get('file_name').split('.');
+            var type = tys[tys.length-1];
+            html.push('<div class="up_card" id="atm_'+record.id+'">');
+            html.push('<div class="icon icon-'+type+'"> </div>');
+            html.push('<div class="j"><a target="_self" href="'+this.downloadurl+'?attachment_id='+record.get('attachment_id')+'\" title="'+record.get("file_name")+'">'+record.get('file_name')+'</a></div>');
+            if(this.showdelete) html.push('<div class="l"><a href="javascript:deleteFileRecord(\''+this.bindtarget +'\','+ record.id + ')">删除</a></div>');
+            html.push('<div class="k">'+formatFileSize(record.get('file_size'))+'<span class="d">'+Aurora.formatDateTime(record.get('creation_time'))+'</span></div>');
+            html.push('</div>')            
+        },this)
+        html.push('<div class="clear_line"/>');
+        this.wrap.update(html.join(''))
+    },
+    onRemove: function(ds,record,index){
+        var e = Ext.get("atm_"+record.id)
+        if(e) e.remove();
+    }
+});
