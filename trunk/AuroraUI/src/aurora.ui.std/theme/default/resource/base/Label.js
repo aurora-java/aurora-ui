@@ -28,5 +28,11 @@ $A.Label = Ext.extend($A.Component,{
     		value = rder.call(window,value,record, name);
 	    }
 	    this.wrap.update(value);
+    },
+    setPrompt : function(text){
+		var prompt = Ext.fly(this.id+'_prompt');
+		if(prompt){
+			prompt.update(text);
+		}
     }
 });

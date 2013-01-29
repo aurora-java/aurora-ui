@@ -4,6 +4,8 @@
 * 修正Window中按Tab键会定位出去的Bug
 * 修正Tree上的checkbox初始选中状态显示不正确的BUG
 * 修复Graphic在chrome等浏览器中线的箭头不显示的BUG
+* 所有组件对象增加show和hide方法
+* 所有editor控件增加setPrompt方法
 
 Version-1.3.13 (2013-1-10)
 ------------------------------------

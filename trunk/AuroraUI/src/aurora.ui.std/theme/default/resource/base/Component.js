@@ -297,6 +297,12 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.height = h;
     	this.wrap.setHeight(h);
     },
+    show : function(){
+    	this.wrap.show();
+    },
+    hide : function(){
+    	this.wrap.hide();
+    },
     clearInvalid : function(){},
     markInvalid : function(){},
     clearValue : function(){},
