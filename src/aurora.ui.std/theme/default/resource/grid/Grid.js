@@ -31,7 +31,7 @@ var DOC = document,
     CENTER = 'center',
     HIDDEN = 'hidden',
     CURSOR = 'cursor',
-    VISIBLE = 'visible',
+    VISIBLE = '',
     DEFAULT = 'default',
     W_RESIZE = 'w-resize',
     OUTLINE = 'outline',
@@ -2046,6 +2046,14 @@ A.Grid = Ext.extend(A.Component,{
         });
         var d =Ext.get(id+'_cmp_'+name+_+rid);
         if(d)d.remove();
+    },
+    show : function(){
+    	A.Grid.superclass.show.call(this);
+    	this.wb.show();
+    },
+    hide : function(){
+    	A.Grid.superclass.hide.call(this);
+    	this.wb.hide();
     }
 });
 A.Grid.revision='$Rev$';

@@ -429,6 +429,26 @@ $A.Field = Ext.extend($A.Component,{
     	this.clearInvalid();
         this.applyEmptyText();
     },
+    setPrompt : function(text){
+		var prompt = Ext.fly(this.id+'_prompt');
+		if(prompt){
+			prompt.update(text);
+		}
+    },
+    show : function(){
+    	$A.Field.superclass.show.call(this);
+    	var prompt = Ext.fly(this.id+'_prompt');
+		if(prompt){
+			prompt.show();
+		}
+    },
+    hide : function(){
+    	$A.Field.superclass.hide.call(this);
+    	var prompt = Ext.fly(this.id+'_prompt');
+		if(prompt){
+			prompt.hide();
+		}
+    },
     isDbc : function(s){
         var dbc = false;
         for(var i=0;i<s.length;i++){
