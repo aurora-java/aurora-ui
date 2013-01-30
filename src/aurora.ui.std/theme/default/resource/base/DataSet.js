@@ -36,6 +36,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.bindtarget = config.bindtarget;
         this.bindname = config.bindname;
         this.processfunction = config.processfunction;
+        this.modifiedcheck = config.modifiedcheck;
         this.loading = false;
         this.qpara = {};
         this.fields = {};
@@ -952,7 +953,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(this.data[lindex - 1]){
             this.currentIndex = index;
         }else{
-            if(this.isModified()){
+            if(this.modifiedcheck && this.isModified()){
                 $A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.locate'])
             }else{
                 this.currentIndex = index;
