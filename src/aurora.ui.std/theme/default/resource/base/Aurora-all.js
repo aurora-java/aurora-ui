@@ -1613,6 +1613,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.bindtarget = config.bindtarget;
         this.bindname = config.bindname;
         this.processfunction = config.processfunction;
+        this.modifiedcheck = config.modifiedcheck;
         this.loading = false;
         this.qpara = {};
         this.fields = {};
@@ -2529,7 +2530,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(this.data[lindex - 1]){
             this.currentIndex = index;
         }else{
-            if(this.isModified()){
+            if(this.modifiedcheck && this.isModified()){
                 $A.showInfoMessage(_lang['dataset.info'], _lang['dataset.info.locate'])
             }else{
                 this.currentIndex = index;
@@ -3901,6 +3902,12 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.height = h;
     	this.wrap.setHeight(h);
     },
+    show : function(){
+    	this.wrap.show();
+    },
+    hide : function(){
+    	this.wrap.hide();
+    },
     clearInvalid : function(){},
     markInvalid : function(){},
     clearValue : function(){},
@@ -4340,6 +4347,26 @@ $A.Field = Ext.extend($A.Component,{
     	this.clearInvalid();
         this.applyEmptyText();
     },
+    setPrompt : function(text){
+		var prompt = Ext.fly(this.id+'_prompt');
+		if(prompt){
+			prompt.update(text);
+		}
+    },
+    show : function(){
+    	$A.Field.superclass.show.call(this);
+    	var prompt = Ext.fly(this.id+'_prompt');
+		if(prompt){
+			prompt.show();
+		}
+    },
+    hide : function(){
+    	$A.Field.superclass.hide.call(this);
+    	var prompt = Ext.fly(this.id+'_prompt');
+		if(prompt){
+			prompt.hide();
+		}
+    },
     isDbc : function(s){
         var dbc = false;
         for(var i=0;i<s.length;i++){
@@ -4479,6 +4506,12 @@ $A.Label = Ext.extend($A.Component,{
     		value = rder.call(window,value,record, name);
 	    }
 	    this.wrap.update(value);
+    },
+    setPrompt : function(text){
+		var prompt = Ext.fly(this.id+'_prompt');
+		if(prompt){
+			prompt.update(text);
+		}
     }
 });
 /**
