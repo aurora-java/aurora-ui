@@ -101,9 +101,8 @@ $A.UploadList = Ext.extend($A.Component,{
     },
     processListener: function(ou){
         $A.UploadList.superclass.processListener.call(this,ou);
-        var sf = this,bt = sf.bindtarget;
-        if(bt){
-            var ds = $(bt);
+        var sf = this,bt = sf.bindtarget,ds = $A.CmpManager.get(bt)
+        if(ds){
             ds[ou]('update', sf.onUpdate, sf);
             ds[ou]('add', sf.onAdd, sf);
             ds[ou]('remove', sf.onRemove, sf);
