@@ -73,7 +73,6 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	BORDER: #bababa 1px solid;
 	background-color:#ffffff;
 	WIDTH: 100%;
-	Z-INDEX: 20;
 	HEIGHT: 20px;
 	overflow:hidden;
 }

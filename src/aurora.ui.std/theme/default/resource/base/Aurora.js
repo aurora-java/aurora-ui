@@ -306,8 +306,18 @@ $A.post = function(action,data){
  * @param {Object} opt 参数对象
  */
 $A.request = function(opt){
-    var url = opt.url,para = opt.para,successCall = opt.success,errorCall = opt.error,scope = opt.scope,failureCall = opt.failure;
-    var opts = Ext.apply({},opt.opts);
+    var url = opt.url,
+    	para = opt.para,
+    	successCall = opt.success,
+    	errorCall = opt.error,
+    	scope = opt.scope,
+    	failureCall = opt.failure,
+    	lockMessage = opt.lockMessage,
+    	body = Ext.getBody(),
+    	opts = Ext.apply({},opt.opts);
+    if(!Ext.isEmpty(lockMessage)){
+    	$A.Masker.mask(body,lockMessage);
+    }
     $A.manager.fireEvent('ajaxstart', url, para);
     if($A.logWindow){
         $A['_startTime'] = new Date();
@@ -321,6 +331,9 @@ $A.request = function(opt){
         opts:opts,
         sync:opt.sync,
         success: function(response,options){
+        	if(!Ext.isEmpty(lockMessage)){
+		    	$A.Masker.unmask(body);
+		    }
             if($A.logWindow){
                 var st = $A['_startTime'];
                 var ed = new Date();                    
@@ -366,6 +379,9 @@ $A.request = function(opt){
             }
         },
         failure : function(response, options){
+        	if(!Ext.isEmpty(lockMessage)){
+		    	$A.Masker.unmask(body);
+		    }
             if(failureCall)failureCall.call(scope, response, options);
         },
         scope: scope
