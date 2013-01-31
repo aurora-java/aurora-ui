@@ -302,6 +302,8 @@ $A.post = function(action,data){
  * <div class="sub-desc">错误的回调函数</div></li>
  * <li><code>failure</code>
  * <div class="sub-desc">ajax调用失败的回调函数</div></li>
+ * <li><code>lockMessage</code>
+ * <div class="sub-desc">锁屏消息</div></li>
  * </ul></div></p>
  * @param {Object} opt 参数对象
  */
