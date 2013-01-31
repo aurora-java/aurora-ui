@@ -1,3 +1,9 @@
+Version-1.4.0 (2013-1-31)
+------------------------------------
+* application.config上增加defaultGridSubmask属性，用来全局控制dataset提交时，grid是否被遮盖
+* grid标签上增加submask，来控制单个grid在dataset提交时是否被遮盖
+* Aurora.request新增参数lockMessage
+
 Version-1.4.0 (2013-1-30)
 ------------------------------------
 * 简化export的提示框
