@@ -14,7 +14,7 @@
  
 Ext.Ajax.timeout = 1800000;
 
-$A = Aurora = {version: '1.0',revision:'$Rev: 6985 $'};
+$A = Aurora = {version: '1.0',revision:'$Rev: 7124 $'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){
     if($A.winWidth != $A.getViewportWidth() || $A.winHeight != $A.getViewportHeight()){
@@ -302,12 +302,24 @@ $A.post = function(action,data){
  * <div class="sub-desc">错误的回调函数</div></li>
  * <li><code>failure</code>
  * <div class="sub-desc">ajax调用失败的回调函数</div></li>
+ * <li><code>lockMessage</code>
+ * <div class="sub-desc">锁屏消息</div></li>
  * </ul></div></p>
  * @param {Object} opt 参数对象
  */
 $A.request = function(opt){
-    var url = opt.url,para = opt.para,successCall = opt.success,errorCall = opt.error,scope = opt.scope,failureCall = opt.failure;
-    var opts = Ext.apply({},opt.opts);
+    var url = opt.url,
+    	para = opt.para,
+    	successCall = opt.success,
+    	errorCall = opt.error,
+    	scope = opt.scope,
+    	failureCall = opt.failure,
+    	lockMessage = opt.lockMessage,
+    	body = Ext.getBody(),
+    	opts = Ext.apply({},opt.opts);
+    if(!Ext.isEmpty(lockMessage)){
+    	$A.Masker.mask(body,lockMessage);
+    }
     $A.manager.fireEvent('ajaxstart', url, para);
     if($A.logWindow){
         $A['_startTime'] = new Date();
@@ -321,6 +333,9 @@ $A.request = function(opt){
         opts:opts,
         sync:opt.sync,
         success: function(response,options){
+        	if(!Ext.isEmpty(lockMessage)){
+		    	$A.Masker.unmask(body);
+		    }
             if($A.logWindow){
                 var st = $A['_startTime'];
                 var ed = new Date();                    
@@ -366,6 +381,9 @@ $A.request = function(opt){
             }
         },
         failure : function(response, options){
+        	if(!Ext.isEmpty(lockMessage)){
+		    	$A.Masker.unmask(body);
+		    }
             if(failureCall)failureCall.call(scope, response, options);
         },
         scope: scope
