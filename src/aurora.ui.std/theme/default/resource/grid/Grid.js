@@ -182,7 +182,8 @@ A.Grid = Ext.extend(A.Component,{
         sf.uh[ou](EVT_MOUSE_DOWN, sf.onHeadMouseDown,sf)
             [ou](EVT_CLICK, sf.onHeadClick,sf);
         if(sf.lb){
-            sf.lb[ou](EVT_CLICK,sf.onClick, sf)
+            sf.lb[ou]('scroll',sf.syncScroll, sf)
+            	[ou](EVT_CLICK,sf.onClick, sf)
                 [ou](EVT_DBLCLICK,sf.onDblclick, sf);
         }
         if(sf.lht) sf.lht[ou](EVT_MOUSE_MOVE,sf.onLockHeadMove, sf);
@@ -262,11 +263,17 @@ A.Grid = Ext.extend(A.Component,{
          */
         EVT_CREATE_ROW;
     },
-    syncScroll : function(){
+    syncScroll : function(e,t){
         var sf = this;
         sf.hideEditor();
         sf.uh.dom.scrollLeft = sf.ub.dom.scrollLeft;
-        if(sf.lb) sf.lb.dom.scrollTop = sf.ub.dom.scrollTop;
+        if(sf.lb){
+        	if(sf.lb.dom === t){
+        		sf.ub.dom.scrollTop = sf.lb.dom.scrollTop;
+        	}else{
+        		sf.lb.dom.scrollTop = sf.ub.dom.scrollTop;
+        	}
+        }
         if(sf.uf) sf.uf.dom.scrollLeft = sf.ub.dom.scrollLeft;
     },
     handleKeyUp : function(e){
