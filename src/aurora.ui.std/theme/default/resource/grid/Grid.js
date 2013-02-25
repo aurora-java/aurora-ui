@@ -1912,7 +1912,6 @@ A.Grid = Ext.extend(A.Component,{
         this.showExportConfirm();
     },
     showExportConfirm :function(){
-        this.initColumnPrompt();
         var sf = this,n=0,id = sf.id + '_export',
             msg = ['<div class="item-export-wrap" style="margin:15px;width:270px" id="',id,'">',
                     '<div class="grid-uh" atype="grid.uh" style="width: 270px; -moz-user-select: none; text-align: left; height: 25px; cursor: default;" onselectstart="return false;" unselectable="on">',
@@ -1947,17 +1946,6 @@ A.Grid = Ext.extend(A.Component,{
         },NULL,NULL,350);
         sf.exportwindow.body.on(EVT_CLICK,sf.onExportClick,sf);
     },
-    initColumnPrompt : function(){
-        var sf = this;
-        if(!sf.isPromptInit){
-            EACH(sf.columns,function(c){
-                if(!sf.isFunctionCol(c.type)){
-                    c.prompt = c.name?sf.wrap.child('td.grid-hc'+SELECT_DATAINDEX+c.name+'] div').dom.innerHTML : (c.prompt||sf.dataset.getField(c.name).pro["prompt"]);
-                }
-            });
-            sf.isPromptInit = TRUE;
-        }
-    },
     onExportClick : function(e,t){
         var sf = this,target =Ext.fly(t).parent(TD);
         if(target){
@@ -1984,7 +1972,6 @@ A.Grid = Ext.extend(A.Component,{
     },
     doExport : function(){
         var sf = this,opt = sf.exportOptions;
-        sf.initColumnPrompt();
         A.doExport(sf.dataset,sf.columns,NULL,opt.type,opt.separator,opt.filename);
         delete sf.exportOptions;
     },
