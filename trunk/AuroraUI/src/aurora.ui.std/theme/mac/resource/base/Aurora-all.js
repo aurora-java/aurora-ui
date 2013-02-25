@@ -715,7 +715,7 @@ $A.SideBar = function(){
                 this.bar.fadeIn();
 //                this.bar.animate({height: {to: 50, from: 0}},0.35,function(){
                     setTimeout(function(){
-                       //sf.hide();
+                       sf.hide();
                     }, obj.duration||2000);            
 //                },'easeOut','run');
             }
