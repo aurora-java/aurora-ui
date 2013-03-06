@@ -374,9 +374,12 @@ $A.request = function(opt){
                         if(errorCall)
                         errorCall.call(scope, res, options);
                     }                                                               
-                } else {
-                    $A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
-                    if(successCall)successCall.call(scope,res, options);
+                } else {                    
+                    if(successCall) {
+                        successCall.call(scope,res, options);
+                    }else {
+                        $A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
+                    }
                 }
             }
         },
