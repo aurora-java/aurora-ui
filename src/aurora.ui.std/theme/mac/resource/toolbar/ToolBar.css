@@ -92,3 +92,21 @@
     background-image:url(../toolbar/toolbar_btn.png);
     background-repeat:no-repeat;
 }
+.grid-add2 div {
+    background-position:0px -26px;
+}
+.grid-delete2 div {
+    background-position:0px -328px;
+}
+.grid-save2 div {
+    background-position:0px 2px;
+}
+.grid-clear2 div {
+    background-position:0px -354px;
+}
+.grid-excel2 div {
+    background-position:0px -1215px;
+}
+.grid-cust2 div {
+    background-position:0px -1187px;
+}
