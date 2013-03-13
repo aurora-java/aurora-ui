@@ -143,7 +143,7 @@ $A.Radio = Ext.extend($A.Component, {
 			node.removeClass(this.ruc);
 			var value = Ext.fly(this.nodes[i]).getAttributeNS("","itemvalue");
 			//if((i==0 && !this.value) || value === this.value){
-			if(value === this.value){
+			if(value == this.value){
 				this.readonly?node.addClass(this.rcc):node.addClass(this.ccs);				
 			}else{
 				this.readonly?node.addClass(this.ruc):node.addClass(this.ucs);		
