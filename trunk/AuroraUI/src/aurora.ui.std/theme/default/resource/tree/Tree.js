@@ -569,6 +569,7 @@ $A.Tree.TreeNode.prototype={
 		}
 //		clip.src = ownerTree.getIcon(icon);
 		clip.className = 'node-clip clip-' + prefix + icon;
+        clip.innerHTML = '<DIV class="tree_s"> </DIV>';
 	},
 	paintIconImg : function(){
 		var ownerTree = this.getOwnerTree();
@@ -598,11 +599,14 @@ $A.Tree.TreeNode.prototype={
 		}else{
 			eicon.className = 'node-icon icon-' + icon;//ownerTree.getIcon(icon);
 		}
+        eicon.style.width = 18;
+        eicon.style.height = 18;
 	},
 	paintCheckboxImg : function(){
 		if(!this.els || !this.getOwnerTree().showSkeleton) return;
 		var checked = this.checked;
 		this.els['checkbox'].className = checked==2?'checkbox2':checked==1?'checkbox1':'checkbox0';
+        this.els['checkbox'].innerHTML = '<DIV class="_s"> </DIV>';
 	},	
 	paintText : function(){
 		if(!this.els) return;
@@ -643,6 +647,7 @@ $A.Tree.TreeNode.prototype={
 		this.els['child'].style.display='none';
 		this.paintIconImg();
 		this.paintClipIcoImg();
+        this.refreshDom();
 	},
 	/**
 	 * 展开
@@ -659,7 +664,12 @@ $A.Tree.TreeNode.prototype={
 		}
 		this.paintIconImg();
 		this.paintClipIcoImg();
+        this.refreshDom();
 	},
+    refreshDom : function(){
+        this.getOwnerTree().wrap.addClass('a');
+        this.getOwnerTree().wrap.removeClass('a');
+    },
 	/**
 	 * 选中节点
 	 */

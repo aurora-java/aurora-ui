@@ -450,6 +450,7 @@ $A.Field = Ext.extend($A.Component,{
 		}
     },
     isDbc : function(s){
+        if(!this.transformcharacter) return false;
         var dbc = false;
         for(var i=0;i<s.length;i++){
             var c = s.charCodeAt(i);

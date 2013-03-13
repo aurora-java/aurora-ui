@@ -2,6 +2,13 @@
 	/*white-space: nowrap;*/
 	cursor:default;
 }
+.item-tree td{
+    padding:0px;
+}
+.tree_s{
+    width:18px;
+    height:18px;
+}
 .item-tree img {
 	border-right: 0px; 
 	border-top: 0px; 
@@ -9,10 +16,14 @@
 	border-left: 0px; 
 	border-bottom: 0px
 }
-.node-empty,.node-line,.node-clip,.node-icon, .checkbox0,.checkbox1,.checkbox2{
-	width:18px;
-	height:18px;	
-	float:left;
+.node-empty,.node-line,.node-clip, .checkbox0,.checkbox1,.checkbox2{
+    width:18px;
+    height:18px;    
+    float:left;
+}
+.node-icon {
+    width:18px;
+    height:18px;
 }
 .node-text {
 	cursor:default;
@@ -33,7 +44,7 @@
 }
 .item-node table {
 	padding:0px;
-	table-layout:fixed;
+	/*table-layout:fixed;*/
 	overflow:visible;
 }
 .item-node td {
