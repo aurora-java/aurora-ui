@@ -18,13 +18,17 @@ $A.Charts.theme = {
 	title: {
 		style: { 
 			color: '#000',
-			font: 'bold 16px "Trebuchet MS", Verdana, sans-serif'
+			fontWeight: 'bold',
+			fontSize: '16px',
+			fontFamily: '"Trebuchet MS", Verdana, sans-serif'
 		}
 	},
 	subtitle: {
 		style: { 
 			color: '#666666',
-			font: 'bold 12px "Trebuchet MS", Verdana, sans-serif'
+			fontWeight: 'bold',
+			fontSize: '12px',
+			fontFamily: '"Trebuchet MS", Verdana, sans-serif'
 		}
 	},
 	xAxis: {
@@ -34,7 +38,8 @@ $A.Charts.theme = {
 		labels: {
 			style: {
 				color: '#000',
-				font: '11px Trebuchet MS, Verdana, sans-serif'
+				fontSize: '11px',
+				fontFamily: '"Trebuchet MS", Verdana, sans-serif'
 			}
 		},
 		title: {
@@ -56,7 +61,8 @@ $A.Charts.theme = {
 		labels: {
 			style: {
 				color: '#000',
-				font: '11px Trebuchet MS, Verdana, sans-serif'
+				fontSize: '11px',
+				fontFamily: '"Trebuchet MS", Verdana, sans-serif'
 			}
 		},
 		title: {
@@ -69,8 +75,9 @@ $A.Charts.theme = {
 		}
 	},
 	legend: {
-		itemStyle: {			
-			font: '9pt Trebuchet MS, Verdana, sans-serif',
+		itemStyle: {
+			fontSize: '9pt',
+			fontFamily: '"Trebuchet MS", Verdana, sans-serif',
 			color: 'black'
 
 		},
