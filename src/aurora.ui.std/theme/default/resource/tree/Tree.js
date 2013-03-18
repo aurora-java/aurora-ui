@@ -92,7 +92,9 @@ $A.Tree = Ext.extend($A.Component,{
 		var records = this.dataset.getAll(),
 			pid = record.get(this.parentfield);
 		if(Ext.isEmpty(pid))return;
-		var pnode;
+		var pnode,sequencefield = this.sequencefield,
+			seq = record.get(sequencefield),
+			refnode;
 		for(var i = 0,l=records.length;i<l;i++){
 			var r = records[i];
 			if(r.get(this.idfield) === pid){
@@ -101,7 +103,14 @@ $A.Tree = Ext.extend($A.Component,{
 			}
 		}
 		if(!pnode)pnode = this.root;
-		pnode.appendChild(this.createTreeNode(this.createNode(record)));
+		Ext.each(pnode.childNodes,function(node){
+			var tseq = node.record.get(sequencefield)
+			if(tseq && tseq>seq){
+				refnode = node;
+				return false;
+			}
+		});
+		pnode.insertBefore(this.createTreeNode(this.createNode(record)),refnode);
 	},
     onRemove : function(ds,record){
         var id = record.id,node = this.getNodeById(id)
