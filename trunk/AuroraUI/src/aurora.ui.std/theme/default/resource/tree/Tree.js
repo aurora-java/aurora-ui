@@ -903,6 +903,13 @@ $A.Tree.TreeNode.prototype={
 		node.nextSibling = refNode;
 		refNode.previousSibling = node;
 		node.setOwnerTree(this.getOwnerTree());
+		if(this.childrenRendered){
+			this.childrenRendered = false;
+			this.paintChildren();
+		}
+		if(this.els){
+			this.paintPrefix();
+		}
 		return node;
 	},
 	replaceChild : function(newChild, oldChild){
