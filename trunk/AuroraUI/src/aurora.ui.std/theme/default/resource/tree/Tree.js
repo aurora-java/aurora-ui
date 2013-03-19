@@ -115,7 +115,9 @@ $A.Tree = Ext.extend($A.Component,{
     onRemove : function(ds,record){
         var id = record.id,node = this.getNodeById(id)
         if(node){
-            var parent = node.parentNode;
+            var parent = node.parentNode,
+            	pnode = node.previousSibling,
+            	nnode = node.nextSibling;
             if(parent){
                 //this.focusNode = (this.focusNode == parent ? null : this.focusNode);
                 this.unregisterNode(node,true);
@@ -137,6 +139,20 @@ $A.Tree = Ext.extend($A.Component,{
 	                    	||(n = pc[index])&&n.record
 	                    	||parent.record)+1);
 	                }
+                }
+                if(pnode){
+                	pnode.paintPrefix();
+                	if(nnode){
+                		pnode.nextSibling = nnode;
+                		nnode.previousSibling = pnode;
+                	}else{
+                		pnode.nextSibling = null;	
+                	}
+                }else{
+                	if(nnode){
+		            	nnode.paintPrefix();
+		            	nnode.previousSibling = null;
+		            }
                 }
             }
         }
@@ -368,7 +384,7 @@ $A.Tree = Ext.extend($A.Component,{
 		var node = this.createTreeNode(root);
 		this.setRootNode(node);		
 		this.body.update('');
-		if(this.dataset.data.length>0)
+//		if(this.dataset.data.length>0)
 		this.root.render();
 		this.fireEvent('render', this,root);
 	},
