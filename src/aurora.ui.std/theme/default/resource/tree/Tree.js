@@ -228,6 +228,15 @@ $A.Tree = Ext.extend($A.Component,{
 		elem = Ext.fly(t).findParent('div.item-node');
 		if(_type == 'icon' || _type == 'text'){
 			var node = this.nodeHash[elem.indexId];
+			if(node && node.childNodes.length){
+				if(node.isExpand){
+					node.collapse();
+					this.fireEvent('collapse', this, node);
+				}else{
+					node.expand();
+					this.fireEvent('expand', this, node);
+				}
+			}
 			this.setFocusNode(node);
 			var ds = this.dataset,r = node.record;
 			ds.locate(ds.indexOf(r)+1,true);
