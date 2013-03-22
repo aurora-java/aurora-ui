@@ -140,20 +140,6 @@ $A.Tree = Ext.extend($A.Component,{
 	                    	||parent.record)+1);
 	                }
                 }
-                if(pnode){
-                	pnode.paintPrefix();
-                	if(nnode){
-                		pnode.nextSibling = nnode;
-                		nnode.previousSibling = pnode;
-                	}else{
-                		pnode.nextSibling = null;	
-                	}
-                }else{
-                	if(nnode){
-		            	nnode.paintPrefix();
-		            	nnode.previousSibling = null;
-		            }
-                }
             }
         }
     },
@@ -841,13 +827,13 @@ $A.Tree.TreeNode.prototype={
 
 			if(this.childrenRendered){
 				node.render();
-				var p = node.previousSibling;
-				if(p){
-					p.paintPrefix();//paintLine();
-				}
 			}
 			if(this.els){
-				this.paintPrefix();
+				this.cascade(function(n){
+					n.paintPrefix()
+					if(!n.childrenRendered)
+						return false;
+				});
 			}
 		},this);
 		return node;
@@ -890,7 +876,11 @@ $A.Tree.TreeNode.prototype={
 			}
 		}
 	    if(this.els){
-	    	this.paintPrefix();
+	    	this.cascade(function(node){
+				node.paintPrefix()
+				if(!node.childrenRendered)
+					return false;
+			});
 	    }
 		return node;
 	},
@@ -933,7 +923,7 @@ $A.Tree.TreeNode.prototype={
 			this.paintChildren();
 		}
 		if(this.els){
-			this.paintPrefix();
+			this.paintPrefix()
 		}
 		return node;
 	},
