@@ -958,44 +958,58 @@ $A.doEvalScript = function(){
     }
     var loaded = 0;
     
-    var onReadOnLoad = function(){
-        var isready = Ext.isIE ? (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") : true;
-        if(isready) {
-            loaded ++;
-            if(loaded==jslink.length) {
-                for(j=0,k=jsscript.length;j<k;j++){
-                    var jst = jsscript[j];
-                    if(window.execScript) {
-                        window.execScript(jst);
-                    } else {
-                        window.eval(jst);
-                    }
-                }
-                var el = document.getElementById(id);
-                if(el){Ext.removeNode(el);} 
-                Ext.fly(dom).setStyle('display', 'block');
-                if(typeof callback == "function"){
-                    callback();
-                }
-                $A.doEvalScript();
-            }else{
-                var js = jslink[loaded];
-                var s = document.createElement("script");
-                s.src = js.src;
-                s.type = js.type;
-                s[Ext.isIE ? "onreadystatechange" : "onload"] = onReadOnLoad;
-                hd.appendChild(s);
+    var finishLoad = function(){
+        for(j=0,k=jsscript.length;j<k;j++){
+            var jst = jsscript[j];
+            if(window.execScript) {
+                window.execScript(jst);
+            } else {
+                window.eval(jst);
             }
         }
+        var el = document.getElementById(id);
+        if(el){Ext.removeNode(el);} 
+        Ext.fly(dom).setStyle('display', 'block');
+        if(typeof callback == "function"){
+            callback();
+        }
+        $A.doEvalScript();
     }
     
-    if(jslink.length > 0){
-        var js = jslink[0];
+    var continueLoad = function(){
+        var js = jslink[loaded];
         var s = document.createElement("script");
         s.src = js.src;
         s.type = js.type;
         s[Ext.isIE ? "onreadystatechange" : "onload"] = onReadOnLoad;
-        hd.appendChild(s);
+        s["onerror"] = onErrorLoad;
+        hd.appendChild(s);        
+    }    
+    
+    var onReadOnLoad = function(){        
+        var isready = Ext.isIE ? (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") : true;
+        if(isready) {
+            loaded ++;
+            if(loaded==jslink.length) {
+                finishLoad();
+            }else{
+                continueLoad();
+            }
+        }
+    }
+    
+    var onErrorLoad = function(evt){
+        loaded++;
+        alert('无法加载脚本:' + evt.target.src);
+        if(loaded==jslink.length) {
+            finishLoad();
+        }else {
+            continueLoad();
+        }
+    }
+    
+    if(jslink.length > 0){
+        continueLoad();
     } else if(jslink.length ==0) {
         for(j=0,k=jsscript.length;j<k;j++){
             var jst = jsscript[j];
