@@ -3,7 +3,7 @@ $A.HotKey = function(){
 		ALT = 'ALT',
 		SHIFT = 'SHIFT',
 		hosts = {},
-		enable = true;
+		enable = true,
 		onKeyDown = function(e,t){
 			var key = e.keyCode,bind = [],handler,sf = this;
 			if(key!=16 && key!=17 && key!=18 ){
