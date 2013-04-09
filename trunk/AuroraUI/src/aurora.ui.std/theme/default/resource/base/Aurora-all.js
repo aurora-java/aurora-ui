@@ -377,8 +377,10 @@ $A.request = function(opt){
                 } else {                    
                     if(successCall) {
                         successCall.call(scope,res, options);
-                    }else {
-                        $A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
+                        opt.showSuccessTip = opt.showSuccessTip || false;
+                    }
+                    if(opt.showSuccessTip){
+                        $A.manager.fireEvent('ajaxsuccess', opt.successTip);
                     }
                 }
             }
@@ -724,7 +726,6 @@ $A.SideBar = function(){
             }
         },
         hide : function(){
-            if(!this.enable)return;
             if(parent.hideSideBar){
                 parent.hideSideBar()
             }else{
@@ -754,7 +755,6 @@ $A.Status = function(){
             }
         },
         hide : function(){
-            if(!this.enable)return;
             if(parent.hideStatus){
                 parent.hideStatus();
             }else{
@@ -1223,8 +1223,8 @@ $A.manager.on('ajaxerror',function(){
 $A.manager.on('ajaxcomplete',function(){
     $A.Status.hide();
 })
-$A.manager.on('ajaxsuccess',function(){
-    $A.SideBar.show({msg:_lang['eventmanager.success']})
+$A.manager.on('ajaxsuccess',function(tip){
+    $A.SideBar.show({msg:tip||_lang['eventmanager.success']})
 })
 
 $A.regEvent = function(name, hanlder){
@@ -2788,7 +2788,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     query : function(page,opts){
         $A.slideBarEnable = $A.SideBar.enable;
-        $A.SideBar.enable = false;
+//        $A.SideBar.enable = false;
         if(!this.queryurl) return;
         if(this.qds) {
             if(this.qds.getCurrentRecord() == null) this.qds.create();
@@ -2922,7 +2922,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         
         //if(p.length > 0) {
 //            this.fireEvent("submit", this);
-            $A.request({url:this.submiturl, para:p, ext:this.spara,success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
+            $A.request({showSuccessTip:true,url:this.submiturl, para:p, ext:this.spara,success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
         //}
     },
     /**
@@ -4609,7 +4609,7 @@ $A.HotKey = function(){
 		ALT = 'ALT',
 		SHIFT = 'SHIFT',
 		hosts = {},
-		enable = true;
+		enable = true,
 		onKeyDown = function(e,t){
 			var key = e.keyCode,bind = [],handler,sf = this;
 			if(key!=16 && key!=17 && key!=18 ){
