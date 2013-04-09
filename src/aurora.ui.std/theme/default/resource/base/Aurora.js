@@ -377,8 +377,10 @@ $A.request = function(opt){
                 } else {                    
                     if(successCall) {
                         successCall.call(scope,res, options);
-                    }else {
-                        $A.manager.fireEvent('ajaxsuccess', $A.manager, url,para,res);
+                        opt.showSuccessTip = opt.showSuccessTip || false;
+                    }
+                    if(opt.showSuccessTip){
+                        $A.manager.fireEvent('ajaxsuccess', opt.successTip);
                     }
                 }
             }
@@ -1221,8 +1223,8 @@ $A.manager.on('ajaxerror',function(){
 $A.manager.on('ajaxcomplete',function(){
     $A.Status.hide();
 })
-$A.manager.on('ajaxsuccess',function(){
-    $A.SideBar.show({msg:_lang['eventmanager.success']})
+$A.manager.on('ajaxsuccess',function(tip){
+    $A.SideBar.show({msg:tip||_lang['eventmanager.success']})
 })
 
 $A.regEvent = function(name, hanlder){

@@ -1173,7 +1173,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     query : function(page,opts){
         $A.slideBarEnable = $A.SideBar.enable;
-        $A.SideBar.enable = false;
+//        $A.SideBar.enable = false;
         if(!this.queryurl) return;
         if(this.qds) {
             if(this.qds.getCurrentRecord() == null) this.qds.create();
@@ -1307,7 +1307,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         
         //if(p.length > 0) {
 //            this.fireEvent("submit", this);
-            $A.request({url:this.submiturl, para:p, ext:this.spara,success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
+            $A.request({showSuccessTip:true,url:this.submiturl, para:p, ext:this.spara,success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
         //}
     },
     /**
