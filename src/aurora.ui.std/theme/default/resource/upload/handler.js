@@ -57,7 +57,9 @@ function processPercent(record,canDelete) {
                 + ((canDelete != false) ? '<a style="margin-left:5px;text-decoration:underline" href="javascript:deleteFileRecord(\''+id +'\','+ record.id + ')">[删除]</a>' : '');
 	} else if (percent == -1) {
 		html += '<div style="float:left;margin-left:10px;color:#FD99A8">已取消</div>';
-	} else {
+	} else if (percent >=100) {
+        html += '';
+    } else {
 		html += '<div style="float:left;margin-left:10px;color:#808080">'
 				+ formatFileSize(record.get('file_size')) + '</div>';
 		html += '<div style="float:left;margin-top:3px;margin-left:10px;border:1px solid #ccc;height:9px;width:102px;">';
@@ -72,6 +74,7 @@ function fileSizeRenderer(value, record, name) {
 	return formatFileSize(value)
 }
 function atmRenderer(value, record, name, canDelete) {
+    var percent = record.get('percent');
     var ds = record.ds;
     var id = ds.id;
     var upid = id.replaceAll('_ds','');
@@ -86,8 +89,8 @@ function atmRenderer(value, record, name, canDelete) {
 		a = '<div class="atm1"> </div>'
 	}
     
-	var html = '<div class="' + c + '">' + a + '<div style="float:left"><a target="_self" href="'+window[upid+'_download_path']+'?attachment_id='+record.get('attachment_id')+'\">'
-			+ value + '</a></div>' + processPercent(record,canDelete) + '</div>';
+	var html = '<div class="' + c + '">' + a + '<div style="float:left">' + (percent == -1 ? value :'<a target="_self" href="'+window[upid+'_download_path']+'?attachment_id='+record.get('attachment_id')+'\">'
+            + value + '</a>') + '</div>' + processPercent(record,canDelete) + '</div>';
 	return html;
 }
 function atmNotDeleteRenderer(value, record, name) {
@@ -122,6 +125,9 @@ $A.UploadList = Ext.extend($A.Component,{
         } else if (percent == -1) {
             this.wrap.child("#atm_"+record.id).child('.l').update('');
             this.wrap.child("#atm_"+record.id).child('.k').update('<div style="color:#FD99A8">已取消</div>');
+        } else if (percent == 100) {
+            this.wrap.child("#atm_"+record.id).child('.l').update('');
+            this.wrap.child("#atm_"+record.id).child('.pbar').setStyle('width','100px');
         } else {
             this.wrap.child("#atm_"+record.id).child('.pbar').setStyle('width',percent+'px');
         }
