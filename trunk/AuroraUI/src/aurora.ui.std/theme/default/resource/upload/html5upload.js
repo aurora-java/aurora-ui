@@ -43,10 +43,11 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
         );
     },
     checkFileType : function(files) {
-        var checkType = true,checkSize = true;
+        var checkType = true,checkSize = true,checkTotal = true,totalUploadSize = 0;
         for (var i = 0; i < files.length; i++) {  
             var name = files[i].name;
             var size = files[i].size;
+            totalUploadSize += size;
             var sp = name.trim().split('.');
             var ft = sp[sp.length-1];
             if(this.filetype.trim() != '*.*' && this.types.indexOf(ft)==-1){
@@ -58,12 +59,25 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
                 break;
             }
         }
+        var ds = $(this.id+'_ds');
+        if(this.totalfilesize!=0){
+            var all = ds.getAll(),uploadedSize = 0;
+            for(var i=0;i<all.length;i++){
+                uploadedSize =uploadedSize+ all[i].get('file_size');
+            }
+            checkTotal = (totalUploadSize+uploadedSize) <=  1024*this.totalfilesize
+        }
+        
+        
+        
         if(!checkType) {
             $A.showInfoMessage('格式不正确', '不能上传此文件类型! <br/>(仅限于 '+ this.filetype + ')',null,350,100);
         }else if(!checkSize) {
             $A.showInfoMessage('大小不正确', '文件大小超出限制! (单个文件不能超过' + formatFileSize(this.filesize*1024)+ ')',null,350,100);
+        }else if(!checkTotal) {
+            $A.showErrorMessage('错误', '超出总上传文件大小限制! (总大小不能超过 ' + formatFileSize(1024 *this.totalfilesize)+')',null,350,100);
         }
-        return checkType&&checkSize;
+        return checkType&&checkSize&&checkTotal;
     },
     uploadFiles : function(files){
         if(!this.showupload) {

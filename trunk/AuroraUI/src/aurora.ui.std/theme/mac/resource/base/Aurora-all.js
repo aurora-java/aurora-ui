@@ -14,7 +14,7 @@
  
 Ext.Ajax.timeout = 1800000;
 
-$A = Aurora = {version: '1.0',revision:'$Rev: 7327 $'};
+$A = Aurora = {version: '1.0',revision:'$Rev: 7328 $'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){
     if($A.winWidth != $A.getViewportWidth() || $A.winHeight != $A.getViewportHeight()){
@@ -5557,7 +5557,9 @@ $A.NumberField = Ext.extend($A.TextField,{
         if(!this.allowdecimals || this.decimalprecision == -1 || nan || !value){
            return nan ? '' : value;
         }
-        return parseFloat(value).toFixed(this.decimalprecision);
+        var vs = parseFloat(value).toFixed(this.decimalprecision);
+        if(this.allowpad == false) vs = String(parseFloat(vs))
+        return vs;
     }
 })
 /**
