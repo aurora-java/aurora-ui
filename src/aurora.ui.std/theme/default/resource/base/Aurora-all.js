@@ -5557,7 +5557,9 @@ $A.NumberField = Ext.extend($A.TextField,{
         if(!this.allowdecimals || this.decimalprecision == -1 || nan || !value){
            return nan ? '' : value;
         }
-        return parseFloat(value).toFixed(this.decimalprecision);
+        var vs = parseFloat(value).toFixed(this.decimalprecision);
+        if(this.allowpad == false) vs = String(parseFloat(vs))
+        return vs;
     }
 })
 /**

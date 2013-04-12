@@ -23,15 +23,28 @@ function ${id}(){
         file_size_limit: ${filesize}, //默认单位是KB,0表示无限制
         file_types:'${filetype}',
         file_queued_handler : function(file){
-            var record = new Aurora.Record({
-                file_id : file.id,
-                file_name : file.name,
-                file_size : file.size,
-                table_name: "${sourcetype}",
-                table_pk_value : "${pkvalue}",
-                percent : 0
-            });
-            $('${id}_ds').add(record,0)
+            var totalFileSize = ${totalfilesize};
+            var ds = $('${id}_ds');
+            if(totalFileSize!=0){
+                var all = ds.getAll(),uploadedSize = 0;
+                for(var i=0;i<all.length;i++){
+                    uploadedSize=uploadedSize+all[i].get('file_size');
+                }
+                if((uploadedSize+file.size)>= 1024*totalFileSize){
+                    this.cancelUpload(file.id);
+                    Aurora.showErrorMessage('错误', '超出总上传文件大小限制! (不能超过 ' + window.formatFileSize(1024 *totalFileSize)+')',null,350,100);
+                }else {
+                    var record = new Aurora.Record({
+                        file_id : file.id,
+                        file_name : file.name,
+                        file_size : file.size,
+                        table_name: "${sourcetype}",
+                        table_pk_value : "${pkvalue}",
+                        percent : 0
+                    });
+                    $('${id}_ds').add(record,0)
+                }
+            }
         },
         upload_success_handler : function(file, serverData, responseReceived) {
             var res = Ext.decode(serverData);
