@@ -379,8 +379,10 @@ A.Grid = Ext.extend(A.Component,{
         sf.cbTpl = new Ext.Template(['<center><div class="{cellcls}" id="',sf.id,'_{name}_{',RECORD_ID,'}"></div></center>']);
     },
     getCheckBoxStatus: function(record, name ,readonly) {
-        var field = this.dataset.getField(name),
-            cv = field.getPropertity(CHECKED_VALUE),
+        var field = record.getField(name),
+            cv = field.get(CHECKED_VALUE),
+//        var field = this.dataset.getField(name),
+//            cv = field.getPropertity(CHECKED_VALUE),
 //          uv = field.getPropertity('uncheckedvalue'),
             value = record.data[name];
         return ITEM_CKB+(readonly?READONLY:_N)+((value && value == cv) ? C : U);
