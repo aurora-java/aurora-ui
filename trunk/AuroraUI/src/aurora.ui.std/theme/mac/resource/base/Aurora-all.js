@@ -3984,7 +3984,7 @@ $A.Field = Ext.extend($A.Component,{
     initComponent : function(config){
     	var sf = this;
     	$A.Field.superclass.initComponent.call(sf, config);
-    	sf.service = sf.autocompleteservice || sf.lovservice || sf.lovmodel || sf.lovurl;
+    	sf.service = sf.autocompleteservice || sf.lovservice || sf.lovmodel;
     	sf.para = {}
     	sf.initElements();
     	sf.originalValue = sf.getValue();
