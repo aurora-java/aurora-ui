@@ -3984,7 +3984,7 @@ $A.Field = Ext.extend($A.Component,{
     initComponent : function(config){
     	var sf = this;
     	$A.Field.superclass.initComponent.call(sf, config);
-    	sf.service = sf.autocompleteservice || sf.lovservice || sf.lovmodel;
+    	sf.service = sf.autocompleteservice || sf.lovservice || sf.lovmodel || sf.lovurl;
     	sf.para = {}
     	sf.initElements();
     	sf.originalValue = sf.getValue();
@@ -7899,7 +7899,7 @@ A.Lov = Ext.extend(A.TextField,{
     onChange : function(e){
     	var sf = this;
     	A.Lov.superclass.onChange.call(sf);
-    	if(sf.fetchremote && (sf.autocomplete?!sf.autocompleteview.isLoaded:true))
+    	if(sf.fetchremote && (sf.autocomplete?!sf.autocompleteview.isLoaded:!Ext.isEmpty(sf.lovmodel)))
 			sf.fetchRecord();
     },
     onKeyDown : function(e){
@@ -8101,7 +8101,7 @@ A.Lov = Ext.extend(A.TextField,{
         this.fetching = false;
         A.SideBar.enable = A.slideBarEnable;
     },    
-    showLovWindow : function(){    
+    showLovWindow : function(){
     	var sf = this;
         if(sf.fetching||sf.isWinOpen||sf.readonly) return;
         
