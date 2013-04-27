@@ -33,18 +33,18 @@ function ${id}(){
                 if((uploadedSize+file.size)>= 1024*totalFileSize){
                     this.cancelUpload(file.id);
                     Aurora.showErrorMessage('错误', '超出总上传文件大小限制! (不能超过 ' + window.formatFileSize(1024 *totalFileSize)+')',null,350,100);
-                }else {
-                    var record = new Aurora.Record({
-                        file_id : file.id,
-                        file_name : file.name,
-                        file_size : file.size,
-                        table_name: "${sourcetype}",
-                        table_pk_value : "${pkvalue}",
-                        percent : 0
-                    });
-                    $('${id}_ds').add(record,0)
+                    return;
                 }
             }
+            var record = new Aurora.Record({
+                file_id : file.id,
+                file_name : file.name,
+                file_size : file.size,
+                table_name: "${sourcetype}",
+                table_pk_value : "${pkvalue}",
+                percent : 0
+            });
+            $('${id}_ds').add(record,0)
         },
         upload_success_handler : function(file, serverData, responseReceived) {
             var res = Ext.decode(serverData);
