@@ -33,6 +33,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     	ds[ou]('load', sf.onLoad, sf);
             ds[ou]('query', sf.onQuery, sf);
 		sf.wrap[ou](EVT_CLICK, sf.onClick,sf)
+			[ou]('mousedown',sf.onMouseDown,sf,{preventDefault:true})
     },
     initEvents : function(){
     	$A.AutoCompleteView.superclass.initEvents.call(this);
@@ -70,16 +71,12 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 			sb;
 		sf.selectedIndex = null;
 		if(l==0){
-			if(sf.fetchremote === false){
-				sf.hide();
-				return;
-			}
 			sb = [AUTO_COMPLATE_TABLE_START,'<tr tabIndex="-2"><td>',_lang['lov.notfound'],'</td></tr></table>'];
 		}else{
 			sb = sf.createListView(datas,sf.binder);
 			view.on(EVT_MOUSE_MOVE,sf.onMove,sf);
-			sf.isLoaded = true;
 		}
+		sf.isLoaded = true;
 		view.update(sb.join(''));
 		sf.correctViewSize();
 	},
@@ -155,6 +152,12 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 		this.onSelect(t);
 		this.hide();
 	},
+	onMouseDown:function(){
+		var sf = this;
+		(function(){
+			sf.el.focus();
+		}).defer(Ext.isIE?1:0,sf);
+	},
 	onSelect : function(target){
 		var sf = this,r,
 			index = Ext.isNumber(target)?target:target.tabIndex;
@@ -162,6 +165,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 			r = sf.ds.getAt(index);
 		}
 		sf.fireEvent('select',r);
+		sf.el.focus();
 	},
 	selectItem:function(index,focus){
 		if(Ext.isEmpty(index)||index < -1){
