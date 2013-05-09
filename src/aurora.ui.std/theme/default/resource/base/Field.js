@@ -314,11 +314,10 @@ $A.Field = Ext.extend($A.Component,{
     },
     onViewSelect : function(r){
     	var sf = this,record = sf.record;
-    	Ext.each(sf.getMapping(),function(map){
+    	Ext.each(r && sf.getMapping(),function(map){
     		var from = r.get(map.from);
             record.set(map.to,Ext.isEmpty(from)?'':from);
     	});
-    	sf.focus();
     },
     getMapping: function(){
         var mapping,r = this.record,name = this.binder.name;

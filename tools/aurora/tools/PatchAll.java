@@ -56,6 +56,7 @@ public class PatchAll {
 		list.add("textarea/TextArea.js");
 		list.add("base/Customization.js");
 		list.add("queryform/QueryForm.js");
+		list.add("multitextfield/MultiTextField.js");
 			
 		List csslist = new ArrayList();
 		csslist.add("base/Aurora.css");
@@ -71,6 +72,7 @@ public class PatchAll {
 		csslist.add("window/Window.css");
 		csslist.add("lov/Lov.css");
 		csslist.add("textarea/TextArea.css");
+		csslist.add("multitextfield/MultiTextField.css");
 		
 		
 		List compressJs = new ArrayList();

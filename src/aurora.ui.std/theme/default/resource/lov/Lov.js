@@ -113,10 +113,16 @@ A.Lov = Ext.extend(A.TextField,{
         this.wrap.setStyle(WIDTH,(w+3)+PX);
         this.el.setStyle(WIDTH,(w-20)+PX);
     },
+    onBlur : function(){
+    	var sf = this,view = sf.autocompleteview;
+    	if(!view || !view.isShow){
+    		$A.Lov.superclass.onBlur.call(sf);
+    	}
+    },
     onChange : function(e){
-    	var sf = this;
+    	var sf = this,view = sf.autocompleteview;
     	A.Lov.superclass.onChange.call(sf);
-    	if(sf.fetchremote && (sf.autocomplete?!sf.autocompleteview.isLoaded:!Ext.isEmpty(sf.lovmodel)))
+    	if(!view || !view.isShow)
 			sf.fetchRecord();
     },
     onKeyDown : function(e){
@@ -167,7 +173,7 @@ A.Lov = Ext.extend(A.TextField,{
         		text.push('<td>',Ext.isEmpty(v)?'&#160;':v,'</td>');
         	};
         if(rder){
-            text.push(rder.call(window,sf,record));
+            text.push(rder(sf,record));
         }else if(displayFields){
         	Ext.each(displayFields,function(field){
         		fn(field.name);
@@ -221,7 +227,7 @@ A.Lov = Ext.extend(A.TextField,{
     },
     fetchRecord : function(){
     	var sf = this;
-        if(sf.readonly == true) return;
+        if(sf.readonly == true||!sf.fetchremote) return;
         sf.fetching = true;
         var v = sf.getRawValue(),url,
         	svc = sf.service,
