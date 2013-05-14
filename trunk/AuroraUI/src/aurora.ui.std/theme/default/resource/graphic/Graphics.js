@@ -962,13 +962,13 @@ var pub =function(){
 	//		    		if(Ext.isIE9) id += '-' + strokewidth;
 				    	if(startarrow){
 				    		config['marker-start'] = 'url(#start-arrow-' + startarrow + id + ')';
-				    		var point = convertArrow(strokewidth,Number(a[0]),y1 = Number(a[1]), x2 = Number(a[2]),y2 = Number(a[3]));
+				    		var point = convertArrow(strokewidth,Number(a[0]),Number(a[1]),Number(a[2]),Number(a[3]));
 				    		a[0] = point.x;a[1] = point.y;
 				    		config.d = config.d.replace(/[\d-+.]+\s+[\d-+.]+/,point.x+' '+point.y);
 				    	}
 				    	if(endarrow){
 				    		config['marker-end'] = 'url(#end-arrow-' + endarrow + id + ')';
-				    		var point = convertArrow(strokewidth,Number(a[l-2]),y1 = Number(a[l-1]), x2 = Number(a[l-4]),y2 = Number(a[l-3]));
+				    		var point = convertArrow(strokewidth,Number(a[l-2]),Number(a[l-1]),Number(a[l-4]),Number(a[l-3]));
 				    		config.d = config.d.replace(/([\d-+.]+\s+[\d-+.]+)[^\d]*$/,point.x+' '+point.y);
 				    	}
 			    		new pub.Arrow({color:strokecolor,width:strokewidth,opacity:strokeopacity,endarrow:endarrow,startarrow:startarrow,root:sf.root})
