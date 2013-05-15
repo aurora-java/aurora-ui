@@ -50,23 +50,27 @@ A.MultiTextField = Ext.extend(A.TextField,{
     },
     onBlur : function(){
     	var sf = this,view = sf.autocompleteview;
-    	if(sf.hasFocus)
+    	if(sf.hasFocus){
 			if(Ext.isIE && sf.hasChange){//for IE
 				sf.fetchRecord();
 				sf.hasChange = false;
 			}else if(!sf.fetching && ( !view || !view.isShow)){
 	    		A.MultiTextField.superclass.onBlur.call(sf);
 	    	}
+	    	sf.hasFocus = false;
+	    	sf.wrap.removeClass(sf.focusCss);
+    	}
     },
     onChange : function(){
     	var sf = this,value = sf.getRawValue(),
     		view = sf.autocompleteview;
 		A.MultiTextField.superclass.onChange.call(sf);
-    	if(sf.hasFocus &&( !view || !view.isShow)){
-			sf.fetchRecord();
-    	}else if(Ext.isIE){
-    		sf.hasChange = true;//for IE
-    	}
+		if(!view || !view.isShow)
+	    	if(sf.hasFocus){
+				sf.fetchRecord();
+	    	}else if(Ext.isIE){
+	    		sf.hasChange = true;//for IE
+	    	}
     },
     processValue : function(v){
     	var name = this.binder.name,arr=[];
