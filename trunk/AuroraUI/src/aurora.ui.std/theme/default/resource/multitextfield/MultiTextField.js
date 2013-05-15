@@ -217,7 +217,7 @@ A.MultiTextField = Ext.extend(A.TextField,{
 	            return;
 	        }
 	        sf.setRawValue(_N);
-	        sf.addItem(_lang['lov.query'],true);
+	        var info = sf.addItem(_lang['lov.query'],true);
 	        sf.qtId = A.request({url:url, para:p, success:function(res){
 	            var r = new A.Record({});
 	            if(res.result.record){
@@ -245,12 +245,14 @@ A.MultiTextField = Ext.extend(A.TextField,{
 	                }
 	            }
 	            sf.fetching = false;
+	            info.remove();
 	            sf.commit(r,record,mapping);
 	            record.isReady=true;
 	            sidebar.enable = A.slideBarEnable;
 	        }, error:sf.onFetchFailed, scope:sf});
     	}else{
-    		record.set(name,record.get(name)+SYMBOL+v);
+    		var v2 = record.get(name);
+    		record.set(name,Ext.isEmpty(v2)?v:v2+SYMBOL+v);
     	}
     },
     createListView : function(datas,binder,isRecord){
