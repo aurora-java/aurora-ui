@@ -1669,11 +1669,15 @@ $A.Record.prototype = {
         if(valid == true){
             var isvalid = true;
             if(validator){
-                validator = window[validator];
-                isvalid = validator.call(window,this, name, v);
-                if(isvalid !== true){
-                    valid = false;  
-                    this.valid[name] = isvalid;
+                var vc = window[validator];
+                if(vc){
+                    isvalid = vc.call(window,this, name, v);
+                    if(isvalid !== true){
+                        valid = false;  
+                        this.valid[name] = isvalid;
+                    }
+                }else {
+                    alert('未找到函数' + validator)
                 }
             }
         }
