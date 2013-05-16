@@ -5,7 +5,7 @@
  * http://www.hand-china.com
  * 
  * author:牛佳庆
- * revision:$Rev: 7123 $
+ * revision:$Rev: 7428 $
  */
 .refresh {
     overflow:hidden;
@@ -1242,4 +1242,60 @@ button div {
 }
 .item-textarea.item-focus{
 	border:1px solid blue;
+}
+.item-multiTextField {
+    border:0;  
+    height:18px;
+    line-height:16px;
+    padding:0;
+    padding-top:1px;
+    background-color:transparent; 
+}
+.ext-ie6 .item-multiTextField{
+    font-size:12px;
+}
+.item-emptyText .item-multiTextField{
+	color:#bbb !important;
+}
+.item-readOnly, .item-readOnly .item-multiTextField {
+	background:#DBDBDB;
+}
+
+.item-receiver-info {
+	-moz-background-clip:padding;
+	-webkit-background-clip:padding-box;
+	background-clip:padding-box;
+	float:left;
+	height:17px;
+	line-height:17px;
+	color:#3e79a2;
+	border-radius:4px;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	background-color:#ddecf7;
+	margin:1px 3px 0px 3px;
+	padding-left:10px;
+	cursor:default;
+	white-space:nowrap;
+}
+.item-input-box {
+	float:left;
+}
+.item-receiver-info-name {
+	float: left;
+	padding-right: 22px;
+}
+.item-receiver-info-close {
+	float: left;
+	height: 7px;
+	width: 8px;
+	margin-top: 4px;
+	margin-left: -16px;
+	background: url(../tab/tab_close.gif);
+	background-position: -2px -2px;
+	font-size:0;
+	outline:none;
+}
+.item-receiver-info-close:hover {
+	background-position: -2px -13px;
 }

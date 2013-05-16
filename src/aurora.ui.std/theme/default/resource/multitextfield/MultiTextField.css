@@ -21,21 +21,20 @@
 	-webkit-background-clip:padding-box;
 	background-clip:padding-box;
 	float:left;
-	height:15px;
-	line-height:15px;
+	height:17px;
+	line-height:17px;
 	color:#3e79a2;
 	border-radius:4px;
 	-moz-border-radius:4px;
 	-webkit-border-radius:4px;
 	background-color:#ddecf7;
-	margin:3px 3px 0px 3px;
+	margin:1px 3px 0px 3px;
 	padding-left:10px;
 	cursor:default;
 	white-space:nowrap;
 }
 .item-input-box {
 	float:left;
-	padding-bottom:3px;
 }
 .item-receiver-info-name {
 	float: left;
