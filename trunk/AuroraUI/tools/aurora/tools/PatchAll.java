@@ -130,7 +130,7 @@ public class PatchAll {
 		pa.compressAllFiles(compressCss,THEME_BLACK_DIR,"css");
 		pa.compressAllFiles(compressJs,THEME_MAC_DIR,"js");
 		pa.compressAllFiles(compressCss,THEME_MAC_DIR,"css");
-		
+				
 		pa.compressAllFiles(compressTouchJs,TOUCH_DIR,"js");
 		pa.compressAllFiles(compressTouchCss,TOUCH_DIR,"css");
 
