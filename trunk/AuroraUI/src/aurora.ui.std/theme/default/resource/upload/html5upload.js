@@ -1,4 +1,5 @@
 $A.uploadcmps = [];
+
 $A.HTML5Uploader = Ext.extend($A.Component,{
     types:[],
     map:{},
