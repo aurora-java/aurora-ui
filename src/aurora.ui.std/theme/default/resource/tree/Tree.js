@@ -663,7 +663,7 @@ $A.Tree.TreeNode.prototype={
 	collapse : function(){
 		this.isExpand=false;
 		if(!this.isRoot())
-		this.record.set(this.getOwnerTree().expandfield,"N");
+		this.record.set(this.getOwnerTree().expandfield,"N",true);
 		this.els['child'].style.display='none';
 		this.paintIconImg();
 		this.paintClipIcoImg();
@@ -677,7 +677,7 @@ $A.Tree.TreeNode.prototype={
 		if(p&&p.isExpand == false)p.expand();
 		if(!this.isLeaf()&&this.childNodes.length>0){
 			if(!this.isRoot())
-			this.record.set(this.getOwnerTree().expandfield,"Y");
+			this.record.set(this.getOwnerTree().expandfield,"Y",true);
 			this.isExpand=true;
 			this.paintChildren();
 			this.els['child'].style.display='block';
