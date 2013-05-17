@@ -7,7 +7,7 @@
     <div id="${id}_cv" style="z-index:3;font-size:16px;text-align:center;display:none;position:absolute;top:0px;left:0px;background-color:#FFFFE1;opacity:.8;">请把文件拖拽到这个区域!</div>
     <div id="${id}_fl" style="z-index:1;padding:3px;">${up_table}</div>
 </div>
-</div> 
+</div>
 <SCRIPT LANGUAGE="JavaScript">
     window.${id}_download_path = '${downloadurl}';
     new Aurora.HTML5Uploader(${config});
