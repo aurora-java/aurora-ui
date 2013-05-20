@@ -396,11 +396,13 @@ $A.Window = Ext.extend($A.Component,{
         var cw = alls[alls.length-1];
         if(cw){
             var cover = $A.Cover.container[cw.wrap.id];
-            if(cover)cover.setStyle({
-                filter: '',
-                opacity: '',
-                mozopacity: ''
-            })
+            if(cover){
+	            cover.setStyle({
+	                opacity: '',
+	                mozopacity: ''
+	            })
+            	cover.dom.style.cssText = cover.dom.style.cssText.replace(/filter[^;]*/i,'');
+            }
         }
     },
     clearBody : function(){
