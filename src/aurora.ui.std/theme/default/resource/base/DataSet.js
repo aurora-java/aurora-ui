@@ -1407,7 +1407,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                     if(data[k].record) {
                         ds.commitRecords([].concat(data[k].record),this.getCurrentRecord() === r && fire, r);                     
                     }
-                }else if(f.type == 'hidden'){
+                }else if(f && f.type == 'hidden'){
                 	continue
                 }else{
                     var ov = r.get(field);
