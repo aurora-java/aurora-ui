@@ -2226,7 +2226,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 获取所有新创建的数据. 
      * @return {Array} 所有新创建的records
      */
-    getNewRecrods: function(){
+    getNewRecords: function(){
         var records = this.getAll();
         var news = [];
         for(var k = 0,l=records.length;k<l;k++){
@@ -2563,7 +2563,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(!this.autocount && index > ((this.currentPage-1)*this.pagesize + this.data.length) && this.data.length < this.pagesize) return;
 //      if(valid !== false) if(!this.validCurrent())return;
         if(index<=0)return;
-        if(index <=0 || (this.autocount && (index > this.totalCount + this.getNewRecrods().length)))return;
+        if(index <=0 || (this.autocount && (index > this.totalCount + this.getNewRecords().length)))return;
         var lindex = index - (this.currentPage-1)*this.pagesize;
         if(this.data[lindex - 1]){
             this.currentIndex = index;
@@ -3022,6 +3022,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                     if(data[k].record) {
                         ds.commitRecords([].concat(data[k].record),this.getCurrentRecord() === r && fire, r);                     
                     }
+                }else if(f.type == 'hidden'){
+                	continue
                 }else{
                     var ov = r.get(field);
                     var nv = data[k]
