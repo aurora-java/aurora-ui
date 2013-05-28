@@ -342,7 +342,7 @@ A.Lov = Ext.extend(A.TextField,{
     	}
         if(url) {
 	        sf.isWinOpen = true;
-            sf.win = new A.Window({title:sf.title||'Lov', url:Ext.urlAppend(url,"lovid="+sf.id+"&key="+encodeURIComponent(v)+"&gridheight="+(sf.lovgridheight||350)+"&innerwidth="+(w-30)+"&lovautoquery="+sf.lovautoquery+"&lovlabelwidth="+sf.lovlabelwidth), height:sf.lovheight||400,width:w});
+            sf.win = new A.Window({title:sf.title||'Lov', url:Ext.urlAppend(url,"lovid="+sf.id+"&key="+encodeURIComponent(v)+"&gridheight="+(sf.lovgridheight||350)+"&innerwidth="+(w-30)+"&lovautoquery="+(Ext.isEmpty(sf.lovautoquery) ? 'true' : sf.lovautoquery) +"&lovlabelwidth="+(sf.lovlabelwidth||75)+"&lovpagesize="+(sf.lovpagesize||'')), height:sf.lovheight||400,width:w});
             sf.win.on('close',sf.onWinClose,sf);
         }
     },

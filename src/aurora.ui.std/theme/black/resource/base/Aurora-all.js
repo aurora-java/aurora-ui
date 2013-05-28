@@ -3494,7 +3494,7 @@ $A.Record.Field.prototype = {
         var op = this.pro[type];
         if(op !== value){
             this.pro[type] = value;
-            this.record.onFieldChange(this.name, type, value);
+            if(this.record)this.record.onFieldChange(this.name, type, value);
         }
     },
     /**
@@ -4096,8 +4096,8 @@ $A.Field = Ext.extend($A.Component,{
     },
     onKeyDown : function(e){
         var sf = this,keyCode = e.keyCode;
-        sf.fireEvent('keydown', sf, e);        
-        if(sf.isEditor==true && keyCode == 9) e.stopEvent();
+        sf.fireEvent('keydown', sf, e);  
+        if((sf.isEditor==true && keyCode == 9) || (sf.readonly&&keyCode == 8)) e.stopEvent();//9:tab  8:backspace
         if(keyCode == 13 || keyCode == 27) {//13:enter  27:esc
         	sf.blur();//为了获取到新的值
         	if(keyCode == 13) {
@@ -7454,11 +7454,13 @@ $A.Window = Ext.extend($A.Component,{
         var cw = alls[alls.length-1];
         if(cw){
             var cover = $A.Cover.container[cw.wrap.id];
-            if(cover)cover.setStyle({
-                filter: '',
-                opacity: '',
-                mozopacity: ''
-            })
+            if(cover){
+	            cover.setStyle({
+	                opacity: '',
+	                mozopacity: ''
+	            })
+            	cover.dom.style.cssText = cover.dom.style.cssText.replace(/filter[^;]*/i,'');
+            }
         }
     },
     clearBody : function(){
@@ -8134,7 +8136,7 @@ A.Lov = Ext.extend(A.TextField,{
     	}
         if(url) {
 	        sf.isWinOpen = true;
-            sf.win = new A.Window({title:sf.title||'Lov', url:Ext.urlAppend(url,"lovid="+sf.id+"&key="+encodeURIComponent(v)+"&gridheight="+(sf.lovgridheight||350)+"&innerwidth="+(w-30)+"&lovautoquery="+sf.lovautoquery+"&lovlabelwidth="+sf.lovlabelwidth), height:sf.lovheight||400,width:w});
+            sf.win = new A.Window({title:sf.title||'Lov', url:Ext.urlAppend(url,"lovid="+sf.id+"&key="+encodeURIComponent(v)+"&gridheight="+(sf.lovgridheight||350)+"&innerwidth="+(w-30)+"&lovautoquery="+(Ext.isEmpty(sf.lovautoquery) ? 'true' : sf.lovautoquery) +"&lovlabelwidth="+(sf.lovlabelwidth||75)+"&lovpagesize="+(sf.lovpagesize||'')), height:sf.lovheight||400,width:w});
             sf.win.on('close',sf.onWinClose,sf);
         }
     },
