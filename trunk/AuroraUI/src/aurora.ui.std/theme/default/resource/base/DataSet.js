@@ -1879,7 +1879,7 @@ $A.Record.Field.prototype = {
         var op = this.pro[type];
         if(op !== value){
             this.pro[type] = value;
-            this.record.onFieldChange(this.name, type, value);
+            if(this.record)this.record.onFieldChange(this.name, type, value);
         }
     },
     /**
