@@ -63,6 +63,8 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 	    			datas.push({'code':ps,'name':ps});
 	    		}
 	    		var dataset=new $A.DataSet({'datas':datas});
+	    		this.pageSizeInput.valuefield = 'code';
+	    		this.pageSizeInput.displayfield = 'name';
 		    	this.pageSizeInput.setOptions(dataset);
 		    	this.pageSizeInput.setValue(this.dataSet.pagesize);
 	    	}
