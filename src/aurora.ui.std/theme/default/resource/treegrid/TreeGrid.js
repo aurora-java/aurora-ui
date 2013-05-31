@@ -9,6 +9,8 @@
 $A.TreeGrid = Ext.extend($A.Grid, {
 	initComponent : function(config) {
 		$A.TreeGrid.superclass.initComponent.call(this, config);
+		delete config.marginheight;
+		delete config.marginwidth;
 		if (this.lockColumns.length > 0) {
 			var ltid = this.id + "_lb_tree",
 				ltc = this.createTreeConfig(config, this.lockColumns, ltid, true,this);
@@ -27,8 +29,6 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 			lockTree.on('collapse', function(tree, node) {
 				this.unlockTree.getNodeById(node.id).collapse();
 			}, this)
-			delete config.marginheight;
-			delete config.marginwidth;
 		}
 
 		var utid = this.id + "_ub_tree",
