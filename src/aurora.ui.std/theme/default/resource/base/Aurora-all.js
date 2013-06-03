@@ -7905,6 +7905,15 @@ A.Lov = Ext.extend(A.TextField,{
     	}
         A.Lov.superclass.destroy.call(sf);
     },
+    clearBind : function(){
+    	var sf = this;
+    	A.Lov.superclass.clearBind.call(sf);
+    	sf.lovurl = null;
+    	sf.service = null;
+    	sf.autocompleteservice = null
+    	sf.lovservice =null;
+    	sf.lovmodel = null;
+    },
     setWidth: function(w){
         this.wrap.setStyle(WIDTH,(w+3)+PX);
         this.el.setStyle(WIDTH,(w-20)+PX);
