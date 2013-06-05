@@ -107,6 +107,7 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
             $(this.id+'_ds').add(record,0);
             var xhr = new XMLHttpRequest();
             this.map[fid] = xhr;
+            xhr.timeout = -1;
             xhr.open('post', this.uploadurl,true);
             xhr.upload.addEventListener("progress", this.uploadProgress.createDelegate(this,[fid],true), this);
             xhr.addEventListener("load", this.uploadComplete.createDelegate(this,[fid],true), false);
