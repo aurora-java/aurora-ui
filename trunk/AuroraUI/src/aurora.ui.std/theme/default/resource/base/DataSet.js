@@ -1158,9 +1158,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	 * @param {Object} scope 回调函数的作用域
 	 */
     wait : function(isAll,callback,scope){
-    	var records = isAll ? this.getAll() : this.getSelected(),
-			intervalId = setInterval(function(){
-		        for(var i = 0;i < records.length;i++){
+    	var records = isAll ? this.getAll() : this.getSelected();
+    	for(var i = 0,r;r = records[i];i++){
+	    	Ext.iterate(r.data,function(name,item){
+	    		if(item && item.xtype == 'dataset'){
+	    			records = records.concat(item.data);
+	    		}
+	    	});
+    	}
+		var	intervalId = setInterval(function(){
+		        for(var i = 0,l = records.length;i < l;i++){
 		            if(!records[i].isReady)return;
 		        }
 		        clearInterval(intervalId);
