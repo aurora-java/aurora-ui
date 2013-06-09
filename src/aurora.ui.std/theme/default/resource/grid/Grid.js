@@ -350,6 +350,8 @@ A.Grid = Ext.extend(A.Component,{
             ds[ou]('unselect', sf.onUnSelect, sf);
             ds[ou]('selectall', sf.onSelectAll, sf);
             ds[ou]('unselectall', sf.onUnSelectAll, sf);
+            ds[ou]('wait', sf.onWait, sf);
+            ds[ou]('afterwait', sf.onAfterSuccess, sf);
         }
     },
     bind : function(ds){
@@ -536,6 +538,9 @@ A.Grid = Ext.extend(A.Component,{
     },
     onBeforeRemove : function(){
         A.Masker.mask(this.wb,_lang['grid.mask.remove']);
+    },
+    onWait : function(){
+        A.Masker.mask(this.wb,_lang['grid.mask.waiting']);
     },
     onBeforeLoad : function(){
         this.ub.scrollTo(LEFT,0);
