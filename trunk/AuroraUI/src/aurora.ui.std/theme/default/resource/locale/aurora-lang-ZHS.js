@@ -23,6 +23,7 @@ _lang['grid.info.continue'] = '有未保存数据！';
 _lang['grid.mask.remove'] = '正在删除数据...';
 _lang['grid.mask.loading'] = '正在查询数据...';
 _lang['grid.mask.submit'] = '正在提交数据...';
+_lang['grid.mask.waiting'] = '请稍后...';
 _lang['grid.remove.confirm'] = '确认';
 _lang['grid.remove.confirmMsg'] = '确认删除选择记录?';
 _lang['grid.export.confirm'] = '导出确认';
