@@ -2034,6 +2034,18 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */
             'reject',
             /**
+             * @event wait
+             * 等待数据准备事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+            'wait',
+            /**
+             * @event afterwait
+             * 等待数据准备完毕事件.
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             */
+            'afterwait',
+            /**
              * @event beforesubmit
              * 数据提交前事件.如果为false则中断提交请求
              * @param {Aurora.DataSet} dataSet 当前DataSet.
@@ -2773,7 +2785,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	 * @param {Object} scope 回调函数的作用域
 	 */
     wait : function(isAll,callback,scope){
-    	var records = isAll ? this.getAll() : this.getSelected();
+    	var sf = this,records = isAll ? sf.getAll() : sf.getSelected();
+    	sf.fireBindDataSetEvent('wait');
     	for(var i = 0,r;r = records[i];i++){
 	    	Ext.iterate(r.data,function(name,item){
 	    		if(item && item.xtype == 'dataset'){
@@ -2786,6 +2799,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		            if(!records[i].isReady)return;
 		        }
 		        clearInterval(intervalId);
+		        sf.fireBindDataSetEvent('afterwait');
 		        if(callback)callback.call(scope||window);
 		    },10);
     },
