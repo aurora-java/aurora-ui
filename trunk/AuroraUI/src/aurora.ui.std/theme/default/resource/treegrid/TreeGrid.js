@@ -170,7 +170,8 @@ $A.TreeGrid = Ext.extend($A.Grid, {
         $A.TreeGrid.superclass.focusRow.call(this,n);
     },
 	onMouseWheel : function(e){
-    }
+    },
+    onAdd : function(){}
 });
 $A.Tree.TreeGridNode = Ext.extend($A.Tree.TreeNode, {
 			createNode : function(item) {
