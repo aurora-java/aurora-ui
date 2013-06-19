@@ -54,8 +54,11 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 		}
 	},
 	createTreeConfig : function(config, columns, id, showSkeleton, grid) {
-		var c = columns[0],
-			width = c? c.width : 150;
+		var sf = this,c = columns[0];
+		if(c.type == 'rowcheck' || c.type == 'rowradio'){
+			c = columns[1];
+		}
+		var	width = c? c.width : 150;
 		return Ext.apply(config, {
 					sw : 20,
 					id : id,
@@ -67,30 +70,28 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 					initColumns : function(node) {
 						if (node.isRoot() && node.ownerTree.showRoot == false) return;
 						Ext.each(columns,function(c){
-							if (c.name == node.ownerTree.displayfield)
-								return;
 							var name = c.name,
-								td = node.els[name + '_td'] = document.createElement('td'),
-								r = node.record,
-								align = c.align;
-							td['_type_'] = 'text';
-							td['atype'] = 'grid-cell';
-							td['dataindex'] = name;
-							td['recordid'] = r.id;
-							if (align)
-								td.style.textAlign = align;
-
-							// var div = document.createElement('div');
-							// node.els[c.name+'_text']= div
-							// Ext.fly(div).setWidth(c.width-4);
-							// div.innerHTML =
-							// grid.renderText(node.record,c,node.record.get(c.name));
-							//                        
-							Ext.fly(td).setWidth(c.width - 2).addClass('node-text');
-							td.appendChild(node.els[name + '_text'] = Ext.DomHelper.insertHtml(
+								r = node.record;
+							if (name == node.ownerTree.displayfield)
+								return;
+							if(c.type == 'rowcheck' || c.type == 'rowradio'){
+								new Ext.Template(sf.createCell(c,r,true)).insertFirst(node.els['itemNodeTr'],{},true)//.setStyle({'border-right':'1px solid #ccc'});
+							}else{
+								var td = document.createElement('td'),
+									align = c.align;
+								node.els[name + '_td'] = td;
+								if (align)
+									td.style.textAlign = align;
+								td['recordid'] = r.id;
+								td['_type_'] = 'text';
+								td['atype'] = 'grid-cell';
+								td['dataindex'] = name;
+								td.appendChild(node.els[name + '_text'] = Ext.DomHelper.insertHtml(
 									"afterBegin", td, grid.createCell(c, r,
 									false)));
-							node.els['itemNodeTr'].appendChild(td);
+								node.els['itemNodeTr'].appendChild(td);
+								Ext.fly(td).setWidth(c.width - 2).addClass('node-text');
+							}
 						});
 					},
 					createTreeNode : function(item) {
