@@ -11,9 +11,10 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 		$A.TreeGrid.superclass.initComponent.call(this, config);
 		delete config.marginheight;
 		delete config.marginwidth;
+		var showSkeleton = (this.selectable && this.lockColumns.length == 1) || this.lockColumns.length == 0;
 		if (this.lockColumns.length > 0) {
 			var ltid = this.id + "_lb_tree",
-				ltc = this.createTreeConfig(config, this.lockColumns, ltid, true,this);
+				ltc = this.createTreeConfig(config, this.lockColumns, ltid, !showSkeleton,this);
 			this.lb.set({id : ltid}).addClass('item-treegrid');
 			var	lockTree = this.lockTree = new $A.Tree(ltc);
 			lockTree.body = this.lb;
@@ -28,16 +29,24 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 			}, this);
 			lockTree.on('collapse', function(tree, node) {
 				this.unlockTree.getNodeById(node.id).collapse();
-			}, this)
+			}, this);
 		}
 
 		var utid = this.id + "_ub_tree",
-			tc = this.createTreeConfig(config, this.unlockColumns, utid,this.lockColumns.length == 0, this);
+			tc = this.createTreeConfig(config, this.unlockColumns, utid,showSkeleton, this);
 		this.ub.set({id : utid}).addClass('item-treegrid');
 		var unlockTree = this.unlockTree = new $A.Tree(tc);
 		unlockTree.body = this.ub;
 		unlockTree.treegrid = this;
 		unlockTree.on('render', this.processData, this);
+		if(lockTree && showSkeleton){
+			unlockTree.on('expand', function(tree, node) {
+				this.lockTree.getNodeById(node.id).expand();
+			}, this);
+			unlockTree.on('collapse', function(tree, node) {
+				this.lockTree.getNodeById(node.id).collapse();
+			}, this);
+		}
 	},
 	initTemplate : function() {
 		$A.TreeGrid.superclass.initTemplate.call(this);
@@ -54,8 +63,8 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 		}
 	},
 	createTreeConfig : function(config, columns, id, showSkeleton, grid) {
-		var sf = this,c = columns[0];
-		if(c.type == 'rowcheck' || c.type == 'rowradio'){
+		var c = columns[0];
+		if((c.type == 'rowcheck' || c.type == 'rowradio')&&columns.length>1){
 			c = columns[1];
 		}
 		var	width = c? c.width : 150;
@@ -72,10 +81,10 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 						Ext.each(columns,function(c){
 							var name = c.name,
 								r = node.record;
-							if (name == node.ownerTree.displayfield)
-								return;
 							if(c.type == 'rowcheck' || c.type == 'rowradio'){
-								new Ext.Template(sf.createCell(c,r,true)).insertFirst(node.els['itemNodeTr'],{},true)//.setStyle({'border-right':'1px solid #ccc'});
+								new Ext.Template(grid.createCell(c,r,true)).insertFirst(node.els['itemNodeTr'],{},true)//.setStyle({'border-right':'1px solid #ccc'});
+							}else if(name == node.ownerTree.displayfield){
+								return
 							}else{
 								var td = document.createElement('td'),
 									align = c.align;
@@ -161,18 +170,24 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 		this.lockWidth = v;
 	},
 	focusRow : function(row){
-		var n=0,
-			tree = this.unlockTree,
-			hash = tree.nodeHash,
-			datas = this.dataset.data;
-        for(var i = 0 ; i<row ;i++){
-        	if(tree.isAllParentExpand(hash[datas[i].id]))n++;
+    	var record = this.dataset.getAll()[row],
+    		els = this.unlockTree.getNodeById(record.id).els;
+    	if(!els)return;
+        var ub = this.ub,
+            stop = ub.getScroll().top,
+    		height = Ext.fly(els.element).getTop()-ub.getTop()+stop;
+    		r = 25,
+            h = ub.getHeight(),
+            sh = ub.dom.scrollWidth > ub.dom.clientWidth? 16 : 0;
+        if(height<stop){
+            ub.scrollTo('top',height-1)
+        }else if(height+r>(stop+h-sh)){
         }
-        $A.TreeGrid.superclass.focusRow.call(this,n);
     },
 	onMouseWheel : function(e){
     },
     onAdd : function(){}
+    
 });
 $A.Tree.TreeGridNode = Ext.extend($A.Tree.TreeNode, {
 			createNode : function(item) {

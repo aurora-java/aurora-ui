@@ -146,6 +146,7 @@ $A.Tree = Ext.extend($A.Component,{
 	onUpdate : function(ds, record, name, value){
 		if(this.parentfield == name || name == this.sequencefield){
 			this.onLoad();
+			ds.fireEvent('indexchange',ds,record);
 		}else{
 			this.nodeHash[record.id].paintText();
 		}
@@ -170,11 +171,11 @@ $A.Tree = Ext.extend($A.Component,{
 	},
 	getPreviousExpandedNode:function(node){
 		return this.isAllParentExpand(node)?node:this.getPreviousExpandedNode(node.parentNode);
-	},*/
+	},
 	isAllParentExpand:function(node){
 		var p=node.parentNode;
 		return 	!p||(p.isExpand&&this.isAllParentExpand(p))
-	},
+	},*/
 	onClick : function(event,t){
 		var elem = Ext.fly(t).findParent('td');
 		if(!elem)return;
@@ -567,6 +568,7 @@ $A.Tree.TreeNode.prototype={
 			var node = pathNodes[i],
 				ld = document.createElement('div');
 			ld.className = node.isLast()?'node-empty':'node-line';
+			Ext.fly(ld).setWidth(ownerTree.sw);
 			c.appendChild(ld);
 		}
 		line.appendChild(c);
