@@ -151,7 +151,7 @@ A.Tab = Ext.extend(A.Component,{
 			}
 		}
 		if(sf.fireEvent(EVT_BEFORE_OPEN,sf,l)!==false){
-			items.push({'ref':ref});
+			items.push({'ref':ref,prompt:prompt});
 			var stripwidth=Math.max(A.TextMetrics.measure(document.body,prompt).width+20,sf.scriptwidth),
 				head = sf.head,
 				body = sf.body,
