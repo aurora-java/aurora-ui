@@ -216,8 +216,9 @@ $A.Field = Ext.extend($A.Component,{
     	$A.Field.superclass.setValue.call(sf,v, silent);
     },
     formatValue : function(v){
-        var rder = this.renderer?$A.getRenderer(this.renderer):null;
-        return rder!=null ? rder(v) : v;
+        var sf = this,rder = sf.renderer?$A.getRenderer(sf.renderer):null,
+        	binder = sf.binder;
+        return rder!=null ? rder(v,sf.record,binder && binder.name) : v;
     },
     getRawValue : function(){
         var sf = this,v = sf.el.getValue(),typecase = sf.typecase;
@@ -415,10 +416,16 @@ $A.Field = Ext.extend($A.Component,{
         sf.clearInvalid();
         sf.applyEmptyText();
     },
+    /**
+     * 组件获得焦点
+     */
     focus : function(){
     	this.el.dom.focus();
     	this.fireEvent('focus', this);
     },
+    /**
+     * 组件失去焦点
+     */
     blur : function(){
     	this.el.blur();
     	this.fireEvent('blur', this);
@@ -428,6 +435,10 @@ $A.Field = Ext.extend($A.Component,{
     	this.clearInvalid();
         this.applyEmptyText();
     },
+    /**
+     * 设置prompt
+     * @param {String} text prompt.
+     */
     setPrompt : function(text){
 		var prompt = Ext.fly(this.id+'_prompt');
 		if(prompt){
