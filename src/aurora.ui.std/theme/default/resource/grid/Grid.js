@@ -1108,11 +1108,11 @@ A.Grid = Ext.extend(A.Component,{
                     ed.isFireEvent = TRUE;
                     ed.isHidden = FALSE;
                     ed.focus();
-                    sf.editing = TRUE;
                     ed.on(EVT_SELECT,sf.onEditorSelect,sf);
                     if(Ext.isFunction(callback))callback(ed)
                     sf.fireEvent(EVT_EDITOR_SHOW, sf, ed, row, name, record);
                 }
+                sf.editing = TRUE;
             }).defer(10);
         }           
     },
