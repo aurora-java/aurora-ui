@@ -17,8 +17,8 @@ function ${id}(){
         button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
         button_image_url:"${context_path}/resource/aurora.ui.std/default/upload/s.gif",
         button_cursor: SWFUpload.CURSOR.HAND,
-        button_text: '<a class="theFont" >${text}</a>',
-        button_text_style: ".theFont {cursor:hand;font-family: 宋体;font-size:13px;text-align:center;}",
+        button_text: '<a class="theFont">${text}</a>',
+        button_text_style: ".theFont {text-decoration:underline;cursor:hand;font-family: 宋体;font-size:13px;text-align:center;}",
         button_text_top_padding: 2,
         file_size_limit: ${filesize}, //默认单位是KB,0表示无限制
         file_types:'${filetype}',
