@@ -271,9 +271,10 @@ $A.getViewportWidth = function() {
  * post的方式提交数据，同{@link Aurora.DataSet#post}
  * @param {String} action 提交的url地址
  * @param {Object} data 数据集合
+ * @param {String} target 提交目标
  */
-$A.post = function(action,data){
-    var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action});
+$A.post = function(action,data,target){
+    var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action,target:target||'_blank'});
     for(var key in data){
         var v = data[key]
         if(v) {
@@ -282,6 +283,7 @@ $A.post = function(action,data){
         }
     }
     form.dom.submit();
+    form.remove();
 }
 /**
  * POST方式的Ajax请求
