@@ -14,7 +14,7 @@
  
 Ext.Ajax.timeout = 1800000;
 
-$A = Aurora = {version: '1.0',revision:'$Rev: 7328 $'};
+$A = Aurora = {version: '1.0',revision:'$Rev: 7663 $'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){
     if($A.winWidth != $A.getViewportWidth() || $A.winHeight != $A.getViewportHeight()){
@@ -271,9 +271,10 @@ $A.getViewportWidth = function() {
  * post的方式提交数据，同{@link Aurora.DataSet#post}
  * @param {String} action 提交的url地址
  * @param {Object} data 数据集合
+ * @param {String} target 提交目标
  */
-$A.post = function(action,data){
-    var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action});
+$A.post = function(action,data,target){
+    var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action,target:target||'_blank'});
     for(var key in data){
         var v = data[key]
         if(v) {
@@ -282,6 +283,7 @@ $A.post = function(action,data){
         }
     }
     form.dom.submit();
+    form.remove();
 }
 /**
  * POST方式的Ajax请求
@@ -4199,8 +4201,9 @@ $A.Field = Ext.extend($A.Component,{
     	$A.Field.superclass.setValue.call(sf,v, silent);
     },
     formatValue : function(v){
-        var rder = this.renderer?$A.getRenderer(this.renderer):null;
-        return rder!=null ? rder(v) : v;
+        var sf = this,rder = sf.renderer?$A.getRenderer(sf.renderer):null,
+        	binder = sf.binder;
+        return rder!=null ? rder(v,sf.record,binder && binder.name) : v;
     },
     getRawValue : function(){
         var sf = this,v = sf.el.getValue(),typecase = sf.typecase;
@@ -4398,10 +4401,16 @@ $A.Field = Ext.extend($A.Component,{
         sf.clearInvalid();
         sf.applyEmptyText();
     },
+    /**
+     * 组件获得焦点
+     */
     focus : function(){
     	this.el.dom.focus();
     	this.fireEvent('focus', this);
     },
+    /**
+     * 组件失去焦点
+     */
     blur : function(){
     	this.el.blur();
     	this.fireEvent('blur', this);
@@ -4411,6 +4420,10 @@ $A.Field = Ext.extend($A.Component,{
     	this.clearInvalid();
         this.applyEmptyText();
     },
+    /**
+     * 设置prompt
+     * @param {String} text prompt.
+     */
     setPrompt : function(text){
 		var prompt = Ext.fly(this.id+'_prompt');
 		if(prompt){
@@ -6582,8 +6595,16 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     initFooter : function(){
     	if(!this.now)this.now=new Ext.Template(this.nowTpl).append(this.popup.child("div.item-dateField-foot").dom,{now:_lang['datepicker.today'],title:new Date().format(this.format)},true);
-    	var now = new Date();
-    	this.now.set({"_date":new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0).getTime()});
+    	var now = new Date(),
+    		cell = this.now,
+    		dr = this.dayrenderer;
+    	dr && $A.getRenderer(dr).call(this,cell,now,now.getDate());
+    	if(cell.disabled){
+			cell.set({'_date':'0'});
+			cell.addClass("item-day-disabled");
+		}else {
+			cell.set({"_date":new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0).getTime()});
+		}
     },
     initEvents : function(){
     	$A.DatePicker.superclass.initEvents.call(this);
@@ -6842,12 +6863,15 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
     processListener : function(ou){
     	$A.DateTimePicker.superclass.processListener.call(this,ou);
     	if(this.hourSpan){
+	    	this.hourSpan[ou]("click", this.onDateClick, this,{stopPropagation:true});
 	    	this.hourSpan[ou]("focus", this.onDateFocus, this);
 			this.hourSpan[ou]("blur", this.onDateBlur, this);
 			this.minuteSpan[ou]("focus", this.onDateFocus, this);
 			this.minuteSpan[ou]("blur", this.onDateBlur, this);
+	    	this.minuteSpan[ou]("click", this.onDateClick, this,{stopPropagation:true});
 			this.secondSpan[ou]("focus", this.onDateFocus, this);
 			this.secondSpan[ou]("blur", this.onDateBlur, this);
+	    	this.secondSpan[ou]("click", this.onDateClick, this,{stopPropagation:true});
 			this.hourSpanParent[ou]("keydown", this.onDateKeyDown, this);
 			this.hourSpanParent[ou]("keyup", this.onDateKeyUp, this);
     	}
@@ -6879,6 +6903,7 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 			this.draw(new Date(this.dateFields[0].year,this.dateFields[0].month - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value));
 		}
 	},
+	onDateClick : function(){},
     onDateFocus : function(e) {
 		Ext.fly(e.target.parentNode).addClass("item-dateField-input-focus");
 		e.target.select();
