@@ -182,6 +182,7 @@ $A.TreeGrid = Ext.extend($A.Grid, {
         if(height<stop){
             ub.scrollTo('top',height-1)
         }else if(height+r>(stop+h-sh)){
+    		ub.scrollTo('top', height+r-h + sh);
         }
     },
 	onMouseWheel : function(e){
