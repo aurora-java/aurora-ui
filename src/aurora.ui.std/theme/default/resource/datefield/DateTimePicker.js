@@ -19,12 +19,15 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
     processListener : function(ou){
     	$A.DateTimePicker.superclass.processListener.call(this,ou);
     	if(this.hourSpan){
+	    	this.hourSpan[ou]("click", this.onDateClick, this,{stopPropagation:true});
 	    	this.hourSpan[ou]("focus", this.onDateFocus, this);
 			this.hourSpan[ou]("blur", this.onDateBlur, this);
 			this.minuteSpan[ou]("focus", this.onDateFocus, this);
 			this.minuteSpan[ou]("blur", this.onDateBlur, this);
+	    	this.minuteSpan[ou]("click", this.onDateClick, this,{stopPropagation:true});
 			this.secondSpan[ou]("focus", this.onDateFocus, this);
 			this.secondSpan[ou]("blur", this.onDateBlur, this);
+	    	this.secondSpan[ou]("click", this.onDateClick, this,{stopPropagation:true});
 			this.hourSpanParent[ou]("keydown", this.onDateKeyDown, this);
 			this.hourSpanParent[ou]("keyup", this.onDateKeyUp, this);
     	}
@@ -56,6 +59,7 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 			this.draw(new Date(this.dateFields[0].year,this.dateFields[0].month - 1, 1,this.hourSpan.dom.value,this.minuteSpan.dom.value,this.secondSpan.dom.value));
 		}
 	},
+	onDateClick : function(){},
     onDateFocus : function(e) {
 		Ext.fly(e.target.parentNode).addClass("item-dateField-input-focus");
 		e.target.select();
