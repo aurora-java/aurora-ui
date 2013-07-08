@@ -102,7 +102,15 @@ $A.Tree = Ext.extend($A.Component,{
 				break;
 			}
 		}
-		if(!pnode)pnode = this.root;
+		if(!pnode){
+			if(this.showRoot){
+				this.onLoad();
+				this.root.firstChild.expand();
+				return;
+			}else{
+				pnode = this.root
+			}
+		}
 		Ext.each(pnode.childNodes,function(node){
 			var tseq = node.record.get(sequencefield)
 			if(tseq && tseq>seq){
