@@ -6,7 +6,7 @@
 	background-color:#fff;
 }
 
-.item-accordion .strip {
+.item-accordion .accordion-strip {
 	overflow: hidden;
 	background-image: url("../toolbar/toolbar_bg.gif");
 	text-indent: 5px;
@@ -18,6 +18,7 @@
 	overflow: auto;
 	border-top: 1px solid #BBBBBB;
 	outline:none;
+	position:relative;
 }
 .item-accordion-btn{
 	width:15px;
