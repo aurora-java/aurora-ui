@@ -1924,7 +1924,7 @@ $A.Record.Field.prototype = {
      */
     setRequired : function(r){
         this.setPropertity('required',r);
-        if(!r)this.record.validate(this.name);
+        if(!r && this.record)this.record.validate(this.name);
     },
     /**
      * 当前Field是否必输.
@@ -1938,7 +1938,7 @@ $A.Record.Field.prototype = {
      * @param {Boolean} readonly 是否只读
      */
     setReadOnly : function(r){  
-        if(r)delete this.record.valid[this.name];
+        if(r && this.record)delete this.record.valid[this.name];
         this.setPropertity('readonly',r);
     },
     /**
