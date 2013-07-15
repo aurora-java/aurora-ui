@@ -1,9 +1,12 @@
+.layout-accordion{
+	border-bottom: 1px solid #CCCCCC;
+}
 .item-accordion {
 	overflow-y: hidden;
-	border-bottom: 1px solid #CCCCCC;
 	border-left: 1px solid #CCCCCC;
 	border-right: 1px solid #CCCCCC;
 	background-color:#fff;
+	position:relative;
 }
 
 .item-accordion .accordion-strip {
@@ -11,12 +14,12 @@
 	background-image: url("../toolbar/toolbar_bg.gif");
 	text-indent: 5px;
 	cursor: pointer;
-	height: 25px;
-	line-height: 25px;
+	height: 24px;
+	line-height: 24px;
+	border-top: 1px solid #CCCCCC;
 }
 .item-accordion-body {
 	overflow: auto;
-	border-top: 1px solid #BBBBBB;
 	outline:none;
 	position:relative;
 }
