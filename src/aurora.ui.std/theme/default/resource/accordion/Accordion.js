@@ -64,10 +64,14 @@ A.Accordion = Ext.extend(A.Component,{
 			sf.singlemode && Ext.each(sf.selectedItems,function(accordion){
 				sf.close(accordion,sf.accordions.indexOf(accordion.dom));
 			},sf);
-			sf.selectedItems.push(accordion.addClass(SELECTED).setHeight(sf.stripheight+Ext.fly(sf.bodys[index]).show().getHeight(),{
+			var body = Ext.fly(sf.bodys[index]),hasChild =false;
+			body.select('*').each(function(c){
+				if(c.getHeight())hasChild=true;
+			})
+			sf.selectedItems.push(accordion.addClass(SELECTED).setHeight(sf.stripheight+(hasChild?body.show().getHeight():0),{
 			    duration : .2, 
 			    callback: function(){
-			    	accordion.setStyle({height:''});
+			    	hasChild && accordion.setStyle({height:''});
 			    	sf.load(index);
 		    	}
 			}));
