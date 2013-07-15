@@ -351,7 +351,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 				var raw = this.getRawValue(),
 					record = vr||this.getRecordByDisplay(raw);
 				Ext.each(field.get('mapping'),function(map){
-					var vl = record ? record.get(map.from) : (this.fetchrecord===false?raw:'');
+					var vl = record ? record.get(map.from) : (this.fetchrecord===false?raw:r.get(map.to));
 //    					var vl = record ? (record.get(map.from)||'') : '';
 //    					if(vl!=''){
     					if(!Ext.isEmpty(vl,true)){
