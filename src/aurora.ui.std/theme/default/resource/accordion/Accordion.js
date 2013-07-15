@@ -73,9 +73,10 @@ A.Accordion = Ext.extend(A.Component,{
 			sf.singlemode && Ext.each(sf.selectedItems,function(accordion){
 				sf.close(accordion,sf.accordions.elements.indexOf(accordion.dom));
 			},sf);
-			var body = sf.bodys.item(index),hasChild =false;
-			if(body.dom.innerHTML)hasChild=true;
-			body.select('*').each(function(c){
+			var body = sf.bodys.item(index),hasChild =false,
+				children = body.select('*');
+			if(children.elements.length == 0 && body.dom.innerHTML)hasChild=true;
+			children.each(function(c){
 				if(c.getHeight())hasChild=true;
 			})
 			sf.selectedItems.push(accordion.addClass(SELECTED).setHeight(sf.stripheight+(hasChild?body.show().getHeight():0),{
