@@ -1,5 +1,6 @@
 .layout-accordion{
 	border-bottom: 1px solid #CCCCCC;
+	position:relative;
 }
 .item-accordion {
 	overflow-y: hidden;
@@ -31,6 +32,7 @@
 	float: left;
 	background-image: url("accordion-btn.gif");
 	background-position: 0 -15px;
+	font-size:0px;
 }
 .selected .item-accordion-btn {
 	background-position: 0 0;
