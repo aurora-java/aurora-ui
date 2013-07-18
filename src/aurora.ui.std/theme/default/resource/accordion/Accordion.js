@@ -26,10 +26,10 @@ A.Accordion = Ext.extend(A.Component,{
 		sf.strips = wrap.select('div.accordion-strip');
 		sf.bodys = wrap.select('div.item-accordion-body');
 		sf.stripheight=sf.stripheight||25;
-		sf.accordions.each(function(accordion,self,i){
+		sf.accordions.each(function(accordion,self,i,as){
 			Ext.isIE6 && accordion.setWidth('100%')
 			if(accordion.hasClass(SELECTED)){
-				sf.selectedItems.push(accordion);
+				sf.selectedItems.push(Ext.get(accordion.dom));
 				sf.load.call(sf,i);
 			}
 		});
@@ -73,7 +73,7 @@ A.Accordion = Ext.extend(A.Component,{
 			sf.singlemode && Ext.each(sf.selectedItems,function(accordion){
 				sf.close(accordion,sf.accordions.elements.indexOf(accordion.dom));
 			},sf);
-			var body = sf.bodys.item(index),hasChild =false,
+			var body = sf.bodys.item(index),hasChild =!!body.dom.style.height,
 				children = body.select('*');
 			if(children.elements.length == 0 && body.dom.innerHTML)hasChild=true;
 			children.each(function(c){
