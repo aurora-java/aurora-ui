@@ -185,6 +185,13 @@ $A.TreeGrid = Ext.extend($A.Grid, {
     		ub.scrollTo('top', height+r-h + sh);
         }
     },
+    onUpdate : function(ds,record, name, value){
+    	$A.TreeGrid.superclass.onUpdate.call(this,ds,record, name, value);
+    	var c = this.unlockTree,
+    		node = c.getNodeById(record.id),
+    		tree = node.getOwnerTree();
+	        node.doSetWidth(tree.displayfield, tree.width);
+    },
 	onMouseWheel : function(e){
     },
     onAdd : function(){}
