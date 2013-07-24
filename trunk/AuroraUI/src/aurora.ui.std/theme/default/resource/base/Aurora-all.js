@@ -3541,7 +3541,7 @@ $A.Record.Field.prototype = {
      */
     setRequired : function(r){
         this.setPropertity('required',r);
-        if(!r)this.record.validate(this.name);
+        if(!r && this.record)this.record.validate(this.name);
     },
     /**
      * 当前Field是否必输.
@@ -3555,7 +3555,7 @@ $A.Record.Field.prototype = {
      * @param {Boolean} readonly 是否只读
      */
     setReadOnly : function(r){  
-        if(r)delete this.record.valid[this.name];
+        if(r && this.record)delete this.record.valid[this.name];
         this.setPropertity('readonly',r);
     },
     /**
@@ -3896,7 +3896,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 			//TODO:和lov的设值有问题
 //			if(this.value == value) return;
 			if(!Ext.isEmpty(value,true)) {
-                this.setValue(value,true);
+                this.setValue(value,true,true);
 			}else{
                 this.clearValue();
 			}
@@ -3969,9 +3969,15 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.height = h;
     	this.wrap.setHeight(h);
     },
+    /**
+     * 显示组件
+     */
     show : function(){
     	this.wrap.show();
     },
+    /**
+     * 隐藏组件
+     */
     hide : function(){
     	this.wrap.hide();
     },
@@ -6063,7 +6069,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		var record = this.optionDataSet.getAt(index),
 			value = record.get(this.valuefield),
 			display = this.getRenderText(record);//record.get(this.displayfield);
-		this.setValue(display,null,record);
+		this.setValue(display,null,null,record);
 		this.fireEvent('select',this, value, display, record);
         
 	},
@@ -6118,7 +6124,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	getRenderText : function(record){
         var rder = $A.getRenderer(this.displayrenderer);
         if(rder){
-            return rder.call(window,this,record);
+            return rder(this,record);
         }else{
             return record.get(this.displayfield);
         }
@@ -6190,10 +6196,10 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //		}
 //		return this.text;
 //	},
-	setValue: function(v, silent,vr){
+	setValue: function(v, silent,isRender,vr){
         $A.ComboBox.superclass.setValue.call(this, v, silent);
         var r = this.record;
-        if(r){
+        if(r && !isRender){
 			var field = r.getMeta().getField(this.binder.name);
 			if(field){
 				var raw = this.getRawValue(),
@@ -6204,11 +6210,11 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //    					if(vl!=''){
     					if(!Ext.isEmpty(vl,true)){
     						//避免render的时候发生update事件
-    						if(silent){
-                                r.data[map.to] = vl;
-    						}else{
+//    						if(silent){
+//                                r.data[map.to] = vl;
+//    						}else{
     						    r.set(map.to,vl);						
-    						}
+//    						}
     					}else{
     						delete r.data[map.to];
     					}					
