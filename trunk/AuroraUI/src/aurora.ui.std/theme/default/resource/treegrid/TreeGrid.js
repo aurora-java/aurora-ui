@@ -187,7 +187,7 @@ $A.TreeGrid = Ext.extend($A.Grid, {
     },
     onUpdate : function(ds,record, name, value){
     	$A.TreeGrid.superclass.onUpdate.call(this,ds,record, name, value);
-    	var c = this.unlockTree,
+    	var c = ((this.selectable && this.lockColumns.length == 1) || this.lockColumns.length == 0)?this.unlockTree:this.lockTree,
     		node = c.getNodeById(record.id),
     		tree = node.getOwnerTree();
 	        node.doSetWidth(tree.displayfield, tree.width);
