@@ -224,7 +224,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 			//TODO:和lov的设值有问题
 //			if(this.value == value) return;
 			if(!Ext.isEmpty(value,true)) {
-                this.setValue(value,true);
+                this.setValue(value,true,true);
 			}else{
                 this.clearValue();
 			}
@@ -297,9 +297,15 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.height = h;
     	this.wrap.setHeight(h);
     },
+    /**
+     * 显示组件
+     */
     show : function(){
     	this.wrap.show();
     },
+    /**
+     * 隐藏组件
+     */
     hide : function(){
     	this.wrap.hide();
     },

@@ -215,7 +215,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		var record = this.optionDataSet.getAt(index),
 			value = record.get(this.valuefield),
 			display = this.getRenderText(record);//record.get(this.displayfield);
-		this.setValue(display,null,record);
+		this.setValue(display,null,null,record);
 		this.fireEvent('select',this, value, display, record);
         
 	},
@@ -342,10 +342,10 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //		}
 //		return this.text;
 //	},
-	setValue: function(v, silent,vr){
+	setValue: function(v, silent,isRender,vr){
         $A.ComboBox.superclass.setValue.call(this, v, silent);
         var r = this.record;
-        if(r){
+        if(r && !isRender){
 			var field = r.getMeta().getField(this.binder.name);
 			if(field){
 				var raw = this.getRawValue(),
