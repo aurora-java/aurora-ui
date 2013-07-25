@@ -72,7 +72,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	expand:function(){
 		if(!this.optionDataSet)return;
 		if(this.rendered===false)this.doQuery();
-		$A.ComboBox.superclass.expand.call(this);
+		!this.isExpanded() && $A.ComboBox.superclass.expand.call(this);
 		var v = this.getValue();
 		this.currentIndex = this.getIndex(v);
 //		if(!this.currentIndex) return;
@@ -157,6 +157,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			loadFn = this.onDataSetLoad;
 		if(ds){
             ds[ou]('load', loadFn, this);
+            ds[ou]('query', loadFn, this);
            	ds[ou]('add', loadFn, this);
             ds[ou]('update', loadFn, this);
             ds[ou]('remove', loadFn, this);
@@ -166,9 +167,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},	
 	onDataSetLoad: function(){
 		this.rendered=false;
-		if(this.isExpanded()) {
-            this.expand();
-		}
+        this.expand();
 	},
 	onRender:function(){	
         if(!this.view){
