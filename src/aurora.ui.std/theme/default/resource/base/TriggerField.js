@@ -23,6 +23,23 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	Ext.getBody().insertFirst(this.shadow);
     	this.initpopuped = true
     },
+    initEvents:function(){
+		$A.TriggerField.superclass.initEvents.call(this);
+		this.addEvents(
+		/**
+         * @event expand
+         * 展开事件.
+         * @param {Aurora.TriggerField} triggerField 所有可展开控件对象.
+         */
+		'expand',
+		/**
+         * @event collapse
+         * 收缩事件.
+         * @param {Aurora.TriggerField} triggerField 所有可展开控件对象.
+         */
+		'collapse'
+		);
+	},
     processListener: function(ou){
     	$A.TriggerField.superclass.processListener.call(this, ou);
     	this.trigger[ou]('click',this.onTriggerClick, this, {preventDefault:true})
@@ -99,6 +116,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	Ext.get(document.documentElement).un("mousedown", this.triggerBlur, this);
     	this.popup.moveTo(-1000,-1000);
     	this.shadow.moveTo(-1000,-1000);
+    	this.fireEvent("collapse", this);
     },
     /**
      * 展开弹出面板
@@ -109,6 +127,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
         Ext.get(document.documentElement).un("mousedown", this.triggerBlur, this);
     	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this);
     	this.syncPopup();
+    	this.fireEvent("expand", this);
     },
     syncPopup:function(){
     	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft,
