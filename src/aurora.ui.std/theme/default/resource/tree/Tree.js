@@ -90,16 +90,17 @@ $A.Tree = Ext.extend($A.Component,{
 	},
 	onAdd : function(ds,record){
 		var records = this.dataset.getAll(),
-			pid = record.get(this.parentfield);
-		if(Ext.isEmpty(pid))return;
-		var pnode,sequencefield = this.sequencefield,
+			pid = record.get(this.parentfield),
+			pnode,sequencefield = this.sequencefield,
 			seq = record.get(sequencefield),
 			refnode;
-		for(var i = 0,l=records.length;i<l;i++){
-			var r = records[i];
-			if(r.get(this.idfield) === pid){
-				pnode = this.getNodeById(r.id);
-				break;
+		if(!Ext.isEmpty(pid)){
+			for(var i = 0,l=records.length;i<l;i++){
+				var r = records[i];
+				if(r.get(this.idfield) === pid){
+					pnode = this.getNodeById(r.id);
+					break;
+				}
 			}
 		}
 		if(!pnode){
@@ -108,7 +109,7 @@ $A.Tree = Ext.extend($A.Component,{
 				this.root.firstChild.expand();
 				return;
 			}else{
-				pnode = this.root
+				pnode = this.root;
 			}
 		}
 		Ext.each(pnode.childNodes,function(node){
@@ -133,7 +134,7 @@ $A.Tree = Ext.extend($A.Component,{
                 if(!this.focusNode || this.focusNode === node){
 	                var index = -1,
 	                	pc = parent.data.children;
-	                Ext.each(pc,function(item){
+	                Ext.each(pc,function(item,i){
 	                	if(item.record.id == id){
 	                        index = i;
 	                        return false;
