@@ -117,16 +117,18 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 	processData : function(tree, root) {
 		if (!root)
 			return;
-		var items = [];
+		var sf = this,items = [];
 		if (tree.showRoot) {
-			this.processNode(items, root)
+			sf.processNode(items, root)
 		} else {
 			Ext.each(root.children,function(child){
-				this.processNode(items, child);
-			},this);
+				sf.processNode(items, child);
+			});
 		}
-		this.dataset.data = items;
-		// this.onLoad();
+		sf.dataset.data = items;
+		sf.editing &&
+			sf.positionEditor();
+		
 	},
 	onLoad : function(){
         this.drawFootBar();
@@ -144,36 +146,37 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 			if (!ds)
 				return;
 		}
-		this.dataset = ds;
-		this.processDataSetLiestener('on');
-		if (this.lockTree)
-			this.lockTree.bind(ds);
-		this.unlockTree.bind(ds);
-		this.drawFootBar();
+		var sf = this;
+		sf.dataset = ds;
+		sf.processDataSetLiestener('on');
+		if (sf.lockTree)
+			sf.lockTree.bind(ds);
+		sf.unlockTree.bind(ds);
+		sf.drawFootBar();
 	},
 	setColumnSize : function(name, size) {
 		$A.TreeGrid.superclass.setColumnSize.call(this, name, size);
-		var c = this.findColByName(name),
-			tree = c.lock == true ? this.lockTree : this.unlockTree;
+		var sf = this,c = sf.findColByName(name),
+			tree = c.lock == true ? sf.lockTree : sf.unlockTree;
 		c.width = size;
 		if (name == tree.displayfield) tree.width = size;
 		tree.root.setWidth(name, size);// (name == tree.displayfield) ? size-2
 										// :
 	},
 	renderLockArea : function() {
-		var v = 0;
-		Ext.each(this.columns,function(c){
+		var sf = this,v = 0;
+		Ext.each(sf.columns,function(c){
 			if (c.lock === true && c.hidden !== true) {
 				v += c.width;
 			}
 		});
-		this.lockWidth = v;
+		sf.lockWidth = v;
 	},
 	focusRow : function(row){
-    	var record = this.dataset.getAll()[row],
-    		els = this.unlockTree.getNodeById(record.id).els;
+    	var sf = this,record = sf.dataset.getAt(row),
+    		els = sf.unlockTree.getNodeById(record.id).els;
     	if(!els)return;
-        var ub = this.ub,
+        var ub = sf.ub,
             stop = ub.getScroll().top,
     		height = Ext.fly(els.element).getTop()-ub.getTop()+stop;
     		r = 25,
@@ -187,7 +190,7 @@ $A.TreeGrid = Ext.extend($A.Grid, {
     },
     onUpdate : function(ds,record, name, value){
     	$A.TreeGrid.superclass.onUpdate.call(this,ds,record, name, value);
-    	var c = ((this.selectable && this.lockColumns.length == 1) || this.lockColumns.length == 0)?this.unlockTree:this.lockTree,
+    	var sf = this,c = ((sf.selectable && sf.lockColumns.length == 1) || sf.lockColumns.length == 0)?sf.unlockTree:sf.lockTree,
     		node = c.getNodeById(record.id),
     		tree = node.getOwnerTree();
 	        node.doSetWidth(tree.displayfield, tree.width);
@@ -202,12 +205,12 @@ $A.Tree.TreeGridNode = Ext.extend($A.Tree.TreeNode, {
 				return new $A.Tree.TreeGridNode(item);
 			},
 			createCellEl : function(df) {
-				var tree = this.getOwnerTree(),
+				var sf = this,tree = sf.getOwnerTree(),
 					tc = tree.column,
 					align = tc.align,
-					r = this.record,
-					td = this.els[df + '_td'];
-				this.els[df + '_text'] = Ext.DomHelper.insertHtml("afterBegin", this.els[df
+					r = sf.record,
+					td = sf.els[df + '_td'];
+				sf.els[df + '_text'] = Ext.DomHelper.insertHtml("afterBegin", sf.els[df
 								+ '_td'], tree.treegrid.createCell(tc, r,
 						false));
 				td['dataindex'] = df;
