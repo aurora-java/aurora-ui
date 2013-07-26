@@ -1051,6 +1051,16 @@ A.Grid = Ext.extend(A.Component,{
         }
         return ed;
     },
+    positionEditor : function(){
+    	var sf = this,
+    		ced = sf.currentEditor,
+			ed = ced.editor,
+			xy = Ext.get([sf.id,ced.name,ced.record.id].join(_)).getXY();
+			if(ed instanceof CheckBox)
+        		ed.move(xy[0],xy[1]-4);
+			else
+				ed.move(xy[0],xy[1]);
+    },
     /**
      * 显示编辑器.
      * @param {Number} row 行号
@@ -1071,8 +1081,7 @@ A.Grid = Ext.extend(A.Component,{
             var ed = $(editor);
             (function(){
                 var v = record.get(name),
-                    dom = Ext.get([sf.id,name,record.id].join(_)),
-                    xy = dom.getXY(),ced;
+                    dom = Ext.get([sf.id,name,record.id].join(_)),ced;
                 ed.bind(ds, name);
                 ed.render(record);
 //                if(Ext.isIE)ed.processListener('un');
@@ -1085,8 +1094,8 @@ A.Grid = Ext.extend(A.Component,{
                     name:name,
                     editor:ed
                 };
+                sf.positionEditor();
                 if(ed instanceof CheckBox){
-                    ed.move(xy[0],xy[1]-4);
                     if(callback)
                         ed.focus()
                     else
@@ -1098,7 +1107,6 @@ A.Grid = Ext.extend(A.Component,{
                     if(ed instanceof A.Field && !ed instanceof A.TextArea){
                         ed.el.setStyle('text-align',col.align||LEFT)
                     }
-                    ed.move(xy[0],xy[1]);
 //                    ed.setHeight(p.getHeight()-5);
 //                    ed.setWidth(p.getWidth()-7);
                     if(!ed instanceof A.TextArea)

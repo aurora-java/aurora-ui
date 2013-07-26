@@ -155,7 +155,7 @@ $A.Tree = Ext.extend($A.Component,{
 	onUpdate : function(ds, record, name, value){
 		if(this.parentfield == name || name == this.sequencefield){
 			this.onLoad();
-			ds.fireEvent('indexchange',ds,record);
+			ds.locate(ds.indexOf(record)+1);
 		}else{
 			this.nodeHash[record.id].paintText();
 		}
