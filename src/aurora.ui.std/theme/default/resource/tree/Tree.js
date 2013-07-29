@@ -157,7 +157,8 @@ $A.Tree = Ext.extend($A.Component,{
 			this.onLoad();
 			ds.locate(ds.indexOf(record)+1);
 		}else{
-			this.nodeHash[record.id].paintText();
+			var node = this.nodeHash[record.id];
+			node && node.paintText();
 		}
 	},
 	onIndexChange:function(ds, record){
@@ -850,6 +851,12 @@ $A.Tree.TreeNode.prototype={
 		return node;
 	},
 	removeChild : function(node){
+		Ext.each(node.childNodes,function(cnode){
+			var record = cnode.record;
+			if(record){
+				record.ds.remove(record);
+			}
+		});
 		var childs = this.childNodes,index = childs.indexOf(node);
 		if(index == -1){
 			return false;
