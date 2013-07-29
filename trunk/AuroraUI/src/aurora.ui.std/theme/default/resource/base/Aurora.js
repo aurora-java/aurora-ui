@@ -274,7 +274,7 @@ $A.getViewportWidth = function() {
  * @param {String} target 提交目标
  */
 $A.post = function(action,data,target){
-    var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action,target:target||'_blank'});
+    var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action,target:target||'_self'});
     for(var key in data){
         var v = data[key]
         if(v) {

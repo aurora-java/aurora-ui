@@ -245,6 +245,9 @@ A.Lov = Ext.extend(A.TextField,{
         	binder = sf.binder,
         	sidebar = A.SideBar,
         	autocompletefield = sf.autocompletefield;
+        if(sf.fuzzyfetch){
+        	v+='%';
+        }
         if(!Ext.isEmpty(svc)){
 //            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(sf.getLovPara());
             url = Ext.urlAppend(sf.context + 'autocrud/'+svc+'/query?pagenum=1&_fetchall=false&_autocount=false', Ext.urlEncode(sf.getLovPara()));
@@ -282,8 +285,12 @@ A.Lov = Ext.extend(A.TextField,{
                 	if(sf.fetchsingle && l>1){
                 		var sb = sf.createListView(datas,binder).join(_N),
 							div = new Ext.Template('<div style="position:absolute;left:0;top:0">{sb}</div>').append(document.body,{'sb':sb},true),
-                			cmp = sf.fetchSingleWindow =  new A.Window({id:sf.id+'_fetchmulti',closeable:true,title:'请选择', height:Math.min(div.getHeight(),sf.maxHeight),width:Math.max(div.getWidth(),200)});
+                			xy = sf.wrap.getXY(),
+                			cmp = sf.fetchSingleWindow =  new A.Window({id:sf.id+'_fetchmulti',closeable:true,title:'请选择', height:Math.min(div.getHeight(),sf.maxHeight),width:Math.max(div.getWidth(),200),x:xy[0],y:xy[1]+sf.wrap.getHeight()});
                 		div.remove();
+                		cmp.on('close',function(){
+                			sf.focus();
+                		});
                 		cmp.body.update(sb)
                 			.on(EVT_MOUSE_MOVE,sf.onViewMove,sf)
                 			.on('dblclick',function(e,t){

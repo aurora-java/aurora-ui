@@ -119,7 +119,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
         		sf.showCompleteId=function(){
         			var ds = sf.ds;
 			        ds.setQueryUrl(Ext.urlAppend(svc , Ext.urlEncode(cmp?cmp.getPara():sf.para)));
-			       	ds.setQueryParameter(sf.name,v);
+			       	ds.setQueryParameter(sf.name,sf.fuzzyfetch?v+'%':v);
         			ds.pagesize = sf.pagesize;
         			sf.show();
         			ds.query();

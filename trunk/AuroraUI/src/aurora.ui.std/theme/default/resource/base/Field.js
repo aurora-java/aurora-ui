@@ -286,6 +286,7 @@ $A.Field = Ext.extend($A.Component,{
 	        	view = sf.autocompleteview = new $A.AutoCompleteView({
 	        		id:sf.id,
 					el:sf.el,
+					fuzzyfetch:sf.fuzzyfetch,
 	        		cmp:sf
 	        	});
         		view.on('select',sf.onViewSelect,sf);
