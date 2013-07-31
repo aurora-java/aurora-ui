@@ -174,7 +174,8 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 	},
 	focusRow : function(row){
     	var sf = this,record = sf.dataset.getAt(row),
-    		els = sf.unlockTree.getNodeById(record.id).els;
+    		node = sf.unlockTree.getNodeById(record.id),
+    		els = node?node.els:null;
     	if(!els)return;
         var ub = sf.ub,
             stop = ub.getScroll().top,
