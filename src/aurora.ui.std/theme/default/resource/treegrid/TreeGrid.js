@@ -194,7 +194,7 @@ $A.TreeGrid = Ext.extend($A.Grid, {
     	var sf = this,c = ((sf.selectable && sf.lockColumns.length == 1) || sf.lockColumns.length == 0)?sf.unlockTree:sf.lockTree,
     		node = c.getNodeById(record.id),
     		tree = node.getOwnerTree();
-	        node.doSetWidth(tree.displayfield, tree.width);
+	        node.els && node.doSetWidth(tree.displayfield, tree.width);
     },
 	onMouseWheel : function(e){
     },

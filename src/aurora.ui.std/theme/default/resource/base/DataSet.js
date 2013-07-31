@@ -780,7 +780,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 this.pre();
             }
         }
-        this.fireEvent("remove", this, record, index);      
+        this.fireEvent("remove", this, record, index);    
+        if(!this.selected.length){
+        	this.fireEvent('unselectall', this , this.selected);
+        }
     },
     /**
      * 获取当前数据集下的所有数据.  
