@@ -1,0 +1,12 @@
+<DIV class="${wrapClass} item-tf" style="position:relative;width:${width}px;${style}" id="${id}">
+	<DIV style="padding-left:3px;padding-right:20px">
+		<DIV style="width:100%">
+			<INPUT tabindex="${tabindex}" class="item-textField item-percentField" style="ime-mode:disabled" ${readonly} value="${value}" atype="field.input" autocomplete="off"/>
+		</DIV>
+		<DIV class="item-trigger item-percent-icon" hideFocus></DIV>
+	</DIV>
+</DIV>
+<script>
+	new Aurora.PercentField(${config});
+	${binding}
+</script>	
