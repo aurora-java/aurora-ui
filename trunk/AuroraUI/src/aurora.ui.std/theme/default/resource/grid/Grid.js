@@ -560,8 +560,8 @@ A.Grid = Ext.extend(A.Component,{
         sf.isSelectAll = FALSE;
         sf.clearDomRef();
         sf.preLoad();
-        var cb = sf.wrap.removeClass(GRID_SELECT_ALL).child(SELECT_DIV_ATYPE);
-        if(cb && sf.selectable && sf.selectionmodel==MULTIPLE)sf.setCheckBoxStatus(cb,FALSE);
+        sf.wrap.removeClass(GRID_SELECT_ALL);
+        sf.initHeadCheckStatus(FALSE);
         if(sf.lb)
         sf.renderLockArea();
         sf.renderUnLockAread();
@@ -569,6 +569,10 @@ A.Grid = Ext.extend(A.Component,{
         sf.drawFootBar();
         A.Masker.unmask(sf.wb);
         sf.fireEvent(EVT_RENDER,sf)
+    },
+    initHeadCheckStatus : function(check){
+    	var sf = this,cb = sf.wrap.child(SELECT_DIV_ATYPE);
+        if(cb && sf.selectable && sf.selectionmodel==MULTIPLE)sf.setCheckBoxStatus(cb,check);
     },
     clearDomRef : function(){
         this.selectlockTr = NULL;
@@ -894,6 +898,9 @@ A.Grid = Ext.extend(A.Component,{
         if(cb){
             if(sf.selectionmodel==MULTIPLE) {
                 sf.setCheckBoxStatus(cb, TRUE);
+                if(ds.selected.length == ds.data.length){
+                	sf.initHeadCheckStatus(TRUE);
+                }
             }else{
                 sf.setRadioStatus(cb,TRUE);
                 ds.locate((ds.currentPage-1)*ds.pagesize + ds.indexOf(record) + 1)
@@ -909,6 +916,7 @@ A.Grid = Ext.extend(A.Component,{
         if(cb){
             if(sf.selectionmodel==MULTIPLE) {
                 sf.setCheckBoxStatus(cb, FALSE);
+                sf.initHeadCheckStatus(FALSE);
             }else{
                 sf.setRadioStatus(cb,FALSE);
             }
@@ -921,6 +929,7 @@ A.Grid = Ext.extend(A.Component,{
         sf.isSelectAll = TRUE;
         sf.isUnSelectAll = FALSE;
         sf.wrap.addClass(GRID_SELECT_ALL);
+        sf.initHeadCheckStatus(TRUE);
     },
     onUnSelectAll : function(){
         var sf = this;
@@ -928,6 +937,7 @@ A.Grid = Ext.extend(A.Component,{
         sf.isSelectAll = FALSE;
         sf.isUnSelectAll = TRUE;
         sf.wrap.removeClass(GRID_SELECT_ALL);
+        sf.initHeadCheckStatus(FALSE);
     },
     clearChecked : function(){
         var w = this.wrap;
@@ -1403,7 +1413,7 @@ A.Grid = Ext.extend(A.Component,{
             var cb = target.child(SELECT_DIV_ATYPE);
             if(cb){
                 var checked = cb.hasClass(ITEM_CKB_C);
-                sf.setCheckBoxStatus(cb,!checked);
+//                sf.setCheckBoxStatus(cb,!checked);
                 if(!checked){
                     ds.selectAll();
                 }else{
