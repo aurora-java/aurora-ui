@@ -245,7 +245,7 @@ A.Lov = Ext.extend(A.TextField,{
         	binder = sf.binder,
         	sidebar = A.SideBar,
         	autocompletefield = sf.autocompletefield;
-        if(sf.fuzzyfetch){
+        if(!Ext.isEmpty(v)&&sf.fuzzyfetch){
         	v+='%';
         }
         if(!Ext.isEmpty(svc)){
