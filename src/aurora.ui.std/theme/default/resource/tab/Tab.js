@@ -125,7 +125,7 @@ A.Tab = Ext.extend(A.Component,{
 		}
 		if(activeBody){
 			if(sf.activeBody){
-				sf.activeBody.setStyle({left:'-1000px',top:'-1000px'});
+				sf.activeBody.setStyle({left:'-10000px',top:'-10000px'});
 			}
 			sf.activeBody = activeBody.setStyle({left:0,top:0});
 		}
