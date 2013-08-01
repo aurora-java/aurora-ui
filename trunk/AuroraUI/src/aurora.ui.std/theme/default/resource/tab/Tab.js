@@ -188,7 +188,7 @@ A.Tab = Ext.extend(A.Component,{
 		var head = sf.head,
 			script = sf.script,
 			width= head.getWidth()-strip.getWidth();
-		head.setWidth(width);
+//		head.setWidth(width);//IE8慢
 		if(width <= script.getWidth()){
 			sf.scrollLeft.setStyle({display:NONE});
 			sf.scrollRight.setStyle({display:NONE});
@@ -208,6 +208,7 @@ A.Tab = Ext.extend(A.Component,{
         			}
         		}
 			});
+            head.setWidth(width);
         }).defer(10);
 		if(index==sf.selectedIndex)sf.selectTab(index-1);
 	},

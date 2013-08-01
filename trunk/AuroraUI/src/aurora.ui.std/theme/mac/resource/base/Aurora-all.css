@@ -378,7 +378,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	background-position:-39px -13px;
 }
 .item-radio:focus{
-	outline:1px dotted black;
+	/*outline:1px dotted black;*/
 }
 .item-radio-img,.grid-radio,.table-radio{
 	width:13px;
