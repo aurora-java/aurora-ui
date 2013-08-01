@@ -84,6 +84,7 @@ $A.Tree = Ext.extend($A.Component,{
 		var sf = this;
 		sf.dataset = ds;
 		sf.processDataSetLiestener('on');
+        if(ds.data.length >0)
     	$A.onReady(function(){
             sf.onLoad();
         })
@@ -279,7 +280,7 @@ $A.Tree = Ext.extend($A.Component,{
 			p = node.parentNode;
 		if(f)f.unselect();
 		this.focusNode = node;
-		if(p)p.expand();
+		if(p && !p.isExpand)p.expand();
 		node.select();
 	},
 	createNode: function(record){

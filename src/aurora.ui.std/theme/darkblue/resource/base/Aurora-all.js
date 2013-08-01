@@ -14,7 +14,7 @@
  
 Ext.Ajax.timeout = 1800000;
 
-$A = Aurora = {version: '1.0',revision:'$Rev: 7663 $'};
+$A = Aurora = {version: '1.0',revision:'$Rev: 7776 $'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){
     if($A.winWidth != $A.getViewportWidth() || $A.winHeight != $A.getViewportHeight()){
@@ -274,7 +274,7 @@ $A.getViewportWidth = function() {
  * @param {String} target 提交目标
  */
 $A.post = function(action,data,target){
-    var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action,target:target||'_blank'});
+    var form = Ext.getBody().createChild({style:'display:none',tag:'form',method:'post',action:action,target:target||'_self'});
     for(var key in data){
         var v = data[key]
         if(v) {
@@ -837,7 +837,7 @@ $A.Masker = function(){
             var w = el.getWidth();
             var h = el.getHeight();//leftp:0px;top:0px; 是否引起resize?
             var p = '<div class="aurora-mask"  style="left:-1000px;top:-1000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
-            var wrap = el.parent('body')?el.parent():el;
+            var wrap = el.parent('body')?el.parent():el.child('body')||el;
             var masker = Ext.get(Ext.DomHelper.append(wrap,p));
             var zi = el.getStyle('z-index') == 'auto' ? 0 : el.getStyle('z-index');
             masker.setStyle('z-index', zi + 1);
@@ -1615,6 +1615,85 @@ if(Ext.isIE){//for fix IE event's order bug
 	}
 })();
 };
+
+$A.FixMath = (function(){
+var POW = Math.pow,
+	mul = function(a,b) { 
+	    var m=0,s1=String(a),s2=String(b),
+			l1 = s1.indexOf('.'),
+			l2 = s2.indexOf('.'),
+			e1 = s1.indexOf('e'),
+			e2 = s2.indexOf('e');
+		if(e1!=-1){
+			m-=Number(s1.substr(e1+1));
+			s1 = s1.substr(0,e1);
+		}
+		if(e2!=-1){
+			m-=Number(s2.substr(e2+1));
+			s2 = s2.substr(0,e2);
+		}
+		if(l1!=-1)m+=s1.length - l1 -1;
+		if(l2!=-1)m+=s2.length - l2 -1;
+	    return Number(s1.replace('.',''))*Number(s2.replace('.',''))/POW(10,m);
+	},
+	div = function(a,b){
+		var re = String(a/b),
+			i = re.indexOf('.');
+		if(i!=-1){
+			re = Number(re).toFixed(16-i-1)
+		}
+		return Number(re);
+	},
+	plus = function(a,b) { 
+	    var m1=0,m2=0,m3,
+			s1=String(a),s2=String(b),
+			l1 = s1.indexOf('.'),
+			l2 = s2.indexOf('.'),
+			e1 = s1.indexOf('e'),
+			e2 = s2.indexOf('e');
+		if(e1!=-1){
+			m1-=Number(s1.substr(e1+1));
+			s1 = s1.substr(0,e1);
+		}
+		if(e2!=-1){
+			m2-=Number(s2.substr(e2+1));
+			s2 = s2.substr(0,e2);
+		}
+		if(l1!=-1)m1+=s1.length - l1 -1;
+		if(l2!=-1)m2+=s2.length - l2 -1;
+		if(m2>m1){
+			m3 = m2;
+			m1 = m2-m1;
+			m2 = 0;
+		}else if(m1>m2){
+			m3 = m1;
+			m2 = m1-m2;
+			m1 = 0;
+		}else{
+			m3 = m1;
+			m1 = m2 = 0;
+		}
+	    return (Number(s1.replace('.',''))*POW(10,m1)+Number(s2.replace('.',''))*POW(10,m2))/POW(10,m3);
+	},
+	minus = function(a,b){
+		return plus(a,-b);
+	},
+	pow = function(a,b){
+		var re = String(POW(a,b)),
+			i = re.indexOf('.');
+		if(i!=-1){
+			re = Number(re).toFixed(16-i-1)
+		}
+		return Number(re);
+	};
+	return {
+		pow:pow,
+		minus:minus,
+		plus:plus,
+		div:div,
+		mul:mul
+	}
+})();
 /**
  * @class Aurora.DataSet
  * @extends Ext.util.Observable
@@ -2397,7 +2476,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 this.pre();
             }
         }
-        this.fireEvent("remove", this, record, index);      
+        this.fireEvent("remove", this, record, index);    
+        if(!this.selected.length){
+        	this.fireEvent('unselectall', this , this.selected);
+        }
     },
     /**
      * 获取当前数据集下的所有数据.  
@@ -4277,6 +4359,7 @@ $A.Field = Ext.extend($A.Component,{
 	        	view = sf.autocompleteview = new $A.AutoCompleteView({
 	        		id:sf.id,
 					el:sf.el,
+					fuzzyfetch:sf.fuzzyfetch,
 	        		cmp:sf
 	        	});
         		view.on('select',sf.onViewSelect,sf);
@@ -4839,7 +4922,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
         		sf.showCompleteId=function(){
         			var ds = sf.ds;
 			        ds.setQueryUrl(Ext.urlAppend(svc , Ext.urlEncode(cmp?cmp.getPara():sf.para)));
-			       	ds.setQueryParameter(sf.name,v);
+			       	ds.setQueryParameter(sf.name,sf.fuzzyfetch?v+'%':v);
         			ds.pagesize = sf.pagesize;
         			sf.show();
         			ds.query();
@@ -5741,6 +5824,23 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	Ext.getBody().insertFirst(this.shadow);
     	this.initpopuped = true
     },
+    initEvents:function(){
+		$A.TriggerField.superclass.initEvents.call(this);
+		this.addEvents(
+		/**
+         * @event expand
+         * 展开事件.
+         * @param {Aurora.TriggerField} triggerField 所有可展开控件对象.
+         */
+		'expand',
+		/**
+         * @event collapse
+         * 收缩事件.
+         * @param {Aurora.TriggerField} triggerField 所有可展开控件对象.
+         */
+		'collapse'
+		);
+	},
     processListener: function(ou){
     	$A.TriggerField.superclass.processListener.call(this, ou);
     	this.trigger[ou]('click',this.onTriggerClick, this, {preventDefault:true})
@@ -5817,6 +5917,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	Ext.get(document.documentElement).un("mousedown", this.triggerBlur, this);
     	this.popup.moveTo(-1000,-1000);
     	this.shadow.moveTo(-1000,-1000);
+    	this.fireEvent("collapse", this);
     },
     /**
      * 展开弹出面板
@@ -5827,6 +5928,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
         Ext.get(document.documentElement).un("mousedown", this.triggerBlur, this);
     	Ext.get(document.documentElement).on("mousedown", this.triggerBlur, this);
     	this.syncPopup();
+    	this.fireEvent("expand", this);
     },
     syncPopup:function(){
     	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft,
@@ -5926,7 +6028,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	expand:function(){
 		if(!this.optionDataSet)return;
 		if(this.rendered===false)this.doQuery();
-		$A.ComboBox.superclass.expand.call(this);
+		!this.isExpanded() && $A.ComboBox.superclass.expand.call(this);
 		var v = this.getValue();
 		this.currentIndex = this.getIndex(v);
 //		if(!this.currentIndex) return;
@@ -6011,6 +6113,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			loadFn = this.onDataSetLoad;
 		if(ds){
             ds[ou]('load', loadFn, this);
+            ds[ou]('query', loadFn, this);
            	ds[ou]('add', loadFn, this);
             ds[ou]('update', loadFn, this);
             ds[ou]('remove', loadFn, this);
@@ -6020,8 +6123,8 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},	
 	onDataSetLoad: function(){
 		this.rendered=false;
-		if(this.isExpanded()) {
-            this.expand();
+		if(this.isExpanded()){
+        	this.expand();
 		}
 	},
 	onRender:function(){	
@@ -8093,6 +8196,9 @@ A.Lov = Ext.extend(A.TextField,{
         	binder = sf.binder,
         	sidebar = A.SideBar,
         	autocompletefield = sf.autocompletefield;
+        if(!Ext.isEmpty(v)&&sf.fuzzyfetch){
+        	v+='%';
+        }
         if(!Ext.isEmpty(svc)){
 //            url = sf.context + 'sys_lov.svc?svc='+sf.lovservice+'&pagesize=1&pagenum=1&_fetchall=false&_autocount=false&'+ Ext.urlEncode(sf.getLovPara());
             url = Ext.urlAppend(sf.context + 'autocrud/'+svc+'/query?pagenum=1&_fetchall=false&_autocount=false', Ext.urlEncode(sf.getLovPara()));
@@ -8130,8 +8236,12 @@ A.Lov = Ext.extend(A.TextField,{
                 	if(sf.fetchsingle && l>1){
                 		var sb = sf.createListView(datas,binder).join(_N),
 							div = new Ext.Template('<div style="position:absolute;left:0;top:0">{sb}</div>').append(document.body,{'sb':sb},true),
-                			cmp = sf.fetchSingleWindow =  new A.Window({id:sf.id+'_fetchmulti',closeable:true,title:'请选择', height:Math.min(div.getHeight(),sf.maxHeight),width:Math.max(div.getWidth(),200)});
+                			xy = sf.wrap.getXY(),
+                			cmp = sf.fetchSingleWindow =  new A.Window({id:sf.id+'_fetchmulti',closeable:true,title:'请选择', height:Math.min(div.getHeight(),sf.maxHeight),width:Math.max(div.getWidth(),200),x:xy[0],y:xy[1]+sf.wrap.getHeight()});
                 		div.remove();
+                		cmp.on('close',function(){
+                			sf.focus();
+                		});
                 		cmp.body.update(sb)
                 			.on(EVT_MOUSE_MOVE,sf.onViewMove,sf)
                 			.on('dblclick',function(e,t){

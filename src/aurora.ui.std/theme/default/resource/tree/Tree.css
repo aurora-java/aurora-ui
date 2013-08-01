@@ -71,6 +71,10 @@
 .icon-folderOpen {
 	background:url(../tree/folder.gif) no-repeat;
 }
+.icon-loading {
+    background:url(../tree/loading.gif) no-repeat;
+}
+
 
 .clip-empty {
 	background:url(../tree/empty.gif) no-repeat;
