@@ -591,7 +591,7 @@ $A.TextMetrics = function(){
     };
 }();
 $A.TextMetrics.Instance = function(bindTo, fixedWidth){
-    var p = '<div style="left:-1000px;top:-1000px;position:absolute;visibility:hidden"></div>';
+    var p = '<div style="left:-10000px;top:-10000px;position:absolute;visibility:hidden"></div>';
     var ml = Ext.get(Ext.DomHelper.append(Ext.get(bindTo),p));
 //    var ml = new Ext.Element(document.createElement('div'));
 //    document.body.appendChild(ml.dom);
@@ -836,7 +836,7 @@ $A.Masker = function(){
             var el = Ext.get(el);
             var w = el.getWidth();
             var h = el.getHeight();//leftp:0px;top:0px; 是否引起resize?
-            var p = '<div class="aurora-mask"  style="left:-1000px;top:-1000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
+            var p = '<div class="aurora-mask"  style="left:-10000px;top:-10000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
             var wrap = el.parent('body')?el.parent():el.child('body')||el;
             var masker = Ext.get(Ext.DomHelper.append(wrap,p));
             var zi = el.getStyle('z-index') == 'auto' ? 0 : el.getStyle('z-index');
@@ -1082,9 +1082,9 @@ Ext.removeNode = Ext.isIE && !Ext.isIE8 ? function(){
             if(!d){
                 d = document.createElement('div');
                 d.id = '_removenode';
-                d.style.cssText = 'position:absolute;display:none;left:-1000px;top:-1000px';
+                d.style.cssText = 'position:absolute;display:none;left:-10000px;top:-10000px';
             }
-//            d = d || document.createElement('<div id="_removenode" style="position:absolute;display:none;left:-1000px;top:-1000px">');
+//            d = d || document.createElement('<div id="_removenode" style="position:absolute;display:none;left:-10000px;top:-10000px">');
             if(!d.parentNode)document.body.appendChild(d);
             d.appendChild(n);
             d.innerHTML = '';
@@ -1508,7 +1508,7 @@ $A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_sta
         form.method="post";
         var url = dataset.queryurl;
         if(url)form.action = url + (url.indexOf('?') == -1 ? '?' : '&')+'r='+Math.random();
-        var iframe = Ext.get('_export_window')||new Ext.Template('<iframe id ="_export_window" name="_export_window" style="position:absolute;left:-1000px;top:-1000px;width:1px;height:1px;display:none"></iframe>').insertFirst(document.body,{},true)
+        var iframe = Ext.get('_export_window')||new Ext.Template('<iframe id ="_export_window" name="_export_window" style="position:absolute;left:-10000px;top:-10000px;width:1px;height:1px;display:none"></iframe>').insertFirst(document.body,{},true)
         var s = document.createElement("input");
         s.id = "_request_data";
         s.type = 'hidden';
@@ -7434,7 +7434,7 @@ $A.Window = Ext.extend($A.Component,{
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap {clz}" style="left:-1000px;top:-1000px;width:{width}px;outline:none" cellSpacing="0" cellPadding="0" hideFocus tabIndex="-1" border="0" {url}>',
+            '<TABLE class="win-wrap {clz}" style="left:-10000px;top:-10000px;width:{width}px;outline:none" cellSpacing="0" cellPadding="0" hideFocus tabIndex="-1" border="0" {url}>',
             '<TBODY>',
             '<TR style="height:23px;" >',
                 '<TD class="win-caption">',
@@ -8640,7 +8640,7 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
     mask : function(el){
         var w = el.getWidth();
         var h = el.getHeight();//leftp:0px;top:0px; 是否引起resize?
-        var p = '<div title="点击设置个性化" style="border:2px solid #000;cursor:pointer;left:-1000px;top:-1000px;width:'+(w)+'px;height:'+(h)+'px;position: absolute;"><div style="width:100%;height:100%;filter: alpha(opacity=0);opacity: 0;mozopacity: 0;background-color:#ffffff;"> </div></div>';
+        var p = '<div title="点击设置个性化" style="border:2px solid #000;cursor:pointer;left:-10000px;top:-10000px;width:'+(w)+'px;height:'+(h)+'px;position: absolute;"><div style="width:100%;height:100%;filter: alpha(opacity=0);opacity: 0;mozopacity: 0;background-color:#ffffff;"> </div></div>';
         this.masker = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
         this.masker.setStyle('z-index', 10001);
         var xy = el.getXY();

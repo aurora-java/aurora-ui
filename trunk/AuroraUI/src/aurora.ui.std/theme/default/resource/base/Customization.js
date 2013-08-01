@@ -20,7 +20,7 @@ $A.Customization = Ext.extend(Ext.util.Observable,{
     mask : function(el){
         var w = el.getWidth();
         var h = el.getHeight();//leftp:0px;top:0px; 是否引起resize?
-        var p = '<div title="点击设置个性化" style="border:2px solid #000;cursor:pointer;left:-1000px;top:-1000px;width:'+(w)+'px;height:'+(h)+'px;position: absolute;"><div style="width:100%;height:100%;filter: alpha(opacity=0);opacity: 0;mozopacity: 0;background-color:#ffffff;"> </div></div>';
+        var p = '<div title="点击设置个性化" style="border:2px solid #000;cursor:pointer;left:-10000px;top:-10000px;width:'+(w)+'px;height:'+(h)+'px;position: absolute;"><div style="width:100%;height:100%;filter: alpha(opacity=0);opacity: 0;mozopacity: 0;background-color:#ffffff;"> </div></div>';
         this.masker = Ext.get(Ext.DomHelper.insertFirst(Ext.getBody(),p));
         this.masker.setStyle('z-index', 10001);
         var xy = el.getXY();
