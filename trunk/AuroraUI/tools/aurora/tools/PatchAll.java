@@ -83,8 +83,10 @@ public class PatchAll {
 		compressJs.add("dashboard/Dashboard.js");
 		compressJs.add("graphic/Graphics.js");
 		compressJs.add("treegrid/TreeGrid.js");
+		compressJs.add("treegrid/DynamicTreeGrid.js");
 		compressJs.add("table/Table.js");
 		compressJs.add("tree/Tree.js");
+		compressJs.add("tree/DynamicTree.js");
 		compressJs.add("tab/Tab.js");
 //		compressJs.add("upload/upload.js");
 		compressJs.add("chart/Animate.js");
