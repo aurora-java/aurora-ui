@@ -1365,3 +1365,10 @@ button div {
 .item-receiver-info-close:hover {
 	background-position: -2px -13px;
 }
+.item-percentField {
+	text-align:right;
+	padding-right:3px;
+}
+.item-percent-icon{
+	background: url("../percentfield/percent-icon.gif") no-repeat 2px 2px;
+}
