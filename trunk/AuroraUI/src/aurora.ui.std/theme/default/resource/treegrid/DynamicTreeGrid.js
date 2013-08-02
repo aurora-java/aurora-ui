@@ -1,6 +1,6 @@
 /**
  * @class Aurora.DynamicTreeGrid
- * @extends Aurora.Grid
+ * @extends Aurora.TreeGrid
  * <p>树形表格组件.
  * @author njq.niu@hand-china.com
  * @constructor
