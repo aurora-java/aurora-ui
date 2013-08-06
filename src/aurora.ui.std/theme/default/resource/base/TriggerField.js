@@ -55,7 +55,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     },
     setWidth: function(w){
 		this.wrap.setStyle("width",(w+3)+"px");
-		this.el.setStyle("width",(w-20)+"px");
+		//this.el.setStyle("width",(w-20)+"px");
 	},
 	onPopupClick : function(){
 		this.hasExpanded = true;
