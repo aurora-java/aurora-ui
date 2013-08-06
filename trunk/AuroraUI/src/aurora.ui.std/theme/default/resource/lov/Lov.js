@@ -120,7 +120,7 @@ A.Lov = Ext.extend(A.TextField,{
     },
     setWidth: function(w){
         this.wrap.setStyle(WIDTH,(w+3)+PX);
-        this.el.setStyle(WIDTH,(w-20)+PX);
+//        this.el.setStyle(WIDTH,(w-20)+PX);
     },
     onBlur : function(){
     	var sf = this,view = sf.autocompleteview;

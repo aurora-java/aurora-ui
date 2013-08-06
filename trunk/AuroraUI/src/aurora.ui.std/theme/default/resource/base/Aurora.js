@@ -591,38 +591,39 @@ $A.TextMetrics = function(){
     };
 }();
 $A.TextMetrics.Instance = function(bindTo, fixedWidth){
-    var p = '<div style="left:-10000px;top:-10000px;position:absolute;visibility:hidden"></div>';
-    var ml = Ext.get(Ext.DomHelper.append(Ext.get(bindTo),p));
+    var p = '<div style="left:-10000px;top:-10000px;position:absolute;visibility:hidden"></div>',
+    	ml = Ext.get(Ext.DomHelper.append(Ext.get(bindTo),p)),
 //    var ml = new Ext.Element(document.createElement('div'));
 //    document.body.appendChild(ml.dom);
 //    ml.position('absolute');
 //    ml.setLeft(-1000);
 //    ml.setTop(-1000);    
 //    ml.hide();
+    	instance = {      
+	        getSize : function(text){
+	            ml.update(text);            
+	            var s={
+	            	width : ml.getWidth(),
+	            	height : ml.getHeight()
+	            };
+	            ml.remove();
+	            return s;
+	        },       
+	        bind : function(el){
+	            var a=['padding','font-size','font-style', 'font-weight', 'font-family','line-height', 'text-transform', 'letter-spacing'],
+	            	len = a.length, r = {};
+	            for(var i = 0; i < len; i++){
+	                r[a[i]] = Ext.fly(el).getStyle(a[i]);
+	            }
+	            ml.setStyle(r);           
+	        },       
+	        setFixedWidth : function(width){
+	            ml.setWidth(width);
+	        }       
+	    };
     if(fixedWidth){
         ml.setWidth(fixedWidth);
     }
-    var instance = {      
-        getSize : function(text){
-            ml.update(text);            
-            var s=new Object();
-            s.width=ml.getWidth();
-            s.height=ml.getHeight();
-            ml.update('');
-            return s;
-        },       
-        bind : function(el){
-            var a=new Array('font-size','font-style', 'font-weight', 'font-family','line-height', 'text-transform', 'letter-spacing');  
-            var len = a.length, r = {};
-            for(var i = 0; i < len; i++){
-                r[a[i]] = Ext.fly(el).getStyle(a[i]);
-            }
-            ml.setStyle(r);           
-        },       
-        setFixedWidth : function(width){
-            ml.setWidth(width);
-        }       
-    };
     instance.bind(bindTo);
     return instance;
 };
