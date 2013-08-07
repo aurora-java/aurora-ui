@@ -117,7 +117,7 @@ var DOC = document,
         width: 100
     },
     hasBorder = function(dom){
-    	return parseInt(dom.getStyle('borderWidth'))&&dom.getStyle('borderStyle')!=NONE
+    	return !!dom.getBorderWidth('t r b l');
     },
     findBorderParent = function(dom,isCheckBox){
     	if(!dom||isCheckBox)return dom;
