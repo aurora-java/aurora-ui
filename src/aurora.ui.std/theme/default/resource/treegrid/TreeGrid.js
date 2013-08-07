@@ -82,7 +82,7 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 							var name = c.name,
 								r = node.record;
 							if(c.type == 'rowcheck' || c.type == 'rowradio'){
-								new Ext.Template(grid.createCell(c,r,true)).insertFirst(node.els['itemNodeTr'],{},true)//.setStyle({'border-right':'1px solid #ccc'});
+								new Ext.Template(grid.createCell(c,r,null)).insertFirst(node.els['itemNodeTr'],{},true)//.setStyle({'border-right':'1px solid #ccc'});
 							}else if(name == node.ownerTree.displayfield){
 								return
 							}else{
@@ -97,7 +97,7 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 								td['dataindex'] = name;
 								td.appendChild(node.els[name + '_text'] = Ext.DomHelper.insertHtml(
 									"afterBegin", td, grid.createCell(c, r,
-									false)));
+									true)));
 								node.els['itemNodeTr'].appendChild(td);
 								Ext.fly(td).setWidth(c.width - 2).addClass('node-text');
 							}
@@ -211,9 +211,8 @@ $A.Tree.TreeGridNode = Ext.extend($A.Tree.TreeNode, {
 					align = tc.align,
 					r = sf.record,
 					td = sf.els[df + '_td'];
-				sf.els[df + '_text'] = Ext.DomHelper.insertHtml("afterBegin", sf.els[df
-								+ '_td'], tree.treegrid.createCell(tc, r,
-						false));
+				sf.els[df + '_text'] = Ext.DomHelper.insertHtml("afterBegin", td, tree.treegrid.createCell(tc, r,
+						true));
 				td['dataindex'] = df;
 				td['atype'] = 'grid-cell';
 				td['recordid'] = r.id;

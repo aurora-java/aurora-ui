@@ -49,7 +49,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     onLoad : function(){
     	this.navInfo.update(this.creatNavInfo());
     	if(this.type != "simple" && this.type != "tiny"){
-	    	this.pageInput.setRawValue(this.dataSet.currentPage);
+	    	this.pageInput.setValue(this.dataSet.currentPage);
 	    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
 	    	if(this.pageSizeInput&&!this.pageSizeInput.optionDataSet){
 	    		var pageSize=[10,20,50,100];
@@ -146,7 +146,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 //    },
     onPageSizeChange : function(el,value,oldvalue){
     	var max = this.dataSet.maxpagesize;
-    	if(isNaN(value) || value<=0){
+    	if(isNaN(value) || value<0){
     		el.setValue(oldvalue);
     	}else if(value > max){
 			$A.showMessage(_lang['toolbar.errormsg'],_lang['toolbar.maxPageSize']+max+_lang['toolbar.item'],null,240);
