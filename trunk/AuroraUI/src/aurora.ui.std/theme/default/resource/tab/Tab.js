@@ -355,6 +355,7 @@ A.Tab = Ext.extend(A.Component,{
                 el.show();
             }            
         }
+        A.Tab.superclass.onMouseOver.call(this,e);
 	},
 	onMouseOut : function(e,t){
 		var el=Ext.fly(t),strip = el.parent($STRIP);
@@ -371,6 +372,7 @@ A.Tab = Ext.extend(A.Component,{
                 el.hide();
             }            
         }
+         A.Tab.superclass.onMouseOut.call(this,e);
 	},
 	showLoading : function(dom){
     	dom.setStyle({'text-align':'center','line-height':5}).update(_lang['tab.loading']);
