@@ -57,9 +57,7 @@ A.Tab = Ext.extend(A.Component,{
 		var sf = this;
     	A.Tab.superclass.processListener.call(sf,ou);
     	sf.sp[ou]('mousedown',sf.onMouseDown, sf)
-    		[ou]('mouseup',sf.onMouseUp, sf)
-    		[ou]('mouseover',sf.onMouseOver, sf)
-    		[ou]('mouseout',sf.onMouseOut, sf);
+    		[ou]('mouseup',sf.onMouseUp, sf);
     	sf.script[ou]('click',sf.onClick, sf)
     		[ou]('mousewheel',sf.onMouseWheel, sf);
     },
