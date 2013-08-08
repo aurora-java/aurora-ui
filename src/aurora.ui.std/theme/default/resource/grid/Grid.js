@@ -172,8 +172,7 @@ A.Grid = Ext.extend(A.Component,{
     processListener: function(ou){
         var sf = this;
         A.Grid.superclass.processListener.call(sf, ou);
-        sf.wrap[ou]("mouseover", sf.onMouseOver, sf)
-            [ou]("mouseout", sf.onMouseOut, sf);
+        sf.wrap[ou](EVT_MOUSE_DOWN, sf.onMouseDown, sf);
 //          [ou](EVT_CLICK,sf.focus,sf)
         if(sf.canwheel !== FALSE){
             sf.wb[ou]('mousewheel',sf.onMouseWheel,sf);
@@ -633,6 +632,15 @@ A.Grid = Ext.extend(A.Component,{
             ds.next();
         }
     },
+    onMouseDown : function(e,t,ced){
+    	if(e.shiftKey && (ced = this.currentEditor)){
+    		t = (t = Ext.fly(t)).is(TD)?t:t.parent(TD);
+    		if(ced.editor instanceof CheckBox && t.getAttribute(ATYPE) == GRID_CELL && t.getAttribute(DATA_INDEX) == ced.name){
+    			this._begin = ced.record;
+    			e.stopEvent();
+    		}
+    	}
+    },
     focus: function(){      
         this.wb.focus();
     },
@@ -970,7 +978,7 @@ A.Grid = Ext.extend(A.Component,{
         }
     },
     onClick : function(e,t) {
-        var target = (t = Ext.fly(t)).parent(TD);
+        var target = (t = Ext.fly(t)).is(TD)?t:t.parent(TD);
         if(target){
             var sf = this,
                 atype = target.getAttributeNS(_N,ATYPE),
@@ -1125,10 +1133,25 @@ A.Grid = Ext.extend(A.Component,{
                 };
                 sf.positionEditor();
                 if(ed instanceof CheckBox){
-                    if(callback)
-                        ed.focus()
-                    else
-                        ed.onClick();
+                	var _begin = sf._begin;
+                	if(sf._begin){
+                		var _begin_index = ds.indexOf(_begin),_end_index = ds.indexOf(record);
+                		if(_begin_index > _end_index){
+                			var t = _end_index;
+                			_end_index = _begin_index;
+                			_begin_index = t;
+                		}
+            			_end_index++
+                		for(;_begin_index<_end_index;_begin_index++){
+                			ds.getAt(_begin_index).set(name,_begin.get(name));
+                		}
+                		delete sf._begin;
+                	}else{
+	                    if(callback)
+	                        ed.focus()
+	                    else
+	                        ed.onClick();
+                	}
 //                  ced.focusCheckBox = dom;
                     //dom.setStyle(OUTLINE,OUTLINE_V);
                 }else{
@@ -1348,6 +1371,7 @@ A.Grid = Ext.extend(A.Component,{
                     ed.isHidden = TRUE;
                     sf.editing = FALSE;
                     if(ed.collapse)ed.collapse();
+                    delete sf.currentEditor;
                 }
             }
             //TODO
