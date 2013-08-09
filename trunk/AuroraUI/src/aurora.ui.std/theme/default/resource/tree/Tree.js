@@ -402,10 +402,10 @@ $A.Tree = Ext.extend($A.Component,{
 		return type;
 	},
 	onNodeSelect : function(el){
-		el[this.displayfield+'_text'].style.backgroundColor='#dfeaf5';
+		if(el)el[this.displayfield+'_text'].style.backgroundColor='#dfeaf5';
 	},
 	onNodeUnSelect : function(el){
-	   el[this.displayfield+'_text'].style.backgroundColor='';
+	   if(el)el[this.displayfield+'_text'].style.backgroundColor='';
 	},
 	initColumns : function(node){}
 })
@@ -658,7 +658,7 @@ $A.Tree.TreeNode.prototype={
 	paintChildren : function(){
 //		var sequence = this.getOwnerTree().sequence;
 		if(!this.childrenRendered){
-			this.els['child'].innerHTML = '';
+//			this.els['child'].innerHTML = '';
 			this.childrenRendered = true;			
 //			this.childNodes.sort(function(a, b){
 //	        	var n1 = a.record.get(sequence)||Number.MAX_VALUE;
