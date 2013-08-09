@@ -107,10 +107,10 @@ $A.TreeGrid = Ext.extend($A.Grid, {
 						return new $A.Tree.TreeGridNode(item);
 					},
 					onNodeSelect : function(el) {
-						el['itemNodeTable'].style.backgroundColor = '#dfeaf5';
+						if(el)el['itemNodeTable'].style.backgroundColor = '#dfeaf5';
 					},
 					onNodeUnSelect : function(el) {
-						el['itemNodeTable'].style.backgroundColor = '';
+						if(el)el['itemNodeTable'].style.backgroundColor = '';
 					}
 				});
 	},

@@ -591,38 +591,39 @@ $A.TextMetrics = function(){
     };
 }();
 $A.TextMetrics.Instance = function(bindTo, fixedWidth){
-    var p = '<div style="left:-10000px;top:-10000px;position:absolute;visibility:hidden"></div>';
-    var ml = Ext.get(Ext.DomHelper.append(Ext.get(bindTo),p));
+    var p = '<div style="left:-10000px;top:-10000px;position:absolute;visibility:hidden"></div>',
+    	ml = Ext.get(Ext.DomHelper.append(Ext.get(bindTo),p)),
 //    var ml = new Ext.Element(document.createElement('div'));
 //    document.body.appendChild(ml.dom);
 //    ml.position('absolute');
 //    ml.setLeft(-1000);
 //    ml.setTop(-1000);    
 //    ml.hide();
+    	instance = {      
+	        getSize : function(text){
+	            ml.update(text);            
+	            var s={
+	            	width : ml.getWidth(),
+	            	height : ml.getHeight()
+	            };
+	            ml.remove();
+	            return s;
+	        },       
+	        bind : function(el){
+	            var a=['padding','font-size','font-style', 'font-weight', 'font-family','line-height', 'text-transform', 'letter-spacing'],
+	            	len = a.length, r = {};
+	            for(var i = 0; i < len; i++){
+	                r[a[i]] = Ext.fly(el).getStyle(a[i]);
+	            }
+	            ml.setStyle(r);           
+	        },       
+	        setFixedWidth : function(width){
+	            ml.setWidth(width);
+	        }       
+	    };
     if(fixedWidth){
         ml.setWidth(fixedWidth);
     }
-    var instance = {      
-        getSize : function(text){
-            ml.update(text);            
-            var s=new Object();
-            s.width=ml.getWidth();
-            s.height=ml.getHeight();
-            ml.update('');
-            return s;
-        },       
-        bind : function(el){
-            var a=new Array('font-size','font-style', 'font-weight', 'font-family','line-height', 'text-transform', 'letter-spacing');  
-            var len = a.length, r = {};
-            for(var i = 0; i < len; i++){
-                r[a[i]] = Ext.fly(el).getStyle(a[i]);
-            }
-            ml.setStyle(r);           
-        },       
-        setFixedWidth : function(width){
-            ml.setWidth(width);
-        }       
-    };
     instance.bind(bindTo);
     return instance;
 };
@@ -3784,7 +3785,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     },
     processListener: function(ou){
     	this.processMouseOverOut(ou)
-        if(this.marginwidth||this.marginheight) {
+        if(this.clientresize && (this.marginwidth||this.marginheight)) {
 //        	this.windowResizeListener();//TODO:以后修改服务端component,去掉自身尺寸的判断
             Ext.EventManager[ou](window, "resize", this.windowResizeListener,this);
         }
@@ -4174,7 +4175,7 @@ $A.Field = Ext.extend($A.Component,{
     },
 	setWidth: function(w){
 		this.wrap.setStyle("width",(w+3)+"px");
-		this.el.setStyle("width",w+"px");
+		//this.el.setStyle("width",w+"px");
 	},
 	setHeight: function(h){
 		this.wrap.setStyle("height",h+"px");
@@ -5856,7 +5857,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     },
     setWidth: function(w){
 		this.wrap.setStyle("width",(w+3)+"px");
-		this.el.setStyle("width",(w-20)+"px");
+		//this.el.setStyle("width",(w-20)+"px");
 	},
 	onPopupClick : function(){
 		this.hasExpanded = true;
@@ -7105,7 +7106,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     onLoad : function(){
     	this.navInfo.update(this.creatNavInfo());
     	if(this.type != "simple" && this.type != "tiny"){
-	    	this.pageInput.setRawValue(this.dataSet.currentPage);
+	    	this.pageInput.setValue(this.dataSet.currentPage);
 	    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
 	    	if(this.pageSizeInput&&!this.pageSizeInput.optionDataSet){
 	    		var pageSize=[10,20,50,100];
@@ -7202,7 +7203,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 //    },
     onPageSizeChange : function(el,value,oldvalue){
     	var max = this.dataSet.maxpagesize;
-    	if(isNaN(value) || value<=0){
+    	if(isNaN(value) || value<0){
     		el.setValue(oldvalue);
     	}else if(value > max){
 			$A.showMessage(_lang['toolbar.errormsg'],_lang['toolbar.maxPageSize']+max+_lang['toolbar.item'],null,240);
@@ -8071,7 +8072,7 @@ A.Lov = Ext.extend(A.TextField,{
     },
     setWidth: function(w){
         this.wrap.setStyle(WIDTH,(w+3)+PX);
-        this.el.setStyle(WIDTH,(w-20)+PX);
+//        this.el.setStyle(WIDTH,(w-20)+PX);
     },
     onBlur : function(){
     	var sf = this,view = sf.autocompleteview;

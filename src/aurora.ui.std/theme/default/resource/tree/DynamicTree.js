@@ -23,7 +23,7 @@ $A.DynamicTree.TreeNode = Ext.extend($A.Tree.TreeNode,{
         return new $A.DynamicTree.TreeNode(item);
     },
     expand : function(){
-        if(this.childNodes.length>0){
+        if(this.isRoot() || (this.childNodes.length>0 &&　this.isLoaded)){
             if(!this.isRoot())
             this.record.set(this.getOwnerTree().expandfield,"Y",true);
             this.isExpand=true;
@@ -52,7 +52,8 @@ $A.DynamicTree.TreeNode = Ext.extend($A.Tree.TreeNode,{
                                 return parseFloat(a[tree.sequencefield]||m) - parseFloat(b[tree.sequencefield]||m);
                             });
                             for(var i=0;i<records.length;i++){
-                                ds.create(records[i]);                                
+                                var record = ds.create(records[i]);    
+                                record.commit();
                             }
 						},
 						scope : this
