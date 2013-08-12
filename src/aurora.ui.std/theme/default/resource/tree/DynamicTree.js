@@ -7,6 +7,15 @@
  * @param {Object} config 配置对象. 
  */
 $A.DynamicTree = Ext.extend($A.Tree,{
+    initEvents:function(){
+        $A.DynamicTree.superclass.initEvents.call(this);
+        this.addEvents(
+        /**
+         * @event load
+         * tree load事件.
+         */
+        'load');
+    },
     createTreeNode : function(item){
         return new $A.DynamicTree.TreeNode(item);
     }
@@ -32,32 +41,39 @@ $A.DynamicTree.TreeNode = Ext.extend($A.Tree.TreeNode,{
             this.paintIconImg();
             this.paintClipIcoImg();
             this.refreshDom();
-        } else if(!this.isLoaded){
+        } else if(!this.isLoaded && this.getOwnerTree().showSkeleton){
             var tree = this.getOwnerTree();
             var ds = tree.dataset;
-            this.els['icon'].className = 'node-icon icon-loading';
-            $A.request({
-						url : ds.queryurl,
-						para : this.data.record.data,
-						success : function(res) {
-                            this.isLoaded = true;
-                            if(!res.result.record) res.result.record = [];
-                            var records = [].concat(res.result.record);
-                            if(records.length==0){
-                                this.els['icon'].className = 'node-icon icon-node';
-                                this.paintClipIcoImg();
-                            }
-                            var m = Number.MAX_VALUE;
-                            records.sort(function(a, b){
-                                return parseFloat(a[tree.sequencefield]||m) - parseFloat(b[tree.sequencefield]||m);
-                            });
-                            for(var i=0;i<records.length;i++){
-                                var record = ds.create(records[i]);    
-                                record.commit();
-                            }
-						},
-						scope : this
-					});
+            if(this.data.record.isNew){
+                this.isLoaded = true;
+                this.els['icon'].className = 'node-icon icon-node';
+                this.paintClipIcoImg();
+            }else {
+                this.els['icon'].className = 'node-icon icon-loading';
+                $A.request({
+                    url : ds.queryurl,
+                    para : this.data.record.data,
+                    success : function(res) {
+                        this.isLoaded = true;
+                        if(!res.result.record) res.result.record = [];
+                        var records = [].concat(res.result.record);
+                        if(records.length==0){
+                            this.els['icon'].className = 'node-icon icon-node';
+                            this.paintClipIcoImg();
+                        }
+                        var m = Number.MAX_VALUE;
+                        records.sort(function(a, b){
+                            return parseFloat(a[tree.sequencefield]||m) - parseFloat(b[tree.sequencefield]||m);
+                        });
+                        for(var i=0;i<records.length;i++){
+                            var record = ds.create(records[i]);    
+                            record.commit();
+                        }
+                        tree.fireEvent('load', this);
+                    },
+                    scope : this
+                });
+            }
         }
         
     },
