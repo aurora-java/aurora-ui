@@ -1,8 +1,10 @@
 (function(A){
-var SELECTED = 'selected',
+var PERCENT100 = '100%',
+	SELECTED = 'selected',
 	ITEM_ACCORDION_BTN = 'item-accordion-btn',
 	STRIP_OVER = 'strip-over',
-	EVT_SELECT = 'select';
+	EVT_SELECT = 'select',
+	EVT_BEFORE_SELECT = 'beforeselect';
 /**
  * @class Aurora.Accordion
  * @extends Aurora.Component
@@ -27,20 +29,20 @@ A.Accordion = Ext.extend(A.Component,{
 		sf.bodys = wrap.select('div.item-accordion-body');
 		sf.stripheight=sf.stripheight||25;
 		sf.accordions.each(function(accordion,self,i,as){
-			Ext.isIE6 && accordion.setWidth('100%')
+			Ext.isIE6 && accordion.setWidth(PERCENT100)
 			if(accordion.hasClass(SELECTED)){
 				sf.selectAccordionIndex(i);
 			}
 		});
 //		Ext.each(sf.accordions,function(accordion,i){
 //			accordion=Ext.get(accordion);
-//			Ext.isIE6 && accordion.setWidth('100%')
+//			Ext.isIE6 && accordion.setWidth(PERCENT100)
 //			if(accordion.hasClass(SELECTED)){
 //				sf.selectedItems.push(accordion);
 //				sf.load.call(sf,i);
 //			}
 //		});
-		Ext.isIE6 && sf.bodys.setWidth('100%');
+		Ext.isIE6 && sf.bodys.setWidth(PERCENT100);
 	},
 	processListener: function(ou){
 		var sf = this;
@@ -50,6 +52,13 @@ A.Accordion = Ext.extend(A.Component,{
 	initEvents:function(){
 		A.Accordion.superclass.initEvents.call(this);   
 		this.addEvents(
+		/**
+         * @event beforeselect
+         * 选择事件.
+         * @param {Aurora.Accordion} tab Accordion对象.
+         * @param {Number} index 序号.
+         */
+		EVT_BEFORE_SELECT,
 		/**
          * @event select
          * 选择事件.
@@ -65,26 +74,28 @@ A.Accordion = Ext.extend(A.Component,{
 	 */
 	selectAccordionIndex:function(index){
 		var sf = this,accordion = Ext.get(sf.accordions.elements[index]);
-		if(!accordion)return;
-		if(sf.selectedItems.indexOf(accordion) != -1){
-			sf.close(accordion,index);
-		}else{
-			sf.singlemode && Ext.each(sf.selectedItems,function(accordion){
-				sf.close(accordion,sf.accordions.elements.indexOf(accordion.dom));
-			},sf);
-			var body = sf.bodys.item(index),hasChild =!!body.dom.style.height,
-				children = body.select('*');
-			if(children.elements.length == 0 && body.dom.innerHTML)hasChild=true;
-			children.each(function(c){
-				if(c.getHeight())hasChild=true;
-			})
-			sf.selectedItems.push(accordion.addClass(SELECTED).setHeight(sf.stripheight+(hasChild?body.show().getHeight():0),{
-			    duration : .2, 
-			    callback: function(){
-			    	hasChild && accordion.setStyle({height:''});
-			    	sf.load(index);
-		    	}
-			}));
+		if(sf.fireEvent(EVT_BEFORE_SELECT,sf,index) != false){
+			if(!accordion)return;
+			if(sf.selectedItems.indexOf(accordion) != -1){
+				sf.close(accordion,index);
+			}else{
+				sf.singlemode && Ext.each(sf.selectedItems,function(accordion){
+					sf.close(accordion,sf.accordions.elements.indexOf(accordion.dom));
+				},sf);
+				var body = sf.bodys.item(index),hasChild =!!body.dom.style.height,
+					children = body.select('*');
+				if(children.elements.length == 0 && body.dom.innerHTML)hasChild=true;
+				children.each(function(c){
+					if(c.getHeight())hasChild=true;
+				})
+				sf.selectedItems.push(accordion.addClass(SELECTED).setHeight(sf.stripheight+(hasChild?body.show().getHeight():0),{
+				    duration : .2, 
+				    callback: function(){
+				    	hasChild && accordion.setStyle({height:''});
+				    	sf.load(index);
+			    	}
+				}));
+			}
 		}
 		//sf.intervalId=setInterval(sf.go.createDelegate(sf,[index]),sf.frequency);
 		//sf.go.call(sf,index);

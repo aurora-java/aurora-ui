@@ -1388,14 +1388,14 @@ A.Grid = Ext.extend(A.Component,{
         var sf = this;
 //      if(sf.draging)return;
         sf.hmx = e.xy[0] - sf.lht.getXY()[0];
-        sf.lh.setStyle(CURSOR,sf.isOverSplitLine(sf.hmx)?W_RESIZE:DEFAULT);          
+        sf.lh.setStyle(CURSOR,sf.isOverSplitLine(sf.hmx)?W_RESIZE:DEFAULT);  
     },
     onUnLockHeadMove : function(e){
         var sf = this;
 //      if(sf.draging)return;
         var uht = sf.uht;
         sf.hmx = e.xy[0] - (uht?uht.getXY()[0] + uht.getScroll().left:0) + sf.lockWidth;
-        sf.uh.setStyle(CURSOR,sf.isOverSplitLine(sf.hmx)?W_RESIZE:DEFAULT);          
+        sf.uh.setStyle(CURSOR,sf.isOverSplitLine(sf.hmx)?W_RESIZE:DEFAULT);   
     },
     onHeadMouseDown : function(e){
         var sf = this;
@@ -1409,6 +1409,7 @@ A.Grid = Ext.extend(A.Component,{
         Ext.get(DOC_EL)
             .on(EVT_MOUSE_MOVE, sf.onHeadMouseMove, sf)
             .on(EVT_MOUSE_UP, sf.onHeadMouseUp, sf);
+        e.stopEvent();
     },
     onHeadClick : function(e,t){
         var sf = this,
