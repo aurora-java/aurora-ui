@@ -13,8 +13,32 @@ $A.DynamicTreeGrid = Ext.extend($A.TreeGrid, {
 			return new $A.DynamicTreeGrid.TreeNode(item);
 		}
         return config;
-	}
-    
+	},
+    initTreeLisener : function(lockTree,unlockTree){
+        if(lockTree){
+            lockTree.on('render', function() {
+                this.processData();
+                Ext.DomHelper.insertHtml("beforeEnd", this.lb.dom,'<div style="height:17px"></div>');
+            }, this)
+            lockTree.on('load', function(node) {
+                var unode = this.unlockTree.getNodeById(node.id)
+                unode.isLoaded = true;
+                unode.expand();
+            }, this);
+            lockTree.on('collapse', function(tree, node) {
+                this.unlockTree.getNodeById(node.id).collapse();
+            }, this);
+        }
+        unlockTree.on('render', this.processData, this);
+        if(lockTree){
+            unlockTree.on('expand', function(tree, node) {
+                this.lockTree.getNodeById(node.id).expand();
+            }, this);
+            unlockTree.on('collapse', function(tree, node) {
+                this.lockTree.getNodeById(node.id).collapse();
+            }, this);
+        }
+    }
 });
 $A.DynamicTreeGrid.TreeNode = Ext.extend($A.DynamicTree.TreeNode, {
 			createNode : function(item) {
