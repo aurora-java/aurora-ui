@@ -411,7 +411,6 @@ A.Tab = Ext.extend(A.Component,{
     },
 	load : function(url,dom,index){
         var sf = this,body = Ext.get(dom);
-        body.update('');
 		body.cmps={};
 		sf.showLoading(body);
 		//TODO:错误信息
