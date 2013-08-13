@@ -972,7 +972,8 @@ $A.doEvalScript = function(){
         }
         var el = document.getElementById(id);
         if(el){Ext.removeNode(el);} 
-        Ext.fly(dom).setStyle('display', 'block');
+//        Ext.fly(dom).setStyle('display', 'block');
+        Ext.fly(dom).show();
         if(typeof callback == "function"){
             callback();
         }
@@ -1024,7 +1025,8 @@ $A.doEvalScript = function(){
         }
         var el = document.getElementById(id);
         if(el){Ext.removeNode(el);} 
-        Ext.fly(dom).setStyle('display', 'block');
+//        Ext.fly(dom).setStyle('display', 'block');
+        Ext.fly(dom).show();
         if(typeof callback == "function"){
                 callback();
         }
@@ -1060,7 +1062,8 @@ Ext.Element.prototype.update = function(html, loadScripts, callback,host){
         $A.doEvalScript() 
     });
     
-    Ext.fly(dom).setStyle('display', 'none');
+//    Ext.fly(dom).setStyle('display', 'none');
+    Ext.fly(dom).hide();
     dom.innerHTML = html.replace(/(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig, "").replace(/(?:<link.*?>)((\n|\r|.)*?)/ig, "");
     return this;
 }

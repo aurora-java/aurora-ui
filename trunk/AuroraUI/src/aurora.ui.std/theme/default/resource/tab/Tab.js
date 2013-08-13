@@ -17,6 +17,7 @@ var _N = '',
     BLOCK = 'block',
     EVT_SELECT = 'select',
     EVT_BEFORE_OPEN = 'beforeopen',
+    EVT_BEFORE_SELECT = 'beforeselect',
     PADDING_LEFT = 'padding-left',
     STRIP = 'strip',
     $STRIP = '.'+STRIP,
@@ -67,17 +68,26 @@ A.Tab = Ext.extend(A.Component,{
 		/**
          * @event select
          * 选择事件.
-         * @param {Aurora.Tab} tab Tab对象.
+         * @param {Aurora.TabPanel} tabPanel TabPanel对象.
          * @param {Number} index 序号.
+         * @param {Aurora.Tab} tab Tab对象.
          */
 		EVT_SELECT,
 		/**
          * @event beforeopen
          * 选择事件.
-         * @param {Aurora.Tab} tab Tab对象.
+         * @param {Aurora.TabPanel} tabPanel TabPanel对象.
          * @param {Number} index 序号. 
          */
-        EVT_BEFORE_OPEN
+        EVT_BEFORE_OPEN,
+		/**
+         * @event beforeselect
+         * 选择之前事件.
+         * @param {Aurora.TabPanel} tabPanel TabPanel对象.
+         * @param {Number} index 序号.
+         * @param {Aurora.Tab} tab Tab对象.
+         */
+        EVT_BEFORE_SELECT
 		);
 		
 	},
@@ -95,43 +105,44 @@ A.Tab = Ext.extend(A.Component,{
 			sf.selectTab(index+1);
 			return;
 		}
-		sf.selectedIndex=index;			
-		if(sf.activeTab)sf.activeTab.replaceClass(ACTIVE,UNACTIVE);
-		sf.activeTab = activeStrip;
-		activeStrip.replaceClass(UNACTIVE,ACTIVE);
-		var script = sf.script,
-			scrollLeft = sf.scrollLeft,
-			scrollRight = sf.scrollRight,
-			l=activeStrip.dom.offsetLeft,w=activeStrip.getWidth(),
-			sl=script.getScroll().left,sw=script.getWidth(),hw=sf.head.getWidth();
-			tr=l+w-sl-sw,tl=sl-l;
-		if(tr>0){
-			scrollRight.removeClass(sd);
-			scrollLeft.removeClass(sd);
-			script.scrollTo(LEFT,sl+tr);
-		}else if(tl>0){
-			scrollLeft.removeClass(sd);
-			script.scrollTo(LEFT,sl-tl);
-			scrollRight.removeClass(sd);
-		}
-		if(sw+script.getScroll().left>=hw){
-			script.scrollTo(LEFT,hw-sw);
-			scrollRight.addClass(sd);
-		}else if(index==0){
-			script.scrollTo(LEFT,0);
-			scrollLeft.addClass(sd);
-		}
-		if(activeBody){
-			if(sf.activeBody){
-				sf.activeBody.setStyle({left:'-10000px',top:'-10000px'});
+		if(sf.fireEvent(EVT_BEFORE_SELECT,sf,index,tab)){
+			sf.selectedIndex=index;			
+			if(sf.activeTab)sf.activeTab.replaceClass(ACTIVE,UNACTIVE);
+			sf.activeTab = activeStrip;
+			activeStrip.replaceClass(UNACTIVE,ACTIVE);
+			var script = sf.script,
+				scrollLeft = sf.scrollLeft,
+				scrollRight = sf.scrollRight,
+				l=activeStrip.dom.offsetLeft,w=activeStrip.getWidth(),
+				sl=script.getScroll().left,sw=script.getWidth(),hw=sf.head.getWidth();
+				tr=l+w-sl-sw,tl=sl-l;
+			if(tr>0){
+				scrollRight.removeClass(sd);
+				scrollLeft.removeClass(sd);
+				script.scrollTo(LEFT,sl+tr);
+			}else if(tl>0){
+				scrollLeft.removeClass(sd);
+				script.scrollTo(LEFT,sl-tl);
+				scrollRight.removeClass(sd);
 			}
-			sf.activeBody = activeBody.setStyle({left:0,top:0});
-		}
-		if(sf.items[index].ref && (activeBody.loaded!= true||needRefresh)){
-			sf.load(sf.items[index].ref,activeBody,index);
-			activeBody.loaded = true;
-		}else{
-            sf.fireEvent(EVT_SELECT, sf, index);
+			if(sw+script.getScroll().left>=hw){
+				script.scrollTo(LEFT,hw-sw);
+				scrollRight.addClass(sd);
+			}else if(index==0){
+				script.scrollTo(LEFT,0);
+				scrollLeft.addClass(sd);
+			}
+			if(activeBody){
+				if(sf.activeBody){
+					sf.activeBody.setStyle({left:'-10000px',top:'-10000px'});
+				}
+				sf.activeBody = activeBody.setStyle({left:0,top:0});
+			}
+			if(sf.items[index].ref && (activeBody.loaded!= true||needRefresh)){
+				sf.load(sf.items[index].ref,activeBody,index);
+			}else{
+	            sf.fireEvent(EVT_SELECT, sf, index,tab);
+			}
 		}
 	},	
 	/**
@@ -250,8 +261,9 @@ A.Tab = Ext.extend(A.Component,{
 		tab.strip.removeClass(sd);
 	},
 	getTab : function(o){
-		var bodys = this.body.dom.children,//Ext.DomQuery.select('div.tab',this.body.dom),
-        	strips = this.head.dom.children,//Ext.DomQuery.select('div.strip',this.head.dom),
+		var sf = this,
+			bodys = sf.body.dom.children,//Ext.DomQuery.select('div.tab',this.body.dom),
+        	strips = sf.head.dom.children,//Ext.DomQuery.select('div.strip',this.head.dom),
         	strip,body;
 		if(Ext.isNumber(o)){
 			if(o<0)o+=strips.length;
@@ -270,6 +282,7 @@ A.Tab = Ext.extend(A.Component,{
 				}
 			});
 		}
+		body.loaded = !(sf.items[o].ref && body.loaded!=true);
 		return strip?{'strip':strip,'body':body,'index':o}:null;
 	},
 	scrollTo : function(lr){
@@ -373,10 +386,12 @@ A.Tab = Ext.extend(A.Component,{
          A.Tab.superclass.onMouseOut.call(this,e);
 	},
 	showLoading : function(dom){
-    	dom.setStyle({'text-align':'center','line-height':5}).update(_lang['tab.loading']);
+		A.Masker.mask(dom,_lang['tab.loading']);
+//    	dom.setStyle({'text-align':'center','line-height':5}).update(_lang['tab.loading']);
     },
     clearLoading : function(dom){
-    	dom.setStyle({'text-align':_N,'line-height':_N}).update(_N);
+    	A.Masker.unmask(dom);
+//    	dom.setStyle({'text-align':_N,'line-height':_N}).update(_N);
     },
     reloadTab : function(index,url){
     	index = Ext.isEmpty(index) ? this.selectedIndex:index;
@@ -396,11 +411,32 @@ A.Tab = Ext.extend(A.Component,{
     },
 	load : function(url,dom,index){
         var sf = this,body = Ext.get(dom);
+        body.update('');
 		body.cmps={};
 		sf.showLoading(body);
 		//TODO:错误信息
     	Ext.Ajax.request({
-			url: Ext.urlAppend(url,'_vw='+sf.width+'&_vh='+(sf.height-sf.head.getHeight())),
+//			url: Ext.urlAppend(url,'_vw='+sf.width+'&_vh='+(sf.height-sf.head.getHeight())),
+			url: url,
+			failure: function(response, opts){
+				sf.clearLoading(body);
+				var msg=['<div style="text-align:center;line-height:30px">'];
+				switch(response.status){
+			        case 404:
+			            msg.push('<H2>',response.status , _lang['ajax.error'],'</H2>', _lang['ajax.error.404']+'"'+ response.statusText+'"');
+			            break;
+			        case 500:
+			            msg.push('<H2>',response.status , _lang['ajax.error'],'</H2>',_lang['tab.internet.error'],'<a href="javascript:$(\''+sf.id+'\').selectTab('+index+')">',_lang['tab.internet.refresh'],'</a>');
+			            break;
+			        case 0:
+			            break;
+			        default:
+			            msg.push(_lang['ajax.error'], response.statusText);
+			            break;
+			    } 
+			    msg.push('</div>');
+				body.update(msg.join(''));
+			},
 		   	success: function(response, options){
                 var res;
                 try {
@@ -424,12 +460,13 @@ A.Tab = Ext.extend(A.Component,{
 //	    		sf.intervalIds[index]=setInterval(function(){
 //	    			if(!A.focusTab){
 //				    	clearInterval(sf.intervalIds[index]);
-				    	sf.clearLoading(body);
 //						A.focusTab=body;
 //						try{
                             body.set({url:url});
 					    	body.update(html,true,function(){
+						    	sf.clearLoading(body);
 //					    		A.focusTab=null;
+					    		body.loaded = true;
 			                    sf.fireEvent(EVT_SELECT, sf, index)
 					    	},body);
 //						}catch(e){

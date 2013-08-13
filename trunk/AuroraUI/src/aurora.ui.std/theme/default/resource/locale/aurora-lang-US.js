@@ -36,6 +36,8 @@ _lang['lov.notfound'] = 'Not Found!';
 _lang['lov.info'] = 'Please choose';
 
 _lang['tab.loading'] = 'Loading,please wait...';
+_lang['tab.internet.error'] = 'Network connection exception,please try to';
+_lang['tab.internet.refresh'] = 'refresh';
 
 _lang['textfield.warn'] = 'Warning';
 _lang['textfield.warn.capslock'] = 'Caps Lock is on!';

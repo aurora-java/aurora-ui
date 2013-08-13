@@ -36,6 +36,8 @@ _lang['lov.notfound'] = '未找到数据！';
 _lang['lov.info'] = '请选择';
 
 _lang['tab.loading'] = '正在加载,请稍后...';
+_lang['tab.internet.error'] = '网络连接异常，请尝试';
+_lang['tab.internet.refresh'] = '刷新';
 
 _lang['textfield.warn'] = '警告';
 _lang['textfield.warn.capslock'] = '大些锁定打开!';
