@@ -46,11 +46,13 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			$A.ComboBox.superclass.onBlur.call(this,e);
 			if(!this.readonly/*!this.isExpanded()*/) {
 				var raw = this.getRawValue();
-				if(this.fetchrecord===false){
-					this.setValue(raw)
-				}else{
-					var record = this.getRecordByDisplay(raw);
-					this.setValue(record && this.getRenderText(record)||'');
+				if(raw != this.value){
+					if(this.fetchrecord===false){
+						this.setValue(raw)
+					}else{
+						var record = this.getRecordByDisplay(raw);
+						this.setValue(record && this.getRenderText(record)||'');
+					}
 				}
 			}
         }
