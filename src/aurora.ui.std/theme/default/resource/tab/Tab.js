@@ -282,8 +282,12 @@ A.Tab = Ext.extend(A.Component,{
 				}
 			});
 		}
-		body.loaded = !(sf.items[o].ref && body.loaded!=true);
-		return strip?{'strip':strip,'body':body,'index':o}:null;
+		if(strip){
+			body.loaded = !(sf.items[o].ref && body.loaded!=true);
+			return {'strip':strip,'body':body,'index':o};
+		}else{
+			return null;
+		}
 	},
 	scrollTo : function(lr){
 		var sf = this,
