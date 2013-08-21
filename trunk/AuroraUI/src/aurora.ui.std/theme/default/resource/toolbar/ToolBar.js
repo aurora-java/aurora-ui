@@ -49,7 +49,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     onLoad : function(){
     	this.navInfo.update(this.creatNavInfo());
     	if(this.type != "simple" && this.type != "tiny"){
-	    	this.pageInput.setValue(this.dataSet.currentPage);
+	    	this.pageInput.setValue(this.dataSet.currentPage,true);
 	    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
 	    	if(this.pageSizeInput&&!this.pageSizeInput.optionDataSet){
 	    		var pageSize=[10,20,50,100];
@@ -66,7 +66,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 	    		this.pageSizeInput.valuefield = 'code';
 	    		this.pageSizeInput.displayfield = 'name';
 		    	this.pageSizeInput.setOptions(dataset);
-		    	this.pageSizeInput.setValue(this.dataSet.pagesize);
+		    	this.pageSizeInput.setValue(this.dataSet.pagesize,true);
 	    	}
     	}
     },
@@ -128,10 +128,11 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	html.push('<span>···</span>');
     },
     onPageChange : function(el,value,oldvalue){
-        if(isNaN(value) || value<=0 ){
-            el.setValue(oldvalue)
+    	var ds = this.dataSet;
+        if(isNaN(value) || value<=0 ||value>ds.totalPage){
+            el.setValue(oldvalue,true);
         }else{
-            this.dataSet.goPage(value);
+            ds.goPage(value);
         }
     },
     
@@ -147,11 +148,11 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     onPageSizeChange : function(el,value,oldvalue){
     	var max = this.dataSet.maxpagesize;
     	if(isNaN(value) || value<0){
-    		el.setValue(oldvalue);
+    		el.setValue(oldvalue,true);
     	}else if(value > max){
 			$A.showMessage(_lang['toolbar.errormsg'],_lang['toolbar.maxPageSize']+max+_lang['toolbar.item'],null,240);
-			el.setValue(oldvalue);
-		}else if(this.dataSet.pagesize!=value){
+			el.setValue(oldvalue,true);
+		}else{
 	    	this.dataSet.pagesize=Math.round(value);
 	    	this.dataSet.query();
     	}

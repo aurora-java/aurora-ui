@@ -1067,7 +1067,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         var dmap = {};
         var hassub = false;
         var unvalidRecord = null;
-        
+        var issubValid = true;
         if(vc !== false)
         for(var k in this.fields){
             var field = this.fields[k];
@@ -1095,8 +1095,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                         var ds = dmap[key];
                         if(record.data[key]){
                             ds.reConfig(record.data[key]);
-                            if(!ds.validate(false)) {
-                                this.isValid = false;
+                            if(!ds.validate()) {
+                                issubValid = this.isValid = false;
                                 unvalidRecord = record;
                             }else
                             	ds.reConfig(current.data[key]);//循环校验完毕后,重新定位到当前行
@@ -1115,7 +1115,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             var r = this.indexOf(unvalidRecord);
             if(r!=-1)this.locate(r+1);
         }
-        if(fire !== false) {
+        if(fire !== false && issubValid !== false) {
             $A.manager.fireEvent('valid', $A.manager, this, this.isValid);
             if(!this.isValid) {
 	            var valid = unvalidRecord.valid,unvalidMessage;
