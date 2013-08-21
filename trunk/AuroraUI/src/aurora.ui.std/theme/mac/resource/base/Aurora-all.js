@@ -14,7 +14,7 @@
  
 Ext.Ajax.timeout = 1800000;
 
-$A = Aurora = {version: '1.0',revision:'$Rev: 7795 $'};
+$A = Aurora = {version: '1.0',revision:'$Rev: 7809 $'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){
     if($A.winWidth != $A.getViewportWidth() || $A.winHeight != $A.getViewportHeight()){
@@ -972,7 +972,8 @@ $A.doEvalScript = function(){
         }
         var el = document.getElementById(id);
         if(el){Ext.removeNode(el);} 
-        Ext.fly(dom).setStyle('display', 'block');
+//        Ext.fly(dom).setStyle('display', 'block');
+        Ext.fly(dom).show();
         if(typeof callback == "function"){
             callback();
         }
@@ -1024,7 +1025,8 @@ $A.doEvalScript = function(){
         }
         var el = document.getElementById(id);
         if(el){Ext.removeNode(el);} 
-        Ext.fly(dom).setStyle('display', 'block');
+//        Ext.fly(dom).setStyle('display', 'block');
+        Ext.fly(dom).show();
         if(typeof callback == "function"){
                 callback();
         }
@@ -1060,7 +1062,8 @@ Ext.Element.prototype.update = function(html, loadScripts, callback,host){
         $A.doEvalScript() 
     });
     
-    Ext.fly(dom).setStyle('display', 'none');
+//    Ext.fly(dom).setStyle('display', 'none');
+    Ext.fly(dom).hide();
     dom.innerHTML = html.replace(/(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)/ig, "").replace(/(?:<link.*?>)((\n|\r|.)*?)/ig, "");
     return this;
 }
@@ -2764,7 +2767,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         var dmap = {};
         var hassub = false;
         var unvalidRecord = null;
-        
+        var issubValid = true;
         if(vc !== false)
         for(var k in this.fields){
             var field = this.fields[k];
@@ -2792,8 +2795,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                         var ds = dmap[key];
                         if(record.data[key]){
                             ds.reConfig(record.data[key]);
-                            if(!ds.validate(false)) {
-                                this.isValid = false;
+                            if(!ds.validate()) {
+                                issubValid = this.isValid = false;
                                 unvalidRecord = record;
                             }else
                             	ds.reConfig(current.data[key]);//循环校验完毕后,重新定位到当前行
@@ -2812,7 +2815,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             var r = this.indexOf(unvalidRecord);
             if(r!=-1)this.locate(r+1);
         }
-        if(fire !== false) {
+        if(fire !== false && issubValid !== false) {
             $A.manager.fireEvent('valid', $A.manager, this, this.isValid);
             if(!this.isValid) {
 	            var valid = unvalidRecord.valid,unvalidMessage;
@@ -6003,11 +6006,13 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 			$A.ComboBox.superclass.onBlur.call(this,e);
 			if(!this.readonly/*!this.isExpanded()*/) {
 				var raw = this.getRawValue();
-				if(this.fetchrecord===false){
-					this.setValue(raw)
-				}else{
-					var record = this.getRecordByDisplay(raw);
-					this.setValue(record && this.getRenderText(record)||'');
+				if(raw != this.value){
+					if(this.fetchrecord===false){
+						this.setValue(raw)
+					}else{
+						var record = this.getRecordByDisplay(raw);
+						this.setValue(record && this.getRenderText(record)||'');
+					}
 				}
 			}
         }
@@ -7106,7 +7111,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     onLoad : function(){
     	this.navInfo.update(this.creatNavInfo());
     	if(this.type != "simple" && this.type != "tiny"){
-	    	this.pageInput.setValue(this.dataSet.currentPage);
+	    	this.pageInput.setValue(this.dataSet.currentPage,true);
 	    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
 	    	if(this.pageSizeInput&&!this.pageSizeInput.optionDataSet){
 	    		var pageSize=[10,20,50,100];
@@ -7123,7 +7128,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 	    		this.pageSizeInput.valuefield = 'code';
 	    		this.pageSizeInput.displayfield = 'name';
 		    	this.pageSizeInput.setOptions(dataset);
-		    	this.pageSizeInput.setValue(this.dataSet.pagesize);
+		    	this.pageSizeInput.setValue(this.dataSet.pagesize,true);
 	    	}
     	}
     },
@@ -7185,10 +7190,11 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	html.push('<span>···</span>');
     },
     onPageChange : function(el,value,oldvalue){
-        if(isNaN(value) || value<=0 ){
-            el.setValue(oldvalue)
+    	var ds = this.dataSet;
+        if(isNaN(value) || value<=0 ||value>ds.totalPage){
+            el.setValue(oldvalue,true);
         }else{
-            this.dataSet.goPage(value);
+            ds.goPage(value);
         }
     },
     
@@ -7204,11 +7210,11 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     onPageSizeChange : function(el,value,oldvalue){
     	var max = this.dataSet.maxpagesize;
     	if(isNaN(value) || value<0){
-    		el.setValue(oldvalue);
+    		el.setValue(oldvalue,true);
     	}else if(value > max){
 			$A.showMessage(_lang['toolbar.errormsg'],_lang['toolbar.maxPageSize']+max+_lang['toolbar.item'],null,240);
-			el.setValue(oldvalue);
-		}else if(this.dataSet.pagesize!=value){
+			el.setValue(oldvalue,true);
+		}else{
 	    	this.dataSet.pagesize=Math.round(value);
 	    	this.dataSet.query();
     	}
