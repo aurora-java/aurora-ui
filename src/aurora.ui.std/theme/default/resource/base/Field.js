@@ -47,8 +47,8 @@ $A.Field = Ext.extend($A.Component,{
     		[ou]("change", sf.onChange, sf)
     		[ou]("keyup", sf.onKeyUp, sf)
         	[ou]("keydown", sf.onKeyDown, sf)
-        	[ou]("keypress", sf.onKeyPress, sf)
-        	[ou]("mouseup", sf.onMouseUp, sf);
+        	[ou]("keypress", sf.onKeyPress, sf);
+//        	[ou]("mouseup", sf.onMouseUp, sf)
 //        	[ou]("mouseover", sf.onMouseOver, sf)
 //        	[ou]("mouseout", sf.onMouseOut, sf);
     },
@@ -154,7 +154,7 @@ $A.Field = Ext.extend($A.Component,{
     onFocus : function(e){
         //(Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
     	var sf = this;
-    	sf.select();
+    	sf.select.defer(1,sf);
         if(!sf.hasFocus){
             sf.hasFocus = true;
             sf.startValue = sf.getValue();
@@ -166,10 +166,10 @@ $A.Field = Ext.extend($A.Component,{
             sf.fireEvent("focus", sf);
         }
     },
-    onMouseUp : function(e){
-    	this.isSelect && e.stopEvent();
-    	this.isSelect = false;
-    },
+//    onMouseUp : function(e){
+//    	this.isSelect && e.stopEvent();
+//    	this.isSelect = false;
+//    },
     processValue : function(v){
     	return v;
     },
@@ -395,16 +395,20 @@ $A.Field = Ext.extend($A.Component,{
             start = start === undefined ? 0 : start;
             end = end === undefined ? v.length : end;
             var d = this.el.dom;
-            if(d.setSelectionRange){  
-                d.setSelectionRange(start, end);
-            }else if(d.createTextRange){
-                var range = d.createTextRange();
-                range.moveStart("character", start);
-                range.moveEnd("character", end-v.length);
-                range.select();
+            if(start === 0 && end === v.length && d.select){
+            	d.select();
+            }else{
+	            if(d.setSelectionRange){  
+	                d.setSelectionRange(start, end);
+	            }else if(d.createTextRange){
+	                var range = d.createTextRange();
+	                range.moveStart("character", start);
+	                range.moveEnd("character", end-v.length);
+	                range.select();
+	            }
             }
         }
-        this.isSelect = true;
+//        this.isSelect = true;
     },
     setRawValue : function(v){
     	var dom = this.el.dom;
