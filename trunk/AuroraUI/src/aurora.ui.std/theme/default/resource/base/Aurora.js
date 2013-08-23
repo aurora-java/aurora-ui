@@ -840,7 +840,7 @@ $A.Masker = function(){
             var p = '<div class="aurora-mask"  style="left:-10000px;top:-10000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
             var wrap = el.parent('body')?el.parent():el.child('body')||el;
             var masker = Ext.get(Ext.DomHelper.append(wrap,p));
-            var zi = el.getStyle('z-index') == 'auto' ? 0 : el.getStyle('z-index');
+            var zi = el.getStyle('z-index') == 'auto' ? 0 : Number(el.getStyle('z-index'));
             masker.setStyle('z-index', zi + 1);
             masker.setXY(el.getXY());
             var sp = masker.child('span');
