@@ -367,16 +367,17 @@ A.Grid = Ext.extend(A.Component,{
         }
         var sf = this;
         sf.dataset = ds;
+        sf.processDataSetLiestener(ON);
         if(ds.autopagesize===TRUE){
             ds.pagesize=Math.floor((sf.ub.getHeight()||parseFloat(sf.ub.dom.style.height))/25);
             if(isNaN(ds.pagesize)||ds.pagesize == 0)ds.pagesize=1;
-        }
-        sf.processDataSetLiestener(ON);
-//        sf.onLoad();
-        //直接onLoad导致Grid无法获取单选框的Editor，无法渲染界面
-        $A.onReady(function(){
-            sf.onLoad();
-        })
+            ds.query();
+        }else
+	//        sf.onLoad();
+	        //直接onLoad导致Grid无法获取单选框的Editor，无法渲染界面
+	        $A.onReady(function(){
+	            sf.onLoad();
+	        })
     },
     initTemplate : function(){
         var sf = this;
