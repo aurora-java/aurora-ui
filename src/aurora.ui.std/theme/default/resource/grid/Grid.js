@@ -371,7 +371,7 @@ A.Grid = Ext.extend(A.Component,{
         if(ds.autopagesize===TRUE){
             ds.pagesize=Math.floor((sf.ub.getHeight()||parseFloat(sf.ub.dom.style.height))/25);
             if(isNaN(ds.pagesize)||ds.pagesize == 0)ds.pagesize=1;
-            ds.query();
+            if(ds.getAll().length || ds.qtId)ds.query();
         }else
 	//        sf.onLoad();
 	        //直接onLoad导致Grid无法获取单选框的Editor，无法渲染界面
