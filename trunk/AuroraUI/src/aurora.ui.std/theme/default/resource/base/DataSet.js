@@ -332,6 +332,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @event query
              * 查询事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Object} queryParam 参数.
+             * @param {Object} options 选项.
              */ 
             'query',
             /**
@@ -1042,10 +1044,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     /**
      * 仅对dataset本身进行校验,不校验绑定的子dataset.
+     * @param {Boolean} selected 校验选中的记录.
      * @return {Boolean} valid 校验结果.
      */
-    validateSelf : function(){
-        return this.validate(true,false)
+    validateSelf : function(selected){
+        return this.validate(selected,true,false)
     },
     /**
      * 设置dataset是否进行校验
@@ -1057,13 +1060,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     
     /**
      * 对当前数据集进行校验.
+     * @param {Boolean} selected 校验选中的记录.
      * @return {Boolean} valid 校验结果.
      */
-    validate : function(fire,vc){
+    validate : function(selected,fire,vc){
         this.isValid = true;
         var current = this.getCurrentRecord();
         if(!current)return true;
-        var records = this.getAll();
+        var records = selected?this.getSelected():this.getAll();
         var dmap = {};
         var hassub = false;
         var unvalidRecord = null;
@@ -1228,7 +1232,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //                    + '&_rootpath=list'
         var url = this.queryurl +(this.queryurl.indexOf('?') == -1?'?':'&') + para;
         this.loading = true;
-        this.fireEvent("query", this);
+        this.fireEvent("query", this,q,opts);
 //      this.fireBindDataSetEvent("beforeload", this);//主dataset无数据,子dataset一直loading
         if(this.qtId) Ext.Ajax.abort(this.qtId);
         this.qtId = $A.request({url:url, para:q, success:this.onLoadSuccess, error:this.onLoadError, scope:this,failure:this.onAjaxFailed,opts:opts,ext:opts?opts.ext:null});
@@ -1313,9 +1317,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         return datas;
     },
     doSubmit : function(url, items){
-        if(this.validateEnable && !this.validate()){           
-            return;
-        }
         this.fireBindDataSetEvent("submit",url,items);
         this.submiturl = url||this.submiturl;
         if(this.submiturl == '') return;
@@ -1340,25 +1341,22 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Array} fields(可选) 根据选定的fields提交.
      */
     submitSelected : function(url,fields){
-    	this.wait(false,function(){
-    		if(this.fireEvent("beforesubmit",this)){
-                var d = this.getJsonData(true,fields);
-                this.doSubmit(url,d);
-            }
-    	},this);
+    	this.submit(url,fields,true);
     },
     /**
      * 提交数据.
      * @param {String} url(可选) 提交的url.
      * @param {Array} fields(可选) 根据选定的fields提交.
      */
-    submit : function(url,fields){
-    	this.wait(true,function(){
-    		if(this.fireEvent("beforesubmit",this)){
-                var d = this.getJsonData(false,fields);
-                this.doSubmit(url,d);
+    submit : function(url,fields,selected){
+    	var sf = this;
+    	sf.wait(!selected,function(){
+    		if(sf.fireEvent("beforesubmit",sf)){
+    			if(!sf.validateEnable || sf.validate(selected)){   
+	                sf.doSubmit(url,sf.getJsonData(selected,fields));
+    			}
             }
-    	},this);
+    	});
     },
     /**
      * post方式提交数据.
@@ -1538,16 +1536,18 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(datas.length != 0)
         this.locate(this.currentIndex,true);
         $A.SideBar.enable = $A.slideBarEnable;
-        
+        this.qtId = null;
     },
     onAjaxFailed : function(res,opt){
         this.fireBindDataSetEvent('ajaxfailed',res,opt);
+        this.qtId = null;
     },
     onLoadError : function(res,opt){
         this.fireBindDataSetEvent('loadfailed', res,opt);
 //      $A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
         this.loading = false;
         $A.SideBar.enable = $A.slideBarEnable;
+        this.qtId = null;
     },
     onFieldChange : function(record,field,type,value) {
         this.fireEvent('fieldchange', this, record, field, type, value)
