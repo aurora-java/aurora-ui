@@ -14,7 +14,7 @@
  
 Ext.Ajax.timeout = 1800000;
 
-$A = Aurora = {version: '1.0',revision:'$Rev: 7809 $'};
+$A = Aurora = {version: '1.0',revision:'$Rev: 7835 $'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){
     if($A.winWidth != $A.getViewportWidth() || $A.winHeight != $A.getViewportHeight()){
@@ -840,7 +840,7 @@ $A.Masker = function(){
             var p = '<div class="aurora-mask"  style="left:-10000px;top:-10000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
             var wrap = el.parent('body')?el.parent():el.child('body')||el;
             var masker = Ext.get(Ext.DomHelper.append(wrap,p));
-            var zi = el.getStyle('z-index') == 'auto' ? 0 : el.getStyle('z-index');
+            var zi = el.getStyle('z-index') == 'auto' ? 0 : Number(el.getStyle('z-index'));
             masker.setStyle('z-index', zi + 1);
             masker.setXY(el.getXY());
             var sp = masker.child('span');
@@ -4124,8 +4124,8 @@ $A.Field = Ext.extend($A.Component,{
     		[ou]("change", sf.onChange, sf)
     		[ou]("keyup", sf.onKeyUp, sf)
         	[ou]("keydown", sf.onKeyDown, sf)
-        	[ou]("keypress", sf.onKeyPress, sf)
-        	[ou]("mouseup", sf.onMouseUp, sf);
+        	[ou]("keypress", sf.onKeyPress, sf);
+//        	[ou]("mouseup", sf.onMouseUp, sf)
 //        	[ou]("mouseover", sf.onMouseOver, sf)
 //        	[ou]("mouseout", sf.onMouseOut, sf);
     },
@@ -4231,7 +4231,7 @@ $A.Field = Ext.extend($A.Component,{
     onFocus : function(e){
         //(Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
     	var sf = this;
-    	sf.select();
+    	sf.select.defer(1,sf);
         if(!sf.hasFocus){
             sf.hasFocus = true;
             sf.startValue = sf.getValue();
@@ -4243,10 +4243,10 @@ $A.Field = Ext.extend($A.Component,{
             sf.fireEvent("focus", sf);
         }
     },
-    onMouseUp : function(e){
-    	this.isSelect && e.stopEvent();
-    	this.isSelect = false;
-    },
+//    onMouseUp : function(e){
+//    	this.isSelect && e.stopEvent();
+//    	this.isSelect = false;
+//    },
     processValue : function(v){
     	return v;
     },
@@ -4472,16 +4472,20 @@ $A.Field = Ext.extend($A.Component,{
             start = start === undefined ? 0 : start;
             end = end === undefined ? v.length : end;
             var d = this.el.dom;
-            if(d.setSelectionRange){  
-                d.setSelectionRange(start, end);
-            }else if(d.createTextRange){
-                var range = d.createTextRange();
-                range.moveStart("character", start);
-                range.moveEnd("character", end-v.length);
-                range.select();
+            if(start === 0 && end === v.length && d.select){
+            	d.select();
+            }else{
+	            if(d.setSelectionRange){  
+	                d.setSelectionRange(start, end);
+	            }else if(d.createTextRange){
+	                var range = d.createTextRange();
+	                range.moveStart("character", start);
+	                range.moveEnd("character", end-v.length);
+	                range.select();
+	            }
             }
         }
-        this.isSelect = true;
+//        this.isSelect = true;
     },
     setRawValue : function(v){
     	var dom = this.el.dom;
