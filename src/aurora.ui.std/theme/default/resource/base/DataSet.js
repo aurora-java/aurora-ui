@@ -78,16 +78,21 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         return nds;
     },
     destroy : function(){
-        this.processListener('un');
-    	if(this.qtId){
-			Ext.Ajax.abort(this.qtId);
-		}
-        if(this.bindtarget&&this.bindname){
-            var bd = $A.CmpManager.get(this.bindtarget)
-            if(bd)bd.clearBind();
-        }
-        $A.CmpManager.remove(this.id);
-        delete $A.invalidRecords[this.id]
+    	var sf = this,id = sf.id,o = sf.qtId,
+    		bindtarget = sf.bindtarget,
+    		bindname = sf.bindname,
+    		manager = $A.CmpManager;
+        sf.processListener('un');
+    	o &&
+			Ext.Ajax.abort(o);
+        bindtarget && bindname && (o = manager.get(bindtarget)) &&
+            o.clearBind(bindname);
+        Ext.iterate(sf.fields,function(key,field){
+        	field.type == 'dataset' &&
+				sf.clearBind(key);
+        });
+        manager.remove(id);
+        delete $A.invalidRecords[id]
     },
     reConfig : function(config){
         this.resetConfig();
@@ -96,12 +101,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     /**
      * 取消绑定.
      */
-    clearBind : function(){
-        var name = this.bindname;
-        var ds = this.fields[name].pro['dataset'];
-        if(ds)
-        ds.processBindDataSetListener(this,'un');
-        delete this.fields[name];
+    clearBind : function(name){
+        var sf = this,fields = sf.fields,
+        	ds = fields[name].pro['dataset'];
+        ds &&
+        	ds.processBindDataSetListener(sf,'un');
+        delete fields[name];
     },
     processBindDataSetListener : function(ds,ou){
         var bdp = this.onDataSetModify;
