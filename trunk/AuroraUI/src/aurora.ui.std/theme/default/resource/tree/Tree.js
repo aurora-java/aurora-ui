@@ -64,7 +64,6 @@ $A.Tree = Ext.extend($A.Component,{
 	processDataSetLiestener: function(ou){
 		var ds = this.dataset;
 		if(ds){
-			debugger
 			ds[ou]('update', this.onUpdate, this);
 	    	ds[ou]('load', this.onLoad, this);
 	    	ds[ou]('indexchange', this.onIndexChange, this);
@@ -294,7 +293,7 @@ $A.Tree = Ext.extend($A.Component,{
 		var array = [],
 			map1 = {},
 			map2 = {},
-			i = 0,
+			i = 1,
 			ds = this.dataset,
 			rtnode,
 			process = function(item){
@@ -323,8 +322,9 @@ $A.Tree = Ext.extend($A.Component,{
 	            }
 			};
 		Ext.each(ds.data,function(record){
-			var id = record.get(this.idfield)||('empty_id'+i++),
+			var id = record.get(this.idfield),
 				node = this.createNode(record);
+			if(Ext.isEmpty(id))id = 'EMPTY_'+i++;
 			node.checked = (record.get(this.checkfield) == "Y") ? 1 : 0;
             node.expanded = record.get(this.expandfield) == "Y";
 			map1[id] = node;
