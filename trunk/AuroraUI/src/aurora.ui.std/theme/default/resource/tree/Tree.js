@@ -64,6 +64,7 @@ $A.Tree = Ext.extend($A.Component,{
 	processDataSetLiestener: function(ou){
 		var ds = this.dataset;
 		if(ds){
+			debugger
 			ds[ou]('update', this.onUpdate, this);
 	    	ds[ou]('load', this.onLoad, this);
 	    	ds[ou]('indexchange', this.onIndexChange, this);
@@ -293,6 +294,7 @@ $A.Tree = Ext.extend($A.Component,{
 		var array = [],
 			map1 = {},
 			map2 = {},
+			i = 0,
 			ds = this.dataset,
 			rtnode,
 			process = function(item){
@@ -321,7 +323,7 @@ $A.Tree = Ext.extend($A.Component,{
 	            }
 			};
 		Ext.each(ds.data,function(record){
-			var id = record.get(this.idfield),
+			var id = record.get(this.idfield)||('empty_id'+i++),
 				node = this.createNode(record);
 			node.checked = (record.get(this.checkfield) == "Y") ? 1 : 0;
             node.expanded = record.get(this.expandfield) == "Y";
@@ -370,8 +372,13 @@ $A.Tree = Ext.extend($A.Component,{
         if(sequence){
         	var m = Number.MAX_VALUE;
             children.sort(function(a, b){
-                return parseFloat(a.record.get(sequence)||m)
-                	- parseFloat(b.record.get(sequence)||m);
+            	a = a.record.get(sequence)||m;
+            	b = b.record.get(sequence)||m;
+            	if(isNaN(a)||isNaN(b)){
+            		return a > b;
+            	}else{
+            		return a - b;
+            	}
             });
         }else{
             children.sort();
