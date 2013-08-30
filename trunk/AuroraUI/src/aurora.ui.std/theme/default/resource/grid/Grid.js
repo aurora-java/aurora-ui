@@ -1978,7 +1978,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     _export : function(type,filename,separator){
         this.exportOptions = {
-            type:type,
+            type:type||'xls',
             filename:filename,
             separator:separator
         }
@@ -1993,7 +1993,9 @@ A.Grid = Ext.extend(A.Component,{
                     '<td class="export-hc" style="width:222px;" atype="grid-type">',_lang['grid.export.column'],'</td>',
                     '</tr></tbody></table></div>',
                     '<div style="overflow:auto;height:200px;"><table cellSpacing="0" cellPadding="0" border="0"><tbody>'],
-                    exportall = TRUE;
+                    exportall = TRUE,height=350,
+                    exportOptions = sf.exportOptions||(sf.exportOptions={}),
+                    type = exportOptions && exportOptions.type;
             EACH(sf.columns,function(c,i){
                 if(!sf.isFunctionCol(c.type)){
                     if(exportall)exportall = c.forexport !==FALSE;
@@ -2006,8 +2008,21 @@ A.Grid = Ext.extend(A.Component,{
                 }else n++;
             });
             if(exportall)msg[7]=ITEM_CKB_C;
-            msg.push('</tbody></table></div></div>',
-            '<div style="margin:15px;width:270px;color:red">',_lang['grid.export.confirmMsg'],'</div>');
+            msg.push('</tbody></table></div></div>');
+            if(type == 'xls' || type== 'xlsx'){
+            	height+=30;
+            	msg.push('<div class="item-radio" class="item-radio" style="margin:15px;width:270px;height:30px">',
+            				'<div class="item-radio-option" style="width:128px;float:left" itemvalue="xls">',
+            					'<div class="item-radio-img  item-radio-img-',type=='xls'?'c':'u','"></div>',
+            					'<label class="item-radio-lb">excel2003</label>',
+            				'</div>',
+            				'<div class="item-radio-option" style="width:128px;float:left" itemvalue="xlsx">',
+            					'<div class="item-radio-img  item-radio-img-',type=='xlsx'?'c':'u','"></div>',
+            					'<label class="item-radio-lb">excel2007</label>',
+            				'</div>',
+        				'</div>')
+            }
+            msg.push('<div style="margin:15px;width:270px;color:red">',_lang['grid.export.confirmMsg'],'</div>');
         sf.exportwindow = A.showOkCancelWindow(_lang['grid.export.config'],msg.join(_N),function(win2){
             //A.showConfirm(_lang['grid.export.confirm'],_lang['grid.export.confirmMsg'],function(win){
                 sf.doExport();
@@ -2016,16 +2031,18 @@ A.Grid = Ext.extend(A.Component,{
                 //win2.close();
             //});
             //return FALSE;
-        },NULL,NULL,350);
+        },NULL,NULL,height);
         sf.exportwindow.body.on(EVT_CLICK,sf.onExportClick,sf);
     },
     onExportClick : function(e,t){
-        var sf = this,target =Ext.fly(t).parent(TD);
-        if(target){
-            var atype = target.getAttributeNS(_N,ATYPE);
+    	t = Ext.fly(t);
+        var sf = this,rowbox =t.parent('td.grid-rowbox'),
+        	radio = t.hasClass('item-radio-option')?t:t.parent('div.item-radio-option');
+        if(rowbox){
+            var atype = rowbox.getAttributeNS(_N,ATYPE);
             if(atype=='export.rowcheck'){               
-                var rid =target.getAttributeNS(_N,RECORD_ID),
-                    cb = target.child(DIV),
+                var rid =rowbox.getAttributeNS(_N,RECORD_ID),
+                    cb = rowbox.child(DIV),
                     checked = cb.hasClass(ITEM_CKB_C),
                     _atype = cb.getAttributeNS(_N,ATYPE),
                     cols = sf.columns;
@@ -2041,6 +2058,10 @@ A.Grid = Ext.extend(A.Component,{
                 }else
                     cols[rid].forexport = !checked;
             }
+        }else if(radio){
+        	sf.setRadioStatus(radio.child('div'),TRUE);
+        	sf.setRadioStatus((radio.prev()||radio.next()).child('div'),FALSE);
+        	sf.exportOptions.type = radio.getAttributeNS(_N,'itemvalue')
         }
     },
     doExport : function(){
