@@ -833,7 +833,7 @@ A.Grid = Ext.extend(A.Component,{
         if(div = Ext.get([sf.id,name,record.id].join(_))){
             var c = sf.findColByName(name),
                 editor = sf.getEditor(c,record);            
-            if(editor!=_N && ($(editor) instanceof CheckBox)){
+            if(editor!=_N ? ($(editor) instanceof CheckBox):(name && !IS_EMPTY(record.getField(name).get(CHECKED_VALUE)))){
                 sf.renderEditor(div,record,c,editor);
             }else{
                 //考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
