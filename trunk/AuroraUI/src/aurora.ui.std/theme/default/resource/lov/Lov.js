@@ -6,6 +6,7 @@ var _N = '',
 	SELECTED_CLS = 'autocomplete-selected',
 	EVT_CLICK = 'click',
 	EVT_MOUSE_MOVE = 'mousemove',
+	EVT_BEFORE_COMMIT = 'beforecommit',
 	EVT_COMMIT = 'commit',
 	EVT_BEFORE_TRIGGER_CLICK = 'beforetriggerclick';
 
@@ -75,11 +76,20 @@ A.Lov = Ext.extend(A.TextField,{
     processListener: function(ou){
     	var sf = this,view = sf.autocompleteview;
         A.Lov.superclass.processListener.call(sf,ou);
-        sf.trigger[ou](EVT_CLICK,sf.onTriggerClick, sf, {preventDefault:true});
+        sf.trigger[ou]('mousedown',sf.onWrapFocus,sf, {preventDefault:true})
+        	[ou](EVT_CLICK,sf.onTriggerClick, sf, {preventDefault:true});
     },
     initEvents : function(){
         A.Lov.superclass.initEvents.call(this);
         this.addEvents(
+        /**
+         * @event beforecommit
+         * commit之前事件.
+         * @param {Aurora.Lov} lov 当前Lov组件.
+         * @param {Aurora.Record} r1 当前lov绑定的Record
+         * @param {Aurora.Record} r2 选中的Record. 
+         */
+        EVT_BEFORE_COMMIT,
         /**
          * @event commit
          * commit事件.
@@ -94,6 +104,11 @@ A.Lov = Ext.extend(A.TextField,{
          * @param {Aurora.Lov} lov 当前Lov组件.
          */
         EVT_BEFORE_TRIGGER_CLICK);
+    },
+    onWrapFocus : function(e,t){
+    	var sf = this;
+    	e.stopEvent();
+		sf.focus.defer(Ext.isIE?1:0,sf);
     },
     onTriggerClick : function(e){
     	e.stopEvent();
@@ -197,19 +212,22 @@ A.Lov = Ext.extend(A.TextField,{
     },
     commit:function(r,lr,mapping){
         var sf = this,record = lr || sf.record;
-        if(sf.win) sf.win.close();
-//        sf.setRawValue(_N)
-        if(record && r){
-        	Ext.each(mapping || sf.getMapping(),function(map){
-        		var from = r.get(map.from);
-                record.set(map.to,Ext.isEmpty(from)?_N:from);
-        	});
+        if(sf.fireEvent(EVT_BEFORE_COMMIT, sf, record, r)!==false){
+	        if(sf.win) sf.win.close();
+//        	sf.setRawValue(_N)
+	        
+	        if(record && r){
+	        	Ext.each(mapping || sf.getMapping(),function(map){
+	        		var from = r.get(map.from);
+	                record.set(map.to,Ext.isEmpty(from)?_N:from);
+	        	});
+	        }
+//        	else{
+//          	sf.setValue()
+//        	}
+	        
+	        sf.fireEvent(EVT_COMMIT, sf, record, r)
         }
-//        else{
-//          sf.setValue()
-//        }
-        
-        sf.fireEvent(EVT_COMMIT, sf, record, r)
     },
 //  setValue: function(v, silent){
 //      A.Lov.superclass.setValue.call(this, v, silent);
