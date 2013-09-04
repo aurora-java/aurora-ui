@@ -1778,16 +1778,21 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         return nds;
     },
     destroy : function(){
-        this.processListener('un');
-    	if(this.qtId){
-			Ext.Ajax.abort(this.qtId);
-		}
-        if(this.bindtarget&&this.bindname){
-            var bd = $A.CmpManager.get(this.bindtarget)
-            if(bd)bd.clearBind();
-        }
-        $A.CmpManager.remove(this.id);
-        delete $A.invalidRecords[this.id]
+    	var sf = this,id = sf.id,o = sf.qtId,
+    		bindtarget = sf.bindtarget,
+    		bindname = sf.bindname,
+    		manager = $A.CmpManager;
+        sf.processListener('un');
+    	o &&
+			Ext.Ajax.abort(o);
+        bindtarget && bindname && (o = manager.get(bindtarget)) &&
+            o.clearBind(bindname);
+        Ext.iterate(sf.fields,function(key,field){
+        	field.type == 'dataset' &&
+				sf.clearBind(key);
+        });
+        manager.remove(id);
+        delete $A.invalidRecords[id]
     },
     reConfig : function(config){
         this.resetConfig();
@@ -1796,12 +1801,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     /**
      * 取消绑定.
      */
-    clearBind : function(){
-        var name = this.bindname;
-        var ds = this.fields[name].pro['dataset'];
-        if(ds)
-        ds.processBindDataSetListener(this,'un');
-        delete this.fields[name];
+    clearBind : function(name){
+        var sf = this,fields = sf.fields,
+        	ds = fields[name].pro['dataset'];
+        ds &&
+        	ds.processBindDataSetListener(sf,'un');
+        delete fields[name];
     },
     processBindDataSetListener : function(ds,ou){
         var bdp = this.onDataSetModify;
@@ -2032,6 +2037,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @event query
              * 查询事件.
              * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Object} queryParam 参数.
+             * @param {Object} options 选项.
              */ 
             'query',
             /**
@@ -2742,10 +2749,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     /**
      * 仅对dataset本身进行校验,不校验绑定的子dataset.
+     * @param {Boolean} selected 校验选中的记录.
      * @return {Boolean} valid 校验结果.
      */
-    validateSelf : function(){
-        return this.validate(true,false)
+    validateSelf : function(selected){
+        return this.validate(selected,true,false)
     },
     /**
      * 设置dataset是否进行校验
@@ -2757,13 +2765,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     
     /**
      * 对当前数据集进行校验.
+     * @param {Boolean} selected 校验选中的记录.
      * @return {Boolean} valid 校验结果.
      */
-    validate : function(fire,vc){
+    validate : function(selected,fire,vc){
         this.isValid = true;
         var current = this.getCurrentRecord();
         if(!current)return true;
-        var records = this.getAll();
+        var records = selected?this.getSelected():this.getAll();
         var dmap = {};
         var hassub = false;
         var unvalidRecord = null;
@@ -2928,7 +2937,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //                    + '&_rootpath=list'
         var url = this.queryurl +(this.queryurl.indexOf('?') == -1?'?':'&') + para;
         this.loading = true;
-        this.fireEvent("query", this);
+        this.fireEvent("query", this,q,opts);
 //      this.fireBindDataSetEvent("beforeload", this);//主dataset无数据,子dataset一直loading
         if(this.qtId) Ext.Ajax.abort(this.qtId);
         this.qtId = $A.request({url:url, para:q, success:this.onLoadSuccess, error:this.onLoadError, scope:this,failure:this.onAjaxFailed,opts:opts,ext:opts?opts.ext:null});
@@ -3013,9 +3022,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         return datas;
     },
     doSubmit : function(url, items){
-        if(this.validateEnable && !this.validate()){           
-            return;
-        }
         this.fireBindDataSetEvent("submit",url,items);
         this.submiturl = url||this.submiturl;
         if(this.submiturl == '') return;
@@ -3040,25 +3046,22 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {Array} fields(可选) 根据选定的fields提交.
      */
     submitSelected : function(url,fields){
-    	this.wait(false,function(){
-    		if(this.fireEvent("beforesubmit",this)){
-                var d = this.getJsonData(true,fields);
-                this.doSubmit(url,d);
-            }
-    	},this);
+    	this.submit(url,fields,true);
     },
     /**
      * 提交数据.
      * @param {String} url(可选) 提交的url.
      * @param {Array} fields(可选) 根据选定的fields提交.
      */
-    submit : function(url,fields){
-    	this.wait(true,function(){
-    		if(this.fireEvent("beforesubmit",this)){
-                var d = this.getJsonData(false,fields);
-                this.doSubmit(url,d);
+    submit : function(url,fields,selected){
+    	var sf = this;
+    	sf.wait(!selected,function(){
+    		if(sf.fireEvent("beforesubmit",sf)){
+    			if(!sf.validateEnable || sf.validate(selected)){   
+	                sf.doSubmit(url,sf.getJsonData(selected,fields));
+    			}
             }
-    	},this);
+    	});
     },
     /**
      * post方式提交数据.
@@ -3238,16 +3241,18 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         if(datas.length != 0)
         this.locate(this.currentIndex,true);
         $A.SideBar.enable = $A.slideBarEnable;
-        
+        this.qtId = null;
     },
     onAjaxFailed : function(res,opt){
         this.fireBindDataSetEvent('ajaxfailed',res,opt);
+        this.qtId = null;
     },
     onLoadError : function(res,opt){
         this.fireBindDataSetEvent('loadfailed', res,opt);
 //      $A.showWarningMessage('错误', res.error.message||res.error.stackTrace,null,350,150);
         this.loading = false;
         $A.SideBar.enable = $A.slideBarEnable;
+        this.qtId = null;
     },
     onFieldChange : function(record,field,type,value) {
         this.fireEvent('fieldchange', this, record, field, type, value)
@@ -7968,6 +7973,7 @@ var _N = '',
 	SELECTED_CLS = 'autocomplete-selected',
 	EVT_CLICK = 'click',
 	EVT_MOUSE_MOVE = 'mousemove',
+	EVT_BEFORE_COMMIT = 'beforecommit',
 	EVT_COMMIT = 'commit',
 	EVT_BEFORE_TRIGGER_CLICK = 'beforetriggerclick';
 
@@ -8037,11 +8043,20 @@ A.Lov = Ext.extend(A.TextField,{
     processListener: function(ou){
     	var sf = this,view = sf.autocompleteview;
         A.Lov.superclass.processListener.call(sf,ou);
-        sf.trigger[ou](EVT_CLICK,sf.onTriggerClick, sf, {preventDefault:true});
+        sf.trigger[ou]('mousedown',sf.onWrapFocus,sf, {preventDefault:true})
+        	[ou](EVT_CLICK,sf.onTriggerClick, sf, {preventDefault:true});
     },
     initEvents : function(){
         A.Lov.superclass.initEvents.call(this);
         this.addEvents(
+        /**
+         * @event beforecommit
+         * commit之前事件.
+         * @param {Aurora.Lov} lov 当前Lov组件.
+         * @param {Aurora.Record} r1 当前lov绑定的Record
+         * @param {Aurora.Record} r2 选中的Record. 
+         */
+        EVT_BEFORE_COMMIT,
         /**
          * @event commit
          * commit事件.
@@ -8056,6 +8071,11 @@ A.Lov = Ext.extend(A.TextField,{
          * @param {Aurora.Lov} lov 当前Lov组件.
          */
         EVT_BEFORE_TRIGGER_CLICK);
+    },
+    onWrapFocus : function(e,t){
+    	var sf = this;
+    	e.stopEvent();
+		sf.focus.defer(Ext.isIE?1:0,sf);
     },
     onTriggerClick : function(e){
     	e.stopEvent();
@@ -8159,19 +8179,22 @@ A.Lov = Ext.extend(A.TextField,{
     },
     commit:function(r,lr,mapping){
         var sf = this,record = lr || sf.record;
-        if(sf.win) sf.win.close();
-//        sf.setRawValue(_N)
-        if(record && r){
-        	Ext.each(mapping || sf.getMapping(),function(map){
-        		var from = r.get(map.from);
-                record.set(map.to,Ext.isEmpty(from)?_N:from);
-        	});
+        if(sf.fireEvent(EVT_BEFORE_COMMIT, sf, record, r)!==false){
+	        if(sf.win) sf.win.close();
+//        	sf.setRawValue(_N)
+	        
+	        if(record && r){
+	        	Ext.each(mapping || sf.getMapping(),function(map){
+	        		var from = r.get(map.from);
+	                record.set(map.to,Ext.isEmpty(from)?_N:from);
+	        	});
+	        }
+//        	else{
+//          	sf.setValue()
+//        	}
+	        
+	        sf.fireEvent(EVT_COMMIT, sf, record, r)
         }
-//        else{
-//          sf.setValue()
-//        }
-        
-        sf.fireEvent(EVT_COMMIT, sf, record, r)
     },
 //  setValue: function(v, silent){
 //      A.Lov.superclass.setValue.call(this, v, silent);
