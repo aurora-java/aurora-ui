@@ -84,7 +84,7 @@ $A.Tree = Ext.extend($A.Component,{
 		var sf = this;
 		sf.dataset = ds;
 		sf.processDataSetLiestener('on');
-        if(ds.data.length >0)
+//        if(ds.data.length >0)
     	$A.onReady(function(){
             sf.onLoad();
         })

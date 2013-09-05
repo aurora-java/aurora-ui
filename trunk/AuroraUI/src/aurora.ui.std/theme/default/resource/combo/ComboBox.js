@@ -147,8 +147,8 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	setOptions : function(name){
 		var ds = typeof(name)==='string'?$(name) : name;
 		if(this.optionDataSet != ds){
-			this.optionDataSet = ds;
 			this.processDataSet('un');
+			this.optionDataSet = ds;
 			this.processDataSet('on');
 			this.rendered = false;
 			if(!Ext.isEmpty(this.value)) this.setValue(this.value, true)
