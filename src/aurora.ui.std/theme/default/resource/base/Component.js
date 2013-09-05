@@ -175,6 +175,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	} 
 		this.binder = null; 
 		this.record = null;
+		this.value = null;
     },
     /**
      * <p>销毁组件对象.</p>
