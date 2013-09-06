@@ -2036,7 +2036,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     onExportClick : function(e,t){
     	t = Ext.fly(t);
-        var sf = this,rowbox =t.parent('td.grid-rowbox'),
+        var sf = this,rowbox =t.parent('td.grid-rowbox')||t.parent('td.export-hc'),
         	radio = t.hasClass('item-radio-option')?t:t.parent('div.item-radio-option');
         if(rowbox){
             var atype = rowbox.getAttributeNS(_N,ATYPE);
