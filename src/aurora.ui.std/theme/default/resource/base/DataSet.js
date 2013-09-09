@@ -1425,6 +1425,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             if(!r) continue;
             if(r.isNew) this.totalCount ++;
             r.commit();
+            var haschange = false;
             for(var k in data){
                 var field = k;
                 var f = this.fields[field];
@@ -1444,6 +1445,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                        nv = this.processData(data,k,f);
                     }
                     if(ov != nv) {
+                    	haschange = true;
                         if(fire){
                             //由于commit放到上面,这个时候不改变状态,防止重复提交
                             r.set(field,nv, true);
@@ -1453,6 +1455,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                         }
                     }
                 }
+            }
+            //提交后，如果没有sequence，就不会有值改变，所以手动触发一下update。
+            if(!haschange && fire){
+				 r.set('__for_update__',true,true);
+				 delete r.data['__for_update__'];
+				 r.commit();
             }
 //          r.commit();//挪到上面了,record.set的时候会触发update事件,重新渲染.有可能去判断isNew的状态
         }
