@@ -57,8 +57,11 @@ $A.TreeGrid = Ext.extend($A.Grid, {
                 + this.id + '_{name}_{recordid}"></div></center>');
     },
     createTemplateData : function(col, record) {
+    	var editor = this.getEditor(col,record),sp=
+	    	(editor!='' &&
+	            (editor = $A.CmpManager.get(editor)) && !(editor instanceof $A.CheckBox))?2:3;
         return {
-            width : col.width - 2,
+            width : col.width - sp,
             // cwidth:col.width-4,
             recordid : record.id,
             visibility : col.hidden === true ? 'hidden' : 'visible',
@@ -102,7 +105,7 @@ $A.TreeGrid = Ext.extend($A.Grid, {
                                     "afterBegin", td, grid.createCell(c, r,
                                     true)));
                                 node.els['itemNodeTr'].appendChild(td);
-                                Ext.fly(td).setWidth(c.width - 2).addClass('node-text');
+                                Ext.fly(td).setWidth(c.width - 3).addClass('node-text');
                             }
                         });
                     },

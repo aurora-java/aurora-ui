@@ -14,4 +14,10 @@
 .item-node td {
     border-right:none;
 }
+.item-treegrid .node-text{
+	border-right:1px solid #ccc;
+}
+.grid-ub table {
+border-right: none;
+}
 

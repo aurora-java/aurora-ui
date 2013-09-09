@@ -560,7 +560,7 @@ $A.Tree.TreeNode.prototype={
 				((tree.showcheckbox ? 1 : 0) +this.getPathNodes().length)*tree.sw
 				: 0);
 		Ext.fly(els[name+'_td']).setWidth(Math.max((left),0));
-        (Ext.fly(els[name+'_text'].id)||Ext.fly(els[name+'_text'])).setWidth(Math.max((left-2),0));
+        (Ext.fly(els[name+'_text'].id)||Ext.fly(els[name+'_text'])).setWidth(Math.max((left-3),0));
 	},
 	paintPrefix : function(){
 		this.paintLine();
