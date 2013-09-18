@@ -1,0 +1,10 @@
+<div style="width:${width}px;${style};">
+    <object classid="clsid:00460182-9E5E-11d5-B7C8-B8269041DD57" id="${id}" width="100%"
+        codebase="${context_path}/resource/aurora.ui.std/default/office/dsoframe.cab"
+        height="${height}px">
+        <param name="Menubar" value="0" />
+        <param name="Titlebar" value="0" />
+        <param name="Url" value="http://zj.hand-china.com:9090/page/GetFile.aspx?id=2"/>
+    </object>
+</div>
+<script>new Aurora.OfficeEditor(${config});</script>

@@ -311,16 +311,16 @@ $A.post = function(action,data,target){
  */
 $A.request = function(opt){
     var url = opt.url,
-    	para = opt.para,
-    	successCall = opt.success,
-    	errorCall = opt.error,
-    	scope = opt.scope,
-    	failureCall = opt.failure,
-    	lockMessage = opt.lockMessage,
-    	body = Ext.getBody(),
-    	opts = Ext.apply({},opt.opts);
+        para = opt.para,
+        successCall = opt.success,
+        errorCall = opt.error,
+        scope = opt.scope,
+        failureCall = opt.failure,
+        lockMessage = opt.lockMessage,
+        body = Ext.getBody(),
+        opts = Ext.apply({},opt.opts);
     if(!Ext.isEmpty(lockMessage)){
-    	$A.Masker.mask(body,lockMessage);
+        $A.Masker.mask(body,lockMessage);
     }
     $A.manager.fireEvent('ajaxstart', url, para);
     if($A.logWindow){
@@ -335,9 +335,9 @@ $A.request = function(opt){
         opts:opts,
         sync:opt.sync,
         success: function(response,options){
-        	if(!Ext.isEmpty(lockMessage)){
-		    	$A.Masker.unmask(body);
-		    }
+            if(!Ext.isEmpty(lockMessage)){
+                $A.Masker.unmask(body);
+            }
             if($A.logWindow){
                 var st = $A['_startTime'];
                 var ed = new Date();                    
@@ -388,9 +388,9 @@ $A.request = function(opt){
             }
         },
         failure : function(response, options){
-        	if(!Ext.isEmpty(lockMessage)){
-		    	$A.Masker.unmask(body);
-		    }
+            if(!Ext.isEmpty(lockMessage)){
+                $A.Masker.unmask(body);
+            }
             if(failureCall)failureCall.call(scope, response, options);
         },
         scope: scope
@@ -592,35 +592,35 @@ $A.TextMetrics = function(){
 }();
 $A.TextMetrics.Instance = function(bindTo, fixedWidth){
     var p = '<div style="left:-10000px;top:-10000px;position:absolute;visibility:hidden"></div>',
-    	ml = Ext.get(Ext.DomHelper.append(Ext.get(bindTo),p)),
+        ml = Ext.get(Ext.DomHelper.append(Ext.get(bindTo),p)),
 //    var ml = new Ext.Element(document.createElement('div'));
 //    document.body.appendChild(ml.dom);
 //    ml.position('absolute');
 //    ml.setLeft(-1000);
 //    ml.setTop(-1000);    
 //    ml.hide();
-    	instance = {      
-	        getSize : function(text){
-	            ml.update(text);            
-	            var s={
-	            	width : ml.getWidth(),
-	            	height : ml.getHeight()
-	            };
-	            ml.remove();
-	            return s;
-	        },       
-	        bind : function(el){
-	            var a=['padding','font-size','font-style', 'font-weight', 'font-family','line-height', 'text-transform', 'letter-spacing'],
-	            	len = a.length, r = {};
-	            for(var i = 0; i < len; i++){
-	                r[a[i]] = Ext.fly(el).getStyle(a[i]);
-	            }
-	            ml.setStyle(r);           
-	        },       
-	        setFixedWidth : function(width){
-	            ml.setWidth(width);
-	        }       
-	    };
+        instance = {      
+            getSize : function(text){
+                ml.update(text);            
+                var s={
+                    width : ml.getWidth(),
+                    height : ml.getHeight()
+                };
+                ml.remove();
+                return s;
+            },       
+            bind : function(el){
+                var a=['padding','font-size','font-style', 'font-weight', 'font-family','line-height', 'text-transform', 'letter-spacing'],
+                    len = a.length, r = {};
+                for(var i = 0; i < len; i++){
+                    r[a[i]] = Ext.fly(el).getStyle(a[i]);
+                }
+                ml.setStyle(r);           
+            },       
+            setFixedWidth : function(width){
+                ml.setWidth(width);
+            }       
+        };
     if(fixedWidth){
         ml.setWidth(fixedWidth);
     }
@@ -1451,13 +1451,13 @@ $A.setValidInfoType('tip');
 $A.escapeHtml = function(str){
     if(Ext.isEmpty(str) || !Ext.isString(str))
         return str;
-    return String(str).replace(/&/gm,'&amp;')
+    return String(str).replace(/&/gm,'&amp;').replace(/\"/gm,'&quot;').replace(/\(/gm,'&#40;').replace(/\)/gm,'&#41;').replace(/\+/gm,'&#43;').replace(/\%/gm,'&#37;')
     .replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
 }
 $A.unescapeHtml = function(str){
     if(Ext.isEmpty(str) || !Ext.isString(str))
         return str;
-    return String(str).replace(/&amp;/gm,'&')
+    return String(str).replace(/&amp;/gm,'&').replace(/&quot;/gm,'"').replace(/&#40;/gm,'(').replace(/&#41;/gm,')').replace(/&#43;/gm,'+').replace(/&#37;/gm,'%')
     .replace(/&lt;/gm,'<').replace(/&gt;/gm,'>');
 }
 $A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_state){
@@ -1581,120 +1581,120 @@ window.onbeforeunload = function(){
 }
 if(Ext.isIE){//for fix IE event's order bug
 (function(){
-	var elProto = Ext.Element.prototype,
-		on = elProto.on,
-		un = elProto.un,
-		objs={};
-	elProto.on = elProto.addListener = function(eventName, handler, scope, opt){
-		var sf = this,listeners = objs[sf.id]||(objs[sf.id] = []);
-		sf.un(eventName, handler, scope);
-		on.call(sf,eventName,handler, scope, opt);
-		Ext.each(listeners,function(obj){
-			var _e = obj.eventName,
-				_h = obj.handler,
-				_s = obj.scope;
-			un.call(sf,_e, _h, _s);
-			on.call(sf,_e, _h, _s, obj.opt);
-		});
-		listeners.unshift({
-			eventName:eventName,
-			handler:handler,
-			scope:scope,
-			opt:opt
-		});
-		return sf;
-	}
-	elProto.un = elProto.removeListener = function(eventName, handler, scope){
-		var sf = this,listeners = objs[sf.id],
-			index = Ext.each(listeners,function(obj){
-			if(obj.eventName === eventName && obj.handler == handler && obj.scope == scope){
-				return false;
-			}
-		});
-		if(Ext.isDefined(index)){
-			listeners.splice(index,1);
-		}
-		un.call(sf,eventName, handler, scope);
-		return sf;
-	}
+    var elProto = Ext.Element.prototype,
+        on = elProto.on,
+        un = elProto.un,
+        objs={};
+    elProto.on = elProto.addListener = function(eventName, handler, scope, opt){
+        var sf = this,listeners = objs[sf.id]||(objs[sf.id] = []);
+        sf.un(eventName, handler, scope);
+        on.call(sf,eventName,handler, scope, opt);
+        Ext.each(listeners,function(obj){
+            var _e = obj.eventName,
+                _h = obj.handler,
+                _s = obj.scope;
+            un.call(sf,_e, _h, _s);
+            on.call(sf,_e, _h, _s, obj.opt);
+        });
+        listeners.unshift({
+            eventName:eventName,
+            handler:handler,
+            scope:scope,
+            opt:opt
+        });
+        return sf;
+    }
+    elProto.un = elProto.removeListener = function(eventName, handler, scope){
+        var sf = this,listeners = objs[sf.id],
+            index = Ext.each(listeners,function(obj){
+            if(obj.eventName === eventName && obj.handler == handler && obj.scope == scope){
+                return false;
+            }
+        });
+        if(Ext.isDefined(index)){
+            listeners.splice(index,1);
+        }
+        un.call(sf,eventName, handler, scope);
+        return sf;
+    }
 })();
 };
 
 $A.FixMath = (function(){
 var POW = Math.pow,
-	mul = function(a,b) { 
-	    var m=0,s1=String(a),s2=String(b),
-			l1 = s1.indexOf('.'),
-			l2 = s2.indexOf('.'),
-			e1 = s1.indexOf('e'),
-			e2 = s2.indexOf('e');
-		if(e1!=-1){
-			m-=Number(s1.substr(e1+1));
-			s1 = s1.substr(0,e1);
-		}
-		if(e2!=-1){
-			m-=Number(s2.substr(e2+1));
-			s2 = s2.substr(0,e2);
-		}
-		if(l1!=-1)m+=s1.length - l1 -1;
-		if(l2!=-1)m+=s2.length - l2 -1;
-	    return Number(s1.replace('.',''))*Number(s2.replace('.',''))/POW(10,m);
-	},
-	div = function(a,b){
-		var re = String(a/b),
-			i = re.indexOf('.');
-		if(i!=-1){
-			re = Number(re).toFixed(16-i-1)
-		}
-		return Number(re);
-	},
-	plus = function(a,b) { 
-	    var m1=0,m2=0,m3,
-			s1=String(a),s2=String(b),
-			l1 = s1.indexOf('.'),
-			l2 = s2.indexOf('.'),
-			e1 = s1.indexOf('e'),
-			e2 = s2.indexOf('e');
-		if(e1!=-1){
-			m1-=Number(s1.substr(e1+1));
-			s1 = s1.substr(0,e1);
-		}
-		if(e2!=-1){
-			m2-=Number(s2.substr(e2+1));
-			s2 = s2.substr(0,e2);
-		}
-		if(l1!=-1)m1+=s1.length - l1 -1;
-		if(l2!=-1)m2+=s2.length - l2 -1;
-		if(m2>m1){
-			m3 = m2;
-			m1 = m2-m1;
-			m2 = 0;
-		}else if(m1>m2){
-			m3 = m1;
-			m2 = m1-m2;
-			m1 = 0;
-		}else{
-			m3 = m1;
-			m1 = m2 = 0;
-		}
-	    return (Number(s1.replace('.',''))*POW(10,m1)+Number(s2.replace('.',''))*POW(10,m2))/POW(10,m3);
-	},
-	minus = function(a,b){
-		return plus(a,-b);
-	},
-	pow = function(a,b){
-		var re = String(POW(a,b)),
-			i = re.indexOf('.');
-		if(i!=-1){
-			re = Number(re).toFixed(16-i-1)
-		}
-		return Number(re);
-	};
-	return {
-		pow:pow,
-		minus:minus,
-		plus:plus,
-		div:div,
-		mul:mul
-	}
+    mul = function(a,b) { 
+        var m=0,s1=String(a),s2=String(b),
+            l1 = s1.indexOf('.'),
+            l2 = s2.indexOf('.'),
+            e1 = s1.indexOf('e'),
+            e2 = s2.indexOf('e');
+        if(e1!=-1){
+            m-=Number(s1.substr(e1+1));
+            s1 = s1.substr(0,e1);
+        }
+        if(e2!=-1){
+            m-=Number(s2.substr(e2+1));
+            s2 = s2.substr(0,e2);
+        }
+        if(l1!=-1)m+=s1.length - l1 -1;
+        if(l2!=-1)m+=s2.length - l2 -1;
+        return Number(s1.replace('.',''))*Number(s2.replace('.',''))/POW(10,m);
+    },
+    div = function(a,b){
+        var re = String(a/b),
+            i = re.indexOf('.');
+        if(i!=-1){
+            re = Number(re).toFixed(16-i-1)
+        }
+        return Number(re);
+    },
+    plus = function(a,b) { 
+        var m1=0,m2=0,m3,
+            s1=String(a),s2=String(b),
+            l1 = s1.indexOf('.'),
+            l2 = s2.indexOf('.'),
+            e1 = s1.indexOf('e'),
+            e2 = s2.indexOf('e');
+        if(e1!=-1){
+            m1-=Number(s1.substr(e1+1));
+            s1 = s1.substr(0,e1);
+        }
+        if(e2!=-1){
+            m2-=Number(s2.substr(e2+1));
+            s2 = s2.substr(0,e2);
+        }
+        if(l1!=-1)m1+=s1.length - l1 -1;
+        if(l2!=-1)m2+=s2.length - l2 -1;
+        if(m2>m1){
+            m3 = m2;
+            m1 = m2-m1;
+            m2 = 0;
+        }else if(m1>m2){
+            m3 = m1;
+            m2 = m1-m2;
+            m1 = 0;
+        }else{
+            m3 = m1;
+            m1 = m2 = 0;
+        }
+        return (Number(s1.replace('.',''))*POW(10,m1)+Number(s2.replace('.',''))*POW(10,m2))/POW(10,m3);
+    },
+    minus = function(a,b){
+        return plus(a,-b);
+    },
+    pow = function(a,b){
+        var re = String(POW(a,b)),
+            i = re.indexOf('.');
+        if(i!=-1){
+            re = Number(re).toFixed(16-i-1)
+        }
+        return Number(re);
+    };
+    return {
+        pow:pow,
+        minus:minus,
+        plus:plus,
+        div:div,
+        mul:mul
+    }
 })();
