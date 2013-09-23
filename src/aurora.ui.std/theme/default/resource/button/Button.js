@@ -54,12 +54,12 @@ $A.Button = Ext.extend($A.Component,{
      * 设置按钮是否可见.
      * @param {Boolean} visiable  是否可见.
      */
-    setVisible: function(v){
-		if(v==true)
-			this.wrap.show();
-		else
-			this.wrap.hide();
-	},
+//    setVisible: function(v){
+//		if(v==true)
+//			this.wrap.show();
+//		else
+//			this.wrap.hide();
+//	},
 //    destroy : function(){
 //    	$A.Button.superclass.destroy.call(this);
 //    	this.el.un("click", this.onClick,  this);
