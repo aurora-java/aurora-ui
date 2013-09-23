@@ -226,7 +226,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 			//TODO:和lov的设值有问题
 //			if(this.value == value) return;
 			if(!Ext.isEmpty(value,true)) {
-                this.setValue(value,true,true);
+                this.setValue(value,true);
 			}else{
                 this.clearValue();
 			}
