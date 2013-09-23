@@ -19,6 +19,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         this.hasFocus = false;
 		this.initComponent(config);
         this.initEvents();
+        this.hidden && this.setVisible(false);
     },
     initComponent : function(config){ 
 		config = config || {};
@@ -309,6 +310,9 @@ $A.Component = Ext.extend(Ext.util.Observable,{
      */
     hide : function(){
     	this.wrap.hide();
+    },
+    setVisible : function(v){
+    	this[v?'show':'hide']();
     },
     clearInvalid : function(){},
     markInvalid : function(){},

@@ -7,6 +7,8 @@
  * @param {Object} config 配置对象. 
  */
 $A.Field = Ext.extend($A.Component,{	
+	autoselect : true,
+	transformcharacter : true,
 	validators: [],
 	requiredCss:'item-notBlank',
 	readOnlyCss:'item-readOnly',
@@ -34,7 +36,7 @@ $A.Field = Ext.extend($A.Component,{
     	sf.originalValue = sf.getValue();
     	sf.applyEmptyText();
     	sf.initStatus();
-    	sf.hidden && sf.setVisible(false);
+//    	sf.hidden && sf.setVisible(false);
     	sf.initService()
     	sf.initAutoComplete();
     },
@@ -107,13 +109,13 @@ $A.Field = Ext.extend($A.Component,{
 		this.wrap.setStyle("height",h+"px");
 		this.el.setStyle("height",(h-2)+"px");
 	},
-	setVisible: function(v){
-		this.wrap[v?'show':'hide']();
-//		if(v==true)
-//			this.wrap.show();
-//		else
-//			this.wrap.hide();
-	},
+//	setVisible: function(v){
+//		this.wrap[v?'show':'hide']();
+////		if(v==true)
+////			this.wrap.show();
+////		else
+////			this.wrap.hide();
+//	},
     initStatus : function(){
     	var sf = this;
     	sf.clearInvalid();
@@ -154,7 +156,7 @@ $A.Field = Ext.extend($A.Component,{
     onFocus : function(e){
         //(Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
     	var sf = this;
-    	sf.select.defer(1,sf);
+    	sf.autoselect && sf.select.defer(1,sf);
         if(!sf.hasFocus){
             sf.hasFocus = true;
             sf.startValue = sf.getValue();

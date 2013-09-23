@@ -2065,7 +2065,7 @@ A.Grid = Ext.extend(A.Component,{
         }
     },
     doExport : function(){
-        var sf = this,opt = sf.exportOptions;
+        var sf = this,opt = sf.exportOptions||{};
         A.doExport(sf.dataset,sf.columns,NULL,opt.type,opt.separator,opt.filename);
         delete sf.exportOptions;
     },
