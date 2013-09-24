@@ -1,4 +1,4 @@
-<span class="${wrapClass}" style="line-height:20px;height:20px;margin-right:10px;${style};" id="${id}"><DIV tabIndex="${tabindex}" hideFocus class="item-ckb" atype="checkbox"></DIV><label style="margin-left:3px;">${label}</label></span>
+<div class="${wrapClass}" style="height:20px;width:${width}px;${style};" id="${id}"><DIV tabIndex="${tabindex}" hideFocus class="item-ckb" atype="checkbox"></DIV><label style="margin-left:3px;">${label}</label></div>
 <script>
     	new Aurora.CheckBox(${config});
 		${binding}

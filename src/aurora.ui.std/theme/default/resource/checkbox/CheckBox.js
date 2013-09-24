@@ -24,7 +24,9 @@ $A.CheckBox = Ext.extend($A.Component,{
 		this.el=this.wrap.child('div[atype=checkbox]');
 	},
 	processListener: function(ou){
-    	this.wrap[ou]('click',this.onClick,this);
+    	this.wrap
+    		[ou]('mousedown',this.onMouseDown,this)
+    		[ou]('click',this.onClick,this);
     	this.el[ou]('keydown',this.onKeyDown,this);
     	this.el[ou]('focus',this.onFocus,this)
     	this.el[ou]('blur',this.onBlur,this)
@@ -51,6 +53,11 @@ $A.CheckBox = Ext.extend($A.Component,{
     		e.stopEvent();
     	}
     },
+    onMouseDown : function(e){
+    	var sf = this;
+    	sf.hasFocus && e.stopEvent();
+    	sf.focus.defer(Ext.isIE?1:0,sf);
+    },
 	onClick: function(event){
 		if(!this.readonly){
 			this.checked = this.checked ? false : true;	
@@ -67,13 +74,19 @@ $A.CheckBox = Ext.extend($A.Component,{
 	},
 	onFocus : function(){
 		var sf = this;
-		sf.el.addClass(sf.focusCss);
-		sf.fireEvent('focus',sf);
+		if(!sf.hasFocus){
+	        sf.hasFocus = true;
+			sf.el.addClass(sf.focusCss);
+			sf.fireEvent('focus',sf);
+		}
 	},
 	onBlur : function(){
 		var sf = this;
-		sf.el.removeClass(sf.focusCss);
-		sf.fireEvent('blur',sf);
+		if(sf.hasFocus){
+	        sf.hasFocus = false;
+			sf.el.removeClass(sf.focusCss);
+			sf.fireEvent('blur',sf);
+		}
 	},
 	setValue:function(v, silent){
 		if(typeof(v)==='boolean'){
