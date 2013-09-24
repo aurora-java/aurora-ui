@@ -636,14 +636,22 @@ A.Grid = Ext.extend(A.Component,{
             ds.next();
         }
     },
-    onMouseDown : function(e,t,ced){
-    	if(e.shiftKey && (ced = this.currentEditor)){
-    		t = (t = Ext.fly(t)).is(TD)?t:t.parent(TD);
-    		if(ced.editor instanceof CheckBox && t.getAttribute(ATYPE) == GRID_CELL && t.getAttribute(DATA_INDEX) == ced.name){
-    			this._begin = ced.record;
+    onMouseDown : function(e,t){
+		t = (t = Ext.fly(t)).is(TD)?t:t.parent(TD);
+		var sf = this,
+			atype = t.getAttribute(ATYPE),
+			ced;
+		if((ced = sf.currentEditor)
+			&& ced.editor instanceof CheckBox 
+			&& atype == GRID_CELL && t.getAttribute(DATA_INDEX) == ced.name){
+	    	if(e.shiftKey){
+    			sf._begin = ced.record;
     			e.stopEvent();
-    		}
-    	}
+	    	}else if(t.child('.grid-ckb')){
+	    		e.stopEvent();
+	    		ced.editor.focus.defer(Ext.isIE?1:0,ced.editor);
+	    	}
+		}
     },
     focus: function(){      
         this.wb.focus();
