@@ -96,6 +96,7 @@ public class PatchAll {
 		compressJs.add("chart/Exporting.js");
 		compressJs.add("accordion/Accordion.js");
 		compressJs.add("accordionmenu/AccordionMenu.js");
+		compressJs.add("portal/Portal.js");
 		compressJs.add("menu/Menu.js");
 		List compressCss = new ArrayList();
 		compressCss.add(CSS_ALL);
@@ -106,6 +107,7 @@ public class PatchAll {
 		compressCss.add("tab/Tab.css");
 		compressCss.add("accordion/Accordion.css");
 		compressCss.add("accordionmenu/AccordionMenu.css");
+		compressCss.add("portal/Portal.css");
 		compressCss.add("menu/Menu.css");
 //		compressCss.add("upload/upload.css");
 		
