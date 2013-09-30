@@ -1,0 +1,6 @@
+<DIV id="${id}" class="${wrapClass}" style="width:${width}px;height:${height}px;${style}">
+	${portals}
+</DIV>
+<SCRIPT LANGUAGE="JavaScript">
+	new Aurora.Portal(${config});
+</SCRIPT>

@@ -51,6 +51,7 @@
         <view-component elementName="dataSets" nameSpace="http://www.aurora-framework.org/application" builder="aurora.application.features.DataSetInit" />
         <view-component elementName="tabPanel" category="Layout" description="标签页组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="accordionPanel" category="Layout" description="accordion组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="portalPanel" category="Layout" description="portal组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="switch" category="Template" description="switch标签" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Switch" />
         <view-component elementName="freeMarker" category="Template" description="freemarker标签" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.FreeMarkerTemplate" />
         <view-component elementName="repeater" category="Template" description="循环组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.Repeater" />

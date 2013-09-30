@@ -21,9 +21,6 @@ A.Accordion = Ext.extend(A.Component,{
 		A.Accordion.superclass.initComponent.call(this, config);
 		var sf = this,wrap = sf.wrap;
 		sf.selectedItems=[];
-		sf.frequency=sf.frequency||20;
-		sf.actionTimes=sf.actionTimes||2;
-		sf.currentTime=1;
 		sf.accordions=wrap.select('div.item-accordion');
 		sf.strips = wrap.select('div.accordion-strip');
 		sf.bodys = wrap.select('div.item-accordion-body');
@@ -34,14 +31,6 @@ A.Accordion = Ext.extend(A.Component,{
 				sf.selectAccordionIndex(i);
 			}
 		});
-//		Ext.each(sf.accordions,function(accordion,i){
-//			accordion=Ext.get(accordion);
-//			Ext.isIE6 && accordion.setWidth(PERCENT100)
-//			if(accordion.hasClass(SELECTED)){
-//				sf.selectedItems.push(accordion);
-//				sf.load.call(sf,i);
-//			}
-//		});
 		Ext.isIE6 && sf.bodys.setWidth(PERCENT100);
 	},
 	processListener: function(ou){
@@ -97,8 +86,6 @@ A.Accordion = Ext.extend(A.Component,{
 				}));
 			}
 		}
-		//sf.intervalId=setInterval(sf.go.createDelegate(sf,[index]),sf.frequency);
-		//sf.go.call(sf,index);
 	},
 	close : function(accordion,index){
 		var sf = this;
@@ -110,32 +97,6 @@ A.Accordion = Ext.extend(A.Component,{
 		});
 		sf.selectedItems.remove(accordion);
 	},
-//	go:function(index){
-//		for(var i=0;i<this.accordions.length;i++){
-//			var accordion=Ext.get(this.accordions[i]);
-//			if(accordion.hasClass(SELECTED)){
-//				if(this.singlemode||i==index)accordion.setHeight(this.stripheight+Ext.fly(this.bodys[i]).getHeight()*(1-this.currentTime/this.actionTimes));
-//			}else if(i==index) accordion.setHeight(this.stripheight+Ext.fly(this.bodys[i]).getHeight()*(this.currentTime/this.actionTimes));
-//		}
-//		if(this.actionTimes==this.currentTime){
-//			for(var i=0;i<this.accordions.length;i++){
-//				var accordion=Ext.get(this.accordions[i]);
-//				if(accordion.hasClass(SELECTED)){
-//					if(this.singlemode||i==index){
-//						accordion.removeClass(SELECTED);
-//						Ext.fly(this.bodys[i]).hide();
-//						this.selectedItems.remove(accordion);
-//					}
-//				}else if(i==index){
-//					accordion.addClass(SELECTED);
-//					Ext.fly(this.bodys[i]).show();
-//					this.load(index);
-//				}
-//			}
-//			clearInterval(this.intervalId);
-//			this.currentTime=1;
-//		}else this.currentTime++;
-//	},
 	onClick:function(e,t){
 		t = (t = Ext.fly(t)).hasClass('accordion-strip')?t:t.parent('.accordion-strip');
 		if(t){
