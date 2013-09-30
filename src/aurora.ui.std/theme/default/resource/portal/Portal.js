@@ -85,6 +85,7 @@ A.PortalItem = Ext.extend(A.Component,{
 		sf.head = wrap.child('td.portal-item-caption-label');
 		sf.body = wrap.child('div.portal-item-content');
 		sf.closeBtn = sf.wrap.child('div.portal-item-close');
+		if(sf.ref)sf.load(sf.ref);
 	},
 	processListener: function(ou){
 		var sf = this;
@@ -128,6 +129,64 @@ A.PortalItem = Ext.extend(A.Component,{
 		EVT_CLOSE);
 		
 	},
+	showLoading : function(dom){
+		A.Masker.mask(dom,_lang['tab.loading']);
+    },
+    clearLoading : function(dom){
+    	A.Masker.unmask(dom);
+    },
+	load : function(url){
+        var sf = this,body = this.body;
+		body.cmps={};
+		sf.showLoading(body);
+    	Ext.Ajax.request({
+			url: url,
+			failure: function(response, opts){
+				sf.clearLoading(body);
+				var msg=['<div style="text-align:center;line-height:30px">'];
+				switch(response.status){
+			        case 404:
+			            msg.push('<H2>',response.status , _lang['ajax.error'],'</H2>', _lang['ajax.error.404']+'"'+ response.statusText+'"');
+			            break;
+			        case 500:
+			            msg.push('<H2>',response.status , _lang['ajax.error'],'</H2>',_lang['tab.internet.error'],'<a href="javascript:$(\''+sf.id+'\').load(\''+url+'\')">',_lang['tab.internet.refresh'],'</a>');
+			            break;
+			        case 0:
+			            break;
+			        default:
+			            msg.push(_lang['ajax.error'], response.statusText);
+			            break;
+			    } 
+			    msg.push('</div>');
+				body.update(msg.join(''));
+			},
+		   	success: function(response, options){
+                var res;
+                try {
+                    res = Ext.decode(response.responseText);
+                }catch(e){}            
+                if(res && res.success == false){
+                    if(res.error){
+                        if(res.error.code  && res.error.code == 'session_expired'){
+                            A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
+                        }else{
+                            A.manager.fireEvent('ajaxfailed', A.manager, options.url,options.para,res);
+                            var st = res.error.stackTrace,
+                            	em = res.error.message;
+                            st = st ? st.replaceAll('\r\n','</br>') : '';
+                            A.showErrorMessage(_lang['window.error'], em?em+'</br>'+st:st,null,400,em && st=='' ? 150 : 250);
+                        }
+                    }
+                    return;
+                }
+		    	var html = response.responseText;
+		    	body.update(html,true,function(){
+			    	sf.clearLoading(body);
+		    		body.loaded = true;
+		    	},body);
+		    }
+		});		
+    },
     close : function(){
     	var sf = this;
         if(sf.fireEvent(EVT_BEFORE_CLOSE,sf)){
@@ -136,6 +195,7 @@ A.PortalItem = Ext.extend(A.Component,{
         }
     },
     onMouseDown : function(e){
+    	if(this.animating)return;
     	var sf = this,pos = e.xy,wrap = sf.wrap,xy = wrap.getXY();
     	wrap.setStyle({margin:''}).setOpacity(0.9).position('absolute',null,xy[0],xy[1]);
     	sf.body.hide();
@@ -171,6 +231,7 @@ A.PortalItem = Ext.extend(A.Component,{
     },
     onMouseUp : function(e){
     	var sf = this,c = sf.cellspacing;
+    	sf.animating = true;
     	sf.wrap.setXY(sf.proxy.getXY(),{
     		callback : function(){
 	    		sf.wrap.insertBefore(sf.proxy.setStyle({display:'none'})).clearPositioning().clearOpacity().setStyle({margin:c + 'px ' +c + 'px 0 0'});
@@ -180,6 +241,7 @@ A.PortalItem = Ext.extend(A.Component,{
 				sf.fireEvent(EVT_DROP,sf,sf.proxy.index);
 				portalList = null;
 				sf.proxy.index = null;
+				delete sf.animating;
     		},
     		duration : .15
     	});
