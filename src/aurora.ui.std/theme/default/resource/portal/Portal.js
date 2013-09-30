@@ -1,5 +1,9 @@
 (function(A){
 var relativeX,relativeY,portalList,
+	DISPLAY = 'display',
+	NONE = 'none',
+	_N = '',
+	MARGIN = 'margin',
 	MARGIN_RIGHT = 'margin-right',
 	CLS_DIV$PORTAL_PROXY = 'div.portal-proxy',
 	CLS_TABLE$PORTAL_ITEM_WRAP = 'table.portal-item-wrap',
@@ -158,7 +162,7 @@ A.PortalItem = Ext.extend(A.Component,{
 			            break;
 			    } 
 			    msg.push('</div>');
-				body.update(msg.join(''));
+				body.update(msg.join(_N));
 			},
 		   	success: function(response, options){
                 var res;
@@ -173,8 +177,8 @@ A.PortalItem = Ext.extend(A.Component,{
                             A.manager.fireEvent('ajaxfailed', A.manager, options.url,options.para,res);
                             var st = res.error.stackTrace,
                             	em = res.error.message;
-                            st = st ? st.replaceAll('\r\n','</br>') : '';
-                            A.showErrorMessage(_lang['window.error'], em?em+'</br>'+st:st,null,400,em && st=='' ? 150 : 250);
+                            st = st ? st.replaceAll('\r\n','</br>') : _N;
+                            A.showErrorMessage(_lang['window.error'], em?em+'</br>'+st:st,null,400,em && st==_N ? 150 : 250);
                         }
                     }
                     return;
@@ -197,11 +201,11 @@ A.PortalItem = Ext.extend(A.Component,{
     onMouseDown : function(e){
     	if(this.animating)return;
     	var sf = this,pos = e.xy,wrap = sf.wrap,xy = wrap.getXY();
-    	wrap.setStyle({margin:''}).setOpacity(0.9).position('absolute',null,xy[0],xy[1]);
-    	sf.body.hide();
+    	wrap.setStyle(MARGIN,_N).setOpacity(0.9).position('absolute',999,xy[0],xy[1]);
+    	sf.body.setStyle(DISPLAY,NONE);
     	relativeX = pos[0] - xy[0];
     	relativeY = pos[1] - xy[1];
-    	sf.proxy.insertBefore(wrap).setStyle({display:''});
+    	sf.proxy.insertBefore(wrap).setStyle(DISPLAY,_N);
     	portalList = wrap.parent().query(CLS_TABLE$PORTAL_ITEM_WRAP);
     	Ext.fly(document).on(EVT_MOUSE_MOVE,sf.onMouseMove,sf)
 			.on(EVT_MOUSE_UP,sf.onMouseUp,sf);
@@ -234,8 +238,8 @@ A.PortalItem = Ext.extend(A.Component,{
     	sf.animating = true;
     	sf.wrap.setXY(sf.proxy.getXY(),{
     		callback : function(){
-	    		sf.wrap.insertBefore(sf.proxy.setStyle({display:'none'})).clearPositioning().clearOpacity().setStyle({margin:c + 'px ' +c + 'px 0 0'});
-		    	sf.body.show();
+	    		sf.wrap.insertBefore(sf.proxy.setStyle(DISPLAY,NONE)).clearPositioning().clearOpacity().setStyle(MARGIN,c + 'px ' +c + 'px 0 0');
+		    	sf.body.setStyle(DISPLAY,_N);
 		    	Ext.fly(document).un(EVT_MOUSE_MOVE,sf.onMouseMove,sf)
 					.un(EVT_MOUSE_UP,sf.onMouseUp,sf);
 				sf.fireEvent(EVT_DROP,sf,sf.proxy.index);
