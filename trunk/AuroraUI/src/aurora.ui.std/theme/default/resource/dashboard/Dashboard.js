@@ -36,45 +36,7 @@
 				case 1: return w;
 			}
 		},
-		merge = function(){
-			function clone(object){
-				var _clone = function(){};
-				_clone.prototype = object
-				return new _clone();
-			}
-			function mergeOne(source, key, current){
-				if(Ext.isObject(current)){
-					if (Ext.isObject(source[key])) _merge(source[key], current);
-					else source[key] = clone(current);
-				}else if(Ext.isArray(current)){
-					source[key] = [].concat(current);
-				}else{
-					source[key] = current;
-				}
-				return source;
-			}
-			function _merge(source, k, v){
-				if (Ext.isString(k)) return mergeOne(source, k, v);
-				for (var i = 1, l = arguments.length; i < l; i++){
-					var object = arguments[i];
-					for (var key in object) mergeOne(source, key, object[key]);
-				}
-				return source;
-			}
-			
-			return function(){
-				var args = [{}],
-					i = arguments.length,
-					ret;
-				while (i--) {
-					if (!Ext.isBoolean(arguments[i])) {
-						args[i + 1] = arguments[i];
-					}
-				}
-				ret = _merge.apply(null, args);
-				return ret;
-			}
-		}();
+		merge = $A.merge;
 $A.Dashboard = Ext.extend($A.Graphics,{
 	options : {
 		chart : {

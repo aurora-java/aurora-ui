@@ -1870,8 +1870,8 @@ $A.Record.Meta.prototype = {
         
         var pro = {};
         if(df) pro = Ext.apply(pro, df.pro);
-        pro = Ext.apply(pro, this.pro);
-        pro = Ext.apply(pro, f.pro);
+        pro = $A.merge(pro, this.pro);
+        pro = $A.merge(pro, f.pro);
         delete pro.name;
         delete pro.type;
         f.snap = pro;
