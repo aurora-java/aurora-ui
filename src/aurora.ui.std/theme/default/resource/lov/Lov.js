@@ -294,7 +294,8 @@ A.Lov = Ext.extend(A.TextField,{
             sidebar.enable = A.slideBarEnable;
             return;
         }
-        sf.setRawValue(_lang['lov.query'])
+        $A.Masker.mask(sf.wrap,_lang['lov.query']);
+//        sf.setRawValue(_lang['lov.query'])
         sf.qtId = A.request({url:url, para:p, success:function(res){
             var r = new A.Record({});
             if(res.result.record){
@@ -326,7 +327,8 @@ A.Lov = Ext.extend(A.TextField,{
                 }
             }
             sf.fetching = false;
-            sf.setRawValue(_N);
+            $A.Masker.unmask(sf.wrap);
+//            sf.setRawValue(_N);
             sf.commit(r,record,mapping);
             record.isReady=true;
             sidebar.enable = A.slideBarEnable;

@@ -837,7 +837,8 @@ $A.Masker = function(){
             var el = Ext.get(el);
             var w = el.getWidth();
             var h = el.getHeight();//leftp:0px;top:0px; 是否引起resize?
-            var p = '<div class="aurora-mask"  style="left:-10000px;top:-10000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
+            var vh = Math.min(h-2,30);
+            var p = '<div class="aurora-mask"  style="left:-10000px;top:-10000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px;height:'+vh+'px;line-height:'+(vh-2)+'px">'+msg+'</span></div>';
             var wrap = el.parent('body')?el.parent():el.child('body')||el;
             var masker = Ext.get(Ext.DomHelper.append(wrap,p));
             var zi = el.getStyle('z-index') == 'auto' ? 0 : Number(el.getStyle('z-index'));
@@ -1698,3 +1699,43 @@ var POW = Math.pow,
         mul:mul
     }
 })();
+
+$A.merge = function(){
+	function clone(object){
+		var _clone = function(){};
+		_clone.prototype = object
+		return new _clone();
+	}
+	function mergeOne(source, key, current){
+		if(Ext.isObject(current)){
+			if (Ext.isObject(source[key])) _merge(source[key], current);
+			else source[key] = clone(current);
+		}else if(Ext.isArray(current)){
+			source[key] = [].concat(current);
+		}else{
+			source[key] = current;
+		}
+		return source;
+	}
+	function _merge(source, k, v){
+		if (Ext.isString(k)) return mergeOne(source, k, v);
+		for (var i = 1, l = arguments.length; i < l; i++){
+			var object = arguments[i];
+			for (var key in object) mergeOne(source, key, object[key]);
+		}
+		return source;
+	}
+	
+	return function(){
+		var args = [{}],
+			i = arguments.length,
+			ret;
+		while (i--) {
+			if (!Ext.isBoolean(arguments[i])) {
+				args[i + 1] = arguments[i];
+			}
+		}
+		ret = _merge.apply(null, args);
+		return ret;
+	}
+}();
