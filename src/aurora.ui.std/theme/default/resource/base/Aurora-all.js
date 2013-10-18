@@ -204,7 +204,8 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 $ = $A.getCmp = function(id){
     var cmp = $A.CmpManager.get(id)
     if(cmp == null) {
-        alert('未找到组件:' + id)
+//        alert('未找到组件:' + id)
+        if(console && console.log)console.log('未找到组件:' + id);
     }
     return cmp;
 }
@@ -962,14 +963,24 @@ $A.doEvalScript = function(){
     var loaded = 0;
     
     var finishLoad = function(){
+        try {
         for(j=0,k=jsscript.length;j<k;j++){
             var jst = jsscript[j];
-            if(window.execScript) {
-                window.execScript(jst);
-            } else {
-                window.eval(jst);
+            if(o.destroying === true) break;
+            try {
+                if(window.execScript) {
+                    window.execScript(jst);
+                } else {
+                    window.eval(jst);
+                }
+            }catch (e){
+                if(console){
+                    console.log("执行代码: " + jst);
+                    console.log(e);
+                }
             }
         }
+        }catch(e){}
         var el = document.getElementById(id);
         if(el){Ext.removeNode(el);} 
 //        Ext.fly(dom).setStyle('display', 'block');
@@ -1017,10 +1028,18 @@ $A.doEvalScript = function(){
     } else if(jslink.length ==0) {
         for(j=0,k=jsscript.length;j<k;j++){
             var jst = jsscript[j];
-            if(window.execScript) {
-               window.execScript(jst);
-            } else {
-               window.eval(jst);
+            if(o.destroying === true) break;
+            try {
+                if(window.execScript) {
+                   window.execScript(jst);
+                } else {
+                   window.eval(jst);
+                }
+            }catch (e){
+                if(console){
+                    console.log("执行代码: " + jst);
+                    console.log(e);
+                }
             }
         }
         var el = document.getElementById(id);
@@ -3228,28 +3247,30 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.fireBindDataSetEvent('submitfailed', res);
     },
     onLoadSuccess : function(res, options){
-        if(res == null) return;
-        if(!res.result.record) res.result.record = [];
-        var records = [].concat(res.result.record);
-        //var total = res.result.totalCount;
-        var total = res.result[this.totalcountfield]
-        var datas = [];
-        if(records.length > 0){
-            for(var i=0,l=records.length;i<l;i++){
-                var item = {
-                    data:records[i]             
+        try {
+            if(res == null) return;
+            if(!res.result.record) res.result.record = [];
+            var records = [].concat(res.result.record);
+            //var total = res.result.totalCount;
+            var total = res.result[this.totalcountfield]
+            var datas = [];
+            if(records.length > 0){
+                for(var i=0,l=records.length;i<l;i++){
+                    var item = {
+                        data:records[i]             
+                    }
+                    datas.push(item);
                 }
-                datas.push(item);
-            }
-        }else if(records.length == 0){
-            this.currentIndex  = 0
-        }       
-        this.loading = false;
-        this.loadData(datas, total, options);
-        if(datas.length != 0)
-        this.locate(this.currentIndex,true);
-        $A.SideBar.enable = $A.slideBarEnable;
-        this.qtId = null;
+            }else if(records.length == 0){
+                this.currentIndex  = 0
+            }       
+            this.loading = false;
+            this.loadData(datas, total, options);
+            if(datas.length != 0)
+            this.locate(this.currentIndex,true);
+            $A.SideBar.enable = $A.slideBarEnable;
+            this.qtId = null;
+        }catch(e){}
     },
     onAjaxFailed : function(res,opt){
         this.fireBindDataSetEvent('ajaxfailed',res,opt);
@@ -3790,6 +3811,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
         this.hasFocus = false;
 		this.initComponent(config);
         this.initEvents();
+        this.hidden && this.setVisible(false);
     },
     initComponent : function(config){ 
 		config = config || {};
@@ -3996,7 +4018,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 			//TODO:和lov的设值有问题
 //			if(this.value == value) return;
 			if(!Ext.isEmpty(value,true)) {
-                this.setValue(value,true,true);
+                this.setValue(value,true);
 			}else{
                 this.clearValue();
 			}
@@ -4081,6 +4103,9 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     hide : function(){
     	this.wrap.hide();
     },
+    setVisible : function(v){
+    	this[v?'show':'hide']();
+    },
     clearInvalid : function(){},
     markInvalid : function(){},
     clearValue : function(){},
@@ -4098,6 +4123,8 @@ $A.Component = Ext.extend(Ext.util.Observable,{
  * @param {Object} config 配置对象. 
  */
 $A.Field = Ext.extend($A.Component,{	
+	autoselect : true,
+	transformcharacter : true,
 	validators: [],
 	requiredCss:'item-notBlank',
 	readOnlyCss:'item-readOnly',
@@ -4125,7 +4152,7 @@ $A.Field = Ext.extend($A.Component,{
     	sf.originalValue = sf.getValue();
     	sf.applyEmptyText();
     	sf.initStatus();
-    	sf.hidden && sf.setVisible(false);
+//    	sf.hidden && sf.setVisible(false);
     	sf.initService()
     	sf.initAutoComplete();
     },
@@ -4198,13 +4225,13 @@ $A.Field = Ext.extend($A.Component,{
 		this.wrap.setStyle("height",h+"px");
 		this.el.setStyle("height",(h-2)+"px");
 	},
-	setVisible: function(v){
-		this.wrap[v?'show':'hide']();
-//		if(v==true)
-//			this.wrap.show();
-//		else
-//			this.wrap.hide();
-	},
+//	setVisible: function(v){
+//		this.wrap[v?'show':'hide']();
+////		if(v==true)
+////			this.wrap.show();
+////		else
+////			this.wrap.hide();
+//	},
     initStatus : function(){
     	var sf = this;
     	sf.clearInvalid();
@@ -4245,7 +4272,7 @@ $A.Field = Ext.extend($A.Component,{
     onFocus : function(e){
         //(Ext.isGecko||Ext.isGecko2||Ext.isGecko3) ? this.select() : this.select.defer(10,this);
     	var sf = this;
-    	sf.select.defer(1,sf);
+    	sf.autoselect && sf.select.defer(1,sf);
         if(!sf.hasFocus){
             sf.hasFocus = true;
             sf.startValue = sf.getValue();
@@ -5193,12 +5220,12 @@ $A.Button = Ext.extend($A.Component,{
      * 设置按钮是否可见.
      * @param {Boolean} visiable  是否可见.
      */
-    setVisible: function(v){
-		if(v==true)
-			this.wrap.show();
-		else
-			this.wrap.hide();
-	},
+//    setVisible: function(v){
+//		if(v==true)
+//			this.wrap.show();
+//		else
+//			this.wrap.hide();
+//	},
 //    destroy : function(){
 //    	$A.Button.superclass.destroy.call(this);
 //    	this.el.un("click", this.onClick,  this);
@@ -5319,7 +5346,9 @@ $A.CheckBox = Ext.extend($A.Component,{
 		this.el=this.wrap.child('div[atype=checkbox]');
 	},
 	processListener: function(ou){
-    	this.wrap[ou]('click',this.onClick,this);
+    	this.wrap
+    		[ou]('mousedown',this.onMouseDown,this)
+    		[ou]('click',this.onClick,this);
     	this.el[ou]('keydown',this.onKeyDown,this);
     	this.el[ou]('focus',this.onFocus,this)
     	this.el[ou]('blur',this.onBlur,this)
@@ -5346,6 +5375,11 @@ $A.CheckBox = Ext.extend($A.Component,{
     		e.stopEvent();
     	}
     },
+    onMouseDown : function(e){
+    	var sf = this;
+    	sf.hasFocus && e.stopEvent();
+    	sf.focus.defer(Ext.isIE?1:0,sf);
+    },
 	onClick: function(event){
 		if(!this.readonly){
 			this.checked = this.checked ? false : true;	
@@ -5362,13 +5396,19 @@ $A.CheckBox = Ext.extend($A.Component,{
 	},
 	onFocus : function(){
 		var sf = this;
-		sf.el.addClass(sf.focusCss);
-		sf.fireEvent('focus',sf);
+		if(!sf.hasFocus){
+	        sf.hasFocus = true;
+			sf.el.addClass(sf.focusCss);
+			sf.fireEvent('focus',sf);
+		}
 	},
 	onBlur : function(){
 		var sf = this;
-		sf.el.removeClass(sf.focusCss);
-		sf.fireEvent('blur',sf);
+		if(sf.hasFocus){
+	        sf.hasFocus = false;
+			sf.el.removeClass(sf.focusCss);
+			sf.fireEvent('blur',sf);
+		}
 	},
 	setValue:function(v, silent){
 		if(typeof(v)==='boolean'){
@@ -6196,7 +6236,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		var record = this.optionDataSet.getAt(index),
 			value = record.get(this.valuefield),
 			display = this.getRenderText(record);//record.get(this.displayfield);
-		this.setValue(display,null,null,record);
+		this.setValue(display,null,record);
 		this.fireEvent('select',this, value, display, record);
         
 	},
@@ -6323,10 +6363,10 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //		}
 //		return this.text;
 //	},
-	setValue: function(v, silent,isRender,vr){
+	setValue: function(v, silent,vr){
         $A.ComboBox.superclass.setValue.call(this, v, silent);
         var r = this.record;
-        if(r && !isRender){
+        if(r && !silent){
 			var field = r.getMeta().getField(this.binder.name);
 			if(field){
 				var raw = this.getRawValue(),
@@ -7610,6 +7650,7 @@ $A.Window = Ext.extend($A.Component,{
     close : function(nocheck){
         if(!nocheck && !this.checkDataSetNotification()) return;
         if(this.fireEvent('beforeclose',this)){
+            this.wrap.destroying = true;
             $A.WindowManager.remove(this);
             if(this.fullScreen){
                 Ext.fly(document.documentElement).setStyle({'overflow':this.overFlow})

@@ -204,7 +204,8 @@ Ext.Ajax.on("requestexception", function(conn, response, options) {
 $ = $A.getCmp = function(id){
     var cmp = $A.CmpManager.get(id)
     if(cmp == null) {
-        alert('未找到组件:' + id)
+//        alert('未找到组件:' + id)
+        if(console && console.log)console.log('未找到组件:' + id);
     }
     return cmp;
 }
@@ -963,14 +964,24 @@ $A.doEvalScript = function(){
     var loaded = 0;
     
     var finishLoad = function(){
+        try {
         for(j=0,k=jsscript.length;j<k;j++){
             var jst = jsscript[j];
-            if(window.execScript) {
-                window.execScript(jst);
-            } else {
-                window.eval(jst);
+            if(o.destroying === true) break;
+            try {
+                if(window.execScript) {
+                    window.execScript(jst);
+                } else {
+                    window.eval(jst);
+                }
+            }catch (e){
+                if(console){
+                    console.log("执行代码: " + jst);
+                    console.log(e);
+                }
             }
         }
+        }catch(e){}
         var el = document.getElementById(id);
         if(el){Ext.removeNode(el);} 
 //        Ext.fly(dom).setStyle('display', 'block');
@@ -1018,10 +1029,18 @@ $A.doEvalScript = function(){
     } else if(jslink.length ==0) {
         for(j=0,k=jsscript.length;j<k;j++){
             var jst = jsscript[j];
-            if(window.execScript) {
-               window.execScript(jst);
-            } else {
-               window.eval(jst);
+            if(o.destroying === true) break;
+            try {
+                if(window.execScript) {
+                   window.execScript(jst);
+                } else {
+                   window.eval(jst);
+                }
+            }catch (e){
+                if(console){
+                    console.log("执行代码: " + jst);
+                    console.log(e);
+                }
             }
         }
         var el = document.getElementById(id);
