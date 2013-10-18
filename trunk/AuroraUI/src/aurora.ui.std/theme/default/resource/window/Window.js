@@ -370,6 +370,7 @@ $A.Window = Ext.extend($A.Component,{
     close : function(nocheck){
         if(!nocheck && !this.checkDataSetNotification()) return;
         if(this.fireEvent('beforeclose',this)){
+            this.wrap.destroying = true;
             $A.WindowManager.remove(this);
             if(this.fullScreen){
                 Ext.fly(document.documentElement).setStyle({'overflow':this.overFlow})

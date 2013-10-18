@@ -1528,28 +1528,30 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.fireBindDataSetEvent('submitfailed', res);
     },
     onLoadSuccess : function(res, options){
-        if(res == null) return;
-        if(!res.result.record) res.result.record = [];
-        var records = [].concat(res.result.record);
-        //var total = res.result.totalCount;
-        var total = res.result[this.totalcountfield]
-        var datas = [];
-        if(records.length > 0){
-            for(var i=0,l=records.length;i<l;i++){
-                var item = {
-                    data:records[i]             
+        try {
+            if(res == null) return;
+            if(!res.result.record) res.result.record = [];
+            var records = [].concat(res.result.record);
+            //var total = res.result.totalCount;
+            var total = res.result[this.totalcountfield]
+            var datas = [];
+            if(records.length > 0){
+                for(var i=0,l=records.length;i<l;i++){
+                    var item = {
+                        data:records[i]             
+                    }
+                    datas.push(item);
                 }
-                datas.push(item);
-            }
-        }else if(records.length == 0){
-            this.currentIndex  = 0
-        }       
-        this.loading = false;
-        this.loadData(datas, total, options);
-        if(datas.length != 0)
-        this.locate(this.currentIndex,true);
-        $A.SideBar.enable = $A.slideBarEnable;
-        this.qtId = null;
+            }else if(records.length == 0){
+                this.currentIndex  = 0
+            }       
+            this.loading = false;
+            this.loadData(datas, total, options);
+            if(datas.length != 0)
+            this.locate(this.currentIndex,true);
+            $A.SideBar.enable = $A.slideBarEnable;
+            this.qtId = null;
+        }catch(e){}
     },
     onAjaxFailed : function(res,opt){
         this.fireBindDataSetEvent('ajaxfailed',res,opt);
