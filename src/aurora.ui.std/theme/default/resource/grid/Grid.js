@@ -575,7 +575,9 @@ A.Grid = Ext.extend(A.Component,{
     },
     preLoad : function(){},
     onLoad : function(){
-        var sf = this;
+        var sf = this,
+        	ds = sf.dataset,
+        	cr = ds.getCurrentRecord();
         sf.isSelectAll = FALSE;
         sf.clearDomRef();
         sf.preLoad();
@@ -586,6 +588,7 @@ A.Grid = Ext.extend(A.Component,{
         sf.renderUnLockAread();
 //        if(focus !== FALSE) sf.focus.defer(10,sf);//获取数据后的获得焦点,会引起其他编辑器无法编辑
         sf.drawFootBar();
+        cr && sf.onIndexChange(ds,cr);
         A.Masker.unmask(sf.wb);
         sf.fireEvent(EVT_RENDER,sf)
     },
@@ -1374,7 +1377,7 @@ A.Grid = Ext.extend(A.Component,{
                     ed.un(EVT_SELECT,sf.onEditorSelect,sf);
                     Ext.fly(DOC_EL).un(EVT_MOUSE_DOWN, sf.onEditorBlur, sf);
 //                  var ed = sf.currentEditor.editor;
-                    ed.move(-10000,-10000);
+                    ed.move(-20000);
                     var view = ed.autocompleteview;
                     if(view)view.hide();
                     sf.editing = FALSE;

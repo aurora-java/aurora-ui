@@ -9,6 +9,7 @@
 $A.AUTO_ID = 1000;
 $A.DataSet = Ext.extend(Ext.util.Observable,{
     constructor: function(config) {//datas,fields, type
+        var sf = this;
         $A.DataSet.superclass.constructor.call(this);
         config = config || {};
         if(config.listeners){
@@ -52,12 +53,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             var datas=config.datahead?this.convertData(config.datahead,config.datas):config.datas;
             this.autocount = false;
             this.loadData(datas);
-            //this.locate(this.currentIndex); //不确定有没有影响
+            $A.onReady(function(){
+				sf.locate(sf.currentIndex,true); //不确定有没有影响
+            });
         }
         if(config.autoquery === true) {
-            var sf = this;
             $A.onReady(function(){
-               sf.query(); 
+				sf.query(); 
             });
         }
         if(config.autocreate==true) {
@@ -1918,6 +1920,7 @@ $A.Record.Field.prototype = {
         var op = this.pro[type];
         if(op !== value){
             this.pro[type] = value;
+            if(this.snap)this.snap[type] = value;
             if(this.record)this.record.onFieldChange(this.name, type, value);
         }
     },
@@ -1930,6 +1933,8 @@ $A.Record.Field.prototype = {
         var v = null;
         if(this.snap){
             v = this.snap[name];
+        }else if(this.pro){
+        	v = this.pro[name];
         }
         return v;
     },
@@ -1949,7 +1954,7 @@ $A.Record.Field.prototype = {
      * @return {Boolean} required  是否必输.
      */
     isRequired : function(){
-        return this.getPropertity('required');
+        return this.get('required');
     },
     /**
      * 设置当前Field是否只读.
@@ -1964,7 +1969,7 @@ $A.Record.Field.prototype = {
      * @return {Boolean} readonly 是否只读
      */
     isReadOnly : function(){
-        return this.getPropertity('readonly');
+        return this.get('readonly');
     },
     /**
      * 设置当前Field的数据集.
@@ -1978,7 +1983,7 @@ $A.Record.Field.prototype = {
      * @return {Object} r 数据集
      */
     getOptions : function(){
-        return this.getPropertity('options');
+        return this.get('options');
     },
     /**
      * 设置当前Field的映射.
@@ -1996,7 +2001,7 @@ $A.Record.Field.prototype = {
      * @return {Array} array 映射集合
      */
     getMapping : function(){
-        return this.getPropertity('mapping');
+        return this.get('mapping');
     },
     /**
      * 设置Lov弹出窗口的Title.
@@ -2058,7 +2063,7 @@ $A.Record.Field.prototype = {
      * @param {Object} value
      */
     setLovPara : function(name,value){
-        var p = this.getPropertity('lovpara');
+        var p = this.get('lovpara');
         if(!p){
             p = {};
             this.setPropertity("lovpara",p) 

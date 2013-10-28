@@ -21,17 +21,18 @@ var DOC=document,
     mathSin = Math.sin,
     mathPI = Math.PI,
     pInt = parseInt,
+    isEmpty = Ext.isEmpty,
     capitalize = function(w){
-    	return (w = w.trim()).toLowerCase().replace(/^./,w.charAt(0).toUpperCase());
+    	return (w = w.trim()).replace(/^./,w.charAt(0).toUpperCase());
     },
     newSVG = function(tag,id){
     	var e = DOC.createElementNS(SVG_NS, tag);
-    	if(!Ext.isEmpty(id)) e.id = id;
+    	if(!isEmpty(id)) e.id = id;
     	return Ext.get(e);
     },
     newVML = function(vml,id){
     	var e = DOC.createElement(vml);
-    	if(!Ext.isEmpty(id)) e.id = id;
+    	if(!isEmpty(id)) e.id = id;
     	return Ext.get(e);
     },
     isSVG = function(el){
@@ -110,7 +111,7 @@ var DOC=document,
     		t[1].replace(/\(([-.\d]+)\)/,'($1,0 0)'))
     			.replace(/[-.\d]+/g,function($0){
     				var v=values.shift();
-    				return Ext.isEmpty(v)?$0:v
+    				return isEmpty(v)?$0:v
     			}));
     }:function(){
     	var dom,values=Ext.toArray(arguments),options={};
@@ -119,12 +120,12 @@ var DOC=document,
     	}else{
 	    	dom = this.el || this.wrap
     	}
-    	if(!Ext.isEmpty(values[0])) dom.setStyle('left',values[0] + PX);
-    	if(!Ext.isEmpty(values[1])) dom.setStyle('top',values[1] + PX);
-    	if(!Ext.isEmpty(values[2]) && !Ext.isEmpty(values[3])){
+    	if(!isEmpty(values[0])) dom.setStyle('left',values[0] + PX);
+    	if(!isEmpty(values[1])) dom.setStyle('top',values[1] + PX);
+    	if(!isEmpty(values[2]) && !isEmpty(values[3])){
 	    	dom.dom.coordsize.value= 100 / values[2]+',' +  100 / values[3];
     	}
-    	if(!Ext.isEmpty(values[4])){
+    	if(!isEmpty(values[4])){
     		var xy = dom.getXY(),
     			x = pInt(dom.getStyle('left')||0),
     			y = pInt(dom.getStyle('top')||0),
@@ -164,7 +165,7 @@ var DOC=document,
 				}
     		if(dom.dom.tagName == 'SPAN'){
 				dom.setStyle({
-					filter: !Ext.isEmpty(rotation) ? ['progid:DXImageTransform.Microsoft.Matrix(M11=', cosA,
+					filter: !isEmpty(rotation) ? ['progid:DXImageTransform.Microsoft.Matrix(M11=', cosA,
 						', M12=', -sinA, ', M13=100', ', M21=', sinA, ', M22=', cosA,
 						', sizingMethod=\'auto expand\')'].join('') : NONE,
 					left : left  + PX,
@@ -176,6 +177,17 @@ var DOC=document,
 	    		})
     		}
     	}
+    },
+    convertPoints = function(points){
+    	if(Ext.isString(points)){
+	    	var a= points.match(numberReg);
+			points = [];
+			if(!a)return false;
+			for(var i = 0,l = a.length;i < l;i += 2){
+				points.push([Number(a[i]),Number(a[i+1])]);
+			}
+    	}
+    	return points;
     },
     setTopCmp = function(){
     	var z = 1,el;
@@ -257,7 +269,7 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     initSVGElement : function(){
     	this.root = newSVG('g').appendTo(newSVG('svg')
-    		.setStyle({height:'100%',width:'100%'})//Fixed for FF 11;
+    		.setStyle({height:'100%',width:'100%',position:'relative'})//Fixed for FF 11;
     		.appendTo(this.wrap));
     },
     initVMLElement : function(){
@@ -351,8 +363,9 @@ $A.Graphics=Ext.extend($A.Component,{
     	if(sf.moveable)sf.fireEvent('move',sf,sf.dataset,null,tx,ty);
     	sf.proxy.moveTo(tx,ty);
     },
-    onMouseUp : function(e){
+    onMouseUp : function(e,t){
     	var sf = this;
+    	sf.fire('mouseup',e,t);
     	Ext.fly(DOC).un('mousemove',sf.onMouseMove,sf)
     		.un('mouseup',sf.onMouseUp,sf);
     	if(sf.dropto){
@@ -388,7 +401,12 @@ $A.Graphics=Ext.extend($A.Component,{
 		    	if(ds)
 		    		record = ds.findById(id)
 		    	if(a[1]){
-		    		t = $(a[1]+'_'+id);
+		    		id = a[1]+'_'+id;
+//		    		var i,id2;
+//		    		if(a[3] && (i = a[3].indexOf('_el'))!=-1){
+//		    			id2 = id+a[3].substring(0,i);
+//		    		}
+		    		t = $(id);
 		    	}
 		    	return {el:t,record:record}
 	    	}
@@ -415,7 +433,7 @@ $A.Graphics=Ext.extend($A.Component,{
 	            return;
 	        }
 	        var v = fder.call(window,g,type,config);
-	        if(!Ext.isEmpty(v)){
+	        if(!isEmpty(v)){
 		        if(Ext.isObject(v)){
 		        	v = Ext.util.JSON.encode(v);
 		        }
@@ -436,8 +454,17 @@ $A.Graphics=Ext.extend($A.Component,{
 //    	}
 //    },
     moveTo :function(x,y){
-    	var wrap = this.wrap;
+    	var sf = this,wrap = sf.wrap,parent = sf.parent;
+    	Ext.apply(sf.initConfig,{x:(sf.x=x),y:(sf.y=y)});
     	if(isSVG(wrap)){
+    		if(sf.strokewidth % 2 ==1 && sf.shadow){
+				x += .5;
+				y += .5;
+			}
+			if(parent){
+				x-=parent.x;
+				y-=parent.y;
+			}
     		transform(wrap,x,y);
     	}else{
     		var xy = this.top.wrap.getXY();
@@ -447,8 +474,16 @@ $A.Graphics=Ext.extend($A.Component,{
     syncFocusMask : function(t){
     	var focusMask = this.focusMask;
     	if(!t.moveable)return focusMask;
-    	var delta = t.strokewidth/2 + 3;
-		return focusMask.setStyle({'left':t.x-delta+PX,top:t.y-delta+PX}).setWidth(t.width+delta*2).setHeight(t.height+delta*2).set({title:t.info||''});
+    	var delta = t.strokewidth/2 + 3,
+    		xd = delta,yd = delta,
+    		w = t.width,
+    		h = t.height;
+//    	if(t.type == 'diamond'){
+//    		var r = Math.atan(h/w);
+//    		xd = Math.round(delta/ Math.sin(r)*10)/10;
+//    		yd = Math.round(delta/ Math.cos(r)*10)/10;
+//    	}
+		return focusMask.setStyle({'left':t.x-xd+PX,top:t.y-yd+PX}).setWidth(w+xd*2).setHeight(h+yd*2).set({title:t.info||''});
     },
     focus : function(t){
     	var sf = this;
@@ -456,14 +491,14 @@ $A.Graphics=Ext.extend($A.Component,{
     	if(t){
 			if(sf.focusItem)sf.blur();
 			if(sf.editable){
-		    	if(t.editable){
+				if(t.editable){
 					t.showEditors()
 				}
 				if(t.moveable){
 					if(!sf.focusMask){
-						sf.focusMask = new Ext.Template('<div style="-moz-user-select:none;-webkit-user-select:none;cursor:pointer;background:none;position:absolute;border:1px dashed #000;z-index:999;"></div>').insertFirst(sf.wrap.dom,{},true);
+						sf.focusMask = new Ext.Template('<div style="-moz-user-select:none;-webkit-user-select:none;background:none;position:absolute;border:1px dashed #000;"></div>').insertFirst(sf.wrap.dom,{},true);
 					}
-					sf.syncFocusMask(t).show().on('mousedown',t.onMouseDown,t);	
+					sf.syncFocusMask(t).show()//.on('mousedown',t.onMouseDown,t);	
 				}
 			}
 			sf.focusItem = t;
@@ -474,12 +509,12 @@ $A.Graphics=Ext.extend($A.Component,{
     blur : function(){
     	var sf = this,t = sf.focusItem,focusMask = sf.focusMask;
     	if(t){
-	    	if(t.editable){
+    		if(t.editable){
 				t.hideEditors()
-			}
+    		}
 			if(t.moveable){
 				if(focusMask){
-					focusMask.hide().un('mousedown',t.onMouseDown,t);	
+					focusMask.hide()//.un('mousedown',t.onMouseDown,t);	
 				}
 			}
 			sf.fire('blur',null,t);
@@ -487,37 +522,78 @@ $A.Graphics=Ext.extend($A.Component,{
     	}
     },
     startLine : function(e,t){
-    	var sf = this,focusMask = sf.focusMask,
-    		el = sf.getGElement(focusMask && focusMask.dom === t? sf.focusItem:t);
+    	var sf = this,
+    		el = sf.getGElement(t),
+    		_xy = sf.wrap.getXY(),
+    		x = e.getPageX()- _xy[0],
+    		y = e.getPageY()- _xy[1],
+    		c;
     	if(el){
-	    	var _xy = sf.wrap.getXY();
-			sf.startEl = el;
-			sf.drawLinePoints = [e.getPageX() - _xy[0],e.getPageY() - _xy[1]];
-			Ext.fly(DOC).on('mousemove',sf.drawLine,sf)
-				.on('mouseup',sf.endLine,sf);
+    		c = el.el.findConnect(e);
+			if(c){
+				x = c.x + c.width/2;
+				y = c.y + c.height/2;
+				sf.startEl = el;
+			}
     	}
+		sf.drawLinePoints = [x,y];
+		Ext.fly(DOC).on('mousemove',sf.drawLine,sf)
+			.on('mouseup',sf.endLine,sf);
     },
-    drawLine : function(e){
+    drawLine : function(e,t){
     	var sf = this,_xy = sf.wrap.getXY(),
     		x1 = sf.drawLinePoints[0], y1 = sf.drawLinePoints[1],
-    		x2 = e.getPageX() - _xy[0],y2 = e.getPageY() - _xy[1],
-    		dx = x2 - x1,dy = y2 - y1,d = 10,points;
-		if(dx == 0){
-			y2 += dy>0?-d:d;
-		}else if(dy == 0){
-			x2 += dx>0?-d:d;
-		}else{
-			var ll = Math.sqrt(dx*dx+dy*dy);
-			x2 = (ll-d)/ll*dx+x1;
-			y2 = (ll-d)/ll*dy+y1;
-		}
-		points = [x1 , ',' , y1  , ' ' , Math.round(x2) , ',' , Math.round(y2)].join('');
+    		g = sf.getGElement(t),
+    		start_el = sf.startEl,
+    		x2,y2,r,el,record,
+    		points,c,start_table_id,end_table_id;
+    	if(g && (r = g.record)!= sf.newline && (el = g.el)!=(start_el && start_el.el)){
+    		el.showConnects();
+    		c = el.findConnect(e);
+    	}
+    	if(c){
+			end_table_id = r.get(sf.tableidfield)|| r.get('table_id');
+    		x2 = c.x + c.width/2;
+    		y2 = c.y + c.height/2;
+    	}else{
+    		x2 = e.getPageX() - _xy[0],y2 = e.getPageY() - _xy[1];
+//    		var dx = x2 - x1,dy = y2 - y1,d = 10;
+//			if(dx == 0){
+//				y2 += dy>0?-d:d;
+//			}else if(dy == 0){
+//				x2 += dx>0?-d:d;
+//			}else{
+//				var ll = Math.sqrt(dx*dx+dy*dy);
+//				x2 = (ll-d)/ll*dx+x1;
+//				y2 = (ll-d)/ll*dy+y1;
+//			}
+    	}
+    	x2 = Math.round(x2);
+    	y2 = Math.round(y2);
     	if(!sf.newline){
-    		var r = sf.startEl.record,table_id = r.get(sf.tableidfield)|| r.get('table_id');
-    		sf.newline = sf.dataset.create({'type':'line','config':'strokewidth:1,strokecolor:"#aaaaaa",strokeopacity:"1",titlecolor:"black",titlesize:14,titlex:0,titley:0,endarrow:"classic",points:"'+points+'",editable:true'+(Ext.isEmpty(table_id)?'':(',from:'+table_id))});
+			points = [[x1 , y1],[x2 , y2]].join(' ');
+    		if(start_el){
+    			start_table_id = (r = start_el.record).get(sf.tableidfield)|| r.get('table_id');
+    		}
+    		sf.newline = sf.dataset.create({
+    			'type':'zLine',
+    			'config':'strokewidth:1,strokecolor:"#aaaaaa",strokeopacity:"1",titlecolor:"black",titlesize:14,titlex:0,titley:0,endarrow:"classic",points:"'+
+    			points+'",editable:true,connectable:false'+
+    			(isEmpty(start_table_id)?'':(',from:'+start_table_id))+
+    			(isEmpty(end_table_id)?'':(',to:'+end_table_id))});
+    		var eds = $(sf.id+'_'+sf.newline.id).editors;
+    		eds[eds.length-1].wrap.hide();
     	}else{
     		var config = convertConfig(sf.newline);
-    		config.points = points;
+    		points = convertPoints(config.points);
+    		points.pop();
+    		points.push([x2 , y2]);
+    		config.points = points.join(' ');
+    		if(!end_table_id){
+    			delete config.to;
+    		}else{
+    			config.to = end_table_id;
+    		}
     		sf.newline.set('config',Ext.util.JSON.encode(config));
     	}
     },
@@ -526,17 +602,8 @@ $A.Graphics=Ext.extend($A.Component,{
     	Ext.fly(DOC).un('mousemove',sf.drawLine,sf)
 			.un('mouseup',sf.endLine,sf);
     	if(sf.newline){
-    		var el = sf.getGElement(t);
-    		if(!el||el.el == sf.startEl.el||el.record == sf.newline){
-    			sf.dataset.remove(sf.newline);
-    		}else{
-    			var r = el.record,
-    				config = convertConfig(sf.newline);
-	    		config.to = r.get(sf.tableidfield)|| r.get('table_id');
-	    		sf.newline.set('config',Ext.util.JSON.encode(config));
-	    		sf.focus($(sf.id+'_'+sf.newline.id));
-	    		sf.fireEvent('drawn');
-    		}
+    		sf.focus($(sf.id+'_'+sf.newline.id));
+    		sf.fireEvent('drawn');
     	}
     	delete sf.drawLinePoints;
     	delete sf.newline;
@@ -577,75 +644,13 @@ $A.Graphics=Ext.extend($A.Component,{
     	this.focus($(this.id + '_' +record.id));
     },
     onUpdate : function(ds,record, name, value,ov){
-    	var sf = this,el = $(sf.id+'_'+record.id),
+		var sf = this,el = $(sf.id+'_'+record.id),
     		config = convertConfig(record),
-    		type = record.get('type'),
-    		x = el.x,y = el.y,
-    		processConfig = pub[capitalize(type)].processConfig;
-    		config.type = type,
-    		_proto = pub[type == 'image'?'Image':'Path'].prototype;
-    	if(processConfig && processConfig(config)==false){
+    		type = record.get('type');
+    		config.type = type;
+    	if(el.changeConfig(config,record) == false){
     		record.set(name,ov);
-    		return;
     	}
-    	for(var key in el.initConfig){
-    		if(key != 'dataset' && key != 'top' && key != 'root' && key != 'id'){
-	    		if(!key in config)delete el[key];
-    		}
-    	}
-    	Ext.apply(el,config);
-    	el.initConfig = config;
-    	el.processListener('un');
-    	el.el.remove();
-    	if(el.text)el.text.remove();
-    	if(hasSVG){
-    		el.initSVGElement = _proto.initSVGElement;
-    	}else{
-    		el.initVMLElement = _proto.initVMLElement;
-    		el.vmlTpl = _proto.vmlTpl;
-    	}
-    	el.initComponent(config);
-//TODO WebKit BUG
-//    	if(Ext.isWebKit){
-//    		var dom = el.wrap.dom;
-//    		dom.setAttribute('transform',dom.getAttribute('transform'));
-//    	}
-    	el.syncLineEditors(el.x - x,el.y - y);
-    	if(el == sf.focusItem && sf.focusMask){
-    		sf.syncFocusMask(el);
-    	}
-    	el.processListener('on');
-    	if(el.editors && el.points){
-    		var i = 0,eds = el.editors,
-    			te = eds[eds.length-1],
-    			bindEl = te.bindEl;
-    		if(bindEl){
-	    		var les = bindEl.lineEditors;
-	    		les.splice(les.indexOf(te),1);
-	    		delete te.bindEl;
-    		}
-			for(var p = el.points,l=p.length;i<l;i++){
-				var ed = eds[i],p1 = p[i][0],p2 = p[i][1];
-				if(ed){
-					var edx = ed.x = p1-ed.width/2,
-    					edy = ed.y = p2-ed.height/2;
-					if(hasSVG && ed.strokewidth % 2 ==1 && el.shadow){
-						edx += .5;
-						edy += .5;
-					}
-					ed.moveTo(edx,edy);
-				}else{
-					el.createEditor(p1,p2);
-				}
-			}
-			while(eds.length > i){
-				var ed = eds.pop();
-				ed.un('move',el.editorMove,el);
-				ed.destroy();
-			}
-			el.bindEditor(el.to);
-    	}
-    	//this.focus(el);
     },
 	createGElement : function(name,config){
 		var el = new pub[capitalize(name)](Ext.apply(config||{},{type:name,root:(config && Ext.get(config.root))||this.root,top:this.top}));
@@ -679,6 +684,7 @@ $A.Graphics=Ext.extend($A.Component,{
 var pub =function(){
 	var gradientIndex = 0,
 		Color = function (input) {
+		if(Ext.isObject(input))return input;
 		var rgba = [], result , isGradient = false,type,linear,stops;
 		function init(input) {
 			if(!input){
@@ -771,7 +777,7 @@ var pub =function(){
 		}
 		
 		function setOpacity(alpha) {
-			if(input == TRANSPARENT || rgba == NONE || Ext.isEmpty(alpha))return this;
+			if(input == TRANSPARENT || rgba == NONE || isEmpty(alpha))return this;
 			rgba[3] = alpha;
 			return this;
 		}
@@ -895,8 +901,10 @@ var pub =function(){
 		Path:Ext.extend($A.Graphics,{
 			zoom:10000,
 			constructor: function(config) {
-				this.lineEditors = [];
-				return pub.Path.superclass.constructor.call(this,config);
+				var sf = this;
+				sf.lineEditors = [];
+				sf.editors = [];
+				return pub.Path.superclass.constructor.call(sf,config);
 			}, 
 			initComponent : function(config){
 				config.fillcolor = Color(config.fillcolor).setOpacity(config.fillopacity);
@@ -918,6 +926,11 @@ var pub =function(){
 	//			if(hasSVG && this.shadow)this.initSVGShadow();
 	//			var xy = this.top.wrap.getXY();
 		    },
+//		    processListener: function(ou){
+//				var sf = this;
+//				pub.Path.superclass.processListener.call(sf,ou);
+//				sf.wrap[ou]('mousemove',sf.onWrapMove,sf);
+//		    },
 			initSVGWrap : function(){
 				this.wrap = this.root.appendChild(newSVG('g',this.id));
 			},
@@ -926,6 +939,7 @@ var pub =function(){
 		    },
 			initSVGElement : function(){
 				var sf = this,
+					parent = sf.parent,
 					wrap = sf.wrap,
 					d = sf.d,
 					config = {d:d,fill:sf.createGradient(sf.fillcolor.get('gradient'))},
@@ -940,6 +954,10 @@ var pub =function(){
 				if(x||y) {
 					if(strokewidth && strokewidth % 2 == 1 && !sf.shadow){
 						x+=.5;y+=.5;	
+					}
+					if(parent){
+						x-=parent.x;
+						y-=parent.y;
 					}
 					transform(wrap,x,y);
 				}
@@ -981,16 +999,20 @@ var pub =function(){
 		    		fillcolor = sf.fillcolor.get('rgb'),
 		    		strokecolor = sf.strokecolor.get('rgb'),
 		    		stroke=true,fill=true,filled=true,
-		    		zoom = sf.zoom;
-		    	if(Ext.isEmpty(sf.strokewidth))sf.strokewidth=1;
+		    		zoom = sf.zoom,parent = sf.parent,x = sf.x,y = sf.y;
+	    		if(parent){
+					x-=parent.x;
+					y-=parent.y;
+				}
+		    	if(isEmpty(sf.strokewidth))sf.strokewidth=1;
 		    	if(strokecolor==NONE||sf.strokeopacity==0||sf.strokewidth==0)stroke=false;
 		    	if(fillcolor==NONE)fill=false;
 		    	sf.wrap.setStyle({
 		    		position:'absolute',
 		    		width:100+PX,
 		    		height:100+PX,
-		    		left:(sf.x||0)+PX,
-		    		top:(sf.y||0)+PX
+		    		left:(x||0)+PX,
+		    		top:(y||0)+PX
 		    	}).set({
 		    		coordsize:'100,100',
 		    		title:sf.info||''
@@ -1157,40 +1179,148 @@ var pub =function(){
 	    		this.wrap.set({'title':this.info||''});
 	    	},
 		    createEditors : function(){
-		    	var sf = this;
-		    	if(sf.editable){
-					sf.editors = [];
-					Ext.each(sf.points,function(point){
-						sf.createEditor(point[0],point[1]);
-					});
+		    	var sf = this,top = sf.top;
+		    	if(top.editable){
+    				var points = [].concat(sf.points);
+		    		switch(sf.type){
+		    			case 'line':
+							Ext.each(points,function(point){
+								sf.createEditor(point);
+							});
+							break;
+		    			case 'zLine':
+		    				var fromPoint = points.shift(),
+		    					toPoint = points.pop();
+		    				sf.createEditor(fromPoint);
+		    				sf.createEditor(toPoint);
+		    				for(var i =0,len = points.length;i<len;i++){
+		    					var p2 = points[i+1];
+		    					if(p2){
+									sf.createEditor(points[i],p2);		    						
+		    					}
+		    				}
+		    		}
 					sf.bindEditor(sf.from,true);
 					sf.bindEditor(sf.to);
 				}
 		    },
 		    bindEditor : function(id,isFrom){
-		    	if(!Ext.isEmpty(id)){
+		    	if(!isEmpty(id)){
 			    	var eds = this.editors,
 			    		top = this.top;
 						tr = top.dataset.find(top.tableidfield,id);
 					if(tr){
 						var el = $(top.id+'_'+tr.id);
 						if(el){
-							var ed = eds[isFrom?0:eds.length-1];
-							ed.bindEl = el;
-			    			el.lineEditors.push(ed);
+							var ed = eds[isFrom?0:eds.length-1],
+								c = el.findNearlyConnect([ed.x,ed.y]);
+							ed.bindEl = c;
+			    			c.lineEditors.push(ed);
+			    			ed.addConfig({
+			    				fillcolor : 'rgb(255,0,0)',
+			    				fillopacity : '0.9'
+			    			})
 		    			}
 					}
 				}
 		    },
-		    syncLineEditors : function(dx,dy){
+		    clearBindEditor :function(){
+		    	Ext.each(this.editors,function(ed){
+		    		var bindEl = ed.bindEl;
+		    		if(bindEl){
+			    		var les = bindEl.lineEditors;
+			    		les.splice(les.indexOf(ed),1);
+			    		delete ed.bindEl;
+			    		ed.addConfig({
+		    				fillcolor : 'rgb(0,0,0)',
+		    				fillopacity : '0'
+		    			});
+		    		}
+		    	});
+		    },
+		    syncLineEditors : function(x,y){
 		    	Ext.each(this.lineEditors,function(ed){
-					ed.moveTo(ed.x += dx,ed.y += dy);
+					ed.moveTo(x,y);
 					ed.fireEvent('move');
 		    	});
 		    },
-		    createEditor : function(x,y){
-		    	var sf = this,eds = sf.editors,i = eds.length;
-		    	eds[i] = new pub.Oval({
+		    syncEditors : function(){
+		    	var sf = this;
+		    	if(sf.editors.length && sf.points){
+		    		var i = 0,eds = sf.editors,p = [].concat(sf.points);
+		    		sf.clearBindEditor();
+		    		if(sf.type=='zLine'){
+		    			var ed = eds[0],
+			    			w = ed.width/2,
+			    			h = ed.height/2,
+			    			fromPoint = p.shift(),
+			    			toPoint = p.pop(),
+			    			zEds = sf.zEditors;
+		    			ed.moveTo(fromPoint[0]-w,fromPoint[1]-h);
+		    			eds[1].moveTo(toPoint[0]-w,toPoint[1]-h);
+		    			for(;p[i+1];i++){
+		    				var zed = zEds[i],pos = p[i],pos2 = p[i+1],edx,edy;
+	    					if(zed){
+								if(pos2[0] == pos[0]){
+									zed.movedir = 'h';
+									edx = pos[0];
+									edy = (pos[1]+pos2[1])/2;
+								}else if(pos2[1] == pos[1]){
+									zed.movedir = 'v';
+									edx = (pos[0]+pos2[0])/2;
+									edy = pos[1];
+								}
+								zed.moveTo(edx-zed.width/2,edy-zed.height/2);
+							}else{
+								sf.createEditor(pos,pos2);
+							}
+		    			}
+		    			while(zEds.length>i){
+		    				var ed = zEds.pop();
+							ed.un('move',sf.editorMove,sf);
+							ed.destroy();
+		    			}
+		    		}else{
+						for(var l=p.length;i<l;i++){
+							var ed = eds[i],pos = p[i];
+							if(ed){
+								var edx = pos[0]-ed.width/2,
+			    					edy = pos[1]-ed.height/2;
+								ed.moveTo(edx,edy);
+							}else{
+								sf.createEditor(pos);
+							}
+						}
+						while(eds.length > i){
+							var ed = eds.pop();
+							ed.un('move',sf.editorMove,sf);
+							ed.destroy();
+						}
+		    		}
+					!Ext.isEmpty(sf.to) && sf.bindEditor(sf.to);
+					!Ext.isEmpty(sf.from) && sf.bindEditor(sf.from,true);
+		    	}
+		    },
+		    createEditor : function(pos,pos2){
+		    	var sf = this,eds = sf.editors,eds2 = sf.zEditors,
+		    		record = sf.getRecord(),
+		    		i = eds.length+eds2.length,ed,type = 'Oval',
+		    		moveType,
+		    		x = pos[0],
+		    		y = pos[1];
+		    	if(pos2){
+					type = 'Diamond';
+					if(pos2[0] == x){
+						y = (pos2[1]+y)/2
+						moveType = 'v';
+					}else if(pos2[1] == y){
+						x = (pos2[0]+x)/2
+						moveType = 'h';
+					}
+		    	}
+		    	ed = new pub[type]({
+		    		type:'oval',
+		    		connectable:false,
 		    		id:sf.id+'_editor'+i,
 		    		x:x-5,
 		    		y:y-5,
@@ -1199,34 +1329,39 @@ var pub =function(){
 		    		strokewidth:1,
 		    		strokecolor:'rgba(0,0,0,1)',
 		    		fillcolor:TRANSPARENT,
-		    		root:sf.root,
+		    		root:sf.wrap,
+		    		parent:sf,
 		    		top:sf.top,
-		    		moveable:true
+		    		moveable:true,
+		    		movedir:moveType
 		    	});
-		    	eds[i].on('move',sf.editorMove,sf);
+		    	if(pos2){
+		    		eds2.push(ed);
+		    	}else{
+		    		eds.push(ed);
+			    	if(i==0){
+			    		ed.isFrom = true;
+			    	}
+			    	ed.on('mousedown',sf.editorDown,sf);
+		    	}
+		    	ed.on('move',sf.editorMove,sf);
+		    	if(record != sf.top.dataset.getCurrentRecord){
+		    		ed.wrap.hide();
+		    	}
 		    },
-		    editorMove : function(el,ds,record,x,y){
-		    	var record = this.getRecord(),
-					config = convertConfig(record),points=[];
-				Ext.each(this.editors,function(ed){
-					points.push((ed.x+5)+','+(ed.y+5));
-				});
-				config.points = points.join(' ');
-				record.set('config',Ext.util.JSON.encode(config));
-	   		},
-	   		showEditors : function(){
-	    		Ext.each(this.editors,function(ed){
-	    			setTopCmp(ed.wrap.show());
+		    showEditors : function(){
+	    		Ext.each(this.editors.concat(this.zEditors||[]),function(ed){
+	    			ed.wrap.show();
 	    		});
 		    },
 		    hideEditors : function(){
-		    	Ext.each(this.editors,function(ed){
+		    	Ext.each(this.editors.concat(this.zEditors||[]),function(ed){
 	    			ed.wrap.hide();
 	    		});
 		    },
 		    clearEditors : function(){
 		    	var sf = this;
-		    	Ext.each(sf.editors,function(ed){
+		    	Ext.each(sf.editors.concat(sf.zEditors||[]),function(ed){
 					var el = ed.bindEl;
 	    			if(el && el.lineEditors){
 	    				el.lineEditors.remove(ed);
@@ -1234,25 +1369,189 @@ var pub =function(){
 	    			ed.un('move',sf.editorMove,sf);
 	    			ed.destroy();	    	
 		    	});
-		    	sf.editors = null;
+		    	sf.editors = [];
+		    	sf.zEditors = [];
 		    },
-		    onMouseDown : function(e){
+		    createConnects : function(){
 		    	var sf = this,top = sf.top;
-		    	if(top.editable && !top.candrawline){
+		    	if(top.editable){
+					sf.connects = [];
+					var h = sf.height,
+						w = sf.width,
+						x = sf.x,
+						y = sf.y,
+						stroke = sf.strokewidth/2,
+						xd = stroke,yd = stroke;
+//					if(stroke && sf.type == 'diamond'){
+//			    		var r = Math.atan(h/w);
+//			    		xd = stroke/ Math.sin(r);
+//			    		yd = stroke/ Math.cos(r);
+//			    	}
+					sf.createConnect(x+w/2,y-yd,1);//top
+					sf.createConnect(x+w+xd,y+h/2,2);//right
+					sf.createConnect(x+w/2,y+h+yd,3);//bottom
+					sf.createConnect(x-xd,y+h/2,4);//left
+				}
+		    },
+		    createConnect:function(x,y,dir){
+		    	var sf = this,eds = sf.connects,i = eds.length;
+		    	eds[i] = new pub.Rect({
+		    		type:'rect',
+		    		connectable:false,
+		    		id:sf.id+'_connect'+i,
+		    		x:x-4,
+		    		y:y-4,
+		    		height:8,
+		    		width:8,
+		    		strokewidth:1,
+		    		strokecolor:'rgba(0,0,0,1)',
+		    		fillcolor:'rgba(255,0,0,0.8)',
+		    		parent:sf,
+		    		root:sf.wrap,
+		    		top:sf.top,
+		    		dir : dir
+		    	});
+		    },
+		    showConnects : function(){
+		    	Ext.each(this.connects,function(ed){
+	    			ed.wrap.show();
+	    		});
+		    },
+		    hideConnects : function(){
+		    	Ext.each(this.connects,function(ed){
+	    			ed.wrap.hide();
+	    		});
+		    },
+		    clearConnects : function(){
+		    	var sf = this;
+		    	Ext.each(sf.connects,function(ed){
+	    			ed.destroy();	    	
+		    	});
+		    	sf.connects = null;
+		    },
+		    findConnect : function(e){
+		    	var sf = this,xy = e.xy,
+		    		_xy = sf.top.wrap.getXY(),
+		    		x = xy[0]-_xy[0],
+		    		y = xy[1]-_xy[1],
+		    		d = Math.pow(Math.min(sf.height/3,sf.width/3),2),
+		    		connected = null;
+		    	Ext.each(sf.connects,function(c){
+					var dx = x - c.x,dy = y - c.y;
+					if(dx*dx+dy*dy<d){
+						connected = c;
+						return false;
+					}
+				});
+				return connected;
+		    },
+		    findNearlyConnect : function(p){
+		    	var _c,d = Number.MAX_VALUE;
+				Ext.each(this.connects,function(c){
+					var dx = c.x-p[0],dy = c.y-p[1],
+						_d = dx*dx+dy*dy;
+					if(_d<d){
+						d = _d;
+						_c = c;
+					}
+				});
+				return _c;
+		    },
+		    syncConnects : function(dx,dy,dw,dh){
+		    	var sf = this,eds = sf.connects,x,y,_ed;
+		    	if(!dw && !dh){
+			    	Ext.each(eds,function(ed){
+						ed.moveTo(x = ed.x + dx,y = ed.y + dy);
+						ed.syncLineEditors(x,y);
+			    	});
+		    	}else{
+		    		(_ed = sf.connects[0]).moveTo(x = _ed.x + dx + dw/2,y=_ed.y + dy);
+		    		_ed.syncLineEditors(x,y);
+		    		(_ed = sf.connects[1]).moveTo(x = _ed.x + dx + dw,y=_ed.y + dy + dh/2);
+		    		_ed.syncLineEditors(x,y);
+		    		(_ed = sf.connects[2]).moveTo(x = _ed.x + dx + dw/2,y=_ed.y + dy + dh);
+		    		_ed.syncLineEditors(x,y);
+		    		(_ed = sf.connects[3]).moveTo(x = _ed.x + dx,y=_ed.y + dy + dh/2);
+		    		_ed.syncLineEditors(x,y);
+		    	}
+		    },
+		    editorDown : function(e){
+		    	var sf = this,id = e.target.id,ed = sf.currentEditor = $(id.substring(0,id.indexOf('_el')));
+		    	ed.hide();
+		    	sf.top.editing = true;
+		    	ed.on('mouseup',sf.editorUp,sf);
+		    },
+		    editorMove : function(el,ds,record,x,y){
+		    	var sf = this,
+		    		record = sf.getRecord(),
+					config = convertConfig(record),points=[],
+					eds = sf.editors,
+					dir = el && el.movedir,
+					zEds = sf.zEditors;
+				if(dir && zEds && zEds.length){
+					points = sf.points;
+					var index = zEds.indexOf(el),
+						p1 = points[index+1],
+						p2 = points[index+2],
+						h = el.height/2,
+						x = el.x+el.width/2,
+						y = el.y+el.height/2,
+						p,ed;
+					if(dir == 'v'){
+						p1[1] = p2[1] = y;
+					}else{
+						p1[0] = p2[0] = x;
+					}
+					if(ed = zEds[index-1]){
+						p = points[index];
+						if(p[0] == p1[0]){
+							ed.moveTo(p[0]-ed.width/2,(p[1]+p1[1])/2-ed.height/2);
+						}else{
+							ed.moveTo((p[0]+p1[0])/2-ed.width/2,p[1]-ed.height/2);
+						}
+					}
+					if(ed = zEds[index+1]){
+						p = points[index+3];
+						if(p[0] == p2[0]){
+							ed.moveTo(p[0]-ed.width/2,(p[1]+p2[1])/2-ed.height/2);
+						}else{
+							ed.moveTo((p[0]+p2[0])/2-ed.width/2,p[1]-ed.height/2);
+						}
+					}
+					config.generate = false;
+				}else{
+					Ext.each(eds,function(ed){
+						points.push([ed.x+ed.width/2,ed.y+ed.height/2]);
+					});
+				}
+				config.points = points.join(' ');
+				record.set('config',Ext.util.JSON.encode(config));
+	   		},
+	   		editorUp : function(){
+	   			var sf = this,ed = sf.currentEditor;
+	   			ed.show();
+		    	ed.un('mouseup',sf.editorUp,sf);
+	   			sf.top.editing = false;
+	   			delete sf.currentEditor;
+	   		},
+	   		onMouseDown : function(e,t){
+		    	var sf = this,top = sf.top;
+		    	sf.fire('mousedown',e,t);
+    			if(top.editable && !top.candrawline){
+			    	setTopCmp(sf.wrap);
 		    		if(sf.dropto || sf.moveable){
 				    	sf.beforeMove(e);
-			    	}else if(sf.editable){
-			    		setTopCmp(sf.wrap);
 			    	}
 		    	}
 		    },
-		    onMouseMove : function(e){
+		    onMouseMove : function(e,t){
 		    	e.stopEvent();
 		    	var sf = this,
 		    		wrap = sf.wrap,
 		    		top = sf.top,
 		    		w = sf.width||sf.rx*2,
 		    		h = sf.height||sf.ry*2,
+		    		parent = sf.parent,
 		    		graphic = top.wrap,
 	    			sw = graphic.getWidth(),
 	    			sh = graphic.getHeight(),
@@ -1260,40 +1559,95 @@ var pub =function(){
 		    		_xy = graphic.getXY(),
 		    		tx = e.getPageX()+sf.relativeX - _xy[0],
 		    		ty = e.getPageY()+sf.relativeY - _xy[1],
-		    		x = sf.x,y = sf.y,_x,_y
-		    		b=0;
-	    		if(stroke && isVML(wrap)){
-	    			b =  - stroke/2;
-	    		}
-	    		if(tx <= b) tx = b;
-	    		else if(tx + w - b> sw - 2) tx = sw - 2 - w + b;
-	    		if(ty <= b) ty = b;
-	    		else if(ty + h - b> sh - 2) ty = sh - 2 - h + b;
-				_x = sf.x = Math.round(tx - b);
-				_y = sf.y = Math.round(ty - b);
+		    		x = sf.x,y = sf.y,_x,_y,c,table_id,
+		    		b=0,type = sf.type,xb = b,yb = b;
+	    		if(top.editing){
+					var g = sf.getGElement(t),
+						el,r;
+			    	if(g){
+			    		(el = g.el).showConnects();
+			    		if(!sf.movedir)c = el.findConnect(e);
+			    	}
+				}
+				if(c){
+					table_id = (r = g.record).get(sf.tableidfield)|| r.get('table_id');
+					_x = sf.x = c.x;
+					_y = sf.y = c.y;
+					tx = _x+xb;
+					ty = _y+xb;
+				}else{
+		    		if(stroke && isVML(wrap)){
+		    			xb = yb = b =  - stroke/2;
+//		    			if(type == 'diamond'){
+//				    		var r = Math.atan(h/w);
+//				    		xb = Math.round(b/ Math.sin(r)*10)/10;
+//				    		yb = Math.round(b/ Math.cos(r)*10)/10;
+//				    		//TODO有问题 待解决
+//				    	}
+		    		}
+		    		if(tx <= xb) tx = xb;
+		    		else if(tx + w - xb> sw - 2) tx = sw - 2 - w + xb;
+		    		if(ty <= yb) ty = yb;
+		    		else if(ty + h - yb> sh - 2) ty = sh - 2 - h + yb;
+					_x = sf.x = Math.round(tx - xb);
+					_y = sf.y = Math.round(ty - yb);
+				}
 				if(sf.moveable){
 					var ds = top.dataset,
 						record = ds.getCurrentRecord(),
-	        			config = convertConfig(record),
-	        			stroke = config.strokewidth/2;
+	        			config = convertConfig(record);
 	        		config.x = _x;
 	        		config.y = _y;
+//	        		config.type = type;
+	        		if(!sf.movedir){
+		        		if(!Ext.isEmpty(table_id)){
+		        			config[sf.isFrom?'from':'to'] = table_id;
+		        		}else{
+		        			delete config[sf.isFrom?'from':'to'];
+		        		}
+	        		}
 	        		top.syncFocusMask(config);
 	        		record.data.config=Ext.util.JSON.encode(config).replace(/^{|}$/g,'');
 	        		record.dirty = true;
-					sf.fireEvent('move',sf,ds,record,_x - b,_y - b);
-					top.fireEvent('move',sf,ds,record,_x - b,_y - b);
+					sf.fireEvent('move',sf,ds,record,_x - xb,_y - yb);
+					top.fireEvent('move',sf,ds,record,_x - xb,_y - yb);
 				}
-	    		if(isSVG(wrap)){
+				if(isSVG(wrap)){
 	    			if(stroke % 2 == 1&&!sf.shadow){
 						tx += .5;
 						ty += .5;
 	    			}
-					transform(sf.proxy,tx,ty);
+					if(parent){
+						tx-=parent.x;
+						ty-=parent.y;
+					}
+					if(sf.movedir == 'h'){
+						ty = null;
+					}else if(sf.movedir == 'v'){
+						tx = null;
+					}
+		    		transform(sf.proxy,tx,ty);
 				}else{
-		    		sf.proxy.moveTo(tx+_xy[0],ty+_xy[1]);
+					if(sf.connectable != false){
+						tx-=3;
+						ty-=3;
+					}
+		    		sf.proxy.moveTo(sf.movedir == 'v'?sf.proxy.getY():tx+_xy[0],sf.movedir == 'h'?sf.proxy.getY():ty+_xy[1]);
 				}
-				sf.syncLineEditors(_x - x,_y - y);
+				//sf.syncLineEditors(_x - x,_y - y);
+				sf.syncConnects(_x - x,_y - y);
+		    },
+		    onMouseOver : function(e,t){
+		    	var sf = this,top = sf.top;
+		    	if((top.candrawline||top.editing) && sf.connectable != false){
+		    		sf.showConnects();
+		    	}
+		    },
+		    onMouseOut : function(e){
+		    	var sf = this,top = sf.top;
+		    	if(sf.connectable != false){
+		    		sf.hideConnects();
+		    	}
 		    },
 			getRecord : function(){
 		    	var a = this.id.match(/(.*)_(\d+)(_.*)*$/),ds=this.top.dataset;
@@ -1304,7 +1658,10 @@ var pub =function(){
 		    destroy : function(){
 		    	var sf = this,fm = sf.focusMask,text = sf.text;
 		    	sf.clearEditors();
-		    	fm && fm.un('mousedown',sf.onMouseDown,sf).remove();
+		    	sf.clearConnects();
+		    	fm && fm
+		    		//.un('mousedown',sf.onMouseDown,sf)
+		    		.remove();
 	    		text && text.remove&&text.remove();
 		    	pub.Path.superclass.destroy.call(sf);
 		    },
@@ -1315,6 +1672,63 @@ var pub =function(){
 		    	if(sd)tpl.push(shadow);
 		    	tpl.push('</v:shape>');
 		    	return tpl;
+		    },
+		    addConfig : function(config){
+		    	this.changeConfig(Ext.apply(this.initConfig,config));
+		    },
+		    changeConfig : function(config,record){
+		    	var el = this,
+		    		sf = el.top,
+		    		type = config.type,
+		    		_proto = pub[type == 'image'?'Image':'Path'].prototype,
+		    		processConfig = pub[capitalize(type)].processConfig,
+		    		x = el.x,y = el.y,w = el.width,h = el.height;
+				config.top = el.top;
+				if(type == 'zLine'){
+					if(config.generate != false){
+						pub.ZLine.generate(config);
+					}
+					if(record){
+						var _config = convertConfig(record);
+						delete _config.generate;
+						if(Ext.isArray(config.points)){
+							_config.points = config.points.join(' ');
+						}
+						record.data.config=Ext.util.JSON.encode(_config).replace(/^{|}$/g,'');
+						record.dirty = true;
+					}
+				}
+		    	if(processConfig && processConfig(config)==false){
+		    		return false;
+		    	}
+		    	for(var key in el.initConfig){
+		    		if(key != 'dataset' && key != 'top' && key != 'root' && key != 'id'){
+			    		if(!(key in config))delete el[key];
+		    		}
+		    	}
+		    	Ext.apply(el,config);
+		    	el.initConfig = config;
+		    	el.processListener('un');
+		    	el.el.remove();
+		    	if(el.text)el.text.remove();
+		    	if(hasSVG){
+		    		el.initSVGElement = _proto.initSVGElement;
+		    	}else{
+		    		el.initVMLElement = _proto.initVMLElement;
+		    		el.vmlTpl = _proto.vmlTpl;
+		    	}
+		    	el.initComponent(config);
+		// WebKit BUG
+		//    	if(Ext.isWebKit){
+		//    		var dom = el.wrap.dom;
+		//    		dom.setAttribute('transform',dom.getAttribute('transform'));
+		//    	}
+		    	el.syncConnects(el.x - x,el.y - y,el.width - w,el.height - h);
+		    	el.syncEditors();
+		    	if(el == sf.focusItem && sf.focusMask){
+		    		sf.syncFocusMask(el);
+		    	}
+		    	el.processListener('on');
 		    }
 		}),
 		Group : Ext.extend($A.Graphics,{
@@ -1334,29 +1748,691 @@ var pub =function(){
 		    initVMLElement : function(){
 		    }
 		}),
-		Line : function(config){
-			if(pub.Line.processConfig(config)==false)return;
-			var line = new pub.Path(config);
-			line.createEditors();
-			line.hideEditors();
+		Line : function(){
+			function line(config){
+				if(pub.Line.processConfig(config)==false)return;
+				var line = new pub.Path(config);
+				line.createEditors();
+				return line;
+			}
+			line.processConfig = function(config){
+				var points = convertPoints(config.points);
+				if(points.length < 2)return false;
+				var x = Number(points[0][0]), y = Number(points[0][1]);
+				a = ['M',0,0,'L'];
+				Ext.each(points,function(p){
+					a.push(p[0] - x,p[1] - y);
+				});
+				config.d = a.join(' ');
+				if(config.strokewidth == 1)config.strokewidth = 2;
+				config.fillcolor = NONE;
+				config.points = points;
+				config.x = x;
+				config.y = y;
+			}
 			return line;
-		},
-		Oval:function(config){
+		}(),
+		ZLine : function(){
+			var array_proto_push = Array.prototype.push,
+				margin = 25;
+			function bt(a,b){
+				return a>b;
+			}
+			function lt(a,b){
+				return a<b;
+			}
+			function findEl(where,top,tr){
+				return !isEmpty(where) && 
+					(tr = top.dataset.find(top.tableidfield,where)) && 
+					$(top.id+'_'+tr.id);
+			}
+			function exchange(toPoint,fromPoint,isV){
+				if(isV)
+					return [toPoint[0],fromPoint[1]];
+				else
+					return [fromPoint[0],toPoint[1]];
+			}
+			function generatePoints(el,fromPoint,toPoint,isFrom){
+				if(!el)return;
+				var content = el.findNearlyConnect(isFrom?fromPoint:toPoint);
+				if(!content)return;
+				var	x = el.x,
+					y = el.y,
+					w = el.width,
+					h = el.height,
+					x1 = isFrom?fromPoint[0]:toPoint[0],
+					y1 = isFrom?fromPoint[1]:toPoint[1],
+					x2 = isFrom?toPoint[0]:fromPoint[0],
+					y2 = isFrom?toPoint[1]:fromPoint[1],
+					dir = content.dir,
+					joinMethod = isFrom?'push':'unshift',
+					points = [fromPoint],
+					doubleMargin,_margin,
+					bl,compareMethod=bt,r,b;
+				if((bl = dir == 1) || dir == 3){
+					if(bl){
+						r = x+w;
+						l = x;
+						b = y+h;
+						_margin = margin;
+					}else{
+						compareMethod = lt;
+						_margin = -margin;
+						w = -w;
+						r = x;
+						l = x-w;
+						b = y;
+					}
+					doubleMargin = _margin*2;
+					if(compareMethod(y1-y2,doubleMargin)){
+						points[joinMethod]([x1,(y1+y2)/2],[x2,(y1+y2)/2]);
+					}else if(compareMethod(y1,y2)){
+						points[joinMethod]([x1,y2]);
+					}else{
+						if(compareMethod(x2 - r ,doubleMargin)){
+							points[joinMethod]([x1,y1-_margin],[(r+x2)/2,y1-_margin],[(r+x2)/2,y2]);	
+						}else if(compareMethod(-doubleMargin,x2-l)){
+							points[joinMethod]([x1,y1-_margin],[(l+x2)/2,y1-_margin],[(l+x2)/2,y2]);	
+						}else if(compareMethod(x2 , r) || compareMethod(r-w,x2)){
+							points[joinMethod]([x1,y1-_margin],[x2,y1-_margin]);	
+						}else{
+							points[joinMethod]([x1,y1-_margin],[r+_margin,y1-_margin],[r+_margin,(b+y2)/2],[x2,(b+y2)/2]);	
+						}
+					}
+				}else{
+					bl = dir == 2;
+					if(bl){
+						r = y+h;
+						l = y;
+						b = x;
+						_margin = margin;
+					}else{
+						compareMethod = lt;
+						_margin = -margin;
+						h = -h;
+						r = y;
+						l = y-h;
+						b = x+w;
+					}
+					doubleMargin = _margin*2;
+					if(compareMethod(x2-x1,doubleMargin)){
+						points[joinMethod]([(x1+x2)/2,y1],[(x1+x2)/2,y2]);
+					}else if(compareMethod(x2,x1)){
+						points[joinMethod]([x2,y1]);
+					}else{
+						if(compareMethod(y2 - r ,doubleMargin)){
+							points[joinMethod]([x1+_margin,y1],[x1+_margin,(r+y2)/2],[x2,(r+y2)/2]);	
+						}else if(compareMethod(-doubleMargin,y2-l)){
+							points[joinMethod]([x1+_margin,y1],[x1+_margin,(l+y2)/2],[x2,(l+y2)/2]);	
+						}else if(compareMethod(y2 , r) || compareMethod(r-h,y2)){
+							points[joinMethod]([x1+_margin,y1],[x1+_margin,y2]);	
+						}else{
+							points[joinMethod]([x1+_margin,y1],[x1+_margin,r+_margin],[(b+x2)/2,r+_margin],[(b+x2)/2,y2]);	
+						}
+					}
+				}
+				points[joinMethod](toPoint);
+				if(joinMethod == 'unshift'){
+					points.reverse();						
+				}
+				points.dir = dir;
+				return points;
+			}
+			return Ext.apply(function(config){
+				if(pub.ZLine.processConfig(config)==false)return;
+				var line = new pub.Path(config);
+				line.zEditors = [];
+				line.createEditors();
+				return line;
+			},{
+				processConfig : function(config){
+					var points = convertPoints(config.points);
+					if(points.length < 2)return false;
+					var x = points[0][0],
+						y = points[0][1];
+					
+					a = ['M',0,0,'L'];
+					Ext.each(points,function(p){
+						a.push(p[0] - x,p[1] - y);
+					});
+					
+					config.d = a.join(' ');
+					if(config.strokewidth == 1)config.strokewidth = 2;
+					config.fillcolor = NONE;
+					config.points = points;
+					config.x = x;
+					config.y = y;
+				},
+				generate : function(config){
+					var top = config.top,
+						points = convertPoints(config.points),
+						from = config.from,
+						to = config.to,
+						fromPoint = points[0],
+						toPoint = points.pop(),
+						x1 = fromPoint[0],
+						y1 = fromPoint[1],
+						x2 = toPoint[0],
+						y2 = toPoint[1],
+						fromPoints,
+						toPoints;
+					if(!from && !to){
+						if(Math.abs(x2-x1) < Math.abs(y2-y1)){
+							points=[fromPoint,[x1,(y1+y2)/2],[x2,(y1+y2)/2],toPoint];
+						}else{
+							points=[fromPoint,[(x1+x2)/2,y1],[(x1+x2)/2,y2],toPoint];
+						}
+					}else{
+						fromPoints = generatePoints(from = findEl(from,top),fromPoint,toPoint,true);
+						toPoints = generatePoints(to = findEl(to,top),fromPoint,toPoint);
+						if(fromPoints && toPoints){
+							fromPoints.pop();
+							toPoints.shift();
+							var fromLength = fromPoints.length,
+								toLength = toPoints.length,
+								fromDir = fromPoints.dir,
+								toDir = toPoints.dir,
+								fromX = from.x,
+								fromY = from.y,
+								fromW = from.width,
+								fromH = from.height,
+								toX = to.x,
+								toY = to.y,
+								toW = to.width,
+								toH = to.height,
+								isV = fromDir == 1 || fromDir == 3,
+								bl = fromLength > toLength,
+								side = (toDir - fromDir + 4)%4,
+								b1 = fromPoint[0]>toPoint[0],
+								b2 = fromPoint[1]>toPoint[1],
+								p=[],value;
+							
+							if(side == 0){
+								switch(fromLength * toLength){
+									case 16 : 
+										fromPoints.splice(2,2);
+										toPoints.splice(0,2);
+										break;
+									case 15 :
+										if(bl){
+											toPoints.splice(0,2);
+										}else{
+											fromPoints.splice(1,2);
+										}
+										break;
+									case 12 :
+										fromPoints.splice(2,2);
+										toPoints.splice(0,2);
+										p.push(exchange(toPoints[0],fromPoints[fromPoints.length-1],!isV ^ bl));
+										break;
+									case 9:
+										if(isV ? (fromDir == 1?!b2:b2 ):(fromDir == 2 ? b1:!b1)){
+											toPoints.splice(0,2);
+										}else{
+											fromPoints.splice(1,2);
+										}
+										break;
+									case 8:
+										if(bl){
+											fromPoints.splice(2,2);
+											toPoints.splice(0,1);
+										}else{
+											fromPoints.splice(1,1);
+											toPoints.splice(0,2);
+										}
+										p.push(exchange(toPoints[0],fromPoints[fromPoints.length-1],!isV ^ bl));
+								}
+							}else if(side == 2){
+								switch(fromLength * toLength){
+									case 25 :
+									case 15 :
+									case 12 :
+										fromPoints.splice(2,fromLength-2);
+										toPoints.splice(0,toLength-2);
+										if(isV){
+											if(b1){
+												value = Math.max(fromX+fromW,toX+toW)+margin;
+											}else{
+												value = Math.min(fromX,toX)-margin;
+											}
+										}else{
+											if(b2){
+												value = Math.max(fromY+fromH,toY+toH)+margin;
+											}else{
+												value = Math.min(fromY,toY)-margin;
+											}										
+										}
+										p.push(exchange([value,value],fromPoints[fromPoints.length-1],isV),exchange(toPoints[0],[value,value],!isV));
+										break;
+									case 16 :
+										fromPoints.splice(2,2);
+										toPoints.splice(0,2);
+										if(isV){
+											if(b1){
+												value = (toX + toW + fromX)/2
+											}else{
+												value = (fromX + fromW +toX)/2
+											}
+										}else{
+											if(b2){
+												value = (toY + toH + fromY)/2
+											}else{
+												value = (fromY + fromH +toY)/2
+											}
+										}
+										p.push(exchange([value,value],fromPoints[fromPoints.length-1],isV),exchange(toPoints[0],[value,value],!isV));
+										break;
+									case 9:
+										fromPoints.splice(2,1);
+										toPoints.splice(0,1);
+										if(isV?b2 ^ fromDir == 1:!b1 ^ fromDir == 2){
+											if(isV){
+												if(b1){
+													value = Math.max(fromX+fromW,toX+toW)+margin;
+												}else{
+													value = Math.min(fromX,toX)-margin;
+												}
+											}else{
+												if(b2){
+													value = Math.max(fromY+fromH,toY+toH)+margin;
+												}else{
+													value = Math.min(fromY,toY)-margin;
+												}										
+											}
+											p.push(exchange([value,value],fromPoints[fromPoints.length-1],isV),exchange(toPoints[0],[value,value],!isV))
+										}
+										break;
+									case 4:
+										fromPoints.splice(1,1);
+										toPoints.splice(0,1);
+										if(isV){
+											value = (fromPoints[fromPoints.length-1][1]+toPoints[0][1])/2;
+										}else{
+											value = (fromPoints[fromPoints.length-1][0]+toPoints[0][0])/2;
+										}
+										p.push(exchange([value,value],fromPoints[fromPoints.length-1],!isV),exchange(toPoints[0],[value,value],isV))
+										
+								}
+							}else{
+								var side3 = side == 3;
+								switch(fromLength * toLength){
+									case 25:
+										if(side3){
+											fromPoints.splice(1,4);
+											toPoints.splice(0,2);
+										}else{
+											fromPoints.splice(3,2);
+											toPoints.splice(0,4);
+										}
+										p.push(exchange(toPoints[0],fromPoints[fromPoints.length-1],!isV));
+										break;
+									case 10:
+									case 20:
+										if(side3^bl){
+											if(side3){
+												fromPoints.splice(1,fromLength-1);
+												toPoints.splice(0,2);
+											}else{
+												fromPoints.splice(3,2);
+												toPoints.splice(0,toLength-1);
+											}
+											p.push(exchange(toPoints[0],fromPoints[fromPoints.length-1],!isV));
+										}else{
+											if(side3){
+												fromPoints.splice(2,3);
+												toPoints.splice(0,toLength-1);
+												if(fromDir == 1){
+													value = fromX - margin;
+												}else if(fromDir == 2){
+													value = fromY - margin;
+												}else if(fromDir == 3){
+													value = fromX+fromW+margin;
+												}else{
+													value = fromY+fromH+margin;
+												}
+											}else{
+												fromPoints.splice(1,fromLength-1);
+												toPoints.splice(0,3);
+												if(fromDir == 1){
+													value = toY-margin;
+												}else if(fromDir == 2){
+													value = toX+toW+margin;
+												}else if(fromDir == 3){
+													value = toY+toH+margin;
+												}else{
+													value = toX - margin;
+												}
+											}
+											p.push(exchange([value,value],fromPoints[fromPoints.length-1],side3 ^!isV),exchange(toPoints[0],[value,value],side3^isV));
+										}
+										break;
+									case 16:
+										fromPoints.splice(2,2);
+										toPoints.splice(0,2);
+										p.push(exchange(toPoints[0],fromPoints[fromPoints.length-1],isV));
+										break;
+									case 15:
+										if(side3){
+											if(bl){
+												fromPoints.splice(2,3);
+												toPoints.splice(0,1);
+											}else{
+												fromPoints.splice(2,2);
+												toPoints.splice(0,2);
+											}
+										}else{
+											if(bl){
+												fromPoints.splice(3,2);
+												toPoints.splice(0,2);
+											}else{
+												fromPoints.splice(2,1);
+												toPoints.splice(0,3);
+											}
+										}
+										p.push(exchange(toPoints[0],fromPoints[fromPoints.length-1],side3^(isV ^ bl)));
+										break;
+									case 12:
+										if(bl){
+											if(isV?side3^(b1 ^ (fromDir == 1)):side3^(b2 ^ (fromDir == 2))){
+												fromPoints.splice(2,2);
+												toPoints.splice(0,1);
+												p.push(exchange(toPoints[0],fromPoints[fromPoints.length-1],isV));
+											}else{
+												toPoints.splice(0,2);
+											}
+										}else{
+											if(isV?b2 ^ fromDir == 1:!b1 ^ fromDir == 2){
+												fromPoints.splice(2,1);
+												toPoints.splice(0,2);
+												p.push(exchange(toPoints[0],fromPoints[fromPoints.length-1],isV));
+											}else{
+												fromPoints.splice(1,2);
+											}
+										}
+										break;
+									case 9:
+										if(isV^(side3^(b1 ^ b2))){
+											fromPoints.splice(2,1);
+											toPoints.splice(0,1);
+											p.push(exchange(toPoints[0],fromPoints[fromPoints.length-1],isV?fromDir == 1 ^ (side3^b1):fromDir == 2 ^ b1));
+										}else{
+											if(isV?fromDir == 1 ^ (side3^b1) : fromDir == 2 ^ b1){
+												fromPoints.splice(1,2);
+												toPoints.splice(0,1);
+												if(isV){
+													if(side3 ^ b1){
+														value = (toY+fromPoints[0][1])/2;
+													}else{
+														value = (toY+toH+fromPoints[0][1])/2;
+													}
+												}else{
+													if(b1){
+														value = (toX + toW+fromPoints[0][0])/2
+													}else{
+														value = (toX+fromPoints[0][0])/2;
+													}
+												}
+												p.push(exchange([value,value],fromPoints[fromPoints.length-1],!isV),exchange(toPoints[0],[value,value],isV));
+											}else{
+												fromPoints.splice(2,1);
+												toPoints.splice(0,2);
+												if(isV){
+													if(b1){
+														value = (fromX + toPoints[0][0])/2;
+													}else{
+														value = (fromX + fromW+toPoints[0][0])/2;
+													}
+												}else{
+													if(side3 ^ b1){
+														value = (fromY+toPoints[0][1])/2;
+													}else{
+														value = (fromY+fromH+toPoints[0][1])/2;
+													}
+												}
+												p.push(exchange([value,value],fromPoints[fromPoints.length-1],isV),exchange(toPoints[0],[value,value],!isV));
+											}
+										}
+										break;
+									case 6:
+										if(bl){
+											if(isV?!b2^fromDir == 1:b1 ^ fromDir == 2){
+												fromPoints.splice(1,2);
+											}else{
+												fromPoints.splice(2,1);
+												toPoints.splice(0,1);
+												if(side3){
+													if(fromDir == 1){
+														value = (toPoints[0][0]+fromX+fromW)/2
+													}else if(fromDir == 2){
+														value = (toPoints[0][1]+fromY+fromH)/2
+													}else if(fromDir == 3){
+														value = (toPoints[0][0]+fromX)/2;
+													}else{
+														value = (toPoints[0][1]+fromY)/2;
+													}
+												}else{
+													if(fromDir == 1){
+														value = (toPoints[0][0]+fromX)/2;
+													}else if(fromDir == 2){
+														value = (toPoints[0][1]+fromY)/2;
+													}else if(fromDir == 3){
+														value = (toPoints[0][0]+fromX+fromW)/2
+													}else{
+														value = (toPoints[0][1]+fromY+fromH)/2
+													}
+												}
+												p.push(exchange([value,value],fromPoints[fromPoints.length-1],isV),exchange(toPoints[0],[value,value],!isV));
+											}
+										}else{
+											if(isV?side3 ^ (!b1 ^fromDir == 1):side3 ^(!b2 ^ fromDir == 2)){
+												toPoints.splice(0,2);
+											}else{
+												fromPoints.splice(1,1);
+												toPoints.splice(0,1);
+												if(fromDir == 1){
+													value = (fromPoints[0][1]+toY+toH)/2;
+												}else if(fromDir == 2){
+													value = (fromPoints[0][0]+toX)/2;
+												}else if(fromDir == 3){
+													value = (fromPoints[0][1]+toY)/2;
+												}else{
+													value = (fromPoints[0][0]+toX+toW)/2;
+												}
+												p.push(exchange([value,value],fromPoints[fromPoints.length-1],!isV),exchange(toPoints[0],[value,value],isV));
+											}
+										}
+								}
+							}
+							p.length && array_proto_push.apply(fromPoints,p);
+							points = fromPoints.concat(toPoints);
+						}else if(fromPoints){
+							points = fromPoints;
+						}else{
+							points = toPoints;
+						}
+					}					
+					config.points = points;
+					
+				}
+			});
+		}(),
+		Oval:Ext.apply(function(config){
 			pub.Oval.processConfig(config);
-			return new pub.Path(config);
-		},
+			var p = new pub.Path(config);
+			if(config.connectable != false){
+				p.createConnects();
+				p.hideConnects();
+			}
+			return p;
+		},{
+			processConfig : function(config){
+				config.height = config.height||config.ry*2;
+				config.width = config.width||config.rx*2;
+				config.ry = config.height/2;
+				config.rx = config.width/2;
+				pub.Rect.processConfig(config);
+			}
+		}),
 		Arc:function(config){
-			pub.Arc.processConfig(config);
-			return new pub.Path(config);
-		},
-		Rect : function(config){
-			pub.Rect.processConfig(config);
-			return new pub.Path(config);
-		},
-		Diamond : function(config){
-			pub.Diamond.processConfig(config);
-			return new pub.Path(config);
-		},
+			function arc (){
+				arc.processConfig(config);
+				new pub.Path(config)
+			}
+			arc.processConfig = hasSVG?function (options) {
+				var x = options.x,
+					y = options.y,
+					start = options.start % (2 *mathPI),
+					radius = options.r ,
+					end = options.end % (2 * mathPI) - 0.000001, // to prevent cos and sin of start and end from becoming equal on 360 arcs
+					innerRadius = options.innerR || 0,
+					open = options.open,
+					cosStart = mathCos(start),
+					sinStart = mathSin(start),
+					cosEnd = mathCos(end),
+					sinEnd = mathSin(end),
+					longArc = (end > start? end : end + 2 * mathPI) - start < mathPI ? 0 : 1;
+				options.d = [
+					'M',
+					x + radius * cosStart,
+					y - radius * sinStart,
+					'A', // arcTo
+					radius, // x radius
+					radius, // y radius
+					0, // slanting
+					longArc, // long or short arc
+					0, // clockwise
+					x + radius * cosEnd,
+					y - radius * sinEnd,
+					open ? 'M' : 'L',
+					x + innerRadius * cosEnd,
+					y - innerRadius * sinEnd,
+					'A', // arcTo
+					innerRadius, // x radius
+					innerRadius, // y radius
+					0, // slanting
+					longArc, // long or short arc
+					1, // clockwise
+					x + innerRadius * cosStart,
+					y - innerRadius * sinStart,
+			
+					open ? '' : 'Z' // close
+				].join(' ');
+				options.x = 0;
+				options.y = 0;
+			}:function (options) {
+				var zoom = options.zoom || 10000,
+					x = options.x * zoom,
+					y = options.y * zoom,
+					start = options.start ,
+					end = options.end ,
+					radius = options.r * zoom,
+					cosStart = mathCos(start),
+					sinStart = mathSin(start),
+					cosEnd = mathCos(end),
+					sinEnd = mathSin(end),
+					innerRadius = (options.innerR  || 0)* zoom,
+					circleCorrection = 0.08 / radius, // #760
+					innerCorrection = (innerRadius && 0.1 / innerRadius) || 0,
+					ret;
+			
+				if (end - start === 0) { // no angle, don't show it.
+					return ['x'];
+			
+				}
+			//	else if (2 * mathPI - end + start < circleCorrection) { // full circle
+			//		// empirical correction found by trying out the limits for different radii
+			//		cosEnd = -circleCorrection;
+			//	} else if (end - start < innerCorrection) { // issue #186, another mysterious VML arc problem
+			//		cosEnd = mathCos(start + innerCorrection);
+			//	}
+			
+				ret = [
+					'at', // clockwise arc to
+					pInt(- radius), // left
+					pInt(- radius), // top
+					pInt(radius), // right
+					pInt(radius), // bottom
+					pInt(radius * cosStart), // start x
+					pInt(- radius * sinStart), // start y
+					pInt(radius * cosEnd), // end x
+					pInt(- radius * sinEnd)  // end y
+				];
+				if(innerRadius){
+					ret.push(
+						'wa', // anti clockwise arc to
+						pInt(- innerRadius), // left
+						pInt(- innerRadius), // top
+						pInt(innerRadius), // right
+						pInt(innerRadius), // bottom
+						pInt(innerRadius * cosEnd), // start x
+						pInt(- innerRadius * sinEnd), // start y
+						pInt(innerRadius * cosStart), // end x
+						pInt(- innerRadius * sinStart) // end y
+					);
+				}
+				ret.push(
+					'x', // finish path
+					'e' // close
+				);
+				options.path = ret.join(' ');
+			}
+			return arc;
+		}(),
+		Rect : function(){
+			function rect(config){
+				rect.processConfig(config);
+				var p = new pub.Path(config)
+				if(config.connectable != false){
+					p.createConnects();
+					p.hideConnects();
+				}
+				return p;
+			}
+			rect.processConfig=function(config){
+				var h = Number(config.height)||200,
+					w = Number(config.width)||200,
+					rx = Math.min(Number(config.rx)||0,w/2),
+					ry = Math.min(Number(config.ry)||0,h/2),
+					round = rx>0&&ry>0,
+					lx = rx!=w/2,
+					ly = ry!=h/2,
+					d = ['M',0,round?ry:0];
+				if(round)d.push('A',rx,ry,0,0,1,rx,0);
+				if(lx)d.push('H',w-(round?rx:0));
+				if(round)d.push('A',rx,ry,0,0,1,w,ry);
+				if(ly)d.push('V',h-(round?ry:0));
+				if(round)d.push('A',rx,ry,0,0,1,w-rx,h);
+				if(lx)d.push('H',round?rx:0);
+				if(round)d.push('A',rx,ry,0,0,1,0,h-ry);
+				if(ly)d.push('Z');
+				config.d = d.join(' ');
+			}
+			return rect;
+		}(),
+		Diamond : function(){
+			function diamond(config){
+				diamond.processConfig(config);
+				var p = new pub.Path(config);
+				if(config.connectable != false){
+					p.createConnects();
+					p.hideConnects();
+				}
+				return p;
+			}
+			diamond.processConfig = function(config){
+				var h = Number(config.height)||100,
+				w = Number(config.width)||200,
+				d = ['M',
+					0,h/2,
+					'L',
+					w/2,0,
+					w,h/2,
+					w/2,h,
+					'Z'];
+				config.d = d.join(' ');
+			}
+			return diamond;
+		}(),
 		Arrow : function(){
 			var id,color,opacity,defs,maskerOpt={
 					viewBox:'0 0 100 100',
@@ -1402,7 +2478,7 @@ var pub =function(){
 Ext.apply(pub,{
 	Image : Ext.extend(pub.Path,{
 		initSVGElement : function(){
-			var sf = this,wrap = sf.wrap,x = sf.x,y = sf.y,
+			var sf = this,parent = sf.parent,wrap = sf.wrap,x = sf.x,y = sf.y,
 				dom = (sf.el = wrap.appendChild(newSVG("image",sf.id+"_el")
 					.set({x:0,y:0,width:sf.width,height:sf.height}))).dom;
 	    	dom.style.cssText=encodeStyle({
@@ -1412,16 +2488,26 @@ Ext.apply(pub,{
 	    		'-moz-user-select':NONE
 	    	})+sf.style;
 	    	dom.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',sf.image);
-			if(x||y) transform(wrap,x,y);
+			if(x||y){
+				if(parent){
+					x-=parent.x;
+					y-=parent.y;
+				}
+				transform(wrap,x,y)
+			};
 	    },
 	    initVMLElement : function(){
-	    	var sf = this,strokecolor = sf.strokecolor;
+	    	var sf = this,strokecolor = sf.strokecolor,parent = sf.parent,x = sf.x,y = sf.y;
+	    	if(parent){
+				x-=parent.x;
+				y-=parent.y;
+			}
 	    	sf.el=new Ext.Template(sf.vmlTpl).append(sf.wrap.setStyle({
 	    		position:'absolute',
 	    		width:100+PX,
 	    		height:100+PX,
-	    		left:sf.x+PX,
-	    		top:sf.y+PX
+	    		left:x+PX,
+	    		top:y+PX
 	    	}).set({coordsize:'100,100'}).dom,{
 	    		id:sf.id+'_el',
 	    		src:sf.image,
@@ -1452,11 +2538,10 @@ Ext.apply(pub,{
 	    		fill:sf.color,
 	    		'font-size':size+PX,
 	    		'font-family':sf.fontfamily,
-	    		'line-height':size+PX,
 	    		cursor:'text'
 	    	})+sf.style;
     		dom.textContent = sf.text;
-	    	if(!Ext.isEmpty(rotation))transform(sf.el,null,null,null,null,rotation);
+	    	if(!isEmpty(rotation))transform(sf.el,null,null,null,null,rotation);
 	    	return sf.el;
 	    },
 	    initVMLElement : function(){
@@ -1467,7 +2552,6 @@ Ext.apply(pub,{
 	    		el = sf.el = new Ext.Template(sf.vmlTpl).append(sf.wrap.dom,{
 		    		id:sf.id+'_el',
 		    		style:encodeStyle({
-		    			'line-height':size+PX,
 		    			'font-size':size+PX,
 		    			'font-family':sf.fontfamily
 		    		})+sf.style,
@@ -1475,7 +2559,7 @@ Ext.apply(pub,{
 		    		top:sf.dy,
 		    		color:sf.color||'black'
 		    	},true).update(sf.text);
-	    	if(!Ext.isEmpty(rotation)){
+	    	if(!isEmpty(rotation)){
 	    		var x,y;
 	    		if(positionwrap){
 	    			x = positionwrap.x;
@@ -1491,159 +2575,4 @@ Ext.apply(pub,{
 	})
 })
 
-pub.Line.processConfig = function(config){
-	var a= config.points.match(numberReg),points = [];
-	if(!a)return false;
-	for(var i = 0,l = a.length;i < l;i += 2){
-		points.push([a[i],a[i+1]]);
-	}
-	if(points.length < 2)return false;
-	var x = Number(points[0][0]), y = Number(points[0][1]);
-	a = ['M',0,0,'L'];
-	Ext.each(points,function(p){
-		a.push(p[0] - x,p[1] - y);
-	});
-	config.d = a.join(' ');
-	if(config.strokewidth == 1)config.strokewidth = 2;
-	config.fillcolor = NONE;
-	config.points = points;
-	config.x = x;
-	config.y = y;
-}
-pub.Rect.processConfig=function(config){
-	var h = Number(config.height)||200,
-		w = Number(config.width)||200,
-		rx = Math.min(Number(config.rx)||0,w/2),
-		ry = Math.min(Number(config.ry)||0,h/2),
-		round = rx>0&&ry>0,
-		lx = rx!=w/2,
-		ly = ry!=h/2,
-		d = ['M',0,round?ry:0];
-	if(round)d.push('A',rx,ry,0,0,1,rx,0);
-	if(lx)d.push('H',w-(round?rx:0));
-	if(round)d.push('A',rx,ry,0,0,1,w,ry);
-	if(ly)d.push('V',h-(round?ry:0));
-	if(round)d.push('A',rx,ry,0,0,1,w-rx,h);
-	if(lx)d.push('H',round?rx:0);
-	if(round)d.push('A',rx,ry,0,0,1,0,h-ry);
-	if(ly)d.push('Z');
-	config.d = d.join(' ');
-}
-pub.Oval.processConfig = function(config){
-	config.height = config.height||config.ry*2;
-	config.width = config.width||config.rx*2;
-	config.ry = config.height/2;
-	config.rx = config.width/2;
-	pub.Rect.processConfig(config);
-}
-pub.Arc.processConfig = hasSVG?function (options) {
-	var x = options.x,
-		y = options.y,
-		start = options.start % (2 *mathPI),
-		radius = options.r ,
-		end = options.end % (2 * mathPI) - 0.000001, // to prevent cos and sin of start and end from becoming equal on 360 arcs
-		innerRadius = options.innerR || 0,
-		open = options.open,
-		cosStart = mathCos(start),
-		sinStart = mathSin(start),
-		cosEnd = mathCos(end),
-		sinEnd = mathSin(end),
-		longArc = (end > start? end : end + 2 * mathPI) - start < mathPI ? 0 : 1;
-	options.d = [
-		'M',
-		x + radius * cosStart,
-		y - radius * sinStart,
-		'A', // arcTo
-		radius, // x radius
-		radius, // y radius
-		0, // slanting
-		longArc, // long or short arc
-		0, // clockwise
-		x + radius * cosEnd,
-		y - radius * sinEnd,
-		open ? 'M' : 'L',
-		x + innerRadius * cosEnd,
-		y - innerRadius * sinEnd,
-		'A', // arcTo
-		innerRadius, // x radius
-		innerRadius, // y radius
-		0, // slanting
-		longArc, // long or short arc
-		1, // clockwise
-		x + innerRadius * cosStart,
-		y - innerRadius * sinStart,
-
-		open ? '' : 'Z' // close
-	].join(' ');
-	options.x = 0;
-	options.y = 0;
-}:function (options) {
-	var zoom = options.zoom || 10000,
-		x = options.x * zoom,
-		y = options.y * zoom,
-		start = options.start ,
-		end = options.end ,
-		radius = options.r * zoom,
-		cosStart = mathCos(start),
-		sinStart = mathSin(start),
-		cosEnd = mathCos(end),
-		sinEnd = mathSin(end),
-		innerRadius = (options.innerR  || 0)* zoom,
-		circleCorrection = 0.08 / radius, // #760
-		innerCorrection = (innerRadius && 0.1 / innerRadius) || 0,
-		ret;
-
-	if (end - start === 0) { // no angle, don't show it.
-		return ['x'];
-
-	}
-//	else if (2 * mathPI - end + start < circleCorrection) { // full circle
-//		// empirical correction found by trying out the limits for different radii
-//		cosEnd = -circleCorrection;
-//	} else if (end - start < innerCorrection) { // issue #186, another mysterious VML arc problem
-//		cosEnd = mathCos(start + innerCorrection);
-//	}
-
-	ret = [
-		'at', // clockwise arc to
-		pInt(- radius), // left
-		pInt(- radius), // top
-		pInt(radius), // right
-		pInt(radius), // bottom
-		pInt(radius * cosStart), // start x
-		pInt(- radius * sinStart), // start y
-		pInt(radius * cosEnd), // end x
-		pInt(- radius * sinEnd)  // end y
-	];
-	if(innerRadius){
-		ret.push(
-			'wa', // anti clockwise arc to
-			pInt(- innerRadius), // left
-			pInt(- innerRadius), // top
-			pInt(innerRadius), // right
-			pInt(innerRadius), // bottom
-			pInt(innerRadius * cosEnd), // start x
-			pInt(- innerRadius * sinEnd), // start y
-			pInt(innerRadius * cosStart), // end x
-			pInt(- innerRadius * sinStart) // end y
-		);
-	}
-	ret.push(
-		'x', // finish path
-		'e' // close
-	);
-	options.path = ret.join(' ');
-}
-pub.Diamond.processConfig = function(config){
-	var h = Number(config.height)||100,
-	w = Number(config.width)||200,
-	d = ['M',
-		0,h/2,
-		'L',
-		w/2,0,
-		w,h/2,
-		w/2,h,
-		'Z'];
-	config.d = d.join(' ');
-}
 })();
