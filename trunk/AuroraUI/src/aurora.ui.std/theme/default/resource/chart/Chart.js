@@ -11470,13 +11470,20 @@ Chart.prototype = {
             }
         }
     	if(type == 'pie'){
-    		var datas = [],options = {};
-            for(var k = 0,l=records.length;k<l;k++){
-                var record = records[k];
-                datas[datas.length] = [record.get(chart.namefield||'name'),record.get(chart.valuefield||'value')]
-            }
-            options['data'] = datas;
-            this.addSeries(options,false)
+    		var datas = [],options = {},vf = chart.valuefield,nf = chart.namefield,flag;
+    		Ext.each(records,function(record){
+    			var value = record.get(vf||'value');
+    			if(value > 0)
+    				flag = true;
+    			else if(value<0){
+    				return flag = false;
+    			}
+    			datas.push([record.get(nf||'name'),value]);
+    		});
+    		if(flag){
+	            options['data'] = datas;
+	            sf.addSeries(options,false)
+    		}
     	}else{
 			var xAxisName,xtype,xformat;
 			for(var j=0,l = sf.xAxis.length;j<l;j++){

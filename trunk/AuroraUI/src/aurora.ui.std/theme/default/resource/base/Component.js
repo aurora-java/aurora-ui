@@ -113,8 +113,8 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	return this.wrap.contains(el)||this.wrap.dom === (el.dom?el.dom:el);
     },
     move: function(x,y){
-		this.wrap.setX(x);
-		this.wrap.setY(y);
+		if(!Ext.isEmpty(x))this.wrap.setX(x);
+		if(!Ext.isEmpty(y))this.wrap.setY(y);
 	},
 	getBindName: function(){
 		return this.binder ? this.binder.name : null;

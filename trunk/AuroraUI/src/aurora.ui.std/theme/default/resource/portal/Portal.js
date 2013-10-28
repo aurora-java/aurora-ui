@@ -15,6 +15,9 @@ var relativeX,relativeY,portalList,
 	EVT_BEFORE_CLOSE = 'beforeclose',
 	EVT_CLOSE = 'close',
 	EVT_ITEM_CLOSE = 'itemclose',
+	EVT_ITEM_CLICK = 'itemclick',
+	EVT_EXCHANGE = 'exchange',
+	EVT_CLICK = 'click',
 	EVT_DRAG = 'drag',
 	EVT_DROP = 'drop';
 /**
@@ -46,7 +49,23 @@ A.Portal = Ext.extend(A.Component,{
          * @param {Aurora.Portal} portal portal对象
          * @param {Number} index 索引
          */
-		EVT_ITEM_CLOSE);
+		EVT_ITEM_CLOSE,
+		/**
+         * @event itemclick
+         * 窗口关闭事件.
+         * @param {Aurora.PortalPanel} portalPanel portal_panel面板对象
+         * @param {Aurora.Portal} portal portal对象
+         * @param {Number} index 索引
+         */
+		EVT_ITEM_CLICK,
+		/**
+         * @event exchange
+         * 交换事件.
+         * @param {Aurora.PortalPanel} portalPanel portal_panel面板对象
+         * @param {Number} fromIndex 从索引
+         * @param {Number} toIndex 至索引
+         */
+		EVT_EXCHANGE);
 		
 	},
 	createPortalItem : function(id,config){
@@ -61,9 +80,15 @@ A.Portal = Ext.extend(A.Component,{
 					portals.splice(index,1);
 					sf.fireEvent(EVT_ITEM_CLOSE,sf,p,index);					
 				},
+				click : function(p){
+					sf.fireEvent(EVT_ITEM_CLICK,sf,p,portals.indexOf(p));
+				},
 				drop : function(p,index){
+					var fromIndex = portals.indexOf(p);
 					portals.splice(portals.indexOf(p),1);
 					portals.splice(index,0,p);
+					!Ext.isEmpty(fromIndex) && !Ext.isEmpty(index) &&
+						sf.fireEvent(EVT_EXCHANGE,sf,fromIndex,index);
 				}
 			}
 		})));
@@ -94,8 +119,9 @@ A.PortalItem = Ext.extend(A.Component,{
 	processListener: function(ou){
 		var sf = this;
     	A.PortalItem.superclass.processListener.call(sf,ou);
+    	sf.wrap[ou](EVT_CLICK,sf.onClick,sf);
     	if(sf.closeable) {
-           sf.closeBtn[ou]('click', sf.onCloseClick,  sf)
+           sf.closeBtn[ou](EVT_CLICK, sf.onCloseClick,  sf)
    					[ou]('mouseover', sf.onCloseOver,  sf)
            			[ou]('mouseout', sf.onCloseOut,  sf)
            			[ou](EVT_MOUSE_DOWN, sf.onCloseDown,  sf);
@@ -130,7 +156,13 @@ A.PortalItem = Ext.extend(A.Component,{
          * 关闭事件.
          * @param {Aurora.Portal} portal portal对象
          */
-		EVT_CLOSE);
+		EVT_CLOSE,
+		/**
+         * @event click
+         * 点击事件.
+         * @param {Aurora.Portal} portal portal对象
+         */
+		EVT_CLICK);
 		
 	},
 	showLoading : function(dom){
@@ -198,6 +230,11 @@ A.PortalItem = Ext.extend(A.Component,{
             sf.destroy();
         }
     },
+    onClick : function(){
+    	var sf = this;
+    	!sf.moving &&
+    		sf.fireEvent(EVT_CLICK,sf);
+    },
     onMouseDown : function(e){
     	if(this.animating)return;
     	var sf = this,pos = e.xy,wrap = sf.wrap,xy = wrap.getXY();
@@ -214,6 +251,7 @@ A.PortalItem = Ext.extend(A.Component,{
     onMouseMove : function(e){
     	var sf = this,pos = e.xy,x = pos[0],y = pos[1],wrap = sf.wrap,
     		c = sf.cellspacing/2,index = portalList.indexOf(wrap.dom);
+		sf.moving = true;
     	wrap.moveTo(x - relativeX , y - relativeY);
     	Ext.each(portalList,function(portal,i){
     		if(portal != wrap.dom){
@@ -245,6 +283,7 @@ A.PortalItem = Ext.extend(A.Component,{
 				sf.fireEvent(EVT_DROP,sf,sf.proxy.index);
 				portalList = null;
 				sf.proxy.index = null;
+				delete sf.moving;
 				delete sf.animating;
     		},
     		duration : .15
