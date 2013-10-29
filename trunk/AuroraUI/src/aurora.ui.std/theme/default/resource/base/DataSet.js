@@ -53,9 +53,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             var datas=config.datahead?this.convertData(config.datahead,config.datas):config.datas;
             this.autocount = false;
             this.loadData(datas);
-            $A.onReady(function(){
-				sf.locate(sf.currentIndex,true); //不确定有没有影响
-            });
+//            $A.onReady(function(){
+//				sf.locate(sf.currentIndex,true); //不确定有没有影响
+//            });
         }
         if(config.autoquery === true) {
             $A.onReady(function(){
