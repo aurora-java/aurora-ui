@@ -582,7 +582,9 @@ $A.Graphics=Ext.extend($A.Component,{
     			(isEmpty(start_table_id)?'':(',from:'+start_table_id))+
     			(isEmpty(end_table_id)?'':(',to:'+end_table_id))});
     		var eds = $(sf.id+'_'+sf.newline.id).editors;
-    		eds[eds.length-1].wrap.hide();
+    		(function(){
+    			eds[eds.length-1].wrap.hide();
+    		}).defer(Ext.isIE9?1:0);
     	}else{
     		var config = convertConfig(sf.newline);
     		points = convertPoints(config.points);
@@ -618,19 +620,23 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     onLoad : function(){
     	var sf = this;
-    	sf.clear();
-    	Ext.each(sf.dataset.getAll().sort(function(a,b){
-    		var at=a.get('type'),bt=b.get('type');
-    		if(at == bt)return 0;
-    		else if(at === 'line')return 1;
-    		else return -1;
-    	}),function(r){
-    		if(!r.get('type')){
-    			r.data['type'] = 'rect';
-    			r.isNew = true;
-    		}
-    		sf.create(r);
-    	});
+    	(function(callback){
+    		hasSVG?callback():$A.onReady(callback);
+    	})(function(){
+	    	sf.clear();
+	    	Ext.each(sf.dataset.getAll().sort(function(a,b){
+	    		var at=a.get('type'),bt=b.get('type');
+	    		if(at == bt)return 0;
+	    		else if(at === 'line'||at === 'zLine')return 1;
+	    		else return -1;
+	    	}),function(r){
+	    		if(!r.get('type')){
+	    			r.data['type'] = 'rect';
+	    			r.isNew = true;
+	    		}
+	    		sf.create(r);
+	    	});
+    	})
     },
     onAdd : function(ds,record,index){
     	this.create(record);
@@ -1312,10 +1318,10 @@ var pub =function(){
 					type = 'Diamond';
 					if(pos2[0] == x){
 						y = (pos2[1]+y)/2
-						moveType = 'v';
+						moveType = 'h';
 					}else if(pos2[1] == y){
 						x = (pos2[0]+x)/2
-						moveType = 'h';
+						moveType = 'v';
 					}
 		    	}
 		    	ed = new pub[type]({
@@ -1345,8 +1351,10 @@ var pub =function(){
 			    	ed.on('mousedown',sf.editorDown,sf);
 		    	}
 		    	ed.on('move',sf.editorMove,sf);
-		    	if(record != sf.top.dataset.getCurrentRecord){
-		    		ed.wrap.hide();
+		    	if(record != sf.top.dataset.getCurrentRecord()){
+		    		(function(){
+		    			ed.wrap.hide();
+		    		}).defer(Ext.isIE9?1:0);
 		    	}
 		    },
 		    showEditors : function(){
@@ -1632,7 +1640,16 @@ var pub =function(){
 						tx-=3;
 						ty-=3;
 					}
-		    		sf.proxy.moveTo(sf.movedir == 'v'?sf.proxy.getY():tx+_xy[0],sf.movedir == 'h'?sf.proxy.getY():ty+_xy[1]);
+					if(sf.movedir && parent){
+						tx-=parent.x;
+						ty-=parent.y;
+					}
+					if(sf.movedir == 'v'){
+						sf.proxy.setStyle('top',ty+'px');
+					}else if(sf.movedir == 'h'){
+						sf.proxy.setStyle('left',tx+'px');
+					}else
+		    			sf.proxy.moveTo(tx+_xy[0],ty+_xy[1]);
 				}
 				//sf.syncLineEditors(_x - x,_y - y);
 				sf.syncConnects(_x - x,_y - y);
@@ -1946,7 +1963,6 @@ var pub =function(){
 								b1 = fromPoint[0]>toPoint[0],
 								b2 = fromPoint[1]>toPoint[1],
 								p=[],value;
-							
 							if(side == 0){
 								switch(fromLength * toLength){
 									case 16 : 
@@ -2152,8 +2168,8 @@ var pub =function(){
 										break;
 									case 9:
 										if(isV^(side3^(b1 ^ b2))){
-											fromPoints.splice(2,1);
-											toPoints.splice(0,1);
+											fromPoints.splice(1,2);
+											toPoints.splice(0,2);
 											p.push(exchange(toPoints[0],fromPoints[fromPoints.length-1],isV?fromDir == 1 ^ (side3^b1):fromDir == 2 ^ b1));
 										}else{
 											if(isV?fromDir == 1 ^ (side3^b1) : fromDir == 2 ^ b1){
@@ -2261,7 +2277,9 @@ var pub =function(){
 			var p = new pub.Path(config);
 			if(config.connectable != false){
 				p.createConnects();
-				p.hideConnects();
+				(function(){
+					p.hideConnects();
+				}).defer(Ext.isIE9?1:0);
 			}
 			return p;
 		},{
