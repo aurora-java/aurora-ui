@@ -255,7 +255,9 @@ $A.Graphics=Ext.extend($A.Component,{
 		sf.wrap[ou]('click',sf.onClick,sf,opt)
 			[ou]('mouseover',sf.onMouseOver,sf,opt)
 			[ou]('mouseout',sf.onMouseOut,sf,opt)
-			[ou]('mousedown',sf.onMouseDown,sf);
+			[ou]('mousedown',sf.onMouseDown,sf)
+			[ou]('keydown',sf.onKeyDown,sf)
+			[ou]('blur',sf.onBlur,sf);
     },
     processDataSetLiestener:function(ou){
     	var sf = this,ds = sf.dataset;
@@ -306,14 +308,13 @@ $A.Graphics=Ext.extend($A.Component,{
     	if(sf.candrawline){
 			sf.startLine(e,t);
     	}else {
-    		var ds = sf.dataset;
-    		if(ds){
-	    		var el = sf.getGElement(t);
-	    		if(el && el.record){
-	    			ds.locate(ds.getAll().indexOf(el.record)+1);
-	    		}
+    		var ds = sf.dataset,el = sf.getGElement(t),r;
+    		if(ds && el && (r = el.record) && r != ds.getCurrentRecord()){
+    			ds.locate(ds.getAll().indexOf(r)+1);
     		}else{
-    			sf.focus(t);
+    			(function(){
+    				sf.focus(t);
+    			}).defer(hasSVG&&Ext.isIE10?1:0);
     		}
     		if(sf.dropto||sf.moveable){
 				sf.sw = $A.getViewportWidth();
@@ -392,6 +393,35 @@ $A.Graphics=Ext.extend($A.Component,{
     onClick : function(e,t){
     	this.fire('click',e,t);
     },
+    onKeyDown : function(e){
+    	var sf = this,el = sf.focusItem;
+    	if(el){
+    		var x = el.x,
+    			y = el.y,
+    			record = sf.dataset.getCurrentRecord(),
+    			step = e.ctrlKey?10:1;
+			switch(e.keyCode){
+				case 37: x-=step;break;
+				case 38: y-=step;break;
+				case 39: x+=step;break;
+				case 40: y+=step;break;
+				case 46:
+					if(sf.focusItem){
+						sf.remove();
+					}
+				default:return;
+			}
+			if(!hasSVG){
+				x--;
+				y--;
+			}
+			el.onMouseMove({x:x,y:y},el);
+			e.stopEvent();
+    	}
+    },
+    onBlur : function(){
+    	this.blur();
+    },
     getGElement : function(t){
     	var a = t.id.match(/(.*)_(\d+)(_.*)*$/);
     	if(a){
@@ -432,7 +462,7 @@ $A.Graphics=Ext.extend($A.Component,{
 	            alert("未找到"+renderer+"方法!")
 	            return;
 	        }
-	        var v = fder.call(window,g,type,config);
+	        var v = fder(g,type,config);
 	        if(!isEmpty(v)){
 		        if(Ext.isObject(v)){
 		        	v = Ext.util.JSON.encode(v);
@@ -489,7 +519,10 @@ $A.Graphics=Ext.extend($A.Component,{
     	var sf = this;
     	t = sf.fire('focus',null,t);
     	if(t){
-			if(sf.focusItem)sf.blur();
+			if(sf.focusItem){
+				if(sf.focusItem == t){return};
+				sf.blur();
+			}
 			if(sf.editable){
 				if(t.editable){
 					t.showEditors()
@@ -502,9 +535,8 @@ $A.Graphics=Ext.extend($A.Component,{
 				}
 			}
 			sf.focusItem = t;
-    	}else{
-    		sf.fireEvent('focus')
     	}
+    	sf.wrap.focus();
     },
     blur : function(){
     	var sf = this,t = sf.focusItem,focusMask = sf.focusMask;
@@ -604,7 +636,10 @@ $A.Graphics=Ext.extend($A.Component,{
     	Ext.fly(DOC).un('mousemove',sf.drawLine,sf)
 			.un('mouseup',sf.endLine,sf);
     	if(sf.newline){
-    		sf.focus($(sf.id+'_'+sf.newline.id));
+    		var eds = $(sf.id+'_'+sf.newline.id).editors;;
+    		(function(){
+    			eds[eds.length-1].wrap.show();
+    		}).defer(Ext.isIE9?1:0);
     		sf.fireEvent('drawn');
     	}
     	delete sf.drawLinePoints;
@@ -647,7 +682,10 @@ $A.Graphics=Ext.extend($A.Component,{
     	el.destroy();
     },
     onIndexChange : function(ds,record){
-    	this.focus($(this.id + '_' +record.id));
+    	var sf=this;
+    	(function(){
+    		sf.focus($(sf.id + '_' +record.id));
+		}).defer(hasSVG&&Ext.isIE10?1:0);
     },
     onUpdate : function(ds,record, name, value,ov){
 		var sf = this,el = $(sf.id+'_'+record.id),
@@ -666,6 +704,21 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     createElement : function(name){
     	return this.root.appendChild(hasSVG?newSVG(name):newVML(name));
+    },
+    remove : function(){
+    	var	ds = this.dataset,
+            r = ds.getCurrentRecord(),
+            table_id = r.get('table_id'),
+            type = r.get('type');
+        if(table_id !== 0 && table_id !== -1){
+            if(type == 'line' || type == 'zLine' || r.isNew){
+            	ds.remove();
+            }else{
+                $A.showConfirm('确认','确认删除选中的图形？',function(){
+                    ds.remove();
+                });
+            }
+        }
     },
     clear : function(){
     	var cmps = this.cmps;
@@ -1553,7 +1606,7 @@ var pub =function(){
 		    	}
 		    },
 		    onMouseMove : function(e,t){
-		    	e.stopEvent();
+		    	e.stopEvent && e.stopEvent();
 		    	var sf = this,
 		    		wrap = sf.wrap,
 		    		top = sf.top,
@@ -1565,8 +1618,8 @@ var pub =function(){
 	    			sh = graphic.getHeight(),
 	    			stroke = sf.strokewidth||0,
 		    		_xy = graphic.getXY(),
-		    		tx = e.getPageX()+sf.relativeX - _xy[0],
-		    		ty = e.getPageY()+sf.relativeY - _xy[1],
+		    		tx = e.x || (e.getPageX()+sf.relativeX - _xy[0]),
+		    		ty = e.y || (e.getPageY()+sf.relativeY - _xy[1]),
 		    		x = sf.x,y = sf.y,_x,_y,c,table_id,
 		    		b=0,type = sf.type,xb = b,yb = b;
 	    		if(top.editing){
@@ -1676,6 +1729,13 @@ var pub =function(){
 		    	var sf = this,fm = sf.focusMask,text = sf.text;
 		    	sf.clearEditors();
 		    	sf.clearConnects();
+		    	Ext.each(sf.lineEditors,function(ed){
+		    		delete ed.bindEl;
+		    		ed.addConfig({
+	    				fillcolor : 'rgb(0,0,0)',
+	    				fillopacity : '0'
+	    			});
+		    	});
 		    	fm && fm
 		    		//.un('mousedown',sf.onMouseDown,sf)
 		    		.remove();

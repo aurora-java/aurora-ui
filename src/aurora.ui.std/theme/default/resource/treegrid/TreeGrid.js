@@ -189,11 +189,13 @@ $A.TreeGrid = Ext.extend($A.Grid, {
             r = 25,
             h = ub.getHeight(),
             sh = ub.dom.scrollWidth > ub.dom.clientWidth? 16 : 0;
-        if(height<stop){
-            ub.scrollTo('top',height-1)
-        }else if(height+r>(stop+h-sh)){
-            ub.scrollTo('top', height+r-h + sh);
-        }
+       (function(){
+	        if(height<stop){
+	            ub.scrollTo('top',height-1)
+	        }else if(height+r>(stop+h-sh)){
+	            ub.scrollTo('top', height+r-h + sh);
+	        }
+       }).defer(1);
     },
     onUpdate : function(ds,record, name, value){
         $A.TreeGrid.superclass.onUpdate.call(this,ds,record, name, value);
