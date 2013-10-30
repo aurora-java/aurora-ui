@@ -36,6 +36,15 @@ function ${id}(){
                     return;
                 }
             }
+            var totalCount = ${totalcount};
+            var ds = $('${id}_ds');
+            if(totalCount!=0){
+                if(ds.getAll().length >= totalCount){
+                    this.cancelUpload(file.id);
+                    $A.showErrorMessage('错误', '上传文件数量超出限制! (总数量不能超过 ' + totalCount+'个)',null,350,100);
+                    return;
+                }
+            }
             var record = new Aurora.Record({
                 file_id : file.id,
                 file_name : file.name,
