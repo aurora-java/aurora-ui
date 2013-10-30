@@ -2063,16 +2063,13 @@ $A.Record.Field.prototype = {
      * @param {Object} value
      */
     setLovPara : function(name,value){
-        var p = this.get('lovpara');
-        if(!p){
-            p = {};
-            this.setPropertity("lovpara",p) 
-        }
+        var p = this.get('lovpara')||{};
         if(value==null){
             delete p[name]
         }else{
             p[name] = value;
         }
+        this.setPropertity("lovpara",p) 
     }
     
 }

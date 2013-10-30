@@ -75,7 +75,7 @@ $A.Window = Ext.extend($A.Component,{
         if(sf.url){
             urlAtt = 'url="'+sf.url+'"';
         }
-        sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,url:urlAtt,clz:sf.fullScreen ? 'full-window' : ''}, true);
+        sf.wrap = windowTpl.insertFirst(document.body, {id:sf.id,title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,url:urlAtt,clz:(sf.fullScreen ? 'full-window ' : '')+sf.className||''}, true);
         sf.wrap.cmps = sf.cmps;
         sf.shadow = shadowTpl.insertFirst(document.body, {}, true);
         sf.shadow.setWidth(sf.wrap.getWidth());
@@ -219,7 +219,7 @@ $A.Window = Ext.extend($A.Component,{
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap {clz}" style="left:-10000px;top:-10000px;width:{width}px;outline:none" cellSpacing="0" cellPadding="0" hideFocus tabIndex="-1" border="0" {url}>',
+            '<TABLE id="{id}" class="win-wrap {clz}" style="left:-10000px;top:-10000px;width:{width}px;outline:none" cellSpacing="0" cellPadding="0" hideFocus tabIndex="-1" border="0" {url}>',
             '<TBODY>',
             '<TR style="height:23px;" >',
                 '<TD class="win-caption">',
