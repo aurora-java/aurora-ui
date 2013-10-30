@@ -44,7 +44,7 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
         );
     },
     checkFileType : function(files) {
-        var checkType = true,checkSize = true,checkTotal = true,totalUploadSize = 0;
+        var checkType = true,checkSize = true,checkTotal = true,checkTotalCount = true,totalUploadSize = 0;
         for (var i = 0; i < files.length; i++) {  
             var name = files[i].name;
             var size = files[i].size;
@@ -68,7 +68,9 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
             }
             checkTotal = (totalUploadSize+uploadedSize) <=  1024*this.totalfilesize
         }
-        
+        if(this.totalcount!=0){
+            checkTotalCount = ds.getAll().length < this.totalcount;
+        }
         
         
         if(!checkType) {
@@ -77,8 +79,10 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
             $A.showInfoMessage('大小不正确', '文件大小超出限制! (单个文件不能超过' + formatFileSize(this.filesize*1024)+ ')',null,350,100);
         }else if(!checkTotal) {
             $A.showErrorMessage('错误', '超出总上传文件大小限制! (总大小不能超过 ' + formatFileSize(1024 *this.totalfilesize)+')',null,350,100);
+        }else if(!checkTotalCount) {
+            $A.showErrorMessage('错误', '上传文件数量超出限制! (总数量不能超过 ' + this.totalcount+'个)',null,350,100);
         }
-        return checkType&&checkSize&&checkTotal;
+        return checkType&&checkSize&&checkTotal&&checkTotalCount;
     },
     uploadFiles : function(files){
         if(!this.showupload) {
