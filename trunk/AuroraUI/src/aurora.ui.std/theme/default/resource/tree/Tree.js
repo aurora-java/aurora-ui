@@ -375,7 +375,7 @@ $A.Tree = Ext.extend($A.Component,{
             	a = a.record.get(sequence)||m;
             	b = b.record.get(sequence)||m;
             	if(isNaN(a)||isNaN(b)){
-            		return a > b;
+            		return a > b?1:-1;
             	}else{
             		return a - b;
             	}
