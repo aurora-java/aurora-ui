@@ -89,7 +89,7 @@ function atmRenderer(value, record, name, canDelete) {
 		a = '<div class="atm1"> </div>'
 	}
     
-	var html = '<div class="' + c + '">' + a + '<div style="float:left">' + (percent == -1 ? value :'<a target="_self" href="'+window[upid+'_download_path']+'?attachment_id='+record.get('attachment_id')+'&source_type_code='+record.get('source_type_code')+'&source_pk_value='+record.get('source_pk_value')+'\">'
+	var html = '<div class="' + c + '">' + a + '<div style="float:left">' + (percent == -1 ? value :'<a target="_self" href="'+window[upid+'_download_path']+'?attachment_id='+record.get('attachment_id')+'&table_name='+record.get('table_name')+'&table_pk_value='+record.get('table_pk_value')+'\">'
             + value + '</a>') + '</div>' + processPercent(record,canDelete) + '</div>';
 	return html;
 }
@@ -120,7 +120,7 @@ $A.UploadList = Ext.extend($A.Component,{
             }else {
                 this.wrap.child("#atm_"+record.id).child('.l').update('');
             }
-            this.wrap.child("#atm_"+record.id).child('.j').update('<a target="_self" href="'+this.downloadurl+'?attachment_id='+record.get('attachment_id')+'&source_type_code='+record.get('source_type_code')+'&source_pk_value='+record.get('source_pk_value')+'\" title="'+record.get("file_name")+'">'+record.get('file_name')+'</a>');
+            this.wrap.child("#atm_"+record.id).child('.j').update('<a target="_self" href="'+this.downloadurl+'?attachment_id='+record.get('attachment_id')+'&table_name='+record.get('table_name')+'&table_pk_value='+record.get('table_pk_value')+'\" title="'+record.get("file_name")+'">'+record.get('file_name')+'</a>');
             this.wrap.child("#atm_"+record.id).child('.k').update(formatFileSize(record.get('file_size'))+'<span class="d">'+Aurora.formatDateTime(record.get('creation_time'))+'</span>');
         } else if (percent == -1) {
             this.wrap.child("#atm_"+record.id).child('.l').update('');
@@ -153,7 +153,7 @@ $A.UploadList = Ext.extend($A.Component,{
             var type = tys[tys.length-1];
             html.push('<div class="up_card" id="atm_'+record.id+'">');
             html.push('<div class="icon icon-'+type+'"> </div>');
-            html.push('<div class="j"><a target="_self" href="'+this.downloadurl+'?attachment_id='+record.get('attachment_id')+'&source_type_code='+record.get('source_type_code')+'&source_pk_value='+record.get('source_pk_value')+'\" title="'+record.get("file_name")+'">'+record.get('file_name')+'</a></div>');
+            html.push('<div class="j"><a target="_self" href="'+this.downloadurl+'?attachment_id='+record.get('attachment_id')+'&table_name='+record.get('table_name')+'&table_pk_value='+record.get('table_pk_value')+'\" title="'+record.get("file_name")+'">'+record.get('file_name')+'</a></div>');
             if(this.showdelete) html.push('<div class="l"><a href="javascript:deleteFileRecord(\''+this.bindtarget +'\','+ record.id + ')">删除</a></div>');
             html.push('<div class="k">'+formatFileSize(record.get('file_size'))+'<span class="d">'+Aurora.formatDateTime(record.get('creation_time'))+'</span></div>');
             html.push('</div>')            
