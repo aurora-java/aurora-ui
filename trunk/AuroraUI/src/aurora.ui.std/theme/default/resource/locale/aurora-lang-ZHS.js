@@ -43,6 +43,8 @@ _lang['textfield.warn'] = '警告';
 _lang['textfield.warn.capslock'] = '大些锁定打开!';
 
 _lang['numberfield.only'] = '只能输入数字!';
+_lang['numberfield.max'] = '超出最大值：';
+_lang['numberfield.min'] = '超出最小值：';
 
 _lang['toolbar.ctPage'] = '页数:';
 _lang['toolbar.total'] = '共';

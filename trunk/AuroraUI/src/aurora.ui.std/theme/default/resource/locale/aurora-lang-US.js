@@ -43,6 +43,8 @@ _lang['textfield.warn'] = 'Warning';
 _lang['textfield.warn.capslock'] = 'Caps Lock is on!';
 
 _lang['numberfield.only'] = 'Number only!';
+_lang['numberfield.max'] = 'Exceeds the maximum:';
+_lang['numberfield.min'] = 'Exceeds the minimum:';
 
 _lang['toolbar.ctPage'] = 'Page:';
 _lang['toolbar.total'] = ' of ';

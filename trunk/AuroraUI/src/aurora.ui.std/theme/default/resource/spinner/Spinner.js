@@ -6,15 +6,13 @@
  * @constructor
  * @param {Object} config 配置对象. 
  */
-$A.Spinner = Ext.extend($A.TextField,{
+$A.Spinner = Ext.extend($A.NumberField,{
 //	constructor: function(config) {
 //        $A.Spinner.superclass.constructor.call(this, config);
 //    },
     initComponent : function(config){
     	var sf = this;
     	$A.Spinner.superclass.initComponent.call(sf, config);
-		sf.max = Ext.isEmpty(config.max)?Number.MAX_VALUE:Number(config.max);
-		sf.min = Ext.isEmpty(config.min)?-Number.MAX_VALUE:Number(config.min);
 		var decimal = String(sf.step = Number(config.step||1)).split('.')[1];
 		sf.decimalprecision = decimal?decimal.length:0;
     	sf.btn = sf.wrap.child('div.item-spinner-btn');
@@ -80,16 +78,17 @@ $A.Spinner = Ext.extend($A.TextField,{
     },
     goStep : function(isPlus,callback,callback2){
     	if(this.readonly)return;
-    	var sf = this,tempValue = sf.tempValue,
+    	var sf = this,
     		step = sf.step,
     		min = sf.min,
     		max = sf.max,
-    		n = Number(sf.getRawValue()||(isPlus?min-1:max+1))
-				+ (isPlus ? step : -step),
+    		raw = sf.getRawValue(),
+    		n = raw?Number(raw)
+				+ (isPlus ? step : -step):(0<min?min:(0>max?max:0)),
     		mod = sf.toFixed(sf.toFixed(n - min)%step);
     	n = sf.toFixed(n - (mod == step ? 0 : mod));
     	if(n <= max && n >= min){
-    		sf.setRawValue(n);
+    		sf.setRawValue(sf.formatValue(n));
     		if(callback)callback.call(sf,n);
     	}else{
     		if(callback2)callback2.call(sf,n)
@@ -97,9 +96,5 @@ $A.Spinner = Ext.extend($A.TextField,{
     },
     toFixed : function(n){
     	return Number(n.toFixed(this.decimalprecision));
-    },
-    processValue : function(v){
-    	if(Ext.isEmpty(v)||isNaN(v))return '';
-        return Math.max(Math.min(v,this.max),this.min);
     }
 });

@@ -19,6 +19,8 @@ $A.NumberField = Ext.extend($A.TextField,{
     initComponent : function(config){
     	var sf = this;
     	$A.NumberField.superclass.initComponent.call(sf, config); 
+    	sf.max = Ext.isEmpty(config.max)?Number.MAX_VALUE:Number(config.max);
+		sf.min = Ext.isEmpty(config.min)?-Number.MAX_VALUE:Number(config.min);
     	sf.restrict = sf.baseChars+'';
     	sf.restrictinfo = _lang['numberfield.only'];
         if(sf.allowdecimals){
@@ -50,7 +52,17 @@ $A.NumberField = Ext.extend($A.TextField,{
     		this.el.dom.maxLength=maxlength;
     },
     processValue : function(v){
-        return this.parseValue(v);
+    	var sf = this,info;
+    	v = sf.parseValue(v);
+    	if(v>sf.max){
+    		v = sf.max;
+    		info = _lang['numberfield.max']+v;
+    	}else if(v<sf.min){
+    		v = sf.min
+    		info = _lang['numberfield.min']+v;
+    	}
+    	if(info)$A.ToolTip.show(sf.id,info);
+    	return v;
     },
     onFocus : function(e) {
     	var sf = this;
