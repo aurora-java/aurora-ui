@@ -72,7 +72,6 @@ A.Portal = Ext.extend(A.Component,{
 		var sf = this,portals = sf.portals;
 		portals.push(new A.PortalItem(Ext.apply(config||{},{
 			id:id,
-			closeable:true,
 			proxy : sf.proxy,
 			listeners:{
 				close : function(p){

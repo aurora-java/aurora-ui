@@ -650,7 +650,7 @@ A.Grid = Ext.extend(A.Component,{
 	    	if(e.shiftKey){
     			sf._begin = ced.record;
     			e.stopEvent();
-	    	}else if(t.child('.grid-ckb')){
+	    	}else if((t = t.child('.grid-ckb')) && t.dom.className.search(/readonly/) == -1){
 	    		e.stopEvent();
 	    		ced.editor.focus.defer(Ext.isIE?1:0,ced.editor);
 	    	}
