@@ -73,6 +73,7 @@ A.Portal = Ext.extend(A.Component,{
 		portals.push(new A.PortalItem(Ext.apply(config||{},{
 			id:id,
 			proxy : sf.proxy,
+			movable : sf.movable,
 			listeners:{
 				close : function(p){
 					var index = portals.indexOf(p)
@@ -125,7 +126,9 @@ A.PortalItem = Ext.extend(A.Component,{
            			[ou]('mouseout', sf.onCloseOut,  sf)
            			[ou](EVT_MOUSE_DOWN, sf.onCloseDown,  sf);
         }
-        sf.head[ou](EVT_MOUSE_DOWN,sf.onMouseDown,sf);
+        if(sf.movable){
+        	sf.head[ou](EVT_MOUSE_DOWN,sf.onMouseDown,sf);
+        }
     },
     initEvents:function(){
 		A.PortalItem.superclass.initEvents.call(this);   
