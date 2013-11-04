@@ -104,9 +104,6 @@ A.Portal = Ext.extend(A.Component,{
 
 
 A.PortalItem = Ext.extend(A.Component,{
-	constructor: function(config){
-		A.Portal.superclass.constructor.call(this,config);
-	},
 	initComponent:function(config){
 		A.PortalItem.superclass.initComponent.call(this, config);
 		var sf = this,wrap = sf.wrap //|| new Ext.Template(sf.htmlTpl).append(sf.panel);
