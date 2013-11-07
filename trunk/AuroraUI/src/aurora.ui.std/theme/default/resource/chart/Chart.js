@@ -1840,7 +1840,8 @@ function setOptions(options) {
 	
 	// Merge in the default options
 	defaultOptions = merge(defaultOptions, options);
-	
+	//TODO Aurora
+	defaultPlotOptions = defaultOptions.plotOptions;
 	// Apply UTC
 	setTimeMethods();
 
