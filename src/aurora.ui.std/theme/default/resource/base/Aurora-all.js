@@ -838,7 +838,8 @@ $A.Masker = function(){
             var el = Ext.get(el);
             var w = el.getWidth();
             var h = el.getHeight();//leftp:0px;top:0px; 是否引起resize?
-            var p = '<div class="aurora-mask"  style="left:-10000px;top:-10000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px">'+msg+'</span></div>';
+            var vh = Math.min(h-2,30);
+            var p = '<div class="aurora-mask"  style="left:-10000px;top:-10000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px;height:'+vh+'px;line-height:'+(vh-2)+'px">'+msg+'</span></div>';
             var wrap = el.parent('body')?el.parent():el.child('body')||el;
             var masker = Ext.get(Ext.DomHelper.append(wrap,p));
             var zi = el.getStyle('z-index') == 'auto' ? 0 : Number(el.getStyle('z-index'));
@@ -1717,6 +1718,46 @@ var POW = Math.pow,
         mul:mul
     }
 })();
+
+$A.merge = function(){
+	function clone(object){
+		var _clone = function(){};
+		_clone.prototype = object
+		return new _clone();
+	}
+	function mergeOne(source, key, current){
+		if(Ext.isObject(current)){
+			if (Ext.isObject(source[key])) _merge(source[key], current);
+			else source[key] = clone(current);
+		}else if(Ext.isArray(current)){
+			source[key] = [].concat(current);
+		}else{
+			source[key] = current;
+		}
+		return source;
+	}
+	function _merge(source, k, v){
+		if (Ext.isString(k)) return mergeOne(source, k, v);
+		for (var i = 1, l = arguments.length; i < l; i++){
+			var object = arguments[i];
+			for (var key in object) mergeOne(source, key, object[key]);
+		}
+		return source;
+	}
+	
+	return function(){
+		var args = [{}],
+			i = arguments.length,
+			ret;
+		while (i--) {
+			if (!Ext.isBoolean(arguments[i])) {
+				args[i + 1] = arguments[i];
+			}
+		}
+		ret = _merge.apply(null, args);
+		return ret;
+	}
+}();
 /**
  * @class Aurora.DataSet
  * @extends Ext.util.Observable
@@ -1728,6 +1769,7 @@ var POW = Math.pow,
 $A.AUTO_ID = 1000;
 $A.DataSet = Ext.extend(Ext.util.Observable,{
     constructor: function(config) {//datas,fields, type
+        var sf = this;
         $A.DataSet.superclass.constructor.call(this);
         config = config || {};
         if(config.listeners){
@@ -1771,12 +1813,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             var datas=config.datahead?this.convertData(config.datahead,config.datas):config.datas;
             this.autocount = false;
             this.loadData(datas);
-            //this.locate(this.currentIndex); //不确定有没有影响
+//            $A.onReady(function(){
+//				sf.locate(sf.currentIndex,true); //不确定有没有影响
+//            });
         }
         if(config.autoquery === true) {
-            var sf = this;
             $A.onReady(function(){
-               sf.query(); 
+				sf.query(); 
             });
         }
         if(config.autocreate==true) {
@@ -3591,8 +3634,8 @@ $A.Record.Meta.prototype = {
         
         var pro = {};
         if(df) pro = Ext.apply(pro, df.pro);
-        pro = Ext.apply(pro, this.pro);
-        pro = Ext.apply(pro, f.pro);
+        pro = $A.merge(pro, this.pro);
+        pro = $A.merge(pro, f.pro);
         delete pro.name;
         delete pro.type;
         f.snap = pro;
@@ -3637,6 +3680,7 @@ $A.Record.Field.prototype = {
         var op = this.pro[type];
         if(op !== value){
             this.pro[type] = value;
+            if(this.snap)this.snap[type] = value;
             if(this.record)this.record.onFieldChange(this.name, type, value);
         }
     },
@@ -3649,6 +3693,8 @@ $A.Record.Field.prototype = {
         var v = null;
         if(this.snap){
             v = this.snap[name];
+        }else if(this.pro){
+        	v = this.pro[name];
         }
         return v;
     },
@@ -3668,7 +3714,7 @@ $A.Record.Field.prototype = {
      * @return {Boolean} required  是否必输.
      */
     isRequired : function(){
-        return this.getPropertity('required');
+        return this.get('required');
     },
     /**
      * 设置当前Field是否只读.
@@ -3683,7 +3729,7 @@ $A.Record.Field.prototype = {
      * @return {Boolean} readonly 是否只读
      */
     isReadOnly : function(){
-        return this.getPropertity('readonly');
+        return this.get('readonly');
     },
     /**
      * 设置当前Field的数据集.
@@ -3697,7 +3743,7 @@ $A.Record.Field.prototype = {
      * @return {Object} r 数据集
      */
     getOptions : function(){
-        return this.getPropertity('options');
+        return this.get('options');
     },
     /**
      * 设置当前Field的映射.
@@ -3715,7 +3761,7 @@ $A.Record.Field.prototype = {
      * @return {Array} array 映射集合
      */
     getMapping : function(){
-        return this.getPropertity('mapping');
+        return this.get('mapping');
     },
     /**
      * 设置Lov弹出窗口的Title.
@@ -3777,16 +3823,13 @@ $A.Record.Field.prototype = {
      * @param {Object} value
      */
     setLovPara : function(name,value){
-        var p = this.getPropertity('lovpara');
-        if(!p){
-            p = {};
-            this.setPropertity("lovpara",p) 
-        }
+        var p = this.get('lovpara')||{};
         if(value==null){
             delete p[name]
         }else{
             p[name] = value;
         }
+        this.setPropertity("lovpara",p) 
     }
     
 }
@@ -3905,8 +3948,8 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	return this.wrap.contains(el)||this.wrap.dom === (el.dom?el.dom:el);
     },
     move: function(x,y){
-		this.wrap.setX(x);
-		this.wrap.setY(y);
+		if(!Ext.isEmpty(x))this.wrap.setX(x);
+		if(!Ext.isEmpty(y))this.wrap.setY(y);
 	},
 	getBindName: function(){
 		return this.binder ? this.binder.name : null;
@@ -5697,6 +5740,8 @@ $A.NumberField = Ext.extend($A.TextField,{
     initComponent : function(config){
     	var sf = this;
     	$A.NumberField.superclass.initComponent.call(sf, config); 
+    	sf.max = Ext.isEmpty(config.max)?Number.MAX_VALUE:Number(config.max);
+		sf.min = Ext.isEmpty(config.min)?-Number.MAX_VALUE:Number(config.min);
     	sf.restrict = sf.baseChars+'';
     	sf.restrictinfo = _lang['numberfield.only'];
         if(sf.allowdecimals){
@@ -5728,7 +5773,17 @@ $A.NumberField = Ext.extend($A.TextField,{
     		this.el.dom.maxLength=maxlength;
     },
     processValue : function(v){
-        return this.parseValue(v);
+    	var sf = this,info;
+    	v = sf.parseValue(v);
+    	if(v>sf.max){
+    		v = sf.max;
+    		info = _lang['numberfield.max']+v;
+    	}else if(v<sf.min){
+    		v = sf.min
+    		info = _lang['numberfield.min']+v;
+    	}
+    	if(info)$A.ToolTip.show(sf.id,info);
+    	return v;
     },
     onFocus : function(e) {
     	var sf = this;
@@ -5764,15 +5819,13 @@ $A.NumberField = Ext.extend($A.TextField,{
  * @constructor
  * @param {Object} config 配置对象. 
  */
-$A.Spinner = Ext.extend($A.TextField,{
+$A.Spinner = Ext.extend($A.NumberField,{
 //	constructor: function(config) {
 //        $A.Spinner.superclass.constructor.call(this, config);
 //    },
     initComponent : function(config){
     	var sf = this;
     	$A.Spinner.superclass.initComponent.call(sf, config);
-		sf.max = Ext.isEmpty(config.max)?Number.MAX_VALUE:Number(config.max);
-		sf.min = Ext.isEmpty(config.min)?-Number.MAX_VALUE:Number(config.min);
 		var decimal = String(sf.step = Number(config.step||1)).split('.')[1];
 		sf.decimalprecision = decimal?decimal.length:0;
     	sf.btn = sf.wrap.child('div.item-spinner-btn');
@@ -5838,16 +5891,17 @@ $A.Spinner = Ext.extend($A.TextField,{
     },
     goStep : function(isPlus,callback,callback2){
     	if(this.readonly)return;
-    	var sf = this,tempValue = sf.tempValue,
+    	var sf = this,
     		step = sf.step,
     		min = sf.min,
     		max = sf.max,
-    		n = Number(sf.getRawValue()||(isPlus?min-1:max+1))
-				+ (isPlus ? step : -step),
+    		raw = sf.getRawValue(),
+    		n = raw?Number(raw)
+				+ (isPlus ? step : -step):(0<min?min:(0>max?max:0)),
     		mod = sf.toFixed(sf.toFixed(n - min)%step);
     	n = sf.toFixed(n - (mod == step ? 0 : mod));
     	if(n <= max && n >= min){
-    		sf.setRawValue(n);
+    		sf.setRawValue(sf.formatValue(n));
     		if(callback)callback.call(sf,n);
     	}else{
     		if(callback2)callback2.call(sf,n)
@@ -5855,10 +5909,6 @@ $A.Spinner = Ext.extend($A.TextField,{
     },
     toFixed : function(n){
     	return Number(n.toFixed(this.decimalprecision));
-    },
-    processValue : function(v){
-    	if(Ext.isEmpty(v)||isNaN(v))return '';
-        return Math.max(Math.min(v,this.max),this.min);
     }
 });
 /**
@@ -7355,7 +7405,7 @@ $A.Window = Ext.extend($A.Component,{
         if(sf.url){
             urlAtt = 'url="'+sf.url+'"';
         }
-        sf.wrap = windowTpl.insertFirst(document.body, {title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,url:urlAtt,clz:sf.fullScreen ? 'full-window' : ''}, true);
+        sf.wrap = windowTpl.insertFirst(document.body, {id:sf.id,title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,url:urlAtt,clz:(sf.fullScreen ? 'full-window ' : '')+sf.className||''}, true);
         sf.wrap.cmps = sf.cmps;
         sf.shadow = shadowTpl.insertFirst(document.body, {}, true);
         sf.shadow.setWidth(sf.wrap.getWidth());
@@ -7499,7 +7549,7 @@ $A.Window = Ext.extend($A.Component,{
     },
     getTemplate : function() {
         return [
-            '<TABLE class="win-wrap {clz}" style="left:-10000px;top:-10000px;width:{width}px;outline:none" cellSpacing="0" cellPadding="0" hideFocus tabIndex="-1" border="0" {url}>',
+            '<TABLE id="{id}" class="win-wrap {clz}" style="left:-10000px;top:-10000px;width:{width}px;outline:none" cellSpacing="0" cellPadding="0" hideFocus tabIndex="-1" border="0" {url}>',
             '<TBODY>',
             '<TR style="height:23px;" >',
                 '<TD class="win-caption">',
@@ -7650,7 +7700,7 @@ $A.Window = Ext.extend($A.Component,{
     close : function(nocheck){
         if(!nocheck && !this.checkDataSetNotification()) return;
         if(this.fireEvent('beforeclose',this)){
-            this.wrap.destroying = true;
+            if(this.wrap)this.wrap.destroying = true;
             $A.WindowManager.remove(this);
             if(this.fullScreen){
                 Ext.fly(document.documentElement).setStyle({'overflow':this.overFlow})
@@ -8311,7 +8361,8 @@ A.Lov = Ext.extend(A.TextField,{
             sidebar.enable = A.slideBarEnable;
             return;
         }
-        sf.setRawValue(_lang['lov.query'])
+        $A.Masker.mask(sf.wrap,_lang['lov.query']);
+//        sf.setRawValue(_lang['lov.query'])
         sf.qtId = A.request({url:url, para:p, success:function(res){
             var r = new A.Record({});
             if(res.result.record){
@@ -8343,7 +8394,8 @@ A.Lov = Ext.extend(A.TextField,{
                 }
             }
             sf.fetching = false;
-            sf.setRawValue(_N);
+            $A.Masker.unmask(sf.wrap);
+//            sf.setRawValue(_N);
             sf.commit(r,record,mapping);
             record.isReady=true;
             sidebar.enable = A.slideBarEnable;
