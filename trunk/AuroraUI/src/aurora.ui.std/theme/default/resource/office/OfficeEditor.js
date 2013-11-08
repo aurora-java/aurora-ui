@@ -47,6 +47,7 @@ $A.OfficeEditor = Ext.extend($A.Component,{
      * @param {String} type
      */
     open : function(url,readOnly,type){
+        url = window.location.protocol + '//' + window.location.host + "/" + url;
         this.editor.Open(url,readOnly,type||this.docType);
     },
     processParmater:function(url){
@@ -59,6 +60,7 @@ $A.OfficeEditor = Ext.extend($A.Component,{
     save : function(url){
         try{
             var url = url||this.saveUrl;
+            url = window.location.protocol + '//' + window.location.host + "/" + url;
             this.editor.HttpInit();
             if(this.attachment_id) this.editor.HttpAddPostString("attachment_id", this.attachment_id);
             this.editor.HttpAddPostCurrFile("File", "test.docx");

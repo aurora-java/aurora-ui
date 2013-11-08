@@ -4,7 +4,6 @@
         height="${height}px">
         <param name="Menubar" value="0" />
         <param name="Titlebar" value="0" />
-        <param name="Url" value="http://zj.hand-china.com:9090/page/GetFile.aspx?id=2"/>
     </object>
 </div>
 <script>new Aurora.OfficeEditor(${config});</script>
