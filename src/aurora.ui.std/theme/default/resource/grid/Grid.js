@@ -432,12 +432,14 @@ A.Grid = Ext.extend(A.Component,{
             readonly=TRUE;
         }
         if(xtype == ROW_CHECK || xtype == ROW_RADIO){
-            readonly = sf.dataset.execSelectFunction(record)?_N:READONLY;
+        	var ds = sf.dataset,
+        		ck = ds.getSelected().indexOf(record)==-1?U:C;
+            readonly = ds.execSelectFunction(record)?_N:READONLY;
             tdTpl = sf.rowTdTpl;
             data = Ext.apply(data,{
                 align:CENTER,
                 atype:xtype == ROW_CHECK?GRID$ROWCHECK:GRID$ROWRADIO,
-                cellcls: xtype == ROW_CHECK?GRID_CKB+ITEM_CKB+readonly+U:'grid-radio '+ITEM_RADIO_IMG+readonly+U
+                cellcls: xtype == ROW_CHECK?GRID_CKB+ITEM_CKB+readonly+ck:'grid-radio '+ITEM_RADIO_IMG+readonly+ck
             })
             cellTpl = sf.cbTpl;
         }else if(xtype == CELL_CHECK){
@@ -934,8 +936,8 @@ A.Grid = Ext.extend(A.Component,{
         if(!record||isSelectAll)return;
         var sf = this,
             cb = Ext.get(sf.id+__+record.id);
-        cb.parent($GRID_ROWBOX).addClass(ITEM_CKB_SELF);
         if(cb){
+	        cb.parent($GRID_ROWBOX).addClass(ITEM_CKB_SELF);
             if(sf.selectionmodel==MULTIPLE) {
                 sf.setCheckBoxStatus(cb, TRUE);
                 if(ds.selected.length == ds.data.length){
@@ -952,8 +954,8 @@ A.Grid = Ext.extend(A.Component,{
         if(!record||isSelectAll)return;
         var sf = this,
             cb = Ext.get(sf.id+__+record.id);
-        cb.parent($GRID_ROWBOX).addClass(ITEM_CKB_SELF);
         if(cb){
+	        cb.parent($GRID_ROWBOX).addClass(ITEM_CKB_SELF);
             if(sf.selectionmodel==MULTIPLE) {
                 sf.setCheckBoxStatus(cb, FALSE);
                 sf.initHeadCheckStatus(FALSE);
