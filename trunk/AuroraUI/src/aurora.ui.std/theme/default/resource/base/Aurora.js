@@ -205,7 +205,7 @@ $ = $A.getCmp = function(id){
     var cmp = $A.CmpManager.get(id)
     if(cmp == null) {
 //        alert('未找到组件:' + id)
-        if(console && console.log)console.log('未找到组件:' + id);
+        console && console.error('未找到组件:' + id);
     }
     return cmp;
 }
@@ -975,10 +975,7 @@ $A.doEvalScript = function(){
                     window.eval(jst);
                 }
             }catch (e){
-                if(console){
-                    console.log("执行代码: " + jst);
-                    console.log(e);
-                }
+            	console && console.error("执行代码: " + jst +'\n'+e.stack);
             }
         }
         }catch(e){}
@@ -1037,10 +1034,7 @@ $A.doEvalScript = function(){
                    window.eval(jst);
                 }
             }catch (e){
-                if(console){
-                    console.log("执行代码: " + jst);
-                    console.log(e);
-                }
+                console && console.error("执行代码: " + jst+'\n'+e.stack);
             }
         }
         var el = document.getElementById(id);

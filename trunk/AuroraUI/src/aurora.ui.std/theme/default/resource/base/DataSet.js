@@ -1553,7 +1553,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             this.locate(this.currentIndex,true);
             $A.SideBar.enable = $A.slideBarEnable;
             this.qtId = null;
-        }catch(e){}
+        }catch(e){
+        	console && console.error(e.stack);
+        }
     },
     onAjaxFailed : function(res,opt){
         this.fireBindDataSetEvent('ajaxfailed',res,opt);
