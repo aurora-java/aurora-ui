@@ -24,6 +24,7 @@ _lang['grid.mask.remove'] = '正在删除数据...';
 _lang['grid.mask.loading'] = '正在查询数据...';
 _lang['grid.mask.submit'] = '正在提交数据...';
 _lang['grid.mask.waiting'] = '请稍后...';
+_lang['grid.mask.fetching'] = '正在获取记录...'
 _lang['grid.remove.confirm'] = '确认';
 _lang['grid.remove.confirmMsg'] = '确认删除选中的记录？';
 _lang['grid.export.confirm'] = '导出确认';

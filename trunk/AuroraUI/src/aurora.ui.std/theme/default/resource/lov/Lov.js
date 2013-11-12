@@ -8,7 +8,9 @@ var _N = '',
 	EVT_MOUSE_MOVE = 'mousemove',
 	EVT_BEFORE_COMMIT = 'beforecommit',
 	EVT_COMMIT = 'commit',
-	EVT_BEFORE_TRIGGER_CLICK = 'beforetriggerclick';
+	EVT_BEFORE_TRIGGER_CLICK = 'beforetriggerclick',
+	EVT_FETCHING = 'fetching',
+	EVT_FETCHED = 'fetched';
 
 /**
  * @class Aurora.Lov
@@ -103,7 +105,19 @@ A.Lov = Ext.extend(A.TextField,{
          * 点击弹出框按钮之前的事件。
          * @param {Aurora.Lov} lov 当前Lov组件.
          */
-        EVT_BEFORE_TRIGGER_CLICK);
+        EVT_BEFORE_TRIGGER_CLICK,
+        /**
+         * @event fetching
+         * 正在获取记录的事件
+         * @param {Aurora.Lov} lov 当前Lov组件.
+         */
+        EVT_FETCHING,
+        /**
+         * @event fetched
+         * 获得记录的事件
+         * @param {Aurora.Lov} lov 当前Lov组件.
+         */
+        EVT_FETCHED);
     },
     onWrapFocus : function(e,t){
     	var sf = this;
@@ -283,7 +297,7 @@ A.Lov = Ext.extend(A.TextField,{
 	            if(binder.name == map.to){
 	                p[map.from]=v;
 	            }
-	            record.set(map.to,_N);          
+	            record.set(map.to,_N);
 	        });
         }
         A.slideBarEnable = sidebar.enable;
@@ -296,6 +310,7 @@ A.Lov = Ext.extend(A.TextField,{
         }
         $A.Masker.mask(sf.wrap,_lang['lov.query']);
 //        sf.setRawValue(_lang['lov.query'])
+        sf.fireEvent(EVT_FETCHING,sf);
         sf.qtId = A.request({url:url, para:p, success:function(res){
             var r = new A.Record({});
             if(res.result.record){
@@ -332,6 +347,7 @@ A.Lov = Ext.extend(A.TextField,{
             sf.commit(r,record,mapping);
             record.isReady=true;
             sidebar.enable = A.slideBarEnable;
+            sf.fireEvent(EVT_FETCHED,sf);
         }, error:sf.onFetchFailed, scope:sf});
     },
     onViewMove:function(e,t){
@@ -359,6 +375,7 @@ A.Lov = Ext.extend(A.TextField,{
     onFetchFailed: function(res){
         this.fetching = false;
         A.SideBar.enable = A.slideBarEnable;
+        this.fireEvent(EVT_FETCHED,sf);
     },    
     showLovWindow : function(){
     	var sf = this;
