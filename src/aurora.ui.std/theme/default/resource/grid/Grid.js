@@ -572,6 +572,19 @@ A.Grid = Ext.extend(A.Component,{
         if(this.submask == true)
         A.Masker.mask(this.wb,_lang['grid.mask.submit']);
     },
+    onFetching : function(ed){
+    	var sf = this;
+    	sf.isFetching = true;
+    	A.Masker.mask(sf.wb,_lang['grid.mask.fetching']);
+		ed.on('fetched',sf.onFetched,sf);
+    },
+    onFetched : function(ed){
+    	var sf = this;
+    	sf.isFetching = false;
+    	A.Masker.unmask(sf.wb);
+    	ed.un('fetched',sf.onFetched,sf);
+    	ed.un('fetching',sf.onFetching,sf);
+    },
     onAfterSuccess : function(){
         A.Masker.unmask(this.wb);
     },
@@ -1175,6 +1188,8 @@ A.Grid = Ext.extend(A.Component,{
 //                    var p = dom.parent();
                     if(ed instanceof A.Field && !ed instanceof A.TextArea){
                         ed.el.setStyle('text-align',col.align||LEFT)
+                    }else if(ed instanceof A.Lov){
+                    	ed.on('fetching',sf.onFetching,sf);
                     }
 //                    ed.setHeight(p.getHeight()-5);
 //                    ed.setWidth(p.getWidth()-7);
@@ -1306,12 +1321,37 @@ A.Grid = Ext.extend(A.Component,{
 //                      e.showLovWindow();
 //                  }
 //            },
-            ed = sf.findEditorBy(dir);
+            ed = sf.findEditorBy(dir),
+            ced = sf.currentEditor;
+        if(ced){
+        	ced = ced.editor;
+        }
         if(ed){
-            sf.hideEditor();
-            var row = ed.row,record = ed.record;
-            sf.fireEvent(EVT_CELL_CLICK, sf, row, ed.name, record ,callback);   
-            sf.fireEvent(EVT_ROW_CLICK, sf, row, record);
+        	(function(cb){
+        		function _onFetch(){
+        			cb();
+        			ced.un('fetched',_onFetch)
+        		}
+        		function _onBlur(){
+					if(sf.isFetching){
+						ced.on('fetched',_onFetch);
+					}else{
+						cb();
+					}
+					ced.un('blur',_onBlur);
+    			}
+        		if(ced && ced instanceof A.Lov){
+        			ced.on('blur',_onBlur);
+		            sf.hideEditor();
+        		}else{
+		            sf.hideEditor();
+        			cb();
+        		}
+        	})(function(){
+	            var row = ed.row,record = ed.record;
+	            sf.fireEvent(EVT_CELL_CLICK, sf, row, ed.name, record ,callback);   
+	            sf.fireEvent(EVT_ROW_CLICK, sf, row, record);
+        	})
         }
     },
     /**

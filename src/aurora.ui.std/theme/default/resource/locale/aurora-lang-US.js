@@ -24,6 +24,7 @@ _lang['grid.mask.remove'] = 'Deleting...';
 _lang['grid.mask.loading'] = 'Loading...';
 _lang['grid.mask.submit'] = 'Submitting...';
 _lang['grid.mask.waiting'] = 'Waiting...';
+_lang['grid.mask.fetching'] = 'Fetching...'
 _lang['grid.remove.confirm'] = 'Confirm';
 _lang['grid.remove.confirmMsg'] = 'Are you sure to delete the selected records?';
 _lang['grid.export.confirm'] = 'Export confirm';
