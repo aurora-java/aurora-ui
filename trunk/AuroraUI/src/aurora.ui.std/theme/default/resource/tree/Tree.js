@@ -207,11 +207,12 @@ $A.Tree = Ext.extend($A.Component,{
 				}
 			}
 		}else if(_type == 'icon' || _type == 'text'){
-			this.setFocusNode(node);
 //			this.dataset.locate.defer(5, this.dataset,[this.dataset.indexOf(node.record)+1,false]);
 			var ds = this.dataset,r = node.record;
-			ds.locate(ds.indexOf(r)+1,true);
-			this.fireEvent('click', this, r, node);
+			if(this.fireEvent('click', this, r, node) !== false){
+				this.setFocusNode(node);
+				ds.locate(ds.indexOf(r)+1,true);
+			}
 		}else if(_type == 'checked'){
 			node.onCheck();
 		}
