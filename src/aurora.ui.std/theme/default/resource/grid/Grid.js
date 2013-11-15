@@ -2042,11 +2042,11 @@ A.Grid = Ext.extend(A.Component,{
             msg = ['<div class="item-export-wrap" style="margin:15px;width:270px" id="',id,'">',
                     '<div class="grid-uh" atype="grid.uh" style="width: 270px; -moz-user-select: none; text-align: left; height: 25px; cursor: default;" onselectstart="return false;" unselectable="on">',
                     '<table cellSpacing="0" cellPadding="0" border="0"><tbody><tr height="25px">',
-                    '<td class="export-hc" style="width:22px;" atype="export.rowcheck"><center><div atype="export.headcheck" class="',GRID_CKB,ITEM_CKB_U,'"></div></center></td>',
+                    '<td class="export-hc" style="width:22px;" atype="export.rowcheck"><center><div title="',_lang['grid.export.selectinfo'],'" atype="export.headcheck" class="',GRID_CKB,ITEM_CKB_U,'"></div></center></td>',
                     '<td class="export-hc" style="width:222px;" atype="grid-type">',_lang['grid.export.column'],'</td>',
                     '</tr></tbody></table></div>',
                     '<div style="overflow:auto;height:200px;"><table cellSpacing="0" cellPadding="0" border="0"><tbody>'],
-                    exportall = TRUE,height=350,
+                    exportall = TRUE,height=360,
                     exportOptions = sf.exportOptions||(sf.exportOptions={}),
                     type = exportOptions && exportOptions.type;
             EACH(sf.columns,function(c,i){
@@ -2057,10 +2057,10 @@ A.Grid = Ext.extend(A.Component,{
                     RECORD_ID,'="',i,'" atype="export.rowcheck"><center><div id="',
                     sf.id,__,i,'" class="',GRID_CKB,c.forexport === FALSE?ITEM_CKB_U:ITEM_CKB_C,
                     '"></div></center></td><td><div class="',GRID_CELL,'" style="width:220px">',
-                    c.prompt,c.hidden?'<div style="float:right;color:red">&lt;隐藏列&gt;</div>':_N,'</div></td></tr>');    
+                    c.prompt,c.hidden?['<div style="float:right;color:red">&lt;',_lang['grid.export.hidecolumn'],'&gt;</div>'].join(''):_N,'</div></td></tr>');    
                 }else n++;
             });
-            if(exportall)msg[7]=ITEM_CKB_C;
+            if(exportall)msg[9]=ITEM_CKB_C;
             msg.push('</tbody></table></div></div>');
             if(type == 'xls' || type== 'xlsx'){
             	height+=30;
@@ -2102,11 +2102,15 @@ A.Grid = Ext.extend(A.Component,{
                 sf.setCheckBoxStatus(cb, !checked);
                 if(_atype=='export.headcheck'){
                     var che = (sf.isFunctionCol(cols[0].type) ? 1 : 0)
-                        + (sf.isFunctionCol(cols[1].type) ? 1 : 0);
+                        + (sf.isFunctionCol(cols[1].type) ? 1 : 0),
+                        ctrl = e.ctrlKey;
                     sf.exportwindow.body.select('td[atype=export.rowcheck] div[atype!=export.headcheck]')
                         .each(function(cbs,o,i){
-                            sf.setCheckBoxStatus(cbs, !checked);
-                            cols[i+che].forexport = !checked;
+                        	o = cols[i+che];
+                        	if(!ctrl ||!o.hidden){
+	                            sf.setCheckBoxStatus(cbs, !checked);
+	                            o.forexport = !checked;
+                        	}
                         });
                 }else
                     cols[rid].forexport = !checked;

@@ -528,7 +528,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var d = this.backup||this.data,nd = [];
 		this.backup = d;
 		Ext.each(d,function(o){
-			if(callback.call(scope||this,o)!==false){
+			if(callback.call(scope||this,o,nd)!==false){
 				nd.push(o);	
 			}
 		},this)
@@ -1554,7 +1554,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             $A.SideBar.enable = $A.slideBarEnable;
             this.qtId = null;
         }catch(e){
-        	console && console.error(e.stack);
+        	window.console && console.error(e.stack);
         }
     },
     onAjaxFailed : function(res,opt){

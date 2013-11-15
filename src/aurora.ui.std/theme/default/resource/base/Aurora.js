@@ -205,7 +205,7 @@ $ = $A.getCmp = function(id){
     var cmp = $A.CmpManager.get(id)
     if(cmp == null) {
 //        alert('未找到组件:' + id)
-        console && console.error('未找到组件:' + id);
+        window.console && console.error('未找到组件:' + id);
     }
     return cmp;
 }
@@ -841,7 +841,7 @@ $A.Masker = function(){
             var vh = Math.min(h-2,30);
             var p = '<div class="aurora-mask"  style="left:-10000px;top:-10000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px;height:'+vh+'px;line-height:'+(vh-2)+'px">'+msg+'</span></div>';
             var wrap = el.parent('body')?el.parent():el.child('body')||el;
-            var masker = Ext.get(Ext.DomHelper.append(wrap,p));
+            var masker = new Ext.Template(p).insertFirst(wrap.dom,{},true);
             var zi = el.getStyle('z-index') == 'auto' ? 0 : Number(el.getStyle('z-index'));
             masker.setStyle('z-index', zi + 1);
             masker.setXY(el.getXY());
@@ -975,7 +975,7 @@ $A.doEvalScript = function(){
                     window.eval(jst);
                 }
             }catch (e){
-            	console && console.error("执行代码: " + jst +'\n'+e.stack);
+            	window.console && console.error("执行代码: " + jst +'\n'+e.stack);
             }
         }
         }catch(e){}
@@ -1034,7 +1034,7 @@ $A.doEvalScript = function(){
                    window.eval(jst);
                 }
             }catch (e){
-                console && console.error("执行代码: " + jst+'\n'+e.stack);
+                window.console && console.error("执行代码: " + jst+'\n'+e.stack);
             }
         }
         var el = document.getElementById(id);

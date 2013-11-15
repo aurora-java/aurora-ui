@@ -17,11 +17,18 @@ $A.Tree = Ext.extend($A.Component,{
 		this.nodeHash = {};
 		$A.Tree.superclass.initComponent.call(this, config);
 		this.body = this.wrap.child('div[atype=tree.body]');
+		if(this.searchfield){
+			this.searchInput = $(this.id+'_search_field');
+		}
 	},
 	processListener: function(ou){
     	$A.Tree.superclass.processListener.call(this,ou);
     	this.wrap[ou]('click', this.onClick, this)
     		[ou]('dblclick', this.onDblclick, this);
+    	if(this.searchInput){
+    		this.searchInput[ou]('blur',this.onSearch,this);
+    		this.searchInput[ou]('keyup',this.onSearch,this);
+    	}
     },
 	initEvents:function(){
 		$A.Tree.superclass.initEvents.call(this);
@@ -88,6 +95,45 @@ $A.Tree = Ext.extend($A.Component,{
     	$A.onReady(function(){
             sf.onLoad();
         })
+	},
+	onSearch : function(tf,e){
+		var sf = this,
+			ds = sf.dataset,
+			code = e && e.keyCode,
+			value = tf.getRawValue().trim(),
+			intervalId = sf.searchInterval;
+		if(!Ext.isDefined(code) || code > 40 || (code < 37 && code != 13 && code !=27 && code != 9 && code!=17)){
+        		if(intervalId)clearTimeout(intervalId);
+        		sf.searchInterval=function(){
+		    		if(value.length >0){
+	        			var reg = new RegExp(value.replace(/[+?*.^$\[\](){}\\|]/g,function(v){
+								return '\\'+v;
+							}),'i'),
+							field = sf.searchfield,
+							df = sf.displayfield;
+				        ds.filter(function(r,nd){
+				        	var node = sf.getNodeById(r.id);
+				        	if(!node){
+				        		if(reg.test(r.get(field))){
+				        			nd.push(r);
+				        		}
+				        	}else if(!node.childNodes.length && reg.test(node.record.get(field))){
+			        			node.bubble(function(p,r){
+			        				(r = p.record).get(df)!='_root' &&
+			        					nd.add(r);
+			        			});
+				        	}
+				        	return false;
+				        },sf);
+				        sf.filterKey = value;
+		    		}else{
+		    			ds.clearFilter();
+		    			delete sf.filterKey;
+		    		}
+			        sf.onLoad();
+        			delete sf.searchInterval;
+        		}.defer(500);
+    	}
 	},
 	onAdd : function(ds,record){
 		var records = this.dataset.getAll(),
@@ -523,7 +569,7 @@ $A.Tree.TreeNode.prototype={
 			this.expand();
 		}else{
 			this.parentNode.els['child'].appendChild(el);
-			if(this.isExpand)
+			if(tree.filterKey || this.isExpand)
 			this.expand();
 		}
 		this.paintPrefix();
@@ -655,11 +701,15 @@ $A.Tree.TreeNode.prototype={
 			r = this.record,
 			df = ownerTree.displayfield,
 			renderer = ownerTree.renderer,
+			key = ownerTree.filterKey,
 			text = r.get(df);
 		if(!Ext.isEmpty(renderer)){
 			renderer = window[renderer];
 			if(renderer)
 				text = renderer.call(this, text, r, this);
+		}
+		if(key){
+			text = text.replace(new RegExp(key),function(v){return '<span style="background:yellow">'+v+'</span>'})
 		}
 		this.els[df+'_text'].innerHTML=text;
 	},
