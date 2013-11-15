@@ -1,3 +1,37 @@
+(function(A){
+var TRUE = true,
+	FALSE = false,
+	NONE = 'none',
+	TD = 'td',
+	DIV = 'div',
+	ICON = 'icon',
+	TEXT = 'text',
+	LINE = 'line',
+	CLIP = 'clip',
+	CHECKBOX = 'checkbox',
+	ELEMENT = 'element',
+	CHILD = 'child',
+	CHECKED = 'checked',
+	_TYPE_ = '_type_',
+	_ROOT = '_root',
+	_TEXT = '_text',
+	_TD = '_td',
+	EVT_CLICK = 'click',
+	EVT_DBLCLICK = 'dblclick',
+	EVT_RENDER = 'render',
+	EVT_COLLAPSE = 'collapse',
+	EVT_EXPAND = 'expand',
+	DIV$ITEM_NODE = 'div.item-node';
+
+function _getRegExp(key){
+	return new RegExp(key.replace(/[+?*.^$\[\](){}\\|]/g,function(v){
+			return '\\'+v;
+	}));
+}
+
+function _createElement(name){
+	return document.createElement(name);
+}
 /**
  * @class Aurora.Tree
  * @extends Aurora.Component
@@ -6,48 +40,50 @@
  * @constructor
  * @param {Object} config 配置对象. 
  */
-$A.Tree = Ext.extend($A.Component,{
-	showSkeleton: true,
+A.Tree = Ext.extend(A.Component,{
+	showSkeleton: TRUE,
 	sw:18,
 	constructor: function(config){
-		$A.Tree.superclass.constructor.call(this,config);
+		A.Tree.superclass.constructor.call(this,config);
 		this.context = config.context||'';
 	},
 	initComponent:function(config){
-		this.nodeHash = {};
-		$A.Tree.superclass.initComponent.call(this, config);
-		this.body = this.wrap.child('div[atype=tree.body]');
-		if(this.searchfield){
-			this.searchInput = $(this.id+'_search_field');
+		var sf = this;
+		sf.nodeHash = {};
+		A.Tree.superclass.initComponent.call(sf, config);
+		sf.body = sf.wrap.child('div[atype=tree.body]');
+		if(sf.searchfield){
+			sf.searchInput = $(sf.id+'_search_field');
 		}
 	},
 	processListener: function(ou){
-    	$A.Tree.superclass.processListener.call(this,ou);
-    	this.wrap[ou]('click', this.onClick, this)
-    		[ou]('dblclick', this.onDblclick, this);
-    	if(this.searchInput){
-    		this.searchInput[ou]('blur',this.onSearch,this);
-    		this.searchInput[ou]('keyup',this.onSearch,this);
+		var sf = this;
+    	A.Tree.superclass.processListener.call(sf,ou);
+    	sf.wrap[ou](EVT_CLICK, sf.onClick, sf)
+    		[ou](EVT_DBLCLICK, sf.onDblclick, sf);
+    	if(sf.searchInput){
+    		sf.searchInput[ou]('change',sf.onSearch,sf);//blur
+    		sf.searchInput[ou]('keyup',sf.onSearch,sf);
     	}
     },
 	initEvents:function(){
-		$A.Tree.superclass.initEvents.call(this);
+		A.Tree.superclass.initEvents.call(this);
 		this.addEvents(
 		/**
          * @event render
          * tree渲染事件.
          */
-		'render',
+		EVT_RENDER,
 		/**
          * @event collapse
          * 节点折叠事件.
          */
-        'collapse',
+        EVT_COLLAPSE,
         /**
          * @event expand
          * 节点展开事件.
          */
-        'expand',
+        EVT_EXPAND,
 		/**
          * @event click
          * 点击事件.
@@ -55,7 +91,7 @@ $A.Tree = Ext.extend($A.Component,{
          * @param {Aurora.Record} record 选中的Record对象
          * @param {Aurora.Tree.TreeNode} node 节点对象
          */
-		'click',
+		EVT_CLICK,
 		/**
          * @event dblclick
          * 双击事件.
@@ -63,28 +99,28 @@ $A.Tree = Ext.extend($A.Component,{
          * @param {Aurora.Record} record 选中的Record对象
          * @param {Aurora.Tree.TreeNode} node 节点对象
          */
-		'dblclick');
+		EVT_DBLCLICK);
 	},
-	destroy : function(){
-		$A.Tree.superclass.destroy.call(this);
-    },
+//	destroy : function(){
+//		A.Tree.superclass.destroy.call(this);
+//    },
 	processDataSetLiestener: function(ou){
-		var ds = this.dataset;
+		var sf = this,ds = sf.dataset;
 		if(ds){
-			ds[ou]('update', this.onUpdate, this);
-	    	ds[ou]('load', this.onLoad, this);
-	    	ds[ou]('indexchange', this.onIndexChange, this);
-//			ds[ou]('metachange', this.onRefresh, this);
-	    	ds[ou]('add', this.onAdd, this);
-//	    	ds[ou]('valid', this.onValid, this);
-	    	ds[ou]('remove', this.onRemove, this);
-//	    	ds[ou]('clear', this.onLoad, this);
-//	    	ds[ou]('refresh',this.onRefresh,this);
-//	    	ds[ou]('fieldchange', this.onFieldChange, this);
+			ds[ou]('update', sf.onUpdate, sf);
+	    	ds[ou]('load', sf.onLoad, sf);
+	    	ds[ou]('indexchange', sf.onIndexChange, sf);
+//			ds[ou]('metachange', sf.onRefresh, sf);
+	    	ds[ou]('add', sf.onAdd, sf);
+//	    	ds[ou]('valid', sf.onValid, sf);
+	    	ds[ou]('remove', sf.onRemove, sf);
+//	    	ds[ou]('clear', sf.onLoad, sf);
+//	    	ds[ou]('refresh',sf.onRefresh,sf);
+//	    	ds[ou]('fieldchange', sf.onFieldChange, sf);
 		}
 	},
 	bind: function(ds){
-		if(typeof(ds)==='string'){
+		if(Ext.isString(ds)){
 			ds = $(ds);
 			if(!ds) return;
 		}
@@ -92,7 +128,7 @@ $A.Tree = Ext.extend($A.Component,{
 		sf.dataset = ds;
 		sf.processDataSetLiestener('on');
 //        if(ds.data.length >0)
-    	$A.onReady(function(){
+    	A.onReady(function(){
             sf.onLoad();
         })
 	},
@@ -106,9 +142,7 @@ $A.Tree = Ext.extend($A.Component,{
         		if(intervalId)clearTimeout(intervalId);
         		sf.searchInterval=function(){
 		    		if(value.length >0){
-	        			var reg = new RegExp(value.replace(/[+?*.^$\[\](){}\\|]/g,function(v){
-								return '\\'+v;
-							}),'i'),
+	        			var reg = _getRegExp(value),
 							field = sf.searchfield,
 							df = sf.displayfield;
 				        ds.filter(function(r,nd){
@@ -119,11 +153,11 @@ $A.Tree = Ext.extend($A.Component,{
 				        		}
 				        	}else if(!node.childNodes.length && reg.test(node.record.get(field))){
 			        			node.bubble(function(p,r){
-			        				(r = p.record).get(df)!='_root' &&
+			        				(r = p.record).get(df)!=_ROOT &&
 			        					nd.add(r);
 			        			});
 				        	}
-				        	return false;
+				        	return FALSE;
 				        },sf);
 				        sf.filterKey = value;
 		    		}else{
@@ -136,55 +170,56 @@ $A.Tree = Ext.extend($A.Component,{
     	}
 	},
 	onAdd : function(ds,record){
-		var records = this.dataset.getAll(),
-			pid = record.get(this.parentfield),
-			pnode,sequencefield = this.sequencefield,
+		var sf = this,
+			records = sf.dataset.getAll(),
+			pid = record.get(sf.parentfield),
+			pnode,sequencefield = sf.sequencefield,
 			seq = record.get(sequencefield),
 			refnode;
 		if(!Ext.isEmpty(pid)){
 			for(var i = 0,l=records.length;i<l;i++){
 				var r = records[i];
-				if(r.get(this.idfield) === pid){
-					pnode = this.getNodeById(r.id);
+				if(r.get(sf.idfield) === pid){
+					pnode = sf.getNodeById(r.id);
 					break;
 				}
 			}
 		}
 		if(!pnode){
-			if(this.showRoot){
-				this.onLoad();
-				this.root.firstChild.expand();
+			if(sf.showRoot){
+				sf.onLoad();
+				sf.root.firstChild.expand();
 				return;
 			}else{
-				pnode = this.root;
+				pnode = sf.root;
 			}
 		}
 		Ext.each(pnode.childNodes,function(node){
 			var tseq = node.record.get(sequencefield)
 			if(tseq && tseq>seq){
 				refnode = node;
-				return false;
+				return FALSE;
 			}
 		});
-		pnode.insertBefore(this.createTreeNode(this.createNode(record)),refnode);
+		pnode.insertBefore(sf.createTreeNode(sf.createNode(record)),refnode);
 	},
     onRemove : function(ds,record){
-        var id = record.id,node = this.getNodeById(id)
+        var sf = this,id = record.id,node = sf.getNodeById(id)
         if(node){
             var parent = node.parentNode,
             	pnode = node.previousSibling,
             	nnode = node.nextSibling;
             if(parent){
-                //this.focusNode = (this.focusNode == parent ? null : this.focusNode);
-                this.unregisterNode(node,true);
+                //sf.focusNode = (sf.focusNode == parent ? null : sf.focusNode);
+                sf.unregisterNode(node,TRUE);
                 parent.removeChild(node);
-                if(!this.focusNode || this.focusNode === node){
+                if(!sf.focusNode || sf.focusNode === node){
 	                var index = -1,
 	                	pc = parent.data.children;
 	                Ext.each(pc,function(item,i){
 	                	if(item.record.id == id){
 	                        index = i;
-	                        return false;
+	                        return FALSE;
 	                    }
 	                });
 	                if(index != -1){
@@ -200,11 +235,12 @@ $A.Tree = Ext.extend($A.Component,{
         }
     },
 	onUpdate : function(ds, record, name, value){
-		if(this.parentfield == name || name == this.sequencefield){
-			this.onLoad();
+		var sf = this,
+			node = sf.nodeHash[record.id];
+		if(sf.parentfield == name || name == sf.sequencefield){
+			sf.onLoad();
 			ds.locate(ds.indexOf(record)+1);
 		}else{
-			var node = this.nodeHash[record.id];
 			node && node.paintText();
 		}
 	},
@@ -234,70 +270,70 @@ $A.Tree = Ext.extend($A.Component,{
 		return 	!p||(p.isExpand&&this.isAllParentExpand(p))
 	},*/
 	onClick : function(event,t){
-		var elem = Ext.fly(t).findParent('td');
+		var elem = Ext.fly(t).findParent(TD);
 		if(!elem)return;
-		var _type = elem['_type_'];
-		if(_type === undefined){
+		var _type = elem[_TYPE_];
+		if(!Ext.isDefined(_type)){
 			return;
 		}
-		elem = Ext.fly(t).findParent('div.item-node');
-		var node = this.nodeHash[elem.indexId];
-		if(_type == 'clip'){
+		elem = Ext.fly(t).findParent(DIV$ITEM_NODE);
+		var sf = this,node = sf.nodeHash[elem.indexId];
+		if(_type == CLIP){
 			if(node){
 				if(node.isExpand){
 					node.collapse();
-					this.fireEvent('collapse', this, node);
+					sf.fireEvent(EVT_COLLAPSE, sf, node);
 				}else{
 					node.expand();
-					this.fireEvent('expand', this, node);
+					sf.fireEvent(EVT_EXPAND, sf, node);
 				}
 			}
-		}else if(_type == 'icon' || _type == 'text'){
-//			this.dataset.locate.defer(5, this.dataset,[this.dataset.indexOf(node.record)+1,false]);
-			var ds = this.dataset,r = node.record;
-			if(this.fireEvent('click', this, r, node) !== false){
-				this.setFocusNode(node);
-				ds.locate(ds.indexOf(r)+1,true);
+		}else if(_type == ICON || _type == TEXT){
+//			sf.dataset.locate.defer(5, sf.dataset,[sf.dataset.indexOf(node.record)+1,FALSE]);
+			var ds = sf.dataset,r = node.record;
+			if(sf.fireEvent(EVT_CLICK, sf, r, node) !== FALSE){
+				sf.setFocusNode(node);
+				ds.locate(ds.indexOf(r)+1,TRUE);
 			}
-		}else if(_type == 'checked'){
+		}else if(_type == CHECKED){
 			node.onCheck();
 		}
 	},
 	onDblclick : function(event,t){
-		var elem = Ext.fly(t).findParent('td');
+		var elem = Ext.fly(t).findParent(TD);
 		if(!elem)return;
-		var _type = elem['_type_'];
-		if(typeof(_type) === undefined){
+		var sf = this,_type = elem[_TYPE_];
+		if(!Ext.isDefined(_type)){
 			return;
 		}
-		elem = Ext.fly(t).findParent('div.item-node');
-		if(_type == 'icon' || _type == 'text'){
-			var node = this.nodeHash[elem.indexId];
+		elem = Ext.fly(t).findParent(DIV$ITEM_NODE);
+		if(_type == ICON || _type == TEXT){
+			var node = sf.nodeHash[elem.indexId];
 			if(node && node.childNodes.length){
 				if(node.isExpand){
 					node.collapse();
-					this.fireEvent('collapse', this, node);
+					sf.fireEvent(EVT_COLLAPSE, sf, node);
 				}else{
 					node.expand();
-					this.fireEvent('expand', this, node);
+					sf.fireEvent(EVT_EXPAND, sf, node);
 				}
 			}
-			this.setFocusNode(node);
-			var ds = this.dataset,r = node.record;
-			ds.locate(ds.indexOf(r)+1,true);
-			this.fireEvent('dblclick', this, r, node);
+			sf.setFocusNode(node);
+			var ds = sf.dataset,r = node.record;
+			ds.locate(ds.indexOf(r)+1,TRUE);
+			sf.fireEvent(EVT_DBLCLICK, sf, r, node);
 		}
 	},
 	getRootNode : function(){
 		return this.root;
 	},
 	setRootNode : function(node){
-		this.root = node;
-		node.ownerTree = this;
-		this.registerNode(node);
+		var sf = node.ownerTree = this;
+		sf.root = node;
+		sf.registerNode(node);
 		node.cascade((function(node){
-			this.registerNode(node);
-		}),this);
+			sf.registerNode(node);
+		}));
 	},
 	/**
 	 * 根据id获取节点对象
@@ -311,11 +347,12 @@ $A.Tree = Ext.extend($A.Component,{
 		this.nodeHash[node.id] = node;
 	},
 	unregisterNode : function(node, unRegisterChildren){
-		delete this.nodeHash[node.id];
+		var sf = this;
+		delete sf.nodeHash[node.id];
         if(unRegisterChildren){
         	Ext.each(node.childNodes,function(node){
-                this.unregisterNode(node,unRegisterChildren);
-        	},this)
+                sf.unregisterNode(node,unRegisterChildren);
+        	})
         }
 	},
 	/**
@@ -337,51 +374,52 @@ $A.Tree = Ext.extend($A.Component,{
 		}
 	},
 	buildTree: function(){
-		var array = [],
+		var sf = this,
+			array = [],
 			map1 = {},
 			map2 = {},
 			i = 1,
-			ds = this.dataset,
-			rtnode,
-			process = function(item){
-				var children = item.children,
-					checked1 = 0,
-					checked2 = 0;
-				Ext.each(children,function(node){
-	                if(node.children.length >0){
-	                    process(node);
-	                } 
-				});
-	            Ext.each(children,function(node){
-	                if(node.checked==2){
-	                	checked2=1;
-	                }else if(node.checked==1){
-	                    checked1++;
-	                    checked2=1
-	                }
-	            });
-	            if(checked1==0&&checked2==0){
-	            	item.checked = 0;
-	            }else if(children.length==checked1){
-	                item.checked = 1;
-	            }else if(checked2!=0){
-	                item.checked = 2;
-	            }
-			};
+			ds = sf.dataset,
+			rtnode;
+		function process(item){
+			var children = item.children,
+				checked1 = 0,
+				checked2 = 0;
+			Ext.each(children,function(node){
+                if(node.children.length >0){
+                    process(node);
+                } 
+			});
+            Ext.each(children,function(node){
+                if(node.checked==2){
+                	checked2=1;
+                }else if(node.checked==1){
+                    checked1++;
+                    checked2=1
+                }
+            });
+            if(checked1==0&&checked2==0){
+            	item.checked = 0;
+            }else if(children.length==checked1){
+                item.checked = 1;
+            }else if(checked2!=0){
+                item.checked = 2;
+            }
+		}
 		Ext.each(ds.data,function(record){
-			var id = record.get(this.idfield),
-				node = this.createNode(record);
+			var id = record.get(sf.idfield),
+				node = sf.createNode(record);
 			if(Ext.isEmpty(id))id = 'EMPTY_'+i++;
-			node.checked = (record.get(this.checkfield) == "Y") ? 1 : 0;
-            node.expanded = record.get(this.expandfield) == "Y";
+			node.checked = (record.get(sf.checkfield) == "Y") ? 1 : 0;
+            node.expanded = record.get(sf.expandfield) == "Y";
 			map1[id] = node;
 			map2[id] = node;
-		},this);
+		});
 		for(var key in map2){
 			var node = map2[key],
-				parent = map2[node.record.get(this.parentfield)];
+				parent = map2[node.record.get(sf.parentfield)];
 			if(parent){
-				parent.children.add(node);
+				parent.children.push(node);
 				delete map1[key];
 			}
 		}
@@ -389,30 +427,27 @@ $A.Tree = Ext.extend($A.Component,{
 			array.push(map2[key]);
 		}
 		if(array.length == 1){
-			this.showRoot = true;
+			sf.showRoot = TRUE;
 			rtnode = array[0];
 		}else{
 			var data = {};
-			data[this.displayfield] = '_root';
-			var record =  new Aurora.Record(data),
-				root = { 
-				'record':record,
-			    'children':[]
-			}
+			data[sf.displayfield] = _ROOT;
+			var record =  new A.Record(data),
+				root = sf.createNode(record);
 			record.setDataSet(ds);
 			Ext.each(array,function(c){
-				root['children'].push(c);
+				root.children.push(c);
 			});
-			this.showRoot = false;
+			sf.showRoot = FALSE;
 			rtnode = root;
 		}
 		Ext.each(array,function(node){
-			if(node.children.length >0){
+			if(node.children.length){
         		process(node);
 			}
 		})
 		
-		this.sortChildren(rtnode.children,this.sequencefield);
+		sf.sortChildren(rtnode.children,sf.sequencefield);
 		return rtnode;
 	},
 	sortChildren : function(children,sequence){
@@ -435,19 +470,18 @@ $A.Tree = Ext.extend($A.Component,{
         },this);
 	},
 	createTreeNode : function(item){
-		return new $A.Tree.TreeNode(item);
+		return new A.Tree.TreeNode(item);
 	},
 	onLoad : function(){
-		var root = this.buildTree();
+		var sf = this,root = sf.buildTree();
 		if(!root) {
 			return;
 		}
-		var node = this.createTreeNode(root);
-		this.setRootNode(node);		
-		this.body.update('');
-//		if(this.dataset.data.length>0)
-		this.root.render();
-		this.fireEvent('render', this,root);
+		sf.setRootNode(sf.createTreeNode(root));		
+		sf.body.update('');
+//		if(sf.dataset.data.length>0)
+		sf.root.render();
+		sf.fireEvent(EVT_RENDER, sf,root);
 	},
 //	syncSize : function(){
 //		this.root.syncSize();
@@ -456,13 +490,13 @@ $A.Tree = Ext.extend($A.Component,{
 		return type;
 	},
 	onNodeSelect : function(el){
-		if(el)el[this.displayfield+'_text'].style.backgroundColor='#dfeaf5';
+		if(el)el[this.displayfield+_TEXT].style.backgroundColor='#dfeaf5';
 	},
 	onNodeUnSelect : function(el){
-	   if(el)el[this.displayfield+'_text'].style.backgroundColor='';
+		if(el)el[this.displayfield+_TEXT].style.backgroundColor='';
 	},
 	initColumns : function(node){}
-})
+});
 /**
  * @class Aurora.Tree.TreeNode
  * @extends Aurora.Component
@@ -470,113 +504,119 @@ $A.Tree = Ext.extend($A.Component,{
  * @author njq.niu@hand-china.com
  * @constructor 
  */
-$A.Tree.TreeNode = function(data) {
+A.Tree.TreeNode = function(data) {
 	this.init(data)
 }
-$A.Tree.TreeNode.prototype={
+A.Tree.TreeNode.prototype={
 	init : function(data){
-		this.data = data;
-        this.record = data.record;
-        this.els = null;
-        this.id = this.record.id;
-        this.parentNode = null;
-        this.childNodes = [];
-        this.lastChild = null;
-        this.firstChild = null;
-        this.previousSibling = null;
-        this.nextSibling = null;
-        this.childrenRendered = false;
-        this.isExpand = data.expanded;//false;    
-        this.checked = data.checked;
+		var sf = this;
+		sf.data = data;
+        sf.record = data.record;
+        sf.id = sf.record.id;
+        sf.els = sf.parentNode = sf.lastChild = sf.firstChild = sf.previousSibling = sf.nextSibling = null;
+        sf.childNodes = [];
+        sf.childrenRendered = FALSE;
+        sf.isExpand = data.expanded;//false;    
+        sf.checked = data.checked;
     	Ext.each(data.children,function(node){
-            this.appendChild(this.createNode(node));
-    	},this);
+            sf.appendChild(sf.createNode(node));
+    	});
 	},
 	createNode : function(item){
-		return new $A.Tree.TreeNode(item);
+		return new A.Tree.TreeNode(item);
 	},
 	createCellEl : function(df){
-        var text = this.els[df+'_text']= document.createElement('div');
-        this.els[df+'_td'].appendChild(text);		
+		var els = this.els;
+        els[df+_TD].appendChild(els[df+_TEXT] = _createElement(DIV));		
 	},
 	initEl : function(){
-		var tree = this.getOwnerTree(),
+		var sf = this,
+			tree = sf.getOwnerTree(),
 			df = tree.displayfield,
-			text = this.record.get(df),
-			div = document.createElement('div'),
-			child = document.createElement('div'),
-			table = document.createElement('table'),
-			tbody = document.createElement('tbody'),
-			tr = document.createElement('tr'),checkbox;
+			text = sf.record.get(df),
+			div = _createElement(DIV),
+			child = _createElement(DIV),
+			table = _createElement('table'),
+			tbody = _createElement('tbody'),
+			tr = _createElement('tr'),
+			checkbox,els = sf.els = {
+				element:div,
+				itemNodeTable:table,
+				itemNodeTbody:tbody,
+				itemNodeTr:tr,
+				child:child
+			};
 		div.className = 'item-node';
-		table.border=0;
-		table.cellSpacing=0;
-		table.cellPadding=0;
-		this.els = {element:div,itemNodeTable:table,itemNodeTbody:tbody,itemNodeTr:tr,child:child};
+		table.border=table.cellSpacing=table.cellPadding=0;
 		tbody.appendChild(tr);
 		table.appendChild(tbody);
 		div.appendChild(table);
 		if(tree.showSkeleton){
     		var line = tr.insertCell(-1),
     			clip = tr.insertCell(-1),
-    			icon = this.icon? document.createElement('img') : document.createElement('div'),
+    			icon = _createElement(sf.icon?'img':DIV),
     			iconTd = tr.insertCell(-1);
  			checkbox = tr.insertCell(-1);
-     		line['_type_'] ='line';
-    		line.className ='line';
-    		clip['_type_'] ='clip';
+     		line[_TYPE_] =LINE;
+    		line.className =LINE;
+    		clip[_TYPE_] =CLIP;
     		clip.innerHTML = '&#160';
-    		iconTd['_type_'] ='icon';
-    		checkbox['_type_'] ='checked';
+    		iconTd[_TYPE_] =ICON;
+    		checkbox[_TYPE_] =CHECKED;
     		checkbox.innerHTML = '&#160';	
     		Ext.fly(iconTd).setWidth(18);
     		iconTd.appendChild(icon);
-    		Ext.apply(this.els,{line:line,clip:clip,icon:icon,iconTd:iconTd,checkbox:checkbox})
+    		Ext.apply(els,{
+    			line:line,
+    			clip:clip,
+    			icon:icon,
+    			iconTd:iconTd,
+    			checkbox:checkbox
+			});
 		}
 		var td = tr.insertCell(-1);
-		this.els[df + '_td'] = td;
-		this.createCellEl(df);
-//		this.els[df+'_text']= document.createElement('div');
-//		this.els[df+'_td'].appendChild(this.els[df+'_text']);
+		els[df + _TD] = td;
+		sf.createCellEl(df);
+//		els[df+_TEXT]= _createElement(DIV);
+//		els[df+_TD].appendChild(sf.els[df+_TEXT]);
 		td.className='node-text'
-		tree.initColumns(this);
+		tree.initColumns(sf);
 		
 		div.noWrap='true';
-		td['_type_'] ='text';
-		if(tree.showcheckbox === false && checkbox) {
-			checkbox.style.display='none';
+		td[_TYPE_] =TEXT;
+		if(tree.showcheckbox === FALSE && checkbox) {
+			checkbox.style.display=NONE;
 		}
-		if(this.isRoot() && text=='_root'){
-			table.style.display='none';
+		if(sf.isRoot() && text==_ROOT){
+			table.style.display=NONE;
 		}
 		div.appendChild(child);
 		child.className= 'item-child';
-		child.style.display='none';
-		
+		child.style.display=NONE;
 	},
 	render : function(){
-		var tree = this.getOwnerTree();
-		this.icon = this.record.get(tree.iconfield);
-		if(!this.els){
-			this.initEl();
+		var sf = this,tree = sf.getOwnerTree();
+		sf.icon = sf.record.get(tree.iconfield);
+		if(!sf.els){
+			sf.initEl();
 		}
-		var els = this.els,
-			el = els['element'];
-		if(this.isRoot()){
+		var els = sf.els,
+			el = els[ELEMENT];
+		if(sf.isRoot()){
 			tree.body.appendChild(el);
-			if(tree.showRoot == false && tree.showSkeleton)
-			els['icon'].style.display=els['checkbox'].style.display=els[tree.displayfield+'_text'].style.display='none';
-			this.expand();
+			if(tree.showRoot == FALSE && tree.showSkeleton)
+			els[ICON].style.display=els[CHECKBOX].style.display=els[tree.displayfield+_TEXT].style.display=NONE;
+			sf.expand();
 		}else{
-			this.parentNode.els['child'].appendChild(el);
-			if(tree.filterKey || this.isExpand)
-			this.expand();
+			sf.parentNode.els[CHILD].appendChild(el);
+			if(tree.filterKey || sf.isExpand)
+				sf.expand();
 		}
-		this.paintPrefix();
-		el.indexId = this.id;
-		this.paintCheckboxImg();
-//		if(this.checked == true)
-//		this.setCheck(true);
+		sf.paintPrefix();
+		el.indexId = sf.id;
+		sf.paintCheckboxImg();
+//		if(sf.checked == TRUE)
+//		sf.setCheck(TRUE);
 	},
 //	syncSize : function(){
 //        this.resize();
@@ -589,49 +629,52 @@ $A.Tree.TreeNode.prototype={
 //        }
 //	},
 	setWidth : function(name,w){
-		if(this.width == w) return;
-        this.width = w;
-		this.doSetWidth(name,w);
-        if(this.childrenRendered) {
-        	Ext.each(this.childNodes,function(node){
+		var sf = this;
+		if(sf.width == w) return;
+        sf.width = w;
+		sf.doSetWidth(name,w);
+        if(sf.childrenRendered) {
+        	Ext.each(sf.childNodes,function(node){
 				node.setWidth(name,w);
         	});
         }
 	},
 	doSetWidth : function(name,w){
 		if(!w)return;
-		if(this.isRoot() && this.getOwnerTree().showRoot == false) return;
-		var els = this.els,
-			tree = this.getOwnerTree(),
+		var sf = this;
+		if(sf.isRoot() && sf.getOwnerTree().showRoot == FALSE) return;
+		var els = sf.els,
+			tree = sf.getOwnerTree(),
 			left = w-(name == tree.displayfield && tree.showSkeleton ? 
-				((tree.showcheckbox ? 1 : 0) +this.getPathNodes().length)*tree.sw
+				((tree.showcheckbox ? 1 : 0) +sf.getPathNodes().length)*tree.sw
 				: 0);
-		Ext.fly(els[name+'_td']).setWidth(Math.max((left),0));
-        (Ext.fly(els[name+'_text'].id)||Ext.fly(els[name+'_text'])).setWidth(Math.max((left-3),0));
+		Ext.fly(els[name+_TD]).setWidth(Math.max(left,0));
+        (Ext.fly(els[name+_TEXT].id)||Ext.fly(els[name+_TEXT])).setWidth(Math.max((left-3),0));
 	},
 	paintPrefix : function(){
-		this.paintLine();
-		this.paintClipIcoImg();
-		this.paintCheckboxImg();
-		this.paintIconImg();
-		this.paintText();
+		var sf = this;
+		sf.paintLine();
+		sf.paintClipIcoImg();
+		sf.paintCheckboxImg();
+		sf.paintIconImg();
+		sf.paintText();
 	},
 	paintLine : function(){
-		var ownerTree = this.getOwnerTree();
+		var sf = this,ownerTree = sf.getOwnerTree();
 		if(!ownerTree.showSkeleton) return;
-		var pathNodes = this.getPathNodes(),
+		var pathNodes = sf.getPathNodes(),
 			w = (pathNodes.length-2)*ownerTree.sw,
-			line = this.els['line'],
-			c = document.createElement('div');
+			line = sf.els[LINE],
+			c = _createElement(DIV);
 		line.innerHTML = '';
 		Ext.fly(line).setWidth(w);
 		if(w==0){
-			line.style.display='none';
+			line.style.display=NONE;
 		}
 		Ext.fly(c).setWidth(w);
 		for(var i = 1 ,count = pathNodes.length-1 ; i < count ; i++){
 			var node = pathNodes[i],
-				ld = document.createElement('div');
+				ld = _createElement(DIV);
 			ld.className = node.isLast()?'node-empty':'node-line';
 			Ext.fly(ld).setWidth(ownerTree.sw);
 			c.appendChild(ld);
@@ -639,91 +682,86 @@ $A.Tree.TreeNode.prototype={
 		line.appendChild(c);
 	},
 	paintClipIcoImg : function(){
-		var ownerTree = this.getOwnerTree();
+		var sf = this,ownerTree = sf.getOwnerTree();
 		if(!ownerTree.showSkeleton) return;
-		var clip = this.els['clip'],
+		var clip = sf.els[CLIP],
 			prefix = 'empty',
 			icon;
-		if(this.isRoot()){
-			clip.style.display='none';//不显示根节点的clip
+		if(sf.isRoot()){
+			clip.style.display=NONE;//不显示根节点的clip
 			return;
 		}else{
-//		if(!this.isRoot()){
-//			icon = this.isExpand ? 'nlMinus':'nlPlus';
+//		if(!sf.isRoot()){
+//			icon = sf.isExpand ? 'nlMinus':'nlPlus';
 //		}else{
-			prefix = this.isLeaf()&&'join'||this.isExpand&&'minus'||'plus';
-			icon = this.isLast()&&'Bottom'||this.isFirst()&&'Top'||'';
+			prefix = sf.isLeaf()&&'join'||sf.isExpand&&'minus'||'plus';
+			icon = sf.isLast()&&'Bottom'||sf.isFirst()&&'Top'||'';
 		}
 //		clip.src = ownerTree.getIcon(icon);
 		clip.className = 'node-clip clip-' + prefix + icon;
         clip.innerHTML = '<DIV class="tree_s"> </DIV>';
 	},
 	paintIconImg : function(){
-		var ownerTree = this.getOwnerTree();
+		var sf = this,ownerTree = sf.getOwnerTree();
 		if(!ownerTree.showSkeleton) return;
-		var data = this.data,icon = data.icon,
-			eicon = this.els['icon'];
-		if(!icon){
-			var type = data.type;
-			if(type){
-				icon = ownerTree.getIconByType(type);
-			}
-			if(!icon){
-				if(this.isRoot()){
+		var data = sf.data,icon = data.icon,
+			eicon = sf.els[ICON];
+		if(sf.icon) {
+			eicon.className = 'node-icon';
+			eicon.src = ownerTree.context + sf.icon;
+		}else{
+			if(!icon && !(icon = ownerTree.getIconByType(data.type))){
+				if(sf.isRoot()){
 					icon = 'root';
-				}else if(this.isLeaf()){
+				}else if(sf.isLeaf()){
 					icon = 'node';
-				}else if(this.isExpand){
+				}else if(sf.isExpand){
 					icon = 'folderOpen';
 				}else{
 					icon = 'folder';
 				}
 			}
-		}
-		if(this.icon) {
-			eicon.className = 'node-icon';
-			eicon.src = ownerTree.context + this.icon;
-		}else{
 			eicon.className = 'node-icon icon-' + icon;//ownerTree.getIcon(icon);
 		}
-        eicon.style.width = 18;
-        eicon.style.height = 18;
+//        eicon.style.width = 18;
+//        eicon.style.height = 18;
+		//eicon.style.width = eicon.style.height = 18+'px'
 	},
 	paintCheckboxImg : function(){
-		if(!this.els || !this.getOwnerTree().showSkeleton) return;
-		var checked = this.checked;
-		this.els['checkbox'].className = checked==2?'checkbox2':checked==1?'checkbox1':'checkbox0';
-        this.els['checkbox'].innerHTML = '<DIV class="_s"> </DIV>';
+		var sf = this,els = sf.els;
+		if(!els || !sf.getOwnerTree().showSkeleton) return;
+		var ck = els[CHECKBOX];
+		ck.className = CHECKBOX+(sf.checked||0);
+        ck.innerHTML = '<DIV class="_s"> </DIV>';
 	},	
 	paintText : function(){
-		if(!this.els) return;
-		var ownerTree = this.getOwnerTree(),
-			r = this.record,
+		var sf = this,els = sf.els;
+		if(!els) return;
+		var ownerTree = sf.getOwnerTree(),
+			r = sf.record,
 			df = ownerTree.displayfield,
 			renderer = ownerTree.renderer,
 			key = ownerTree.filterKey,
 			text = r.get(df);
-		if(!Ext.isEmpty(renderer)){
-			renderer = window[renderer];
-			if(renderer)
-				text = renderer.call(this, text, r, this);
+		if(!Ext.isEmpty(renderer) && (renderer = window[renderer])){
+			text = renderer.call(sf, text, r, sf);
 		}
-		if(key){
-			text = text.replace(new RegExp(key),function(v){return '<span style="background:yellow">'+v+'</span>'})
-		}
-		this.els[df+'_text'].innerHTML=text;
+		els[df+_TEXT].innerHTML=key?text.replace(_getRegExp(key),function(v){
+			return '<span style="background:yellow">'+v+'</span>'
+		}):text;
 	},
 	paintChildren : function(){
-//		var sequence = this.getOwnerTree().sequence;
-		if(!this.childrenRendered){
-//			this.els['child'].innerHTML = '';
-			this.childrenRendered = true;			
-//			this.childNodes.sort(function(a, b){
+		var sf = this;
+//		var sequence = sf.getOwnerTree().sequence;
+		if(!sf.childrenRendered){
+//			sf.els[CHILD].innerHTML = '';
+			sf.childrenRendered = TRUE;			
+//			sf.childNodes.sort(function(a, b){
 //	        	var n1 = a.record.get(sequence)||Number.MAX_VALUE;
 //				var n2 = b.record.get(sequence)||Number.MAX_VALUE;
 //	            return parseFloat(n1)-parseFloat(n2);
 //	        });
-			Ext.each(this.childNodes,function(node){
+			Ext.each(sf.childNodes,function(node){
 				node.render();
 			});
 		};
@@ -732,59 +770,62 @@ $A.Tree.TreeNode.prototype={
 	 * 折叠收起
 	 */
 	collapse : function(){
-		this.isExpand=false;
-		if(!this.isRoot())
-		this.record.set(this.getOwnerTree().expandfield,"N",true);
-		this.els['child'].style.display='none';
-		this.paintIconImg();
-		this.paintClipIcoImg();
-        this.refreshDom();
+		var sf = this;
+		sf.isExpand=FALSE;
+		if(!sf.isRoot())
+		sf.record.set(sf.getOwnerTree().expandfield,"N",TRUE);
+		sf.els[CHILD].style.display=NONE;
+		sf.paintIconImg();
+		sf.paintClipIcoImg();
+        sf.refreshDom();
 	},
 	/**
 	 * 展开
 	 */
 	expand : function(){
-		var p = this.parentNode;
-		if(p&&p.isExpand == false)p.expand();
-		if(!this.isLeaf()&&this.childNodes.length>0){
-			if(!this.isRoot())
-			this.record.set(this.getOwnerTree().expandfield,"Y",true);
-			this.isExpand=true;
-			this.paintChildren();
-			this.els['child'].style.display='block';
+		var sf = this,p = sf.parentNode;
+		if(p&&p.isExpand == FALSE)p.expand();
+		if(!sf.isLeaf()&&sf.childNodes.length){
+			if(!sf.isRoot())
+				sf.record.set(sf.getOwnerTree().expandfield,"Y",TRUE);
+			sf.isExpand=TRUE;
+			sf.paintChildren();
+			sf.els[CHILD].style.display='block';
 		}
-		this.paintIconImg();
-		this.paintClipIcoImg();
-        this.refreshDom();
+		sf.paintIconImg();
+		sf.paintClipIcoImg();
+        sf.refreshDom();
 	},
     refreshDom : function(){
-        this.getOwnerTree().wrap.addClass('a');
-        this.getOwnerTree().wrap.removeClass('a');
+        this.getOwnerTree().wrap.addClass('a').removeClass('a');
     },
 	/**
 	 * 选中节点
 	 */
 	select : function(){
-		this.isSelect = true;
-		this.getOwnerTree().onNodeSelect(this.els);
-//		this.els['text'].style.backgroundColor='#dfeaf5';
+		var sf = this,ownerTree = sf.getOwnerTree();
+		sf.isSelect = TRUE;
+		ownerTree &&
+			ownerTree.onNodeSelect(this.els);
+//		this.els[TEXT].style.backgroundColor='#dfeaf5';
 	},
 	/**
 	 * 取消选择
 	 */
 	unselect : function(){
-		this.isSelect = false;
-        if(this.getOwnerTree())
-		this.getOwnerTree().onNodeUnSelect(this.els);
-//		this.els['text'].style.backgroundColor='';
+		var sf = this,ownerTree = sf.getOwnerTree();
+		sf.isSelect = FALSE;
+        ownerTree &&
+			ownerTree.onNodeUnSelect(sf.els);
+//		this.els[TEXT].style.backgroundColor='';
 	},
 	getEl :  function(){
 		return this.els;
 	},
 	setCheckStatus : function(checked){
-		var c;
+		var sf = this,c;
 		if(checked==2||checked==3){
-			var childNodes = this.childNodes,
+			var childNodes = sf.childNodes,
 				count = childNodes.length;
 			if(count==0){
 				c=checked==2?0:1;
@@ -804,11 +845,11 @@ $A.Tree.TreeNode.prototype={
 		}else{
 			c=checked;
 		}
-		this.checked = c;
-		if(!this.isRoot() || this.showRoot != false){
-            this.record.set(this.getOwnerTree().checkfield, (c==1||c==2) ? "Y" : "N");
+		sf.checked = c;
+		if(!sf.isRoot() || sf.showRoot != FALSE){
+            sf.record.set(sf.getOwnerTree().checkfield, c==1||c==2 ? "Y" : "N");
         }
-		this.paintCheckboxImg();
+		sf.paintCheckboxImg();
 	},
 	setCheck : function(cked){
 		var a = cked?1:0,b=a+2;
@@ -835,7 +876,7 @@ $A.Tree.TreeNode.prototype={
 	 */
 	isLeaf : function(){
 		return this.childNodes.length===0;
-		//return this.leaf === true;
+		//return this.leaf === TRUE;
   	},
   	/**
   	 * 是否是最后一个节点.
@@ -843,8 +884,8 @@ $A.Tree.TreeNode.prototype={
   	 */
 	isLast : function(){
 		var p = this.parentNode;
-		return !p ? true : p.childNodes[p.childNodes.length-1] == this;
-//		return (!this.parentNode ? true : this.parentNode.lastChild == this);
+		return !p ? TRUE : p.childNodes[p.childNodes.length-1] == this;
+//		return (!this.parentNode ? TRUE : this.parentNode.lastChild == this);
 	},
 	/**
 	 * 是否是第一个
@@ -854,7 +895,7 @@ $A.Tree.TreeNode.prototype={
 		var tree = this.getOwnerTree(),
 			p = this.parentNode;
 		return p== tree.getRootNode()&&!tree.showRoot&&p.childNodes[0] == this;
-//		return (!this.parentNode ? true : this.parentNode.firstChild == this);
+//		return (!this.parentNode ? TRUE : this.parentNode.firstChild == this);
 	},
 	hasChildNodes : function(){
 		return this.childNodes.length > 0;
@@ -867,22 +908,18 @@ $A.Tree.TreeNode.prototype={
 	},
 	appendChild : function(node){
 		if(!Ext.isArray(node) && arguments.length > 1)node = arguments;
-		var tree = this.getOwnerTree();
+		var sf = this,tree = sf.getOwnerTree();
 		Ext.each(node,function(node){
-			//>>beforeappend
-			var oldParent = node.parentNode;
-  			//>>beforemove
-  			if(oldParent){
-				oldParent.removeChild(node);
-			}
-			var childs = this.childNodes,
+			var oldParent = node.parentNode,
+				childs = sf.childNodes,
 				index = childs.length,
 				ps = childs[index-1];
-      		if(index == 0){
-				this.setFirstChild(node);
-      		}
+  			oldParent &&
+				oldParent.removeChild(node);
+      		!index &&
+				sf.setFirstChild(node);
 			childs.push(node);
-			node.parentNode = this;
+			node.parentNode = sf;
 			//
 			if(ps){
 				node.previousSibling = ps;
@@ -891,74 +928,59 @@ $A.Tree.TreeNode.prototype={
 				node.previousSibling = null;
 			}
 			node.nextSibling = null;
-      		this.setLastChild(node);
+      		sf.setLastChild(node);
 			node.setOwnerTree(tree);
 			//>>append
 			//if(oldParent) >>move
 
-			if(this.childrenRendered){
+			sf.childrenRendered &&
 				node.render();
-			}
-			if(this.els){
-				this.cascade(function(n){
+			sf.els &&
+				sf.cascade(function(n){
 					n.paintPrefix()
 					if(!n.childrenRendered)
-						return false;
+						return FALSE;
 				});
-			}
-		},this);
+		});
 		return node;
 	},
 	removeChild : function(node){
-//		Ext.each(node.childNodes,function(cnode){
-//			var record = cnode.record;
-//			if(record){
-//				record.ds.remove(record);
-//			}
-//		});
-		var childs = this.childNodes,index = childs.indexOf(node);
+		var sf = this,childs = sf.childNodes,index = childs.indexOf(node);
 		if(index == -1){
-			return false;
+			return FALSE;
 		}
 		//>>beforeremove
 		childs.splice(index, 1);
 		var p = node.previousSibling,
 			n = node.nextSiblin,
-			els = node.els;
+			els,div;
 		if(p){
 	  		p.nextSibling = n;
 		}
 		if(n){
 	  		n.previousSibling = p;
 		}
-		if(this.firstChild == node){
-	  		this.setFirstChild(n);
-		}
-		if(this.lastChild == node){
-	  		this.setLastChild(p);
-		}
+		sf.firstChild == node &&
+	  		sf.setFirstChild(n);
+		sf.lastChild == node &&
+	  		sf.setLastChild(p);
 		node.setOwnerTree(null);
 		//clear
-		node.parentNode = null;
-		node.previousSibling = null;
-		node.nextSibling = null;
+		node.parentNode = node.previousSibling = node.nextSibling = null;
 		//>>remove UI
-		if(this.childrenRendered){
-			if(els){
-				var div = els['element'];
-				if(div)this.els['child'].removeChild(div);	
-			}
-			if(childs.length==0){
-				this.collapse();
-			}
+		if(sf.childrenRendered){
+			(els = node.els) &&
+				(div = els[ELEMENT]) &&
+					sf.els[CHILD].removeChild(div);	
+			!childs.length &&
+				sf.collapse();
 		}
-	    if(this.els){
-	    	this.cascade(function(node){
+	    sf.els &&
+	    	sf.cascade(function(node){
 				node.paintPrefix()
 				if(!node.childrenRendered)
-					return false;
+					return FALSE;
 			});
-	    }
 		return node;
 	},
 	insertBefore : function(node, refNode){
@@ -967,24 +989,22 @@ $A.Tree.TreeNode.prototype={
 		}
 		//移动位置是自身位置(不需要移动)
 		if(node == refNode){
-			return false;
+			return FALSE;
 		}
-		var childs = this.childNodes,
+		var sf = this,childs = sf.childNodes,
 			refIndex = childs.indexOf(refNode),
 			oldParent = node.parentNode;
 		//是子节点，并且是向后移动
-		if(oldParent == this && childs.indexOf(node) < refIndex){
+		if(oldParent == sf && childs.indexOf(node) < refIndex){
 			refIndex--;
 		}
-		if(oldParent){
+		oldParent &&
 			oldParent.removeChild(node);
-		}
 		//设置节点间关系
-		if(refIndex == 0){
-			this.setFirstChild(node);
-		}
+		!refIndex &&
+			sf.setFirstChild(node);
 		childs.splice(refIndex, 0, node);
-		node.parentNode = this;
+		node.parentNode = sf;
 		var ps = childs[refIndex-1];
 		if(ps){
 			node.previousSibling = ps;
@@ -994,14 +1014,13 @@ $A.Tree.TreeNode.prototype={
 		}
 		node.nextSibling = refNode;
 		refNode.previousSibling = node;
-		node.setOwnerTree(this.getOwnerTree());
-		if(this.childrenRendered){
-			this.childrenRendered = false;
-			this.paintChildren();
+		node.setOwnerTree(sf.getOwnerTree());
+		if(sf.childrenRendered){
+			sf.childrenRendered = FALSE;
+			sf.paintChildren();
 		}
-		if(this.els){
-			this.paintPrefix()
-		}
+		sf.els &&
+			sf.paintPrefix()
 		return node;
 	},
 	replaceChild : function(newChild, oldChild){
@@ -1013,15 +1032,16 @@ $A.Tree.TreeNode.prototype={
 		return this.childNodes.indexOf(child);
 	},
 	getOwnerTree : function(){
-		if(!this.ownerTree){
-			this.bubble(function(p){
+		var sf = this;
+		if(!sf.ownerTree){
+			sf.bubble(function(p){
 				if(p.ownerTree){
-					this.ownerTree = p.ownerTree;
-					return false;
+					sf.ownerTree = p.ownerTree;
+					return FALSE;
 				}
-			},this);
+			});
 		}
-		return this.ownerTree;
+		return sf.ownerTree;
 	},
 //	getDepth : function(){
 //  		var depth = 0;
@@ -1029,18 +1049,16 @@ $A.Tree.TreeNode.prototype={
 //		return depth;
 //	},
 	setOwnerTree : function(tree){
-		var ownerTree = this.ownerTree;
+		var sf = this,ownerTree = sf.ownerTree;
 		if(tree != ownerTree){
-			if(ownerTree){
-				ownerTree.unregisterNode(this);
-			}
-			this.ownerTree = tree;
-			Ext.each(this.childNodes,function(c){
+			ownerTree &&
+				ownerTree.unregisterNode(sf);
+			sf.ownerTree = tree;
+			Ext.each(sf.childNodes,function(c){
 				c.setOwnerTree(tree);
 			});
-			if(tree){
-				tree.registerNode(this);
-			}
+			tree &&
+				tree.registerNode(sf);
 		}
 	},
 	getPathNodes : function(){
@@ -1061,14 +1079,14 @@ $A.Tree.TreeNode.prototype={
 	bubble : function(fn, scope, args){
   		var p = this;
 		while(p){
-			if(fn.call(scope || p, args || p) === false){
+			if(fn.call(scope || p, args || p) === FALSE){
 	    		break;
 			}
 	    	p = p.parentNode;
 		}
 	},
 	cascade : function(fn, scope, args){
-		if(fn.call(scope || this, args || this) !== false){
+		if(fn.call(scope || this, args || this) !== FALSE){
 			var cs = this.childNodes;
 			for(var i = 0, len = cs.length; i < len; i++) {
 				cs[i].cascade(fn, scope, args);
@@ -1080,7 +1098,7 @@ $A.Tree.TreeNode.prototype={
 		Ext.each(this.childNodes,function(cs){
 			if(cs.attributes[attribute] == value){
 				c = cs;
-      			return false;
+      			return FALSE;
      		}
 		});
 		return c;
@@ -1088,9 +1106,9 @@ $A.Tree.TreeNode.prototype={
   	findChildBy : function(fn, scope){
   		var c = null;
 		Ext.each(this.childNodes,function(cs){
-			if(fn.call(scope||cs, cs) === true){
+			if(fn.call(scope||cs, cs) === TRUE){
 				c = cs;
-      			return false;
+      			return FALSE;
      		}
 		});
 		return c;
@@ -1098,27 +1116,24 @@ $A.Tree.TreeNode.prototype={
 	sort : function(fn, scope){
 		var cs = this.childNodes,
 			len = cs.length;
-    	if(len > 0){
+    	if(len){
 			cs.sort(scope?fn.createDelegate(scope):fn);
-			for(var i = 0; i < len; i++){
-				var n = cs[i];
+			Ext.each(cs,function(n,i){
 		        n.previousSibling = cs[i-1];
 		        n.nextSibling = cs[i+1];
-		        if(i == 0){
-		        	this.setFirstChild(n);
-		        }
-		        if(i == len-1){
-         			this.setLastChild(n);
-				}
-			}
+		        !i &&
+		        	sf.setFirstChild(n);
+		        i == len-1 &&
+         			sf.setLastChild(n);
+			});
 		}
 	},
 //  	contains : function(node){
-//		var p = node.parentNode,r = false;
+//		var p = node.parentNode,r = FALSE;
 //		p.bubble(function(p){
 //			if(p == this){
-//				r = true;
-//				return false;
+//				r = TRUE;
+//				return FALSE;
 //			}
 //		},this);
 //		return r;
@@ -1127,3 +1142,4 @@ $A.Tree.TreeNode.prototype={
 		return "[Node"+(this.id?" "+this.id:"")+"]";
 	}
 };
+})($A);
