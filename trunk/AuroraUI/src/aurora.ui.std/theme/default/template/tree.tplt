@@ -1,4 +1,4 @@
-<div style="${size};overflow:auto;${style}" class="${wrapClass}" id="${id}"><div atype="tree.body"></div></div>
+<div style="${size};overflow:auto;${style}" class="${wrapClass}" id="${id}">${searchField}<div style="height:${bodyheight}px;overflow:auto"><div atype="tree.body"></div></div></div>
 <script>
 	new Aurora.Tree(${config});
 	$('${id}').bind('${bindtarget}');

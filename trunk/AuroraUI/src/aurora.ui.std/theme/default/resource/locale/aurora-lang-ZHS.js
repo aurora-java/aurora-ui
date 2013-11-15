@@ -31,6 +31,8 @@ _lang['grid.export.confirm'] = '导出确认';
 _lang['grid.export.confirmMsg'] = '导出过程可能需要花费很长时间，是否继续？';
 _lang['grid.export.config'] = '选择要导出的列';
 _lang['grid.export.column'] = '列名';
+_lang['grid.export.hidecolumn'] = '隐藏列';
+_lang['grid.export.selectinfo'] = '按住Ctrl键点击时，会忽略隐藏列。';
 
 _lang['lov.query'] = '正在查询...';
 _lang['lov.notfound'] = '未找到数据！';
