@@ -540,6 +540,7 @@ $.extend(T.List.prototype,{
         sf.wrap.on(START_EV,_start)
 	},
 	onClick: function(e,t){
+        if(!this.selectable)return;
 		var li =$(e.target).parents('li[dataindex]');
 		if(li){
 			var data = this.data[li.attr('dataindex')];
