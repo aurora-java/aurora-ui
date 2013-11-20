@@ -205,7 +205,7 @@ $ = $A.getCmp = function(id){
     var cmp = $A.CmpManager.get(id)
     if(cmp == null) {
 //        alert('未找到组件:' + id)
-        if(console && console.log)console.log('未找到组件:' + id);
+        window.console && console.error('未找到组件:' + id);
     }
     return cmp;
 }
@@ -841,7 +841,7 @@ $A.Masker = function(){
             var vh = Math.min(h-2,30);
             var p = '<div class="aurora-mask"  style="left:-10000px;top:-10000px;width:'+w+'px;height:'+h+'px;position: absolute;"><div unselectable="on"></div><span style="top:'+(h/2-11)+'px;height:'+vh+'px;line-height:'+(vh-2)+'px">'+msg+'</span></div>';
             var wrap = el.parent('body')?el.parent():el.child('body')||el;
-            var masker = Ext.get(Ext.DomHelper.append(wrap,p));
+            var masker = new Ext.Template(p).insertFirst(wrap.dom,{},true);
             var zi = el.getStyle('z-index') == 'auto' ? 0 : Number(el.getStyle('z-index'));
             masker.setStyle('z-index', zi + 1);
             masker.setXY(el.getXY());
@@ -975,10 +975,7 @@ $A.doEvalScript = function(){
                     window.eval(jst);
                 }
             }catch (e){
-                if(console){
-                    console.log("执行代码: " + jst);
-                    console.log(e);
-                }
+            	window.console && console.error("执行代码: " + jst +'\n'+e.stack);
             }
         }
         }catch(e){}
@@ -1037,10 +1034,7 @@ $A.doEvalScript = function(){
                    window.eval(jst);
                 }
             }catch (e){
-                if(console){
-                    console.log("执行代码: " + jst);
-                    console.log(e);
-                }
+                window.console && console.error("执行代码: " + jst+'\n'+e.stack);
             }
         }
         var el = document.getElementById(id);
@@ -2288,7 +2282,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var d = this.backup||this.data,nd = [];
 		this.backup = d;
 		Ext.each(d,function(o){
-			if(callback.call(scope||this,o)!==false){
+			if(callback.call(scope||this,o,nd)!==false){
 				nd.push(o);	
 			}
 		},this)
@@ -3313,7 +3307,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             this.locate(this.currentIndex,true);
             $A.SideBar.enable = $A.slideBarEnable;
             this.qtId = null;
-        }catch(e){}
+        }catch(e){
+        	window.console && console.error(e.stack);
+        }
     },
     onAjaxFailed : function(res,opt){
         this.fireBindDataSetEvent('ajaxfailed',res,opt);
@@ -4103,7 +4099,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.value = v;
     	if(silent === true)return;
     	if(this.binder){
-    		this.record = this.binder.ds.getCurrentRecord();
+//    		this.record = this.binder.ds.getCurrentRecord();
     		if(this.record == null){
                 this.record = this.binder.ds.create({},false);                
             }
@@ -8075,7 +8071,9 @@ var _N = '',
 	EVT_MOUSE_MOVE = 'mousemove',
 	EVT_BEFORE_COMMIT = 'beforecommit',
 	EVT_COMMIT = 'commit',
-	EVT_BEFORE_TRIGGER_CLICK = 'beforetriggerclick';
+	EVT_BEFORE_TRIGGER_CLICK = 'beforetriggerclick',
+	EVT_FETCHING = 'fetching',
+	EVT_FETCHED = 'fetched';
 
 /**
  * @class Aurora.Lov
@@ -8170,7 +8168,19 @@ A.Lov = Ext.extend(A.TextField,{
          * 点击弹出框按钮之前的事件。
          * @param {Aurora.Lov} lov 当前Lov组件.
          */
-        EVT_BEFORE_TRIGGER_CLICK);
+        EVT_BEFORE_TRIGGER_CLICK,
+        /**
+         * @event fetching
+         * 正在获取记录的事件
+         * @param {Aurora.Lov} lov 当前Lov组件.
+         */
+        EVT_FETCHING,
+        /**
+         * @event fetched
+         * 获得记录的事件
+         * @param {Aurora.Lov} lov 当前Lov组件.
+         */
+        EVT_FETCHED);
     },
     onWrapFocus : function(e,t){
     	var sf = this;
@@ -8350,7 +8360,7 @@ A.Lov = Ext.extend(A.TextField,{
 	            if(binder.name == map.to){
 	                p[map.from]=v;
 	            }
-	            record.set(map.to,_N);          
+	            record.set(map.to,_N);
 	        });
         }
         A.slideBarEnable = sidebar.enable;
@@ -8363,6 +8373,7 @@ A.Lov = Ext.extend(A.TextField,{
         }
         $A.Masker.mask(sf.wrap,_lang['lov.query']);
 //        sf.setRawValue(_lang['lov.query'])
+        sf.fireEvent(EVT_FETCHING,sf);
         sf.qtId = A.request({url:url, para:p, success:function(res){
             var r = new A.Record({});
             if(res.result.record){
@@ -8399,6 +8410,7 @@ A.Lov = Ext.extend(A.TextField,{
             sf.commit(r,record,mapping);
             record.isReady=true;
             sidebar.enable = A.slideBarEnable;
+            sf.fireEvent(EVT_FETCHED,sf);
         }, error:sf.onFetchFailed, scope:sf});
     },
     onViewMove:function(e,t){
@@ -8426,6 +8438,7 @@ A.Lov = Ext.extend(A.TextField,{
     onFetchFailed: function(res){
         this.fetching = false;
         A.SideBar.enable = A.slideBarEnable;
+        this.fireEvent(EVT_FETCHED,sf);
     },    
     showLovWindow : function(){
     	var sf = this;
