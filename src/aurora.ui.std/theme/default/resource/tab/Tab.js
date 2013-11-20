@@ -92,6 +92,24 @@ A.Tab = Ext.extend(A.Component,{
 		
 	},
 	/**
+	 * 改变某个Tab页的url。当是当前tab页时，会立即重新加载，否则会在选中之后加载。
+	 * @param {Number} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
+	 * @param {String} url 地址。
+	 */
+	setURL:function(index,url){
+		var sf = this,
+			tab = sf.getTab(index);
+		if(tab){
+			index = tab.index;
+			if(index == sf.selectedIndex){
+				sf.reloadTab(index,url);
+			}else{
+				tab.body.loaded = false;
+				sf.items[index].ref = url;
+			}
+		}
+	},
+	/**
 	 * 选中某个Tab页
 	 * @param {Number} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
 	 */
@@ -138,7 +156,8 @@ A.Tab = Ext.extend(A.Component,{
 				}
 				sf.activeBody = activeBody.setStyle({left:0,top:0});
 			}
-			if(sf.items[index].ref && (activeBody.loaded!= true||needRefresh)){
+			if(sf.items[index].ref && !activeBody.loading && (activeBody.loaded!= true||needRefresh)){
+				activeBody.loading = true;
 				sf.load(sf.items[index].ref,activeBody,index);
 			}else{
 	            sf.fireEvent(EVT_SELECT, sf, index,tab);
@@ -262,8 +281,8 @@ A.Tab = Ext.extend(A.Component,{
 	},
 	getTab : function(o){
 		var sf = this,
-			bodys = sf.body.dom.children,//Ext.DomQuery.select('div.tab',this.body.dom),
-        	strips = sf.head.dom.children,//Ext.DomQuery.select('div.strip',this.head.dom),
+			bodys = sf.body.query('>div.tab'),//Ext.DomQuery.select('div.tab',this.body.dom),
+        	strips = sf.head.query('div.strip'),//Ext.DomQuery.select('div.strip',this.head.dom),
         	strip,body;
 		if(Ext.isNumber(o)){
 			if(o<0)o+=strips.length;
@@ -402,7 +421,11 @@ A.Tab = Ext.extend(A.Component,{
     	var sf = this,tab=sf.getTab(index);
     	if(!tab)return;
     	if(url) sf.items[index].ref = url;
-    	Ext.iterate(tab.body.cmps,function(key,cmp){
+    	sf.selectTab(index,true);
+    },
+	load : function(url,dom,index){
+        var sf = this,body = Ext.get(dom);
+        Ext.iterate(body.cmps,function(key,cmp){
     		if(cmp.destroy){
     			try{
     				cmp.destroy();
@@ -411,10 +434,7 @@ A.Tab = Ext.extend(A.Component,{
     			}
     		}
     	});
-    	sf.selectTab(index,true);
-    },
-	load : function(url,dom,index){
-        var sf = this,body = Ext.get(dom);
+    	body.update(_N);
 		body.cmps={};
 		sf.showLoading(body);
 		//TODO:错误信息
@@ -439,6 +459,7 @@ A.Tab = Ext.extend(A.Component,{
 			    } 
 			    msg.push('</div>');
 				body.update(msg.join(''));
+				body.loading = false;
 			},
 		   	success: function(response, options){
                 var res;
@@ -457,6 +478,7 @@ A.Tab = Ext.extend(A.Component,{
                             A.showErrorMessage(_lang['window.error'], em?em+'</br>'+st:st,null,400,em && st==_N ? 150 : 250);
                         }
                     }
+                    body.loading = false;
                     return;
                 }
 		    	var html = response.responseText;
@@ -470,6 +492,7 @@ A.Tab = Ext.extend(A.Component,{
 						    	sf.clearLoading(body);
 //					    		A.focusTab=null;
 					    		body.loaded = true;
+					    		body.loading = false;
 			                    sf.fireEvent(EVT_SELECT, sf, index)
 					    	},body);
 //						}catch(e){
