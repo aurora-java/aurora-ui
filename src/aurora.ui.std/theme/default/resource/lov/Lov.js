@@ -375,9 +375,10 @@ A.Lov = Ext.extend(A.TextField,{
 		return nodes[index];
 	},
     onFetchFailed: function(res){
-        this.fetching = false;
+    	var sf = this;
+        sf.fetching = false;
         A.SideBar.enable = A.slideBarEnable;
-        this.fireEvent(EVT_FETCHED,sf);
+        sf.fireEvent(EVT_FETCHED,sf);
     },    
     showLovWindow : function(){
     	var sf = this;
