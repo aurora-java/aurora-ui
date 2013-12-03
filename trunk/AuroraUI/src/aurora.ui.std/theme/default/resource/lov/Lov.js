@@ -162,6 +162,7 @@ A.Lov = Ext.extend(A.TextField,{
     	A.Lov.superclass.onChange.call(sf);
     	if(!view || !view.isShow)
 			sf.fetchRecord();
+		
     },
     onKeyDown : function(e){
         if(this.isWinOpen)return;       
@@ -181,6 +182,7 @@ A.Lov = Ext.extend(A.TextField,{
 			if(sf.autocompleteview.isLoaded)
 				sf.fetchRecord();
 		}else{
+			sf.setValue('');
 			sf.commit(r);
 		}
 		sf.focus();
