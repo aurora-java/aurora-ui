@@ -8225,6 +8225,7 @@ A.Lov = Ext.extend(A.TextField,{
     	A.Lov.superclass.onChange.call(sf);
     	if(!view || !view.isShow)
 			sf.fetchRecord();
+		
     },
     onKeyDown : function(e){
         if(this.isWinOpen)return;       
@@ -8244,6 +8245,7 @@ A.Lov = Ext.extend(A.TextField,{
 			if(sf.autocompleteview.isLoaded)
 				sf.fetchRecord();
 		}else{
+			sf.setValue('');
 			sf.commit(r);
 		}
 		sf.focus();
@@ -8436,9 +8438,10 @@ A.Lov = Ext.extend(A.TextField,{
 		return nodes[index];
 	},
     onFetchFailed: function(res){
-        this.fetching = false;
+    	var sf = this;
+        sf.fetching = false;
         A.SideBar.enable = A.slideBarEnable;
-        this.fireEvent(EVT_FETCHED,sf);
+        sf.fireEvent(EVT_FETCHED,sf);
     },    
     showLovWindow : function(){
     	var sf = this;
