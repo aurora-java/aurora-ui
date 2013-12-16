@@ -392,6 +392,7 @@ $A.Field = Ext.extend($A.Component,{
 //        return true;
 //    },
     select : function(start, end){
+    	if(!this.hasFocus)return;
     	var v = this.getRawValue();
         if(v.length > 0){
             start = start === undefined ? 0 : start;

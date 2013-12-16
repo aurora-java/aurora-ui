@@ -1178,8 +1178,8 @@ $A.formatNumber = function(value,decimalprecision){
     if(Ext.isEmpty(value))return '';
     value = String(value).replace(/,/g,'');
     if(isNaN(value))return '';
-    if(decimalprecision||decimalprecision===0) value=Number(value).toFixed(decimalprecision);
-    var ps = value.split('.');
+    if(!isNaN(decimalprecision)) value=Number(value).toFixed(decimalprecision);
+    var ps = $A.parseScientific(value).split('.');
     var sub = (ps.length==2)?'.'+ps[1]:'';
     var whole = ps[0];
     var r = /(\d+)(\d{3})/;
@@ -1197,6 +1197,41 @@ $A.formatNumber = function(value,decimalprecision){
  */
 $A.formatMoney = function(v){
     return $A.formatNumber(v,2)
+}
+/**
+ * 将科学技术法的数值转换成普通数值字符串
+ * 
+ * @param {Number} value 数值
+ * @return {String}
+ */
+$A.parseScientific = function(v){
+	if((v = String(v)).search(/e/i)==-1){
+		return v;	
+	}else{
+		var re = v.split(/e/i),
+			doubleStr=re[0],
+			negative = doubleStr.match(/-/)||'',
+			inf = doubleStr.indexOf('.'),
+			str = doubleStr.replace(/[-.]/g,''),
+			eStr=parseInt(re[1]) - (inf == -1?0:str.length - inf);
+		if(eStr>0){
+			for(var i=0;i<eStr;i++){
+				str+='0';
+			}
+		}else{
+			eStr = str.length + eStr;
+			if(eStr>0){
+				str = str.substring(0,eStr)+'.'+str.substring(eStr)
+			}else{
+				var prex = '0.';
+				for(var i=0;i>eStr;i--){
+					prex+='0';
+				}
+				str = prex + str;
+			}
+		}
+		return negative + str;
+	}
 }
 /**
  * 将字符串的千分位去除
