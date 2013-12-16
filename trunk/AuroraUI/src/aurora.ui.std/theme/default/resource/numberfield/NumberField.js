@@ -38,12 +38,12 @@ $A.NumberField = Ext.extend($A.TextField,{
     	$A.NumberField.superclass.onBlur.call(this,e);
     },
     formatValue : function(v){
-    	var sf = this,rv = sf.fixPrecision(sf.parseValue(v))        
+    	var sf = this,rv = $A.parseScientific(sf.fixPrecision(sf.parseValue(v)));
         if(sf.allowformat)rv = $A.formatNumber(rv);
         return $A.NumberField.superclass.formatValue.call(sf,rv);
     },
     processMaxLength : function(rv){
-    	var s=rv.split('.'),isNegative=false;
+    	var s=$A.parseScientific(rv).split('.'),isNegative=false;
     	if(s[0].search(/-/)!=-1)isNegative=true;
     	return (isNegative?'-':'')+$A.NumberField.superclass.processMaxLength.call(this, s[0].replace(/[-,]/g,''))+(s[1]?'.'+s[1]:''); 
     },
