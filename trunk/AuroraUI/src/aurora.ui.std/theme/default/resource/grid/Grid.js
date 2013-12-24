@@ -368,7 +368,7 @@ A.Grid = Ext.extend(A.Component,{
         var sf = this;
         sf.dataset = ds;
         sf.processDataSetLiestener(ON);
-        if(ds.autopagesize===TRUE){
+        if(ds.autopagesize===TRUE && ds.fetchall!==TRUE){
             ds.pagesize=Math.floor((sf.ub.getHeight()||parseFloat(sf.ub.dom.style.height))/25);
             if(isNaN(ds.pagesize)||ds.pagesize == 0)ds.pagesize=1;
             if(ds.getAll().length || ds.qtId){

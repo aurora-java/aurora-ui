@@ -243,19 +243,24 @@ $A.Field = Ext.extend($A.Component,{
 //		return v;
 //    },
     initRequired : function(required){
-    	if(this.currentRequired == required)return;
-		this.clearInvalid();    	
-    	this.currentRequired = required;
-    	this.wrap[required?'addClass':'removeClass'](this.requiredCss);
+    	var sf = this;
+    	if(sf.currentRequired == required)return;
+		sf.clearInvalid();    	
+    	sf.currentRequired = sf.required = required;
+    	sf.wrap[required?'addClass':'removeClass'](sf.requiredCss);
     },
     initEditable : function(editable){
-    	this.el.dom.readOnly = this.readonly? true :(editable === false);
+    	var sf = this;
+    	if(sf.currentEditable == editable)return;
+    	sf.currentEditable = sf.editable = editable;
+    	sf.el.dom.readOnly = sf.readonly? true :(editable === false);
     },
     initReadOnly : function(readonly){
-    	if(this.currentReadOnly == readonly)return;
-    	this.currentReadOnly = readonly;
-    	this.el.dom.readOnly = readonly;
-    	this.wrap[readonly?'addClass':'removeClass'](this.readOnlyCss);
+    	var sf = this;
+    	if(sf.currentReadonly == readonly)return;
+    	sf.currentReadonly = sf.readonly = readonly;
+    	sf.el.dom.readOnly = readonly;
+    	sf.wrap[readonly?'addClass':'removeClass'](sf.readOnlyCss);
     },
     isOverMaxLength : function(str){
         if(!this.maxlength) return false;
