@@ -934,4 +934,5 @@ A.Table = Ext.extend(A.Component,{
         this.processDataSetLiestener('un');
     }
 })
+A.Table.revision='$Rev$';
 })($A);

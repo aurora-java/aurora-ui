@@ -1142,4 +1142,5 @@ A.Tree.TreeNode.prototype={
 		return "[Node"+(this.id?" "+this.id:"")+"]";
 	}
 };
+A.Tree.revision='$Rev$';
 })($A);

@@ -239,3 +239,4 @@ $A.Tree.TreeGridNode = Ext.extend($A.Tree.TreeNode, {
 //              $A.Tree.TreeGridNode.superclass.setWidth.call(this, n, w);
 //          }
         });
+$A.TreeGrid.revision='$Rev$';
