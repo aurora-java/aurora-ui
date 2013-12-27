@@ -2931,6 +2931,28 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     setSubmitParameter : function(para, value){
         this.spara[para] = value;
     },
+    isAllReady : function(isSelected){
+        var sf = this,records = isSelected ? sf.getSelected():sf.getAll(),isReady = true;
+        for(var i = 0,l = records.length;i < l;i++){
+            var r = records[i];
+            if(!r.isReady) {
+                isReady = false;
+                break;
+            }
+            Ext.iterate(r.data,function(name,item){
+                if(item && item.xtype == 'dataset'){
+                    var field = sf.fields[name];
+                    var ds = field.pro['dataset'];
+                    ds.reConfig(item);
+                    if(!ds.isAllReady(isSelected)) {
+                        isReady = false;
+                        return false;
+                    }
+                }
+            });
+        }
+        return isReady;
+    },    
 	/**
 	 * 等待ds中的所有record都ready后执行回调函数
 	 * @param {String} isAll 判断所有的record还是选中的record
