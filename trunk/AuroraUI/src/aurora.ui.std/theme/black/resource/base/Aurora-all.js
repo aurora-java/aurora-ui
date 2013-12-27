@@ -14,7 +14,7 @@
  
 Ext.Ajax.timeout = 1800000;
 
-$A = Aurora = {version: '1.0',revision:'$Rev: 7998 $'};
+$A = Aurora = {version: '1.0',revision:'$Rev:$'};
 //$A.firstFire = false;
 $A.fireWindowResize = function(){
     if($A.winWidth != $A.getViewportWidth() || $A.winHeight != $A.getViewportHeight()){
@@ -1178,8 +1178,8 @@ $A.formatNumber = function(value,decimalprecision){
     if(Ext.isEmpty(value))return '';
     value = String(value).replace(/,/g,'');
     if(isNaN(value))return '';
-    if(decimalprecision||decimalprecision===0) value=Number(value).toFixed(decimalprecision);
-    var ps = value.split('.');
+    if(!isNaN(decimalprecision)) value=Number(value).toFixed(decimalprecision);
+    var ps = $A.parseScientific(value).split('.');
     var sub = (ps.length==2)?'.'+ps[1]:'';
     var whole = ps[0];
     var r = /(\d+)(\d{3})/;
@@ -1197,6 +1197,41 @@ $A.formatNumber = function(value,decimalprecision){
  */
 $A.formatMoney = function(v){
     return $A.formatNumber(v,2)
+}
+/**
+ * 将科学技术法的数值转换成普通数值字符串
+ * 
+ * @param {Number} value 数值
+ * @return {String}
+ */
+$A.parseScientific = function(v){
+	if((v = String(v)).search(/e/i)==-1){
+		return v;	
+	}else{
+		var re = v.split(/e/i),
+			doubleStr=re[0],
+			negative = doubleStr.match(/-/)||'',
+			inf = doubleStr.indexOf('.'),
+			str = doubleStr.replace(/[-.]/g,''),
+			eStr=parseInt(re[1]) - (inf == -1?0:str.length - inf);
+		if(eStr>0){
+			for(var i=0;i<eStr;i++){
+				str+='0';
+			}
+		}else{
+			eStr = str.length + eStr;
+			if(eStr>0){
+				str = str.substring(0,eStr)+'.'+str.substring(eStr)
+			}else{
+				var prex = '0.';
+				for(var i=0;i>eStr;i--){
+					prex+='0';
+				}
+				str = prex + str;
+			}
+		}
+		return negative + str;
+	}
 }
 /**
  * 将字符串的千分位去除
@@ -2931,6 +2966,28 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     setSubmitParameter : function(para, value){
         this.spara[para] = value;
     },
+    isAllReady : function(isSelected){
+        var sf = this,records = isSelected ? sf.getSelected():sf.getAll(),isReady = true;
+        for(var i = 0,l = records.length;i < l;i++){
+            var r = records[i];
+            if(!r.isReady) {
+                isReady = false;
+                break;
+            }
+            Ext.iterate(r.data,function(name,item){
+                if(item && item.xtype == 'dataset'){
+                    var field = sf.fields[name];
+                    var ds = field.pro['dataset'];
+                    ds.reConfig(item);
+                    if(!ds.isAllReady(isSelected)) {
+                        isReady = false;
+                        return false;
+                    }
+                }
+            });
+        }
+        return isReady;
+    },    
 	/**
 	 * 等待ds中的所有record都ready后执行回调函数
 	 * @param {String} isAll 判断所有的record还是选中的record
@@ -4398,19 +4455,24 @@ $A.Field = Ext.extend($A.Component,{
 //		return v;
 //    },
     initRequired : function(required){
-    	if(this.currentRequired == required)return;
-		this.clearInvalid();    	
-    	this.currentRequired = required;
-    	this.wrap[required?'addClass':'removeClass'](this.requiredCss);
+    	var sf = this;
+    	if(sf.currentRequired == required)return;
+		sf.clearInvalid();    	
+    	sf.currentRequired = sf.required = required;
+    	sf.wrap[required?'addClass':'removeClass'](sf.requiredCss);
     },
     initEditable : function(editable){
-    	this.el.dom.readOnly = this.readonly? true :(editable === false);
+    	var sf = this;
+    	if(sf.currentEditable == editable)return;
+    	sf.currentEditable = sf.editable = editable;
+    	sf.el.dom.readOnly = sf.readonly? true :(editable === false);
     },
     initReadOnly : function(readonly){
-    	if(this.currentReadOnly == readonly)return;
-    	this.currentReadOnly = readonly;
-    	this.el.dom.readOnly = readonly;
-    	this.wrap[readonly?'addClass':'removeClass'](this.readOnlyCss);
+    	var sf = this;
+    	if(sf.currentReadonly == readonly)return;
+    	sf.currentReadonly = sf.readonly = readonly;
+    	sf.el.dom.readOnly = readonly;
+    	sf.wrap[readonly?'addClass':'removeClass'](sf.readOnlyCss);
     },
     isOverMaxLength : function(str){
         if(!this.maxlength) return false;
@@ -4547,6 +4609,7 @@ $A.Field = Ext.extend($A.Component,{
 //        return true;
 //    },
     select : function(start, end){
+    	if(!this.hasFocus)return;
     	var v = this.getRawValue();
         if(v.length > 0){
             start = start === undefined ? 0 : start;
@@ -5755,12 +5818,12 @@ $A.NumberField = Ext.extend($A.TextField,{
     	$A.NumberField.superclass.onBlur.call(this,e);
     },
     formatValue : function(v){
-    	var sf = this,rv = sf.fixPrecision(sf.parseValue(v))        
+    	var sf = this,rv = $A.parseScientific(sf.fixPrecision(sf.parseValue(v)));
         if(sf.allowformat)rv = $A.formatNumber(rv);
         return $A.NumberField.superclass.formatValue.call(sf,rv);
     },
     processMaxLength : function(rv){
-    	var s=rv.split('.'),isNegative=false;
+    	var s=$A.parseScientific(rv).split('.'),isNegative=false;
     	if(s[0].search(/-/)!=-1)isNegative=true;
     	return (isNegative?'-':'')+$A.NumberField.superclass.processMaxLength.call(this, s[0].replace(/[-,]/g,''))+(s[1]?'.'+s[1]:''); 
     },
@@ -7213,14 +7276,21 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	$A.NavBar.superclass.initEvents.call(this);    	
     },
     onLoad : function(){
-    	this.navInfo.update(this.creatNavInfo());
-    	if(this.type != "simple" && this.type != "tiny"){
-	    	this.pageInput.setValue(this.dataSet.currentPage,true);
-	    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
-	    	if(this.pageSizeInput&&!this.pageSizeInput.optionDataSet){
+    	var sf = this,ds = sf.dataSet,
+    		pagesize = ds.pagesize,
+    		input = sf.pageSizeInput;
+    	sf.navInfo.update(sf.creatNavInfo());
+    	if(sf.type != "simple" && sf.type != "tiny"){
+	    	sf.pageInput.setValue(ds.currentPage,true);
+	    	sf.pageInfo.update(_lang['toolbar.total'] + ds.totalPage + _lang['toolbar.page']);
+	    	if(input&&!input.optionDataSet){
+	    		if(ds.fetchall){
+	    			pagesize = ds.totalCount;
+	    			input.initReadOnly(true);
+	    		}
 	    		var pageSize=[10,20,50,100];
-	    		if(pageSize.indexOf(this.dataSet.pagesize)==-1){
-	    			pageSize.unshift(this.dataSet.pagesize);
+	    		if(pageSize.indexOf(pagesize)==-1){
+	    			pageSize.unshift(pagesize);
 	    			pageSize.sort(function(a,b){return a-b});
 	    		}
 	    		var datas=[];
@@ -7229,25 +7299,32 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 	    			datas.push({'code':ps,'name':ps});
 	    		}
 	    		var dataset=new $A.DataSet({'datas':datas});
-	    		this.pageSizeInput.valuefield = 'code';
-	    		this.pageSizeInput.displayfield = 'name';
-		    	this.pageSizeInput.setOptions(dataset);
-		    	this.pageSizeInput.setValue(this.dataSet.pagesize,true);
+	    		input.valuefield = 'code';
+	    		input.displayfield = 'name';
+		    	input.setOptions(dataset);
+		    	input.setValue(pagesize,true);
 	    	}
     	}
     },
     creatNavInfo : function(){
-    	if(this.type == "simple"){
-    		var html=[],ds=this.dataSet,currentPage=ds.currentPage,totalPage=ds.totalPage;
+    	var sf = this,
+    		ds = sf.dataSet,
+    		currentPage = ds.currentPage,
+    		totalPage = ds.totalPage,
+    		totalCount = ds.totalCount,
+    		pagesize = ds.pagesize;
+    	if(ds.fetchall) pagesize = totalCount;
+    	if(sf.type == "simple"){
+    		var html=[];
     		if(totalPage){
     			html.push('<span>共'+totalPage+'页</span>');
-    			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : this.createAnchor(_lang['toolbar.firstPage'],1));
-    			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : this.createAnchor(_lang['toolbar.prePage'],currentPage-1));
+    			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : sf.createAnchor(_lang['toolbar.firstPage'],1));
+    			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : sf.createAnchor(_lang['toolbar.prePage'],currentPage-1));
     			for(var i = 1 ; i < 4 && i <= totalPage ; i++){
-    				html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
+    				html.push(i == currentPage ? '<b>' + currentPage + '</b>' : sf.createAnchor(i,i));
     			}
-    			if(totalPage > this.maxPageCount){
-    				if(currentPage > 5)this.createSplit(html);
+    			if(totalPage > sf.maxPageCount){
+    				if(currentPage > 5)sf.createSplit(html);
     				for(var i = currentPage - 1;i < currentPage + 2 ;i++){
     					if(i > 3 && i < totalPage - 2){
     						html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
@@ -7268,23 +7345,23 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     			html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.lastPage']+'</span>' : this.createAnchor(_lang['toolbar.lastPage'],totalPage));
     		}
     		return html.join('');
-    	}else if(this.type == 'tiny'){
-    		var html=[],ds=this.dataSet,currentPage=ds.currentPage;
+    	}else if(sf.type == 'tiny'){
+    		var html=[];
     		html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : this.createAnchor(_lang['toolbar.firstPage'],1));
 			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : this.createAnchor(_lang['toolbar.prePage'],currentPage-1));
-    		html.push(this.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
+    		html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.nextPage']+'</span>' :sf.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
     		html.push('<span>第'+currentPage+'页</span>');
     		return html.join('');
     	}else{
-	    	var from = ((this.dataSet.currentPage-1)*this.dataSet.pagesize+1);
-	    	var to = this.dataSet.currentPage*this.dataSet.pagesize;
-	    	if(to>this.dataSet.totalCount && this.dataSet.totalCount > from) to = this.dataSet.totalCount;
+	    	var from = ((currentPage-1)*pagesize+1),
+	    		to = currentPage*pagesize,
+	    		theme = $A.getTheme();
+	    	if(to>totalCount && totalCount > from) to = totalCount;
 	    	if(to==0) from =0;
-            var theme = $A.getTheme();
             if(theme == 'mac')
                 return _lang['toolbar.visible'] + ' ' + from + ' - ' + to ;                
             else 
-                return _lang['toolbar.visible'] + ' ' +  from + ' - ' + to + ' '+ _lang['toolbar.total'] + this.dataSet.totalCount + _lang['toolbar.item'];
+                return _lang['toolbar.visible'] + ' ' +  from + ' - ' + to + ' '+ _lang['toolbar.total'] + totalCount + _lang['toolbar.item'];
     	}
     },
     createAnchor : function(text,page){

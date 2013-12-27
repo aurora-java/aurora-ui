@@ -2652,5 +2652,5 @@ Ext.apply(pub,{
 	    vmlTpl : "<span id='{id}' unselectable='on'  onselectstart='return false;' style='position:absolute;left:{left}px;top:{top}px;color:{color};cursor:pointer;white-space:nowrap;{style}'></span>"
 	})
 })
-
+$A.Graphics.revision='$Rev$';
 })();

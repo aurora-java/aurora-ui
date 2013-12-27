@@ -4455,19 +4455,24 @@ $A.Field = Ext.extend($A.Component,{
 //		return v;
 //    },
     initRequired : function(required){
-    	if(this.currentRequired == required)return;
-		this.clearInvalid();    	
-    	this.currentRequired = required;
-    	this.wrap[required?'addClass':'removeClass'](this.requiredCss);
+    	var sf = this;
+    	if(sf.currentRequired == required)return;
+		sf.clearInvalid();    	
+    	sf.currentRequired = sf.required = required;
+    	sf.wrap[required?'addClass':'removeClass'](sf.requiredCss);
     },
     initEditable : function(editable){
-    	this.el.dom.readOnly = this.readonly? true :(editable === false);
+    	var sf = this;
+    	if(sf.currentEditable == editable)return;
+    	sf.currentEditable = sf.editable = editable;
+    	sf.el.dom.readOnly = sf.readonly? true :(editable === false);
     },
     initReadOnly : function(readonly){
-    	if(this.currentReadOnly == readonly)return;
-    	this.currentReadOnly = readonly;
-    	this.el.dom.readOnly = readonly;
-    	this.wrap[readonly?'addClass':'removeClass'](this.readOnlyCss);
+    	var sf = this;
+    	if(sf.currentReadonly == readonly)return;
+    	sf.currentReadonly = sf.readonly = readonly;
+    	sf.el.dom.readOnly = readonly;
+    	sf.wrap[readonly?'addClass':'removeClass'](sf.readOnlyCss);
     },
     isOverMaxLength : function(str){
         if(!this.maxlength) return false;
@@ -4604,6 +4609,7 @@ $A.Field = Ext.extend($A.Component,{
 //        return true;
 //    },
     select : function(start, end){
+    	if(!this.hasFocus)return;
     	var v = this.getRawValue();
         if(v.length > 0){
             start = start === undefined ? 0 : start;
@@ -5812,12 +5818,12 @@ $A.NumberField = Ext.extend($A.TextField,{
     	$A.NumberField.superclass.onBlur.call(this,e);
     },
     formatValue : function(v){
-    	var sf = this,rv = sf.fixPrecision(sf.parseValue(v))        
+    	var sf = this,rv = $A.parseScientific(sf.fixPrecision(sf.parseValue(v)));
         if(sf.allowformat)rv = $A.formatNumber(rv);
         return $A.NumberField.superclass.formatValue.call(sf,rv);
     },
     processMaxLength : function(rv){
-    	var s=rv.split('.'),isNegative=false;
+    	var s=$A.parseScientific(rv).split('.'),isNegative=false;
     	if(s[0].search(/-/)!=-1)isNegative=true;
     	return (isNegative?'-':'')+$A.NumberField.superclass.processMaxLength.call(this, s[0].replace(/[-,]/g,''))+(s[1]?'.'+s[1]:''); 
     },
@@ -7270,14 +7276,21 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	$A.NavBar.superclass.initEvents.call(this);    	
     },
     onLoad : function(){
-    	this.navInfo.update(this.creatNavInfo());
-    	if(this.type != "simple" && this.type != "tiny"){
-	    	this.pageInput.setValue(this.dataSet.currentPage,true);
-	    	this.pageInfo.update(_lang['toolbar.total'] + this.dataSet.totalPage + _lang['toolbar.page']);
-	    	if(this.pageSizeInput&&!this.pageSizeInput.optionDataSet){
+    	var sf = this,ds = sf.dataSet,
+    		pagesize = ds.pagesize,
+    		input = sf.pageSizeInput;
+    	sf.navInfo.update(sf.creatNavInfo());
+    	if(sf.type != "simple" && sf.type != "tiny"){
+	    	sf.pageInput.setValue(ds.currentPage,true);
+	    	sf.pageInfo.update(_lang['toolbar.total'] + ds.totalPage + _lang['toolbar.page']);
+	    	if(input&&!input.optionDataSet){
+	    		if(ds.fetchall){
+	    			pagesize = ds.totalCount;
+	    			input.initReadOnly(true);
+	    		}
 	    		var pageSize=[10,20,50,100];
-	    		if(pageSize.indexOf(this.dataSet.pagesize)==-1){
-	    			pageSize.unshift(this.dataSet.pagesize);
+	    		if(pageSize.indexOf(pagesize)==-1){
+	    			pageSize.unshift(pagesize);
 	    			pageSize.sort(function(a,b){return a-b});
 	    		}
 	    		var datas=[];
@@ -7286,25 +7299,32 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 	    			datas.push({'code':ps,'name':ps});
 	    		}
 	    		var dataset=new $A.DataSet({'datas':datas});
-	    		this.pageSizeInput.valuefield = 'code';
-	    		this.pageSizeInput.displayfield = 'name';
-		    	this.pageSizeInput.setOptions(dataset);
-		    	this.pageSizeInput.setValue(this.dataSet.pagesize,true);
+	    		input.valuefield = 'code';
+	    		input.displayfield = 'name';
+		    	input.setOptions(dataset);
+		    	input.setValue(pagesize,true);
 	    	}
     	}
     },
     creatNavInfo : function(){
-    	if(this.type == "simple"){
-    		var html=[],ds=this.dataSet,currentPage=ds.currentPage,totalPage=ds.totalPage;
+    	var sf = this,
+    		ds = sf.dataSet,
+    		currentPage = ds.currentPage,
+    		totalPage = ds.totalPage,
+    		totalCount = ds.totalCount,
+    		pagesize = ds.pagesize;
+    	if(ds.fetchall) pagesize = totalCount;
+    	if(sf.type == "simple"){
+    		var html=[];
     		if(totalPage){
     			html.push('<span>共'+totalPage+'页</span>');
-    			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : this.createAnchor(_lang['toolbar.firstPage'],1));
-    			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : this.createAnchor(_lang['toolbar.prePage'],currentPage-1));
+    			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : sf.createAnchor(_lang['toolbar.firstPage'],1));
+    			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : sf.createAnchor(_lang['toolbar.prePage'],currentPage-1));
     			for(var i = 1 ; i < 4 && i <= totalPage ; i++){
-    				html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
+    				html.push(i == currentPage ? '<b>' + currentPage + '</b>' : sf.createAnchor(i,i));
     			}
-    			if(totalPage > this.maxPageCount){
-    				if(currentPage > 5)this.createSplit(html);
+    			if(totalPage > sf.maxPageCount){
+    				if(currentPage > 5)sf.createSplit(html);
     				for(var i = currentPage - 1;i < currentPage + 2 ;i++){
     					if(i > 3 && i < totalPage - 2){
     						html.push(i == currentPage ? '<b>' + currentPage + '</b>' : this.createAnchor(i,i));
@@ -7325,23 +7345,23 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     			html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.lastPage']+'</span>' : this.createAnchor(_lang['toolbar.lastPage'],totalPage));
     		}
     		return html.join('');
-    	}else if(this.type == 'tiny'){
-    		var html=[],ds=this.dataSet,currentPage=ds.currentPage;
+    	}else if(sf.type == 'tiny'){
+    		var html=[];
     		html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : this.createAnchor(_lang['toolbar.firstPage'],1));
 			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : this.createAnchor(_lang['toolbar.prePage'],currentPage-1));
-    		html.push(this.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
+    		html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.nextPage']+'</span>' :sf.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
     		html.push('<span>第'+currentPage+'页</span>');
     		return html.join('');
     	}else{
-	    	var from = ((this.dataSet.currentPage-1)*this.dataSet.pagesize+1);
-	    	var to = this.dataSet.currentPage*this.dataSet.pagesize;
-	    	if(to>this.dataSet.totalCount && this.dataSet.totalCount > from) to = this.dataSet.totalCount;
+	    	var from = ((currentPage-1)*pagesize+1),
+	    		to = currentPage*pagesize,
+	    		theme = $A.getTheme();
+	    	if(to>totalCount && totalCount > from) to = totalCount;
 	    	if(to==0) from =0;
-            var theme = $A.getTheme();
             if(theme == 'mac')
                 return _lang['toolbar.visible'] + ' ' + from + ' - ' + to ;                
             else 
-                return _lang['toolbar.visible'] + ' ' +  from + ' - ' + to + ' '+ _lang['toolbar.total'] + this.dataSet.totalCount + _lang['toolbar.item'];
+                return _lang['toolbar.visible'] + ' ' +  from + ' - ' + to + ' '+ _lang['toolbar.total'] + totalCount + _lang['toolbar.item'];
     	}
     },
     createAnchor : function(text,page){
