@@ -1856,7 +1856,7 @@ A.Grid = Ext.extend(A.Component,{
         }
     },
     createHead : Ext.isIE || Ext.isIE9 ?function(cols,method,name,parent,index){
-        var trs = parent.query(TR),t = Ext.fly(trs[0]).child('th[width=20]'),tds;
+        var trs = parent.query(TR),t = Ext.fly(trs[0]).child('th:last()'),tds;
         if(name)tds = parent.query(SELECT_DATAINDEX+name+_K)[0];
         if (method == INSERT_AFTER){
             tds = tds.nextSibling || NULL;
@@ -1877,14 +1877,14 @@ A.Grid = Ext.extend(A.Component,{
         });
     }:function(cols,method,name,parent){
         var html = [],html2=[],
-            tds = parent.query(method != APPEND?SELECT_DATAINDEX+name+_K:TR);
+            tds = parent.query(method != APPEND?SELECT_DATAINDEX+name+_K:TR),
+            th = Ext.fly(tds[0]).child('th:last()');
         EACH(cols,function(c){
             html.push('<th style="width:',c.width,PX,';" ',DATA_INDEX,'="',c.name,'"></th>');
             html2.push('<td class="grid-hc" atype="grid.head" ',DATA_INDEX,'="',c.name,'"><div>',c.prompt,'</div></td>');
         });
         new Ext.Template(html.join(_N))[method](tds[0],{});
         new Ext.Template(html2.join(_N))[method](tds[1],{});
-        var th = Ext.fly(tds[0]).child('th[width=20]');
         if(th)th.appendTo(Ext.fly(tds[0]));
     },
     /**
