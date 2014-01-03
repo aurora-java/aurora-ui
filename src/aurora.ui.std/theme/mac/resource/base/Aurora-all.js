@@ -2860,6 +2860,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @return {Boolean} valid 校验结果.
      */
     validate : function(selected,fire,vc){
+    	if(!this.validateEnable)return true;
         this.isValid = true;
         var current = this.getCurrentRecord();
         if(!current)return true;
@@ -3169,11 +3170,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     submit : function(url,fields,selected){
     	var sf = this;
     	sf.wait(!selected,function(){
-    		if(sf.fireEvent("beforesubmit",sf)){
-    			if(!sf.validateEnable || sf.validate(selected)){   
-	                sf.doSubmit(url,sf.getJsonData(selected,fields));
-    			}
-            }
+    		sf.fireEvent("beforesubmit",sf)
+    			&& sf.validate(selected)
+	               &&  sf.doSubmit(url,sf.getJsonData(selected,fields));
     	});
     },
     /**
@@ -3181,12 +3180,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @param {String} url(可选) 提交的url.
      */
     post : function(url){
-        var r=this.getCurrentRecord();
-        if(!r)return;
-        this.wait(true,function(){
-    		if(this.validateEnable && !this.validate()) return;
-            $A.post(url,r.data);
-    	},this);
+        var sf = this,r=sf.getCurrentRecord();
+        r && sf.wait(true,function(){
+            sf.validate() && $A.post(url,r.data);
+    	});
     },
     /**
      * 重置数据.
