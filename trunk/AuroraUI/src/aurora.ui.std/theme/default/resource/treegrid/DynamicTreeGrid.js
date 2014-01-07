@@ -68,3 +68,4 @@ $A.DynamicTreeGrid.TreeNode = Ext.extend($A.DynamicTree.TreeNode, {
 		this.setWidth(tree.displayfield, tree.width);
 	}
 });
+$A.DynamicTreeGrid.revision='$Rev$';
