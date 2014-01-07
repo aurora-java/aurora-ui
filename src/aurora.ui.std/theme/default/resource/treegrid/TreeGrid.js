@@ -16,14 +16,14 @@ $A.TreeGrid = Ext.extend($A.Grid, {
         if (this.lockColumns.length > 0) {
             var ltid = this.id + "_lb_tree";
             this.lb.set({id : ltid}).addClass('item-treegrid');
-            lockTree = this.lockTree = new $A.Tree(this.createTreeConfig(config, this.lockColumns, ltid, !showSkeleton,this));
+            lockTree = this.lockTree = this.createTree(this.createTreeConfig(config, this.lockColumns, ltid, !showSkeleton,this));
             lockTree.body = this.lb;
             lockTree.treegrid = this;
         }
 
         var utid = this.id + "_ub_tree";
         this.ub.set({id : utid}).addClass('item-treegrid');
-        var unlockTree = this.unlockTree = new $A.Tree(this.createTreeConfig(config, this.unlockColumns, utid,showSkeleton, this));
+        var unlockTree = this.unlockTree = this.createTree(this.createTreeConfig(config, this.unlockColumns, utid,showSkeleton, this));
         unlockTree.body = this.ub;
         unlockTree.treegrid = this;
         this.initTreeLisener(lockTree,unlockTree)
@@ -67,6 +67,9 @@ $A.TreeGrid = Ext.extend($A.Grid, {
             visibility : col.hidden === true ? 'hidden' : 'visible',
             name : col.name
         }
+    },
+    createTree : function(cfg){
+        return new $A.Tree(cfg);
     },
     createTreeConfig : function(config, columns, id, showSkeleton, grid) {
         var c = columns[0];

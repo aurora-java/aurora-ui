@@ -426,7 +426,7 @@ A.Tree = Ext.extend(A.Component,{
 		for(var key in map1){
 			array.push(map2[key]);
 		}
-		if(array.length == 1){
+		if(!(this instanceof A.DynamicTree) && array.length == 1){
 			sf.showRoot = TRUE;
 			rtnode = array[0];
 		}else{

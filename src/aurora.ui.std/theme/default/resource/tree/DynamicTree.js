@@ -30,7 +30,7 @@ $A.DynamicTree = Ext.extend($A.Tree,{
 $A.DynamicTree.TreeNode = Ext.extend($A.Tree.TreeNode,{
     createNode : function(item){
         return new $A.DynamicTree.TreeNode(item);
-    },
+    }, 
     expand : function(){
         if(this.isRoot() || (this.childNodes.length>0 &&　this.isLoaded)){
             if(!this.isRoot())
@@ -57,10 +57,10 @@ $A.DynamicTree.TreeNode = Ext.extend($A.Tree.TreeNode,{
                         this.isLoaded = true;
                         if(!res.result.record) res.result.record = [];
                         var records = [].concat(res.result.record);
-                        if(records.length==0){
-                            this.els['icon'].className = 'node-icon icon-node';
-                            this.paintClipIcoImg();
-                        }
+//                        if(records.length==0){
+//                            this.els['icon'].className = 'node-icon icon-node';
+//                            this.paintClipIcoImg();
+//                        }
                         var m = Number.MAX_VALUE;
                         records.sort(function(a, b){
                             return parseFloat(a[tree.sequencefield]||m) - parseFloat(b[tree.sequencefield]||m);
@@ -69,7 +69,7 @@ $A.DynamicTree.TreeNode = Ext.extend($A.Tree.TreeNode,{
                             var record = ds.create(records[i]);    
                             record.commit();
                         }
-                        tree.fireEvent('load', this);
+                        $A.DynamicTree.TreeNode.superclass.expand.call(this);
                     },
                     scope : this
                 });
