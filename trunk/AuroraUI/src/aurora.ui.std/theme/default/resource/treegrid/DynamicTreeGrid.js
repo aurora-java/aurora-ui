@@ -7,6 +7,9 @@
  * @param {Object} config 配置对象. 
  */
 $A.DynamicTreeGrid = Ext.extend($A.TreeGrid, {
+    createTree : function(cfg){
+        return new $A.DynamicTree(cfg);    
+    },
 	createTreeConfig : function(config, columns, id, showSkeleton, grid) {
         var config = $A.DynamicTreeGrid.superclass.createTreeConfig.call(this, config,columns,id,showSkeleton,grid);
 		config['createTreeNode']= function(item) {
