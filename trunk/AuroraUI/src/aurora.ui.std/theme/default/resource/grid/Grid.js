@@ -116,12 +116,10 @@ var DOC = document,
         sortable: TRUE,
         width: 100
     },
-    hasBorder = function(dom){
-    	return !!dom.getBorderWidth('t r b l');
-    },
     findBorderParent = function(dom,isCheckBox){
-    	if(!dom||isCheckBox)return dom;
-		return hasBorder(dom)?dom:dom.parent();
+    	return dom;
+//    	if(!dom||isCheckBox)return dom;
+//		return this.editorborder?dom:dom.parent();
     };
 /**
  * @class Aurora.Grid
@@ -137,6 +135,7 @@ A.Grid = Ext.extend(A.Component,{
 //        sf.overId = NULL;
         sf.selectedId = NULL;
         sf.lockWidth = 0;
+        sf.editorborder = TRUE;
         sf.autofocus = TRUE;
         A.Grid.superclass.constructor.call(sf,config);
         A.onReady(function(){
@@ -386,9 +385,9 @@ A.Grid = Ext.extend(A.Component,{
         var sf = this;
         sf.rowTdTpl = new Ext.Template(['<td {rowSpan} ',ATYPE,'="{',ATYPE,'}" class="',GRID_ROWBOX,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
         sf.rowNumTdTpl = new Ext.Template(['<td {rowSpan} style="text-align:{align}" class="',GRN_ROW_NUMBER,'" ',ATYPE,'="',GRN_ROW_NUMBER,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
-        sf.rowNumCellTpl = new Ext.Template(['<div style="',WIDTH,':{',WIDTH,'}px">{text}</div>']);
+        sf.rowNumCellTpl = new Ext.Template(['<div class="',GRID_CELL,'">{text}</div>']);
         sf.tdTpl = new Ext.Template(['<td class="{celltdcls}" {rowSpan} style="visibility:{visibility};text-align:{align}" ',DATA_INDEX,'="{name}" ',ATYPE,'="',GRID_CELL,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
-        sf.cellTpl = new Ext.Template(['<div class="',GRID_CELL,' {cellcls}" style="',WIDTH,':{',WIDTH,'}px" id="',sf.id,'_{name}_{recordid}" title="{title}"><span>{text}</span></div>']);        
+        sf.cellTpl = new Ext.Template(['<div class="',GRID_CELL,' {cellcls}" id="',sf.id,'_{name}_{recordid}" title="{title}">{celleditordiv}<span>{text}</span></div>']);        
         sf.cbTpl = new Ext.Template(['<center><div class="{cellcls}" id="',sf.id,'_{name}_{',RECORD_ID,'}"></div></center>']);
     },
     getCheckBoxStatus: function(record, name ,readonly) {
@@ -402,7 +401,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     createTemplateData : function(col,record){
         return {
-            width:col.width-2,
+//            width:col.width-2,
             recordid:record.id,
             visibility: col.hidden === TRUE ? HIDDEN : VISIBLE,
             name:col.name
@@ -425,7 +424,11 @@ A.Grid = Ext.extend(A.Component,{
             if(edi && (edi instanceof CheckBox)){
                 xtype = CELL_CHECK;
             }else{
-                cls = CELL_EDITOR;
+            	 if(sf.editorborder){
+                	cls = CELL_EDITOR;
+            	 }else{
+            	 	data['celleditordiv']='<div class="cell-editor-div"></div>'
+            	 }
             }
         }else if(col.name && !IS_EMPTY(record.getField(col.name).get(CHECKED_VALUE))){
             xtype = CELL_CHECK;
@@ -436,14 +439,14 @@ A.Grid = Ext.extend(A.Component,{
         		ck = ds.getSelected().indexOf(record)==-1?U:C;
             readonly = ds.execSelectFunction(record)?_N:READONLY;
             tdTpl = sf.rowTdTpl;
-            data = Ext.apply(data,{
+            Ext.apply(data,{
                 align:CENTER,
                 atype:xtype == ROW_CHECK?GRID$ROWCHECK:GRID$ROWRADIO,
                 cellcls: xtype == ROW_CHECK?GRID_CKB+ITEM_CKB+readonly+ck:'grid-radio '+ITEM_RADIO_IMG+readonly+ck
             })
             cellTpl = sf.cbTpl;
         }else if(xtype == CELL_CHECK){
-            data = Ext.apply(data,{
+            Ext.apply(data,{
                 align:CENTER,
                 cellcls: GRID_CKB + sf.getCheckBoxStatus(record, col.name ,readonly) //+((cls==_N) ? ' disabled ' : _N )
             })
@@ -451,29 +454,29 @@ A.Grid = Ext.extend(A.Component,{
         }else{
             var field = record.getMeta().getField(col.name);
             if(field && IS_EMPTY(record.data[col.name]) && record.isNew == TRUE && field.get(REQUIRED) == TRUE){
-            	var dom = new Ext.Template('<div class="'+cls+'" style="visibility:hidden;position:absolute;top:-10000px;left:-10000px"></div>').append(document.body,{},true);
-                if(!hasBorder(dom))
-                	cls_td = ITEM_NOT_BLANK;
-                else
-                	cls = cls + _S + ITEM_NOT_BLANK;
-            	dom.remove();
+//            	var dom = new Ext.Template('<div class="'+cls+'" style="visibility:hidden;position:absolute;top:-10000px;left:-10000px"></div>').append(document.body,{},true);
+//                if(!sf.editorborder)
+//                	cls_td = ITEM_NOT_BLANK;
+//                else
+            	cls = cls + _S + ITEM_NOT_BLANK;
+//            	dom.remove();
             }
-            var sp = (cls.indexOf(CELL_EDITOR)!=-1) ? 5 : 2,
+            var //sp = (cls.indexOf(CELL_EDITOR)!=-1) ? 5 : 2,
                 t = sf.renderText(record,col,record.data[col.name]);
-            data = Ext.apply(data,{
+            Ext.apply(data,{
                 align:col.align||LEFT,
                 cellcls: cls,
                 celltdcls: cls_td,
 //                width:col.width-4,//-11
-                width:data.width-sp,//-11
+//                width:data.width-sp,//-11
                 text:t,
                 title:col.showtitle ? $A.unescapeHtml(String(t).replace(/<[^<>]+>/mg,_N)):''
             })
-            cellTpl =  sf.cellTpl;
             if(xtype == ROW_NUMBER) {
                 tdTpl = sf.rowNumTdTpl;
                 cellTpl = sf.rowNumCellTpl;
-            }
+            }else
+            	cellTpl =  sf.cellTpl;
         }
         if(rowSpan)data['rowSpan']='rowSpan='+rowSpan;
         if(!td)sb.push(tdTpl.applyTemplate(data));
@@ -866,7 +869,7 @@ A.Grid = Ext.extend(A.Component,{
                 sf.renderEditor(div,record,c,editor);
             }else{
                 //考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
-                div.update(text = sf.renderText(record,c,value));
+                div.child('span').update(text = sf.renderText(record,c,value));
                 c.showtitle && div.set({'title':$A.unescapeHtml(String(text).replace(/<[^<>]+>/mg,_N))});
             }
         }
@@ -876,7 +879,7 @@ A.Grid = Ext.extend(A.Component,{
                     sf.renderEditor(ediv,record, c, sf.getEditor(c,record));
                 }
                 if(c.renderer){
-                    ediv.update(text = sf.renderText(record,c, record.get(c.name)));
+                    ediv.child('span').update(text = sf.renderText(record,c, record.get(c.name)));
                     c.showtitle && ediv.set({'title':$A.unescapeHtml(String(text).replace(/<[^<>]+>/mg,_N))});
                 }
             }
@@ -887,7 +890,7 @@ A.Grid = Ext.extend(A.Component,{
         var c = this.findColByName(name);
 //      if(c&&c.editor){
         if(c){
-            var div = findBorderParent(Ext.get([this.id,name,record.id].join(_)));
+            var div = findBorderParent.call(this,Ext.get([this.id,name,record.id].join(_)));
             if(div) {
                 if(valid == FALSE){
                     div.addClass(ITEM_INVALID);
@@ -916,7 +919,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     onFieldChange : function(ds, record, field, type, value){
         if(type == REQUIRED){
-           var div = findBorderParent(Ext.get([this.id,field.name,record.id].join(_)));
+           var div = findBorderParent.call(this,Ext.get([this.id,field.name,record.id].join(_)));
            if(div) {
                div[value==TRUE?'addClass':'removeClass'](ITEM_NOT_BLANK);
            }
@@ -1121,7 +1124,7 @@ A.Grid = Ext.extend(A.Component,{
     		ced = sf.currentEditor,
 			ed = ced.editor,
 			isCheckBox = ed instanceof CheckBox,
-			dom = findBorderParent(Ext.get([sf.id,ced.name,ced.record.id].join(_)),isCheckBox),
+			dom = findBorderParent.call(sf,Ext.get([sf.id,ced.name,ced.record.id].join(_)),isCheckBox),
 			xy = dom.getXY();
 			if(isCheckBox)
         		ed.move(xy[0],xy[1]-4);
@@ -1148,7 +1151,7 @@ A.Grid = Ext.extend(A.Component,{
             var ed = $(editor);
             (function(){
                 var v = record.get(name),
-                    dom = findBorderParent(Ext.get([sf.id,name,record.id].join(_))),ced;
+                    dom = findBorderParent.call(sf,Ext.get([sf.id,name,record.id].join(_))),ced;
                 ed.bind(ds, name);
                 ed.render(record);
 //                if(Ext.isIE)ed.processListener('un');
@@ -1677,9 +1680,9 @@ A.Grid = Ext.extend(A.Component,{
                 c.lock !== TRUE ? (uw += c.width) : (lw += c.width);
             }
         });
-        sf.wrap.select(SELECT_TD_DATAINDEX+name+'] DIV.grid-cell').each(function(ce){
-            ce.setStyle(WIDTH, Math.max(size-(ce.hasClass(CELL_EDITOR) ? 7 : 4),0)+PX);
-        });
+//        sf.wrap.select(SELECT_TD_DATAINDEX+name+'] DIV.grid-cell').each(function(ce){
+//            ce.setStyle(WIDTH, Math.max(size-(ce.hasClass(CELL_EDITOR) ? 7 : 4),0)+PX);
+//        });
         
         sf.unlockWidth = uw;
         sf.lockWidth = lw;
@@ -2056,7 +2059,7 @@ A.Grid = Ext.extend(A.Component,{
                     '><td class="',GRID_ROWBOX,'" style="width:22px;" ',
                     RECORD_ID,'="',i,'" atype="export.rowcheck"><center><div id="',
                     sf.id,__,i,'" class="',GRID_CKB,c.forexport === FALSE?ITEM_CKB_U:ITEM_CKB_C,
-                    '"></div></center></td><td><div class="',GRID_CELL,'" style="width:220px">',
+                    '"></div></center></td><td style="width:222px"><div class="',GRID_CELL,'">',
                     c.prompt,c.hidden?['<div style="float:right;color:red">&lt;',_lang['grid.export.hidecolumn'],'&gt;</div>'].join(''):_N,'</div></td></tr>');    
                 }else n++;
             });
