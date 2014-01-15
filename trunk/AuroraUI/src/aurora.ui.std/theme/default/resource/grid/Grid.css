@@ -25,6 +25,7 @@
     border-bottom:1px solid #cccccc;/*a4bed4*/
 }
 .grid-rowbox {
+	padding:1px;
     border-right:1px solid #cccccc;
     background-image:url(../grid/row-box.gif);
     background-repeat:repeat-y;
