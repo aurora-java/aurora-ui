@@ -73,7 +73,7 @@ function processPercent(record,canDelete) {
 function fileSizeRenderer(value, record, name) {
 	return formatFileSize(value)
 }
-function atmRenderer(value, record, name, canDelete) {
+function atmRenderer(value, record, name, canDelete, deleteControl) {
     var percent = record.get('percent');
     var ds = record.ds;
     var id = ds.id;
@@ -88,6 +88,7 @@ function atmRenderer(value, record, name, canDelete) {
 		c = 'status_error';
 		a = '<div class="atm1"> </div>'
 	}
+    if(deleteControl) canDelete = record.get('is_delete') === 1;    
     
 	var html = '<div class="' + c + '">' + a + '<div style="float:left">' + (percent == -1 ? value :'<a target="_self" href="'+window[upid+'_download_path']+'?attachment_id='+record.get('attachment_id')+'&table_name='+record.get('table_name')+'&table_pk_value='+record.get('table_pk_value')+'\">'
             + value + '</a>') + '</div>' + processPercent(record,canDelete) + '</div>';
@@ -95,6 +96,10 @@ function atmRenderer(value, record, name, canDelete) {
 }
 function atmNotDeleteRenderer(value, record, name) {
     return atmRenderer(value,record,name,false)
+}
+
+function atmDeleteControlRenderer(value, record, name){
+    return atmRenderer(value,record,name,true,true)
 }
 
 $A.UploadList = Ext.extend($A.Component,{
@@ -154,7 +159,12 @@ $A.UploadList = Ext.extend($A.Component,{
             html.push('<div class="up_card" id="atm_'+record.id+'">');
             html.push('<div class="icon icon-'+type+'"> </div>');
             html.push('<div class="j"><a target="_self" href="'+this.downloadurl+'?attachment_id='+record.get('attachment_id')+'&table_name='+record.get('table_name')+'&table_pk_value='+record.get('table_pk_value')+'\" title="'+record.get("file_name")+'">'+record.get('file_name')+'</a></div>');
-            if(this.showdelete) html.push('<div class="l"><a href="javascript:deleteFileRecord(\''+this.bindtarget +'\','+ record.id + ')">删除</a></div>');
+
+            if(!this.showdelete||(this.deletecontrol&&record.get('is_delete') === 0)) {
+                html.push('<div class="l"></div>');
+            }else {
+                html.push('<div class="l"><a href="javascript:deleteFileRecord(\''+this.bindtarget +'\','+ record.id + ')">删除</a></div>');
+            }
             html.push('<div class="k">'+formatFileSize(record.get('file_size'))+'<span class="d">'+Aurora.formatDateTime(record.get('creation_time'))+'</span></div>');
             html.push('</div>')            
         },this)
