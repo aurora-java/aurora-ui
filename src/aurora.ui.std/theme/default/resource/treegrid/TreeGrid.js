@@ -57,15 +57,16 @@ $A.TreeGrid = Ext.extend($A.Grid, {
                 + this.id + '_{name}_{recordid}"></div></center>');
     },
     createTemplateData : function(col, record) {
-    	var editor = this.getEditor(col,record),sp=
-	    	(editor!='' &&
-	            (editor = $A.CmpManager.get(editor)) && !(editor instanceof $A.CheckBox))?2:3;
+    	var name = col.name,
+    		editor = this.getEditor(col,record),sp=
+	    	name?( Ext.isEmpty(record.getField(name).get('checkedvalue'))?(editor!='' &&
+	            (editor = $A.CmpManager.get(editor)) ?7:5):1):2;
         return {
             width : col.width - sp,
             // cwidth:col.width-4,
             recordid : record.id,
             visibility : col.hidden === true ? 'hidden' : 'visible',
-            name : col.name
+            name : name
         }
     },
     createTree : function(cfg){
@@ -108,7 +109,7 @@ $A.TreeGrid = Ext.extend($A.Grid, {
                                     "afterBegin", td, grid.createCell(c, r,
                                     true)));
                                 node.els['itemNodeTr'].appendChild(td);
-                                Ext.fly(td).setWidth(c.width - 3).addClass('node-text');
+                                Ext.fly(td).setWidth(c.width - 1).addClass('node-text');
                             }
                         });
                     },

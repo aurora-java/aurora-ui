@@ -129,6 +129,7 @@
 	border-bottom:5px solid transparent;
 	font-size:0;
 	line-height:0;
+	height:0;
 }
 .ext-ie6 .cell-editor-div{
 	margin:-2px 0 0 -1px;

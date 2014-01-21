@@ -1,6 +1,5 @@
 .item-treegrid .node-text div{
     overflow:hidden;
-    height:20px;
     text-overflow:ellipsis;
     
 }
@@ -21,3 +20,13 @@
 border-right: none;
 }
 
+.item-treegrid .node-clip,.item-treegrid .checkbox0,.item-treegrid .checkbox1,.item-treegrid .checkbox2{
+	padding:1px;
+}
+.item-treegrid .node-icon{
+	margin:1px;
+}
+.item-treegrid .grid-rowbox{
+	border-right:1px solid #cccccc;
+	padding-right:0;
+}

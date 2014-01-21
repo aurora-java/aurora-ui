@@ -387,7 +387,7 @@ A.Grid = Ext.extend(A.Component,{
         sf.rowNumTdTpl = new Ext.Template(['<td {rowSpan} style="text-align:{align}" class="',GRN_ROW_NUMBER,'" ',ATYPE,'="',GRN_ROW_NUMBER,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
         sf.rowNumCellTpl = new Ext.Template(['<div class="',GRID_CELL,'">{text}</div>']);
         sf.tdTpl = new Ext.Template(['<td class="{celltdcls}" {rowSpan} style="visibility:{visibility};text-align:{align}" ',DATA_INDEX,'="{name}" ',ATYPE,'="',GRID_CELL,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
-        sf.cellTpl = new Ext.Template(['<div class="',GRID_CELL,' {cellcls}" id="',sf.id,'_{name}_{recordid}" title="{title}">{celleditordiv}<span>{text}</span></div>']);        
+        sf.cellTpl = new Ext.Template(['<div class="',GRID_CELL,' {cellcls}" style="',WIDTH,':{',WIDTH,'}px" id="',sf.id,'_{name}_{recordid}" title="{title}">{celleditordiv}<span>{text}</span></div>']);        
         sf.cbTpl = new Ext.Template(['<center><div class="{cellcls}" id="',sf.id,'_{name}_{',RECORD_ID,'}"></div></center>']);
     },
     getCheckBoxStatus: function(record, name ,readonly) {
@@ -869,7 +869,7 @@ A.Grid = Ext.extend(A.Component,{
                 sf.renderEditor(div,record,c,editor);
             }else{
                 //考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
-                div.child('span').update(text = sf.renderText(record,c,value));
+                (div.child('span')||div).update(text = sf.renderText(record,c,value));
                 c.showtitle && div.set({'title':$A.unescapeHtml(String(text).replace(/<[^<>]+>/mg,_N))});
             }
         }
@@ -879,7 +879,7 @@ A.Grid = Ext.extend(A.Component,{
                     sf.renderEditor(ediv,record, c, sf.getEditor(c,record));
                 }
                 if(c.renderer){
-                    ediv.child('span').update(text = sf.renderText(record,c, record.get(c.name)));
+                    (ediv.child('span')||ediv).update(text = sf.renderText(record,c, record.get(c.name)));
                     c.showtitle && ediv.set({'title':$A.unescapeHtml(String(text).replace(/<[^<>]+>/mg,_N))});
                 }
             }

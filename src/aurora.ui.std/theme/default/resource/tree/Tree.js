@@ -649,7 +649,7 @@ A.Tree.TreeNode.prototype={
 				((tree.showcheckbox ? 1 : 0) +sf.getPathNodes().length)*tree.sw
 				: 0);
 		Ext.fly(els[name+_TD]).setWidth(Math.max(left,0));
-        (Ext.fly(els[name+_TEXT].id)||Ext.fly(els[name+_TEXT])).setWidth(Math.max((left-3),0));
+        (Ext.fly(els[name+_TEXT].id)||Ext.fly(els[name+_TEXT])).setWidth(Math.max((left-1),0));
 	},
 	paintPrefix : function(){
 		var sf = this;
@@ -732,7 +732,7 @@ A.Tree.TreeNode.prototype={
 		if(!els || !sf.getOwnerTree().showSkeleton) return;
 		var ck = els[CHECKBOX];
 		ck.className = CHECKBOX+(sf.checked||0);
-        ck.innerHTML = '<DIV class="_s"> </DIV>';
+        ck.innerHTML = '<DIV class="tree_s"> </DIV>';
 	},	
 	paintText : function(){
 		var sf = this,els = sf.els;
