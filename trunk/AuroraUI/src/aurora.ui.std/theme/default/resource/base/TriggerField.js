@@ -130,8 +130,8 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	this.fireEvent("expand", this);
     },
     syncPopup:function(){
-    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft,
-    		st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop,
+    	var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft,
+    		st = document[Ext.isStrict?'documentElement':'body'].scrollTop,
     		xy = this.wrap.getXY(),
     		_x = xy[0] - sl,
     		_y = xy[1] - st,
