@@ -7796,6 +7796,7 @@ Ext.Element.addMethods({
                 t = window.pageYOffset;
             }
             ret = {left: l || (body ? body.scrollLeft : 0), top: t || (body ? body.scrollTop : 0)};
+//            ret = {left: Ext.isDefined(l)?l : (body ? body.scrollLeft : 0), top: Ext.isDefined(t)?t: (body ? body.scrollTop : 0)};
         }else{
             ret = {left: d.scrollLeft, top: d.scrollTop};
         }

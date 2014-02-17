@@ -6099,8 +6099,8 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	this.fireEvent("expand", this);
     },
     syncPopup:function(){
-    	var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft,
-    		st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop,
+    	var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft,
+    		st = document[Ext.isStrict?'documentElement':'body'].scrollTop,
     		xy = this.wrap.getXY(),
     		_x = xy[0] - sl,
     		_y = xy[1] - st,
@@ -6339,11 +6339,17 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	onSelect:function(target){
 		var index = target.tabIndex;
 		if(index==-1)return;
-		var record = this.optionDataSet.getAt(index),
-			value = record.get(this.valuefield),
-			display = this.getRenderText(record);//record.get(this.displayfield);
-		this.setValue(display,null,record);
-		this.fireEvent('select',this, value, display, record);
+		var sf = this,value=null,display='',record=null;
+		if(sf.blankoption){
+			index--;	
+		}
+		if(index!=-1){
+			record = sf.optionDataSet.getAt(index);
+			value = record.get(sf.valuefield);
+			display = sf.getRenderText(record);//record.get(this.displayfield);
+		}
+		sf.setValue(display,null,record);
+		sf.fireEvent('select',sf, value, display, record);
         
 	},
 //	initQuery: function(){//事件定义中调用
@@ -6382,12 +6388,16 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		if(ds.loading == true){
 			v.update('<li tabIndex="-1">'+_lang['combobox.loading']+'</li>');
 		}else{
-			var sb = [];
+			var sb = [],n=0;
+			if(this.blankoption){
+				sb.push('<li tabIndex="0"></li>');
+				n=1;
+			}
 			Ext.each(ds.getAll(),function(d,i){
 //				var d = Ext.apply(datas[i].data, {index:i})
 //				var rder = $A.getRenderer(this.renderer);
 //				var text = this.getRenderText(datas[i]);
-				sb.push('<li tabIndex="',i,'">',this.getRenderText(d),'</li>');
+				sb.push('<li tabIndex="',i+n,'">',this.getRenderText(d),'</li>');
 			},this);
 //			if(sb.length){
 				v.update(sb.join(''));			
@@ -7581,8 +7591,8 @@ $A.Window = Ext.extend($A.Component,{
     center: function(){
         var screenWidth = $A.getViewportWidth();
         var screenHeight = $A.getViewportHeight();
-        var sl = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollLeft;
-        var st = document[Ext.isStrict&&!Ext.isWebKit?'documentElement':'body'].scrollTop;
+        var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft;
+        var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
         var x = sl+Math.max((screenWidth - this.width)/2,0);
         var y = st+Math.max((screenHeight - this.height-(Ext.isIE?26:23))/2,0);
 //        this.shadow.setWidth(this.wrap.getWidth());
