@@ -11591,7 +11591,8 @@ Chart.prototype = {
     		records = ds.getAll(),
     		chart = sf.options.chart,
     		type = chart.type,
-    		groupby = chart.groupBy;
+    		groupby = chart.groupBy,
+    		seriesList = sf.options.seriesList;
 			if(isIE){
 	    		var series = sf.options.plotOptions.series,
 				el = Ext.getDom(chart.renderTo).parentNode;
@@ -11625,7 +11626,24 @@ Chart.prototype = {
 	            sf.addSeries(options,false)
     		}
     	}else{
-			var xAxisName,xtype,xformat;
+			var xAxisName,xtype,xformat,_seriesList={},__seriesList=[];
+			if(seriesList){
+				delete sf.options.seriesList;
+				Ext.each(seriesList,function(series,index){
+					var name = series.name,
+						yAxis = series.yAxis||0,
+						seriesdatas = series.data;
+					series.data=[];
+					Ext.each(seriesdatas,function(seriesdata){
+						series.data[seriesdata.x]=seriesdata;
+					});
+					if(!Ext.isEmpty(name)){
+						_seriesList[name] = series;
+					}else{
+						(__seriesList[yAxis]||(__seriesList[yAxis]=[])).push(series);
+					}
+				})
+			}
 			for(var j=0,l = sf.xAxis.length;j<l;j++){
 				var xAxis = sf.xAxis[j],
 					opt = xAxis.options;
@@ -11657,23 +11675,27 @@ Chart.prototype = {
 					}
 				}
 				for(var k=0,l=yAxisNames.length;k<l;k++){
-					var yAxisName=yAxisNames[k],group={};
+					var yAxisName=yAxisNames[k],group={},seriesItem=(_seriesList && _seriesList[yAxisName])||__seriesList && __seriesList[j] && __seriesList[j][k];
 		    		for(var i=0,length = records.length;i<length;i++){
 		    			var r = records[i],d = r.get(yAxisName),g,data,
 		    				n = groupby?r.get(groupby):yAxisName,
 		    				field=ds.getField(n);
 		    				g = group[n];
 	    				if(!g){
-	    					g = group[n] = {
+	    					g = group[n] = Ext.apply({},{
     							data:[],
     							name:groupby?n:(field && field.pro['prompt'])||n,
     							type:groupby?type:(field && field.pro['type'])||type,
     							yAxis:j
-	    					}
+	    					},seriesItem);
 	    				}
 	    				data = g.data;
 		    			if(Ext.isEmpty(d))d=null;
 		    			else d = Number(d);
+		    			if(seriesItem && seriesItem.data[i]){
+		    				d = Ext.apply(seriesItem.data[i],{y:d});
+		    				delete d.x;
+		    			}
 		    			if(xAxisName && xtype === 'datetime'){
 		    				data.push([r.get(xAxisName).parseDate(xformat||$A.defaultDateFormat).getTime(),d]);
 		    			}else if(xAxisName && xtype === 'number'){
