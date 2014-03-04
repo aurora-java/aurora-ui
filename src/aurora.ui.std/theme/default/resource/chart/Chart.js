@@ -11656,13 +11656,12 @@ Chart.prototype = {
 				if(xAxisName){
 					if(xtype !== 'datetime' && xtype !== 'number'){
 						var categories=[];
-			    		for(var i=0,l=records.length;i<l;i++){
+			    		for(var i=0,len=records.length;i<len;i++){
 							categories.push(records[i].get(xAxisName)||xAxis.categories[i]||'NaN')
 						}
 						xAxis.setScale();
 						xAxis.setCategories(categories,false);
 					}
-					break;
 				}
 	    	}
 			for(var j=0;j<this.yAxis.length;j++){
@@ -11680,34 +11679,50 @@ Chart.prototype = {
 				for(var k=0,l=yAxisNames.length;k<l;k++){
 					var yAxisName=yAxisNames[k],group={},seriesItem=(_seriesList && _seriesList[yAxisName])||__seriesList && __seriesList[j] && __seriesList[j][k];
 		    		for(var i=0,length = records.length;i<length;i++){
-		    			var r = records[i],d = r.get(yAxisName),g,data,
+		    			var r = records[i],d,g,data,re,ref1,ref2,
 		    				n = groupby?r.get(groupby):yAxisName,
 		    				field=ds.getField(n);
 		    				g = group[n];
 	    				if(!g){
 	    					g = group[n] = Ext.apply({},{
     							data:[],
-    							name:groupby?n:(field && field.pro['prompt'])||n,
-    							type:groupby?type:(field && field.pro['type'])||type,
+    							name:groupby?n:(field && field.pro['prompt'])||(re && ref1 && ref2 && (ref1.pro['prompt']+'~'+ref2.pro['prompt']))||n,
     							yAxis:j
-	    					},seriesItem);
+	    					},Ext.apply({},seriesItem,{
+    							type:groupby?type:(field && field.pro['type'])||type
+	    					}));
 	    				}
 	    				data = g.data;
-		    			if(Ext.isEmpty(d))d=null;
-		    			else d = Number(d);
-		    			if(seriesItem && seriesItem.data[i]){
-		    				d = Ext.apply(seriesItem.data[i],{y:d});
-		    				delete d.x;
-		    			}
+	    				if(re = /range\((.+)~(.+)\)/.exec(yAxisName)){
+	    					d = [r.get(re[1]),r.get(re[2])];
+	    					ref1 = ds.getField(re[1]);
+	    					ref2 = ds.getField(re[2]);
+	    				}else{
+	    					d = [r.get(yAxisName)];
+	    				}
+	    				Ext.each(d,function(item,index){
+			    			if(Ext.isEmpty(item))item=null;
+			    			else {
+				    			item= Number(item);
+				    			if(g.negative && item>0)item = -item;
+			    			}
+			    			if(seriesItem && seriesItem.data[i]){
+			    				item = Ext.apply(seriesItem.data[i],{y:item});
+			    				delete item.x;
+			    			}
+			    			d[index]=item;
+	    				})
+	    				
 		    			if(xAxisName && xtype === 'datetime'){
-		    				data.push([r.get(xAxisName).parseDate(xformat||$A.defaultDateFormat).getTime(),d]);
+		    				var d2 = r.get(xAxisName);
+		    				data.push([(Ext.isDate(d2)?d2:d2.parseDate(xformat||$A.defaultDateFormat)).getTime()].concat(d));
 		    			}else if(xAxisName && xtype === 'number'){
 		    				var d2 = r.get(xAxisName);
 		    				if(Ext.isEmpty(d2)) d2 = null;
 		    				else d2 = Number(d2);
-		    				data.push([d2,d]);
+		    				data.push([d2].concat(d));
 		    			}else{
-							data.push(d);
+							data.push(d.length==1?d[0]:d);
 		    			}
 					}
 					for(var key in group){
