@@ -268,7 +268,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     	this.value = v;
     	if(silent === true)return;
     	if(this.binder){
-//    		this.record = this.binder.ds.getCurrentRecord();
+    		this.record = this.binder.ds.getCurrentRecord();
     		if(this.record == null){
                 this.record = this.binder.ds.create({},false);                
             }
