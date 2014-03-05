@@ -59,8 +59,8 @@ $A.TreeGrid = Ext.extend($A.Grid, {
     createTemplateData : function(col, record) {
     	var name = col.name,
     		editor = this.getEditor(col,record),sp=
-	    	name?( Ext.isEmpty(record.getField(name).get('checkedvalue'))?(editor!='' &&
-	            (editor = $A.CmpManager.get(editor)) ?7:5):1):2;
+	    	col.type?2:( Ext.isEmpty(name && record.getField(name).get('checkedvalue'))?(this.editorborder && editor!='' &&
+	            (editor = $A.CmpManager.get(editor)) ?7:5):1);
         return {
             width : col.width - sp,
             // cwidth:col.width-4,

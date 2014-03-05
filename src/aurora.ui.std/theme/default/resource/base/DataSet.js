@@ -1346,23 +1346,36 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         
         return datas;
     },
+    checkEmptyData : function(items){
+    	var sf = this;
+    	Ext.each(items,function(data){
+    		Ext.iterate(data,function(key,d,f){
+                if((f = sf.fields[key]) && f.type == 'dataset'){
+            		sf.checkEmptyData(d);
+                }else if(d ===''){
+                	data[key]=null;
+                }
+    		})
+    	});
+    },
     doSubmit : function(url, items){
-        this.fireBindDataSetEvent("submit",url,items);
-        this.submiturl = url||this.submiturl;
-        if(this.submiturl == '') return;
-        var p = items;//this.getJsonData();
-        for(var i=0;i<p.length;i++){
-            var data = p[i]
-            for(var key in data){
-                var f = this.fields[key];
-                if(f && f.type != 'dataset' && data[key]==='')data[key]=null;
-            }
-//            p[i] = Ext.apply(p[i],this.spara)
-        }
+    	var sf = this;
+        sf.fireBindDataSetEvent("submit",url,items);
+        if((sf.submiturl = url||sf.submiturl) == '') return;
+//        var p = items;//sf.getJsonData();
+        sf.checkEmptyData(items);
+//        for(var i=0;i<p.length;i++){
+//            var data = p[i]
+//            for(var key in data){
+//                var f = sf.fields[key];
+//                if(f && f.type != 'dataset' && data[key]==='')data[key]=null;
+//            }
+////            p[i] = Ext.apply(p[i],sf.spara)
+//        }
         
         //if(p.length > 0) {
-//            this.fireEvent("submit", this);
-            $A.request({showSuccessTip:true,url:this.submiturl, para:p, ext:this.spara,success:this.onSubmitSuccess, error:this.onSubmitError, scope:this,failure:this.onAjaxFailed});
+//            sf.fireEvent("submit", sf);
+            $A.request({showSuccessTip:true,url:sf.submiturl, para:items, ext:sf.spara,success:sf.onSubmitSuccess, error:sf.onSubmitError, scope:sf,failure:sf.onAjaxFailed});
         //}
     },
     /**

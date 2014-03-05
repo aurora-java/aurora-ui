@@ -1966,8 +1966,8 @@ A.Grid = Ext.extend(A.Component,{
     /**
      * 在指定列前插入列.
      * 
+     * @param {Object} name 指定列的列名;
      * @param {Object/Array} options/columns 列的参数/一组列的参数;
-     * @param {Object} options 列的参数;
      */
     insertColumnBefore : function(name,options){
         this.addColumn(options,name,BEFORE);
@@ -1975,8 +1975,8 @@ A.Grid = Ext.extend(A.Component,{
     /**
      * 在指定列后插入列.
      * 
-     * @param {Object/Array} options/columns 列的参数/一组列的参数;
      * @param {String} name 指定列的列名;
+     * @param {Object/Array} options/columns 列的参数/一组列的参数;
      */
     insertColumnAfter : function(name,options){
         this.addColumn(options,name,1);
