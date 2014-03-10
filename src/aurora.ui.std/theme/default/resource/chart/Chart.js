@@ -10936,7 +10936,7 @@ Chart.prototype = {
 	 */
 	init: function (userOptions, callback) {
 		//TODO Aurora
-		$A.CmpManager.cache[userOptions.id]=this;
+		($A.CmpManager.cache = $A.CmpManager.cache||{})[userOptions.id]=this;
 		
 		// Handle regular options
 		var options,
@@ -12487,22 +12487,22 @@ Chart.prototype = {
                 series[0].remove(false);
             }
         }
-    	if(type == 'pie'){
-    		var datas = [],options = {},vf = chart.valuefield,nf = chart.namefield,flag;
-    		Ext.each(records,function(record){
-    			var value = record.get(vf||'value');
-    			if(value > 0)
-    				flag = true;
-    			else if(value<0){
-    				return flag = false;
-    			}
-    			datas.push([record.get(nf||'name'),value]);
-    		});
-    		if(flag){
-	            options['data'] = datas;
-	            sf.addSeries(options,false)
-    		}
-    	}else{
+//    	if(type == 'pie'){
+//    		var datas = [],options = {},vf = chart.valuefield,nf = chart.namefield,flag;
+//    		Ext.each(records,function(record){
+//    			var value = record.get(vf||'value');
+//    			if(value > 0)
+//    				flag = true;
+//    			else if(value<0){
+//    				return flag = false;
+//    			}
+//    			datas.push([record.get(nf||'name'),value]);
+//    		});
+//    		if(flag){
+//	            options['data'] = datas;
+//	            sf.addSeries(options,false)
+//    		}
+//    	}else{
 			var xAxisName,xtype,xformat,_seriesList={},__seriesList=[];
 			if(seriesList){
 				delete sf.options.seriesList;
@@ -12512,7 +12512,7 @@ Chart.prototype = {
 						seriesdatas = series.data;
 					series.data=[];
 					Ext.each(seriesdatas,function(seriesdata){
-						series.data[seriesdata.x]=seriesdata;
+						series.data[seriesdata.dataIndex]=seriesdata;
 					});
 					if(!Ext.isEmpty(name)){
 						_seriesList[name] = series;
@@ -12521,25 +12521,33 @@ Chart.prototype = {
 					}
 				})
 			}
-			for(var j=0,l = sf.xAxis.length;j<l;j++){
-				var xAxis = sf.xAxis[j],
-					opt = xAxis.options;
-				xAxisName = opt.name;
-				xtype = opt.type;
-				xformat = opt.dateFormat;
-				if(xAxisName){
-					if(xtype !== 'datetime' && xtype !== 'number'){
-						var categories=[];
-			    		for(var i=0,len=records.length;i<len;i++){
-							categories.push(records[i].get(xAxisName)||xAxis.categories[i]||'NaN')
-						}
-						xAxis.setScale();
-						xAxis.setCategories(categories,false);
-					}
+			if(type == 'pie'){
+				xAxisName = sf.xAxis[0].options.name;
+				if(!xAxisName){
+					xAxisName = chart.namefield||'name';
+					sf.yAxis[0].options.name = chart.valuefield||'value';
 				}
-	    	}
-			for(var j=0;j<this.yAxis.length;j++){
-				var yAxis=this.yAxis[j].options,
+			}else{
+				for(var j=0,l = sf.xAxis.length;j<l;j++){
+					var xAxis = sf.xAxis[j],
+						opt = xAxis.options;
+					xAxisName = opt.name;
+					xtype = opt.type;
+					xformat = opt.dateFormat;
+					if(xAxisName){
+						if(xtype !== 'datetime' && xtype !== 'number'){
+							var categories=[];
+				    		for(var i=0,len=records.length;i<len;i++){
+								categories.push(records[i].get(xAxisName)||xAxis.categories[i]||'NaN')
+							}
+							xAxis.setScale();
+							xAxis.setCategories(categories,false);
+						}
+					}
+		    	}
+			}
+			for(var j=0;j<sf.yAxis.length;j++){
+				var yAxis=sf.yAxis[j].options,
 					linkedTo = yAxis.linkedTo,
 					name = yAxis.name,
 					yAxisNames;
@@ -12582,19 +12590,27 @@ Chart.prototype = {
 			    			}
 			    			if(seriesItem && seriesItem.data[i]){
 			    				item = Ext.apply(seriesItem.data[i],{y:item});
-			    				delete item.x;
+			    				delete item.dataIndex;
 			    			}
 			    			d[index]=item;
 	    				})
 	    				
-		    			if(xAxisName && xtype === 'datetime'){
+		    			if(type == 'pie'){
+	    					var d2 = r.get(xAxisName);
+	    					if(Ext.isObject(d[0])){
+	    						d[0].name = d2;
+		    					data.push(d[0]);
+	    					}else{
+	    						data.push([d2].concat(d));
+	    					}
+	    				}else if(xAxisName && xtype === 'datetime'){
 		    				var d2 = r.get(xAxisName);
 		    				data.push([(Ext.isDate(d2)?d2:d2.parseDate(xformat||$A.defaultDateFormat)).getTime()].concat(d));
 		    			}else if(xAxisName && xtype === 'number'){
 		    				var d2 = r.get(xAxisName);
 		    				if(Ext.isEmpty(d2)) d2 = null;
 		    				else d2 = Number(d2);
-		    				data.push([d2].concat(d));
+		    				data.push([d2].concat(d))
 		    			}else{
 							data.push(d.length==1?d[0]:d);
 		    			}
@@ -12605,7 +12621,7 @@ Chart.prototype = {
 				}
 	    	}
 	    	
-    	}
+//    	}
     	sf.redraw(false);
     },
     bind : function(ds){
