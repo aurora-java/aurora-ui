@@ -12535,7 +12535,7 @@ Chart.prototype = {
 					xtype = opt.type;
 					xformat = opt.dateFormat;
 					if(xAxisName){
-						if(xtype !== 'datetime' && xtype !== 'number'){
+						if(xtype !== 'datetime' && xtype !== 'number' && type != 'scatter'){
 							var categories=[];
 				    		for(var i=0,len=records.length;i<len;i++){
 								categories.push(records[i].get(xAxisName)||xAxis.categories[i]||'NaN')
@@ -12559,10 +12559,11 @@ Chart.prototype = {
 					}
 				}
 				for(var k=0,l=yAxisNames.length;k<l;k++){
-					var yAxisName=yAxisNames[k],group={},seriesItem=(_seriesList && _seriesList[yAxisName])||__seriesList && __seriesList[j] && __seriesList[j][k];
+					var yAxisName=yAxisNames[k],group={};
 		    		for(var i=0,length = records.length;i<length;i++){
 		    			var r = records[i],d,g,data,re,ref1,ref2,
 		    				n = groupby?r.get(groupby):yAxisName,
+		    				seriesItem=(_seriesList && _seriesList[n])||__seriesList && __seriesList[j] && __seriesList[j][k],
 		    				field=ds.getField(n);
 		    				g = group[n];
 	    				if(!g){
@@ -12595,7 +12596,7 @@ Chart.prototype = {
 			    			d[index]=item;
 	    				})
 	    				
-		    			if(type == 'pie'){
+		    			if(xAxisName && type == 'pie'){
 	    					var d2 = r.get(xAxisName);
 	    					if(Ext.isObject(d[0])){
 	    						d[0].name = d2;
@@ -12603,14 +12604,14 @@ Chart.prototype = {
 	    					}else{
 	    						data.push([d2].concat(d));
 	    					}
-	    				}else if(xAxisName && xtype === 'datetime'){
-		    				var d2 = r.get(xAxisName);
-		    				data.push([(Ext.isDate(d2)?d2:d2.parseDate(xformat||$A.defaultDateFormat)).getTime()].concat(d));
-		    			}else if(xAxisName && xtype === 'number'){
+	    				}else if(xAxisName &&(type == 'scatter' || xtype === 'number')){
 		    				var d2 = r.get(xAxisName);
 		    				if(Ext.isEmpty(d2)) d2 = null;
 		    				else d2 = Number(d2);
 		    				data.push([d2].concat(d))
+		    			}else if(xAxisName && xtype === 'datetime'){
+		    				var d2 = r.get(xAxisName);
+		    				data.push([(Ext.isDate(d2)?d2:d2.parseDate(xformat||$A.defaultDateFormat)).getTime()].concat(d));
 		    			}else{
 							data.push(d.length==1?d[0]:d);
 		    			}
