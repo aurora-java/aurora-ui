@@ -12466,16 +12466,17 @@ Chart.prototype = {
     		series = sf.series,
     		ds = sf.dataset,
     		records = ds.getAll(),
-    		chart = sf.options.chart,
+    		opt = sf.options,
+    		chart = opt.chart,
     		type = chart.type,
     		groupby = chart.groupBy,
-    		seriesList = sf.options.seriesList;
+    		seriesList = opt.seriesList;
 			if(isIE){
-	    		var series = sf.options.plotOptions.series,
+	    		var series = opt.plotOptions.series,
 				el = Ext.getDom(chart.renderTo).parentNode;
 				while (el && el != (doc.body || doc.documentElement)) {
 					if(Ext.fly(el).isStyle("position", "absolute")){
-						series = sf.options.plotOptions.series = series||{};
+						series = opt.plotOptions.series = series||{};
 						series.animation=false;
 						break;
 					}
@@ -12503,9 +12504,9 @@ Chart.prototype = {
 //	            sf.addSeries(options,false)
 //    		}
 //    	}else{
-			var xAxisName,xtype,xformat,_seriesList={},__seriesList=[];
+			var xAxisName,zAxisName,xtype,xformat,_seriesList={},__seriesList=[];
 			if(seriesList){
-				delete sf.options.seriesList;
+				delete opt.seriesList;
 				Ext.each(seriesList,function(series,index){
 					var name = series.name,
 						yAxis = series.yAxis||0,
@@ -12521,7 +12522,10 @@ Chart.prototype = {
 					}
 				})
 			}
-			if(type == 'pie'){
+			if(type == 'bubble'){
+				xAxisName = sf.xAxis[0].options.name;
+				zAxisName = opt.zAxis[0].name;
+			}else if(type == 'pie'){
 				xAxisName = sf.xAxis[0].options.name;
 				if(!xAxisName){
 					xAxisName = chart.namefield||'name';
@@ -12595,8 +12599,11 @@ Chart.prototype = {
 			    			}
 			    			d[index]=item;
 	    				})
-	    				
-		    			if(xAxisName && type == 'pie'){
+	    				if(zAxisName){
+	    					var d2 = r.get(xAxisName),
+	    						d3 = r.get(zAxisName);
+    						data.push([d2].concat(d).concat(d3));
+	    				}else if(xAxisName && type == 'pie'){
 	    					var d2 = r.get(xAxisName);
 	    					if(Ext.isObject(d[0])){
 	    						d[0].name = d2;
