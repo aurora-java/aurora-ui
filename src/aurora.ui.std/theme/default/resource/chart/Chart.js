@@ -12453,13 +12453,21 @@ Chart.prototype = {
         var chart = this,
         	ds = obj.dataset;
         if(ds){
-            ds[ou]('update', chart.onRedraw, obj);
+            ds[ou]('update', chart.onUpdate, obj);
             //ds[ou]('add', chart.onRedraw, obj);
             ds[ou]('load', chart.onRedraw, obj);
             ds[ou]('remove', chart.onRedraw, obj);
             ds[ou]('clear', chart.onRedraw, obj);
             ds[ou]('refresh',chart.onRedraw,obj);
         }
+    },
+    onUpdate : function(ds,record,name,nv,ov){
+    	if(!Ext.isDefined(Ext.each(this.series,function(item){
+    		if(item.name == name){
+    			item.points[ds.getAll().indexOf(record)].update(nv);
+    			return false;
+    		}
+    	})))this.onRedraw();
     },
     onRedraw : function(){
     	var sf = this,
@@ -12483,11 +12491,6 @@ Chart.prototype = {
 					el = el.parentNode;
 	            }
 			}
-    	if(series) {
-    		while(series.length){
-                series[0].remove(false);
-            }
-        }
 //    	if(type == 'pie'){
 //    		var datas = [],options = {},vf = chart.valuefield,nf = chart.namefield,flag;
 //    		Ext.each(records,function(record){
@@ -12504,21 +12507,22 @@ Chart.prototype = {
 //	            sf.addSeries(options,false)
 //    		}
 //    	}else{
-			var xAxisName,zAxisName,xtype,xformat,_seriesList={},__seriesList=[];
+			var xAxisName,zAxisName,xtype,xformat,_seriesList={},__seriesList=[],seriesIndex=0,isUpdate=false;
 			if(seriesList){
-				delete opt.seriesList;
 				Ext.each(seriesList,function(series,index){
 					var name = series.name,
 						yAxis = series.yAxis||0,
-						seriesdatas = series.data;
-					series.data=[];
+						_series = merge({},series),
+						seriesdatas = _series.data && [].concat(_series.data);
+					_series.data=[];
 					Ext.each(seriesdatas,function(seriesdata){
-						series.data[seriesdata.dataIndex]=seriesdata;
+						seriesdata = _series.data[seriesdata.dataIndex]=merge({},seriesdata);
+	    				delete seriesdata.dataIndex;
 					});
 					if(!Ext.isEmpty(name)){
-						_seriesList[name] = series;
+						_seriesList[name] = _series;
 					}else{
-						(__seriesList[yAxis]||(__seriesList[yAxis]=[])).push(series);
+						(__seriesList[yAxis]||(__seriesList[yAxis]=[])).push(_series);
 					}
 				})
 			}
@@ -12595,10 +12599,9 @@ Chart.prototype = {
 			    			}
 			    			if(seriesItem && seriesItem.data[i]){
 			    				item = Ext.apply(seriesItem.data[i],{y:item});
-			    				delete item.dataIndex;
 			    			}
 			    			d[index]=item;
-	    				})
+	    				});
 	    				if(zAxisName){
 	    					var d2 = r.get(xAxisName),
 	    						d3 = r.get(zAxisName);
@@ -12624,13 +12627,18 @@ Chart.prototype = {
 		    			}
 					}
 					for(var key in group){
-						sf.addSeries(group[key],false);
+						if(series && series[seriesIndex]) {
+							series[seriesIndex].update(group[key]);
+							isUpdate = true;
+				        }else
+							sf.addSeries(group[key],false);
+						seriesIndex++;
 					}
 				}
 	    	}
 	    	
 //    	}
-    	sf.redraw(false);
+    	if(!isUpdate)sf.redraw(false);
     },
     bind : function(ds){
         if(typeof(ds)==='string'){
