@@ -92,6 +92,7 @@ public class PatchAll {
 		compressJs.add("chart/Animate.js");
 		compressJs.add("chart/Adapter.js");
 		compressJs.add("chart/Chart.js");
+		compressJs.add("chart/Canvas-tools.js");
 		compressJs.add("chart/Chart-more.js");
 		compressJs.add("chart/Exporting.js");
 		compressJs.add("accordion/Accordion.js");
