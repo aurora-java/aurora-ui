@@ -2878,8 +2878,9 @@ SVGRenderer.prototype = {
 				.replace(/<\/(b|strong|i|em|a)>/g, '</span>')
 				.split(/<br.*?>/g),
 			childNodes = textNode.childNodes,
-			styleRegex = /style="([^"]+)"/,
-			hrefRegex = /href="(http[^"]+)"/,
+			//TODO Aurora
+			styleRegex = /style=(["'])([^\1]+)\1/,
+			hrefRegex = /href=(["'])(http[^\1]+)\1/,
 			parentX = attr(textNode, 'x'),
 			textStyles = wrapper.styles,
 			width = wrapper.textWidth,
@@ -2922,11 +2923,11 @@ SVGRenderer.prototype = {
 						tspan = doc.createElementNS(SVG_NS, 'tspan'),
 						spanStyle; // #390
 					if (styleRegex.test(span)) {
-						spanStyle = span.match(styleRegex)[1].replace(/(;| |^)color([ :])/, '$1fill$2');
+						spanStyle = span.match(styleRegex)[2].replace(/(;| |^)color([ :])/, '$1fill$2');
 						attr(tspan, 'style', spanStyle);
 					}
 					if (hrefRegex.test(span) && !forExport) { // Not for export - #1529
-						attr(tspan, 'onclick', 'location.href=\"' + span.match(hrefRegex)[1] + '\"');
+						attr(tspan, 'onclick', 'location.href=\"' + span.match(hrefRegex)[2] + '\"');
 						css(tspan, { cursor: 'pointer' });
 					}
 
@@ -12543,7 +12544,7 @@ Chart.prototype = {
 					xtype = opt.type;
 					xformat = opt.dateFormat;
 					if(xAxisName){
-						if(xtype !== 'datetime' && xtype !== 'number' && type != 'scatter'){
+						if(xtype !== 'datetime' && xtype !== 'number' && type != 'scatter' && type != 'funnel' && type != 'pyramid'){
 							var categories=[];
 				    		for(var i=0,len=records.length;i<len;i++){
 								categories.push(records[i].get(xAxisName)||xAxis.categories[i]||'NaN')
@@ -12606,7 +12607,7 @@ Chart.prototype = {
 	    					var d2 = r.get(xAxisName),
 	    						d3 = r.get(zAxisName);
     						data.push([d2].concat(d).concat(d3));
-	    				}else if(xAxisName && type == 'pie'){
+	    				}else if(xAxisName && (type == 'pie'||type == 'funnel'||type == 'pyramid' )){
 	    					var d2 = r.get(xAxisName);
 	    					if(Ext.isObject(d[0])){
 	    						d[0].name = d2;
