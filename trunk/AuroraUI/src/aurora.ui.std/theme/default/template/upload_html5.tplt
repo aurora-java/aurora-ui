@@ -4,7 +4,7 @@
     <input type="file" style="cursor:pointer;position:absolute;top:0px;left:0px;height:25px;opacity:0;z-index:3;" name="fileToUpload" id="${id}_btn"  multiple="multiple" />
 </span> 
 <div id="${id}_list" style="position:relative;margin-top:5px;min-width:40px;min-height:40px;border:2px dashed silver;display:${linestyle}">
-    <div id="${id}_cv" style="z-index:3;font-size:16px;text-align:center;display:none;position:absolute;top:0px;left:0px;background-color:#FFFFE1;opacity:.8;">请把文件拖拽到这个区域!</div>
+    <div id="${id}_cv" style="z-index:3;font-size:16px;text-align:center;display:none;position:absolute;top:0px;left:0px;background-color:#FFFFE1;opacity:.8;"></div>
     <div id="${id}_fl" style="z-index:1;padding:3px;">${up_table}</div>
 </div>
 </div>
