@@ -108,7 +108,7 @@ _lang['upload.error.upload_failed']='上传失败!';
 _lang['upload.error.specified_file_id_not_found']='文件ID没有找到!';
 _lang['upload.error.file_validation_failed']='文件类型出错!';
 _lang['upload.error.upload_stopped']='文件停止上传!';
-
+_lang['upload.error.drag_upload']='请把文件拖拽到这个区域!';
 _lang['upload.disabled'] = '上传已禁用';
 _lang['upload.delete'] = '删除';
 _lang['upload.cancel'] = '取消上传';
