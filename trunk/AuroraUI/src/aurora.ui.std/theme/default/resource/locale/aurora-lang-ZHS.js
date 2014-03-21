@@ -88,3 +88,29 @@ _lang['datefield.nextYear'] = '下一年';
 _lang['datepicker.today'] = '今日';
 
 _lang['session.expired'] = '系统超时,请重新登陆';
+
+_lang['upload.error'] = '错误';
+_lang['upload.limit_exceeded'] = '超出总上传文件大小限制! ';
+_lang['upload.amount_exceeded'] = '上传文件数量超出限制! ';
+_lang['upload.error.404'] = '上传地址不正确';
+_lang['upload.error.500'] = '服务端发生错误';
+_lang['upload.error.default'] = '网络连接失败';
+_lang['upload.error.unknown'] = '未知错误';
+_lang['upload.error.number_exceed']='上传文件数量超出限制';
+_lang['upload.error.size_exceed']='上传文件超出大小限制';
+_lang['upload.error.file_zero']='文件不能为空';
+_lang['upload.error.invalid_file_type']='上传文件类型不正确!';
+_lang['upload.error.missing_upload_url']='上传地址错误!';
+_lang['upload.error.io_error']='IO错误!';
+_lang['upload.error.security_error']='安全错误';
+_lang['upload.error.upload_limit_exceeded']='上传文件超出大小限制!';
+_lang['upload.error.upload_failed']='上传失败!';
+_lang['upload.error.specified_file_id_not_found']='文件ID没有找到!';
+_lang['upload.error.file_validation_failed']='文件类型出错!';
+_lang['upload.error.upload_stopped']='文件停止上传!';
+
+_lang['upload.disabled'] = '上传已禁用';
+_lang['upload.delete'] = '删除';
+_lang['upload.cancel'] = '取消上传';
+_lang['upload.delete.sure'] = '确定删除这个附件么?';
+_lang['upload.canceled'] = '已取消';

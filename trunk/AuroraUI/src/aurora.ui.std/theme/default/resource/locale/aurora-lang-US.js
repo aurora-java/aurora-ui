@@ -88,3 +88,29 @@ _lang['datefield.nextYear'] = 'Next year';
 _lang['datepicker.today'] = 'Today';
 
 _lang['session.expired'] = 'Session expired, please login again!';
+
+_lang['upload.error'] = 'error';
+_lang['upload.limit_exceeded'] = 'Upload Limit Exceeded!';
+_lang['upload.amount_exceeded'] = 'Amount Limit Exceeded! ';
+_lang['upload.error.404'] = 'error 404';
+_lang['upload.error.500'] = 'error 404';
+_lang['upload.error.default'] = 'io error';
+_lang['upload.error.unknown'] = 'unknown error';
+_lang['upload.error.number_exceed']='The number of files selected exceeds the remaining upload limit';
+_lang['upload.error.size_exceed']='The file exceeds the size limit';
+_lang['upload.error.file_zero']='The file is empty.';
+_lang['upload.error.invalid_file_type']='Invalid file type.';
+_lang['upload.error.missing_upload_url']='upload url error!';
+_lang['upload.error.io_error']='IO_ERROR!';
+_lang['upload.error.security_error']='Security Error!';
+_lang['upload.error.upload_limit_exceeded']='Upload Limit Exceeded!';
+_lang['upload.error.upload_failed']='Upload failed!';
+_lang['upload.error.specified_file_id_not_found']='File id not found!';
+_lang['upload.error.file_validation_failed']='File Validation Failed!';
+_lang['upload.error.upload_stopped']='Upload stopped!'
+
+_lang['upload.disabled'] = 'Upload disabled';
+_lang['upload.delete'] = 'delete';
+_lang['upload.cancel'] = 'cancel';
+_lang['upload.delete.sure'] = 'Are you sure to delete this file?';
+_lang['upload.canceled'] = 'canceled';
