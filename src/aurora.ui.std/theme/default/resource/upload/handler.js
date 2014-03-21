@@ -11,7 +11,7 @@ function deleteFileRecord(did,id) {
     
 	var ds = $(did);
 	var record = ds.findById(id);
-    Aurora.showConfirm('确定','确定删除这个附件么?',function(win){
+    Aurora.showConfirm(_lang['window.button.ok'],_lang['upload.delete.sure'],function(win){
         win.close();
         ds.remove(record);
         var upload = did.substring(0,did.indexOf('_ds'));
@@ -54,9 +54,9 @@ function processPercent(record,canDelete) {
                 + '<div style="float:left;margin-left:10px;color:#808080">'
                 + Aurora.formatDateTime(record.get('creation_time'))
 				+ '</div>'
-                + ((canDelete != false) ? '<a style="margin-left:5px;text-decoration:underline" href="javascript:deleteFileRecord(\''+id +'\','+ record.id + ')">[删除]</a>' : '');
+                + ((canDelete != false) ? '<a style="margin-left:5px;text-decoration:underline" href="javascript:deleteFileRecord(\''+id +'\','+ record.id + ')">['+_lang['upload.delete']+']</a>' : '');
 	} else if (percent == -1) {
-		html += '<div style="float:left;margin-left:10px;color:#FD99A8">已取消</div>';
+		html += '<div style="float:left;margin-left:10px;color:#FD99A8">'+_lang['upload.canceled']+'</div>';
 	} else if (percent >=100) {
         html += '';
     } else {
@@ -66,7 +66,7 @@ function processPercent(record,canDelete) {
 		html += '<div style="height:7px;margin:1px;width:' + percent
 				+ 'px;background-color:#4ec745"></div></div>';
 		html += '<a style="margin-left:5px;text-decoration:underline" href="javascript:cancelUpload(\''
-				+ id + '\',' + record.id + ')">[取消上传]</a>';
+				+ id + '\',' + record.id + ')">['+_lang['upload.cancel']+']</a>';
 	}
 	return html;
 }
@@ -121,7 +121,7 @@ $A.UploadList = Ext.extend($A.Component,{
         var status = record.get('status');
         if (Ext.isEmpty(percent) || status == 1) {
             if(this.showdelete) {
-                this.wrap.child("#atm_"+record.id).child('.l').update('<a href="javascript:deleteFileRecord(\''+this.bindtarget +'\','+ record.id + ')">删除</a>');
+                this.wrap.child("#atm_"+record.id).child('.l').update('<a href="javascript:deleteFileRecord(\''+this.bindtarget +'\','+ record.id + ')">'+_lang['upload.delete']+'</a>');
             }else {
                 this.wrap.child("#atm_"+record.id).child('.l').update('');
             }
@@ -129,7 +129,7 @@ $A.UploadList = Ext.extend($A.Component,{
             this.wrap.child("#atm_"+record.id).child('.k').update(formatFileSize(record.get('file_size'))+'<span class="d">'+Aurora.formatDateTime(record.get('creation_time'))+'</span>');
         } else if (percent == -1) {
             this.wrap.child("#atm_"+record.id).child('.l').update('');
-            this.wrap.child("#atm_"+record.id).child('.k').update('<div style="color:#FD99A8">已取消</div>');
+            this.wrap.child("#atm_"+record.id).child('.k').update('<div style="color:#FD99A8">'+_lang['upload.canceled']+'</div>');
         } else if (percent == 100) {
             this.wrap.child("#atm_"+record.id).child('.l').update('');
             this.wrap.child("#atm_"+record.id).child('.pbar').setStyle('width','100px');
@@ -144,7 +144,7 @@ $A.UploadList = Ext.extend($A.Component,{
         html.push('<div class="up_card" id="atm_'+record.id+'">');
         html.push('<div class="icon icon-'+type+'"> </div>');
         html.push('<div class="j">'+record.get('file_name')+'</div>');
-        html.push('<div class="l"><a href="javascript:cancelUpload(\''+ ds.id + '\',' + record.id + ')">取消上传</a></div>');
+        html.push('<div class="l"><a href="javascript:cancelUpload(\''+ ds.id + '\',' + record.id + ')">'+_lang['upload.cancel']+'</a></div>');
         html.push('<div class="k"><div style="margin-top:3px;border:1px solid #ccc;height:9px;width:102px;"><div class="pbar" style="height:7px;margin:1px;width:0px;background-color:#4ec745"></div></div></div>');
         html.push('</div><div class="clear_line"/>');        
         this.wrap.last().remove();
@@ -163,7 +163,7 @@ $A.UploadList = Ext.extend($A.Component,{
             if(!this.showdelete||(this.deletecontrol&&record.get('is_delete') === 0)) {
                 html.push('<div class="l"></div>');
             }else {
-                html.push('<div class="l"><a href="javascript:deleteFileRecord(\''+this.bindtarget +'\','+ record.id + ')">删除</a></div>');
+                html.push('<div class="l"><a href="javascript:deleteFileRecord(\''+this.bindtarget +'\','+ record.id + ')">'+_lang['upload.delete']+'</a></div>');
             }
             html.push('<div class="k">'+formatFileSize(record.get('file_size'))+'<span class="d">'+Aurora.formatDateTime(record.get('creation_time'))+'</span></div>');
             html.push('</div>')            

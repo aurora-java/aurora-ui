@@ -8,6 +8,7 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
         this.le = this.wrap.child('#'+this.id+'_list');
         this.text = this.wrap.child('#'+this.id+'_text');
         this.cv = this.wrap.child('#'+this.id+"_cv");
+        this.cv.update(_lang['upload.error.drag_upload']);
         this.btn = this.wrap.child('#'+this.id+"_btn");
         this.btn.setWidth(this.text.getWidth());
         $A.uploadcmps.add(this);
@@ -74,19 +75,19 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
         
         
         if(!checkType) {
-            $A.showInfoMessage('格式不正确', '不能上传此文件类型! <br/>(仅限于 '+ this.filetype + ')',null,350,100);
+            $A.showInfoMessage(_lang['upload.error'], _lang['upload.error.invalid_file_type']+' <br/>('+ this.filetype + ')',null,350,100);
         }else if(!checkSize) {
-            $A.showInfoMessage('大小不正确', '文件大小超出限制! (单个文件不能超过' + formatFileSize(this.filesize*1024)+ ')',null,350,100);
+            $A.showInfoMessage(_lang['upload.error'], _lang['upload.error.size_exceed']+'('+formatFileSize(this.filesize*1024)+ ')',null,350,100);
         }else if(!checkTotal) {
-            $A.showErrorMessage('错误', '超出总上传文件大小限制! (总大小不能超过 ' + formatFileSize(1024 *this.totalfilesize)+')',null,350,100);
+            $A.showErrorMessage(_lang['upload.error'], _lang['upload.limit_exceeded']+'('+formatFileSize(1024 *this.totalfilesize)+')',null,350,100);
         }else if(!checkTotalCount) {
-            $A.showErrorMessage('错误', '上传文件数量超出限制! (总数量不能超过 ' + this.totalcount+'个)',null,350,100);
+            $A.showErrorMessage(_lang['upload.error'], _lang['upload.error.number_exceed']+'(' + this.totalcount+')',null,350,100);
         }
         return checkType&&checkSize&&checkTotal&&checkTotalCount;
     },
     uploadFiles : function(files){
         if(!this.showupload) {
-            $A.showInfoMessage('警告', '上传功能被禁用!');
+            $A.showInfoMessage(_lang['upload.error'], _lang['upload.disabled']);
             this.clearDragTip();
             return;
         }
@@ -151,14 +152,14 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
                 }
                 this.fireEvent("upload", this, this.pkvalue,this.sourcetype, serverData);
             } else if(!res.success) {
-                $A.showErrorMessage('错误', res.error.message||res.error.stackTrace,null,400,200);
+                $A.showErrorMessage(_lang['upload.error'], res.error.message||res.error.stackTrace,null,400,200);
                 $(this.id+'_ds').remove(record);
             }else {
-                $A.showErrorMessage('错误', '未知错误!');
+                $A.showErrorMessage(_lang['upload.error'], _lang['upload.error.unknown']);
                 $(this.id+'_ds').remove(record);
             }
         }else {
-            $A.showErrorMessage('错误', evt.target.response||evt.target.responseText,null,500,300);
+            $A.showErrorMessage(_lang['upload.error'], evt.target.response||evt.target.responseText,null,500,300);
             $(this.id+'_ds').remove(record);
         }
     },
