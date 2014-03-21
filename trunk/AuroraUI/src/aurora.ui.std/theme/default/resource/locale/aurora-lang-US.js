@@ -108,7 +108,7 @@ _lang['upload.error.upload_failed']='Upload failed!';
 _lang['upload.error.specified_file_id_not_found']='File id not found!';
 _lang['upload.error.file_validation_failed']='File Validation Failed!';
 _lang['upload.error.upload_stopped']='Upload stopped!'
-
+_lang['upload.error.drag_upload']='You can drag and drop files here to add them.';
 _lang['upload.disabled'] = 'Upload disabled';
 _lang['upload.delete'] = 'delete';
 _lang['upload.cancel'] = 'cancel';
