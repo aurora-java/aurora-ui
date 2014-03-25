@@ -7,7 +7,7 @@
  * @param {Object} config 配置对象. 
  */
 $A.ComboBox = Ext.extend($A.TriggerField, {	
-	maxHeight:200,
+	maxHeight:202,
 	blankOption:true,
 	rendered:false,
 	selectedClass:'item-comboBox-selected',	
@@ -114,7 +114,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
     	$A.ComboBox.superclass.onKeyDown.call(this,e);
     },
     onKeyUp : function(e){
-    	if(this.readonly)return;
+    	if(this.readonly || !this.editable)return;
     	var c = e.keyCode;
     	if(!e.isSpecialKey()||c==8||c==46){
 //    		if(this.timeoutId)
