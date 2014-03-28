@@ -91,7 +91,8 @@ A.Table = Ext.extend(A.Component,{
 		sf.wrap[ou]("focus",sf.onFocus,sf)
 			[ou]("blur",sf.onBlur,sf)
 			[ou](Ext.isOpera ? "keypress" : EVT_KEY_DOWN, sf.handleKeyUp,  sf)
-            [ou]("keyup", sf.handleKeyUp,  sf);
+            [ou]("keyup", sf.handleKeyUp,  sf)
+            [ou](EVT_MOUSE_DOWN, sf.onMouseDown, sf);
 		if(sf.canwheel){
 			sf.tbody[ou]('mousewheel',sf.onMouseWheel,sf);
 		}
@@ -426,9 +427,9 @@ A.Table = Ext.extend(A.Component,{
                 	xy = dom.getXY(),ced;
                 ed.bind(ds, name);
                 ed.render(record);
-                if(Ext.isIE)ed.processListener('un');
+//                if(Ext.isIE)ed.processListener('un');
         		ed.el.on(EVT_KEY_DOWN, sf.onEditorKeyDown,sf);
-        		if(Ext.isIE)ed.processListener('on');
+//        		if(Ext.isIE)ed.processListener('on');
                 Ext.fly(DOC_EL).on(EVT_MOUSE_DOWN, sf.onEditorBlur, sf);
                 ced = sf.currentEditor = {
                     record:record,
@@ -439,13 +440,33 @@ A.Table = Ext.extend(A.Component,{
        			sf.positionEditor();
                 if(ed instanceof A.CheckBox){
 //	        		ed.move(xy[0],xy[1]-4);
-		        	if(callback)
-		        		ed.focus()
-		        	else
-		        		ed.onClick();
+                	var _begin = sf._begin;
+                	if(_begin){
+                		var _begin_index = ds.indexOf(_begin),_end_index = ds.indexOf(record);
+                		if(_begin_index > _end_index){
+                			var t = _end_index;
+                			_end_index = _begin_index;
+                			_begin_index = t;
+                		}
+            			_end_index++
+                		for(;_begin_index<_end_index;_begin_index++){
+                			ds.getAt(_begin_index).set(name,_begin.get(name));
+                		}
+                		delete sf._begin;
+                	}else{
+			        	if(callback)
+			        		ed.focus()
+			        	else
+			        		ed.onClick();
+                	}
 //		        	ced.focusCheckBox = dom;
 //	        		dom.setStyle(OUTLINE,OUTLINE_V);
 	       		}else{
+	       			if(ed instanceof A.Field && !ed instanceof A.TextArea){
+                        ed.el.setStyle('text-align',col.align||LEFT)
+                    }else if(ed instanceof A.Lov){
+                    	ed.on('fetching',sf.onFetching,sf);
+                    }
                     ed.isEditor = TRUE;
                     ed.isFireEvent = TRUE;
                     ed.isHidden = FALSE;
@@ -762,7 +783,7 @@ A.Table = Ext.extend(A.Component,{
                 var record = ds.findById(rid),
                 	row = ds.indexOf(record),
                 	name = target.getAttributeNS(_N,'dataindex');
-                sf.fireEvent(EVT_CELL_CLICK, sf, row, name, record,!t.hasClass('grid-ckb'));
+                sf.fireEvent(EVT_CELL_CLICK, sf, row, name, record,!t.hasClass('table-ckb'));
 //                sf.showEditor(row,name);
                 sf.fireEvent(EVT_ROW_CLICK, sf, row, record);
             }else if(atype==TABLE$ROWCHECK){               
@@ -857,6 +878,23 @@ A.Table = Ext.extend(A.Component,{
         A.Masker.unmask(sf.wrap);
         sf.drawFootBar();
     },
+    onMouseDown : function(e,t){
+		t = (t = Ext.fly(t)).is(TD)?t:t.parent(TD);
+		var sf = this,
+			atype = t.getAttribute('atype'),
+			ced;
+		if((ced = sf.currentEditor)
+			&& ced.editor instanceof A.CheckBox 
+			&& atype == TABLE_CELL && t.getAttribute('dataindex') == ced.name){
+	    	if(e.shiftKey){
+    			sf._begin = ced.record;
+    			e.stopEvent();
+	    	}else if((t = t.child('.table-ckb')) && t.dom.className.search(/readonly/) == -1){
+	    		e.stopEvent();
+	    		ced.editor.focus.defer(Ext.isIE?1:0,ced.editor);
+	    	}
+		}
+    },
     focus: function(){      
         this.wrap.focus();
     },
@@ -925,6 +963,19 @@ A.Table = Ext.extend(A.Component,{
     },
     onBeforSubmit : function(ds){
     	A.Masker.mask(this.wrap,_lang['grid.mask.submit']);
+    },
+    onFetching : function(ed){
+    	var sf = this;
+    	sf.isFetching = true;
+    	A.Masker.mask(sf.wrap,_lang['grid.mask.fetching']);
+		ed.on('fetched',sf.onFetched,sf);
+    },
+    onFetched : function(ed){
+    	var sf = this;
+    	sf.isFetching = false;
+    	A.Masker.unmask(sf.wrap);
+    	ed.un('fetched',sf.onFetched,sf);
+    	ed.un('fetching',sf.onFetching,sf);
     },
     onAjaxFailed : function(res,opt){
         A.Masker.unmask(this.wrap);
