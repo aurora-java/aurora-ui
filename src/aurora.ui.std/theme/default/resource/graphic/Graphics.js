@@ -505,7 +505,7 @@ $A.Graphics=Ext.extend($A.Component,{
     syncFocusMask : function(t){
     	var focusMask = this.focusMask;
     	if(!t.moveable)return focusMask;
-    	var delta = t.strokewidth/2 + 3,
+    	var delta = (t.strokewidth||0)/2 + 3,
     		xd = delta,yd = delta,
     		w = t.width,
     		h = t.height;
@@ -971,6 +971,7 @@ var pub =function(){
 				config.fillopacity = config.fillcolor.get('a');
 				config.strokecolor = Color(config.strokecolor).setOpacity(config.strokeopacity);
 				config.strokeopacity = config.strokecolor.get('a');
+				config.strokewidth = config.strokewidth||0;
 				pub.Path.superclass.initComponent.call(this,config);
 				var sf = this,title = sf.title;
 				if(hasSVG){
@@ -1758,7 +1759,7 @@ var pub =function(){
 		    	var el = this,
 		    		sf = el.top,
 		    		type = config.type,
-		    		_proto = pub[type == 'image'?'Image':'Path'].prototype,
+		    		_proto = pub[type == 'image'?'ImagePath':'Path'].prototype,
 		    		processConfig = pub[capitalize(type)].processConfig,
 		    		x = el.x,y = el.y,w = el.width,h = el.height;
 				config.top = el.top;
@@ -2551,11 +2552,25 @@ var pub =function(){
 				createArrow(config.startarrow,true);
 				createArrow(config.endarrow);
 			}
+		}(),
+		Image : function(){
+			function image(config){
+				image.processConfig(config);
+				var p = new pub.ImagePath(config);
+				if(config.connectable != false){
+					p.createConnects();
+					p.hideConnects();
+				}
+				return p;
+			}
+			image.processConfig = function(config){
+			}
+			return image;
 		}()
 	}
 }();
 Ext.apply(pub,{
-	Image : Ext.extend(pub.Path,{
+	ImagePath : Ext.extend(pub.Path,{
 		initSVGElement : function(){
 			var sf = this,parent = sf.parent,wrap = sf.wrap,x = sf.x,y = sf.y,
 				dom = (sf.el = wrap.appendChild(newSVG("image",sf.id+"_el")
