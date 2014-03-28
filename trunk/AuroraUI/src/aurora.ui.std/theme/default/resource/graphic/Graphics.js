@@ -1,55 +1,131 @@
 (function(){
-Function.prototype.methodize = function(start) {
-	var method = this ,_start = Number(start||0);
-	return function() {
-		return method.apply(this, new Array(_start).concat(Ext.toArray(arguments))) ;
-	};
-}
-
 var DOC=document,
 	SVG_NS = 'http://www.w3.org/2000/svg',
     VML_NS = 'urn:schemas-microsoft-com:vml',
     NONE = 'none',
     TRANSPARENT = 'transparent',
     PX = 'px',
+	stroke_tpl = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'></v:stroke>",
 	hasSVG = !Ext.isIE9 && !!DOC.createElementNS && !!DOC.createElementNS(SVG_NS, "svg").createSVGRect,
-	fill = "<v:fill color='{fillColor}' opacity='{fillOpacity}' angle='{angle}' colors='{colors}' type='{type}'></v:fill>",
-	stroke = "<v:stroke startarrow='{startArrow}' endarrow='{endArrow}' color='{strokeColor}' joinstyle='miter' weight='{strokeWidth}px' opacity='{strokeOpacity}'></v:stroke>",
-    shadow = "<v:shadow on='t' opacity='0.5' offset='5px,5px'></v:shadow>",
-    numberReg = /[\d-+.e]+/g,
+	numberReg = /[\d-+.e]+/g,
     mathCos = Math.cos,
     mathSin = Math.sin,
     mathPI = Math.PI,
     pInt = parseInt,
     isEmpty = Ext.isEmpty,
-    capitalize = function(w){
-    	return (w = w.trim()).replace(/^./,w.charAt(0).toUpperCase());
+    transform = hasSVG?function(){
+    	var dom,values=Ext.toArray(arguments);
+    	if(values.length&&Ext.isObject(values[0])){
+    		dom = values.shift();
+    	}else{
+	    	dom = this.el || this.wrap;
+    	}
+    	dom = dom.dom || dom;
+    	var TRANS = 'transform',
+    		_transform = dom.getAttribute(TRANS)|| 'translate(0,0) scale(1,1) rotate(0,0 0)',
+    		t = _transform.split('rotate');
+    	dom.setAttribute(TRANS,
+    		(t[0].replace(/\(([-.\d]+)\)/g,'($1,$1)')+'rotate'+
+    		t[1].replace(/\(([-.\d]+)\)/,'($1,0 0)'))
+    			.replace(/[-.\d]+/g,function($0,v){
+    				return isEmpty(v=values.shift())?$0:v
+    			}));
+    }:function(){
+    	var dom,values=Ext.toArray(arguments),options={};
+    	if(values.length&&Ext.isObject(values[0])){
+    		dom = Ext.get(values.shift());
+    	}else{
+	    	dom = this.el || this.wrap
+    	}
+    	if(!isEmpty(values[0])) dom.setStyle('left',values[0] + PX);
+    	if(!isEmpty(values[1])) dom.setStyle('top',values[1] + PX);
+    	if(!isEmpty(values[2]) && !isEmpty(values[3])){
+	    	dom.dom.coordsize.value= 100 / values[2]+',' +  100 / values[3];
+    	}
+    	if(!isEmpty(values[4])){
+    		var x = pInt(dom.getStyle('left')||0),
+    			y = pInt(dom.getStyle('top')||0),
+    			width = dom.getWidth(),
+    			height = dom.getHeight(),
+    			rotation = values[4],
+    			radians = rotation * mathPI / 180, 
+				cosA = mathCos(radians),
+				sinA = mathSin(radians),
+				costheta = mathCos(-radians),
+				sintheta = mathSin(-radians),
+				costhetb = mathCos(-radians - mathPI/2),
+				sinthetb = mathSin(-radians - mathPI/2),
+    			dx = dom.dx||x,
+    			dy = dom.dy||y,
+    			dist = Math.sqrt(dx*dx + dy*dy),
+    			angle =  Math.atan(-dy/dx) - radians,
+    			x = x -dx + dist * mathCos(angle),
+    			y = y -dy - dist * mathSin(angle);
+				if(sintheta >= 0){
+					if(costheta >= 0){
+						y = y - width * sintheta;
+					}else{
+						x = x + height * costhetb;
+						y = y - width * sintheta;
+					}
+				}else{
+					if(costheta >= 0){
+						x = x + height * costhetb;
+					}else{
+						x = x + width * costheta;
+						y = y - height * sinthetb;
+					}	
+				}
+				dom.setStyle(isVML(dom)?{
+	    			rotation:rotation
+	    		}:{
+					filter: !isEmpty(rotation) ? ['progid:DXImageTransform.Microsoft.Matrix(M11=', cosA,
+						', M12=', -sinA, ', M13=100', ', M21=', sinA, ', M22=', cosA,
+						', sizingMethod=\'auto expand\')'].join('') : NONE,
+					left : x  + PX,
+					top : y + PX
+				});
+    	}
     },
-    newSVG = function(tag,id){
+    setTopCmp = function(){
+    	var z = 1,el;
+    	return function(cmp){
+    		if(el!=(cmp = Ext.get(cmp))){
+				if(isSVG(el = cmp))
+					el.parent().appendChild(el);
+				else
+					el.setStyle('z-index',z++);
+    		}
+		}
+    }();
+	function capitalize(w){
+    	return (w = w.trim()).replace(/^./,w.charAt(0).toUpperCase());
+    }
+    function newSVG(tag,id){
     	var e = DOC.createElementNS(SVG_NS, tag);
     	if(!isEmpty(id)) e.id = id;
     	return Ext.get(e);
-    },
-    newVML = function(vml,id){
+    }
+    function newVML(vml,id){
     	var e = DOC.createElement(vml);
     	if(!isEmpty(id)) e.id = id;
     	return Ext.get(e);
-    },
-    isSVG = function(el){
+    }
+    function isSVG(el){
     	if(hasSVG){
 	    	el = el.dom||el;
 	    	return el.namespaceURI == SVG_NS;
     	}
     	return false;
-    },
-    isVML = function(el){
+    }
+    function isVML(el){
     	if(!hasSVG){
 	    	el = el.dom||el;
 	    	return !!el.tagUrn && el.tagUrn == VML_NS;
     	}
     	return false;
-    },
-    encodeStyle = function(prop,value){
+    }
+    function encodeStyle(prop,value){
     	var tmp={},style,css=[];
         if (!Ext.isObject(prop)) {
             tmp[prop] = value;
@@ -59,7 +135,7 @@ var DOC=document,
             css.push(style,':',prop[style],';');
         }
         return css.join('');
-    },
+    }
 //	measureText = function(text,fontSize){
 //		var textEl = new Ext.Template('<span style="font-size:{fontSize}">{text}</span>').append(DOC.body,{fontSize:fontSize,text:text},true),
 //			textWidth = textEl.getWidth();
@@ -78,7 +154,7 @@ var DOC=document,
 //    	return color;
 //    },
 	
-	decodeConfigString = function(str){
+	function decodeConfigString(str){
 		if(!str)return {};
 		return Ext.util.JSON.decode('{'+str.replace(/^{|}$/g,'').replace(/[^:,]+:/g,function(item){
 			return item.toLowerCase();
@@ -91,94 +167,11 @@ var DOC=document,
 //    		}
 //    	}
 //    	return config;
-	},
-    convertConfig = function(record){
+	}
+    function convertConfig(record){
     	return decodeConfigString(record.get('config'));
-    },
-    transform = hasSVG?function(){
-    	var dom,values=Ext.toArray(arguments);
-    	if(values.length&&Ext.isObject(values[0])){
-    		dom = values.shift();
-    	}else{
-	    	dom = this.el || this.wrap;
-    	}
-    	dom = dom.dom || dom;
-    	var _transform = dom.getAttribute('transform');
-    	if(!_transform)_transform = 'translate(0,0) scale(1,1) rotate(0,0 0)';
-    	var t = _transform.split('rotate');
-    	dom.setAttribute('transform',
-    		(t[0].replace(/\(([-.\d]+)\)/g,'($1,$1)')+'rotate'+
-    		t[1].replace(/\(([-.\d]+)\)/,'($1,0 0)'))
-    			.replace(/[-.\d]+/g,function($0){
-    				var v=values.shift();
-    				return isEmpty(v)?$0:v
-    			}));
-    }:function(){
-    	var dom,values=Ext.toArray(arguments),options={};
-    	if(values.length&&Ext.isObject(values[0])){
-    		dom = Ext.get(values.shift());
-    	}else{
-	    	dom = this.el || this.wrap
-    	}
-    	if(!isEmpty(values[0])) dom.setStyle('left',values[0] + PX);
-    	if(!isEmpty(values[1])) dom.setStyle('top',values[1] + PX);
-    	if(!isEmpty(values[2]) && !isEmpty(values[3])){
-	    	dom.dom.coordsize.value= 100 / values[2]+',' +  100 / values[3];
-    	}
-    	if(!isEmpty(values[4])){
-    		var xy = dom.getXY(),
-    			x = pInt(dom.getStyle('left')||0),
-    			y = pInt(dom.getStyle('top')||0),
-    			width = dom.getWidth(),
-    			height = dom.getHeight(),
-    			rotation = values[4],
-    			radians = rotation * mathPI / 180, 
-				cosA = mathCos(radians),
-				sinA = mathSin(radians),
-				costheta = mathCos(-radians),
-				sintheta = mathSin(-radians),
-				costhetb = mathCos(-radians - mathPI/2),
-				sinthetb = mathSin(-radians - mathPI/2),
-    			dx = dom.dx||x,
-    			dy = dom.dy||y,
-    			dist = Math.sqrt(dx*dx + dy*dy),
-    			angle =  Math.atan(-dy/dx) - radians,
-    			x = x -dx + dist * mathCos(angle),
-    			y = y -dy - dist * mathSin(angle),
-				left,top;
-				if(sintheta >= 0){
-					if(costheta >= 0){
-						left = x;
-						top = y - width * sintheta;
-					}else{
-						left = x + height * costhetb;
-						top = y - width * sintheta;
-					}
-				}else{
-					if(costheta >= 0){
-						left = x + height * costhetb;
-						top = y;
-					}else{
-						left = x + width * costheta;
-						top = y - height * sinthetb;
-					}	
-				}
-    		if(dom.dom.tagName == 'SPAN'){
-				dom.setStyle({
-					filter: !isEmpty(rotation) ? ['progid:DXImageTransform.Microsoft.Matrix(M11=', cosA,
-						', M12=', -sinA, ', M13=100', ', M21=', sinA, ', M22=', cosA,
-						', sizingMethod=\'auto expand\')'].join('') : NONE,
-					left : left  + PX,
-					top : top + PX
-				});
-    		}else{
-	    		dom.setStyle({
-	    			rotation:rotation
-	    		})
-    		}
-    	}
-    },
-    convertPoints = function(points){
+    }
+	function convertPoints(points){
     	if(Ext.isString(points)){
 	    	var a= points.match(numberReg);
 			points = [];
@@ -188,20 +181,14 @@ var DOC=document,
 			}
     	}
     	return points;
-    },
-    setTopCmp = function(){
-    	var z = 1,el;
-    	return function(cmp){
-    		cmp = Ext.get(cmp);
-    		if(el!=cmp){
-				el = cmp;
-				if(isSVG(el))
-					el.parent().appendChild(el);
-				else
-					el.setStyle('z-index',z++);
-    		}
-		}
-    }();
+    }
+    
+Function.prototype.methodize = function(start) {
+	var method = this ,_start = Number(start||0);
+	return function() {
+		return method.apply(this, new Array(_start).concat(Ext.toArray(arguments))) ;
+	};
+}
 
 /**
  * @class Aurora.Graphics
@@ -239,11 +226,21 @@ $A.Graphics=Ext.extend($A.Component,{
 	    	/**
 	         * @event click
 	         * 单击事件.
+	         * @param {Object} evt 事件对象.
 	         * @param {Aurora.Graphics} obj 图形对象.
 	         * @param {Aurora.DataSet} dataset 数据集对象.
 	         * @param {Aurora.Record} record 数据行对象.
 	         */
     		'click',
+	    	/**
+	         * @event dblclick
+	         * 双击事件.
+	         * @param {Object} evt 事件对象.
+	         * @param {Aurora.Graphics} obj 图形对象.
+	         * @param {Aurora.DataSet} dataset 数据集对象.
+	         * @param {Aurora.Record} record 数据行对象.
+	         */
+    		'dblclick',
     		'drop',
     		'move',
     		'drawn'
@@ -253,6 +250,7 @@ $A.Graphics=Ext.extend($A.Component,{
 		var sf = this,opt={preventDefault:true};
 		$A.Graphics.superclass.processListener.call(sf,ou);
 		sf.wrap[ou]('click',sf.onClick,sf,opt)
+			[ou]('dblclick',sf.onDblClick,sf,opt)
 			[ou]('mouseover',sf.onMouseOver,sf,opt)
 			[ou]('mouseout',sf.onMouseOut,sf,opt)
 			[ou]('mousedown',sf.onMouseDown,sf)
@@ -352,7 +350,7 @@ $A.Graphics=Ext.extend($A.Component,{
     		ty = e.getPageY()+sf.relativeY,
     		w = sf.width||sf.rx*2,
     		h = sf.height||sf.ry*2,
-    		scroll = Ext.fly(document).getScroll(),
+    		scroll = Ext.fly(DOC).getScroll(),
     		sl = scroll.left,
 			st = scroll.top,
     		sw = sl + sf.sw,
@@ -392,6 +390,9 @@ $A.Graphics=Ext.extend($A.Component,{
     },
     onClick : function(e,t){
     	this.fire('click',e,t);
+    },
+    onDblClick : function(e,t){
+    	this.fire('dblclick',e,t);
     },
     onKeyDown : function(e){
     	var sf = this,el = sf.focusItem;
@@ -477,7 +478,7 @@ $A.Graphics=Ext.extend($A.Component,{
 //	    	var _xy = this.top.wrap.getXY(),
 //	    		g = this.root.dom,
 //				box = g.getBoundingClientRect(),
-//				scroll = Ext.fly(document).getScroll(),
+//				scroll = Ext.fly(DOC).getScroll(),
 //				width = box.left - _xy[0] + box.width + scroll.left,
 //				height = box.top - _xy[1] + box.height + scroll.top;
 //			Ext.fly(g.ownerSVGElement).set({'width':width,'height':height});
@@ -510,8 +511,8 @@ $A.Graphics=Ext.extend($A.Component,{
     		h = t.height;
 //    	if(t.type == 'diamond'){
 //    		var r = Math.atan(h/w);
-//    		xd = Math.round(delta/ Math.sin(r)*10)/10;
-//    		yd = Math.round(delta/ Math.cos(r)*10)/10;
+//    		xd = Math.round(delta/ mathSin(r)*10)/10;
+//    		yd = Math.round(delta/ mathCos(r)*10)/10;
 //    	}
 		return focusMask.setStyle({'left':t.x-xd+PX,top:t.y-yd+PX}).setWidth(w+xd*2).setHeight(h+yd*2).set({title:t.info||''});
     },
@@ -743,219 +744,219 @@ $A.Graphics=Ext.extend($A.Component,{
 var pub =function(){
 	var gradientIndex = 0,
 		Color = function (input) {
-		if(Ext.isObject(input))return input;
-		var rgba = [], result , isGradient = false,type,linear,stops;
-		function init(input) {
-			if(!input){
-				rgba = [0,0,0,1];
-			}else if(input == TRANSPARENT){
-				rgba = [0,0,0,0];
-			}else if(input == NONE){
-				rgba = NONE;
-			}else{
-				//gradirent
-				if(/gradient/i.test(input)){
-					isGradient = true;
-					var argString = /^gradient\((.*)\)$/.exec(input)[1],
-						beforeStop = /^([^stop]*),[^,]*stop/.exec(argString)[1];
-					type = /^[^,]*/.exec(beforeStop)[0];
-					linear = beforeStop.match(/[-\d%]+/g);
-					stops = function(arg){
-						var arr = [];
-						Ext.each(arg,function(item){
-							var stop = /\(([^\)]*\))\)$/.exec(item)[1],
-								reg = /^([^,]*),(.*)$/.exec(stop);
-							arr.push([reg[1],reg[2]]);
-						})
-						return arr;
-					}(argString.match(/stop\([^\)]*\)\)/mg));
+			if(Ext.isObject(input))return input;
+			var rgba = [], result , isGradient = false,type,linear,stops;
+			function init(input) {
+				if(!input){
+					rgba = [0,0,0,1];
+				}else if(input == TRANSPARENT){
+					rgba = [0,0,0,0];
+				}else if(input == NONE){
+					rgba = NONE;
 				}else{
-					// rgba
-					result = /rgba\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]?(?:\.[0-9]+)?)\s*\)/.exec(input);
-					if (result) {
-						rgba = [pInt(result[1]), pInt(result[2]), pInt(result[3]), parseFloat(result[4], 10)];
-					} else { // hex
-						result = /^#([a-fA-F0-9]{1,2})([a-fA-F0-9]{1,2})([a-fA-F0-9]{1,2})$/.exec(input);
+					//gradirent
+					if(/gradient/i.test(input)){
+						isGradient = true;
+						var argString = /^gradient\((.*)\)$/.exec(input)[1],
+							beforeStop = /^([^stop]*),[^,]*stop/.exec(argString)[1];
+						type = /^[^,]*/.exec(beforeStop)[0];
+						linear = beforeStop.match(/[-\d%]+/g);
+						stops = function(arg){
+							var arr = [];
+							Ext.each(arg,function(item){
+								var stop = /\(([^\)]*\))\)$/.exec(item)[1],
+									reg = /^([^,]*),(.*)$/.exec(stop);
+								arr.push([reg[1],reg[2]]);
+							})
+							return arr;
+						}(argString.match(/stop\([^\)]*\)\)/mg));
+					}else{
+						// rgba
+						result = /rgba\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]?(?:\.[0-9]+)?)\s*\)/.exec(input);
 						if (result) {
-							rgba = [pInt(plus(result[1]), 16), pInt(plus(result[2]), 16), pInt(plus(result[3]), 16), 1];
+							rgba = [pInt(result[1]), pInt(result[2]), pInt(result[3]), parseFloat(result[4], 10)];
+						} else { // hex
+							result = /^#([a-fA-F0-9]{1,2})([a-fA-F0-9]{1,2})([a-fA-F0-9]{1,2})$/.exec(input);
+							if (result) {
+								rgba = [pInt(plus(result[1]), 16), pInt(plus(result[2]), 16), pInt(plus(result[3]), 16), 1];
+							}
 						}
 					}
 				}
 			}
-		}
-		function plus(v){
-			return v.length == 1? v+v:v;
-		}
-		function get(format) {
-			var ret = 1;
-			if(isGradient){
-				if(format === 'gradient'){
-					ret = {
-						isGradient : isGradient,
-						type : type,
-						linear : linear,
-						stops : stops
+			function plus(v){
+				return v.length == 1? v+v:v;
+			}
+			function get(format) {
+				var ret = 1;
+				if(isGradient){
+					if(format === 'gradient'){
+						ret = {
+							isGradient : isGradient,
+							type : type,
+							linear : linear,
+							stops : stops
+						}
+					}else{
+						ret = '';
 					}
-				}else{
-					ret = '';
-				}
-			}else if(format === 'a'){
-				if(!isNaN(rgba[3])){
-					ret = rgba[3];
-				}
-			}else if (rgba && !isNaN(rgba[0])) {
-				if(format === 'hex'){
-					ret = '#'+ plus(Number(rgba[0]).toString(16))+plus(Number(rgba[1]).toString(16))+plus(Number(rgba[2]).toString(16));
-				}else if (format === 'rgb') {
-					ret = 'rgb(' + rgba[0] + ',' + rgba[1] + ',' + rgba[2] + ')';
+				}else if(format === 'a'){
+					if(!isNaN(rgba[3])){
+						ret = rgba[3];
+					}
+				}else if (rgba && !isNaN(rgba[0])) {
+					if(format === 'hex'){
+						ret = '#'+ plus(Number(rgba[0]).toString(16))+plus(Number(rgba[1]).toString(16))+plus(Number(rgba[2]).toString(16));
+					}else if (format === 'rgb') {
+						ret = 'rgb(' + rgba[0] + ',' + rgba[1] + ',' + rgba[2] + ')';
+					}else {
+						ret = 'rgba(' + rgba.join(',') + ')';
+					}
+				}else if(rgba == NONE){
+					ret = rgba;
 				}else {
-					ret = 'rgba(' + rgba.join(',') + ')';
+					ret = input;
 				}
-			}else if(rgba == NONE){
-				ret = rgba;
-			}else {
-				ret = input;
+				return ret;
 			}
-			return ret;
-		}
-		function brighten(alpha) {
-			if (rgba != NONE && isNumber(alpha) && alpha !== 0) {
-				var i;
-				for (i = 0; i < 3; i++) {
-					rgba[i] += pInt(alpha * 255);
-	
-					if (rgba[i] < 0) {
-						rgba[i] = 0;
-					}
-					if (rgba[i] > 255) {
-						rgba[i] = 255;
-					}
-				}
-			}
-			return this;
-		}
+			function brighten(alpha) {
+				if (rgba != NONE && isNumber(alpha) && alpha !== 0) {
+					var i;
+					for (i = 0; i < 3; i++) {
+						rgba[i] += pInt(alpha * 255);
 		
-		function setOpacity(alpha) {
-			if(input == TRANSPARENT || rgba == NONE || isEmpty(alpha))return this;
-			rgba[3] = alpha;
-			return this;
-		}
-	
-		init(input);
-	
-		return {
-			get: get,
-			brighten: brighten,
-			setOpacity: setOpacity
-		};
-	},
-	convertArrow = function(strokewidth,x1,y1,x2,y2){
-    	var dx = x1 - x2,dy = y1 - y2,d = strokewidth*3/2;
-    	if(dx == 0){
-			y1 += dy>0?-d:d;
-		}else if(dy == 0){
-			x1 += dx>0?-d:d;
-		}else{
-			var ll = Math.sqrt(dx*dx+dy*dy);
-			x1 = (ll-d)/ll*dx+x2;
-			y1 = (ll-d)/ll*dy+y2;
-		}
-		return {x:x1,y:y1};
-    },
-    convertPath = function(){
-    	var cache = {};
-    	return function(p,zoom){
-    		p = p||this.d;
-	    	if(cache[p])return cache[p];
-	    	zoom = zoom ||this.zoom|| 10000;
-	    	var arr=p.match(/\w|[\s\d-+.,e]*/g),p1=[0,0],p2=[0,0],path=[],
-	    	f1=function(s,isC){
-	    		var arr=Ext.isArray(s)?s:s.match(numberReg);
-	    		for(var i=0,l = arr.length;i<l;i++){
-	    			var _p1 = p2[0]+f4(arr[i]),_p2 = p2[1]+f4(arr[++i]);
-	    			if(!isC||i/2%3==2){
-	    				p2[0]=_p1;
-	    				p2[1]=_p2;
-	    			}
-    				path=path.concat([_p1,_p2]);
-	    		}
-	    	},
-	    	f2=function(s,re){
-	    		var arr=s.match(numberReg);
-	    		while(arr.length&&arr.length%7==0){
-		    		var	rx=f4(arr.shift()),//圆心x
-		    			ry=f4(arr.shift()),//圆心y
-		    			rr=Number(arr.shift()),//
-		    			la=Number(arr.shift()),//是否是大角度弧线
-		    			sw=Number(arr.shift()),//是否是顺时针
-		    			x=f4(arr.shift()),//end x
-		    			y=f4(arr.shift()),//end y
-		    			l,t,r,b;
-		    		if(re){
-		    			x+=p2[0];
-		    			y+=p2[1];
-		    		}
-		    		var dx=Math.abs(x-p2[0]),dy=Math.abs(y-p2[1]);
-		    		rx=dx;ry=dy;
-		    		path.push(sw?'wa':'at');
-		    		if((sw^la)^x<p2[0]){
-						if(y<p2[1]){
-							l=p2[0];
-							t=p2[1]-ry;
-						}else{
-							l=p2[0]-rx;
-							t=p2[1];
+						if (rgba[i] < 0) {
+							rgba[i] = 0;
 						}
-		    		}else{
-		    			if(y<p2[1]){
-							l=p2[0]-rx;
-							t=p2[1]-(ry<<1);
-						}else{
-							l=p2[0]-(rx<<1);
-							t=p2[1]-ry;
+						if (rgba[i] > 255) {
+							rgba[i] = 255;
 						}
+					}
+				}
+				return this;
+			}
+			
+			function setOpacity(alpha) {
+				if(input == TRANSPARENT || rgba == NONE || isEmpty(alpha))return this;
+				rgba[3] = alpha;
+				return this;
+			}
+		
+			init(input);
+		
+			return {
+				get: get,
+				brighten: brighten,
+				setOpacity: setOpacity
+			};
+		},
+	    convertPath = function(){
+	    	var cache = {};
+	    	return function(p,zoom){
+	    		p = p||this.d;
+		    	if(cache[p])return cache[p];
+		    	zoom = zoom ||this.zoom|| 10000;
+		    	var arr=p.match(/\w|[\s\d-+.,e]*/g),p1=[0,0],p2=[0,0],path=[],
+		    	f1=function(s,isC){
+		    		var arr=Ext.isArray(s)?s:s.match(numberReg);
+		    		for(var i=0,l = arr.length;i<l;i++){
+		    			var _p1 = p2[0]+f4(arr[i]),_p2 = p2[1]+f4(arr[++i]);
+		    			if(!isC||i/2%3==2){
+		    				p2[0]=_p1;
+		    				p2[1]=_p2;
+		    			}
+	    				path=path.concat([_p1,_p2]);
 		    		}
-		    		r=l+(rx<<1);
-					b=t+(ry<<1);
-		    		path.push(l,t,r,b,p2[0],p2[1],x,y);
-		    		p2=[x,y];
-	    		}
-	    	},
-	    	f3=function(s){
-	    		var a=s.match(numberReg).slice(-2);
-	    		return [f4(a[0]),f4(a[1])];
-	    	},
-	    	f4=function(n){
-	    		return Number(Number(n*zoom).toFixed(0));
-	    	},
-	    	f5=function(s){
-	    		for(var i=0,a=s.match(numberReg),l=a.length;i<l;i++){
-	    			path.push(f4(a[i]))
-	    		}
-	    	}
-	    	for(var i=0;i<arr.length;i++){
-	    		switch(arr[i]){
-	    			case 'M': p1=f3(arr[i+1]);
-	    			case 'C':
-	    			case 'L': p2=f3(arr[i+1]);path.push(arr[i]);f5(arr[++i]);break;
-	    			case 'm': path.push('M');f1(arr[++i]);p1=[].concat(p2);break;
-	    			case 'c': path.push('C');f1(arr[++i],true);break;
-	    			case 'l': path.push('L');f1(arr[++i]);break;
-	    			case 'h': path.push('L');f1(arr[++i]+" 0");break;
-	    			case 'v': path.push('L');f1("0 "+arr[++i]);break;
-	    			case 'H': path.push('L');p2[0]=f4(arr[++i]);path.push(p2[0],p2[1]);break;
-	    			case 'V': path.push('L');p2[1]=f4(arr[++i]);path.push(p2[0],p2[1]);break;
-	    			case 'A': f2(arr[++i]);break;
-	    			case 'a': f2(arr[++i],true);break;
-	    			case 'Z': 
-	    			case 'z': path.push('X');p2=[].concat(p1);break;
-	    		}
-	    	}
-	    	path.push('E');
-	    	cache[p] = path.join(' ');
-	    	return cache[p];
+		    	},
+		    	f2=function(s,re){
+		    		var arr=s.match(numberReg);
+		    		while(arr.length&&arr.length%7==0){
+			    		var	rx=f4(arr.shift()),//圆心x
+			    			ry=f4(arr.shift()),//圆心y
+			    			rr=Number(arr.shift()),//
+			    			la=Number(arr.shift()),//是否是大角度弧线
+			    			sw=Number(arr.shift()),//是否是顺时针
+			    			x=f4(arr.shift()),//end x
+			    			y=f4(arr.shift()),//end y
+			    			l,t,r,b;
+			    		if(re){
+			    			x+=p2[0];
+			    			y+=p2[1];
+			    		}
+			    		var dx=Math.abs(x-p2[0]),dy=Math.abs(y-p2[1]);
+			    		rx=dx;ry=dy;
+			    		path.push(sw?'wa':'at');
+			    		if((sw^la)^x<p2[0]){
+							if(y<p2[1]){
+								l=p2[0];
+								t=p2[1]-ry;
+							}else{
+								l=p2[0]-rx;
+								t=p2[1];
+							}
+			    		}else{
+			    			if(y<p2[1]){
+								l=p2[0]-rx;
+								t=p2[1]-(ry<<1);
+							}else{
+								l=p2[0]-(rx<<1);
+								t=p2[1]-ry;
+							}
+			    		}
+			    		r=l+(rx<<1);
+						b=t+(ry<<1);
+			    		path.push(l,t,r,b,p2[0],p2[1],x,y);
+			    		p2=[x,y];
+		    		}
+		    	},
+		    	f3=function(s){
+		    		var a=s.match(numberReg).slice(-2);
+		    		return [f4(a[0]),f4(a[1])];
+		    	},
+		    	f4=function(n){
+		    		return Number(Number(n*zoom).toFixed(0));
+		    	},
+		    	f5=function(s){
+		    		for(var i=0,a=s.match(numberReg),l=a.length;i<l;i++){
+		    			path.push(f4(a[i]))
+		    		}
+		    	}
+		    	for(var i=0;i<arr.length;i++){
+		    		switch(arr[i]){
+		    			case 'M': p1=f3(arr[i+1]);
+		    			case 'C':
+		    			case 'L': p2=f3(arr[i+1]);path.push(arr[i]);f5(arr[++i]);break;
+		    			case 'm': path.push('M');f1(arr[++i]);p1=[].concat(p2);break;
+		    			case 'c': path.push('C');f1(arr[++i],true);break;
+		    			case 'l': path.push('L');f1(arr[++i]);break;
+		    			case 'h': path.push('L');f1(arr[++i]+" 0");break;
+		    			case 'v': path.push('L');f1("0 "+arr[++i]);break;
+		    			case 'H': path.push('L');p2[0]=f4(arr[++i]);path.push(p2[0],p2[1]);break;
+		    			case 'V': path.push('L');p2[1]=f4(arr[++i]);path.push(p2[0],p2[1]);break;
+		    			case 'A': f2(arr[++i]);break;
+		    			case 'a': f2(arr[++i],true);break;
+		    			case 'Z': 
+		    			case 'z': path.push('X');p2=[].concat(p1);break;
+		    		}
+		    	}
+		    	path.push('E');
+		    	cache[p] = path.join(' ');
+		    	return cache[p];
+		    }
+		}();
+		function convertArrow(strokewidth,x1,y1,x2,y2){
+	    	var dx = x1 - x2,dy = y1 - y2,d = strokewidth*3/2;
+	    	if(!dx){
+				y1 += dy>0?-d:d;
+			}else if(!dy){
+				x1 += dx>0?-d:d;
+			}else{
+				var ll = Math.sqrt(dx*dx+dy*dy);
+				x1 = (ll-d)/ll*dx+x2;
+				y1 = (ll-d)/ll*dy+y2;
+			}
+			return {x:x1,y:y1};
 	    }
-	}();
 	return {
 		Path:Ext.extend($A.Graphics,{
 			zoom:10000,
@@ -1356,8 +1357,8 @@ var pub =function(){
 							ed.destroy();
 						}
 		    		}
-					!Ext.isEmpty(sf.to) && sf.bindEditor(sf.to);
-					!Ext.isEmpty(sf.from) && sf.bindEditor(sf.from,true);
+					!isEmpty(sf.to) && sf.bindEditor(sf.to);
+					!isEmpty(sf.from) && sf.bindEditor(sf.from,true);
 		    	}
 		    },
 		    createEditor : function(pos,pos2){
@@ -1445,8 +1446,8 @@ var pub =function(){
 						xd = stroke,yd = stroke;
 //					if(stroke && sf.type == 'diamond'){
 //			    		var r = Math.atan(h/w);
-//			    		xd = stroke/ Math.sin(r);
-//			    		yd = stroke/ Math.cos(r);
+//			    		xd = stroke/ mathSin(r);
+//			    		yd = stroke/ mathCos(r);
 //			    	}
 					sf.createConnect(x+w/2,y-yd,1);//top
 					sf.createConnect(x+w+xd,y+h/2,2);//right
@@ -1641,8 +1642,8 @@ var pub =function(){
 		    			xb = yb = b =  - stroke/2;
 //		    			if(type == 'diamond'){
 //				    		var r = Math.atan(h/w);
-//				    		xb = Math.round(b/ Math.sin(r)*10)/10;
-//				    		yb = Math.round(b/ Math.cos(r)*10)/10;
+//				    		xb = Math.round(b/ mathSin(r)*10)/10;
+//				    		yb = Math.round(b/ mathCos(r)*10)/10;
 //				    		//TODO有问题 待解决
 //				    	}
 		    		}
@@ -1661,7 +1662,7 @@ var pub =function(){
 	        		config.y = _y;
 //	        		config.type = type;
 	        		if(!sf.movedir){
-		        		if(!Ext.isEmpty(table_id)){
+		        		if(!isEmpty(table_id)){
 		        			config[sf.isFrom?'from':'to'] = table_id;
 		        		}else{
 		        			delete config[sf.isFrom?'from':'to'];
@@ -1698,9 +1699,9 @@ var pub =function(){
 						ty-=parent.y;
 					}
 					if(sf.movedir == 'v'){
-						sf.proxy.setStyle('top',ty+'px');
+						sf.proxy.setStyle('top',ty+PX);
 					}else if(sf.movedir == 'h'){
-						sf.proxy.setStyle('left',tx+'px');
+						sf.proxy.setStyle('left',tx+PX);
 					}else
 		    			sf.proxy.moveTo(tx+_xy[0],ty+_xy[1]);
 				}
@@ -1744,9 +1745,9 @@ var pub =function(){
 		    },
 		    getVmlTpl : function(s,f,sd){
 		    	var tpl = ['<v:shape id="{id}" filled="',f,'" stroked="',s,'" coordsize="{zoom},{zoom}" style="position:absolute;left:0;top:0;width:1px;height:1px;cursor:{cursor};{style}" path="{path}">'];
-		    	if(f)tpl.push(fill);
-		    	if(s)tpl.push(stroke);
-		    	if(sd)tpl.push(shadow);
+		    	if(f)tpl.push("<v:fill color='{fillColor}' opacity='{fillOpacity}' angle='{angle}' colors='{colors}' type='{type}'></v:fill>");
+		    	if(s)tpl.push(stroke_tpl);
+		    	if(sd)tpl.push("<v:shadow on='t' opacity='0.5' offset='5px,5px'></v:shadow>");
 		    	tpl.push('</v:shape>');
 		    	return tpl;
 		    },
@@ -1835,7 +1836,7 @@ var pub =function(){
 			line.processConfig = function(config){
 				var points = convertPoints(config.points);
 				if(points.length < 2)return false;
-				var x = Number(points[0][0]), y = Number(points[0][1]);
+				var x = Number(points[0][0]), y = Number(points[0][1]),
 				a = ['M',0,0,'L'];
 				Ext.each(points,function(p){
 					a.push(p[0] - x,p[1] - y);
@@ -2597,7 +2598,7 @@ Ext.apply(pub,{
 	    		strokeOpacity:strokecolor?(sf.strokeopacity||1):0
 	    	},true)
 	    },
-	    vmlTpl : ['<v:image id="{id}" src="{src}" style="position:absolute;left:0;top:0;width:{width}px;height:{height}px;{style}">',stroke,'</v:image>']
+	    vmlTpl : ['<v:image id="{id}" src="{src}" style="position:absolute;left:0;top:0;width:{width}px;height:{height}px;{style}">',stroke_tpl,'</v:image>']
 	}),
 	Text : Ext.extend(pub.Path,{
 		initSVGWrap : function(){
