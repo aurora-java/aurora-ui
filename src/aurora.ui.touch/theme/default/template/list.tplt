@@ -1,4 +1,4 @@
-<div ${id} class="${cls}" ${style} />
+<div ${id} class="${cls}" ${style}></div>
 <script>
 new Touch.List(${config})
 </script>
