@@ -33,6 +33,24 @@
     height:15px;
     background-image: url(atm3.gif);
 }
+.up_btn {
+	width:16px;
+	height:16px;
+	float:left;
+    background-image: url(up.png);
+}
+.down_btn {
+	width:16px;
+    height:16px;
+    float:left;
+    background-image: url(down.png);
+}
+.atmList .up_btn {
+    margin-left:5px;
+}
+.atmList .up_btn,.atmList .down_btn{
+    margin-top:3px;
+}
 .up_card {
 	width: 280px;
 	height: 44px;
