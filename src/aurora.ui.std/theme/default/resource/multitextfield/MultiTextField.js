@@ -89,7 +89,7 @@ A.MultiTextField = Ext.extend(A.TextField,{
 					mapTos.push({name:to,values:Ext.isEmpty(toValue)?[]:toValue.split(SYMBOL)});
 				}
     		})
-			Ext.each(v.split(SYMBOL),function(item,index){
+			Ext.each(String(v).split(SYMBOL),function(item,index){
 				var obj={};
 				Ext.each(mapTos,function(mapTo){
 					obj[mapTo.name] = mapTo.values[index];
