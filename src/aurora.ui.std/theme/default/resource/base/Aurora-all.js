@@ -5277,6 +5277,106 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 	
 })($A);
 /**
+ * @class Aurora.DynamicElement
+ * @extends Aurora.Component
+ * <p>窗口组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
+$A.DynamicElement = Ext.extend($A.Component,{
+    constructor: function(id) {
+        this.cmps = {};
+        $A.DynamicElement.superclass.constructor.call(this,{id:id});
+        this.wrap.cmps = this.cmps;
+    },
+    initComponent : function(config){
+        $A.DynamicElement.superclass.initComponent.call(this, config);
+        var sf = this;
+        if(sf.url){
+            sf.load(sf.url,config.params)
+        }
+    },
+    initEvents : function(){
+        $A.DynamicElement.superclass.initEvents.call(this);
+        this.addEvents(
+        /**
+         * @event unload
+         * 卸载完毕.
+         */
+        'unload',
+        /**
+         * @event load
+         * 加载完毕.
+         */
+        'load');        
+    },
+    clearBody : function(){
+        for(var key in this.cmps){
+            var cmp = this.cmps[key];
+            if(cmp.destroy){
+                try{
+                    cmp.destroy();
+                }catch(e){
+                    alert('DynamicElement卸载失败: ' + e)
+                }
+            }
+        }
+    },
+    /**
+     * 卸载.
+     * 
+     */
+    unload : function(){
+        this.clearBody();
+        this.fireEvent('unload', this);
+    },
+    /**
+     * 加载.
+     * 
+     * @param {String} url  加载的url
+     * @param {Object} params  加载的参数
+     */
+    load : function(url,params){
+        this.clearBody();     
+        Ext.Ajax.request({
+            url: url,
+            params:params||{},
+            success: this.onLoad.createDelegate(this)
+        });     
+    },
+    onLoad : function(response, options){
+        var html = response.responseText;
+        var res
+        try {
+            res = Ext.decode(response.responseText);
+        }catch(e){}
+        if(res && res.success == false){
+            if(res.error){
+                if(res.error.code  && res.error.code == 'session_expired' || res.error.code == 'login_required'){
+                    if($A.manager.fireEvent('timeout', $A.manager))
+                    $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
+                }else{
+                    $A.manager.fireEvent('ajaxfailed', $A.manager, options.url,options.para,res);
+                    var st = res.error.stackTrace;
+                    st = (st) ? st.replaceAll('\r\n','</br>') : '';
+                    if(res.error.message) {
+                        var h = (st=='') ? 150 : 250;
+                        $A.showErrorMessage(_lang['window.error'], res.error.message+'</br>'+st,null,400,h);
+                    }else{
+                        $A.showErrorMessage(_lang['window.error'], st,null,400,250);
+                    } 
+                }
+            }
+            return;
+        }
+        var sf = this
+        this.wrap.update(html,true,function(){
+            sf.fireEvent('load',sf)
+        },this.wrap);
+    }
+});
+/**
  * @class Aurora.Button
  * @extends Aurora.Component
  * <p>按钮组件.
@@ -6144,7 +6244,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
  * @param {Object} config 配置对象. 
  */
 $A.ComboBox = Ext.extend($A.TriggerField, {	
-	maxHeight:200,
+	maxHeight:202,
 	blankOption:true,
 	rendered:false,
 	selectedClass:'item-comboBox-selected',	
@@ -6251,7 +6351,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
     	$A.ComboBox.superclass.onKeyDown.call(this,e);
     },
     onKeyUp : function(e){
-    	if(this.readonly)return;
+    	if(this.readonly || !this.editable)return;
     	var c = e.keyCode;
     	if(!e.isSpecialKey()||c==8||c==46){
 //    		if(this.timeoutId)
@@ -8020,9 +8120,6 @@ $A.showTypeMessage = function(title, msg,width,height,css,callback){
  * @return {Window} 窗口对象
  */
 $A.showConfirm = function(title, msg, okfun,cancelfun, width, height){
-    width = width||300;
-    height = height||100;
-    var msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-70)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
     return $A.showOkCancelWindow(title, msg, okfun,cancelfun, width, height);   
 }
 //$A.hideWindow = function(){
@@ -8054,11 +8151,14 @@ $A.showConfirm = function(title, msg, okfun,cancelfun, width, height){
 $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     //var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
     //if(cmp == null) {
+        width = width||300;
+        height = height||100;
         var id = Ext.id(),okid = 'aurora-msg-ok'+id,cancelid = 'aurora-msg-cancel'+id,
         okbtnhtml = $A.Button.getTemplate(okid,_lang['window.button.ok']),
         cancelbtnhtml = $A.Button.getTemplate(cancelid,_lang['window.button.cancel']),
         cmp = new $A.Window({id:'aurora-msg-ok-cancel'+id,closeable:true,title:title, height:height||100,width:width||300});
         if(!Ext.isEmpty(msg,true)){
+            msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-70)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
                 var okbtn = $(okid);
                 var cancelbtn = $(cancelid);
@@ -8080,6 +8180,8 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
 $A.showYesNoCancelWindow = function(title, msg, yesfun,nofun,width, height){
     //var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
     //if(cmp == null) {
+        width = width||300;
+        height = height||100;
         var id = Ext.id(),
         	yesid = 'aurora-msg-yes'+id,
         	noid = 'aurora-msg-no'+id,
@@ -8089,6 +8191,7 @@ $A.showYesNoCancelWindow = function(title, msg, yesfun,nofun,width, height){
 	        cancelbtnhtml = $A.Button.getTemplate(cancelid,_lang['window.button.cancel']),
         	cmp = new $A.Window({id:'aurora-msg-yes-no-cancel'+id,closeable:true,title:title, height:height||100,width:width||300});
         if(!Ext.isEmpty(msg,true)){
+            msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-70)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+yesbtnhtml+'</td><td>'+nobtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
                 var yesbtn = $(yesid),
                 	nobtn = $(noid),

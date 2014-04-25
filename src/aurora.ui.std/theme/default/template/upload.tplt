@@ -2,6 +2,7 @@
 <div style="border:2px dashed silver;display:${linestyle}">
 <SCRIPT LANGUAGE="JavaScript">
 window.${id}_download_path = '${downloadurl}';
+window._context_path = '${context_path}';
 function ${id}(){
     var jsid = Aurora.getCookie('JSID');
     var settings = {
@@ -51,9 +52,10 @@ function ${id}(){
                 file_size : file.size,
                 table_name: "${sourcetype}",
                 table_pk_value : "${pkvalue}",
-                percent : 0
+                percent : 0,
+                creation_time: new Date()
             });
-            $('${id}_ds').add(record,0)
+            $('${id}_ds').add(record)
         },
         upload_success_handler : function(file, serverData, responseReceived) {
             var res = Ext.decode(serverData);
