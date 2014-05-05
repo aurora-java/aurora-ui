@@ -1366,6 +1366,9 @@ button div {
 .item-receiver-info-close:hover {
 	background-position: -2px -13px;
 }
+.item-comboBox-view li .item-ckb{
+	margin: 2px;
+}
 .item-percentField {
 	text-align:right;
 	padding-right:3px;
