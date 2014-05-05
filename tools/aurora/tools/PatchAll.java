@@ -57,6 +57,7 @@ public class PatchAll {
 		list.add("base/Customization.js");
 		list.add("queryform/QueryForm.js");
 		list.add("multitextfield/MultiTextField.js");
+		list.add("multicombobox/MultiComboBox.js");
 		list.add("percentfield/PercentField.js");
 			
 		List csslist = new ArrayList();
@@ -74,6 +75,7 @@ public class PatchAll {
 		csslist.add("lov/Lov.css");
 		csslist.add("textarea/TextArea.css");
 		csslist.add("multitextfield/MultiTextField.css");
+		csslist.add("multicombobox/MultiComboBox.css");
 		csslist.add("percentfield/PercentField.css");
 		
 		
