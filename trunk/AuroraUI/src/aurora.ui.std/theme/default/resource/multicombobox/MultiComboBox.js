@@ -76,10 +76,13 @@ $A.MultiComboBox = Ext.extend($A.ComboBox, {
 		this.setValue(v.join(';'));
 	},
 	onViewClick:function(e,t){
-		if(t.tagName!='LI'){
+		t = Ext.fly(t)
+		if(t.is('div.item-ckb')){
+			t = t.parent('li');
+		}else if(!t.is('li')){
 		    return;
 		}		
-		this.onSelect(t);
+		this.onSelect(t.dom);
 	},	
 	onSelect:function(target){
 		var index = target.tabIndex;
@@ -111,22 +114,17 @@ $A.MultiComboBox = Ext.extend($A.ComboBox, {
 		}
 	},
 	setValue: function(v, silent,vr){
-        $A.ComboBox.superclass.setValue.call(this, v, silent);
-        var r = this.record;
-        if(r && !silent){
-			var field = r.getMeta().getField(this.binder.name);
-			if(field){
+		var sf = this,r,field;
+        $A.ComboBox.superclass.setValue.call(sf, v, silent);
+        if((r = sf.record) && !silent){
+			if(field = r.getMeta().getField(sf.binder.name)){
 				Ext.each(field.get('mapping'),function(map){
 					var vl=[];
-					Ext.each(this.optionDataSet.getSelected(),function(record){
+					Ext.each(sf.optionDataSet.getSelected(),function(record){
 						vl.push(record.get(map.from));
 					});
-					if(vl.length){
-						r.set(map.to,vl.join(';'));
-					}else{
-						delete r.data[map.to];
-					}					
-				},this);
+					r.set(map.to,vl.join(';'));
+				});
 			}
 		}
 	},
