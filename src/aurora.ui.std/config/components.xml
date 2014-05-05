@@ -28,6 +28,7 @@
         <view-component elementName="lov" category="Input" description="值列表组件"  nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="multiLov" category="Input" description="多选值列表组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
         <view-component elementName="textField" category="Input" description="文本输入组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="multiComboBox" category="Input" description="多选列表组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="multiTextField" category="Input" description="多文本输入组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="passWord" category="Input" description="密码输入组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" defaultTemplate="textField.tplt"/>
         <view-component elementName="numberField" category="Input" description="数字输入组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
@@ -47,6 +48,7 @@
         <view-component elementName="screenToolBar" category="Navigation" description="screenToolBar" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ScreenToolBar" />
         <view-component elementName="dataSet" category="Data" description="数据源组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="grid" category="Grid" description="表格Grid组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
+        <!--<view-component elementName="gridBox" category="Grid" description="GridBox组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>-->
         <view-component elementName="table" category="Grid" description="表格Table组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>
         <view-component elementName="dataSets" nameSpace="http://www.aurora-framework.org/application" builder="aurora.application.features.DataSetInit" />
         <view-component elementName="tabPanel" category="Layout" description="标签页组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
