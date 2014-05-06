@@ -293,7 +293,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //		this.selectedIndex = null;
 //	},
 	selectItem:function(index,focus){
-		if(Ext.isEmpty(index)){
+		if(Ext.isEmpty(index)||index==-1){
 			return;
 		}	
 		var node = this.getNode(index),
@@ -321,7 +321,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
         }
     },
 	getNode:function(index){		
-		return this.view.dom.childNodes[index];
+		return this.view.query('li[tabindex!=-1]')[index];
 	},	
 	destroy : function(){
 		if(this.view){

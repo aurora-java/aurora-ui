@@ -1,3 +1,7 @@
 .item-comboBox-view li .item-ckb{
 	margin: 2px;
 }
+.item-comboBox-view li.item-multicombobox-select-all{
+	border-bottom:1px solid #ccc;
+	padding-bottom:1px;
+}
