@@ -6530,7 +6530,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 //		this.selectedIndex = null;
 //	},
 	selectItem:function(index,focus){
-		if(Ext.isEmpty(index)){
+		if(Ext.isEmpty(index)||index==-1){
 			return;
 		}	
 		var node = this.getNode(index),
@@ -6558,7 +6558,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
         }
     },
 	getNode:function(index){		
-		return this.view.dom.childNodes[index];
+		return this.view.query('li[tabindex!=-1]')[index];
 	},	
 	destroy : function(){
 		if(this.view){
@@ -9530,20 +9530,21 @@ $A.MultiComboBox = Ext.extend($A.ComboBox, {
 	   this.optionDataSet = null;
 	},
 	setOptions : function(name){
-		var ds = typeof(name)==='string'?$(name) : name;
-		if(this.optionDataSet != ds){
-			this.processDataSet('un');
-			this.optionDataSet = ds;
-			this.processDataSet('on');
-			this.rendered = false;
+		var sf = this,
+			ds = typeof(name)==='string'?$(name) : name;
+		if(sf.optionDataSet != ds){
+			sf.processDataSet('un');
+			sf.optionDataSet = ds;
+			sf.processDataSet('on');
+			sf.rendered = false;
 			ds.selectable = true;
-			if(!Ext.isEmpty(this.value)) this.setValue(this.value, true)
+			if(!Ext.isEmpty(sf.value)) sf.setValue(sf.value, true)
 		}
 	},
 	processDataSet: function(ou){
-		$A.MultiComboBox.superclass.processDataSet.call(this,ou);
 		var sf = this,
 			ds = sf.optionDataSet;
+		$A.MultiComboBox.superclass.processDataSet.call(sf,ou);
 		if(ds){
             ds[ou]('select', sf.onDatasetSelect, sf)
             ds[ou]('unselect', sf.onDatasetUnSelect, sf);
@@ -9552,24 +9553,26 @@ $A.MultiComboBox = Ext.extend($A.ComboBox, {
 	onDatasetSelect : function(ds,record){
 		var sf = this,v = [];
 		if(sf.rendered){
-			sf.view.select('li .item-ckb').item(ds.indexOf(record)).removeClass('item-ckb-u').addClass('item-ckb-c');
-			
+			sf.view.select('li .item-ckb').item(ds.indexOf(record)+1).removeClass('item-ckb-u').addClass('item-ckb-c');
+			if(ds.getSelected().length == ds.getAll().length){
+				sf.view.select('li.item-multicombobox-select-all .item-ckb').removeClass('item-ckb-u').addClass('item-ckb-c');
+			}
 		}
 		Ext.each(ds.getSelected(),function(r){
 			v.push(r.get(sf.displayfield));
 		});
-		this.setValue(v.join(';'));
+		sf.setValue(v.join(';'));
 	},
 	onDatasetUnSelect : function(ds,record){
 		var sf = this,v = [];
 		if(sf.rendered){
-			sf.view.select('li .item-ckb').item(ds.indexOf(record)).removeClass('item-ckb-c').addClass('item-ckb-u');
-			
+			sf.view.select('li .item-ckb').item(ds.indexOf(record)+1).removeClass('item-ckb-c').addClass('item-ckb-u');
+			sf.view.select('li.item-multicombobox-select-all .item-ckb').removeClass('item-ckb-c').addClass('item-ckb-u');
 		}
 		Ext.each(ds.getSelected(),function(r){
 			v.push(r.get(sf.displayfield));
 		});
-		this.setValue(v.join(';'));
+		sf.setValue(v.join(';'));
 	},
 	onViewClick:function(e,t){
 		t = Ext.fly(t)
@@ -9581,16 +9584,26 @@ $A.MultiComboBox = Ext.extend($A.ComboBox, {
 		this.onSelect(t.dom);
 	},	
 	onSelect:function(target){
-		var index = target.tabIndex;
-		if(index==-1)return;
 		var sf = this,
-			ds = sf.optionDataSet,
-			record = sf.optionDataSet.getAt(index),
+			index = target.tabIndex,
+			ds = sf.optionDataSet;
+		if(index==-1){
+			if((target=Ext.fly(target)).hasClass('item-multicombobox-select-all')){
+				if(ds.getSelected().length == ds.getAll().length){
+					target.select('div').removeClass('item-ckb-c').addClass('item-ckb-u');
+					ds.unSelectAll();
+				}else{
+					target.select('div').removeClass('item-ckb-').addClass('item-ckb-c');
+					ds.selectAll();
+				}
+			}
+			return;
+		}
+		var record = sf.optionDataSet.getAt(index),
 			value = record.get(sf.valuefield),
 			display=sf.getRenderText(record),
 			method = ds.getSelected().indexOf(record) == -1?'select':'unSelect';
 		ds[method](record);
-		//sf.setValue(display,null,record);
 		sf.fireEvent(method.toLowerCase(),sf, value, display, record);
         
 	},
@@ -9603,6 +9616,7 @@ $A.MultiComboBox = Ext.extend($A.ComboBox, {
 			v.update('<li tabIndex="-1">'+_lang['ComboBox.loading']+'</li>');
 		}else{
 			var sb = [],selected =ds.getSelected();
+			sb.push('<li tabIndex="-1" class="item-multicombobox-select-all"><div class="item-ckb item-ckb-',selected.length  == ds.getAll().length?'c':'u','"></div>','全选','</li>')
 			Ext.each(ds.getAll(),function(d,i){
 				sb.push('<li tabIndex="',i,'"><div class="item-ckb item-ckb-',selected.indexOf(d) == -1?'u':'c','"></div>',sf.getRenderText(d),'</li>');
 			});
@@ -9610,13 +9624,18 @@ $A.MultiComboBox = Ext.extend($A.ComboBox, {
 		}
 	},
 	setValue: function(v, silent,vr){
-		var sf = this,r,field;
+		var sf = this,r,field,ds = sf.optionDataSet;
         $A.ComboBox.superclass.setValue.call(sf, v, silent);
-        if((r = sf.record) && !silent){
-			if(field = r.getMeta().getField(sf.binder.name)){
+        if(r = sf.record){
+        	if(silent){
+    			ds.unSelectAll();
+        		Ext.each(v && v.split(';'),function(_v){
+        			ds.select(ds.find(sf.displayfield,_v));
+        		});
+        	}else if(field = r.getMeta().getField(sf.binder.name)){
 				Ext.each(field.get('mapping'),function(map){
 					var vl=[];
-					Ext.each(sf.optionDataSet.getSelected(),function(record){
+					Ext.each(ds.getSelected(),function(record){
 						vl.push(record.get(map.from));
 					});
 					r.set(map.to,vl.join(';'));
