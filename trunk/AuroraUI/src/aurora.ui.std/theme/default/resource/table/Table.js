@@ -258,7 +258,7 @@ A.Table = Ext.extend(A.Component,{
 	        td.innerHTML=sf.cbTpl.applyTemplate({cellcls:xtype == ROW_CHECK?TABLE_CKB+ITEM_CKB+readonly+U:'table-radio '+ITEM_RADIO_IMG+readonly+U,name:xname,recordid:record.id});
 	    }else{
 			Ext.fly(td).set({atype:TABLE_CELL,recordid:record.id,dataindex:xname})
-				.setStyle({'text-align':col.align||LEFT,dLEFT:col.hidden?NONE:_N});
+				.setStyle({'text-align':col.align||LEFT,display:col.hidden?NONE:_N});
 			if(xtype == CELL_CHECK){
 				td.innerHTML=sf.cbTpl.applyTemplate({cellcls:TABLE_CKB + sf.getCheckBoxStatus(record, xname ,readonly),name:xname,recordid:record.id});
 			}else{
