@@ -2049,7 +2049,7 @@ A.Grid = Ext.extend(A.Component,{
                     '<td class="export-hc" style="width:222px;" atype="grid-type">',_lang['grid.export.column'],'</td>',
                     '</tr></tbody></table></div>',
                     '<div style="overflow:auto;height:200px;"><table cellSpacing="0" cellPadding="0" border="0"><tbody>'],
-                    exportall = TRUE,height=360,
+                    exportall = TRUE,height=370,
                     exportOptions = sf.exportOptions||(sf.exportOptions={}),
                     type = exportOptions && exportOptions.type;
             EACH(sf.columns,function(c,i){
@@ -2087,7 +2087,7 @@ A.Grid = Ext.extend(A.Component,{
                 //win2.close();
             //});
             //return FALSE;
-        },NULL,NULL,height);
+        },NULL,380,height);
         sf.exportwindow.body.on(EVT_CLICK,sf.onExportClick,sf);
     },
     onExportClick : function(e,t){
