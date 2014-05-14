@@ -120,6 +120,72 @@ var DOC = document,
     	return dom;
 //    	if(!dom||isCheckBox)return dom;
 //		return this.editorborder?dom:dom.parent();
+    },
+    sortByGroup = function(datas,colnames,value,_colname){
+    	if(colnames.length){
+	    	var ret = [],
+	    		groups = [],
+	    		colname = colnames.shift();
+	    	if(Ext.isDefined(value)){
+	    		ret.value = value;
+	    		ret.colname = _colname;
+	    	}
+	    	EACH(datas,function(r){
+				var v = r.get(colname);
+//				if(IS_EMPTY(v)){
+//					groups.push(r);
+//				}else{
+					var	g = findGroup(groups,v);
+					if(!g){
+						groups.push(g=[]);
+						if(IS_EMPTY(v)){
+							g.value = '____empty__group___'+r.id
+						}else{
+							g.value = v;
+						}
+						g.colname = colname;
+					}
+					g.push(r);
+//				}
+			});
+			EACH(groups,function(group,index){
+				ret.push(sortByGroup(group,[].concat(colnames),group.value,group.colname));
+			});
+			return ret;
+    	}else{
+    		return datas;
+    	}
+    },
+    concatGroups = function(groups){
+    	var ret = [];
+    	EACH(groups,function(group){
+    		if(Ext.isArray(group)){
+    			ret = ret.concat(concatGroups(group));
+    		}else{
+    			ret.push(group);
+    		}
+    	});
+    	return ret;
+    },
+    findGroup = function(groups,value){
+    	var group = null;
+    	EACH(groups,function(g){
+    		if(g.value == value){
+    			group = g;
+    			return FALSE;
+    		}
+    	});
+    	return group;
+    },
+    removeFromGroup = function(groups,record){
+    	EACH(groups,function(g){
+    		if(Ext.isArray(g)){
+    			removeFromGroup(g,record)
+    		}else{
+    			groups.remove(record);
+    			return false;
+    		}
+    	});
     };
 /**
  * @class Aurora.Grid
@@ -482,30 +548,46 @@ A.Grid = Ext.extend(A.Component,{
         if(!td)sb.push(tdTpl.applyTemplate(data));
         else if(td != TRUE && cls_td)Ext.fly(td).addClass(cls_td);
         sb.push(cellTpl.applyTemplate(data));
-        if(!td)sb.push('</td>')
+        if(!td)sb.push('</td>');
         return sb.join(_N);
     },
-    createRow : function(type, row, cols, item){
-        var sf = this,obj = {},rowSpan = NULL,found = FALSE,
-            css=sf.parseCss(sf.renderRow(item,row));
+    createRow : function(type, row, cols, item,rowspans,first){
+    	var sf = this;
+    	if(Ext.isArray(item)){
+    		return item.map(function(d,i){
+    			if(d.colname){
+    				rowspans = rowspans||{};
+    				rowspans[d.colname] = concatGroups(d).length;
+					rowspans[d.colname+'_count'] = TRUE;
+    			}
+    			return sf.createRow(type, row, cols,d,rowspans,!i);
+    		}).join('');
+    	}else{
+	        var obj = {},rowSpan = NULL,found = FALSE,
+	            css=sf.parseCss(sf.renderRow(item,row));
             sf.fireEvent(EVT_CREATE_ROW, sf, row, item, obj, cols);
-        if(obj.height) css.style = css.style = ';height:'+obj.height + 'px;';
-        var sb = ['<tr id="',sf.id,type,item.id,'"  _row="'+item.id+'" class="',(row % 2==0 ? _N : ROW_ALT),css.cls,'"','style="',css.style,'">'];
-        for(var i=0,l=cols.length;i<l;i++){
-            if(cols[i].hidden && cols[i].visiable == false) continue;
-            if(obj.name && !obj.height && !found) {
-                rowSpan = NULL;
-                if(cols[i].name == obj.name) {
-                    found = TRUE;
-                }else{
-                    rowSpan = 2;
-                }
-            }
-            sb.push(sf.createCell(cols[i],item, NULL,rowSpan))
-        }
-        sb.push('</tr>');
-        sb.push(obj.html||'');
-        return sb.join(_N);
+	        if(obj.height) css.style = (css.style||'') + ';height:'+obj.height + 'px;';
+	        var sb = ['<tr id="',sf.id,type,item.id,'"  _row="'+item.id+'" class="',(row % 2==0 ? _N : ROW_ALT),css.cls,'"','style="',css.style,'" height="25">'];
+			EACH(cols,function(col){
+				if(col.hidden && col.visiable == false) return;
+				var colname = col.name;
+				rowSpan = rowspans && rowspans[colname];
+	            if(obj.name && !obj.height && !found) {
+	                rowSpan = NULL;
+	                if(colname == obj.name) {
+	                    found = TRUE;
+	                }else{
+	                    rowSpan = 2;
+	                }
+	            }
+	            if(!rowSpan||rowspans[colname+'_count'])
+            		sb.push(sf.createCell(col,item, NULL,rowSpan));
+        		if(rowspans && rowspans[colname+'_count'])rowspans[colname+'_count']=FALSE;
+			});
+	        sb.push('</tr>');
+	        sb.push(obj.html||'');
+	        return sb.join(_N);
+    	}
     },
     parseCss:function(css){
         var style=_N,cls=_N;
@@ -599,6 +681,7 @@ A.Grid = Ext.extend(A.Component,{
         sf.isSelectAll = FALSE;
         sf.clearDomRef();
         sf.preLoad();
+        sf.processGroups();
         sf.wrap.removeClass(GRID_SELECT_ALL);
         sf.initHeadCheckStatus(FALSE);
         if(sf.lb)
@@ -609,6 +692,18 @@ A.Grid = Ext.extend(A.Component,{
         cr && sf.onIndexChange(ds,cr);
         A.Masker.unmask(sf.wb);
         sf.fireEvent(EVT_RENDER,sf)
+    },
+    processGroups : function(){
+    	var sf = this,
+    		ds = sf.dataset,
+    		colnames=[];
+		sf.groups = [].concat(ds.getAll());
+    	Ext.each(sf.columns,function(col){
+			col.group && colnames.push(col.name);
+		});
+		if(colnames.length){
+			ds.data = concatGroups(sf.groups = sortByGroup(sf.groups,colnames));
+		}
     },
     initHeadCheckStatus : function(check){
     	var sf = this,cb = sf.wrap.child(SELECT_DIV_ATYPE);
@@ -696,8 +791,14 @@ A.Grid = Ext.extend(A.Component,{
 //            if(columns[i].hidden !== TRUE) v += columns[i].width;            
 //        }
 //        sf.lockWidth = v;
-        EACH(sf.dataset.data,function(d,i){
-            sb.push(sf.createRow($L, i, cols, d));
+        EACH(sf.groups,function(d,i){
+			var rowspans;
+        	if(d.colname){
+				rowspans = {};
+				rowspans[d.colname] = concatGroups(d).length;
+				rowspans[d.colname+'_count'] = TRUE;
+			}
+            sb.push(sf.createRow($L, i, cols, d,rowspans,!i));
         },sf);
         sb.push('</TBODY></TABLE><DIV style="height:17px"></DIV>');
         sf.lbt = sf.lb.update(sb.join(_N)).child('table[atype=grid.lbt]'); 
@@ -711,8 +812,14 @@ A.Grid = Ext.extend(A.Component,{
 //            cols.add(columns[i]);
 //            if(columns[i].hidden !== TRUE) v += columns[i].width;            
 //        }
-        EACH(sf.dataset.data,function(d,i){
-            sb.push(sf.createRow($U, i, cols, d));
+        EACH(sf.groups,function(d,i){
+        	var rowspans;
+        	if(d.colname){
+				rowspans = {};
+				rowspans[d.colname] = concatGroups(d).length;
+				rowspans[d.colname+'_count'] = TRUE;
+			}
+            sb.push(sf.createRow($U, i, cols, d,rowspans,!i));
         },sf);
         sb.push('</TBODY></TABLE>');
         sf.ubt = sf.ub.update(sb.join(_N)).child('table[atype=grid.ubt]'); 
@@ -906,8 +1013,19 @@ A.Grid = Ext.extend(A.Component,{
             urow = Ext.get(sf.id+$U+record.id);
         if(lrow)lrow.remove();        
         if(urow)urow.remove();
+        removeFromGroup(sf.groups,record);
         EACH(sf.columns,function(col){
-            if(col.name)sf.removeCompositeEditor(col.name,record);
+        	var colname = col.name;
+            if(colname)sf.removeCompositeEditor(colname,record);
+            if(col.group){
+            	sf.wrap.select('td[dataindex='+colname+']').each(function(td){
+            		var _r = sf.dataset.findById(td.parent('tr').getAttribute('_row'));
+        			if(_r && _r.get(colname) == record.get(colname)){
+        				td.dom.rowSpan = td.getAttribute('rowspan')-1;
+        				return false;
+        			}
+            	});
+            }
         });
         if(Ext.isIE||Ext.isIE9)sf.syncScroll();
         sf.clearDomRef();
