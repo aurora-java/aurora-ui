@@ -74,7 +74,8 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	expand:function(){
 		if(!this.optionDataSet)return;
 		if(this.rendered===false)this.doQuery();
-		!this.isExpanded() && $A.ComboBox.superclass.expand.call(this);
+        $A.ComboBox.superclass.expand.call(this);
+//		!this.isExpanded() && $A.ComboBox.superclass.expand.call(this);
 		var v = this.getValue();
 		this.currentIndex = this.getIndex(v);
 //		if(!this.currentIndex) return;
