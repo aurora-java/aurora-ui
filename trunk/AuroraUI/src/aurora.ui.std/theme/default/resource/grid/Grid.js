@@ -15,8 +15,8 @@ var DOC = document,
     _K = ']',
     C = '-c',
     U = '-u',
-    $L = '$l-',
-    $U = '$u-',
+    $L = '-l-',
+    $U = '-u-',
     ON = 'on',
     PX = 'px',
     TR = 'tr',
@@ -139,7 +139,7 @@ var DOC = document,
 					if(!g){
 						groups.push(g=[]);
 						if(IS_EMPTY(v)){
-							g.value = '____empty__group___'+r.id
+							g.value = namedEmptyGroup(r,colname);
 						}else{
 							g.value = v;
 						}
@@ -177,15 +177,91 @@ var DOC = document,
     	});
     	return group;
     },
-    removeFromGroup = function(groups,record){
+    searchGroup = function(groups,value){
+    	var group = null;
     	EACH(groups,function(g){
-    		if(Ext.isArray(g)){
-    			removeFromGroup(g,record)
-    		}else{
-    			groups.remove(record);
-    			return false;
+    		if(g.value == value||g.value && (g = searchGroup(g,value))){
+    			group = g;
+    			return FALSE;
     		}
     	});
+    	return group;
+    },
+    searchRootGroupByRecord = function(groups,record){
+		var group = null;
+    	EACH(groups,function(g){
+    		if(g.value?searchRootGroupByRecord(g,record):g === record){
+    			group = g;
+    			return FALSE;
+    		}
+    	});
+    	return group;
+    },
+    removeFromGroup = function(groups,record,owner){
+    	EACH(groups,function(g){
+    		if(Ext.isArray(g)){
+    			removeFromGroup(g,record,groups)
+    		}else{
+    			groups.remove(record);
+    			return FALSE;
+    		}
+    	});
+    	if(!groups.length && owner){
+			owner.remove(groups);
+		}
+    },
+    addIntoGroup = function(){
+    	var _colnames=[];
+    	function _findNames(groups){
+    		var g = groups[0],
+    			n = g.colname;
+    		if(n){
+    			_colnames.push(n);
+    			_findNames(g);
+    		}
+    	}
+    	function _find(groups,record){
+    		var find = FALSE,
+    		name = _colnames.shift(),
+    		value;
+    		if(!name){
+	    		return record;
+	    	}
+    		value = record.get(name);
+    		if(IS_EMPTY(value)){
+    			value = namedEmptyGroup(record,name);
+    		}else{
+	    		EACH(groups,function(g){
+		    		if(Ext.isArray(g)){
+		    			if(value == g.value){
+			    			find = g;
+			    			return FALSE;
+			    		}
+		    		}
+		    	});
+    		}
+	    	if(!find && name){
+	    		find = [];
+	    		find.colname = name;
+	    		find.value = value;
+	    	}
+			find.add(_find(find,record));	    	
+	    	return find;
+    	}
+	    return function(groups,record){
+	    	_findNames(groups);
+	    	groups.add(_find(groups,record));
+	    	EACH(concatGroups(searchRootGroupByRecord(groups,record)),function(r){
+	    		if(r!==record){
+	    			var ds = r.ds;
+	    			ds[r.isSelected?'select':'unSelect'](record);
+	    			return FALSE;
+	    		}
+	    	});
+	    }
+    }(),
+    namedEmptyGroup = function(r,colname){
+    	return '____empty__group__'+r.id+'__'+colname+'___';
     };
 /**
  * @class Aurora.Grid
@@ -482,7 +558,7 @@ A.Grid = Ext.extend(A.Component,{
             cls_td = _N,
             xtype = col.type,
             readonly,
-            editor = sf.getEditor(col,record),
+            editor = sf.getEditor(col,record,TRUE),
             sb = [];
         if(editor!=_N){
             var edi = A.CmpManager.get(editor);
@@ -520,7 +596,7 @@ A.Grid = Ext.extend(A.Component,{
         }else{
             var field = record.getMeta().getField(col.name);
             if(field && IS_EMPTY(record.data[col.name]) && record.isNew == TRUE && field.get(REQUIRED) == TRUE){
-//            	var dom = new Ext.Template('<div class="'+cls+'" style="visibility:hidden;position:absolute;top:-10000px;left:-10000px"></div>').append(document.body,{},true);
+//            	var dom = new Ext.Template('<div class="'+cls+'" style="visibility:hidden;position:absolute;top:-10000px;left:-10000px"></div>').append(document.body,{},TRUE);
 //                if(!sf.editorborder)
 //                	cls_td = ITEM_NOT_BLANK;
 //                else
@@ -554,11 +630,11 @@ A.Grid = Ext.extend(A.Component,{
     createRow : function(type, row, cols, item,rowspans,first){
     	var sf = this;
     	if(Ext.isArray(item)){
-    		return item.map(function(d,i){
-    			if(d.colname){
+    		return item.map(function(d,i,colname){
+    			if(colname = d.colname){
     				rowspans = rowspans||{};
-    				rowspans[d.colname] = concatGroups(d).length;
-					rowspans[d.colname+'_count'] = TRUE;
+    				rowspans[colname] = concatGroups(d).length;
+					rowspans[colname+'_count'] = TRUE;
     			}
     			return sf.createRow(type, row, cols,d,rowspans,!i);
     		}).join('');
@@ -569,17 +645,23 @@ A.Grid = Ext.extend(A.Component,{
 	        if(obj.height) css.style = (css.style||'') + ';height:'+obj.height + 'px;';
 	        var sb = ['<tr id="',sf.id,type,item.id,'"  _row="'+item.id+'" class="',(row % 2==0 ? _N : ROW_ALT),css.cls,'"','style="',css.style,'" height="25">'];
 			EACH(cols,function(col){
-				if(col.hidden && col.visiable == false) return;
-				var colname = col.name;
+				if(col.hidden && col.visiable == FALSE) return;
+				var colname;
+				if(sf.isFunctionCol(col.type)){
+					colname = '__rowbox__';
+				}else{
+					colname = col.name;
+		            if(obj.name && !obj.height && !found) {
+		                rowSpan = NULL;
+		                if(colname == obj.name) {
+		                    found = TRUE;
+		                }else{
+		                    rowSpan = 2;
+		                }
+		            }
+				}
 				rowSpan = rowspans && rowspans[colname];
-	            if(obj.name && !obj.height && !found) {
-	                rowSpan = NULL;
-	                if(colname == obj.name) {
-	                    found = TRUE;
-	                }else{
-	                    rowSpan = 2;
-	                }
-	            }
+	            
 	            if(!rowSpan||rowspans[colname+'_count'])
             		sb.push(sf.createCell(col,item, NULL,rowSpan));
         		if(rowspans && rowspans[colname+'_count'])rowspans[colname+'_count']=FALSE;
@@ -636,7 +718,7 @@ A.Grid = Ext.extend(A.Component,{
         var sb = ['<tr class="grid-hl">'];
         for(var i=0,l=cols.length;i<l;i++){
             var c = cols[i];
-            if(c.hidden && c.visiable == false)continue;
+            if(c.hidden && c.visiable == FALSE)continue;
             sb.push('<th ',DATA_INDEX,'="',c.name,'" style="height:0px;width:',c.width,PX,'"></th>');
         }
         sb.push('</tr>');
@@ -654,18 +736,18 @@ A.Grid = Ext.extend(A.Component,{
         A.Masker.mask(this.wb,_lang['grid.mask.loading']);
     },
     onBeforSubmit : function(ds){
-        if(this.submask == true)
+        if(this.submask == TRUE)
         A.Masker.mask(this.wb,_lang['grid.mask.submit']);
     },
     onFetching : function(ed){
     	var sf = this;
-    	sf.isFetching = true;
+    	sf.isFetching = TRUE;
     	A.Masker.mask(sf.wb,_lang['grid.mask.fetching']);
 		ed.on('fetched',sf.onFetched,sf);
     },
     onFetched : function(ed){
     	var sf = this;
-    	sf.isFetching = false;
+    	sf.isFetching = FALSE;
     	A.Masker.unmask(sf.wb);
     	ed.un('fetched',sf.onFetched,sf);
     	ed.un('fetching',sf.onFetching,sf);
@@ -702,7 +784,8 @@ A.Grid = Ext.extend(A.Component,{
 			col.group && colnames.push(col.name);
 		});
 		if(colnames.length){
-			ds.data = concatGroups(sf.groups = sortByGroup(sf.groups,colnames));
+			//ds.data = 
+				concatGroups(sf.groups = sortByGroup(sf.groups,colnames));
 		}
     },
     initHeadCheckStatus : function(check){
@@ -792,11 +875,11 @@ A.Grid = Ext.extend(A.Component,{
 //        }
 //        sf.lockWidth = v;
         EACH(sf.groups,function(d,i){
-			var rowspans;
-        	if(d.colname){
+			var rowspans,colname;
+        	if(colname = d.colname){
 				rowspans = {};
-				rowspans[d.colname] = concatGroups(d).length;
-				rowspans[d.colname+'_count'] = TRUE;
+				rowspans['__rowbox__'] = rowspans[colname] = concatGroups(d).length;
+				rowspans['__rowbox___count'] = rowspans[colname+'_count'] = TRUE;
 			}
             sb.push(sf.createRow($L, i, cols, d,rowspans,!i));
         },sf);
@@ -858,97 +941,129 @@ A.Grid = Ext.extend(A.Component,{
     isFunctionCol: function(t){
         return t == ROW_CHECK || t == ROW_RADIO || t == ROW_NUMBER
     },
-    onAdd : function(ds,record,row){
+    onAdd : function(ds,record,row,fire){
 //        if(this.lb)
 //        var sb = [];var cols = [];
 //        var v = 0;
-        var sf = this,columns = sf.columns,
-            isAdd = row === ds.data.length-1,
+        var __row = row,
+        	sf = this,columns = sf.columns,
             css = sf.parseCss(sf.renderRow(record,row)),
             cls = (row % 2==0 ? _N : ROW_ALT+_S)+css.cls;
+    	addIntoGroup(sf.groups,record);
         if(sf.lbt){
-            var ltr = DOC.createElement(TR),
-                ltb = sf.lbt.dom.tBodies[0];
-            ltr.id=sf.id+$L+record.id;
-            ltr.className=cls;
-            Ext.fly(ltr).set({style:css.style,_row:record.id});
-            EACH(columns,function(col){
-                if(col.lock === TRUE){
-                    if(col.hidden && col.visiable == false) return TRUE;
-                    var td = DOC.createElement(TD);
-                    if(col.type == ROW_CHECK) {
-                        Ext.fly(td).set({recordid:record.id,atype:GRID$ROWCHECK})
-                        td.className = GRID_ROWBOX;
-                        if(sf.isSelectAll){
-                            td.className += _S+ITEM_CKB_SELF;
-                        }
-                    }else if(col.type == ROW_RADIO){
-                        Ext.fly(td).set({recordid:record.id,atype:GRID$ROWRADIO})
-                        td.className = GRID_ROWBOX;
-                    }else{
-                        if(col.hidden)td.style.visibility=HIDDEN;
-                        td.style.textAlign=col.align||LEFT;
-                        if(!sf.isFunctionCol(col.type)) td.dataindex=col.name;
-                        var data = {recordid:record.id,atype:GRID_CELL};
-                        if(col.type == ROW_NUMBER) {
-                            td.className = GRN_ROW_NUMBER;
-                            data.atype = GRN_ROW_NUMBER;
-                        }
-                        Ext.fly(td).set(data); 
-                    }
-                    td.innerHTML = sf.createCell(col,record, td);
-                    ltr.appendChild(td);
-                }
-            });
-            if(isAdd){
-                ltb.appendChild(ltr);
-            }else{
-                var trs = Ext.fly(ltb).query(SELECT_TR_CLASS);
-                for(var i=row,l = trs.length;i<l;i++){
-                    var tr = Ext.fly(trs[i]).toggleClass(ROW_ALT);
-                    tr.select('.grid-rownumber div').each(function(div){
-                        div.update(Number(div.dom.innerHTML) + 1);
-                    });
-                    tr.select($GRID_ROWBOX).each(function(td){
-                        sf.setSelectStatus(ds.findById(td.getAttributeNS(_N,RECORD_ID)));
-                    });
-                }
-                ltb.insertBefore(ltr,trs[row]);
-            }
+            var ltr = Ext.get(DOC.createElement(TR)),
+                ltb = sf.lbt.child('tbody:first');
+            ltr.set({
+            	id:sf.id+$L+record.id,
+            	style:css.style,
+            	_row:record.id,
+            	height:25
+        	});
         }
         
-        var utr = DOC.createElement(TR),
-            utb = sf.ubt.dom.tBodies[0];
-        utr.id=sf.id+$U+record.id;
-        utr.className=cls;
-        Ext.fly(utr).set({style:css.style,_row:record.id});
+        var utr = Ext.get(DOC.createElement(TR)),
+            utb = sf.ubt.child('tbody:first');
+        utr.set({
+        	id:sf.id+$U+record.id,
+        	style:css.style,
+        	_row:record.id,
+        	height:25
+    	});
         EACH(columns,function(col){
-            if(col.lock !== TRUE){
-                if(col.hidden && col.visiable == false) return TRUE;
-                var td = DOC.createElement(TD);
-                td.style.visibility=col.hidden === TRUE ? HIDDEN : VISIBLE;
-                td.style.textAlign=col.align||LEFT;
-                Ext.fly(td).set({
-                    dataindex:col.name,
-                    recordid:record.id,
-                    atype:GRID_CELL
-                })
-                td.innerHTML = sf.createCell(col,record,td);
+            if(col.hidden && col.visiable == FALSE) return TRUE;
+            var colname = col.name,
+            	find = FALSE;
+            if(col.group){
+            	var allRow = 0;
+            	sf[col.lock === TRUE?'lbt':'ubt'].select(SELECT_TD_DATAINDEX+colname+_K).each(function(td,tds){
+            		var _r = sf.dataset.findById(td.parent(TR).getAttributeNS(_N,'_row')),
+            			value = record.get(colname);
+        			if(_r && !IS_EMPTY(value) && _r.get(colname) == value){
+        				var groups = searchGroup(sf.groups,value),
+        					rowspan = concatGroups(groups).length;
+        				allRow+=rowspan;
+        				td.dom.rowSpan = rowspan;//Fixed for IE7
+        				find = TRUE;
+        				row = allRow-1;
+        				cls = td.parent(TR).hasClass(ROW_ALT)?ROW_ALT:_N;
+        				if(sf.groups.indexOf(groups)!=-1 && columns[0].type){
+        					sf.lbt.query('td[recordid='+_r.id+']:first')[0].rowSpan = rowspan;
+        					if(record!==_r){
+        						ltr.select('td[recordid='+record.id+']:first').remove();
+        					}
+        				}
+        				return FALSE;
+        			}else{
+        				allRow+=td.dom.rowSpan;
+        			}
+            	});
+            	if(!find){
+            		row = __row;
+            	}
+            }
+            if(find) return;
+            var td = Ext.get(DOC.createElement(TD));
+        	if(col.type == ROW_CHECK) {
+                td.set({recordid:record.id,atype:GRID$ROWCHECK}).addClass(GRID_ROWBOX);
+                if(sf.isSelectAll){
+                	 td.addClass(ITEM_CKB_SELF);
+                }
+            }else if(col.type == ROW_RADIO){
+                td.set({recordid:record.id,atype:GRID$ROWRADIO}).addClass(GRID_ROWBOX);
+            }else{
+                if(col.hidden)td.hide();
+                td.setStyle({'text-align':col.align||LEFT});
+                var data = {recordid:record.id,atype:GRID_CELL};
+                if(!sf.isFunctionCol(col.type)) data.dataindex=colname;
+                if(col.type == ROW_NUMBER) {
+                	td.addClass(GRN_ROW_NUMBER);
+                    data.atype = GRN_ROW_NUMBER;
+                }
+                td.set(data); 
+            }
+            td.update(sf.createCell(col,record, td));
+            if(col.lock === TRUE){
+                ltr.appendChild(td);
+            }else{
                 utr.appendChild(td);
             }
         })
-        if(isAdd){
+        ltr && ltr.addClass(cls);
+        utr.addClass(cls);
+        if(row === ds.data.length-1){
+        	ltb && ltb.appendChild(ltr);
             utb.appendChild(utr);
         }else{
-            var trs = Ext.fly(utb).query(SELECT_TR_CLASS);
-            for(var i=row,l = trs.length;i<l;i++){
-                Ext.fly(trs[i]).toggleClass(ROW_ALT);           
-            }
-            utb.insertBefore(utr,trs[row]);
+        	var filter = function(el,i){
+	            	if(i<row)return FALSE;
+	            },
+        		ltrs = ltb && ltb.select(SELECT_TR_CLASS).filter(filter),
+                trs = utb.select(SELECT_TR_CLASS).filter(filter),
+            	tr = trs.item(0),
+            	needToggleClass = (tr && cls == (tr.hasClass(ROW_ALT)?ROW_ALT:_N)),
+            	root = searchRootGroupByRecord(record);
+        	ltr && ltr.insertBefore(ltrs.item(0));
+        	utr.insertBefore(tr);
+            needToggleClass && setTimeout(function(){
+            	filter = function(tr){
+                	if(searchRootGroupByRecord(ds.findById(tr.getAttributeNS(_N,'_row'))) === root)
+                		return FALSE;
+                };
+            	ltrs && ltrs.filter(filter).toggleClass(ROW_ALT);
+            	trs.filter(filter).toggleClass(ROW_ALT);
+            },1);//Fixed for IE9
+            ltrs && ltrs.each(function(tr){
+                tr.select('.grid-rownumber div').each(function(div){
+                    div.update(Number(div.dom.innerHTML) + 1);
+                });
+                tr.select($GRID_ROWBOX).each(function(td){
+                    sf.setSelectStatus(ds.findById(td.getAttributeNS(_N,RECORD_ID)));
+                });
+            });
         }
         sf.setSelectStatus(record);
         sf.drawFootBar();
-        sf.fireEvent(EVT_ADD_ROW,sf,record);
+        if(fire!==FALSE)sf.fireEvent(EVT_ADD_ROW,sf,record);
     },
     renderEditor : function(div,record,c,editor){
     	var td = div.parent(TD);
@@ -965,13 +1080,25 @@ A.Grid = Ext.extend(A.Component,{
         }
         */
     },
-    onUpdate : function(ds,record, name, value){
+    onUpdate : function(ds,record, name, value,oldvalue){
         var sf = this,
+            c = sf.findColByName(name),
             div,ediv,text;
-        sf.setSelectStatus(record);
+        if(c.group){
+        	record.data[name] = oldvalue;
+        	var index = sf.ubt.query(SELECT_TR_CLASS).indexOf(sf.ubt.child('tr[_row='+record.id+']').dom);
+        	sf.onRemove(ds,record);
+        	record.data[name] = value;
+        	sf.onAdd(ds,record,index,FALSE);
+        	!IS_EMPTY(oldvalue) && EACH(concatGroups(searchGroup(sf.groups,oldvalue)),function(r){
+        		if(r!==record){
+        			r.set(name,value);
+        		}
+        	});
+        	sf.selectRow(sf.dataset.indexOf(record));
+        }
         if(div = Ext.get([sf.id,name,record.id].join(_))){
-            var c = sf.findColByName(name),
-                editor = sf.getEditor(c,record);            
+            var editor = sf.getEditor(c,record);            
             if(editor!=_N ? ($(editor) instanceof CheckBox):(name && !IS_EMPTY(record.getField(name).get(CHECKED_VALUE)))){
                 sf.renderEditor(div,record,c,editor);
             }else{
@@ -991,6 +1118,7 @@ A.Grid = Ext.extend(A.Component,{
                 }
             }
         });
+        sf.setSelectStatus(record);
         sf.drawFootBar(name);
     },
     onValid : function(ds, record, name, valid){
@@ -1007,7 +1135,7 @@ A.Grid = Ext.extend(A.Component,{
             }
         }
     },
-    onRemove : function(ds,record,index){
+    onRemove : function(ds,record){
         var sf = this,
             lrow = Ext.get(sf.id+$L+record.id),
             urow = Ext.get(sf.id+$U+record.id);
@@ -1018,11 +1146,13 @@ A.Grid = Ext.extend(A.Component,{
         	var colname = col.name;
             if(colname)sf.removeCompositeEditor(colname,record);
             if(col.group){
-            	sf.wrap.select('td[dataindex='+colname+']').each(function(td){
-            		var _r = sf.dataset.findById(td.parent('tr').getAttribute('_row'));
+            	sf.wrap.select(SELECT_TD_DATAINDEX+colname+_K).each(function(td){
+            		var _r = sf.dataset.findById(td.parent(TR).getAttributeNS(_N,'_row')),
+            			rowspan;
         			if(_r && _r.get(colname) == record.get(colname)){
-        				td.dom.rowSpan = td.getAttribute('rowspan')-1;
-        				return false;
+        				if((rowspan = td.getAttribute('rowspan')) && (rowspan-= 1)>1)
+        					td.dom.rowSpan = rowspan;
+        				return FALSE;
         			}
             	});
             }
@@ -1083,6 +1213,12 @@ A.Grid = Ext.extend(A.Component,{
             }
             sf.setSelectStatus(record);
         }
+        
+        EACH(!isSelectAll && concatGroups(searchRootGroupByRecord(sf.groups,record)),function(r){
+        	if(r!==record){
+    			ds.select(r);
+    		}
+        });
     },
     onUnSelect : function(ds,record,isSelectAll){
         if(!record||isSelectAll)return;
@@ -1098,6 +1234,11 @@ A.Grid = Ext.extend(A.Component,{
             }
             sf.setSelectStatus(record);
         }
+        EACH(!isSelectAll && concatGroups(searchRootGroupByRecord(sf.groups,record)),function(r){
+        	if(r!==record){
+    			ds.unSelect(r);
+    		}
+        });
     },
     onSelectAll : function(){
         var sf = this;
@@ -1225,7 +1366,7 @@ A.Grid = Ext.extend(A.Component,{
             }
         }
     },
-    getEditor : function(col,record){
+    getEditor : function(col,record,onCreate){
         var ed = col.editor||_N;
         if(col.editorfunction) {
             var ef = window[col.editorfunction];
@@ -1235,6 +1376,7 @@ A.Grid = Ext.extend(A.Component,{
             }
             ed = ef(record,col.name)||_N;
         }
+        if(!onCreate && ed && !Ext.get([this.id,col.name,record.id].join(_)))ed = _N;
         return ed;
     },
     positionEditor : function(){
@@ -1436,7 +1578,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     showEditorBy : function(dir){
         var sf = this,
-            callback = true,
+            callback = TRUE,
 //            function(e){
 //                  if(e instanceof A.Lov){
 //                      e.showLovWindow();
@@ -1737,16 +1879,18 @@ A.Grid = Ext.extend(A.Component,{
     selectRow : function(row, locate){
         var sf = this,
             ds = sf.dataset,record = ds.getAt(row),
-            r = (ds.currentPage-1)*ds.pagesize + row+1;
+            r = (ds.currentPage-1)*ds.pagesize + row+1,
+            records = concatGroups(searchRootGroupByRecord(sf.groups,record));
         sf.selectedId = record.id;
+//        sf.selectedIds = records.map(function(r){return r.id});
         if(sf.selectlockTr) sf.selectlockTr.removeClass(ROW_SELECT);
         //if(sf.selectUnlockTr) sf.selectUnlockTr.setStyle(sf.bgc,_N);
         if(sf.selectUnlockTr) sf.selectUnlockTr.removeClass(ROW_SELECT);
-        sf.selectUnlockTr = Ext.get(sf.id+$U+record.id);
+        sf.selectUnlockTr = sf.ubt.select(records.map(function(r){return '#'+sf.id+$U+r.id}).join(','));
         if(sf.selectUnlockTr)sf.selectUnlockTr.addClass(ROW_SELECT);
         //if(sf.selectUnlockTr)sf.selectUnlockTr.setStyle(sf.bgc,sf.scor);
         
-        sf.selectlockTr = Ext.get(sf.id+$L+record.id);
+        sf.selectlockTr = sf.lbt.select(records.map(function(r){return '#'+sf.id+$L+r.id}).join(','));
         if(sf.selectlockTr)sf.selectlockTr.addClass(ROW_SELECT);
         sf.focusRow(row);
         if(locate!==FALSE && r != NULL) {
@@ -1891,7 +2035,7 @@ A.Grid = Ext.extend(A.Component,{
      */
     showColumn : function(name){
         var col = this.findColByName(name);
-        if(col && col.visiable != false){
+        if(col && col.visiable != FALSE){
             if(col.hidden === TRUE){
                 delete col.hidden;
                 col.forexport = TRUE;
@@ -1899,12 +2043,6 @@ A.Grid = Ext.extend(A.Component,{
                 delete col.hiddenwidth;
 //              if(!Ext.isIE){
                 this.wrap.select(SELECT_TD_DATAINDEX+name+_K).show();
-//                    var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
-//                    for(var i=0,l=tds.length;i<l;i++){
-//                        var td = tds[i];
-//                        Ext.fly(td).show();
-//                    }
-//              }
             }
         }   
     },
@@ -1915,17 +2053,12 @@ A.Grid = Ext.extend(A.Component,{
      */
     hideColumn : function(name){
         var col = this.findColByName(name);
-        if(col && col.visiable != false){
+        if(col && col.visiable != FALSE){
             if(col.hidden !== TRUE){
                 col.hiddenwidth = col.width;
                 this.setColumnSize(name, 0, FALSE);
 //              if(!Ext.isIE){
                 this.wrap.select(SELECT_TD_DATAINDEX+name+_K).hide();
-//                    var tds = Ext.DomQuery.select('td[dataindex='+name+']',this.wrap.dom);
-//                    for(var i=0,l=tds.length;i<l;i++){
-//                        var td = tds[i];
-//                        Ext.fly(td).hide();
-//                    }
 //              }
                 col.hidden = TRUE;
                 col.forexport = FALSE;
