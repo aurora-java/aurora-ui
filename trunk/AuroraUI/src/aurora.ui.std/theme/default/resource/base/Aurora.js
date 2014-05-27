@@ -242,7 +242,7 @@ $A.getCookie = function(name){
  * @return {Number} 页面可视高度
  */
 $A.getViewportHeight = function(){
-    if(Ext.isIE){
+    if(Ext.isIE||Ext.isIE9||Ext.isIE10){
         return Ext.isStrict ? document.documentElement.clientHeight :
                  document.body.clientHeight;
     }else{

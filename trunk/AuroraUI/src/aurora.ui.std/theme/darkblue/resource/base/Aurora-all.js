@@ -242,7 +242,7 @@ $A.getCookie = function(name){
  * @return {Number} 页面可视高度
  */
 $A.getViewportHeight = function(){
-    if(Ext.isIE){
+    if(Ext.isIE||Ext.isIE9||Ext.isIE10){
         return Ext.isStrict ? document.documentElement.clientHeight :
                  document.body.clientHeight;
     }else{
@@ -3929,7 +3929,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
     },
     processListener: function(ou){
     	this.processMouseOverOut(ou)
-        if(this.clientresize && (this.marginwidth||this.marginheight)) {
+        if(this.clientresize && (!Ext.isEmpty(this.marginwidth)||!Ext.isEmpty(this.marginheight))) {
 //        	this.windowResizeListener();//TODO:以后修改服务端component,去掉自身尺寸的判断
             Ext.EventManager[ou](window, "resize", this.windowResizeListener,this);
         }
@@ -6311,7 +6311,8 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	expand:function(){
 		if(!this.optionDataSet)return;
 		if(this.rendered===false)this.doQuery();
-		!this.isExpanded() && $A.ComboBox.superclass.expand.call(this);
+        $A.ComboBox.superclass.expand.call(this);
+//		!this.isExpanded() && $A.ComboBox.superclass.expand.call(this);
 		var v = this.getValue();
 		this.currentIndex = this.getIndex(v);
 //		if(!this.currentIndex) return;
