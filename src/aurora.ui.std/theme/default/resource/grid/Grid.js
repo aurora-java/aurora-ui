@@ -1890,7 +1890,7 @@ A.Grid = Ext.extend(A.Component,{
         if(sf.selectUnlockTr)sf.selectUnlockTr.addClass(ROW_SELECT);
         //if(sf.selectUnlockTr)sf.selectUnlockTr.setStyle(sf.bgc,sf.scor);
         
-        sf.selectlockTr = sf.lbt.select(records.map(function(r){return '#'+sf.id+$L+r.id}).join(','));
+        sf.selectlockTr = sf.lbt && sf.lbt.select(records.map(function(r){return '#'+sf.id+$L+r.id}).join(','));
         if(sf.selectlockTr)sf.selectlockTr.addClass(ROW_SELECT);
         sf.focusRow(row);
         if(locate!==FALSE && r != NULL) {
