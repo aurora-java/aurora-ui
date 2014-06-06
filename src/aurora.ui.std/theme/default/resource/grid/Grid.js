@@ -211,16 +211,7 @@ var DOC = document,
 		}
     },
     addIntoGroup = function(){
-    	var _colnames=[];
-    	function _findNames(groups){
-    		var g = groups[0],
-    			n = g.colname;
-    		if(n){
-    			_colnames.push(n);
-    			_findNames(g);
-    		}
-    	}
-    	function _find(groups,record){
+    	function _find(groups,record,_colnames){
     		var find = FALSE,
     		name = _colnames.shift(),
     		value;
@@ -245,12 +236,17 @@ var DOC = document,
 	    		find.colname = name;
 	    		find.value = value;
 	    	}
-			find.add(_find(find,record));	    	
+			find.add(_find(find,record,_colnames));	    	
 	    	return find;
     	}
-	    return function(groups,record){
-	    	_findNames(groups);
-	    	groups.add(_find(groups,record));
+	    return function(groups,record,cols){
+	    	var _colnames=[];
+	    	Ext.each(cols,function(c){
+	    		if(c.group){
+	    			_colnames.push(c.name);
+	    		}
+	    	});
+	    	groups.add(_find(groups,record,_colnames));
 	    	EACH(concatGroups(searchRootGroupByRecord(groups,record)),function(r){
 	    		if(r!==record){
 	    			var ds = r.ds;
@@ -949,7 +945,7 @@ A.Grid = Ext.extend(A.Component,{
         	sf = this,columns = sf.columns,
             css = sf.parseCss(sf.renderRow(record,row)),
             cls = (row % 2==0 ? _N : ROW_ALT+_S)+css.cls;
-    	addIntoGroup(sf.groups,record);
+    	addIntoGroup(sf.groups,record,columns);
         if(sf.lbt){
             var ltr = Ext.get(DOC.createElement(TR)),
                 ltb = sf.lbt.child('tbody:first');
