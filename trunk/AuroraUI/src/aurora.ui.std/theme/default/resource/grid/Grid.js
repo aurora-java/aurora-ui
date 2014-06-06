@@ -1080,7 +1080,7 @@ A.Grid = Ext.extend(A.Component,{
         var sf = this,
             c = sf.findColByName(name),
             div,ediv,text;
-        if(c.group){
+        if(c && c.group){
         	record.data[name] = oldvalue;
         	var index = sf.ubt.query(SELECT_TR_CLASS).indexOf(sf.ubt.child('tr[_row='+record.id+']').dom);
         	sf.onRemove(ds,record);
@@ -1882,7 +1882,7 @@ A.Grid = Ext.extend(A.Component,{
         if(sf.selectlockTr) sf.selectlockTr.removeClass(ROW_SELECT);
         //if(sf.selectUnlockTr) sf.selectUnlockTr.setStyle(sf.bgc,_N);
         if(sf.selectUnlockTr) sf.selectUnlockTr.removeClass(ROW_SELECT);
-        sf.selectUnlockTr = sf.ubt.select(records.map(function(r){return '#'+sf.id+$U+r.id}).join(','));
+        sf.selectUnlockTr = sf.ubt && sf.ubt.select(records.map(function(r){return '#'+sf.id+$U+r.id}).join(','));
         if(sf.selectUnlockTr)sf.selectUnlockTr.addClass(ROW_SELECT);
         //if(sf.selectUnlockTr)sf.selectUnlockTr.setStyle(sf.bgc,sf.scor);
         
