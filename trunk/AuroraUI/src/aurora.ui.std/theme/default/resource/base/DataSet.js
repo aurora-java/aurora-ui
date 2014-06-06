@@ -109,6 +109,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         ds &&
         	ds.processBindDataSetListener(sf,'un');
         delete fields[name];
+        Ext.each(sf.getAll(),function(r){
+        	r.data[name] = null;
+        	delete r.data[name];
+        });
     },
     processBindDataSetListener : function(ds,ou){
         var bdp = this.onDataSetModify;
