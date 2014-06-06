@@ -170,7 +170,7 @@ $A.TreeGrid = Ext.extend($A.Grid, {
             tree = c.lock == true ? sf.lockTree : sf.unlockTree;
         c.width = size;
         if (name == tree.displayfield) tree.width = size;
-        tree.root.setWidth(name, size);// (name == tree.displayfield) ? size-2
+        tree.root && tree.root.setWidth(name, size);// (name == tree.displayfield) ? size-2
                                         // :
     },
     renderLockArea : function() {
