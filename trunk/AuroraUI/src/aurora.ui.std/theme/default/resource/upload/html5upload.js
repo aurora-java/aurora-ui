@@ -134,7 +134,7 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
                     record.set('percent', percent);
                 }
             } catch (ex) {
-                alert(ex)
+                //alert(ex)
             }
         }
     },
@@ -168,7 +168,7 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
         this.clearDragTip();
     },
     uploadCanceled: function(evt) {
-        alert("The upload has been canceled by the user or the browser dropped the connection.");
+        //alert("The upload has been canceled by the user or the browser dropped the connection.");
         this.clearDragTip();
     },
     showDragTip: function(){
@@ -226,6 +226,14 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
     },
     destroy : function(){
         $A.HTML5Uploader.superclass.destroy.call(this);
+        for(var key in this.map){
+            var xhr = this.map[key]
+            if(xhr){
+                try{
+                    xhr.abort();
+                }catch(e){}
+            }
+        }
         $A.uploadcmps.remove(this);
     }
     
