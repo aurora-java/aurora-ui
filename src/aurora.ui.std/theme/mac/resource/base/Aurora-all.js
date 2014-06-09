@@ -558,7 +558,7 @@ Ext.applyIf(Array.prototype, {
     },
     find : function(property, value){
         var r = null;
-        for(var i=0;i<this.length;i++){
+        for(var i=0,length = this.length;i<length;i++){
             var item = this[i];
             if(item[property] == value) {
                 r = item;
@@ -566,7 +566,14 @@ Ext.applyIf(Array.prototype, {
             }
         }
         return r;
-    }
+    },
+	map : function(callback,scope){
+		var arr = [];
+		for(var i=0,length = this.length;i<length;i++){
+			arr.push(callback.call(scope||window,this[i],i))
+		}
+		return arr;
+	}
 });
 Ext.applyIf(String.prototype, {
     replaceAll : function(s1,s2){
@@ -1898,6 +1905,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         ds &&
         	ds.processBindDataSetListener(sf,'un');
         delete fields[name];
+        Ext.each(sf.getAll(),function(r){
+        	r.data[name] = null;
+        	delete r.data[name];
+        });
     },
     processBindDataSetListener : function(ds,ou){
         var bdp = this.onDataSetModify;

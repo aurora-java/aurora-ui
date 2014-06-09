@@ -80,6 +80,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     background:#fff url(text-bg.gif) repeat-x 0px 0px ;
 }
 .item-label {
+	min-height: 22px;
 	line-height:22px;
 	vertical-align:middle;
 }
