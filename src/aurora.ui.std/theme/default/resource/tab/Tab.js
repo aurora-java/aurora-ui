@@ -239,6 +239,7 @@ A.Tab = Ext.extend(A.Component,{
             head.setWidth(width);
         }).defer(10);
 		if(index==sf.selectedIndex)sf.selectTab(index-1);
+		else if(index<sf.selectedIndex)sf.selectedIndex--;
 	},
 	destroy : function(){
 //		var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
