@@ -458,20 +458,6 @@ $A.Field = Ext.extend($A.Component,{
 			prompt.update(text);
 		}
     },
-    show : function(){
-    	$A.Field.superclass.show.call(this);
-    	var prompt = Ext.fly(this.id+'_prompt');
-		if(prompt){
-			prompt.show();
-		}
-    },
-    hide : function(){
-    	$A.Field.superclass.hide.call(this);
-    	var prompt = Ext.fly(this.id+'_prompt');
-		if(prompt){
-			prompt.hide();
-		}
-    },
     isDbc : function(s){
         if(!this.transformcharacter) return false;
         var dbc = false;

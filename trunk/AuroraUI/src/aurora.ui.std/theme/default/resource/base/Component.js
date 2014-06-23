@@ -304,12 +304,20 @@ $A.Component = Ext.extend(Ext.util.Observable,{
      */
     show : function(){
     	this.wrap.show();
+    	var prompt = Ext.fly(this.id+'_prompt');
+		if(prompt){
+			prompt.show();
+		}
     },
     /**
      * 隐藏组件
      */
     hide : function(){
     	this.wrap.hide();
+    	var prompt = Ext.fly(this.id+'_prompt');
+		if(prompt){
+			prompt.hide();
+		}
     },
     setVisible : function(v){
     	this[v?'show':'hide']();
