@@ -702,6 +702,12 @@ $A.ToolTip = function(){
     return q
 }();
 $A.SideBar = function(){
+	var domain = true;
+	try{
+		parent.document
+	}catch(e){
+		domain = false;
+	}
     var m = {
         enable:true,
         bar:null,
@@ -710,7 +716,7 @@ $A.SideBar = function(){
             if(!this.enable)return;
 //            this.hide();
             var sf = this;
-            if(parent.showSideBar){
+            if(domain && parent.showSideBar){
                 parent.showSideBar(msg||'')
             }else{
                 this.hide();
@@ -737,7 +743,7 @@ $A.SideBar = function(){
             }
         },
         hide : function(){
-            if(parent.hideSideBar){
+            if(domain && parent.hideSideBar){
                 parent.hideSideBar()
             }else{
                 if(this.bar) {
