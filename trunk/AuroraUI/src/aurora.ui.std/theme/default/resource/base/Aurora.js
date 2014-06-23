@@ -26,6 +26,12 @@ $A.fireWindowResize = function(){
 if(Ext.isIE6)Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
 
 
+$A.PARENT_DOMAIN = true;
+try{
+	parent.document
+}catch(e){
+	$A.PARENT_DOMAIN = false;
+}
 
 $A.cache = {};
 $A.cmps = {};
@@ -702,12 +708,6 @@ $A.ToolTip = function(){
     return q
 }();
 $A.SideBar = function(){
-	var domain = true;
-	try{
-		parent.document
-	}catch(e){
-		domain = false;
-	}
     var m = {
         enable:true,
         bar:null,
@@ -716,7 +716,7 @@ $A.SideBar = function(){
             if(!this.enable)return;
 //            this.hide();
             var sf = this;
-            if(domain && parent.showSideBar){
+            if($A.PARENT_DOMAIN && parent.showSideBar){
                 parent.showSideBar(msg||'')
             }else{
                 this.hide();
@@ -743,7 +743,7 @@ $A.SideBar = function(){
             }
         },
         hide : function(){
-            if(domain && parent.hideSideBar){
+            if($A.PARENT_DOMAIN && parent.hideSideBar){
                 parent.hideSideBar()
             }else{
                 if(this.bar) {
@@ -763,7 +763,7 @@ $A.Status = function(){
         show : function(msg){
             if(!this.enable)return;
             this.hide();
-            if(parent.showStatus) {
+            if($A.PARENT_DOMAIN && parent.showStatus) {
                parent.showStatus(msg);
             }else{
                 var p = '<div class="item-statusBar" unselectable="on">'+msg+'</div>';
@@ -772,7 +772,7 @@ $A.Status = function(){
             }
         },
         hide : function(){
-            if(parent.hideStatus){
+            if($A.PARENT_DOMAIN && parent.hideStatus){
                 parent.hideStatus();
             }else{
                 if(this.bar) {
