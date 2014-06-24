@@ -338,4 +338,5 @@ A.PortalItem = Ext.extend(A.Component,{
     	});
     }
 });
+A.Portal.revision='$Rev$';
 })($A);

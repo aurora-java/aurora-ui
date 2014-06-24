@@ -101,6 +101,7 @@ public class PatchAll {
 		compressJs.add("accordion/Accordion.js");
 		compressJs.add("accordionmenu/AccordionMenu.js");
 		compressJs.add("portal/Portal.js");
+		compressJs.add("switchcard/SwitchCard.js");
 		compressJs.add("menu/Menu.js");
 		List compressCss = new ArrayList();
 		compressCss.add(CSS_ALL);

@@ -1,0 +1,7 @@
+<DIV id="${id}" class="${wrapClass}" style="${style}">
+	${cards}
+</DIV>
+<SCRIPT LANGUAGE="JavaScript">
+	new Aurora.SwitchCard(${config});
+	${binding}
+</SCRIPT>
