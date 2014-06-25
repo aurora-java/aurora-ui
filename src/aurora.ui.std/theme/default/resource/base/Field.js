@@ -286,8 +286,9 @@ $A.Field = Ext.extend($A.Component,{
     	var sf = this,
     		svc = sf.service,
         	view = sf.autocompleteview,
-    		field = sf.autocompletefield,
-    		name = sf.binder && sf.binder.name;
+        	name = sf.binder && sf.binder.name,
+    		field = sf.autocompletefield || name,
+    		displayField;
     	if(sf.autocomplete && svc){
         	if(!view){
 	        	view = sf.autocompleteview = new $A.AutoCompleteView({
@@ -301,15 +302,18 @@ $A.Field = Ext.extend($A.Component,{
         		view.processListener('on');
         	}
 			view.active = true;	
-        	if(!field){
-        		Ext.each(sf.getMapping(),function(map){
-        			if(map.to == name) field = sf.autocompletefield = map.from;
-        		});
-        		if(!field)field = name;
-        	}
+    		Ext.each(sf.getMapping(),function(map,index){
+    			if(map.to == name){
+    				displayField = map.from;
+    				return false;
+    			}else if(!index){
+    				displayField = map.from;
+    			};
+    		});
         	view.bind({
         		url:sf.context + 'autocrud/'+svc+'/query',
         		name:field,
+        		displayField : displayField,
         		size:sf.autocompletesize,
         		pagesize:sf.autocompletepagesize,
         		renderer:sf.autocompleterenderer,
