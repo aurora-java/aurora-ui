@@ -88,4 +88,5 @@
     <feature-attach elementName="viewForm" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ViewForm" />
     <feature-attach elementName="viewItem" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ViewItem" />
     <feature-attach elementName="officeEditor" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.OfficeEditor" />
+    <feature-attach elementName="switchCard" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.SwitchCard" />
 </class-registry>
