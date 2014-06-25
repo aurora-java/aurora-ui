@@ -277,7 +277,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
         		fn(field.name);
         	});
         }else{
-        	fn(sf.name)
+    		fn(sf.displayField);
         }
 		return text.join('');
 	},
