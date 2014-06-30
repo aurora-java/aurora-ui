@@ -394,7 +394,7 @@ A.Grid = Ext.extend(A.Component,{
          * @param {Number} row 行号.
          * @param {String} 当前name.
          */
-        EVT_NEXT_EDITOR_SHOW),
+        EVT_NEXT_EDITOR_SHOW,
         /**
          * @event createrow
          * 创建行事件.
@@ -404,7 +404,7 @@ A.Grid = Ext.extend(A.Component,{
          * @param {Object} result
          * @param {Array} columns
          */
-        EVT_CREATE_ROW;
+        EVT_CREATE_ROW);
     },
     syncScroll : function(e,t){
         var sf = this;
