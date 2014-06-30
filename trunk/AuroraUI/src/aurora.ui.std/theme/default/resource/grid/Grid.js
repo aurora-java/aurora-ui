@@ -206,7 +206,7 @@ var DOC = document,
     			return FALSE;
     		}
     	});
-    	if(!groups.length && owner){
+    	if(groups && !groups.length && owner){
 			owner.remove(groups);
 		}
     },
