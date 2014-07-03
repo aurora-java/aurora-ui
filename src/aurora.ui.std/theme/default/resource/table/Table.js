@@ -23,7 +23,8 @@ var	DOC_EL = document.documentElement,
 	RECORD_ID = 'recordid',
 	ROW_SELECT = 'row-selected',
 	REQUIRED = 'required',
-	ITEM_NOT_BLANK='item-notBlank',
+	DATA_INDEX = 'dataindex',
+    ITEM_NOT_BLANK='item-notBlank',
     ITEM_INVALID = 'item-invalid',
     ROW_ALT = 'table-row-alt',
     TABLE_ROWBOX = 'table-rowbox',
@@ -35,7 +36,11 @@ var	DOC_EL = document.documentElement,
     MULTIPLE = 'multiple',
     CHECKED_VALUE = 'checkedvalue',
 	READONLY = '-readonly',
-	ITEM_CKB = 'item-ckb',
+	DESC = 'desc',
+	ASC = 'asc',
+	TABLE_DESC = 'table-desc',
+    TABLE_ASC = 'table-asc',
+    ITEM_CKB = 'item-ckb',
     ITEM_CKB_SELF = ITEM_CKB + '-self',//'item-ckb-self'
     $ITEM_CKB_SELF = _O + ITEM_CKB_SELF,//'.item-ckb-self'
     ITEM_CKB_U = ITEM_CKB + U,//'item-ckb-u'
@@ -79,7 +84,7 @@ A.Table = Ext.extend(A.Component,{
     initComponent:function(config){
 		A.Table.superclass.initComponent.call(this,config);
 		var sf = this,wrap=sf.wrap;
-		sf.cb = wrap.child(SELECT_DIV_ATYPE);
+		sf.th = wrap.child('thead tr.table-head');
 		sf.tbody=wrap.child('tbody');
 		sf.fb=wrap.child('tfoot');
 		sf.initTemplate();
@@ -96,7 +101,7 @@ A.Table = Ext.extend(A.Component,{
 		if(sf.canwheel){
 			sf.tbody[ou]('mousewheel',sf.onMouseWheel,sf);
 		}
-		if(sf.cb)sf.cb[ou](EVT_CLICK,sf.onHeadClick,sf);
+		if(sf.th)sf.th[ou](EVT_CLICK,sf.onHeadClick,sf);
 		sf[ou](EVT_CELL_CLICK,sf.onCellClick,sf);
 	},
 	processDataSetLiestener: function(ou){
@@ -363,16 +368,46 @@ A.Table = Ext.extend(A.Component,{
 	    	}
     	}
     },
-    onHeadClick : function(e){
-        var cb = this.cb,
-        	ds = this.dataset,
-        	checked = cb.hasClass(ITEM_CKB_C);
-        this.setCheckBoxStatus(cb,!checked);
-        if(!checked){
-            ds.selectAll();
-        }else{
-            ds.unSelectAll();
-        }
+    onHeadClick : function(e,t){
+    	var sf = this,
+    		ds = sf.dataset;
+    	t = Ext.get(t);
+    	if(t.is(SELECT_DIV_ATYPE)){
+	        var checked = t.hasClass(ITEM_CKB_C);
+	        sf.setCheckBoxStatus(t,!checked);
+	        if(!checked){
+	            ds.selectAll();
+	        }else{
+	            ds.unSelectAll();
+	        }
+    	}else if(t.is('.table-hc')){
+    		var index = t.getAttributeNS(_N,DATA_INDEX),
+                col = sf.findColByName(index);
+            if(col && col.sortable === TRUE){
+                if(ds.isModified()){
+                    A.showInfoMessage('提示', '有未保存数据!');
+                    return;
+                }
+                var ot = _N;
+                if(sf.currentSortTarget){
+                    sf.currentSortTarget.removeClass([TABLE_ASC,TABLE_DESC]);
+                }
+                sf.currentSortTarget = t;
+                if(IS_EMPTY(col.sorttype)) {
+                    col.sorttype = DESC
+                    t.removeClass(TABLE_ASC).addClass(TABLE_DESC);
+                    ot = DESC;
+                } else if(col.sorttype == DESC){
+                    col.sorttype = ASC;
+                    t.removeClass(TABLE_DESC).addClass(TABLE_ASC);
+                    ot = ASC;
+                }else {
+                    col.sorttype = _N;
+                    t.removeClass([TABLE_DESC,TABLE_ASC]);
+                }
+                ds.sort(index,ot);
+            }
+    	}
     },
 	/**
      * 设置当前行的编辑器.
@@ -782,7 +817,7 @@ A.Table = Ext.extend(A.Component,{
             if(atype==TABLE_CELL){
                 var record = ds.findById(rid),
                 	row = ds.indexOf(record),
-                	name = target.getAttributeNS(_N,'dataindex');
+                	name = target.getAttributeNS(_N,DATA_INDEX);
                 sf.fireEvent(EVT_CELL_CLICK, sf, row, name, record,!t.hasClass('table-ckb'));
 //                sf.showEditor(row,name);
                 sf.fireEvent(EVT_ROW_CLICK, sf, row, record);
@@ -885,7 +920,7 @@ A.Table = Ext.extend(A.Component,{
 			ced;
 		if((ced = sf.currentEditor)
 			&& ced.editor instanceof A.CheckBox 
-			&& atype == TABLE_CELL && t.getAttribute('dataindex') == ced.name){
+			&& atype == TABLE_CELL && t.getAttribute(DATA_INDEX) == ced.name){
 	    	if(e.shiftKey){
     			sf._begin = ced.record;
     			e.stopEvent();

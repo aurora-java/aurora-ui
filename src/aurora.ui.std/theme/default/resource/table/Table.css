@@ -1,6 +1,5 @@
 .item-table{
 	border-top:1px solid #cccccc;
-	border-bottom:1px solid #cccccc;
 	border-left:1px solid #cccccc;
 }
 .table-hc {
@@ -10,7 +9,6 @@
 	padding:0px;
 	text-align:center;
 	height: 25px;
-	background: url(../grid/grid_bg.gif) repeat-x;
 }
 .table-row-alt{
 	/*background-color: #FAFAFA;*/
@@ -79,4 +77,17 @@
 }
 .row-selected {
     background-color:#dfeaf5;
+}
+.table-head {
+	cursor: default;
+    -moz-user-select:none;
+    -webkit-user-select:none;
+    background: url(../grid/grid_bg.gif) repeat-x;
+}
+
+.table-asc {
+    background: url(../grid/sort_asc.gif) no-repeat right;
+}
+.table-desc {
+    background: url(../grid/sort_desc.gif) no-repeat right;
 }
