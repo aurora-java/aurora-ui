@@ -202,6 +202,7 @@ A.Tree = Ext.extend(A.Component,{
 			}
 		});
 		pnode.insertBefore(sf.createTreeNode(sf.createNode(record)),refnode);
+		pnode.isExpand = FALSE;
 	},
     onRemove : function(ds,record){
         var sf = this,id = record.id,node = sf.getNodeById(id)
