@@ -649,7 +649,8 @@ A.Tree.TreeNode.prototype={
 				((tree.showcheckbox ? 1 : 0) +sf.getPathNodes().length)*tree.sw
 				: 0);
 		Ext.fly(els[name+_TD]).setWidth(Math.max(left,0));
-        (Ext.fly(els[name+_TEXT].id)||Ext.fly(els[name+_TEXT])).setWidth(Math.max((left-1),0));
+		var ed = (Ext.fly(els[name+_TEXT].id)||Ext.fly(els[name+_TEXT]));
+        ed.setWidth(Math.max((left-(ed.hasClass('cell-editor')?3:1)),0));
 	},
 	paintPrefix : function(){
 		var sf = this;
@@ -668,7 +669,7 @@ A.Tree.TreeNode.prototype={
 			c = _createElement(DIV);
 		line.innerHTML = '';
 		Ext.fly(line).setWidth(w);
-		if(w==0){
+		if(w<=0){
 			line.style.display=NONE;
 		}
 		Ext.fly(c).setWidth(w);
