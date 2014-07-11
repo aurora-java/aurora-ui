@@ -342,3 +342,12 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     box-shadow:0px 4px 16px rgba(0,0,0,0.5);
     z-index:21;
 }
+
+.fieldbox_head {
+    border-left:1px solid #ffffff;
+    border-bottom:1px solid #bbbbbb;
+    height:25px;
+    COLOR: #055a78; 
+    background:url(../toolbar/toolbar_bg.gif) repeat-x;
+    padding-left:5px;
+}
