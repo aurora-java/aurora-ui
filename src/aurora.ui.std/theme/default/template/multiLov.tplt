@@ -1,6 +1,6 @@
-<DIV class="${wrapClass}" style="width:${width}px;${style}" id="${id}">
-	<DIV style="position:relative;padding-left:3px;padding-right:20px">
-		<DIV style="width:100%">
+<DIV class="${wrapClass} item-tf" style="width:${width}px;height:${height}px;${style}" id="${id}">
+	<DIV style="position:relative;padding-left:3px;padding-right:20px;height:100%">
+		<DIV style="height:100%">
 			<INPUT tabindex="${tabindex}" class="item-textField" atype="field.input" autocomplete="off"/>
 		</DIV>
 		<DIV class="item-trigger item-lovButton" atype="triggerfield.trigger" hideFocus></DIV>
