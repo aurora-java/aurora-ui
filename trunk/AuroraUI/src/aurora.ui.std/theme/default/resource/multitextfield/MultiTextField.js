@@ -73,11 +73,15 @@ A.MultiTextField = Ext.extend(A.TextField,{
 	    	}
     },
     processValue : function(v){
-    	var name = this.binder.name,arr=[];
-		Ext.each(this.items,function(item){
-    		arr.push(item[name]);
-    	});
-    	return arr.join(SYMBOL);
+    	if(this.binder){
+	    	var name = this.binder.name,arr=[];
+			Ext.each(this.items,function(item){
+	    		arr.push(item[name]);
+	    	});
+	    	return arr.join(SYMBOL);
+    	}else{
+    		return v;
+    	}
     },
     formatValue : function(v){
     	var sf = this,v,r = sf.record,binder = sf.binder,name,mapTos=[];
@@ -184,10 +188,11 @@ A.MultiTextField = Ext.extend(A.TextField,{
     	this.wrap.select(DIV$ITEM_RECEIVER_INFO).remove();
     },
     fetchRecord : function(){
-    	if(this.readonly)return;
-    	var sf = this,v = sf.getRawValue(),
-    		record = sf.record,
+    	if(this.readonly||!this.binder)return;
+    	var sf = this,
     		binder = sf.binder,
+    		v = sf.getRawValue(),
+    		record = sf.record,
         	name = binder.name;
     	sf.fetching = true;
     	if(sf.fetchremote){
