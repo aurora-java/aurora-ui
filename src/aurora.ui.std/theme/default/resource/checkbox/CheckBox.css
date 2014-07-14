@@ -10,8 +10,9 @@
 	outline:none;
 }
 .item-focus[atype=checkbox]{
-	margin-top:3px;
-	margin-left:-1px;
+	position:relative;
+	top:-1px;
+	left:-1px;
 }
 .grid-select-all .grid-rowbox .item-ckb-u,.grid-select-all .grid-rowbox .item-ckb-c,
 .table-select-all .table-rowbox .item-ckb-u,.table-select-all .table-rowbox .item-ckb-c{

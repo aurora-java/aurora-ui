@@ -1383,7 +1383,7 @@ A.Grid = Ext.extend(A.Component,{
 			dom = findBorderParent.call(sf,Ext.get([sf.id,ced.name,ced.record.id].join(_)),isCheckBox),
 			xy = dom.getXY();
 			if(isCheckBox)
-        		ed.move(xy[0],xy[1]-4);
+        		ed.move(xy[0],xy[1]-3);
 			else
 				ed.move(xy[0],xy[1]);
     },

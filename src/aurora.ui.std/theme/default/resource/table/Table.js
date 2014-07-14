@@ -639,7 +639,7 @@ A.Table = Ext.extend(A.Component,{
     	var sf = this,
     		ed=sf.currentEditor.editor,dom=sf.focusdiv,xy = dom.getXY();
 		if(ed instanceof A.CheckBox){
-    		ed.move(xy[0],xy[1]-4);
+    		ed.move(xy[0],xy[1]-3);
 		}else{
 	        ed.setHeight(dom.getHeight()-2);
 	        ed.setWidth(dom.getWidth()-5<22?22:(dom.getWidth()-5));
