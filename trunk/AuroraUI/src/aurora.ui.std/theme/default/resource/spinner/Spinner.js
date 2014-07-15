@@ -16,6 +16,7 @@ $A.Spinner = Ext.extend($A.NumberField,{
 		var decimal = String(sf.step = Number(config.step||1)).split('.')[1];
 		sf.decimalprecision = decimal?decimal.length:0;
     	sf.btn = sf.wrap.child('div.item-spinner-btn');
+    	sf.setTriggerBtnPosition();
     },
     processListener: function(ou){
     	var sf = this;
@@ -96,5 +97,14 @@ $A.Spinner = Ext.extend($A.NumberField,{
     },
     toFixed : function(n){
     	return Number(n.toFixed(this.decimalprecision));
+    },
+    setHeight: function(h){
+    	var sf = this;
+    	if(this.height == h) return;
+    	$A.Spinner.superclass.setHeight.call(sf, h);
+    	sf.setTriggerBtnPosition();
+    },
+    setTriggerBtnPosition:function(){
+    	this.btn.setStyle({'padding-top':Math.round((this.btn.getHeight()-20)/2)+'px'});
     }
 });

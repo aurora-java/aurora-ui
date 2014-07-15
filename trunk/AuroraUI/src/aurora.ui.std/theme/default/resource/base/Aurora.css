@@ -155,7 +155,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	right:0;
 	WIDTH: 20px;	
 	CURSOR: pointer;	
-	HEIGHT: 20px;
+	HEIGHT: 100%;
 	BORDER-RIGHT-WIDTH: 0px
 }
 .item-popup {
