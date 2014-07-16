@@ -36,9 +36,9 @@ $A.Spinner = Ext.extend($A.NumberField,{
     	this.onBtnMouseUp(e,t);
     },
     onBtnMouseDown:function(e,t){
-    	if(this.readonly)return;
-    	var target = Ext.fly(t),
-			isPlus = !!target.addClass('spinner-select').parent('.item-spinner-plus'),
+    	var target = Ext.fly(t);
+		if(this.readonly||!target.parent('span'))return;
+    	var	isPlus = !!target.addClass('spinner-select').parent('.item-spinner-plus'),
 			sf = this;
 		sf.goStep(isPlus,function(){
 	    	sf.intervalId = setInterval(function(){
