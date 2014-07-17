@@ -2279,12 +2279,16 @@ A.Grid = Ext.extend(A.Component,{
             ds.removeLocal(selected[0]);
         }
     },
-    _export : function(type,filename,separator){
-        this.exportOptions = {
-            type:type||'xls',
-            filename:filename,
-            separator:separator
-        }
+    _export : function(type,filename,separator,exportParam){
+    	this.exportOptions = Ext.apply ({
+    		type:'xls',
+    		filename:'excel'
+    	},arguments.length==1?type:{
+			type:type||'xls',
+            filename:filename||'excel',
+            separator:separator,
+            param:exportParam
+    	});
         this.showExportConfirm();
     },
     showExportConfirm :function(){
@@ -2373,7 +2377,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     doExport : function(){
         var sf = this,opt = sf.exportOptions||{};
-        A.doExport(sf.dataset,sf.columns,NULL,opt.type,opt.separator,opt.filename);
+        A.doExport(sf.dataset,sf.columns,NULL,opt.type,opt.separator,opt.filename,opt.param);
         delete sf.exportOptions;
     },
     destroy: function(){
