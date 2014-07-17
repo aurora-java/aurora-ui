@@ -1522,7 +1522,7 @@ $A.unescapeHtml = function(str){
     return String(str).replace(/&amp;/gm,'&').replace(/&quot;/gm,'"').replace(/&#40;/gm,'(').replace(/&#41;/gm,')').replace(/&#43;/gm,'+').replace(/&#37;/gm,'%')
     .replace(/&lt;/gm,'<').replace(/&gt;/gm,'>');
 }
-$A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_state){
+$A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_state,param){
     var p={"parameter":{"_column_config_":{}}},columns=[],parentMap={},
         _parentColumn=function(pcl,cl){
             if(!(Ext.isDefined(pcl.forexport)?pcl.forexport:true))return null;
@@ -1561,7 +1561,7 @@ $A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_sta
             });
             p["parameter"]["_merge_column_"] = _merge_column_;
         }
-        var r,q = {};
+        var r,q = param||{};
         if(dataset.qds)r = dataset.qds.getCurrentRecord();
         if(r) Ext.apply(q, r.data);
         Ext.apply(q, dataset.qpara);
