@@ -1,6 +1,6 @@
 <DIV class="item-tf ${wrapClass}" style="width:${width}px;height:${height}px;${style}" id="${id}" >
 	<DIV style="height:100%">
-		<INPUT tabindex="${tabindex}" style="text-indent:2px;float:left;" type="${inputtype}" class="item-textField" atype="field.input" ${readonly} autocomplete="off" value="${value}" />
+		<INPUT tabindex="${tabindex}" style="text-indent:2px;${fontstyle}" type="${inputtype}" class="item-textField" atype="field.input" ${readonly} autocomplete="off" value="${value}" />
 	</DIV>
 </DIV>
 <script>
