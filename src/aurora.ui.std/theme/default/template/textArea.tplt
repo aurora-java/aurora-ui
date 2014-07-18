@@ -1,4 +1,4 @@
-<textarea tabindex="${tabindex}" class="${wrapClass} item-tf" autocomplete="off" atype="input" style="width:${width}px;height:${height}px;${style}" id="${id}"></textarea>
+<textarea tabindex="${tabindex}" class="${wrapClass} item-tf" autocomplete="off" atype="input" style="width:${width}px;height:${height}px;${fontstyle};${style}" id="${id}"></textarea>
 <script>
 	new Aurora.TextArea(${config});
 	${binding}
