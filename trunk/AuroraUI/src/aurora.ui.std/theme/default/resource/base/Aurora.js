@@ -926,11 +926,13 @@ $A.doEvalScript = function(){
     
     var cssre = /(?:<link([^>]*)?>)((\n|\r|.)*?)/ig;
     var cssHreRe = /\shref=([\'\"])(.*?)\1/i;
+    var cssMediaRe = /\smedia=([\'\"])(.*?)\1/i;
     
     var cssm;
     while(cssm = cssre.exec(html)){
         var attrs = cssm[1];
         var srcMatch = attrs ? attrs.match(cssHreRe) : false;
+        var mediaMatch = attrs ? attrs.match(cssMediaRe) : false;
         if(srcMatch && srcMatch[2]){
             var included = false;
             for(var i=0;i<links.length;i++){
@@ -945,6 +947,7 @@ $A.doEvalScript = function(){
                 s.type = 'text/css';
                 s.rel = 'stylesheet';
                 s.href = srcMatch[2];
+                if(mediaMatch)s.media = mediaMatch[2];
                 hd.appendChild(s);
             }
         }

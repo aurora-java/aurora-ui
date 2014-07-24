@@ -161,6 +161,7 @@ $A.UploadList = Ext.extend($A.Component,{
             ds[ou]('update', sf.onUpdate, sf);
             ds[ou]('add', sf.onAdd, sf);
             ds[ou]('remove', sf.onRemove, sf);
+            ds[ou]('load', sf.drawList, sf);
             ds[ou]('refresh', sf.drawList, sf);
         }
     },
@@ -192,7 +193,7 @@ $A.UploadList = Ext.extend($A.Component,{
     },
     onAdd: function(ds,record,row){
         var html = [];
-        var tys = record.get('file_name').split('.');
+        var tys = (record.get('file_name')||'').split('.');
         var type = tys[tys.length-1];
         html.push('<div class="up_card" id="atm_'+record.id+'">');
         html.push('<div class="icon icon-'+type+'"> </div>');

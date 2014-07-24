@@ -1,0 +1,8 @@
+<div class="${wrapClass}" style="${style};width:${width}px;height:${height}px;" id="${id}">
+    <div class="arrow" title="展开/关闭"></div>
+    <div class="bar-body" style="${bodystyle}"></div>
+</div>
+<script>
+    new Aurora.SideBar(${config});
+    ${binding}
+</script>

@@ -26,6 +26,12 @@ $A.fireWindowResize = function(){
 if(Ext.isIE6)Ext.EventManager.on(window, "resize", $A.fireWindowResize, this);
 
 
+$A.PARENT_DOMAIN = true;
+try{
+	parent.document
+}catch(e){
+	$A.PARENT_DOMAIN = false;
+}
 
 $A.cache = {};
 $A.cmps = {};
@@ -710,7 +716,7 @@ $A.SideBar = function(){
             if(!this.enable)return;
 //            this.hide();
             var sf = this;
-            if(parent.showSideBar){
+            if($A.PARENT_DOMAIN && parent.showSideBar){
                 parent.showSideBar(msg||'')
             }else{
                 this.hide();
@@ -737,7 +743,7 @@ $A.SideBar = function(){
             }
         },
         hide : function(){
-            if(parent.hideSideBar){
+            if($A.PARENT_DOMAIN && parent.hideSideBar){
                 parent.hideSideBar()
             }else{
                 if(this.bar) {
@@ -757,7 +763,7 @@ $A.Status = function(){
         show : function(msg){
             if(!this.enable)return;
             this.hide();
-            if(parent.showStatus) {
+            if($A.PARENT_DOMAIN && parent.showStatus) {
                parent.showStatus(msg);
             }else{
                 var p = '<div class="item-statusBar" unselectable="on">'+msg+'</div>';
@@ -766,7 +772,7 @@ $A.Status = function(){
             }
         },
         hide : function(){
-            if(parent.hideStatus){
+            if($A.PARENT_DOMAIN && parent.hideStatus){
                 parent.hideStatus();
             }else{
                 if(this.bar) {
@@ -920,11 +926,13 @@ $A.doEvalScript = function(){
     
     var cssre = /(?:<link([^>]*)?>)((\n|\r|.)*?)/ig;
     var cssHreRe = /\shref=([\'\"])(.*?)\1/i;
+    var cssMediaRe = /\smedia=([\'\"])(.*?)\1/i;
     
     var cssm;
     while(cssm = cssre.exec(html)){
         var attrs = cssm[1];
         var srcMatch = attrs ? attrs.match(cssHreRe) : false;
+        var mediaMatch = attrs ? attrs.match(cssMediaRe) : false;
         if(srcMatch && srcMatch[2]){
             var included = false;
             for(var i=0;i<links.length;i++){
@@ -939,6 +947,7 @@ $A.doEvalScript = function(){
                 s.type = 'text/css';
                 s.rel = 'stylesheet';
                 s.href = srcMatch[2];
+                if(mediaMatch)s.media = mediaMatch[2];
                 hd.appendChild(s);
             }
         }
@@ -1516,7 +1525,7 @@ $A.unescapeHtml = function(str){
     return String(str).replace(/&amp;/gm,'&').replace(/&quot;/gm,'"').replace(/&#40;/gm,'(').replace(/&#41;/gm,')').replace(/&#43;/gm,'+').replace(/&#37;/gm,'%')
     .replace(/&lt;/gm,'<').replace(/&gt;/gm,'>');
 }
-$A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_state){
+$A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_state,param){
     var p={"parameter":{"_column_config_":{}}},columns=[],parentMap={},
         _parentColumn=function(pcl,cl){
             if(!(Ext.isDefined(pcl.forexport)?pcl.forexport:true))return null;
@@ -1555,7 +1564,7 @@ $A.doExport=function(dataset,cols,mergeCols,type,separator,filename,generate_sta
             });
             p["parameter"]["_merge_column_"] = _merge_column_;
         }
-        var r,q = {};
+        var r,q = param||{};
         if(dataset.qds)r = dataset.qds.getCurrentRecord();
         if(r) Ext.apply(q, r.data);
         Ext.apply(q, dataset.qpara);
@@ -4213,12 +4222,20 @@ $A.Component = Ext.extend(Ext.util.Observable,{
      */
     show : function(){
     	this.wrap.show();
+    	var prompt = Ext.fly(this.id+'_prompt');
+		if(prompt){
+			prompt.show();
+		}
     },
     /**
      * 隐藏组件
      */
     hide : function(){
     	this.wrap.hide();
+    	var prompt = Ext.fly(this.id+'_prompt');
+		if(prompt){
+			prompt.hide();
+		}
     },
     setVisible : function(v){
     	this[v?'show':'hide']();
@@ -4519,8 +4536,9 @@ $A.Field = Ext.extend($A.Component,{
     	var sf = this,
     		svc = sf.service,
         	view = sf.autocompleteview,
-    		field = sf.autocompletefield,
-    		name = sf.binder && sf.binder.name;
+        	name = sf.binder && sf.binder.name,
+    		field = sf.autocompletefield || name,
+    		displayField;
     	if(sf.autocomplete && svc){
         	if(!view){
 	        	view = sf.autocompleteview = new $A.AutoCompleteView({
@@ -4534,15 +4552,18 @@ $A.Field = Ext.extend($A.Component,{
         		view.processListener('on');
         	}
 			view.active = true;	
-        	if(!field){
-        		Ext.each(sf.getMapping(),function(map){
-        			if(map.to == name) field = sf.autocompletefield = map.from;
-        		});
-        		if(!field)field = name;
-        	}
+    		Ext.each(sf.getMapping(),function(map,index){
+    			if(map.to == name){
+    				displayField = map.from;
+    				return false;
+    			}else if(!index){
+    				displayField = map.from;
+    			};
+    		});
         	view.bind({
         		url:sf.context + 'autocrud/'+svc+'/query',
         		name:field,
+        		displayField : displayField,
         		size:sf.autocompletesize,
         		pagesize:sf.autocompletepagesize,
         		renderer:sf.autocompleterenderer,
@@ -4689,20 +4710,6 @@ $A.Field = Ext.extend($A.Component,{
 		var prompt = Ext.fly(this.id+'_prompt');
 		if(prompt){
 			prompt.update(text);
-		}
-    },
-    show : function(){
-    	$A.Field.superclass.show.call(this);
-    	var prompt = Ext.fly(this.id+'_prompt');
-		if(prompt){
-			prompt.show();
-		}
-    },
-    hide : function(){
-    	$A.Field.superclass.hide.call(this);
-    	var prompt = Ext.fly(this.id+'_prompt');
-		if(prompt){
-			prompt.hide();
 		}
     },
     isDbc : function(s){
@@ -5252,7 +5259,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
         		fn(field.name);
         	});
         }else{
-        	fn(sf.name)
+    		fn(sf.displayField);
         }
 		return text.join('');
 	},
@@ -6009,6 +6016,7 @@ $A.Spinner = Ext.extend($A.NumberField,{
 		var decimal = String(sf.step = Number(config.step||1)).split('.')[1];
 		sf.decimalprecision = decimal?decimal.length:0;
     	sf.btn = sf.wrap.child('div.item-spinner-btn');
+    	sf.setTriggerBtnPosition();
     },
     processListener: function(ou){
     	var sf = this;
@@ -6028,9 +6036,9 @@ $A.Spinner = Ext.extend($A.NumberField,{
     	this.onBtnMouseUp(e,t);
     },
     onBtnMouseDown:function(e,t){
-    	if(this.readonly)return;
-    	var target = Ext.fly(t),
-			isPlus = !!target.addClass('spinner-select').parent('.item-spinner-plus'),
+    	var target = Ext.fly(t);
+		if(this.readonly||!target.parent('span'))return;
+    	var	isPlus = !!target.addClass('spinner-select').parent('.item-spinner-plus'),
 			sf = this;
 		sf.goStep(isPlus,function(){
 	    	sf.intervalId = setInterval(function(){
@@ -6089,6 +6097,15 @@ $A.Spinner = Ext.extend($A.NumberField,{
     },
     toFixed : function(n){
     	return Number(n.toFixed(this.decimalprecision));
+    },
+    setHeight: function(h){
+    	var sf = this;
+    	if(this.height == h) return;
+    	$A.Spinner.superclass.setHeight.call(sf, h);
+    	sf.setTriggerBtnPosition();
+    },
+    setTriggerBtnPosition:function(){
+    	this.btn.setStyle({'padding-top':Math.round((this.btn.getHeight()-20)/2)+'px'});
     }
 });
 /**
@@ -9259,11 +9276,15 @@ A.MultiTextField = Ext.extend(A.TextField,{
 	    	}
     },
     processValue : function(v){
-    	var name = this.binder.name,arr=[];
-		Ext.each(this.items,function(item){
-    		arr.push(item[name]);
-    	});
-    	return arr.join(SYMBOL);
+    	if(this.binder){
+	    	var name = this.binder.name,arr=[];
+			Ext.each(this.items,function(item){
+	    		arr.push(item[name]);
+	    	});
+	    	return arr.join(SYMBOL);
+    	}else{
+    		return v;
+    	}
     },
     formatValue : function(v){
     	var sf = this,v,r = sf.record,binder = sf.binder,name,mapTos=[];
@@ -9370,10 +9391,11 @@ A.MultiTextField = Ext.extend(A.TextField,{
     	this.wrap.select(DIV$ITEM_RECEIVER_INFO).remove();
     },
     fetchRecord : function(){
-    	if(this.readonly)return;
-    	var sf = this,v = sf.getRawValue(),
-    		record = sf.record,
+    	if(this.readonly||!this.binder)return;
+    	var sf = this,
     		binder = sf.binder,
+    		v = sf.getRawValue(),
+    		record = sf.record,
         	name = binder.name;
     	sf.fetching = true;
     	if(sf.fetchremote){
@@ -9677,3 +9699,129 @@ $A.PercentField = Ext.extend($A.NumberField,{
         return $A.FixMath.div($A.PercentField.superclass.processValue.call(this,v),100);
     }
 });
+$A.SideBar = Ext.extend($A.Component,{
+    constructor: function(config) { 
+        this.collapsible = true;
+        this.cmps = {};
+        $A.SideBar.superclass.constructor.call(this,config);
+    },
+    initComponent : function(config){
+        $A.SideBar.superclass.initComponent.call(this, config);
+        this.collapseBtn = this.wrap.child('.arrow');
+        this.body = this.wrap.child('.bar-body');
+        this.wrap.cmps = this.cmps;
+        this.initSize();
+        this.center();
+        if(this.url){
+            this.load(this.url)
+        }
+    },
+    processListener: function(ou){
+        $A.SideBar.superclass.processListener.call(this,ou);
+        if(this.collapsible) {
+           this.collapseBtn[ou]("click", this.onCollapseBtnClick,  this); 
+        }
+    },
+    initSize : function(){
+        if(this.fullHeight){
+            var screenHeight = $A.getViewportHeight();
+            this.height = screenHeight;
+            this.wrap.setHeight(screenHeight);
+        }
+        this.collapseBtn.setStyle('top',(this.height-35)/2+'px');
+    },
+    center: function(){
+        var screenHeight = $A.getViewportHeight();
+        var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
+        var y = st+Math.max((screenHeight - this.height-(Ext.isIE?26:23))/2,0);
+        this.wrap.setStyle('top',y+'px');
+    },
+    onCollapseBtnClick : function(){
+        var w = this.wrap.getWidth()-2;
+        if(w==0){
+            this.wrap.setWidth(this.width,{
+                duration:.35,
+                easing:'easeOut',
+                callback:function(){
+                    this.body.setStyle('display','block');
+                },
+                scope:this
+            });
+        }else{
+            this.body.setStyle('display','none');
+            this.wrap.setWidth(0,true)
+            
+        }
+        
+    },
+    showLoading : function(){
+        this.body.update(_lang['window.loading']);
+        this.body.setStyle('text-align','center');
+        this.body.setStyle('line-height',5);
+    },
+    clearLoading : function(){
+        this.body.update('');
+        this.body.setStyle('text-align','');
+        this.body.setStyle('line-height','');
+    },
+    clearBody : function(){
+        for(var key in this.cmps){
+            var cmp = this.cmps[key];
+            if(cmp.destroy){
+                try{
+                    cmp.destroy();
+                }catch(e){
+                    alert('销毁sidebar出错: ' + e)
+                }
+            }
+        }
+    },
+    load : function(url){
+        this.clearBody();
+        this.showLoading();       
+        Ext.Ajax.request({
+            url: url,
+            success: this.onLoad.createDelegate(this)
+        });     
+    },
+    onLoad : function(response, options){
+        if(!this.body) return;
+        this.clearLoading();
+        var html = response.responseText;
+        var res
+        try {
+            res = Ext.decode(response.responseText);
+        }catch(e){}
+        if(res && res.success == false){
+            if(res.error){
+                if(res.error.code  && res.error.code == 'session_expired' || res.error.code == 'login_required'){
+                    if($A.manager.fireEvent('timeout', $A.manager))
+                    $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
+                }else{
+                    $A.manager.fireEvent('ajaxfailed', $A.manager, options.url,options.para,res);
+                    var st = res.error.stackTrace;
+                    st = (st) ? st.replaceAll('\r\n','</br>') : '';
+                    if(res.error.message) {
+                        var h = (st=='') ? 150 : 250;
+                        $A.showErrorMessage(_lang['window.error'], res.error.message+'</br>'+st,null,400,h);
+                    }else{
+                        $A.showErrorMessage(_lang['window.error'], st,null,400,250);
+                    } 
+                }
+            }
+            return;
+        }
+        var sf = this;
+        this.body.update(html,true,function(){
+            var w = sf.wrap.getWidth()-2;
+            if(w==0) sf.body.setStyle('display','none');
+//          var cmps = $A.CmpManager.getAll();
+//          for(var key in cmps){
+//              if(sf.oldcmps[key]==null){                  
+//                  sf.cmps[key] = cmps[key];
+//              }
+//          }
+            sf.fireEvent('load',sf)
+        },this.wrap);
+    }
+})
