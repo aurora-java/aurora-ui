@@ -5,7 +5,7 @@
  * http://www.hand-china.com
  * 
  * author:牛佳庆
- * revision:$Rev: 8072 $
+ * revision:$Rev: 8384 $
  */
 .refresh {
     overflow:hidden;
@@ -155,7 +155,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	right:0;
 	WIDTH: 20px;	
 	CURSOR: pointer;	
-	HEIGHT: 20px;
+	HEIGHT: 100%;
 	BORDER-RIGHT-WIDTH: 0px
 }
 .item-popup {
@@ -342,6 +342,15 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     box-shadow:0px 4px 16px rgba(0,0,0,0.5);
     z-index:21;
 }
+
+.fieldbox_head {
+    border-left:1px solid #ffffff;
+    border-bottom:1px solid #bbbbbb;
+    height:25px;
+    COLOR: #055a78; 
+    background:url(../toolbar/toolbar_bg.gif) repeat-x;
+    padding-left:5px;
+}
 .item-ckb,.grid-ckb,.table-ckb{
 	width:13px;
 	height:13px;
@@ -352,6 +361,11 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	float:left;
 	margin-top: 4px;
 	outline:none;
+}
+.item-focus[atype=checkbox]{
+	position:relative;
+	top:-1px;
+	left:-1px;
 }
 .grid-select-all .grid-rowbox .item-ckb-u,.grid-select-all .grid-rowbox .item-ckb-c,
 .table-select-all .table-rowbox .item-ckb-u,.table-select-all .table-rowbox .item-ckb-c{
@@ -818,12 +832,12 @@ button div {
 }
 .item-textField {
     border:0;  
-    height:18px;
     line-height:16px;
     padding:0;
-    padding-top:2px; 
+    /*padding-top:2px; */
     background-color:transparent; 
     width:100%;
+    height:100%;
 }
 .ext-ie6 .item-textField{
     font-size:12px;
@@ -856,7 +870,6 @@ button div {
 
 .item-spinner-btn {
 	border-width: 0;
-	cursor: pointer;
 	float: left
 }
 
@@ -888,7 +901,7 @@ button div {
 	background-position: -40px -10px;
 }
 .item-comboButton {	
-	BACKGROUND: url(../base/itembar.gif) no-repeat 2px 0px;
+	BACKGROUND: url(../base/itembar.gif) no-repeat 2px center;
 }
 .item-comboBox-selected {
 	background-color: #dfeaf5;
@@ -912,7 +925,7 @@ button div {
 }
 */
 .item-dateButton {	
-	BACKGROUND: url(../base/itembar.gif) no-repeat 2px -20px;	
+	BACKGROUND: url(../base/itembar.gif) no-repeat -16px center;	
 }
 .item-dateField {
 	background-color:#fff;
@@ -1065,10 +1078,10 @@ button div {
 .item-toolbar .item-btn-tl,.item-toolbar .item-btn-tr,.item-toolbar .item-btn-tc,.item-toolbar .item-btn-ml,.item-toolbar .item-btn-mr,.item-toolbar .item-btn-mc,.item-toolbar .item-btn-bl,.item-toolbar .item-btn-br,.item-toolbar .item-btn-bc{
 	background-image:none;
 }
-.item-btn-over .item-btn-tl,.item-btn-over .item-btn-tr,.item-btn-over .item-btn-tc,.item-btn-over .item-btn-ml,.item-btn-over .item-btn-mr,.item-btn-over .item-btn-mc,.item-btn-over .item-btn-bl,.item-btn-over .item-btn-br,.item-btn-over .item-btn-bc{
+.item-toolbar .item-btn-over .item-btn-tl,.item-toolbar .item-btn-over .item-btn-tr,.item-toolbar .item-btn-over .item-btn-tc,.item-toolbar .item-btn-over .item-btn-ml,.item-toolbar .item-btn-over .item-btn-mr,.item-toolbar .item-btn-over .item-btn-mc,.item-toolbar .item-btn-over .item-btn-bl,.item-toolbar .item-btn-over .item-btn-br,.item-toolbar .item-btn-over .item-btn-bc{
 	background-image:url(../button/btn.gif);
 }
-.item-btn-pressed .item-btn-tl,.item-btn-pressed .item-btn-tr,.item-btn-pressed .item-btn-tc,.item-btn-pressed .item-btn-ml,.item-btn-pressed .item-btn-mr,.item-btn-pressed .item-btn-mc,.item-btn-pressed .item-btn-bl,.item-btn-pressed .item-btn-br,.item-btn-pressed .item-btn-bc{
+.item-toolbar .item-btn-pressed .item-btn-tl,.item-toolbar .item-btn-pressed .item-btn-tr,.item-toolbar .item-btn-pressed .item-btn-tc,.item-toolbar .item-btn-pressed .item-btn-ml,.item-toolbar .item-btn-pressed .item-btn-mr,.item-toolbar .item-btn-pressed .item-btn-mc,.item-toolbar .item-btn-pressed .item-btn-bl,.item-toolbar .item-btn-pressed .item-btn-br,.item-toolbar .item-btn-pressed .item-btn-bc{
 	background-image:url(../button/btn.gif);
 }
 .nav-label {
@@ -1204,7 +1217,7 @@ button div {
     border-top:1px solid #ccc;
 }
 .item-lovButton {	
-	BACKGROUND: url(../base/itembar.gif) no-repeat 2px -42px;	
+	BACKGROUND: url(../base/itembar.gif) no-repeat -34px center;	
 }
 .autocomplete-head {
 	
@@ -1312,5 +1325,39 @@ button div {
 	padding-right:3px;
 }
 .item-percent-icon{
-	background: url("../percentfield/percent-icon.gif") no-repeat 2px 2px;
+	background: url("../percentfield/percent-icon.gif") no-repeat 2px center;
+}
+.item-sidebar {
+    position:absolute;
+    z-index:10;
+    border:1px solid #ccc;
+    background-color:#fff;
+    -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    -moz-box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.item-sidebar .arrow {
+    position:absolute;
+    width:5px;
+    height:35px;
+    cursor:pointer;
+}
+.item-sidebar .bar-body{
+    overflow:hidden;
+}
+.item-rightbar {
+    right:0px;
+}
+.item-leftbar {
+    left:0px;
+}
+
+.item-rightbar .arrow {
+    left:-5px;
+    background: url(../sidebar/mini-left.gif) no-repeat;
+}
+
+.item-leftbar .arrow {
+	right:-5px;
+    background: url(../sidebar/mini-right.gif) no-repeat;
 }

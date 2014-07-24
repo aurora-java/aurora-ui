@@ -91,5 +91,9 @@
         <view-component elementName="viewItem" category="Layout" description="视图项" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.ViewItem" />
         <view-component elementName="officeEditor" category="Input" description="Office" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="switchCard" category="Layout" description="SwtichCard" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+
+        <view-component elementName="sideBars" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.component.std.SideBars" />
+        <view-component elementName="rightBar" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" defaultTemplate="sideBar.tplt"/>
+        <view-component elementName="leftBar" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" defaultTemplate="sideBar.tplt"/>
     </components>
 </package>

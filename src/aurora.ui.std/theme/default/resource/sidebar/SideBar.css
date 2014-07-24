@@ -1,0 +1,34 @@
+.item-sidebar {
+    position:absolute;
+    z-index:10;
+    border:1px solid #ccc;
+    background-color:#fff;
+    -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    -moz-box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.item-sidebar .arrow {
+    position:absolute;
+    width:5px;
+    height:35px;
+    cursor:pointer;
+}
+.item-sidebar .bar-body{
+    overflow:hidden;
+}
+.item-rightbar {
+    right:0px;
+}
+.item-leftbar {
+    left:0px;
+}
+
+.item-rightbar .arrow {
+    left:-5px;
+    background: url(../sidebar/mini-left.gif) no-repeat;
+}
+
+.item-leftbar .arrow {
+	right:-5px;
+    background: url(../sidebar/mini-right.gif) no-repeat;
+}

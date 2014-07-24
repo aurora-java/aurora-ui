@@ -350,6 +350,11 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	margin-top: 4px;
 	outline:none;
 }
+.item-focus[atype=checkbox]{
+	position:relative;
+	top:-1px;
+	left:-1px;
+}
 .grid-select-all .grid-rowbox .item-ckb-u,.grid-select-all .grid-rowbox .item-ckb-c,
 .table-select-all .table-rowbox .item-ckb-u,.table-select-all .table-rowbox .item-ckb-c{
 	background-position:0 -13px;
@@ -858,7 +863,6 @@ button div {
 
 .item-spinner-btn {
 	border-width: 0;
-	cursor: pointer;
 	float: left
 }
 
@@ -890,7 +894,7 @@ button div {
 	background-position: -40px -10px;
 }
 .item-comboButton {	
-	BACKGROUND: url(../base/itembar.gif) no-repeat 2px 0px;
+	BACKGROUND: url(../base/itembar.gif) no-repeat 2px center;
 }
 .item-comboBox-selected {
 	background-color: #dfeaf5;
@@ -914,7 +918,7 @@ button div {
 }
 */
 .item-dateButton {	
-	BACKGROUND: url(../base/itembar.gif) no-repeat 2px -20px;	
+	BACKGROUND: url(../base/itembar.gif) no-repeat -16px center;	
 }
 .item-dateField {
 	background-color:#fff;
@@ -1270,7 +1274,7 @@ button div {
     border-top:1px solid #ccc;
 }
 .item-lovButton {	
-	BACKGROUND: url(../base/itembar.gif) no-repeat 2px -42px;	
+	BACKGROUND: url(../base/itembar.gif) no-repeat -34px center;	
 }
 .autocomplete-head {
 	
@@ -1378,5 +1382,39 @@ button div {
 	padding-right:3px;
 }
 .item-percent-icon{
-	background: url("../percentfield/percent-icon.gif") no-repeat 2px 2px;
+	background: url("../percentfield/percent-icon.gif") no-repeat 2px center;
+}
+.item-sidebar {
+    position:absolute;
+    z-index:10;
+    border:1px solid #ccc;
+    background-color:#fff;
+    -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    -moz-box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.item-sidebar .arrow {
+    position:absolute;
+    width:5px;
+    height:35px;
+    cursor:pointer;
+}
+.item-sidebar .bar-body{
+    overflow:hidden;
+}
+.item-rightbar {
+    right:0px;
+}
+.item-leftbar {
+    left:0px;
+}
+
+.item-rightbar .arrow {
+    left:-5px;
+    background: url(../sidebar/mini-left.gif) no-repeat;
+}
+
+.item-leftbar .arrow {
+	right:-5px;
+    background: url(../sidebar/mini-right.gif) no-repeat;
 }
