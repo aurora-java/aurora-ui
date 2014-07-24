@@ -646,20 +646,12 @@ $A.ToolTip = function(){
         init: function(){
             var sf = this;
             Ext.onReady(function(){
-                var qdom = Ext.DomHelper.insertFirst(
-                    Ext.getBody(),
-                    {
-                        tag: 'div',
-                        cls: 'tip-wrap',
-                        children: [{tag: 'div', cls:'tip-body'}]
-                    }
-                );
-                var sdom = Ext.DomHelper.insertFirst(Ext.getBody(),{tag:'div',cls: 'item-shadow'});
-                sf.tip = Ext.get(qdom);
-                sf.shadow = Ext.get(sdom);
+                sf.tip = new Ext.Template('<div class="tip-wrap item-shadow">{shadow}<div class="tip-body"></div></div>').insertFirst(document.body,{
+                	shadow:Ext.isIE?'<div class="item-ie-shadow"></div>':''
+                },true);
+//                sf.shadow = Ext.get(sdom);
                 sf.body = sf.tip.first("div.tip-body");
-            })
-            
+            });
         },
         show: function(el, text){
             if(this.tip == null){
@@ -667,7 +659,7 @@ $A.ToolTip = function(){
                 //return;
             }
             this.tip.show();
-            this.shadow.show();
+//            this.shadow.show();
             this.body.update(text)
             var ele;
             if(typeof(el)=="string"){
@@ -682,8 +674,8 @@ $A.ToolTip = function(){
             }else{
                 ele = Ext.get(el);
             }
-            this.shadow.setWidth(this.tip.getWidth())
-            this.shadow.setHeight(this.tip.getHeight())
+//            this.shadow.setWidth(this.tip.getWidth())
+//            this.shadow.setHeight(this.tip.getHeight())
             this.correctPosition(ele);
         },
         correctPosition: function(ele){
@@ -696,13 +688,13 @@ $A.ToolTip = function(){
             }
             this.tip.setX(x);
             this.tip.setY(ele.getY());
-            this.shadow.setX(sx);
-            this.shadow.setY(this.tip.getY()+ 2)
+//            this.shadow.setX(sx);
+//            this.shadow.setY(this.tip.getY()+ 2)
         },
         hide: function(){
             this.sid = null;
             if(this.tip != null) this.tip.hide();
-            if(this.shadow != null) this.shadow.hide();
+//            if(this.shadow != null) this.shadow.hide();
         }
     }
     return q

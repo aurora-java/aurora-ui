@@ -16,7 +16,9 @@ $A.Spinner = Ext.extend($A.NumberField,{
 		var decimal = String(sf.step = Number(config.step||1)).split('.')[1];
 		sf.decimalprecision = decimal?decimal.length:0;
     	sf.btn = sf.wrap.child('div.item-spinner-btn');
-    	sf.setTriggerBtnPosition();
+    	$A.onReady(function(){
+	    	sf.setTriggerBtnPosition();
+    	});
     },
     processListener: function(ou){
     	var sf = this;

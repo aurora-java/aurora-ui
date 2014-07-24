@@ -11,14 +11,14 @@ $A.Button = Ext.extend($A.Component,{
 	overCss:'item-btn-over',
 	pressCss:'item-btn-pressed',
 	disabled:false,
-	constructor: function(config) {
-        $A.Button.superclass.constructor.call(this, config);
-    },
+//	constructor: function(config) {
+//        $A.Button.superclass.constructor.call(this, config);
+//    },
 	initComponent : function(config){
     	$A.Button.superclass.initComponent.call(this, config);
     	this.el = this.wrap.child('button[atype=btn]');
     	this.textEl = this.el.child('div');
-    	if(this.hidden == true)this.setVisible(false)
+//    	if(this.hidden == true)this.setVisible(false)
     	if(this.disabled == true)this.disable();
     },
     processListener: function(ou){

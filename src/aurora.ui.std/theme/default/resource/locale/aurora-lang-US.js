@@ -1,6 +1,8 @@
 _lang = {};
 
-_lang['accordion.loading'] = 'Loading,please wait...';
+_lang['accordion.loading'] = 'Loading...';
+
+_lang['switchcard.loading'] = 'Loading...';
 
 _lang['combobox.loading'] = 'Loading...';
 

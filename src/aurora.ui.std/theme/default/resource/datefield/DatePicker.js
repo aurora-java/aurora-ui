@@ -217,8 +217,6 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     onDraw : function(field){
     	if(this.dateFields.length>1)this.sysnDateField(field);
-    	this.shadow.setWidth(this.popup.getWidth());
-    	this.shadow.setHeight(this.popup.getHeight());
     },
     onSelect: function(e,t){
 //    	if(((t =Ext.fly(t)).hasClass('item-day'))){

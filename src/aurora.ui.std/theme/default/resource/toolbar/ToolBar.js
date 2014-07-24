@@ -8,7 +8,7 @@ $A.ToolBar = Ext.extend($A.Component,{
     initEvents : function(){
     	$A.ToolBar.superclass.initEvents.call(this); 
     }
-})
+});
 $A.NavBar = Ext.extend($A.ToolBar,{
 	constructor: function(config) {
         $A.NavBar.superclass.constructor.call(this, config);        
@@ -171,4 +171,4 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 	    	this.dataSet.query();
     	}
     }
-})
+});
