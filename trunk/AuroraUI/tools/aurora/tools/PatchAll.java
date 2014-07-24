@@ -24,6 +24,7 @@ public class PatchAll {
 	private static final String THEME_DARBLUE_DIR = "src/aurora.ui.std/theme/darkblue/resource/";
 	private static final String THEME_BLACK_DIR = "src/aurora.ui.std/theme/black/resource/";
 	private static final String THEME_MAC_DIR = "src/aurora.ui.std/theme/mac/resource/";
+	private static final String THEME_INFOR_DIR = "src/aurora.ui.std/theme/infor/resource/";
 	private int lineNum = 0;
 	
 	public static void main(String[] args) throws Exception{
@@ -60,6 +61,7 @@ public class PatchAll {
 		list.add("multitextfield/MultiTextField.js");
 		list.add("multicombobox/MultiComboBox.js");
 		list.add("percentfield/PercentField.js");
+		list.add("sidebar/SideBar.js");
 			
 		List csslist = new ArrayList();
 		csslist.add("base/Aurora.css");
@@ -78,6 +80,7 @@ public class PatchAll {
 		csslist.add("multitextfield/MultiTextField.css");
 		csslist.add("multicombobox/MultiComboBox.css");
 		csslist.add("percentfield/PercentField.css");
+		csslist.add("sidebar/SideBar.css");
 		
 		
 		List compressJs = new ArrayList();
@@ -131,7 +134,9 @@ public class PatchAll {
 		pa.patchAllFile(list,THEME_BLACK_DIR,AURORA_ALL);
 		pa.patchAllFile(csslist,THEME_BLACK_DIR,CSS_ALL);
 		pa.patchAllFile(list,THEME_MAC_DIR,AURORA_ALL);
-		pa.patchAllFile(csslist,THEME_MAC_DIR,CSS_ALL);
+		pa.patchAllFile(csslist,THEME_MAC_DIR,CSS_ALL);		
+		pa.patchAllFile(list,THEME_INFOR_DIR,AURORA_ALL);
+		pa.patchAllFile(csslist,THEME_INFOR_DIR,CSS_ALL);
 
 		pa.compressAllFiles(compressJs,THEME_DEFAULT_DIR,"js");
 		pa.compressAllFiles(compressCss,THEME_DEFAULT_DIR,"css");
@@ -141,6 +146,8 @@ public class PatchAll {
 		pa.compressAllFiles(compressCss,THEME_BLACK_DIR,"css");
 		pa.compressAllFiles(compressJs,THEME_MAC_DIR,"js");
 		pa.compressAllFiles(compressCss,THEME_MAC_DIR,"css");
+		pa.compressAllFiles(compressJs,THEME_INFOR_DIR,"js");
+		pa.compressAllFiles(compressCss,THEME_INFOR_DIR,"css");
 				
 		pa.compressAllFiles(compressTouchJs,TOUCH_DIR,"js");
 		pa.compressAllFiles(compressTouchCss,TOUCH_DIR,"css");
