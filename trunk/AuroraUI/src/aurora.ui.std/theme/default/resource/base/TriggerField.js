@@ -18,9 +18,11 @@ $A.TriggerField = Ext.extend($A.TextField,{
     initPopup: function(){
     	if(this.initpopuped == true) return;
     	this.popup = this.wrap.child('div[atype=triggerfield.popup]');
-    	this.shadow = this.wrap.child('div[atype=triggerfield.shadow]');
-    	Ext.getBody().insertFirst(this.popup);
-    	Ext.getBody().insertFirst(this.shadow);
+    	this.popupContent = this.popup.child('div.item-popup-content');
+    	Ext.isIE && new Ext.Template('<div class="item-ie-shadow"></div>').insertFirst(this.popup,{});
+//    	this.shadow = this.wrap.child('div[atype=triggerfield.shadow]');
+    	//Ext.getBody().insertFirst(this.popup);
+//    	Ext.getBody().insertFirst(this.shadow);
     	this.initpopuped = true
     },
     initEvents:function(){
@@ -90,11 +92,12 @@ $A.TriggerField = Ext.extend($A.TextField,{
 		if(this.isExpanded()){
     		this.collapse();
     	}
-    	this.shadow.remove();
-    	this.popup.remove();
+//    	this.shadow.remove();
+//    	this.popup.remove();
     	$A.TriggerField.superclass.destroy.call(this);
     	delete this.popup;
-    	delete this.shadow;
+    	delete this.popupContent;
+//    	delete this.shadow;
 	},
     triggerBlur : function(e,t){
     	if(!this.isEventFromComponent(t)){    		
@@ -115,7 +118,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     collapse : function(){
     	Ext.get(document.documentElement).un("mousedown", this.triggerBlur, this);
     	this.popup.moveTo(-1000,-1000);
-    	this.shadow.moveTo(-1000,-1000);
+//    	this.shadow.moveTo(-1000,-1000);
     	this.fireEvent("collapse", this);
     },
     /**
@@ -130,18 +133,25 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	this.fireEvent("expand", this);
     },
     syncPopup:function(){
-    	var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft,
-    		st = document[Ext.isStrict?'documentElement':'body'].scrollTop,
-    		xy = this.wrap.getXY(),
+    	var sf = this,
+    		wrap = sf.wrap,
+    		popup = sf.popup,
+    		scroll = Ext.getBody().getScroll(),
+    		sl = scroll.left,
+    		st = scroll.top,
+    		xy = wrap.getXY(),
     		_x = xy[0] - sl,
     		_y = xy[1] - st,
-			W=this.popup.getWidth(),H=this.popup.getHeight(),
-			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
-			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3,
+			W=popup.getWidth(),
+			H=popup.getHeight(),
+			PH=wrap.getHeight(),
+			PW=wrap.getWidth(),
+			BH=$A.getViewportHeight()-3,
+			BW=$A.getViewportWidth()-3,
 			x=((_x+W)>BW?((BW-W)<0?_x:(BW-W)):_x)+sl;
 			y=((_y+PH+H)>BH?((_y-H)<0?(_y+PH):(_y-H)):(_y+PH))+st;
-    	this.popup.moveTo(x,y);
-    	this.shadow.moveTo(x+3,y+3);
+    	popup.moveTo(x,y);
+//    	sf.shadow.moveTo(x+3,y+3);
     },
     onTriggerClick : function(){
     	if(this.readonly) return;

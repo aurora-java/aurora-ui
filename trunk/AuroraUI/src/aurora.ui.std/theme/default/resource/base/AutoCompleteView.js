@@ -4,8 +4,8 @@ var TR = 'TR',
 	EVT_CLICK = 'click',
 	EVT_MOUSE_MOVE = 'mousemove',
 	EVT_MOUSE_DOWN = 'mousedown',
-	TEMPLATE = ['<div id="{id}" tabIndex="-2" class="item-popup" style="visibility:hidden;background-color:#fff;">','</div>'],
-    SHADOW_TEMPLATE = ['<div id="{id}" class="item-shadow" style="visibility:hidden;">','</div>'],
+	TEMPLATE = ['<div id="{id}" tabIndex="-2" class="item-popup item-shadow" style="visibility:hidden;background-color:#fff;">{shadow}','<div class="item-popup-content"></div>','</div>'],
+    SHADOW_TEMPLATE = ['<div id="{id}" class="item-ie-shadow">','</div>'],
     AUTO_COMPLATE_TABLE_START = '<table class="autocomplete" cellspacing="0" cellpadding="2">';
 A.AutoCompleteView = Ext.extend($A.Component,{	
 	constructor: function(config) {
@@ -18,9 +18,15 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     },
     initComponent : function(config){
     	var sf = this;
-    	$A.AutoCompleteView.superclass.initComponent.call(this, config);
-    	sf.wrap = new Ext.Template(TEMPLATE).insertFirst(document.body,{width:sf.width,height:sf.height,id:sf.id},true);
-    	sf.shadow = new Ext.Template(SHADOW_TEMPLATE).insertFirst(document.body,{width:sf.width,height:sf.height,id:sf.id+'_shadow'},true);
+    	$A.AutoCompleteView.superclass.initComponent.call(sf, config);
+    	sf.wrap = new Ext.Template(TEMPLATE).insertFirst(sf.cmp?sf.cmp.wrap:document.body,{
+    		width:sf.width,
+    		height:sf.height,
+    		id:sf.id,
+    		shadow:Ext.isIE?SHADOW_TEMPLATE.join(''):''
+		},true);
+		sf.popupContent = sf.wrap.child('div.item-popup-content');
+//    	sf.shadow = new Ext.Template(SHADOW_TEMPLATE).insertFirst(document.body,{width:sf.width,height:sf.height,id:sf.id+'_shadow'},true);
     	sf.ds = new A.DataSet({id:sf.id+"_ds",autocount:false});
     },
     processListener: function(ou){
@@ -52,22 +58,22 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     destroy : function(){
     	var sf = this,wrap = sf.wrap;
     	sf.ds.destroy();
-    	sf.shadow.remove();
+//    	sf.shadow.remove();
     	$A.AutoCompleteView.superclass.destroy.call(sf);
     	wrap.remove();
     	delete sf.ds;
-    	delete sf.shadow;
+//    	delete sf.shadow;
     },
     onQuery : function(){
     	var sf = this;
-    	sf.wrap.update('<table cellspacing="0" cellpadding="2"><tr tabIndex="-2"><td>'+_lang['lov.query']+'</td></tr></table>')
+    	sf.popupContent.update('<table cellspacing="0" cellpadding="2"><tr tabIndex="-2"><td>'+_lang['lov.query']+'</td></tr></table>')
     		.un(EVT_MOUSE_MOVE,sf.onMove,sf);
     	sf.correctViewSize();
     },
 	onLoad : function(){
 		var sf = this,
     		datas = sf.ds.getAll(),
-			l=datas.length,view = sf.wrap,
+			l=datas.length,view = sf.popupContent,
 			sb;
 		sf.selectedIndex = null;
 		if(l==0){
@@ -186,7 +192,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
         	displayFields = binder?binder.ds.getField(binder.name).getPropertity('displayFields'):null,
         	head = displayFields && displayFields.length?23:0,
         	r = 22,
-            ub = this.wrap,
+            ub = this.popupContent,
             stop = ub.getScroll().top,
             h = ub.getHeight(),
             sh = ub.dom.scrollWidth > ub.dom.clientWidth? 16 : 0;
@@ -197,7 +203,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
         }
     },
 	getNode:function(index){
-		var nodes = this.wrap.query('tr[tabindex!=-2]'),l = nodes.length;
+		var nodes = this.popupContent.query('tr[tabindex!=-2]'),l = nodes.length;
 		if(index >= l) index =  index % l;
 		else if (index < 0) index = l + index % l;
 		return nodes[index];
@@ -206,12 +212,12 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     	var sf = this,view;
     	if(!sf.isShow){
     		sf.isShow=true;
-    		view = sf.wrap;
+    		view = sf.popupContent;
 	    	sf.position();
-	    	view.dom.className = 'item-popup item-comboBox-view';
+	    	view.dom.className = 'item-popup-content item-comboBox-view';
 			view.update('');
 	    	sf.wrap.show();
-	    	sf.shadow.show();
+//	    	sf.shadow.show();
 	    	Ext.get(document).on(EVT_MOUSE_DOWN,sf.trigger,sf);
     	}
     },
@@ -228,18 +234,26 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     		sf.isLoaded = false;
 	    	Ext.get(document).un(EVT_MOUSE_DOWN,sf.trigger,sf)
 	    	sf.wrap.hide();
-	    	sf.shadow.hide();
+//	    	sf.shadow.hide();
     	}
     },
     position:function(){
     	var sf = this,
     		wrap = sf.cmp ? sf.cmp.wrap : sf.el,
+    		scroll = Ext.getBody().getScroll(),
+    		sl = scroll.left,
+    		st = scroll.top,
     		xy = wrap.getXY(),
-			W=sf.getWidth(),H=sf.getHeight(),
+    		_x = xy[0] - sl,
+    		_y = xy[1] - st,
+			W=sf.getWidth(),
+			H=sf.getHeight(),
 			PH=wrap.getHeight(),
-			BH=A.getViewportHeight()-3,BW=A.getViewportWidth()-3,
-			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
-			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
+			PW=wrap.getWidth(),
+			BH=A.getViewportHeight()-3,
+			BW=A.getViewportWidth()-3,
+			x=((_x+W)>BW?((BW-W)<0?_x:(BW-W)):_x)+sl;
+			y=((_y+PH+H)>BH?((_y-H)<0?(_y+PH):(_y-H)):(_y+PH))+st;
     	sf.moveTo(x,y);
     },
     createListView : function(datas,binder){
@@ -283,7 +297,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 	},
     correctViewSize: function(){
 		var sf = this,
-			table = sf.wrap.child('table');
+			table = sf.popupContent.child('table');
 		if(table.getWidth() < 150)table.setWidth(150);
 		sf.setHeight(Math.max(Math.min(table.getHeight()+2,sf.maxHeight),20));
     	sf.setWidth(sf.wrap.getWidth());
@@ -291,15 +305,15 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 	},
 	moveTo : function(x,y){
     	this.wrap.moveTo(x,y);
-    	this.shadow.moveTo(x+3,y+3);
+//    	this.shadow.moveTo(x+3,y+3);
     },
     setHeight : function(h){
     	this.wrap.setHeight(h);
-    	this.shadow.setHeight(h);
+//    	this.shadow.setHeight(h);
     },
     setWidth : function(w){
 //    	this.wrap.setWidth(w);
-    	this.shadow.setWidth(w);
+//    	this.shadow.setWidth(w);
     },
     getHeight : function(){
     	return this.wrap.getHeight();

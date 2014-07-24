@@ -1,6 +1,8 @@
 _lang = {};
 
-_lang['accordion.loading'] = '正在加载,请稍后...';
+_lang['accordion.loading'] = '正在加载...';
+
+_lang['switchcard.loading'] = '正在加载...';
 
 _lang['combobox.loading'] = '正在加载...';
 

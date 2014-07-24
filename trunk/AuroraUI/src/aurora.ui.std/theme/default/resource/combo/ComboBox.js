@@ -176,7 +176,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
 	onRender:function(){	
         if(!this.view){
-			this.view=this.popup.update('<ul></ul>').child('ul')
+			this.view=this.popupContent.update('<ul></ul>').child('ul')
 				.on('click', this.onViewClick,this)
 				.on('mousemove',this.onViewMove,this);
         }
@@ -193,9 +193,9 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		Ext.each(this.view.dom.childNodes,function(li){
 			mw = Math.max(mw,$A.TextMetrics.measure(li,li.innerHTML).width)||mw;
 		});
-		var lh = Math.max(20,Math.min(this.popup.child('ul').getHeight()+4,this.maxHeight)); 
+		var lh = Math.max(20,Math.min(this.popupContent.child('ul').getHeight()+2,this.maxHeight)); 
 		this.popup.setWidth(mw).setHeight(lh);
-    	this.shadow.setWidth(mw).setHeight(lh);
+//    	this.shadow.setWidth(mw).setHeight(lh);
 	},
 	onViewClick:function(e,t){
 		if(t.tagName!='LI'){
@@ -311,7 +311,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
 	focusRow : function(row){
         var r = 20,
-            ub = this.popup,
+            ub = this.popupContent,
             stop = ub.getScroll().top,
             h = ub.getHeight(),
             sh = ub.dom.scrollWidth > ub.dom.clientWidth? 16 : 0;

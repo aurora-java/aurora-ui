@@ -1,23 +1,25 @@
 <DIV class="${wrapClass} item-tf" style="width:${width}px;height:${height}px;${style}" id="${id}">
 	<DIV style="position:relative;padding-left:3px;padding-right:20px;height:100%">
-		<DIV style="height:100%">
+		<DIV style="height:100%;overflow:hidden">
 			<INPUT tabindex="${tabindex}" style="${fontstyle}" class="item-textField" atype="field.input" ${readonly} autocomplete="off" value="${value}" />
 		</DIV>
 		<DIV class="item-trigger item-dateButton" atype="triggerfield.trigger" hideFocus></DIV>
 	</DIV>
-	<DIV class="item-popup item-dateList item-dateField" atype="triggerfield.popup">
-		<TABLE cellspacing="0">
-			<TR>
-				${body}
-			</TR>
-		</TABLE>
-		<DIV class="item-dateField-foot" align="center">
-			<DIV class="item-dateField-input" style="width:66px !important;width:71px;">
-				<INPUT style="width:16px" maxLength="2" atype="field.hour">
-				<DIV style="width:8px">:</DIV>
-				<INPUT style="width:16px" maxLength="2" atype="field.minute">
-				<DIV style="width:8px">:</DIV>
-				<INPUT style="width:16px" maxLength="2" atype="field.second">
+	<DIV class="item-popup item-shadow" atype="triggerfield.popup">
+		<DIV class="item-popup-content item-dateList item-dateField">
+			<TABLE cellspacing="0">
+				<TR>
+					${body}
+				</TR>
+			</TABLE>
+			<DIV class="item-dateField-foot" align="center">
+				<DIV class="item-dateField-input" style="width:66px !important;width:71px;">
+					<INPUT style="width:16px" maxLength="2" atype="field.hour">
+					<DIV style="width:8px">:</DIV>
+					<INPUT style="width:16px" maxLength="2" atype="field.minute">
+					<DIV style="width:8px">:</DIV>
+					<INPUT style="width:16px" maxLength="2" atype="field.second">
+				</DIV>
 			</DIV>
 		</DIV>
 	</DIV>
