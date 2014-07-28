@@ -169,7 +169,10 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     POSITION: absolute;
     BORDER:#bababa 1px solid;
 }
-
+.item-popup-content{
+	height:100%;
+	width:100%;
+}
 /** Msg **/
 .item-invalid-msg-bottom {
     position:relative;
