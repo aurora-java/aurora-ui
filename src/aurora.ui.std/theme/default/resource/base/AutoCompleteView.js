@@ -4,7 +4,7 @@ var TR = 'TR',
 	EVT_CLICK = 'click',
 	EVT_MOUSE_MOVE = 'mousemove',
 	EVT_MOUSE_DOWN = 'mousedown',
-	TEMPLATE = ['<div id="{id}" tabIndex="-2" class="item-popup item-shadow" style="visibility:hidden;background-color:#fff;">{shadow}','<div class="item-popup-content"></div>','</div>'],
+	TEMPLATE = ['<div id="{id}" tabIndex="-2" class="item-popup item-shadow" style="visibility:hidden;background-color:#fff;width:{width}px">{shadow}','<div class="item-popup-content"></div>','</div>'],
     SHADOW_TEMPLATE = ['<div id="{id}" class="item-ie-shadow">','</div>'],
     AUTO_COMPLATE_TABLE_START = '<table class="autocomplete" cellspacing="0" cellpadding="2">';
 A.AutoCompleteView = Ext.extend($A.Component,{	
@@ -13,6 +13,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 		config.id = config.id + '_autocomplete';
 		sf.isLoaded = false;
 		sf.maxHeight = 250;
+		sf.minWidth = 150;
         sf.delay = 500;
         $A.AutoCompleteView.superclass.constructor.call(sf, config);
     },
@@ -297,10 +298,11 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 	},
     correctViewSize: function(){
 		var sf = this,
-			table = sf.popupContent.child('table');
-		if(table.getWidth() < 150)table.setWidth(150);
+			table = sf.popupContent.child('table'),
+			width = Math.max(sf.minWidth,table.getWidth());
 		sf.setHeight(Math.max(Math.min(table.getHeight()+2,sf.maxHeight),20));
-    	sf.setWidth(sf.wrap.getWidth());
+    	sf.setWidth(width);
+    	table.setStyle({width:'100%'});
 		sf.position();
 	},
 	moveTo : function(x,y){
@@ -312,7 +314,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 //    	this.shadow.setHeight(h);
     },
     setWidth : function(w){
-//    	this.wrap.setWidth(w);
+    	this.wrap.setWidth(w);
 //    	this.shadow.setWidth(w);
     },
     getHeight : function(){

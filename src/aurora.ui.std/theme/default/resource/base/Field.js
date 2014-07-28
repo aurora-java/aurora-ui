@@ -107,7 +107,7 @@ $A.Field = Ext.extend($A.Component,{
 	},
 	setHeight: function(h){
 		this.wrap.setStyle("height",h+"px");
-		this.el.setStyle("height",(h-2)+"px");
+		this.el.setStyle("height",h+"px");
 	},
 //	setVisible: function(v){
 //		this.wrap[v?'show':'hide']();
