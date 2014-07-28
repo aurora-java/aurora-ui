@@ -1,6 +1,6 @@
 <DIV class="${wrapClass} item-tf" style="width:${width}px;height:${height}px;${style}" id="${id}" >
-	<DIV style="position:relative;padding-right:23px;height:100%">
-		<DIV style="height:100%;overflow:hidden">
+	<DIV style="position:relative;padding-right:20px;height:100%">
+		<DIV style="height:100%;overflow:hidden;padding-right:3px">
 			<INPUT tabindex="${tabindex}" type="${inputtype}" style="height:${height}px;line-height:${height}px;ime-mode:disabled;${fontstyle}" class="item-textField item-spinner" atype="field.input" ${readonly} autocomplete="off" value="${value}" />
 		</DIV>
 		<DIV class="item-trigger item-spinner-btn" atype="triggerfield.trigger" hideFocus>
