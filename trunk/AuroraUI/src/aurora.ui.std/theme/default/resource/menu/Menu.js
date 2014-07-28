@@ -1,3 +1,24 @@
+(function(A){
+var TRUE = true,
+	FALSE = false,
+	NULL = null,
+	EACH = Ext.each,
+	CLASS_CURRENT_MENU = 'item-menu-current',
+	EVT_MOUSE_DOWN = 'mousedown',
+	EVT_MOUSE_UP = 'mouseup',
+	EVT_SUBMIT = 'submit',
+	SELECTOR_ITEM_MENU_ICON_DIV = 'td.item-menu-icon div',
+	TPLT_IE_SHADOW = '<div class="item-ie-shadow"></div>',
+	TPLT_MAIN_MENU_LIST_ITEM = '<LI id="{id}" class="item-menu"></LI>',
+	TPLT_SUB_MENU_LIST_ITEM = '<TR id="{id}" class="item-menu"></TR>',
+	TPLT_MENU_BAR = '<SPAN class="item-menu-text">{text}</SPAN>',
+	TPLT_CONTAINER = '<DIV class="item-shadow item-menu-container" style="z-index:{zIndex};visibility:hidden;">{shadow}<TABLE cellspacing="0"><TBODY></TBODY></TABLE></DIV>';
+
+function sortOptions(o1,o2){
+	o1.options && o1.options.sort(sortOptions);
+	o2.options && o2.options.sort(sortOptions);
+	return parseFloat(o1.index)-parseFloat(o2.index);
+}
 /**
  * @class Aurora.MenuBar
  * @extends Aurora.Component
@@ -6,146 +27,234 @@
  * @constructor
  * @param {Object} config 配置对象. 
  */
-$A.MenuBar=Ext.extend($A.Component,{
+A.MenuBar=Ext.extend(A.Component,{
 	constructor: function(config) {
-		this.isActive=false,this.needHide=false,this.children=[],this.selectIndex = null,this.altKeyAccess=false;
-		$A.MenuBar.superclass.constructor.call(this, config);
-		this.handlerfield=config.handlerfield||'handler';
-		this.menutype=config.menutype||'type';
-		this.checked=config.checked||'checked';
-	},
-	initComponent : function(config){
-		$A.MenuBar.superclass.initComponent.call(this,config);
-		if(config.focus){
-			Ext.fly(config.focus).set({'tabIndex':'-1'});
-			Ext.fly(config.focus).setStyle({'outline':'none'});
-		}
+		var sf = this;
+		sf.isActive=FALSE;
+		sf.needHide=FALSE;
+		sf.children=[];
+		sf.selectIndex = NULL;
+		A.MenuBar.superclass.constructor.call(sf, config);
+		sf.handlerfield=sf.handlerfield||'handler';
+		sf.menutype=sf.menutype||'type';
+		sf.checked=sf.checked||'checked';
 	},
 	processListener: function(ou){
-    	$A.MenuBar.superclass.processListener.call(this,ou);
-    	Ext.fly(document)[ou]('mousedown',this.onMouseDown,this);
-    	Ext.fly(document)[ou]('mouseup',this.onMouseUp,this);
-    	Ext.getBody()[ou]('selectstart',this.preventMenuAndSelect,this);
-    	Ext.getBody()[ou]('contextmenu',this.preventMenuAndSelect,this);
-    	if(ou=='on')Ext.onReady(function(ou){this.processIframeListener(ou);}.createDelegate(this,[ou]))
-    	else this.processIframeListener(ou);
+		var sf = this;
+    	A.MenuBar.superclass.processListener.call(sf,ou);
+    	Ext.fly(document)[ou](EVT_MOUSE_DOWN,sf.onMouseDown,sf)
+			[ou](EVT_MOUSE_UP,sf.onMouseUp,sf);
+    	Ext.getBody()[ou]('selectstart',sf.preventMenuAndSelect,sf)
+			[ou]('contextmenu',sf.preventMenuAndSelect,sf);
+    	if(ou=='on')
+    		A.onReady(function(){
+    			sf.processIframeListener(ou);
+			});
+    	else
+    		sf.processIframeListener(ou);
     },
     processIframeListener:function(ou){
-    	var frames=document.getElementsByTagName('iframe');
-    	for(var i=0;frames[i];i++){
-			Ext.fly(frames[i])[ou]('load',function(frame){
-	    		Ext.fly(frame.contentWindow.document)[ou]('mousedown',this.onMouseDown,this);
-	    		Ext.fly(frame.contentWindow.document)[ou]('mouseup',this.onMouseUp,this);
-			}.createDelegate(this,[frames[i]]))
-			if(this.urltarget&&this.urltarget==frames[i].name)this.targetFrame=frames[i];
+    	var sf = this;
+    	function registerListener(el){
+    		Ext.fly(el)[ou](EVT_MOUSE_DOWN,sf.onMouseDown,sf)
+    			[ou](EVT_MOUSE_UP,sf.onMouseUp,sf);
     	}
+    	EACH(Ext.getBody().query('iframe'),function(frame,win){
+    		(win = frame.contentWindow) && registerListener(win.document);
+    		Ext.fly(frame)[ou]('load',function(){
+				registerListener(frame.contentWindow.document);
+			});
+			if(sf.urltarget&&sf.urltarget==frame.name)
+				sf.targetFrame=frame;
+    	});
     },
     processDataSetLiestener: function(ou){
-		var ds = this.dataset;
+		var sf = this,
+			ds = sf.dataset;
 		if(ds){
-			ds[ou]('update', this.onUpdate, this);
-			ds[ou]('load', this.onLoad, this);
+			ds[ou]('update', sf.onUpdate, sf);
+			ds[ou]('load', sf.onLoad, sf);
 		}
 	},
     bind : function(ds){
-    	if(typeof(ds)==='string'){
+    	if(Ext.isString(ds)){
 			ds = $(ds);
 			if(!ds) return;
 		}
-		this.dataset = ds;
-		this.processDataSetLiestener('on');
-    	this.onLoad();
+		var sf = this;
+		sf.dataset = ds;
+		sf.processDataSetLiestener('on');
+    	sf.onLoad();
     },
     renderText : function(data){
-    	if(!this.renderer)return data.get(this.displayfield);
-    	return $A.getRenderer(this.renderer).call(window,data.get(this.displayfield),data,this.context);
+    	var sf = this,
+    		text = data.get(sf.displayfield),
+    		renderer = sf.renderer && A.getRenderer(sf.renderer);
+    	return renderer?renderer(text,data,sf.context):text;
     },
     onUpdate : function(ds,record,name,value){
-    	if(name==this.displayfield)record.menu.setText(this.value);
-    	else if(name==this.checked)record.menu.check(value);
+    	var sf = this;
+    	if(name==sf.displayfield)
+    		record.menu.setText(sf.value);
+    	else if(name==sf.checked)
+    		record.menu.check(value);
     },
     onLoad : function(){
-    	var options=[],map={},datas=this.dataset.data;
-    	for(var i=0;datas[i];i++){
-    		map[datas[i].get(this.idfield)]={record:datas[i],text:datas[i].get(this.displayfield),renderText:this.renderText(datas[i]),index:datas[i].get(this.sequence)||Number.MAX_VALUE,icon:datas[i].get(this.iconfield),dataId:datas[i].get(this.idfield)};
-    		if(datas[i].get(this.menutype)){
-    			var types=datas[i].get(this.menutype).match(/^([^\[\]]+)\[?([^\[\]]+)?\]?$/);
-    			Ext.apply(map[datas[i].get(this.idfield)],{type:types[1],checked:datas[i].get(this.checked)=="true"||false});
-    			if(types[2])Ext.apply(map[datas[i].get(this.idfield)],{groupName:types[2]});
+    	var sf = this,
+    		idfield = sf.idfield,
+    		parentfield = sf.parentfield,
+    		displayfield = sf.displayfield,
+    		sequence = sf.sequence,
+    		iconfield = sf.iconfield,
+    		handlerfield = sf.handlerfield,
+    		urlfield = sf.urlfield,
+    		menutype = sf.menutype,
+    		checked = sf.checked,
+    		rootid = sf.rootid,
+    		handler = sf.handler,
+    		options=[],
+    		map={},
+    		datas=sf.dataset.data;
+    	EACH(datas,function(data){
+    		var id = data.get(idfield),
+    			item = map[id]={
+	    			record:data,
+	    			text:data.get(displayfield),
+	    			renderText:sf.renderText(data),
+	    			index:data.get(sequence)||Number.MAX_VALUE,
+	    			icon:data.get(iconfield),
+	    			dataId:id
+				},
+				type = data.get(menutype);
+    		if(type){
+    			var types=type.match(/^([^\[\]]+)\[?([^\[\]]+)?\]?$/);
+    			Ext.apply(item,{
+    				type:types[1],
+    				checked:data.get(checked)=="true"||FALSE
+				});
+    			types[2] && Ext.apply(item,{
+    				groupName:types[2]
+				});
     		}
-    		if(datas[i].get(this.handlerfield))Ext.apply(map[datas[i].get(this.idfield)],{listeners:{'mouseup':function(handler,record){return function(){window[handler].apply(window,Ext.toArray(arguments).concat(record))}}(datas[i].get(this.handler),datas[i])}});
-    		if(datas[i].get(this.urlfield))Ext.apply(map[datas[i].get(this.idfield)],{listeners:{'submit':this.directURL.createDelegate(this,[datas[i].get(this.urlfield),datas[i].get(this.displayfield)])}});
-    	}
-    	for(var i=0;datas[i];i++){
-    		var pid=datas[i].get(this.parentfield);
-    		if(!pid||pid==this.rootid||pid<0)options.add(map[datas[i].get(this.idfield)]);
+    		data.get(handlerfield) &&
+    			Ext.apply(item,{
+    				listeners:{
+						mouseup:function(){
+							window[data.get(handlerfield)].apply(window,Ext.toArray(arguments).concat(data))
+						}
+					}
+				});
+    		data.get(urlfield) &&
+    			Ext.apply(item,{
+    				listeners:{
+    					submit:function(){
+    						sf.directURL(data.get(urlfield),data.get(displayfield));
+    					}
+					}
+				});
+    	});
+    	EACH(datas,function(data){
+    		var pid = data.get(parentfield),
+    			self = map[data.get(idfield)];
+    		if(!pid||pid==rootid||pid<0)
+    			options.push(self);
     		else{
-    			if(!map[pid].options)map[pid].options=[];
-    			map[pid].options.add(map[datas[i].get(this.idfield)]);
+    			var parent = map[pid];
+    			(parent.options = parent.options||[]).push(self);
     		}
-    	}
-    	this.addMenus(options.sort(this.sortOptions));
+    	});
+    	sf.addMenus(options.sort(sortOptions));
     },
     directURL : function(url,title){
-    	if(this.targetFrame)this.targetFrame.setAttribute('src',url+(url.match(/\?/)?"&":"?")+"randomnumber="+Math.floor(Math.random()*100000));
-    	else if(this.urltarget)window.open(url,this.urltarget);
-    	else new $A.Window({title:title,url:url,width:Ext.fly(document).child('html').getWidth()-100,height:Ext.fly(document).child('html').getHeight()-100})
+    	var sf = this;
+    	if(sf.targetFrame)
+    		sf.targetFrame.setAttribute('src',Ext.urlAppend(url,"r="+Math.floor(Math.random()*100000)));
+    	else if(sf.urltarget)
+    		window.open(url,sf.urltarget);
+    	else new A.Window({
+    		title:title,
+    		url:url,
+    		fullScreen:TRUE
+		});
     },
-    sortOptions : function(o1,o2){
-    	if(o1.options)o1.options.sort($A.MenuBar.prototype.sortOptions);
-    	if(o2.options)o2.options.sort($A.MenuBar.prototype.sortOptions);
-    	return parseFloat(o1.index)-parseFloat(o2.index);
+    preventMenuAndSelect :function(e,t){
+    	if(this.isAncestor(t)){
+    		e.stopEvent();
+			return FALSE;
+		}
     },
-    preventMenuAndSelect :function(e){
-    	if(this.isAncestor(e.target)){e.stopEvent();return false;}
-    },
-	onMouseDown : function(e){
-		if(this.selectIndex==null||this.children.length==0)return;
+	onMouseDown : function(e,t){
+		var sf = this,
+			index = sf.selectIndex,
+			children = sf.children;
+		if(index==NULL||!children.length)
+			return;
 		if(e.button==0){
-			if(this.wrap.contains(e.target))this.needHide=this.isActive;
-			if(this.isAncestor(e.target)){
-				this.isActive=true;
-				this.children[this.selectIndex].show();
+			if(sf.wrap.contains(t))
+				sf.needHide=sf.isActive;
+			var child = children[index];
+			if(sf.isAncestor(t)){
+				sf.isActive=TRUE;
+				child.show();
 			}else{
-				this.children[this.selectIndex].inactive();
-				this.children[this.selectIndex].hide();
-				this.isActive=false;
+				child.inactive();
+				child.hide();
+				sf.isActive=FALSE;
 			}
 		}
 	},
-	onMouseUp : function(e){
-		if(this.selectIndex==null||this.children.length==0)return;
+	onMouseUp : function(e,t){
+		var sf = this,
+			index = sf.selectIndex,
+			children = sf.children;
+		if(index==NULL||!children.length)return;
 		if(e.button==0){
-			if(this.needHide||!this.isAncestor(e.target)){
-				this.isActive=false;
-				this.children[this.selectIndex].hide();
-			}else if(!this.isActive)this.children[this.selectIndex].hide();
+			if(sf.needHide||!sf.isAncestor(t)){
+				sf.isActive=FALSE;
+			}
+			if(!sf.isActive)
+				children[index].hide();
 		}
 	},
 	addMenus : function(options){
-		for(var i=0,j=this.children.length;i<options.length;i++){
-			var menu=null,_id=this.id+"-node"+j;
-			new Ext.Template(this.childTpl).append(this.wrap.dom,{id:_id});
-			menu=new Aurora[options[i].options?'Menu':'MenuItem'](Ext.apply(options[i],{id:_id,parent:this,bar:this,index:j}));
-			options[i].record.menu=menu;
-			delete options[i].record;
-			this.children.push(menu);j++;
-		}
+		var sf=this,
+			children = sf.children,
+			j=children.length,
+			ul = sf.wrap.child('ul');
+		EACH(options,function(opt){
+			var _id=sf.id+"-node"+j;
+			new Ext.Template(TPLT_MAIN_MENU_LIST_ITEM).append(ul,{
+				id:_id
+			});
+			children.push(opt.record.menu=new Aurora[opt.options?'Menu':'MenuItem'](Ext.apply(opt,{
+				id:_id,
+				parent:sf,
+				bar:sf,
+				index:j++
+			})));
+			delete opt.record;
+		});
 	},
 	destroy : function(){
-		delete this.children;
-		delete this.isActive;
-		delete this.needHide;
-		$A.Menu.superclass.destroy.call(this);
+		var sf = this;
+		delete sf.children;
+		delete sf.isActive;
+		delete sf.needHide;
+		A.Menu.superclass.destroy.call(sf);
 	},
 	isAncestor : function(el){
-		if(this.wrap.dom!=el&&this.wrap.contains(el))return true;
-		for (var i=0;i<this.children.length;i++) {
-			if (this.children[i].isAncestor&&this.children[i].isAncestor(el))return true;
-		}
-		return false;
-	},
-	childTpl : '<LI id="{id}" class="item-menu"></LI>'
+		var sf = this,
+			wrap = sf.wrap,
+			ret = FALSE;
+		if(wrap.dom!=el&&wrap.contains(el))
+			ret = TRUE;
+		else EACH(sf.children,function(child){
+			if (child.isAncestor&&child.isAncestor(el)){
+				return !(ret = TRUE);
+			}
+		});
+		return ret;
+	}
 });
 
 /**
@@ -156,113 +265,140 @@ $A.MenuBar=Ext.extend($A.Component,{
  * @constructor
  * @param {Object} config 配置对象. 
  */
-$A.MenuItem=Ext.extend($A.Component,{
+A.MenuItem=Ext.extend(A.Component,{
 	constructor: function(config) {
-		this.hasIcon=false;
-		$A.MenuItem.superclass.constructor.call(this, config);
+		this.hasIcon=FALSE;
+		A.MenuItem.superclass.constructor.call(this, config);
 	},
 	initComponent : function(config){
-		$A.MenuItem.superclass.initComponent.call(this,config);
-		this.el=new Ext.Template(this.parent===this.bar?this.menuBarTpl:this.menuTpl).append(this.wrap.dom,{text:this.renderText,width:'16px'},true);
-		if(this.parent!==this.bar){
-			this.setIcon();
-			if(this.type&&!this.children)this.initMenuType();
+		var sf = this;
+		A.MenuItem.superclass.initComponent.call(sf,config);
+		var issub = sf.parent!==sf.bar;
+		sf.el=new Ext.Template(issub?sf.menuTpl:TPLT_MENU_BAR).append(sf.wrap,{
+			text:sf.renderText,
+			width:'16px'
+		},TRUE);
+		if(issub){
+			sf.setIcon();
+			sf.type && !sf.children &&
+				sf.initMenuType();
 		}
 	},
 	processListener: function(ou){
-    	$A.MenuItem.superclass.processListener.call(this,ou);
-    	this.wrap[ou]('mouseup',this.onMouseUp,this);
+		var sf = this;
+    	A.MenuItem.superclass.processListener.call(sf,ou);
+    	sf.wrap[ou](EVT_MOUSE_UP,sf.onMouseUp,sf);
     },
     processMouseOverOut : function(ou){
-        this.wrap[ou]('mouseover',this.onMouseOver,this);
-    	this.wrap[ou]('mouseout',this.onMouseOut,this);
+    	var sf = this;
+        sf.wrap[ou]('mouseover',sf.onMouseOver,sf)
+    		[ou]('mouseout',sf.onMouseOut,sf);
     },
 	initEvents : function(){
-		$A.MenuItem.superclass.initEvents.call(this);
+		A.MenuItem.superclass.initEvents.call(this);
 		this.addEvents(
 		/**
          * @event submit
          * menu的url定向.
          */
-		'submit',
+		EVT_SUBMIT,
 		/**
          * @event mouseup
          * menu点击事件.
          */
-		'mouseup');
+		EVT_MOUSE_UP);
 	},
 	getWidth : function(){
-		return this.wrap.child('td.item-menu-text').getWidth()+(this.parent==this.bar?0:72);
+		var sf = this;
+		return sf.wrap.child('td.item-menu-text').getWidth()+(sf.parent==sf.bar?0:72);
 	},
 	initMenuType : function(){
-		if(this.type=='radio')this.wrap.child('td.item-menu-icon div').addClass("type-radio");
-		else if(this.type=='checkbox')this.wrap.child('td.item-menu-icon div').addClass("type-checkbox");
-		this.check();
+		var sf = this,
+			type = sf.type;
+		(type=='radio'||type=='checkbox') &&	
+			sf.wrap.child(SELECTOR_ITEM_MENU_ICON_DIV).addClass("type-"+type);
+		sf.check();
 	},
 	check : function(value){
-		this.checked=value;
-		this.wrap.child('td.item-menu-icon div')[this.checked?'addClass':'removeClass']('check');
+		this.wrap.child(SELECTOR_ITEM_MENU_ICON_DIV)[(this.checked=value)?'addClass':'removeClass']('check');
 	},
 	getBindingRecord : function(){
 		return this.record;
 	},
 	setText : function(text){
-		this.text=text;
-		this.renderText=this.bar.renderText(this.record);
-		this.el.update(this.renderText);
+		var sf = this;
+		sf.text=text;
+		sf.el.update(sf.renderText=sf.bar.renderText(sf.record));
 	},
 	setIcon : function(icon){
-		if(!(icon||(icon=this.icon))||this.type)return;
+		var sf = this;
+		if(!(icon||(icon=sf.icon))||sf.type)return;
 		var _icon=icon.match(/^([^\?]*)\??([^?]*)?$/);
-		this.wrap.child('td.item-menu-icon div').setStyle({'background-image':'url('+(_icon[1].match(/^[\/]{1}/)?this.bar.context:'')+_icon[1]+')','background-position':_icon[2]||'0 0'})
-		this.hasIcon=true;
+		sf.wrap.child(SELECTOR_ITEM_MENU_ICON_DIV).setStyle({
+			'background-image':'url('+(_icon[1].match(/^[\/]{1}/)?sf.bar.context:'')+_icon[1]+')',
+			'background-position':_icon[2]||'0 0'
+		});
+		sf.hasIcon=TRUE;
 	},
     submit : function(){
-    	if(!this.children){
-			if(this.parent!=this.bar){
-				this.bar.children[this.bar.selectIndex].inactive();
-				this.bar.children[this.bar.selectIndex].hide();
-				this.bar.isActive=false;
+    	var sf = this,
+    		bar = sf.bar;
+    	if(!sf.children){
+    		var checked = sf.checked,
+    			barchecked = bar.checked,
+    			parent = sf.parent,
+    			child = bar.children[bar.selectIndex],
+    			record = sf.record;
+			if(parent!=bar){
+				child.inactive();
+				child.hide();
+				bar.isActive=FALSE;
 			}
-			if(this.type=='checkbox'){
-				this.record.set(this.bar.checked,!this.checked);
-			}else if(this.type=='radio'){
-				if(this.checked==true)return;
-				this.record.set(this.bar.checked,true);
-				if(this.groupName){
-					for(var i=0,list=this.parent.groups[this.groupName];i<list.length;i++){
-						if(list[i]!=this){
-							list[i].record.set(this.bar.checked,false);
-						}
-					}
-				}
+			if(sf.type=='checkbox'){
+				record.set(bar.checked,!checked);
+			}else if(sf.type=='radio'){
+				if(checked)return;
+				record.set(barchecked,TRUE);
+				sf.groupName &&	EACH(parent.groups[sf.groupName],function(item){
+					item!=sf &&
+						item.record.set(barchecked,FALSE);
+				});
 			}
     	}
-    	this.fireEvent('mouseup',this.bar,this);
-    	this.fireEvent('submit',this.bar);
+    	sf.fireEvent(EVT_MOUSE_UP,bar,sf);
+    	sf.fireEvent(EVT_SUBMIT,bar);
     },
 	onMouseUp : function(e){
-		if(e.button==0)this.submit();
+		e.button==0 &&this.submit();
 	},
 	onMouseOver : function(e){
 		this.active();
 	},
 	onMouseOut : function(e){
-		if(!this.isActive)this.inactive();
-		if(this.showIntervalId)clearInterval(this.showIntervalId);
+		var sf = this;
+		!sf.isActive && sf.inactive();
+		sf.showIntervalId && clearTimeout(sf.showIntervalId);
 	},
 	active : function(){
-		this.wrap.addClass('item-menu-current');
-		if(this.parent.selectIndex===this.index)return;
-		if (this.parent.selectIndex!=null){
-			this.parent.children[this.parent.selectIndex].inactive();
-			if(this.parent==this.bar)this.parent.children[this.parent.selectIndex].hide();
-			else setTimeout(this.parent.children[this.parent.selectIndex].hide.createDelegate(this.parent.children[this.parent.selectIndex]),299);
+		var sf = this,
+			parent = sf.parent,
+			selectIndex = parent.selectIndex,
+			index = sf.index;
+		sf.wrap.addClass(CLASS_CURRENT_MENU);
+		if(selectIndex===index)return;
+		if(selectIndex!=NULL){
+			var child = parent.children[selectIndex];
+			child.inactive();
+			if(parent==sf.bar)
+				child.hide();
+			else (function(){
+				child.hide()
+			}).defer(299);
 		}
-		this.parent.selectIndex=this.index;
+		parent.selectIndex=index;
 	},
 	inactive : function(){
-		this.wrap.removeClass('item-menu-current');
+		this.wrap.removeClass(CLASS_CURRENT_MENU);
 	},
 	show : function(){
 	},
@@ -271,12 +407,11 @@ $A.MenuItem=Ext.extend($A.Component,{
 	destroy : function(){
 		delete this.el;
 		delete this.bar;
-		$A.MenuItem.superclass.destroy.call(this);
+		A.MenuItem.superclass.destroy.call(this);
 	},
 	menuTpl :['<TD class="item-menu-icon" align="center"><DIV></DIV></TD>',
 				'<TD class="item-menu-text">{text}</TD>',
-				'<TD></TD>'],
-	menuBarTpl:'<SPAN class="item-menu-text">{text}</SPAN>'
+				'<TD></TD>']
 });
 
 /**
@@ -287,96 +422,122 @@ $A.MenuItem=Ext.extend($A.Component,{
  * @constructor
  * @param {Object} config 配置对象. 
  */
-$A.Menu=Ext.extend($A.MenuItem,{
+A.Menu=Ext.extend(A.MenuItem,{
 	constructor: function(config) {
-		this.children=[],this.selectIndex=null,this.groups={},this.isActive=false,this.initMenus=false;
-		$A.Menu.superclass.constructor.call(this, config);
+		var sf = this;
+		sf.children=[];
+		sf.selectIndex=NULL;
+		sf.groups={};
+		sf.isActive=FALSE;
+		sf.initMenus=FALSE;
+		A.Menu.superclass.constructor.call(sf, config);
 	},
 	initComponent : function(config){
-		$A.Menu.superclass.initComponent.call(this,config);
-		this.shadow=new Ext.Template(this.shadowTpl).append(document.body, {zIndex:9999+this.index}, true);
-		this.shadow.addClass('item-menu-hide');
-		this.container=new Ext.Template(this.containerTpl).append(document.body,{zIndex:10000+this.index},true);
+		var sf = this;
+		A.Menu.superclass.initComponent.call(sf,config);
+		sf.container=new Ext.Template(TPLT_CONTAINER).append(sf.bar.wrap,{
+			zIndex:10000+sf.index,
+			shadow:Ext.isIE?TPLT_IE_SHADOW:''
+		},TRUE);
 	},
 	addMenus : function(options){
 		if(!this.options)return;
-		var width=0;
-		for(var i=0,j=this.children.length;i<options.length;i++){
-			var menu=null,_id=this.id+"-node"+j;
-			new Ext.Template(this.childTpl).append(this.container.dom,{id:_id});
-			menu=new Aurora[options[i].options?'Menu':'MenuItem'](Ext.apply(options[i],{id:_id,parent:this,bar:this.bar,index:j}));
-			if(menu.groupName){
-				if(!this.groups[menu.groupName])this.groups[menu.groupName]=[];
-				this.groups[menu.groupName].add(menu);
-			}
-			this.children.push(menu);
-			options[i].record.menu=menu;
-			delete options[i].record;
-			width=menu.getWidth()>width?menu.getWidth():width;
-			j++;
-		}
-		this.container.setWidth(width);
+		var sf = this,
+			width=0,
+			children = sf.children,
+			j = children.length,
+			container = sf.container;
+		EACH(options,function(item){
+			var menu,
+				groupName,
+				_id=sf.id+"-node"+j;
+			new Ext.Template(TPLT_SUB_MENU_LIST_ITEM).append(container.child('tbody'),{
+				id:_id
+			});
+			item.record.menu=menu=new Aurora[item.options?'Menu':'MenuItem'](Ext.apply(item,{
+				id:_id,
+				parent:sf,
+				bar:sf.bar,
+				index:j++
+			}));
+			(groupName = menu.groupName) &&
+				(sf.groups[groupName]=sf.groups[groupName]||[]).push(menu);
+			children.push(menu);
+			delete item.record;
+			width=Math.max(menu.getWidth(),width);
+		});
+		container.setWidth(width).child('table').setStyle({width:'100%'});
 	},
     onMouseOver : function(e){
-		$A.Menu.superclass.onMouseOver.call(this,e);
-		if(this.parent===this.bar)this.show();
-		else this.showIntervalId=setInterval(this.show.createDelegate(this),300);
+    	var sf = this;
+		A.Menu.superclass.onMouseOver.call(sf,e);
+		if(sf.parent===sf.bar)sf.show();
+		else sf.showIntervalId=(function(){sf.show()}).defer(300);
 	},
 	show : function(){
-		$A.Menu.superclass.show.call(this);
-		if (!this.parent.isActive)return;
-		if(!this.initMenus){this.addMenus(this.options);this.initMenus=true;}
-		var xy=this.wrap.getXY(),x,y,
-			W=this.container.getWidth(),H=this.container.getHeight(),
-			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
-			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3;
-		if(this.parent===this.bar){
+		A.Menu.superclass.show.call(this);
+		var sf = this,
+			parent = sf.parent,
+			wrap = sf.wrap,
+			container = sf.container;
+		if (!parent.isActive||sf.isActive)return;
+		if(!sf.initMenus){
+			sf.addMenus(sf.options);
+			sf.initMenus=TRUE;
+		}
+		var xy=wrap.getXY(),x,y,
+			W=container.getWidth(),
+			H=container.getHeight(),
+			PH=wrap.getHeight(),
+			PW=wrap.getWidth(),
+			BH=A.getViewportHeight()-3,
+			BW=A.getViewportWidth()-3;
+		if(parent===sf.bar){
 			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
 			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
 		}else{
 			x=(xy[0]+PW+W)>BW?((xy[0]-W)<0?(xy[0]+PW):(xy[0]-W)):(xy[0]+PW);
 			y=(xy[1]+PH+H)>BH?((BH-H)<0?xy[1]:(BH-H)):xy[1];
 		}
-		this.container.moveTo(x,y);
-		this.shadow.moveTo(x+3,y+3);
-		this.container.removeClass('item-menu-hide');
-		this.shadow.removeClass('item-menu-hide');
-		this.shadow.setHeight(this.container.getHeight());
-		this.shadow.setWidth(this.container.getWidth());
-		this.isActive=true;
-		if(this.intervalId)clearInterval(this.intervalId);
+		container.moveTo(x,y).stopFx().fadeIn();
+		sf.isActive=TRUE;
 	},
 	hide : function(){
-		$A.Menu.superclass.hide.call(this);
-		this.container.addClass('item-menu-hide');
-		this.shadow.addClass('item-menu-hide');
-		this.shadow.setHeight(this.container.getHeight());
-		this.shadow.setWidth(this.container.getWidth());
-		this.container.moveTo(0,0);
-		this.shadow.moveTo(0,0);
-		if(this.selectIndex!=null){this.children[this.selectIndex].inactive();this.children[this.selectIndex].hide();}
-		this.isActive=false;
-		this.selectIndex=null;
+		A.Menu.superclass.hide.call(this);
+		var sf = this,
+			selectIndex = sf.selectIndex;
+		sf.container.stopFx().hide();
+		if(selectIndex!=NULL){
+			var child = sf.children[selectIndex];
+			child.inactive();
+			child.hide();
+		}
+		sf.isActive=FALSE;
+		sf.selectIndex=NULL;
 	},
 	destroy : function(){
-		this.container.remove();
-		this.shadow.remove();
-		delete this.children;
-		delete this.groups;
-		$A.Menu.superclass.destroy.call(this);
+		var sf = this;
+		sf.container.remove();
+//		sf.shadow.remove();
+		delete sf.children;
+		delete sf.groups;
+		A.Menu.superclass.destroy.call(sf);
 	},
 	isAncestor : function(el){
-		if(this.container.dom!=el&&this.container.contains(el))return true;
-		for (var i=0;i<this.children.length;i++) {
-			if (this.children[i].isAncestor&&this.children[i].isAncestor(el))return true;
-		}
-		return false;
+		var sf = this,
+			container = sf.container,
+			ret = FALSE;
+		if(container.dom!=el&&container.contains(el))
+			ret = TRUE;
+		else EACH(sf.children,function(child){
+			if (child.isAncestor&&child.isAncestor(el)){
+				return !(ret = TRUE);
+			}
+		});
+		return ret;
 	},
 	menuTpl :['<TD class="item-menu-icon" align="center"><DIV></DIV></TD>',
 				'<TD class="item-menu-text">{text}</TD>',
-				'<TD class="item-menu-arrow" align="center"><DIV></DIV></TD>'],
-	containerTpl : '<TABLE cellspacing="0" class="item-menu-container item-menu-hide" style="z-index:{zIndex}"></TABLE>',
-	shadowTpl : '<DIV class="item-shadow" style="z-index:{zIndex}"></DIV>',
-	childTpl : '<TR id="{id}" class="item-menu"></TR>',
-	hSplitTpl : '<TR class="item-menu-h-split"><TD>&nbsp;</TD></TR>'
+				'<TD class="item-menu-arrow" align="center"><DIV></DIV></TD>']
 });
+})($A);
