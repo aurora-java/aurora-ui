@@ -1,5 +1,5 @@
 <DIV class="item-tf ${wrapClass}" style="width:${width}px;height:${height}px;${style}" id="${id}" >
-	<DIV style="height:100%">
+	<DIV style="height:100%;overflow:hidden">
 		<INPUT tabindex="${tabindex}" style="text-indent:2px;${fontstyle}" type="${inputtype}" class="item-textField" atype="field.input" ${readonly} autocomplete="off" value="${value}" />
 	</DIV>
 </DIV>
