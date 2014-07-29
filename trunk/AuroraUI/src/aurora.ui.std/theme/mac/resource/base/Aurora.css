@@ -340,7 +340,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     padding:5px;
     -webkit-radius:4px;
     border-radius:4px;
-    color:#fff;
+    
     background: #fcfcfc url(../base/queryform.gif) repeat-x;
 }
 .query-form .form_body_wrap {

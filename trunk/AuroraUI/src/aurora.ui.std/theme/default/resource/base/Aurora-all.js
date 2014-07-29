@@ -58,7 +58,7 @@ $A.defaultChineseLength = 2;
 $A.go=function(url){
     if(!url)return;
     var r=Math.random();
-    location.href=url+(url.indexOf('?')==-1?'?':'&')+'__r__='+r;
+    window.location.href=url+(url.indexOf('?')==-1?'?':'&')+'__r__='+r;
 }
 
 /**
@@ -646,20 +646,12 @@ $A.ToolTip = function(){
         init: function(){
             var sf = this;
             Ext.onReady(function(){
-                var qdom = Ext.DomHelper.insertFirst(
-                    Ext.getBody(),
-                    {
-                        tag: 'div',
-                        cls: 'tip-wrap',
-                        children: [{tag: 'div', cls:'tip-body'}]
-                    }
-                );
-                var sdom = Ext.DomHelper.insertFirst(Ext.getBody(),{tag:'div',cls: 'item-shadow'});
-                sf.tip = Ext.get(qdom);
-                sf.shadow = Ext.get(sdom);
+                sf.tip = new Ext.Template('<div class="tip-wrap item-shadow">{shadow}<div class="tip-body"></div></div>').insertFirst(document.body,{
+                	shadow:Ext.isIE?'<div class="item-ie-shadow"></div>':''
+                },true);
+//                sf.shadow = Ext.get(sdom);
                 sf.body = sf.tip.first("div.tip-body");
-            })
-            
+            });
         },
         show: function(el, text){
             if(this.tip == null){
@@ -667,7 +659,7 @@ $A.ToolTip = function(){
                 //return;
             }
             this.tip.show();
-            this.shadow.show();
+//            this.shadow.show();
             this.body.update(text)
             var ele;
             if(typeof(el)=="string"){
@@ -682,8 +674,8 @@ $A.ToolTip = function(){
             }else{
                 ele = Ext.get(el);
             }
-            this.shadow.setWidth(this.tip.getWidth())
-            this.shadow.setHeight(this.tip.getHeight())
+//            this.shadow.setWidth(this.tip.getWidth())
+//            this.shadow.setHeight(this.tip.getHeight())
             this.correctPosition(ele);
         },
         correctPosition: function(ele){
@@ -696,13 +688,13 @@ $A.ToolTip = function(){
             }
             this.tip.setX(x);
             this.tip.setY(ele.getY());
-            this.shadow.setX(sx);
-            this.shadow.setY(this.tip.getY()+ 2)
+//            this.shadow.setX(sx);
+//            this.shadow.setY(this.tip.getY()+ 2)
         },
         hide: function(){
             this.sid = null;
             if(this.tip != null) this.tip.hide();
-            if(this.shadow != null) this.shadow.hide();
+//            if(this.shadow != null) this.shadow.hide();
         }
     }
     return q
@@ -3040,7 +3032,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     query : function(page,opts){
         $A.slideBarEnable = $A.SideBar.enable;
-//        $A.SideBar.enable = false;
         if(!this.queryurl) return;
         if(this.qds) {
             if(this.qds.getCurrentRecord() == null) this.qds.create();
@@ -3062,7 +3053,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         Ext.apply(q, this.qpara);
         for(var k in q){
            var v = q[k];
-           if(Ext.isEmpty(v,false)) delete q[k];
+           if(Ext.isEmpty(v,false)||v.xtype == 'dataset') delete q[k];
         }
         var para = 'pagesize='+this.pagesize + 
                       '&pagenum='+this.currentPage+
@@ -4357,7 +4348,7 @@ $A.Field = Ext.extend($A.Component,{
 	},
 	setHeight: function(h){
 		this.wrap.setStyle("height",h+"px");
-		this.el.setStyle("height",(h-2)+"px");
+		this.el.setStyle("height",h+"px");
 	},
 //	setVisible: function(v){
 //		this.wrap[v?'show':'hide']();
@@ -4986,8 +4977,8 @@ var TR = 'TR',
 	EVT_CLICK = 'click',
 	EVT_MOUSE_MOVE = 'mousemove',
 	EVT_MOUSE_DOWN = 'mousedown',
-	TEMPLATE = ['<div id="{id}" tabIndex="-2" class="item-popup" style="visibility:hidden;background-color:#fff;">','</div>'],
-    SHADOW_TEMPLATE = ['<div id="{id}" class="item-shadow" style="visibility:hidden;">','</div>'],
+	TEMPLATE = ['<div id="{id}" tabIndex="-2" class="item-popup item-shadow" style="visibility:hidden;background-color:#fff;width:{width}px">{shadow}','<div class="item-popup-content"></div>','</div>'],
+    SHADOW_TEMPLATE = ['<div id="{id}" class="item-ie-shadow">','</div>'],
     AUTO_COMPLATE_TABLE_START = '<table class="autocomplete" cellspacing="0" cellpadding="2">';
 A.AutoCompleteView = Ext.extend($A.Component,{	
 	constructor: function(config) {
@@ -4995,14 +4986,21 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 		config.id = config.id + '_autocomplete';
 		sf.isLoaded = false;
 		sf.maxHeight = 250;
+		sf.minWidth = 150;
         sf.delay = 500;
         $A.AutoCompleteView.superclass.constructor.call(sf, config);
     },
     initComponent : function(config){
     	var sf = this;
-    	$A.AutoCompleteView.superclass.initComponent.call(this, config);
-    	sf.wrap = new Ext.Template(TEMPLATE).insertFirst(document.body,{width:sf.width,height:sf.height,id:sf.id},true);
-    	sf.shadow = new Ext.Template(SHADOW_TEMPLATE).insertFirst(document.body,{width:sf.width,height:sf.height,id:sf.id+'_shadow'},true);
+    	$A.AutoCompleteView.superclass.initComponent.call(sf, config);
+    	sf.wrap = new Ext.Template(TEMPLATE).append(sf.cmp?sf.cmp.wrap:document.body,{
+    		width:sf.width,
+    		height:sf.height,
+    		id:sf.id,
+    		shadow:Ext.isIE?SHADOW_TEMPLATE.join(''):''
+		},true);
+		sf.popupContent = sf.wrap.child('div.item-popup-content');
+//    	sf.shadow = new Ext.Template(SHADOW_TEMPLATE).insertFirst(document.body,{width:sf.width,height:sf.height,id:sf.id+'_shadow'},true);
     	sf.ds = new A.DataSet({id:sf.id+"_ds",autocount:false});
     },
     processListener: function(ou){
@@ -5034,22 +5032,22 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     destroy : function(){
     	var sf = this,wrap = sf.wrap;
     	sf.ds.destroy();
-    	sf.shadow.remove();
+//    	sf.shadow.remove();
     	$A.AutoCompleteView.superclass.destroy.call(sf);
     	wrap.remove();
     	delete sf.ds;
-    	delete sf.shadow;
+//    	delete sf.shadow;
     },
     onQuery : function(){
     	var sf = this;
-    	sf.wrap.update('<table cellspacing="0" cellpadding="2"><tr tabIndex="-2"><td>'+_lang['lov.query']+'</td></tr></table>')
+    	sf.popupContent.update('<table cellspacing="0" cellpadding="2"><tr tabIndex="-2"><td>'+_lang['lov.query']+'</td></tr></table>')
     		.un(EVT_MOUSE_MOVE,sf.onMove,sf);
     	sf.correctViewSize();
     },
 	onLoad : function(){
 		var sf = this,
     		datas = sf.ds.getAll(),
-			l=datas.length,view = sf.wrap,
+			l=datas.length,view = sf.popupContent,
 			sb;
 		sf.selectedIndex = null;
 		if(l==0){
@@ -5168,7 +5166,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
         	displayFields = binder?binder.ds.getField(binder.name).getPropertity('displayFields'):null,
         	head = displayFields && displayFields.length?23:0,
         	r = 22,
-            ub = this.wrap,
+            ub = this.popupContent,
             stop = ub.getScroll().top,
             h = ub.getHeight(),
             sh = ub.dom.scrollWidth > ub.dom.clientWidth? 16 : 0;
@@ -5179,7 +5177,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
         }
     },
 	getNode:function(index){
-		var nodes = this.wrap.query('tr[tabindex!=-2]'),l = nodes.length;
+		var nodes = this.popupContent.query('tr[tabindex!=-2]'),l = nodes.length;
 		if(index >= l) index =  index % l;
 		else if (index < 0) index = l + index % l;
 		return nodes[index];
@@ -5188,12 +5186,12 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     	var sf = this,view;
     	if(!sf.isShow){
     		sf.isShow=true;
-    		view = sf.wrap;
+    		view = sf.popupContent;
 	    	sf.position();
-	    	view.dom.className = 'item-popup item-comboBox-view';
+	    	view.dom.className = 'item-popup-content item-comboBox-view';
 			view.update('');
 	    	sf.wrap.show();
-	    	sf.shadow.show();
+//	    	sf.shadow.show();
 	    	Ext.get(document).on(EVT_MOUSE_DOWN,sf.trigger,sf);
     	}
     },
@@ -5210,18 +5208,26 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     		sf.isLoaded = false;
 	    	Ext.get(document).un(EVT_MOUSE_DOWN,sf.trigger,sf)
 	    	sf.wrap.hide();
-	    	sf.shadow.hide();
+//	    	sf.shadow.hide();
     	}
     },
     position:function(){
     	var sf = this,
     		wrap = sf.cmp ? sf.cmp.wrap : sf.el,
+    		scroll = Ext.getBody().getScroll(),
+    		sl = scroll.left,
+    		st = scroll.top,
     		xy = wrap.getXY(),
-			W=sf.getWidth(),H=sf.getHeight(),
+    		_x = xy[0] - sl,
+    		_y = xy[1] - st,
+			W=sf.getWidth(),
+			H=sf.getHeight(),
 			PH=wrap.getHeight(),
-			BH=A.getViewportHeight()-3,BW=A.getViewportWidth()-3,
-			x=(xy[0]+W)>BW?((BW-W)<0?xy[0]:(BW-W)):xy[0];
-			y=(xy[1]+PH+H)>BH?((xy[1]-H)<0?(xy[1]+PH):(xy[1]-H)):(xy[1]+PH);
+			PW=wrap.getWidth(),
+			BH=A.getViewportHeight()-3,
+			BW=A.getViewportWidth()-3,
+			x=((_x+W)>BW?((BW-W)<0?_x:(BW-W)):_x)+sl;
+			y=((_y+PH+H)>BH?((_y-H)<0?(_y+PH):(_y-H)):(_y+PH))+st;
     	sf.moveTo(x,y);
     },
     createListView : function(datas,binder){
@@ -5265,23 +5271,24 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 	},
     correctViewSize: function(){
 		var sf = this,
-			table = sf.wrap.child('table');
-		if(table.getWidth() < 150)table.setWidth(150);
+			table = sf.popupContent.child('table'),
+			width = Math.max(sf.minWidth,table.getWidth());
 		sf.setHeight(Math.max(Math.min(table.getHeight()+2,sf.maxHeight),20));
-    	sf.setWidth(sf.wrap.getWidth());
+    	sf.setWidth(width);
+    	table.setStyle({width:'100%'});
 		sf.position();
 	},
 	moveTo : function(x,y){
     	this.wrap.moveTo(x,y);
-    	this.shadow.moveTo(x+3,y+3);
+//    	this.shadow.moveTo(x+3,y+3);
     },
     setHeight : function(h){
     	this.wrap.setHeight(h);
-    	this.shadow.setHeight(h);
+//    	this.shadow.setHeight(h);
     },
     setWidth : function(w){
-//    	this.wrap.setWidth(w);
-    	this.shadow.setWidth(w);
+    	this.wrap.setWidth(w);
+//    	this.shadow.setWidth(w);
     },
     getHeight : function(){
     	return this.wrap.getHeight();
@@ -5407,14 +5414,14 @@ $A.Button = Ext.extend($A.Component,{
 	overCss:'item-btn-over',
 	pressCss:'item-btn-pressed',
 	disabled:false,
-	constructor: function(config) {
-        $A.Button.superclass.constructor.call(this, config);
-    },
+//	constructor: function(config) {
+//        $A.Button.superclass.constructor.call(this, config);
+//    },
 	initComponent : function(config){
     	$A.Button.superclass.initComponent.call(this, config);
     	this.el = this.wrap.child('button[atype=btn]');
     	this.textEl = this.el.child('div');
-    	if(this.hidden == true)this.setVisible(false)
+//    	if(this.hidden == true)this.setVisible(false)
     	if(this.disabled == true)this.disable();
     },
     processListener: function(ou){
@@ -6016,7 +6023,9 @@ $A.Spinner = Ext.extend($A.NumberField,{
 		var decimal = String(sf.step = Number(config.step||1)).split('.')[1];
 		sf.decimalprecision = decimal?decimal.length:0;
     	sf.btn = sf.wrap.child('div.item-spinner-btn');
-    	sf.setTriggerBtnPosition();
+    	$A.onReady(function(){
+	    	sf.setTriggerBtnPosition();
+    	});
     },
     processListener: function(ou){
     	var sf = this;
@@ -6128,9 +6137,11 @@ $A.TriggerField = Ext.extend($A.TextField,{
     initPopup: function(){
     	if(this.initpopuped == true) return;
     	this.popup = this.wrap.child('div[atype=triggerfield.popup]');
-    	this.shadow = this.wrap.child('div[atype=triggerfield.shadow]');
-    	Ext.getBody().insertFirst(this.popup);
-    	Ext.getBody().insertFirst(this.shadow);
+    	this.popupContent = this.popup.child('div.item-popup-content');
+    	Ext.isIE && new Ext.Template('<div class="item-ie-shadow"></div>').insertFirst(this.popup,{});
+//    	this.shadow = this.wrap.child('div[atype=triggerfield.shadow]');
+    	//Ext.getBody().insertFirst(this.popup);
+//    	Ext.getBody().insertFirst(this.shadow);
     	this.initpopuped = true
     },
     initEvents:function(){
@@ -6200,11 +6211,12 @@ $A.TriggerField = Ext.extend($A.TextField,{
 		if(this.isExpanded()){
     		this.collapse();
     	}
-    	this.shadow.remove();
-    	this.popup.remove();
+//    	this.shadow.remove();
+//    	this.popup.remove();
     	$A.TriggerField.superclass.destroy.call(this);
     	delete this.popup;
-    	delete this.shadow;
+    	delete this.popupContent;
+//    	delete this.shadow;
 	},
     triggerBlur : function(e,t){
     	if(!this.isEventFromComponent(t)){    		
@@ -6225,7 +6237,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     collapse : function(){
     	Ext.get(document.documentElement).un("mousedown", this.triggerBlur, this);
     	this.popup.moveTo(-1000,-1000);
-    	this.shadow.moveTo(-1000,-1000);
+//    	this.shadow.moveTo(-1000,-1000);
     	this.fireEvent("collapse", this);
     },
     /**
@@ -6240,18 +6252,25 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	this.fireEvent("expand", this);
     },
     syncPopup:function(){
-    	var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft,
-    		st = document[Ext.isStrict?'documentElement':'body'].scrollTop,
-    		xy = this.wrap.getXY(),
+    	var sf = this,
+    		wrap = sf.wrap,
+    		popup = sf.popup,
+    		scroll = Ext.getBody().getScroll(),
+    		sl = scroll.left,
+    		st = scroll.top,
+    		xy = wrap.getXY(),
     		_x = xy[0] - sl,
     		_y = xy[1] - st,
-			W=this.popup.getWidth(),H=this.popup.getHeight(),
-			PH=this.wrap.getHeight(),PW=this.wrap.getWidth(),
-			BH=$A.getViewportHeight()-3,BW=$A.getViewportWidth()-3,
+			W=popup.getWidth(),
+			H=popup.getHeight(),
+			PH=wrap.getHeight(),
+			PW=wrap.getWidth(),
+			BH=$A.getViewportHeight()-3,
+			BW=$A.getViewportWidth()-3,
 			x=((_x+W)>BW?((BW-W)<0?_x:(BW-W)):_x)+sl;
 			y=((_y+PH+H)>BH?((_y-H)<0?(_y+PH):(_y-H)):(_y+PH))+st;
-    	this.popup.moveTo(x,y);
-    	this.shadow.moveTo(x+3,y+3);
+    	popup.moveTo(x,y);
+//    	sf.shadow.moveTo(x+3,y+3);
     },
     onTriggerClick : function(){
     	if(this.readonly) return;
@@ -6441,7 +6460,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
 	onRender:function(){	
         if(!this.view){
-			this.view=this.popup.update('<ul></ul>').child('ul')
+			this.view=this.popupContent.update('<ul></ul>').child('ul')
 				.on('click', this.onViewClick,this)
 				.on('mousemove',this.onViewMove,this);
         }
@@ -6458,9 +6477,9 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		Ext.each(this.view.dom.childNodes,function(li){
 			mw = Math.max(mw,$A.TextMetrics.measure(li,li.innerHTML).width)||mw;
 		});
-		var lh = Math.max(20,Math.min(this.popup.child('ul').getHeight()+4,this.maxHeight)); 
+		var lh = Math.max(20,Math.min(this.popupContent.child('ul').getHeight()+2,this.maxHeight)); 
 		this.popup.setWidth(mw).setHeight(lh);
-    	this.shadow.setWidth(mw).setHeight(lh);
+//    	this.shadow.setWidth(mw).setHeight(lh);
 	},
 	onViewClick:function(e,t){
 		if(t.tagName!='LI'){
@@ -6576,7 +6595,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 	},
 	focusRow : function(row){
         var r = 20,
-            ub = this.popup,
+            ub = this.popupContent,
             stop = ub.getScroll().top,
             h = ub.getHeight(),
             sh = ub.dom.scrollWidth > ub.dom.clientWidth? 16 : 0;
@@ -7172,8 +7191,6 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
     onDraw : function(field){
     	if(this.dateFields.length>1)this.sysnDateField(field);
-    	this.shadow.setWidth(this.popup.getWidth());
-    	this.shadow.setHeight(this.popup.getHeight());
     },
     onSelect: function(e,t){
 //    	if(((t =Ext.fly(t)).hasClass('item-day'))){
@@ -7386,7 +7403,7 @@ $A.ToolBar = Ext.extend($A.Component,{
     initEvents : function(){
     	$A.ToolBar.superclass.initEvents.call(this); 
     }
-})
+});
 $A.NavBar = Ext.extend($A.ToolBar,{
 	constructor: function(config) {
         $A.NavBar.superclass.constructor.call(this, config);        
@@ -7549,43 +7566,37 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 	    	this.dataSet.query();
     	}
     }
-})
-$A.WindowManager = function(){
-    return {
-        put : function(win){
-            if(!this.cache) this.cache = [];
-            this.cache.add(win)
-        },
-        getAll : function(){
-            return this.cache;
-        },
-        remove : function(win){
-            this.cache.remove(win);
-        },
-        get : function(id){
-            if(!this.cache) return null;
-            var win = null;
-            for(var i = 0;i<this.cache.length;i++){
-                if(this.cache[i].id == id) {
-                    win = this.cache[i];
-                    break;                  
-                }
-            }
-            return win;
-        },
-        getZindex: function(){
-            var zindex = 40;
-            var all = this.getAll();
-            for(var i = 0;i<all.length;i++){
-                var win = all[i];
-                var zd = win.wrap.getStyle('z-index');
-                if(zd =='auto') zd = 0;
-                if(zd > zindex) zindex = zd;            
-            }
-            return Number(zindex);
-        }
-    };
-}();
+});
+(function(A){
+var cache = [],
+	WINDOW_MANAGER =  A.WindowManager = {
+	    put : function(win){
+	        cache.add(win)
+	    },
+	    getAll : function(){
+	        return cache;
+	    },
+	    remove : function(win){
+	        cache.remove(win);
+	    },
+	    get : function(id){
+	        var win = null;
+	        Ext.each(cache,function(w){
+	        	if(w.id == id){
+	        		win = w;
+					return false;            	
+	        	}
+	        });
+	        return win;
+	    },
+	    getZindex: function(){
+	        var zindex = 40;
+	        Ext.each(cache,function(win){
+	        	zindex = Math.max(Number(win.wrap.getStyle('z-index'))||0,zindex);
+	        });
+	        return zindex;
+	    }
+	}
 /**
  * @class Aurora.Window
  * @extends Aurora.Component
@@ -7594,75 +7605,76 @@ $A.WindowManager = function(){
  * @constructor
  * @param {Object} config 配置对象. 
  */
-$A.Window = Ext.extend($A.Component,{
+A.Window = Ext.extend(A.Component,{
     constructor: function(config) { 
-        if($A.WindowManager.get(config.id))return;
-        this.draggable = true;
-        this.closeable = true;
-        this.fullScreen = false;
-        this.modal = config.modal||true;
-        this.cmps = {};
-//        $A.focusWindow = null;
-        $A.Window.superclass.constructor.call(this,config);
+        if(WINDOW_MANAGER.get(config.id))return;
+        var sf = this;
+        sf.draggable = true;
+        sf.closeable = true;
+        sf.fullScreen = false;
+        sf.modal = config.modal||true;
+        sf.cmps = {};
+//        A.focusWindow = null;
+        A.Window.superclass.constructor.call(sf,config);
     },
     initComponent : function(config){
-        $A.Window.superclass.initComponent.call(this, config);
-        var sf = this; 
-        $A.WindowManager.put(sf);
-        var windowTpl = new Ext.Template(sf.getTemplate());
-        var shadowTpl = new Ext.Template(sf.getShadowTemplate());
+        var sf = this;
+        A.Window.superclass.initComponent.call(sf, config);
+        WINDOW_MANAGER.put(sf);
         sf.width = 1*(sf.width||350);
         sf.height= 1*(sf.height||400);
         if(sf.fullScreen){
             var style = document.documentElement.style;
             sf.overFlow = style.overflow;
             style.overflow = "hidden";
-            sf.width=$A.getViewportWidth();
-            sf.height=$A.getViewportHeight()-26;
+            sf.width=A.getViewportWidth();
+            sf.height=A.getViewportHeight()-26;
             sf.draggable = false;
             sf.marginheight=1;
             sf.marginwidth=1;
         }
-        var urlAtt = '';
-        if(sf.url){
-            urlAtt = 'url="'+sf.url+'"';
-        }
-        sf.wrap = windowTpl.insertFirst(document.body, {id:sf.id,title:sf.title,width:sf.width,bodywidth:sf.width-2,height:sf.height,url:urlAtt,clz:(sf.fullScreen ? 'full-window ' : '')+sf.className||''}, true);
-        sf.wrap.cmps = sf.cmps;
-        sf.shadow = shadowTpl.insertFirst(document.body, {}, true);
-        sf.shadow.setWidth(sf.wrap.getWidth());
-        sf.shadow.setHeight(sf.wrap.getHeight());
-        sf.title = sf.wrap.child('div[atype=window.title]');
-        sf.head = sf.wrap.child('td[atype=window.head]');
-        sf.body = sf.wrap.child('div[atype=window.body]');
-        sf.closeBtn = sf.wrap.child('div[atype=window.close]');
+        var url = sf.url,
+        	isIE = Ext.isIE,
+        	wrap = sf.wrap = new Ext.Template(sf.getTemplate()).insertFirst(document.body, {
+        	id:sf.id,
+        	title:sf.title,
+        	width:sf.width,
+        	bodywidth:sf.width-2,
+        	height:sf.height,
+        	url:url?'url="'+url+'"':'',
+        	clz:(sf.fullScreen ? 'full-window ' : '')+(sf.className||''),
+        	shadow:isIE?'<DIV class="item-ie-shadow"></DIV>':''
+    	}, true);
+        wrap.cmps = sf.cmps;
+        sf.title = wrap.child('div[atype=window.title]');
+        sf.head = wrap.child('td[atype=window.head]');
+        sf.body = wrap.child('div[atype=window.body]');
+        sf.closeBtn = wrap.child('div[atype=window.close]');
         if(sf.draggable) sf.initDraggable();
         if(!sf.closeable)sf.closeBtn.hide();
         if(Ext.isEmpty(config.x)||Ext.isEmpty(config.y)||sf.fullScreen){
             sf.center();
         }else{
             sf.move(config.x,config.y);
-            this.toFront();
-            this.focus.defer(10,this);
+            sf.toFront();
+            sf.focus.defer(10,sf);
         }
-        if(sf.url){
-            sf.load(sf.url,config.params)
-        }
+        url && sf.load(url,config.params);
     },
     processListener: function(ou){
-        $A.Window.superclass.processListener.call(this,ou);
-        if(this.closeable) {
-           this.closeBtn[ou]("click", this.onCloseClick,  this); 
-           this.closeBtn[ou]("mouseover", this.onCloseOver,  this);
-           this.closeBtn[ou]("mouseout", this.onCloseOut,  this);
-           this.closeBtn[ou]("mousedown", this.onCloseDown,  this);
-        }
-        this.wrap[ou]("click", this.onClick, this,{stopPropagation:true});
-        this.wrap[ou]("keydown", this.onKeyDown,  this);
-        if(this.draggable)this.head[ou]('mousedown', this.onMouseDown,this);
+    	var sf = this;
+        A.Window.superclass.processListener.call(sf,ou);
+        sf.closeable &&
+			sf.closeBtn[ou]("click", sf.onCloseClick,  sf) 
+           	[ou]("mouseover", sf.onCloseOver,  sf)
+           	[ou]("mouseout", sf.onCloseOut,  sf)
+			[ou]("mousedown", sf.onCloseDown,  sf);
+        sf.wrap[ou]("click", sf.onClick, sf,{stopPropagation:true})
+        	[ou]("keydown", sf.onKeyDown,  sf);
+    	sf.draggable && sf.head[ou]('mousedown', sf.onMouseDown,sf);
     },
     initEvents : function(){
-        $A.Window.superclass.initEvents.call(this);
+        A.Window.superclass.initEvents.call(this);
         this.addEvents(
         /**
          * @event beforeclose
@@ -7690,9 +7702,9 @@ $A.Window = Ext.extend($A.Component,{
     onKeyDown : function(e){
         var key = e.getKey();
         if(key == 9){
-            var fk,lk,ck,cmp
-            for(var k in this.cmps){
-                cmp = this.cmps[k];
+            var fk,lk,ck,cmp,cmps = this.cmps;
+            for(var k in cmps){
+                cmp = cmps[k];
                 if(cmp.focus){
                     if(!fk)fk=k;
 	                lk=k;
@@ -7709,7 +7721,7 @@ $A.Window = Ext.extend($A.Component,{
             if(ck==lk){
                 e.stopEvent();
                 if(cmp && cmp.blur)cmp.blur();
-                fk && this.cmps[fk].focus();
+                fk && cmps[fk].focus();
             }
         }else if(key == 27){
             e.stopEvent();
@@ -7731,24 +7743,25 @@ $A.Window = Ext.extend($A.Component,{
      * 
      */
     center: function(){
-        var screenWidth = $A.getViewportWidth();
-        var screenHeight = $A.getViewportHeight();
-        var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft;
-        var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
-        var x = sl+Math.max((screenWidth - this.width)/2,0);
-        var y = st+Math.max((screenHeight - this.height-(Ext.isIE?26:23))/2,0);
-//        this.shadow.setWidth(this.wrap.getWidth());
-//        this.shadow.setHeight(this.wrap.getHeight());
-        if(this.fullScreen){
+        var sf = this,
+        	screenWidth = A.getViewportWidth(),
+        	screenHeight = A.getViewportHeight(),
+        	scroll = Ext.getBody().getScroll(),
+        	sl = scroll.left,
+        	st = scroll.top,
+        	x = sl+Math.max((screenWidth - sf.width)/2,0),
+        	y = st+Math.max((screenHeight - sf.height-(Ext.isIE?26:23))/2,0);
+//        sf.shadow.setWidth(sf.wrap.getWidth());
+//        sf.shadow.setHeight(sf.wrap.getHeight());
+        if(sf.fullScreen){
             x=sl;y=st;
-            this.move(x,y,true);
-            this.shadow.moveTo(x,y)
+            sf.move(x,y,true);
         }else {
-            this.move(x,y)
+            sf.move(x,y)
         }
-//        this.wrap.moveTo(x,y);
-        this.toFront();
-        this.focus.defer(10,this);
+//        sf.wrap.moveTo(x,y);
+        sf.toFront();
+        sf.focus.defer(10,sf);
     },
     /**
      * 移动窗口到指定位置.
@@ -7756,47 +7769,38 @@ $A.Window = Ext.extend($A.Component,{
      */
     move: function(x,y,m){
         this.wrap.moveTo(x,y);
-        if(!m)this.shadow.moveTo(x+3,y+3)
-    },
-    hasVScrollBar : function(){
-        var body=document[Ext.isStrict?'documentElement':'body'];
-        return body.scrollTop>0||body.scrollHeight>body.clientHeight;
-    },
-    hasHScrollBar : function(){
-        var body=document[Ext.isStrict?'documentElement':'body'];
-        return body.scrollLeft>0||body.scrollWidth>body.clientWidth;
-    },
-    getShadowTemplate: function(){
-        return ['<DIV class="win-shadow item-shadow"></DIV>']
     },
     getTemplate : function() {
         return [
-            '<TABLE id="{id}" class="win-wrap {clz}" style="left:-10000px;top:-10000px;width:{width}px;outline:none" cellSpacing="0" cellPadding="0" hideFocus tabIndex="-1" border="0" {url}>',
-            '<TBODY>',
-            '<TR style="height:23px;" >',
-                '<TD class="win-caption">',
-                    '<TABLE cellSpacing="0" class="win-cap" unselectable="on"  onselectstart="return false;" style="height:23px;-moz-user-select:none;"  cellPadding="0" width="100%" border="0" unselectable="on">',
-                        '<TBODY>',
-                        '<TR>',
-                            '<TD unselectable="on" class="win-caption-label" atype="window.head" width="99%">',
-                                '<DIV unselectable="on" atype="window.title" unselectable="on">{title}</DIV>',
-                            '</TD>',
-                            '<TD unselectable="on" class="win-caption-button" noWrap>',
-                                '<DIV class="win-close" atype="window.close" unselectable="on"></DIV>',
-                            '</TD>',
-                            '<TD><DIV style="width:5px;"/></TD>',
-                        '</TR>',
-                        '</TBODY>',
-                    '</TABLE>',
-                '</TD>',
-            '</TR>',
-            '<TR style="height:{height}px">',
-                '<TD class="win-body" vAlign="top" unselectable="on">',
-                    '<DIV class="win-content" atype="window.body" style="position:relatvie;width:{bodywidth}px;height:{height}px;" unselectable="on"></DIV>',
-                '</TD>',
-            '</TR>',
-            '</TBODY>',
-        '</TABLE>'
+            '<DIV id="{id}" class="win-wrap item-shadow {clz}" style="left:-10000px;top:-10000px;width:{width}px;outline:none" hideFocus tabIndex="-1" {url}>',
+            	'{shadow}',
+	            '<TABLE cellSpacing="0" cellPadding="0" border="0" width="100%">',
+	            '<TBODY>',
+	            '<TR style="height:23px;" >',
+	                '<TD class="win-caption">',
+	                    '<TABLE cellSpacing="0" class="win-cap" unselectable="on"  onselectstart="return false;" style="height:23px;-moz-user-select:none;"  cellPadding="0" width="100%" border="0" unselectable="on">',
+	                        '<TBODY>',
+	                        '<TR>',
+	                            '<TD unselectable="on" class="win-caption-label" atype="window.head" width="99%">',
+	                                '<DIV unselectable="on" atype="window.title" unselectable="on">{title}</DIV>',
+	                            '</TD>',
+	                            '<TD unselectable="on" class="win-caption-button" noWrap>',
+	                                '<DIV class="win-close" atype="window.close" unselectable="on"></DIV>',
+	                            '</TD>',
+	                            '<TD><DIV style="width:5px;"/></TD>',
+	                        '</TR>',
+	                        '</TBODY>',
+	                    '</TABLE>',
+	                '</TD>',
+	            '</TR>',
+	            '<TR style="height:{height}px">',
+	                '<TD class="win-body" vAlign="top" unselectable="on">',
+	                    '<DIV class="win-content" atype="window.body" style="position:relatvie;width:{bodywidth}px;height:{height}px;" unselectable="on"></DIV>',
+	                '</TD>',
+	            '</TR>',
+	            '</TBODY>',
+	        '</TABLE>',
+        '</DIV>'
         ];
     },
     /**
@@ -7805,20 +7809,19 @@ $A.Window = Ext.extend($A.Component,{
      */
     toFront : function(){ 
         var myzindex = this.wrap.getStyle('z-index');
-        var zindex = $A.WindowManager.getZindex();
+        var zindex = WINDOW_MANAGER.getZindex();
         if(myzindex =='auto') myzindex = 0;
         if(myzindex < zindex) {
             this.wrap.setStyle('z-index', zindex+5);
-            this.shadow.setStyle('z-index', zindex+4);
-            if(this.modal) $A.Cover.cover(this.wrap);
+            if(this.modal) A.Cover.cover(this.wrap);
         }
         
         //去除下面window遮盖的透明度
-        var alls = $A.WindowManager.getAll()
+        var alls = WINDOW_MANAGER.getAll()
         for(var i=0;i<alls.length;i++){
             var pw = alls[i];
             if(pw != this){
-                var cover = $A.Cover.container[pw.wrap.id];
+                var cover = A.Cover.container[pw.wrap.id];
                 if(cover)cover.setStyle({
                     filter: 'alpha(opacity=0)',
                     opacity: '0',
@@ -7828,7 +7831,7 @@ $A.Window = Ext.extend($A.Component,{
         }
         
         
-//      $A.focusWindow = this;      
+//      A.focusWindow = this;      
     },
     onMouseDown : function(e){
         var sf = this; 
@@ -7837,8 +7840,8 @@ $A.Window = Ext.extend($A.Component,{
         var xy = sf.wrap.getXY();
         sf.relativeX=xy[0]-e.getPageX();
         sf.relativeY=xy[1]-e.getPageY();
-        sf.screenWidth = $A.getViewportWidth();
-        sf.screenHeight = $A.getViewportHeight();
+        sf.screenWidth = A.getViewportWidth();
+        sf.screenHeight = A.getViewportHeight();
         if(!this.proxy) this.initProxy();
         this.proxy.show();
         Ext.get(document.documentElement).on("mousemove", sf.onMouseMove, sf);
@@ -7851,7 +7854,6 @@ $A.Window = Ext.extend($A.Component,{
         Ext.get(document.documentElement).un("mouseup", sf.onMouseUp, sf);
         if(sf.proxy){
             sf.wrap.moveTo(sf.proxy.getX(),sf.proxy.getY());
-            sf.shadow.moveTo(sf.proxy.getX()+3,sf.proxy.getY()+3);
             sf.proxy.hide();
         }
     },
@@ -7873,7 +7875,7 @@ $A.Window = Ext.extend($A.Component,{
         var r = Aurora.checkNotification(this.cmps);
         if(r){
             var sf = this;
-            $A.showConfirm(_lang['dataset.info'], r, function(){
+            A.showConfirm(_lang['dataset.info'], r, function(){
                 sf.close(true);                
             })
             return false;
@@ -7923,7 +7925,7 @@ $A.Window = Ext.extend($A.Component,{
         if(!nocheck && !this.checkDataSetNotification()) return;
         if(this.fireEvent('beforeclose',this)){
             if(this.wrap)this.wrap.destroying = true;
-            $A.WindowManager.remove(this);
+            WINDOW_MANAGER.remove(this);
             if(this.fullScreen){
                 Ext.fly(document.documentElement).setStyle({'overflow':this.overFlow})
             }
@@ -7932,11 +7934,11 @@ $A.Window = Ext.extend($A.Component,{
         }
         
         //去除下面window遮盖的透明度
-        var alls = $A.WindowManager.getAll()
+        var alls = WINDOW_MANAGER.getAll()
         for(var i=0;i<alls.length-1;i++){
             var pw = alls[i];
             if(pw != this){
-                var cover = $A.Cover.container[pw.wrap.id];
+                var cover = A.Cover.container[pw.wrap.id];
                 if(cover)cover.setStyle({
                     filter: 'alpha(opacity=0)',
                     opacity: '0',
@@ -7948,7 +7950,7 @@ $A.Window = Ext.extend($A.Component,{
         
         var cw = alls[alls.length-1];
         if(cw){
-            var cover = $A.Cover.container[cw.wrap.id];
+            var cover = A.Cover.container[cw.wrap.id];
             if(cover){
 	            cover.setStyle({
 	                opacity: '',
@@ -7971,12 +7973,12 @@ $A.Window = Ext.extend($A.Component,{
         }
     },
     destroy : function(){
-//      $A.focusWindow = null;
+//      A.focusWindow = null;
         var wrap = this.wrap;
         if(!wrap)return;
         if(this.proxy) this.proxy.remove();
-        if(this.modal) $A.Cover.uncover(this.wrap);
-        $A.Window.superclass.destroy.call(this);
+        if(this.modal) A.Cover.uncover(this.wrap);
+        A.Window.superclass.destroy.call(this);
         this.clearBody();
         delete this.title;
         delete this.head;
@@ -7984,7 +7986,6 @@ $A.Window = Ext.extend($A.Component,{
         delete this.closeBtn;
         delete this.proxy;
         wrap.remove();
-        this.shadow.remove();
 //        var sf = this;
 //        setTimeout(function(){
 //          for(var key in sf.cmps){
@@ -8006,7 +8007,7 @@ $A.Window = Ext.extend($A.Component,{
      * @param {Object} params  加载的参数
      */
     load : function(url,params){
-//      var cmps = $A.CmpManager.getAll();
+//      var cmps = A.CmpManager.getAll();
 //      for(var key in cmps){
 //          this.oldcmps[key] = cmps[key];
 //      }
@@ -8025,20 +8026,19 @@ $A.Window = Ext.extend($A.Component,{
         }
     },
     setWidth : function(w){
-        w=$A.getViewportWidth();
-        $A.Window.superclass.setWidth.call(this,w);
+        w=A.getViewportWidth();
+        A.Window.superclass.setWidth.call(this,w);
         this.body.setWidth(w-2);
-        this.shadow.setWidth(this.wrap.getWidth());
     },
     setHeight : function(h){
-        h=$A.getViewportHeight()-26;
-        Ext.fly(this.body.dom.parentNode.parentNode).setHeight(h);
-        this.body.setHeight(h);
-        this.shadow.setHeight(this.wrap.getHeight());
-        var sl = document[Ext.isStrict?'documentElement':'body'].scrollLeft;
-        var st = document[Ext.isStrict?'documentElement':'body'].scrollTop;
-        this.shadow.moveTo(sl,st);
-        this.wrap.moveTo(sl,st);
+        var sf = this,
+        	scroll = Ext.getBody().getScroll(),
+        	sl = scroll.left,
+        	st = scroll.top;
+        h=A.getViewportHeight()-26;
+        Ext.fly(sf.body.dom.parentNode.parentNode).setHeight(h);
+        sf.body.setHeight(h);
+        sf.wrap.moveTo(sl,st);
     },
     onLoad : function(response, options){
         if(!this.body) return;
@@ -8051,17 +8051,17 @@ $A.Window = Ext.extend($A.Component,{
         if(res && res.success == false){
             if(res.error){
                 if(res.error.code  && res.error.code == 'session_expired' || res.error.code == 'login_required'){
-                    if($A.manager.fireEvent('timeout', $A.manager))
-                    $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
+                    if(A.manager.fireEvent('timeout', A.manager))
+                    A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
                 }else{
-                    $A.manager.fireEvent('ajaxfailed', $A.manager, options.url,options.para,res);
+                    A.manager.fireEvent('ajaxfailed', A.manager, options.url,options.para,res);
                     var st = res.error.stackTrace;
                     st = (st) ? st.replaceAll('\r\n','</br>') : '';
                     if(res.error.message) {
                         var h = (st=='') ? 150 : 250;
-                        $A.showErrorMessage(_lang['window.error'], res.error.message+'</br>'+st,null,400,h);
+                        A.showErrorMessage(_lang['window.error'], res.error.message+'</br>'+st,null,400,h);
                     }else{
-                        $A.showErrorMessage(_lang['window.error'], st,null,400,250);
+                        A.showErrorMessage(_lang['window.error'], st,null,400,250);
                     } 
                 }
             }
@@ -8069,7 +8069,7 @@ $A.Window = Ext.extend($A.Component,{
         }
         var sf = this
         this.body.update(html,true,function(){
-//          var cmps = $A.CmpManager.getAll();
+//          var cmps = A.CmpManager.getAll();
 //          for(var key in cmps){
 //              if(sf.oldcmps[key]==null){                  
 //                  sf.cmps[key] = cmps[key];
@@ -8090,8 +8090,8 @@ $A.Window = Ext.extend($A.Component,{
  * @param {int} height 高度
  * @return {Window} 窗口对象
  */
-$A.showMessage = function(title, msg,callback,width,height){
-    return $A.showTypeMessage(title, msg, width||300, height||100,'win-info',callback);
+A.showMessage = function(title, msg,callback,width,height){
+    return A.showTypeMessage(title, msg, width||300, height||100,'win-info',callback);
 }
 /**
  * 显示带警告图标的窗口
@@ -8103,8 +8103,8 @@ $A.showMessage = function(title, msg,callback,width,height){
  * @param {int} height 高度
  * @return {Window} 窗口对象
  */
-$A.showWarningMessage = function(title, msg,callback,width,height){
-    return $A.showTypeMessage(title, msg, width||300, height||100,'win-warning',callback);
+A.showWarningMessage = function(title, msg,callback,width,height){
+    return A.showTypeMessage(title, msg, width||300, height||100,'win-warning',callback);
 }
 /**
  * 显示带信息图标的窗口
@@ -8116,8 +8116,8 @@ $A.showWarningMessage = function(title, msg,callback,width,height){
  * @param {int} height 高度
  * @return {Window} 窗口对象
  */
-$A.showInfoMessage = function(title, msg,callback,width,height){
-    return $A.showTypeMessage(title, msg, width||300, height||100,'win-info',callback);
+A.showInfoMessage = function(title, msg,callback,width,height){
+    return A.showTypeMessage(title, msg, width||300, height||100,'win-info',callback);
 }
 /**
  * 显示带错误图标的窗口
@@ -8129,13 +8129,13 @@ $A.showInfoMessage = function(title, msg,callback,width,height){
  * @param {int} height 高度
  * @return {Window} 窗口对象
  */
-$A.showErrorMessage = function(title,msg,callback,width,height){
-    return $A.showTypeMessage(title, msg, width||300, height||100,'win-error',callback);
+A.showErrorMessage = function(title,msg,callback,width,height){
+    return A.showTypeMessage(title, msg, width||300, height||100,'win-error',callback);
 }
 
-$A.showTypeMessage = function(title, msg,width,height,css,callback){
+A.showTypeMessage = function(title, msg,width,height,css,callback){
     var msg = '<div class="win-icon '+css+'"><div class="win-type" style="width:'+(width-70)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
-    return $A.showOkWindow(title, msg, width, height,callback); 
+    return A.showOkWindow(title, msg, width, height,callback); 
 } 
 /**
  * 带图标的确定窗口.
@@ -8148,18 +8148,18 @@ $A.showTypeMessage = function(title, msg,width,height,css,callback){
  * @param {int} height 高度
  * @return {Window} 窗口对象
  */
-$A.showConfirm = function(title, msg, okfun,cancelfun, width, height){
-    return $A.showOkCancelWindow(title, msg, okfun,cancelfun, width, height);   
+A.showConfirm = function(title, msg, okfun,cancelfun, width, height){
+    return A.showOkCancelWindow(title, msg, okfun,cancelfun, width, height);   
 }
-//$A.hideWindow = function(){
-//  var cmp = $A.CmpManager.get('aurora-msg')
+//A.hideWindow = function(){
+//  var cmp = A.CmpManager.get('aurora-msg')
 //  if(cmp) cmp.close();
 //}
-//$A.showWindow = function(title, msg, width, height, cls){
+//A.showWindow = function(title, msg, width, height, cls){
 //  cls = cls ||'';
-//  var cmp = $A.CmpManager.get('aurora-msg')
+//  var cmp = A.CmpManager.get('aurora-msg')
 //  if(cmp == null) {
-//      cmp = new $A.Window({id:'aurora-msg',title:title, height:height,width:width});
+//      cmp = new A.Window({id:'aurora-msg',title:title, height:height,width:width});
 //      if(msg){
 //          cmp.body.update('<div class="'+cls+'" style="height:'+(height-68)+'px;">'+msg+'</div>');
 //      }
@@ -8177,15 +8177,15 @@ $A.showConfirm = function(title, msg, okfun,cancelfun, width, height){
  * @param {int} height 高度
  * @return {Window} 窗口对象
  */
-$A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
-    //var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
+A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
+    //var cmp = A.CmpManager.get('aurora-msg-ok-cancel')
     //if(cmp == null) {
         width = width||300;
         height = height||100;
         var id = Ext.id(),okid = 'aurora-msg-ok'+id,cancelid = 'aurora-msg-cancel'+id,
-        okbtnhtml = $A.Button.getTemplate(okid,_lang['window.button.ok']),
-        cancelbtnhtml = $A.Button.getTemplate(cancelid,_lang['window.button.cancel']),
-        cmp = new $A.Window({id:'aurora-msg-ok-cancel'+id,closeable:true,title:title, height:height||100,width:width||300});
+        okbtnhtml = A.Button.getTemplate(okid,_lang['window.button.ok']),
+        cancelbtnhtml = A.Button.getTemplate(cancelid,_lang['window.button.cancel']),
+        cmp = new A.Window({id:'aurora-msg-ok-cancel'+id,closeable:true,title:title, height:height||100,width:width||300});
         if(!Ext.isEmpty(msg,true)){
             msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-70)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
@@ -8206,8 +8206,8 @@ $A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
     //}
     return cmp;
 }
-$A.showYesNoCancelWindow = function(title, msg, yesfun,nofun,width, height){
-    //var cmp = $A.CmpManager.get('aurora-msg-ok-cancel')
+A.showYesNoCancelWindow = function(title, msg, yesfun,nofun,width, height){
+    //var cmp = A.CmpManager.get('aurora-msg-ok-cancel')
     //if(cmp == null) {
         width = width||300;
         height = height||100;
@@ -8215,10 +8215,10 @@ $A.showYesNoCancelWindow = function(title, msg, yesfun,nofun,width, height){
         	yesid = 'aurora-msg-yes'+id,
         	noid = 'aurora-msg-no'+id,
         	cancelid = 'aurora-msg-cancel'+id,
-	        yesbtnhtml = $A.Button.getTemplate(yesid,_lang['window.button.yes']),
-	        nobtnhtml = $A.Button.getTemplate(noid,_lang['window.button.no']),
-	        cancelbtnhtml = $A.Button.getTemplate(cancelid,_lang['window.button.cancel']),
-        	cmp = new $A.Window({id:'aurora-msg-yes-no-cancel'+id,closeable:true,title:title, height:height||100,width:width||300});
+	        yesbtnhtml = A.Button.getTemplate(yesid,_lang['window.button.yes']),
+	        nobtnhtml = A.Button.getTemplate(noid,_lang['window.button.no']),
+	        cancelbtnhtml = A.Button.getTemplate(cancelid,_lang['window.button.cancel']),
+        	cmp = new A.Window({id:'aurora-msg-yes-no-cancel'+id,closeable:true,title:title, height:height||100,width:width||300});
         if(!Ext.isEmpty(msg,true)){
             msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-70)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
             cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+yesbtnhtml+'</td><td>'+nobtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
@@ -8255,12 +8255,12 @@ $A.showYesNoCancelWindow = function(title, msg, yesfun,nofun,width, height){
  * @param {int} height 高度
  * @return {Window} 窗口对象
  */
-$A.showOkWindow = function(title, msg, width, height,callback){
-    //var cmp = $A.CmpManager.get('aurora-msg-ok');
+A.showOkWindow = function(title, msg, width, height,callback){
+    //var cmp = A.CmpManager.get('aurora-msg-ok');
     //if(cmp == null) {
         var id = Ext.id(),yesid = 'aurora-msg-yes'+id,
-        btnhtml = $A.Button.getTemplate(yesid,_lang['window.button.ok']),
-        cmp = new $A.Window({id:'aurora-msg-ok'+id,closeable:true,title:title, height:height,width:width});
+        btnhtml = A.Button.getTemplate(yesid,_lang['window.button.ok']),
+        cmp = new A.Window({id:'aurora-msg-ok'+id,closeable:true,title:title, height:height,width:width});
         if(!Ext.isEmpty(msg,true)){
             cmp.body.update(msg+ '<center>'+btnhtml+'</center>',true,function(){
                 var btn = $(yesid);
@@ -8287,9 +8287,10 @@ $A.showOkWindow = function(title, msg, width, height,callback){
  * @param {String} file_type 上传类型(*.doc,*.jpg)
  * @param {String} callback 回调函数的名字
  */
-$A.showUploadWindow = function(path,title,source_type,pkvalue,max_size,file_type,callback){
+A.showUploadWindow = function(path,title,source_type,pkvalue,max_size,file_type,callback){
     new Aurora.Window({id:'upload_window', url:path+'/upload.screen?callback='+callback+'&pkvalue='+pkvalue+'&source_type='+source_type+'&max_size='+(max_size||0)+'&file_type='+(file_type||'*.*'), title:title||_lang['window.upload.title'], height:330,width:595});
 };
+})($A);
 (function(A){
 var _N = '',
 	TR$TABINDEX = 'tr[tabindex]',
@@ -9699,14 +9700,14 @@ $A.PercentField = Ext.extend($A.NumberField,{
         return $A.FixMath.div($A.PercentField.superclass.processValue.call(this,v),100);
     }
 });
-$A.SideBar = Ext.extend($A.Component,{
+$A.SideBarPanel = Ext.extend($A.Component,{
     constructor: function(config) { 
         this.collapsible = true;
         this.cmps = {};
-        $A.SideBar.superclass.constructor.call(this,config);
+        $A.SideBarPanel.superclass.constructor.call(this,config);
     },
     initComponent : function(config){
-        $A.SideBar.superclass.initComponent.call(this, config);
+        $A.SideBarPanel.superclass.initComponent.call(this, config);
         this.collapseBtn = this.wrap.child('.arrow');
         this.body = this.wrap.child('.bar-body');
         this.wrap.cmps = this.cmps;
@@ -9717,7 +9718,7 @@ $A.SideBar = Ext.extend($A.Component,{
         }
     },
     processListener: function(ou){
-        $A.SideBar.superclass.processListener.call(this,ou);
+        $A.SideBarPanel.superclass.processListener.call(this,ou);
         if(this.collapsible) {
            this.collapseBtn[ou]("click", this.onCollapseBtnClick,  this); 
         }
