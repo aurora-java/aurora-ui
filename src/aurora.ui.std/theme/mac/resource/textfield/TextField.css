@@ -6,6 +6,10 @@
     padding-top:2px; 
     background-color:transparent; 
     width:100%;
+    float:left;
+}
+.item-input-wrap{
+	height:100%;
 }
 .ext-ie6 .item-textField{
     font-size:12px;
