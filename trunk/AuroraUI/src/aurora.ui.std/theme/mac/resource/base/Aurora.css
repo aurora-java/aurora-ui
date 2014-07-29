@@ -165,14 +165,22 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	HEIGHT: 20px;
 	BORDER-RIGHT-WIDTH: 0px
 }
+.item-trigger-wrap{
+	position:relative;
+	padding-right:20px;
+}
 .item-popup {
 	LEFT: -1000px;
 	TOP: -1000px;	
 	z-index:10000;
-	POSITION: absolute;
+	POSITION: relative;
 	BORDER:#bababa 1px solid;
 }
 
+.item-popup-content{
+	height:100%;
+	width:100%;
+}
 /** Msg **/
 .item-invalid-msg-bottom {
 	position:relative;
