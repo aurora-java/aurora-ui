@@ -3,6 +3,6 @@
     <div class="bar-body" style="${bodystyle}"></div>
 </div>
 <script>
-    new Aurora.SideBar(${config});
+    new Aurora.SideBarPanel(${config});
     ${binding}
 </script>

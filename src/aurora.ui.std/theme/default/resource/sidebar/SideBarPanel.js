@@ -1,11 +1,11 @@
-$A.SideBar = Ext.extend($A.Component,{
+$A.SideBarPanel = Ext.extend($A.Component,{
     constructor: function(config) { 
         this.collapsible = true;
         this.cmps = {};
-        $A.SideBar.superclass.constructor.call(this,config);
+        $A.SideBarPanel.superclass.constructor.call(this,config);
     },
     initComponent : function(config){
-        $A.SideBar.superclass.initComponent.call(this, config);
+        $A.SideBarPanel.superclass.initComponent.call(this, config);
         this.collapseBtn = this.wrap.child('.arrow');
         this.body = this.wrap.child('.bar-body');
         this.wrap.cmps = this.cmps;
@@ -16,7 +16,7 @@ $A.SideBar = Ext.extend($A.Component,{
         }
     },
     processListener: function(ou){
-        $A.SideBar.superclass.processListener.call(this,ou);
+        $A.SideBarPanel.superclass.processListener.call(this,ou);
         if(this.collapsible) {
            this.collapseBtn[ou]("click", this.onCollapseBtnClick,  this); 
         }

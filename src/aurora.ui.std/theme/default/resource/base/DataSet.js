@@ -1235,7 +1235,6 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      */
     query : function(page,opts){
         $A.slideBarEnable = $A.SideBar.enable;
-//        $A.SideBar.enable = false;
         if(!this.queryurl) return;
         if(this.qds) {
             if(this.qds.getCurrentRecord() == null) this.qds.create();
@@ -1257,7 +1256,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         Ext.apply(q, this.qpara);
         for(var k in q){
            var v = q[k];
-           if(Ext.isEmpty(v,false)) delete q[k];
+           if(Ext.isEmpty(v,false)||v.xtype == 'dataset') delete q[k];
         }
         var para = 'pagesize='+this.pagesize + 
                       '&pagenum='+this.currentPage+
