@@ -10,6 +10,7 @@
 }
 .item-input-wrap{
 	height:100%;
+	overflow:hidden;
 }
 .ext-ie6 .item-textField{
     font-size:12px;
