@@ -619,7 +619,7 @@ A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
         cmp = new A.Window({id:'aurora-msg-ok-cancel'+id,closeable:true,title:title, height:height||100,width:width||300});
         if(!Ext.isEmpty(msg,true)){
             msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-70)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
-            cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
+            cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+okbtnhtml+'</td><td>'+cancelbtnhtml+'</td></tr></table></center>',true,function(){
                 var okbtn = $(okid);
                 var cancelbtn = $(cancelid);
                 cmp.cmps[okid] = okbtn;
@@ -652,7 +652,7 @@ A.showYesNoCancelWindow = function(title, msg, yesfun,nofun,width, height){
         	cmp = new A.Window({id:'aurora-msg-yes-no-cancel'+id,closeable:true,title:title, height:height||100,width:width||300});
         if(!Ext.isEmpty(msg,true)){
             msg = '<div class="win-icon win-question"><div class="win-type" style="width:'+(width-70)+'px;height:'+(height-62)+'px;">'+msg+'</div></div>';
-            cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+yesbtnhtml+'</td><td>'+nobtnhtml+'</td><td>'+cancelbtnhtml+'</td><tr></table></center>',true,function(){
+            cmp.body.update(msg+ '<center><table cellspacing="5"><tr><td>'+yesbtnhtml+'</td><td>'+nobtnhtml+'</td><td>'+cancelbtnhtml+'</td></tr></table></center>',true,function(){
                 var yesbtn = $(yesid),
                 	nobtn = $(noid),
                 	cancelbtn = $(cancelid);
