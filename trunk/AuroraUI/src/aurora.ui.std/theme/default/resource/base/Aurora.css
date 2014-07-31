@@ -216,9 +216,9 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	padding:3px;
 }
 .item-shadow {
-	box-shadow:0px 10px 50px 0px rgba(0, 0, 0, 0.5);
-	-webkit-box-shadow:0px 10px 50px 0px rgba(0, 0, 0, 0.5);
-	-moz-box-shadow:0px 10px 50px 0px rgba(0, 0, 0, 0.5);
+	box-shadow:0px 5px 10px 0px rgba(0, 0, 0, 0.5);
+	-webkit-box-shadow:0px 5px 10px 0px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow:0px 5px 10px 0px rgba(0, 0, 0, 0.5);
 }
 .item-ie-shadow{
 	FILTER: alpha(opacity=40);
