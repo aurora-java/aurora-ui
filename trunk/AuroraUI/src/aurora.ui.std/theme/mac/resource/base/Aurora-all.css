@@ -162,7 +162,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	right:0;
 	WIDTH: 20px;	
 	CURSOR: pointer;	
-	HEIGHT: 20px;
+	HEIGHT: 100%;
 	BORDER-RIGHT-WIDTH: 0px
 }
 .item-trigger-wrap{
@@ -222,9 +222,9 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	padding:3px;
 }
 .item-shadow {
-	box-shadow:0px 10px 50px 0px rgba(0, 0, 0, 0.5);
-	-webkit-box-shadow:0px 10px 50px 0px rgba(0, 0, 0, 0.5);
-	-moz-box-shadow:0px 10px 50px 0px rgba(0, 0, 0, 0.5);
+	box-shadow:0px 5px 10px 0px rgba(0, 0, 0, 0.5);
+	-webkit-box-shadow:0px 5px 10px 0px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow:0px 5px 10px 0px rgba(0, 0, 0, 0.5);
 }
 .item-ie-shadow{
 	FILTER: alpha(opacity=40);
@@ -342,9 +342,6 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     border-radius:4px;
     
     background: #fcfcfc url(../base/queryform.gif) repeat-x;
-}
-.query_form .layout-th{
-    color:#fff;
 }
 .query-form .form_body_wrap {
     padding:5px;
@@ -843,12 +840,13 @@ button div {
     line-height:16px;
     padding:0;
     padding-top:2px; 
-    background-color:transparent; 
+    background: url(../base/s.gif); 
     width:100%;
     float:left;
 }
 .item-input-wrap{
 	height:100%;
+	overflow:hidden;
 }
 .ext-ie6 .item-textField{
     font-size:12px;

@@ -4,7 +4,7 @@
     line-height:16px;
     padding:0;
     padding-top:2px; 
-    background-color:transparent; 
+    background: url(../base/s.gif); 
     width:100%;
     float:left;
 }
