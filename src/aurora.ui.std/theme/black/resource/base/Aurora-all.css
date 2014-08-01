@@ -5,7 +5,7 @@
  * http://www.hand-china.com
  * 
  * author:牛佳庆
- * revision:$Rev: 8405 $
+ * revision:$Rev: 8408 $
  */
 .refresh {
     overflow:hidden;
@@ -216,9 +216,9 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	padding:3px;
 }
 .item-shadow {
-	box-shadow:0px 10px 50px 0px rgba(0, 0, 0, 0.5);
-	-webkit-box-shadow:0px 10px 50px 0px rgba(0, 0, 0, 0.5);
-	-moz-box-shadow:0px 10px 50px 0px rgba(0, 0, 0, 0.5);
+	box-shadow:0px 5px 10px 0px rgba(0, 0, 0, 0.5);
+	-webkit-box-shadow:0px 5px 10px 0px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow:0px 5px 10px 0px rgba(0, 0, 0, 0.5);
 }
 .item-ie-shadow{
 	FILTER: alpha(opacity=40);
@@ -862,6 +862,7 @@ button div {
 }
 .item-input-wrap{
 	height:100%;
+	overflow:hidden;
 }
 .ext-ie6 .item-textField{
     font-size:12px;
