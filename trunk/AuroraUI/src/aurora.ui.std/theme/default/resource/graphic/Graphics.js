@@ -2626,15 +2626,35 @@ Ext.apply(pub,{
 			var sf = this,
 				rotation = sf.rotation,
 				size = sf.size||14,
+				dx = sf.dx + 10,
 				dom = (sf.el = sf.wrap.appendChild(newSVG('text',sf.id+'_el')
-					.set({dx:sf.dx+1,dy:sf.dy+size-2}))).dom;
+					.set({
+						dx:dx,
+						dy:sf.dy+size-2,
+						'text-anchor':'middle'
+					}))).dom;
     		dom.style.cssText=encodeStyle({
 	    		fill:sf.color,
 	    		'font-size':size+PX,
 	    		'font-family':sf.fontfamily,
 	    		cursor:'text'
 	    	})+sf.style;
-    		dom.textContent = sf.text;
+	    	Ext.each(sf.text.split(/\n/),function(t,index){
+	    		var tspan = newSVG('tspan');
+	    		if(!index){
+		    		tspan.set({
+		    			dx:dx
+		    		});
+	    		}else{
+	    			tspan.set({
+		    			x:dx,
+		    			dy:index*size
+		    		});
+	    		}
+	    		tspan.dom.textContent = t;
+	    		sf.el.appendChild(tspan);
+	    	});
+    		//dom.textContent = sf.text;
 	    	if(!isEmpty(rotation))transform(sf.el,null,null,null,null,rotation);
 	    	return sf.el;
 	    },
@@ -2647,12 +2667,13 @@ Ext.apply(pub,{
 		    		id:sf.id+'_el',
 		    		style:encodeStyle({
 		    			'font-size':size+PX,
-		    			'font-family':sf.fontfamily
+		    			'font-family':sf.fontfamily,
+		    			'text-align':'center'
 		    		})+sf.style,
 		    		left:sf.dx,
 		    		top:sf.dy,
 		    		color:sf.color||'black'
-		    	},true).update(sf.text);
+		    	},true).update(sf.text.split(/\n/).join('<br/>'));
 	    	if(!isEmpty(rotation)){
 	    		var x,y;
 	    		if(positionwrap){
