@@ -61,7 +61,7 @@ public class PatchAll {
 		list.add("multitextfield/MultiTextField.js");
 		list.add("multicombobox/MultiComboBox.js");
 		list.add("percentfield/PercentField.js");
-		list.add("sidebar/SideBar.js");
+		list.add("sidebar/SideBarPanel.js");
 			
 		List csslist = new ArrayList();
 		csslist.add("base/Aurora.css");
@@ -80,7 +80,7 @@ public class PatchAll {
 		csslist.add("multitextfield/MultiTextField.css");
 		csslist.add("multicombobox/MultiComboBox.css");
 		csslist.add("percentfield/PercentField.css");
-		csslist.add("sidebar/SideBar.css");
+		csslist.add("sidebar/SideBarPanel.css");
 		
 		
 		List compressJs = new ArrayList();
@@ -153,8 +153,6 @@ public class PatchAll {
 				
 		pa.compressAllFiles(compressTouchJs,TOUCH_DIR,"js");
 		pa.compressAllFiles(compressTouchCss,TOUCH_DIR,"css");
-
-//		System.out.println(pa.lineNum);
 	}
 	
 	
