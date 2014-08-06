@@ -106,6 +106,7 @@ public class PatchAll {
 		compressJs.add("portal/Portal.js");
 		compressJs.add("switchcard/SwitchCard.js");
 		compressJs.add("menu/Menu.js");
+		compressJs.add("menutree/MenuTree.js");
 		List compressCss = new ArrayList();
 		compressCss.add(CSS_ALL);
 		compressCss.add("grid/Grid.css");
@@ -117,6 +118,7 @@ public class PatchAll {
 		compressCss.add("accordionmenu/AccordionMenu.css");
 		compressCss.add("portal/Portal.css");
 		compressCss.add("menu/Menu.css");
+		compressCss.add("menutree/MenuTree.css");
 //		compressCss.add("upload/upload.css");
 		
 		List compressTouchJs = new ArrayList();
