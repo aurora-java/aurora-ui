@@ -35,7 +35,7 @@
 	<feature-attach elementName="datePicker" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.DatePicker" />
 	<feature-attach elementName="dateTimePicker" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.DateTimePicker" />
 	<feature-attach elementName="grid" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Grid" />
-	<!--<feature-attach elementName="gridBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.GridBox" />-->
+	<feature-attach elementName="gridBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.GridBox" />
 	<feature-attach elementName="table" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Table" />
 	<feature-attach elementName="dataSet" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.DataSet" />
 	<feature-attach elementName="form" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Form" />
