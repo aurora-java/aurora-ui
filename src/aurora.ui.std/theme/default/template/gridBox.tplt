@@ -1,0 +1,13 @@
+<!--<TABLE class="${wrapClass}" tabIndex="${tabindex}" id="${id}" hidefocus style="outline:none;${style}" cellSpacing="0" cellPadding="0" border="0">
+	<TBODY>
+		<TR>
+			<TD width="${width}" ${padding}><div class="gridbox-button" onclick="$('${bindtarget}').create()"></div></TD>
+		</TR>
+	</TBODY>
+</TABLE>-->
+<div class="gridbox-button" onclick="$('${bindtarget}').create()"></div>
+<SCRIPT LANGUAGE="JavaScript">
+	new Aurora.GridBox(${config});
+	$('${id}').bind('${bindtarget}');
+</SCRIPT>
+${editors}

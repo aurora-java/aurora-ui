@@ -3,6 +3,7 @@
 	<feature-attach elementName="textArea" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.TextArea" />
     <feature-attach elementName="tree" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Tree" />
     <feature-attach elementName="dynamicTree" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.DynamicTree" />
+    <feature-attach elementName="menuTree" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.MenuTree" />
 	<feature-attach elementName="treeGrid" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.TreeGrid" />
     <feature-attach elementName="dynamicTreeGrid" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.DynamicTreeGrid" />
 	<feature-attach elementName="label" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Label" />
