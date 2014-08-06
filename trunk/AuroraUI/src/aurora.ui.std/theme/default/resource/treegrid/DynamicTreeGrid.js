@@ -8,10 +8,11 @@
  */
 $A.DynamicTreeGrid = Ext.extend($A.TreeGrid, {
     createTree : function(cfg){
-        return new $A.DynamicTree(cfg);    
+        return cfg.showSkeleton ? new $A.DynamicTree(cfg) : $A.DynamicTreeGrid.superclass.createTree.call(this, cfg);    
     },
 	createTreeConfig : function(config, columns, id, showSkeleton, grid) {
         var config = $A.DynamicTreeGrid.superclass.createTreeConfig.call(this, config,columns,id,showSkeleton,grid);
+        if(!showSkeleton) return config;
 		config['createTreeNode']= function(item) {
 			return new $A.DynamicTreeGrid.TreeNode(item);
 		}
@@ -27,6 +28,9 @@ $A.DynamicTreeGrid = Ext.extend($A.TreeGrid, {
                 var unode = this.unlockTree.getNodeById(node.id)
                 unode.isLoaded = true;
                 unode.expand();
+            }, this);
+            lockTree.on('expand', function(tree, node) {
+                this.unlockTree.getNodeById(node.id).expand();
             }, this);
             lockTree.on('collapse', function(tree, node) {
                 this.unlockTree.getNodeById(node.id).collapse();
