@@ -12,6 +12,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {
         $A.Component.superclass.constructor.call(this);
         this.id = config.id || Ext.id();
+        this.hostid = config.hostid;
         $A.CmpManager.put(this.id,this)
 		this.initConfig=config;
 		this.isHidden = false;

@@ -110,10 +110,15 @@ $A.CmpManager = function(){
                 alert("错误: ID为' " + id +" '的组件已经存在!");
                 return;
             }
-            if(window['__host']){
-                    window['__host'].cmps[id] = cmp;
-                    cmp['__host'] = window['__host'];
+            if(cmp.hostid){
+	        	var host = Ext.fly(id).parent('[host_id='+cmp.hostid+']');
+	        	(host.cmps = host.cmps||{})[id] = cmp;
+	        	cmp['__host'] = host;
+	    	}else if(window['__host']){
+                window['__host'].cmps[id] = cmp;
+                cmp['__host'] = window['__host'];
             }
+		
 //          if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
 //          if($A.focusTab) $A.focusTab.cmps[id] = cmp;
             this.cache[id]=cmp;
@@ -855,6 +860,7 @@ $A.Masker = function(){
             //sp.setLeft((w-size.width - 45)/2)
             sp.setLeft((w-sp.getWidth() - 45)/2)
             $A.Masker.container[el.id] = masker;
+            masker.on('mousewheel',function(e){e.stopEvent()});
         },
         unmask : function(el){
             var masker = $A.Masker.container[el.id];

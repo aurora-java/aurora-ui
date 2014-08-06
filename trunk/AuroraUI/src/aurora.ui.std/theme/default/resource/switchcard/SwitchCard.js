@@ -15,6 +15,25 @@ A.SwitchCard = Ext.extend(A.Component,{
 			ds[ou]('indexchange',sf.onIndexChange,sf);
 		}
 	},
+	initEvents : function(){
+		A.SwitchCard.superclass.addEvents.call(this);
+    	this.addEvents(
+    	/**
+         * @event cardhide
+         * 卡片隐藏事件.
+         * @param {SwitchCard} this 当前组件.
+         * @param {Array} cmps 组件集合对象.
+         */
+    	'cardhide',
+    	/**
+         * @event cardshow
+         * 卡片显示事件.
+         * @param {SwitchCard} this 当前组件.
+         * @param {Array} cmps 组件集合对象.
+         */
+    	'cardshow');
+    	this.processListener('on');
+    },
 	onUpdate : function(ds,record,name,v){
 		if(this.binder && this.binder.name == name){
 			this.showByValue(v);
@@ -26,36 +45,58 @@ A.SwitchCard = Ext.extend(A.Component,{
 		}
 	},
 	showByIndexs : function(){
-		indexs = Ext.isArray(arguments[0])?arguments[0]:Ext.toArray(arguments);
-		this.wrap.select(SELECTOR).each(function(body,all,index){
-			body.setStyle({display:indexs.indexOf(index)==-1?'none':''});
+		var sf = this,
+			indexs = Ext.isArray(arguments[0])?arguments[0]:Ext.toArray(arguments);
+		sf.wrap.select(SELECTOR).each(function(body,all,index){
+			var ishide = indexs.indexOf(index)==-1;
+			if(ishide){
+				if(!body.isStyle('display','none')){
+					body.setStyle({display:'none'});
+					sf.fireEvent('cardhide',sf,Ext.get(body.dom).cmps);
+				}
+			}else{
+				sf.load(body);
+			}
 		});
 	},
 	load : function(body){
-		var sf = this;
-		body = Ext.get(body);
-		body.cmps={};
-		sf.showLoading(body);
-		Ext.Ajax.request({
-			url: Ext.urlAppend(body.getAttributeNS('','url'),'_vw='+A.getViewportWidth()+'&_vh='+A.getViewportHeight()),
-		   	success: function(response, options){
-		    	sf.clearLoading(body);
-	    		body.set({'url':''});
-		    	body.update(response.responseText,true,function(){
-		    	},body);
-		    },
-		    failure : function(response){
-		    	body.update(response.responseText);
-		    }
-		});		
+		body = Ext.get(body.dom);
+		var sf = this,
+			url = body.getAttributeNS('','url');
+		if(Ext.isEmpty(url)){
+			if(body.isStyle('display','none')){
+				body.setStyle({display:''});
+				sf.fireEvent('cardshow',sf,body.cmps);
+			}
+		}else{
+			body.setStyle({display:''});
+			body.cmps={};
+			sf.showLoading(body);
+			Ext.Ajax.request({
+				url: Ext.urlAppend(body.getAttributeNS('','url'),'_vw='+A.getViewportWidth()+'&_vh='+A.getViewportHeight()),
+			   	success: function(response, options){
+			    	sf.clearLoading(body);
+		    		body.set({'url':''});
+			    	body.update(response.responseText,true,function(){
+			    		sf.fireEvent('cardshow',sf,body.cmps);
+			    	},body);
+			    },
+			    failure : function(response){
+			    	body.update(response.responseText);
+			    }
+			});	
+		}	
 	},
 	showByValue : function(value){
 		var sf = this,wrap = sf.wrap;
 		wrap.select(SELECTOR+'[case='+value+']')
-			.setStyle({display:''})
-			.filter('[url]')
 			.each(sf.load,sf);
-		wrap.select(SELECTOR+'[case!='+value+']').setStyle({display:'none'});
+		wrap.select(SELECTOR+'[case!='+value+']').each(function(body){
+			if(!body.isStyle('display','none')){
+				body.setStyle({display:'none'});
+				sf.fireEvent('cardhide',sf,Ext.get(body.dom).cmps);
+			}
+		},sf);
 	},
 	bind : function(ds,name){
 		if(Ext.isString(ds)){
