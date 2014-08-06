@@ -620,7 +620,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
                 if(dv && !data[field.name]){
                     dd[field.name] = dv;
                 }else {
-                    dd[field.name] = this.processValueListField(dd,data[field.name],field);
+                    dd[field.name] = this.processData(data,field.name,field);
+//                    dd[field.name] = this.processValueListField(dd,data[field.name],field);
                 }
             }
             var data = Ext.apply(data||{},dd);
