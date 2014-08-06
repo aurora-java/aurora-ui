@@ -1,5 +1,4 @@
 (function(A){
-	
 function sortChildren(children,sequence){
     if(sequence){
     	var m = Number.MAX_VALUE;
@@ -20,16 +19,11 @@ function sortChildren(children,sequence){
     });
 }
 A.MenuTree=Ext.extend(A.Component,{
-	constructor: function(config) {
-		A.MenuTree.superclass.constructor.call(this, config);
-	},
 	initComponent: function(config) {
-		A.MenuTree.superclass.initComponent.call(this, config);
-		this.body = this.wrap.child('.menu-tree-body');
+		var sf = this;
+		A.MenuTree.superclass.initComponent.call(sf, config);
+		sf.body = sf.wrap.child('.menu-tree-body');
 	},
-	processListener: function(ou){
-    	A.MenuTree.superclass.processListener.call(this,ou);
-    },
     processDataSetLiestener: function(ou){
 		var sf = this,
 			ds = sf.dataset;
@@ -156,9 +150,7 @@ A.MenuTree=Ext.extend(A.Component,{
     		text = data.get(sf.displayfield),
     		renderer = sf.renderer && A.getRenderer(sf.renderer);
     	return renderer?renderer(text,data):text;
-    },
-	renderFirstLevel:function(list){
-	}
+    }
 });
 
 A.MenuTree.revision='$Rev$';
