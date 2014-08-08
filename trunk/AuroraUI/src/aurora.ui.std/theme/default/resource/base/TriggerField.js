@@ -21,7 +21,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	this.popupContent = this.popup.child('div.item-popup-content');
     	Ext.isIE && new Ext.Template('<div class="item-ie-shadow"></div>').insertFirst(this.popup,{});
 //    	this.shadow = this.wrap.child('div[atype=triggerfield.shadow]');
-    	//Ext.getBody().insertFirst(this.popup);
+    	Ext.getBody().insertFirst(this.popup);
 //    	Ext.getBody().insertFirst(this.shadow);
     	this.initpopuped = true
     },
