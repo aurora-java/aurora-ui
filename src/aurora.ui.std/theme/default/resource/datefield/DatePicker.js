@@ -15,6 +15,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
 	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
+		Ext.isIE6 && this.popup.setHeight(184);
 		this.initFormat();
 		this.initDatePicker();
 	},

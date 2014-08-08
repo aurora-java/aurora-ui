@@ -20,7 +20,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     initComponent : function(config){
     	var sf = this;
     	$A.AutoCompleteView.superclass.initComponent.call(sf, config);
-    	sf.wrap = new Ext.Template(TEMPLATE).append(sf.cmp?sf.cmp.wrap:document.body,{
+    	sf.wrap = new Ext.Template(TEMPLATE).append(document.body,{
     		width:sf.width,
     		height:sf.height,
     		id:sf.id,
