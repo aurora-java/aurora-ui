@@ -110,10 +110,15 @@ $A.CmpManager = function(){
                 alert("错误: ID为' " + id +" '的组件已经存在!");
                 return;
             }
-            if(window['__host']){
-                    window['__host'].cmps[id] = cmp;
-                    cmp['__host'] = window['__host'];
+            if(cmp.hostid){
+	        	var host = Ext.fly(id).parent('[host_id='+cmp.hostid+']');
+	        	(host.cmps = host.cmps||{})[id] = cmp;
+	        	cmp['__host'] = host;
+	    	}else if(window['__host']){
+                window['__host'].cmps[id] = cmp;
+                cmp['__host'] = window['__host'];
             }
+		
 //          if($A.focusWindow) $A.focusWindow.cmps[id] = cmp;
 //          if($A.focusTab) $A.focusTab.cmps[id] = cmp;
             this.cache[id]=cmp;
@@ -855,6 +860,7 @@ $A.Masker = function(){
             //sp.setLeft((w-size.width - 45)/2)
             sp.setLeft((w-sp.getWidth() - 45)/2)
             $A.Masker.container[el.id] = masker;
+            masker.on('mousewheel',function(e){e.stopEvent()});
         },
         unmask : function(el){
             var masker = $A.Masker.container[el.id];
@@ -3922,6 +3928,7 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 	constructor: function(config) {
         $A.Component.superclass.constructor.call(this);
         this.id = config.id || Ext.id();
+        this.hostid = config.hostid;
         $A.CmpManager.put(this.id,this)
 		this.initConfig=config;
 		this.isHidden = false;
@@ -4994,7 +5001,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     initComponent : function(config){
     	var sf = this;
     	$A.AutoCompleteView.superclass.initComponent.call(sf, config);
-    	sf.wrap = new Ext.Template(TEMPLATE).append(sf.cmp?sf.cmp.wrap:document.body,{
+    	sf.wrap = new Ext.Template(TEMPLATE).append(document.body,{
     		width:sf.width,
     		height:sf.height,
     		id:sf.id,
@@ -6141,7 +6148,7 @@ $A.TriggerField = Ext.extend($A.TextField,{
     	this.popupContent = this.popup.child('div.item-popup-content');
     	Ext.isIE && new Ext.Template('<div class="item-ie-shadow"></div>').insertFirst(this.popup,{});
 //    	this.shadow = this.wrap.child('div[atype=triggerfield.shadow]');
-    	//Ext.getBody().insertFirst(this.popup);
+    	Ext.getBody().insertFirst(this.popup);
 //    	Ext.getBody().insertFirst(this.shadow);
     	this.initpopuped = true
     },
@@ -6990,6 +6997,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
 	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
+		Ext.isIE6 && this.popup.setHeight(184);
 		this.initFormat();
 		this.initDatePicker();
 	},
