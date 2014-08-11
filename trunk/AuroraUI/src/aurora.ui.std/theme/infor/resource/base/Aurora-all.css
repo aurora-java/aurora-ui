@@ -170,7 +170,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     LEFT: -1000px;
     TOP: -1000px;   
     z-index:10000;
-    POSITION: relative;
+    POSITION: absolute;
     BORDER:#bababa 1px solid;
 }
 .item-popup-content{
