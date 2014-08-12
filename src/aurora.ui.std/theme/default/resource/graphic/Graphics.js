@@ -2626,7 +2626,7 @@ Ext.apply(pub,{
 			var sf = this,
 				rotation = sf.rotation,
 				size = sf.size||14,
-				dx = sf.dx + 10,
+				dx = sf.dx,
 				dom = (sf.el = sf.wrap.appendChild(newSVG('text',sf.id+'_el')
 					.set({
 						dx:dx,
@@ -2656,6 +2656,18 @@ Ext.apply(pub,{
 	    	});
     		//dom.textContent = sf.text;
 	    	if(!isEmpty(rotation))transform(sf.el,null,null,null,null,rotation);
+	    	dx += sf.el.getWidth()/2;
+	    	sf.el.set({dx:dx}).select('tspan').each(function(t,all,index){
+    			if(!index){
+		    		t.set({
+		    			dx:dx
+		    		});
+	    		}else{
+	    			t.set({
+		    			x:dx
+		    		});
+	    		}
+	    	});
 	    	return sf.el;
 	    },
 	    initVMLElement : function(){
