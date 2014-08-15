@@ -191,7 +191,7 @@ A.Table = Ext.extend(A.Component,{
         }
     },
 	initTemplate : function(){
-        this.cellTpl = new Ext.Template(['<div class="',TABLE_CELL,' {cellcls}" id="',this.id,'_{name}_{',RECORD_ID,'}">{text}</div>']);        
+        this.cellTpl = new Ext.Template(['<div style="width:{width}" class="',TABLE_CELL,' {cellcls}" id="',this.id,'_{name}_{',RECORD_ID,'}">{text}</div>']);        
     	this.cbTpl = new Ext.Template(['<center><div class="{cellcls}" id="',this.id,'_{name}_{',RECORD_ID,'}"></div></center>']);
     },
 	createRow:function(record,index,isInsert){
@@ -271,7 +271,7 @@ A.Table = Ext.extend(A.Component,{
 		        if(field && IS_EMPTY(record.data[xname]) && record.isNew == TRUE && field.get(REQUIRED) == TRUE){
 		            cls = cls + _S + ITEM_NOT_BLANK
 		        }
-				td.innerHTML=sf.cellTpl.applyTemplate({text:sf.renderText(record,col,record.data[xname]),cellcls:cls,name:xname,recordid:record.id});
+				td.innerHTML=sf.cellTpl.applyTemplate({text:sf.renderText(record,col,record.data[xname]),cellcls:cls,name:xname,recordid:record.id,width:col.width+'px'});
 			}
 		}
 	},
