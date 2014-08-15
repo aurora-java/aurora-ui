@@ -28,6 +28,7 @@
 	white-space: pre-wrap;
 	*white-space: pre;
 	*word-wrap: break-word;
+	overflow:hidden;
 }
 .table-cell-editor {
 	border:1px solid #bababa;
