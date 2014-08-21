@@ -364,8 +364,14 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .fieldbox_head {
     border-left:1px solid #ffffff;
     border-bottom:1px solid #bbbbbb;
-    height:35px;
+    height:23px;
     COLOR: #20A8F7; 
     padding-left:5px;
-    font-size:25px;
+    font-size:16px;
+}
+.item-tf-baseline {
+	background: none;
+	border-radius: 0;
+	border: none;
+	border-bottom: 1px solid #bababa;
 }
