@@ -3,6 +3,7 @@ $A.uploadcmps = [];
 $A.HTML5Uploader = Ext.extend($A.Component,{
     types:[],
     map:{},
+    sequence:1,
     initComponent : function(config){
         $A.HTML5Uploader.superclass.initComponent.call(this, config);
         this.le = this.wrap.child('#'+this.id+'_list');
@@ -44,21 +45,24 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
             'delete'
         );
     },
-    checkFileType : function(files) {
-        var checkType = true,checkSize = true,checkTotal = true,checkTotalCount = true,totalUploadSize = 0;
+    checkFile : function(files) {
+        var checkType = true,checkSize = true,checkTotal = true,checkTotalCount = true,totalUploadSize = 0, fl = 0;
         for (var i = 0; i < files.length; i++) {  
-            var name = files[i].name;
-            var size = files[i].size;
+            var name = files[i].name,size = files[i].size,fts = this.filetype.split(';'), fss = this.filesize.split(';');
             totalUploadSize += size;
             var sp = name.trim().split('.');
-            var ft = sp[sp.length-1];
+            var ft = sp[sp.length-1].toLowerCase();
             if(this.filetype.trim() != '*.*' && this.types.indexOf(ft)==-1){
                 checkType = false;
                 break;
             }
-            if(this.filesize !=0 && (size/1024) > this.filesize) {
-                checkSize = false;
-                break;
+            if(this.filesize!='0'){
+                var index = this.filetype.trim() == '*.*' ? 0 : fts.indexOf("*."+ft);
+                if(index!=-1) fl = fss[index]||fss[0];
+                if(size > Number(fl)*1024){
+                    checkSize = false;
+                    break;
+                }
             }
         }
         var ds = $(this.id+'_ds');
@@ -77,7 +81,7 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
         if(!checkType) {
             $A.showInfoMessage(_lang['upload.error'], _lang['upload.error.invalid_file_type']+' <br/>('+ this.filetype + ')',null,350,100);
         }else if(!checkSize) {
-            $A.showInfoMessage(_lang['upload.error'], _lang['upload.error.size_exceed']+'('+formatFileSize(this.filesize*1024)+ ')',null,350,100);
+            $A.showInfoMessage(_lang['upload.error'], _lang['upload.error.size_exceed']+'('+formatFileSize(fl*1024)+ ')',null,350,100);
         }else if(!checkTotal) {
             $A.showErrorMessage(_lang['upload.error'], _lang['upload.limit_exceeded']+'('+formatFileSize(1024 *this.totalfilesize)+')',null,350,100);
         }else if(!checkTotalCount) {
@@ -91,7 +95,7 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
             this.clearDragTip();
             return;
         }
-        if(!this.checkFileType(files)) {
+        if(!this.checkFile(files)) {
             this.clearDragTip();
             return;
         }
@@ -101,13 +105,20 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
         for (var i = 0; i < files.length; i++) {  
             var file = files[i]; 
             var fid = 'f_'+Ext.id();
+            
+            Ext.each($(this.id+'_ds').data,function(item){
+                var s = item.get('sequence');
+                if(s>this.sequence) this.sequence = s;
+            },this);
+            var _s = ++this.sequence;
             var record = new Aurora.Record({
                 file_id : fid,
                 file_name : file.name,
                 file_size : file.size,
                 table_name: this.sourcetype,
                 table_pk_value : this.pkvalue,
-                percent: 0
+                percent: 0,
+                sequence:_s
             });
             $(this.id+'_ds').add(record,0);
             var xhr = new XMLHttpRequest();
@@ -119,6 +130,7 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
             xhr.addEventListener("error", this.uploadFailed.createDelegate(this,[fid],true), false);
             xhr.addEventListener("abort", this.uploadCanceled.createDelegate(this,[fid],true), false);
             var fd = new FormData(); 
+            fd.append('sequence',_s);
             fd.append('fileToUpload', file); 
             fd.append("pkvalue", this.pkvalue); 
             fd.append("source_type", this.sourcetype); 

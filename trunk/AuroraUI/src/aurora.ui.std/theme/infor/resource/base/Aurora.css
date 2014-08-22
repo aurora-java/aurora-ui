@@ -375,3 +375,15 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	border: none;
 	border-bottom: 1px solid #bababa;
 }
+.grid-editor {
+    -webkit-border-radius:0px;
+    -moz-border-radius:0px;
+    border-radius:0px; 
+    font-size:16px;
+}
+.item-tf-baseline {
+	background: none;
+	border-radius: 0;
+	border: none;
+	border-bottom: 1px solid #bababa;
+}
