@@ -50,8 +50,10 @@ $A.DynamicTree.TreeNode = Ext.extend($A.Tree.TreeNode,{
                 this.paintClipIcoImg();
             }else {
                 this.els['icon'].className = 'node-icon icon-loading';
+                //改成ds的query方法
+                var url = ds.queryurl +(ds.queryurl.indexOf('?') == -1?'?':'&') + '_fetchall=true';
                 $A.request({
-                    url : ds.queryurl,
+                    url : url,
                     para : this.data.record.data,
                     success : function(res) {
                         this.isLoaded = true;
