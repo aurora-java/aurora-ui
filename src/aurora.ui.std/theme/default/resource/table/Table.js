@@ -506,6 +506,7 @@ A.Table = Ext.extend(A.Component,{
                     ed.isFireEvent = TRUE;
                     ed.isHidden = FALSE;
                     ed.focus();
+                    if(ed.wrap && !ed.wrap.hasClass('grid-editor')) ed.wrap.addClass('grid-editor');
                     ed.on(EVT_SELECT,sf.onEditorSelect,sf);
                     if(Ext.isFunction(callback))callback(ed);
 	                sf.fireEvent(EVT_EDITOR_SHOW, sf, ed, row, name, record);

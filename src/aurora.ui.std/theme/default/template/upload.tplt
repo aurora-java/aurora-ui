@@ -15,15 +15,31 @@ function ${id}(){
         button_width: "${buttonwidth}",
         button_height: "23",
         debug: false,
+        sequence:1,
         button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
         button_image_url:"${context_path}/resource/aurora.ui.std/default/upload/s.gif",
         button_cursor: SWFUpload.CURSOR.HAND,
         button_text: '<a class="theFont">${text}</a>',
         button_text_style: ".theFont {text-decoration:underline;cursor:hand;font-family: 宋体;font-size:13px;text-align:center;}",
         button_text_top_padding: 2,
-        file_size_limit: ${filesize}, //默认单位是KB,0表示无限制
+        //file_size_limit: ${filesize}, //默认单位是KB,0表示无限制
         file_types:'${filetype}',
         file_queued_handler : function(file){
+            var fs= '${filesize}', ft = '${filetype}',fts = ft.split(';'), fss = fs.split(';');
+            if(fs != '0') {
+                var file_type =  file.type.toLowerCase();
+                var index = ft == '*.*' ? 0 : fts.indexOf("*"+file_type);
+                if(index!=-1){
+                    var fl = fss[index]||fss[0];
+                    
+                    if(file.size > Number(fl)*1024){
+                        Aurora.showErrorMessage(_lang['upload.error'], _lang['upload.error.size_exceed']+'(*'+file_type+'<' + window.formatFileSize(1024 *Number(fl))+')',null,350,100);
+                        this.cancelUpload(file.id);
+                        return;
+                    }
+                }
+            }
+        
             var totalFileSize = ${totalfilesize};
             var ds = $('${id}_ds');
             if(totalFileSize!=0){
@@ -46,6 +62,11 @@ function ${id}(){
                     return;
                 }
             }
+            Ext.each(ds.data,function(item){
+                var s = item.get('sequence');
+                if(s>this.settings.sequence) this.settings.sequence = s;
+            },this);
+            var s = ++this.settings.sequence
             var record = new Aurora.Record({
                 file_id : file.id,
                 file_name : file.name,
@@ -53,9 +74,12 @@ function ${id}(){
                 table_name: "${sourcetype}",
                 table_pk_value : "${pkvalue}",
                 percent : 0,
+                sequence:s,
                 creation_time: new Date()
             });
-            $('${id}_ds').add(record)
+            $('${id}_ds').add(record);
+            
+            this.addFileParam(file.id,'sequence',s);
         },
         upload_success_handler : function(file, serverData, responseReceived) {
             var res = Ext.decode(serverData);
