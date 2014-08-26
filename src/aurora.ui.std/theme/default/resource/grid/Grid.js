@@ -1820,10 +1820,12 @@ A.Grid = Ext.extend(A.Component,{
         var sf = this,ds = sf.dataset;
         if(ds.selectfunction){
             var cb = Ext.get(sf.id+__+record.id);
-            if(!ds.execSelectFunction(record)){
-                 sf.setSelectDisable(cb,record)
-            }else{
-                 sf.setSelectEnable(cb,record);
+            if(cb){
+	            if(!ds.execSelectFunction(record)){
+	                 sf.setSelectDisable(cb,record)
+	            }else{
+	                 sf.setSelectEnable(cb,record);
+	            }
             }
         }
     },
