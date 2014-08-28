@@ -173,3 +173,54 @@ button div {
     -moz-box-shadow:inset 0px 1px 2px rgba(0,0,0,.1);
     -webkit-box-shadow: inset 0px 1px 2px rgba(0,0,0,.1);  
 }
+
+.item-rbtn{
+	border:none;
+	background:none;
+	-webkit-box-shadow: none;
+    box-shadow: none;
+}
+.item-rbtn button {
+    color:#fff;
+}
+.item-rbtn .tl,.item-rbtn .tr {
+	width:10px;
+}
+.item-rbtn i{
+    font-size:1px;
+    line-height:1px;
+    width:10px;
+    display:block;
+    overflow:hidden;
+}
+.item-rbtn .tm {
+    vertical-align: middle;
+    text-align:center;
+    padding:0 5px;
+    cursor:pointer;
+    white-space:nowrap;
+}
+.item-rbtn-blue .tl,.item-rbtn-blue .tm , .item-rbtn-blue .tr{
+	background-image:url(../button/rbtn.png);
+}
+.item-rbtn-red .tl,.item-rbtn-red .tm , .item-rbtn-red .tr{
+    background-image:url(../button/rrtn.png);
+}
+.item-rbtn-green .tl,.item-rbtn-green .tm , .item-rbtn-green .tr{
+    background-image:url(../button/rgtn.png);
+}
+.item-rbtn-gray .tl,.item-rbtn-gray .tm , .item-rbtn-gray .tr{
+    background-image:url(../button/rgytn.png);
+}
+.item-rbtn .tl {
+    background-position: 0px 0px;
+    background-repeat:no-repeate;
+}
+.item-rbtn .tm {
+	background-position: 0px -75px;
+	background-repeat:repeat-x;
+}
+.item-rbtn .tr {
+	background-position: -11px 0px;
+	background-repeat:no-repeate;
+}

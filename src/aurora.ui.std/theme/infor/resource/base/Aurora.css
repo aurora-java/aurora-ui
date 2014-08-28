@@ -218,9 +218,9 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     padding:3px;
 }
 .item-shadow {
-	box-shadow:0px 5px 10px 0px rgba(0, 0, 0, 0.5);
-	-webkit-box-shadow:0px 5px 10px 0px rgba(0, 0, 0, 0.5);
-	-moz-box-shadow:0px 5px 10px 0px rgba(0, 0, 0, 0.5);
+	box-shadow:0px 3px 10px 0px rgba(0, 0, 0, 0.5);
+	-webkit-box-shadow:0px 3px 10px 0px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow:0px 3px 10px 0px rgba(0, 0, 0, 0.5);
 }
 .item-ie-shadow{
 	FILTER: alpha(opacity=40);
@@ -369,6 +369,12 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     padding-left:5px;
     font-size:16px;
 }
+.grid-editor {
+    -webkit-border-radius:0px;
+    -moz-border-radius:0px;
+    border-radius:0px; 
+    font-size:16px;
+}
 .item-tf-baseline {
 	background: none;
 	border-radius: 0;
@@ -386,4 +392,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	border-radius: 0;
 	border: none;
 	border-bottom: 1px solid #bababa;
+}
+.item-tf-baseline input{
+	background: none;
 }
