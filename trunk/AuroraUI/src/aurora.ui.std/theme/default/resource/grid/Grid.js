@@ -513,11 +513,11 @@ A.Grid = Ext.extend(A.Component,{
             	return;
             }
         }
-		//sf.onLoad();
+		sf.onLoad();
         //直接onLoad导致Grid无法获取单选框的Editor，无法渲染界面
-        $A.onReady(function(){
-            sf.onLoad();
-        })
+//        $A.onReady(function(){
+//            sf.onLoad();
+//        })
     },
     initTemplate : function(){
         var sf = this;

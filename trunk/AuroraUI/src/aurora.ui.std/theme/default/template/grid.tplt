@@ -21,9 +21,9 @@
 	${navbar}
 </TBODY>
 </TABLE>
+${editors}
 <SCRIPT LANGUAGE="JavaScript">
 	new Aurora.Grid(${config});
 	$('${id}').bind('${bindtarget}');
 	${events}
 </SCRIPT>
-${editors}
