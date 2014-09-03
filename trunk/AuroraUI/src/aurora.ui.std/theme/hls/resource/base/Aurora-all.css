@@ -1058,7 +1058,7 @@ button div {
 .win-caption {
 	height: 21px;
 	border-bottom:1px solid #808080;
-	background:url(../window/window-header.gif) repeat-x;
+	background-color:#b6b6b6;
 }
 .win-caption-label div {
 	width:100%;
@@ -1066,7 +1066,7 @@ button div {
 	padding-left:5px;
 	/**FONT-SIZE: 12px;**/ 
 	FLOAT: left; 
-	COLOR: #055a78;
+	COLOR: #fff;
 	overflow:hidden; 
 	height: 23px;
 	line-height:23px;
