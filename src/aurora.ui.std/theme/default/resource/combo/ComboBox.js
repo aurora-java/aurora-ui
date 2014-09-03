@@ -270,7 +270,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 				sb.push('<li tabIndex="0"></li>');
 				n=1;
 			}
-			Ext.each(ds.getAll(),function(d,i){debugger
+			Ext.each(ds.getAll(),function(d,i){
 //				var d = Ext.apply(datas[i].data, {index:i})
 //				var rder = $A.getRenderer(this.renderer);
 //				var text = this.getRenderText(datas[i]);
