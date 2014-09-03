@@ -26,6 +26,7 @@ $A.Field = Ext.extend($A.Component,{
     },
     initElements : function(){
     	this.el = this.wrap.child('input[atype=field.input]'); 
+    	this.inputWrap = this.wrap.child('.item-input-wrap');
     },
     initComponent : function(config){
     	var sf = this;
@@ -247,7 +248,7 @@ $A.Field = Ext.extend($A.Component,{
     	if(sf.currentRequired == required)return;
 		sf.clearInvalid();    	
     	sf.currentRequired = sf.required = required;
-    	sf.wrap[required?'addClass':'removeClass'](sf.requiredCss);
+    	sf.inputWrap[required?'addClass':'removeClass'](sf.requiredCss);
     },
     initEditable : function(editable){
     	var sf = this;
@@ -260,7 +261,7 @@ $A.Field = Ext.extend($A.Component,{
     	if(sf.currentReadonly == readonly)return;
     	sf.currentReadonly = sf.readonly = readonly;
     	sf.el.dom.readOnly = readonly;
-    	sf.wrap[readonly?'addClass':'removeClass'](sf.readOnlyCss);
+    	sf.inputWrap[readonly?'addClass':'removeClass'](sf.readOnlyCss);
     },
     isOverMaxLength : function(str){
         if(!this.maxlength) return false;
@@ -374,12 +375,12 @@ $A.Field = Ext.extend($A.Component,{
 //    },
     clearInvalid : function(){
     	this.invalidMsg = null;
-    	this.wrap.removeClass(this.invalidCss);
+    	this.inputWrap.removeClass(this.invalidCss);
 //    	this.fireEvent('valid', this);
     },
     markInvalid : function(msg){
     	this.invalidMsg = msg;
-    	this.wrap.addClass(this.invalidCss);
+    	this.inputWrap.addClass(this.invalidCss);
     },
 //    validateValue : function(value){    
 //    	if(value.length < 1 || value === this.emptyText){ // if it's blank

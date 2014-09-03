@@ -17,7 +17,7 @@ $A.TextArea = Ext.extend($A.Field,{
     	$A.TextArea.superclass.initEvents.call(this);    	
     },
     initElements : function(){
-    	this.el= this.wrap;
+    	this.inputWrap =this.el= this.wrap;
     },
     onKeyDown : function(e){}
 //    ,setRawValue : function(v){

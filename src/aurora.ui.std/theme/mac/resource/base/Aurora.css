@@ -355,3 +355,10 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     box-shadow:0px 4px 16px rgba(0,0,0,0.5);
     z-index:21;
 }
+
+.item-focus .item-notBlank,.item-focus .item-invalid,.item-focus .item-invalid .item-textField{
+	background: none;
+}
+.item-focus .item-readOnly{
+	background: #DBDBDB;
+}

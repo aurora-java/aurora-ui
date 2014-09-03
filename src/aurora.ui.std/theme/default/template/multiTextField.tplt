@@ -1,4 +1,4 @@
-<DIV class="${wrapClass} item-tf" style="cursor:text;width:${width}px;height:auto;min-height:${height}px;${style}" id="${id}" >
+<DIV class="${wrapClass} item-tf" style="cursor:text;width:${width}px;height:auto;min-height:${height}px;overflow:hidden;${style}" id="${id}" >
 	<DIV  class="item-input-wrap item-input-box" style="min-height:${height}px">
 		<INPUT tabindex="${tabindex}" style="text-indent:2px;line-height:${height}px;min-height:${height}px;${fontstyle}" class="item-textField item-multiTextField" atype="field.input" ${readonly} autocomplete="off" value="${value}" />
 	</DIV>
