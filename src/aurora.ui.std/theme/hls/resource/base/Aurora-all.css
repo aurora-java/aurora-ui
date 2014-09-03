@@ -1058,7 +1058,7 @@ button div {
 .win-caption {
 	height: 21px;
 	border-bottom:1px solid #808080;
-	background-color:#b6b6b6;
+	background-color:#f1f1f1;
 }
 .win-caption-label div {
 	width:100%;
@@ -1066,7 +1066,7 @@ button div {
 	padding-left:5px;
 	/**FONT-SIZE: 12px;**/ 
 	FLOAT: left; 
-	COLOR: #fff;
+	COLOR: #333;
 	overflow:hidden; 
 	height: 23px;
 	line-height:23px;
@@ -1078,6 +1078,7 @@ button div {
 .win-close{
 	background-image: url(../window/win_close.gif);
 	/*background-position:0px 0px;*/
+	margin-top:5px;
 	WIDTH: 45px; 
 	CURSOR: pointer; 
 	BACKGROUND-REPEAT: no-repeat; 
