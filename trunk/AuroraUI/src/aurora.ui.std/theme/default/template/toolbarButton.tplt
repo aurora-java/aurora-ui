@@ -2,7 +2,7 @@
     <tr> 
         <td class="tl"><I></I></td>    
         <td class="tm">
-            <BUTTON tabIndex="${tabindex}" type="button" hidefocus="true" atype="btn" title="${title}" style="height:${height}px;" class="${btnclass}"><div style="text-decoration:none;line-height:20px;height:22px;${btnstyle}">${text}</div></BUTTON>
+            <BUTTON tabIndex="${tabindex}" type="button" hidefocus="true" atype="btn" title="${title}" style="height:${height}px;" class="${btnclass}"><div style="text-decoration:none;line-height:22px;height:23px;${btnstyle}">${text}</div></BUTTON>
         </td> 
         <td class="tr"><I></I></td>    
     </tr>
