@@ -5,7 +5,7 @@
  * http://www.hand-china.com
  * 
  * author:牛佳庆
- * revision:$Rev: 8457 $
+ * revision:$Rev: 8479 $
  */
 .refresh {
     overflow:hidden;
@@ -370,6 +370,12 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 
 .fieldbox_layout-title {
 	border:1px solid #cccccc;
+}
+.item-focus .item-notBlank,.item-focus .item-invalid{
+	background: none;
+}
+.item-focus .item-readOnly{
+	background: #DBDBDB;
 }
 .item-ckb,.grid-ckb,.table-ckb{
 	width:13px;

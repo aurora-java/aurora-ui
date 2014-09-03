@@ -379,19 +379,18 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 	background: none;
 	border-radius: 0;
 	border: none;
-	border-bottom: 1px solid #bababa;
+	border-bottom: 2px solid #bababa;
 }
-.grid-editor {
-    -webkit-border-radius:0px;
-    -moz-border-radius:0px;
-    border-radius:0px; 
-    font-size:16px;
+.item-focus .item-notBlank,.item-focus .item-invalid,.item-tf-baseline input,.item-tf-baseline .item-readOnly .item-textField{
+	background: none;
 }
-.item-tf-baseline {
+.item-tf-baseline .item-notBlank,.item-tf-baseline .item-readOnly{
 	background: none;
 	border-radius: 0;
 	border: none;
-	border-bottom: 1px solid #bababa;
+}
+.item-tf-baseline .item-invalid{
+	border-bottom: 2px solid #FFB9AC;
 }
 .item-tf-baseline input{
 	background: none;
@@ -749,6 +748,9 @@ button div {
 }
 .item-input-wrap{
 	height:100%;
+    -webkit-border-radius:4px;
+    -moz-border-radius:4px;
+    border-radius:4px;
 	overflow:hidden;
 }
 .ext-ie6 .item-textField{
