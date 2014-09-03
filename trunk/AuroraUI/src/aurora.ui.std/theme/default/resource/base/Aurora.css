@@ -371,3 +371,9 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .fieldbox_layout-title {
 	border:1px solid #cccccc;
 }
+.item-focus .item-notBlank,.item-focus .item-invalid{
+	background: none;
+}
+.item-focus .item-readOnly{
+	background: #DBDBDB;
+}
