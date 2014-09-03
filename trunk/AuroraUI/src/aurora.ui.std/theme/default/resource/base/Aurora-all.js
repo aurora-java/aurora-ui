@@ -6562,11 +6562,15 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 				sb.push('<li tabIndex="0"></li>');
 				n=1;
 			}
-			Ext.each(ds.getAll(),function(d,i){
+			Ext.each(ds.getAll(),function(d,i){debugger
 //				var d = Ext.apply(datas[i].data, {index:i})
 //				var rder = $A.getRenderer(this.renderer);
 //				var text = this.getRenderText(datas[i]);
-				sb.push('<li tabIndex="',i+n,'">',this.getRenderText(d),'</li>');
+                sb.push('<li');
+                if(this.tipfield&&d.get(this.tipfield)) {
+                    sb.push(' title="',d.get(this.tipfield),'"')
+                }
+				sb.push(' tabIndex="',i+n,'">',this.getRenderText(d),'</li>');
 			},this);
 //			if(sb.length){
 				v.update(sb.join(''));			
