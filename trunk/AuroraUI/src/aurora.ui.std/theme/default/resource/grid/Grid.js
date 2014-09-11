@@ -521,7 +521,7 @@ A.Grid = Ext.extend(A.Component,{
     },
     initTemplate : function(){
         var sf = this;
-        sf.rowTdTpl = new Ext.Template(['<td {rowSpan} ',ATYPE,'="{',ATYPE,'}" class="',GRID_ROWBOX,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
+        sf.rowTdTpl = new Ext.Template(['<td {rowSpan} ',ATYPE,'="{',ATYPE,'}" class="',GRID_ROWBOX,' item-ckb-self" ',RECORD_ID,'="{',RECORD_ID,'}">']);
         sf.rowNumTdTpl = new Ext.Template(['<td {rowSpan} style="text-align:{align}" class="',GRN_ROW_NUMBER,'" ',ATYPE,'="',GRN_ROW_NUMBER,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
         sf.rowNumCellTpl = new Ext.Template(['<div class="',GRID_CELL,'">{text}</div>']);
         sf.tdTpl = new Ext.Template(['<td class="{celltdcls}" {rowSpan} style="visibility:{visibility};text-align:{align}" ',DATA_INDEX,'="{name}" ',ATYPE,'="',GRID_CELL,'" ',RECORD_ID,'="{',RECORD_ID,'}">']);
@@ -760,8 +760,11 @@ A.Grid = Ext.extend(A.Component,{
         sf.clearDomRef();
         sf.preLoad();
         sf.processGroups();
-        sf.wrap.removeClass(GRID_SELECT_ALL);
-        sf.initHeadCheckStatus(FALSE);
+        if(ds.getSelected().length != ds.getAll().length){
+        	sf.wrap.removeClass(GRID_SELECT_ALL);
+        	sf.initHeadCheckStatus(FALSE);
+        }else 
+        	sf.initHeadCheckStatus(TRUE);
         if(sf.lb)
         sf.renderLockArea();
         sf.renderUnLockAread();

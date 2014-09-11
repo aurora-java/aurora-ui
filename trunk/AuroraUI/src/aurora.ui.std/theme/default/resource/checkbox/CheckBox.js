@@ -120,5 +120,8 @@ $A.CheckBox = Ext.extend($A.Component,{
 		}else{
 			this.el.addClass(this.checked ? this.checkedCss : this.uncheckedCss);
 		}		
-	}			
+	},
+	clearValue:function(){
+		this.setValue(this.uncheckedvalue,true);
+	}
 });
