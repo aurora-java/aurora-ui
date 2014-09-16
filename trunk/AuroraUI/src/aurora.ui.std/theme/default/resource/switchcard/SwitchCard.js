@@ -121,8 +121,7 @@ A.SwitchCard = Ext.extend(A.Component,{
     },
 	destroy : function(){
 		var sf = this,wrap = sf.wrap;
-		A.SwitchCard.superclass.destroy.call(sf);
-		wrap.select('.switchcard-body').each(function(body){
+		Ext.each(wrap.query('.switchcard-body'),function(body){
 			Ext.iterate(Ext.get(body).cmps,function(key,cmp){
 				try{
     				cmp.destroy && cmp.destroy();
@@ -131,6 +130,7 @@ A.SwitchCard = Ext.extend(A.Component,{
     			}
 			});
 		});
+		A.SwitchCard.superclass.destroy.call(sf);
 	}
 });
 A.SwitchCard.revision='$Rev$';

@@ -111,7 +111,7 @@ $A.CmpManager = function(){
                 return;
             }
             if(cmp.hostid){
-	        	var host = Ext.fly(id).parent('[host_id='+cmp.hostid+']');
+	        	var host = Ext.getBody().child('[host_id='+cmp.hostid+']');
 	        	(host.cmps = host.cmps||{})[id] = cmp;
 	        	cmp['__host'] = host;
 	    	}else if(window['__host']){
@@ -168,12 +168,14 @@ $A.CmpManager = function(){
         },
         remove : function(id){
             var cmp = this.cache[id];
-            if(cmp['__host'] && cmp['__host'].cmps){
-                delete cmp['__host'].cmps[id];        
+            if(cmp){
+	            if(cmp['__host'] && cmp['__host'].cmps){
+	                delete cmp['__host'].cmps[id];        
+	            }
+	            cmp.un('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
+	            cmp.un('mouseout',$A.CmpManager.onCmpOut,$A.CmpManager);
+	            delete this.cache[id];
             }
-            cmp.un('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
-            cmp.un('mouseout',$A.CmpManager.onCmpOut,$A.CmpManager);
-            delete this.cache[id];
         },
         get : function(id){
             if(!this.cache) return null;
