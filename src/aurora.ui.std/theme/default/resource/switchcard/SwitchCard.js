@@ -126,7 +126,7 @@ A.SwitchCard = Ext.extend(A.Component,{
 				try{
     				cmp.destroy && cmp.destroy();
     			}catch(e){
-    				alert('销毁SwitchPanel出错: ' + e);
+    				alert('销毁SwitchCard出错: ' + e);
     			}
 			});
 		});

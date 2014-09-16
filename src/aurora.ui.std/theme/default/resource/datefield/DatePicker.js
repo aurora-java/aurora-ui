@@ -15,6 +15,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
 	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
+		this.wrap.set({host_id:this.id},true);
 		Ext.isIE6 && this.popup.setHeight(184);
 		this.initFormat();
 		this.initDatePicker();
@@ -38,7 +39,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     		for(var i=0;i<this.viewsize;i++){
 	    		var cfg = {
 	    			id:this.id+'_df'+i,
-	    			hostid:this.hostid,
+	    			hostid:this.id,
 	    			height:130,
 	    			enablemonthbtn:'none',
 	    			enablebesidedays:'none',
@@ -263,11 +264,11 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.focusField = null;
     },
     destroy : function(){
+    	var sf = this,wrap = sf.wrap;
     	$A.DatePicker.superclass.destroy.call(this);
-    	var sf = this;
-        Ext.each(this.dateFields,function(cmp){
+        Ext.each(wrap.cmps,function(cmp){
             try{
-                  cmp.destroy();
+                  cmp.destroy && cmp.destroy();
               }catch(e){
                   alert('销毁datePicker出错: ' + e)
               };
