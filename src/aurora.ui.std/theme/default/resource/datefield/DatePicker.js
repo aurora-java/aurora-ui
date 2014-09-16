@@ -38,6 +38,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     		for(var i=0;i<this.viewsize;i++){
 	    		var cfg = {
 	    			id:this.id+'_df'+i,
+	    			hostid:this.hostid,
 	    			height:130,
 	    			enablemonthbtn:'none',
 	    			enablebesidedays:'none',
