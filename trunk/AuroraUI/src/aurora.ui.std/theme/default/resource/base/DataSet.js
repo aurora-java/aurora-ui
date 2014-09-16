@@ -43,6 +43,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.fields = {};
         this.resetConfig();
         this.id = config.id || Ext.id();
+        this.hostid = config.hostid;
         $A.CmpManager.put(this.id,this) 
         if(this.bindtarget&&this.bindname) this.bind($(this.bindtarget),this.bindname);//$(this.bindtarget).bind(this.bindname,this);
         this.qds = Ext.isEmpty(config.querydataset) ? null :$(config.querydataset);

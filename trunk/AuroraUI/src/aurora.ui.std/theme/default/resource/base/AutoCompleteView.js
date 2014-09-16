@@ -4,7 +4,7 @@ var TR = 'TR',
 	EVT_CLICK = 'click',
 	EVT_MOUSE_MOVE = 'mousemove',
 	EVT_MOUSE_DOWN = 'mousedown',
-	TEMPLATE = ['<div id="{id}" tabIndex="-2" class="item-popup item-shadow" style="visibility:hidden;background-color:#fff;width:{width}px">{shadow}','<div class="item-popup-content"></div>','</div>'],
+	TEMPLATE = ['<div id="{id}" host_id="{id}" tabIndex="-2" class="item-popup item-shadow" style="visibility:hidden;background-color:#fff;width:{width}px">{shadow}','<div class="item-popup-content"></div>','</div>'],
     SHADOW_TEMPLATE = ['<div id="{id}" class="item-ie-shadow">','</div>'],
     AUTO_COMPLATE_TABLE_START = '<table class="autocomplete" cellspacing="0" cellpadding="2">';
 A.AutoCompleteView = Ext.extend($A.Component,{	
@@ -28,7 +28,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 		},true);
 		sf.popupContent = sf.wrap.child('div.item-popup-content');
 //    	sf.shadow = new Ext.Template(SHADOW_TEMPLATE).insertFirst(document.body,{width:sf.width,height:sf.height,id:sf.id+'_shadow'},true);
-    	sf.ds = new A.DataSet({id:sf.id+"_ds",autocount:false});
+    	sf.ds = new A.DataSet({id:sf.id+"_ds",autocount:false,hostid:sf.id});
     },
     processListener: function(ou){
     	$A.AutoCompleteView.superclass.processListener.call(this, ou);
@@ -58,7 +58,14 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     },
     destroy : function(){
     	var sf = this,wrap = sf.wrap;
-    	sf.ds.destroy();
+    	Ext.each(wrap.cmps,function(cmp){
+        	try{
+	              cmp.destroy && cmp.destroy();
+	          }catch(e){
+	              alert('销毁AutoCompleteView出错: ' + e)
+	          };
+        })
+//    	sf.ds.destroy();
 //    	sf.shadow.remove();
     	$A.AutoCompleteView.superclass.destroy.call(sf);
     	wrap.remove();
