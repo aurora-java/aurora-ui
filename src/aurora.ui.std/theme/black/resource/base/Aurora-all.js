@@ -111,7 +111,7 @@ $A.CmpManager = function(){
                 return;
             }
             if(cmp.hostid){
-	        	var host = Ext.fly(id).parent('[host_id='+cmp.hostid+']');
+	        	var host = Ext.getBody().child('[host_id='+cmp.hostid+']');
 	        	(host.cmps = host.cmps||{})[id] = cmp;
 	        	cmp['__host'] = host;
 	    	}else if(window['__host']){
@@ -168,12 +168,14 @@ $A.CmpManager = function(){
         },
         remove : function(id){
             var cmp = this.cache[id];
-            if(cmp['__host'] && cmp['__host'].cmps){
-                delete cmp['__host'].cmps[id];        
+            if(cmp){
+	            if(cmp['__host'] && cmp['__host'].cmps){
+	                delete cmp['__host'].cmps[id];        
+	            }
+	            cmp.un('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
+	            cmp.un('mouseout',$A.CmpManager.onCmpOut,$A.CmpManager);
+	            delete this.cache[id];
             }
-            cmp.un('mouseover',$A.CmpManager.onCmpOver,$A.CmpManager);
-            cmp.un('mouseout',$A.CmpManager.onCmpOut,$A.CmpManager);
-            delete this.cache[id];
         },
         get : function(id){
             if(!this.cache) return null;
@@ -1846,6 +1848,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.fields = {};
         this.resetConfig();
         this.id = config.id || Ext.id();
+        this.hostid = config.hostid;
         $A.CmpManager.put(this.id,this) 
         if(this.bindtarget&&this.bindname) this.bind($(this.bindtarget),this.bindname);//$(this.bindtarget).bind(this.bindname,this);
         this.qds = Ext.isEmpty(config.querydataset) ? null :$(config.querydataset);
@@ -4544,6 +4547,7 @@ $A.Field = Ext.extend($A.Component,{
 	        	view = sf.autocompleteview = new $A.AutoCompleteView({
 	        		id:sf.id,
 					el:sf.el,
+					hostid:sf.hostid,
 					fuzzyfetch:sf.fuzzyfetch,
 	        		cmp:sf
 	        	});
@@ -4986,7 +4990,7 @@ var TR = 'TR',
 	EVT_CLICK = 'click',
 	EVT_MOUSE_MOVE = 'mousemove',
 	EVT_MOUSE_DOWN = 'mousedown',
-	TEMPLATE = ['<div id="{id}" tabIndex="-2" class="item-popup item-shadow" style="visibility:hidden;background-color:#fff;width:{width}px">{shadow}','<div class="item-popup-content"></div>','</div>'],
+	TEMPLATE = ['<div id="{id}" host_id="{id}" tabIndex="-2" class="item-popup item-shadow" style="visibility:hidden;background-color:#fff;width:{width}px">{shadow}','<div class="item-popup-content"></div>','</div>'],
     SHADOW_TEMPLATE = ['<div id="{id}" class="item-ie-shadow">','</div>'],
     AUTO_COMPLATE_TABLE_START = '<table class="autocomplete" cellspacing="0" cellpadding="2">';
 A.AutoCompleteView = Ext.extend($A.Component,{	
@@ -5010,7 +5014,7 @@ A.AutoCompleteView = Ext.extend($A.Component,{
 		},true);
 		sf.popupContent = sf.wrap.child('div.item-popup-content');
 //    	sf.shadow = new Ext.Template(SHADOW_TEMPLATE).insertFirst(document.body,{width:sf.width,height:sf.height,id:sf.id+'_shadow'},true);
-    	sf.ds = new A.DataSet({id:sf.id+"_ds",autocount:false});
+    	sf.ds = new A.DataSet({id:sf.id+"_ds",autocount:false,hostid:sf.id});
     },
     processListener: function(ou){
     	$A.AutoCompleteView.superclass.processListener.call(this, ou);
@@ -5040,7 +5044,14 @@ A.AutoCompleteView = Ext.extend($A.Component,{
     },
     destroy : function(){
     	var sf = this,wrap = sf.wrap;
-    	sf.ds.destroy();
+    	Ext.iterate(wrap.cmps,function(key,cmp){
+        	try{
+	              cmp.destroy && cmp.destroy();
+	          }catch(e){
+	              alert('销毁AutoCompleteView出错: ' + e)
+	          };
+        })
+//    	sf.ds.destroy();
 //    	sf.shadow.remove();
     	$A.AutoCompleteView.superclass.destroy.call(sf);
     	wrap.remove();
@@ -5688,7 +5699,10 @@ $A.CheckBox = Ext.extend($A.Component,{
 		}else{
 			this.el.addClass(this.checked ? this.checkedCss : this.uncheckedCss);
 		}		
-	}			
+	},
+	clearValue:function(){
+		this.setValue(this.uncheckedvalue,true);
+	}
 });
 /**
  * @class Aurora.Radio
@@ -7002,6 +7016,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
 	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
+		this.wrap.set({host_id:this.id},true);
 		Ext.isIE6 && this.popup.setHeight(184);
 		this.initFormat();
 		this.initDatePicker();
@@ -7025,6 +7040,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     		for(var i=0;i<this.viewsize;i++){
 	    		var cfg = {
 	    			id:this.id+'_df'+i,
+	    			hostid:this.id,
 	    			height:130,
 	    			enablemonthbtn:'none',
 	    			enablebesidedays:'none',
@@ -7249,11 +7265,11 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     	this.focusField = null;
     },
     destroy : function(){
+    	var sf = this,wrap = sf.wrap;
     	$A.DatePicker.superclass.destroy.call(this);
-    	var sf = this;
-        Ext.each(this.dateFields,function(cmp){
+        Ext.iterate(wrap.cmps,function(key,cmp){
             try{
-                  cmp.destroy();
+                  cmp.destroy && cmp.destroy();
               }catch(e){
                   alert('销毁datePicker出错: ' + e)
               };

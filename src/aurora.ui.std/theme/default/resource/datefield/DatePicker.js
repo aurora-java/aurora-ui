@@ -266,7 +266,7 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     destroy : function(){
     	var sf = this,wrap = sf.wrap;
     	$A.DatePicker.superclass.destroy.call(this);
-        Ext.each(wrap.cmps,function(cmp){
+        Ext.iterate(wrap.cmps,function(key,cmp){
             try{
                   cmp.destroy && cmp.destroy();
               }catch(e){
