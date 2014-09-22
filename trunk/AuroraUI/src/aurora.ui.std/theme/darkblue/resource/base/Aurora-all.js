@@ -5739,6 +5739,13 @@ $A.Radio = Ext.extend($A.Component, {
     	this.wrap[ou]('focus', this.onFocus, this);
     	this.wrap[ou]('blur', this.onBlur, this);
     },
+    clearInvalid : function(){
+//        this.invalidMsg = null;
+        this.wrap.removeClass('item-invalid');
+    },
+    markInvalid : function(msg){
+        this.wrap.addClass('item-invalid');
+    },
     focus : function(){
     	this.wrap.focus();
     },
