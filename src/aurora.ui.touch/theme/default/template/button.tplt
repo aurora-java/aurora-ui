@@ -1,2 +1,2 @@
-<BUTTON type="${type}" ${id} class="${cls}" ${disabled} ${style}>${text}</BUTTON>
+<BUTTON type="${type}" ${id} class="${cls}" ${disabled} ${style}><span class="touch-btn-label">${text}</span></BUTTON>
 ${events}

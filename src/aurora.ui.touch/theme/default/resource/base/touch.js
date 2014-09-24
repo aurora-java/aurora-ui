@@ -8,6 +8,7 @@ var Touch = {};
         CANCEL_EV = hasTouch ? 'touchcancel' : 'mouseup',
         PX = 'px',_ = '#',
         funpro = Function.prototype,
+        re = /\{([\w-]+)\}/g,
         slice = Array.prototype.slice;
 if(!funpro.bind){
     funpro.bind = function(context){
@@ -19,12 +20,56 @@ if(!funpro.bind){
         }
     }
 }
+$.applyTemplate = function(html,values){
+	if($.isArray(html)){
+		html = html.join('');
+	}
+	return html.replace(re, function(m, name){
+    	return values[name] !== undefined ? values[name] : "";
+    });
+}
 $.isEmpty = function(v, allowBlank){
     return v === null || v === undefined || (($.isArray(v) && !v.length)) || (!allowBlank ? v === '' : false);
 }
 T.get = function(id){
     return cmpCache[id];
 }
+T.showMessage = function(){
+	var el,body,list=[],showing=false;
+	function show(msg){
+		if(showing){
+			list.push(msg);
+			return;
+		}
+		if(!body){
+			body = $(document.body);
+			el = $("<div class='message'></div>").appendTo(body);
+		}
+		showing = true;
+		el.html(msg)
+			.show()
+			.css({
+				'left':(body.width() - el.width())/2 + PX,
+				'top':(document.documentElement.clientHeight- el.height())/2 + PX
+			})
+			.animate({
+				opacity:1
+			},500,'ease-out',function(){
+				setTimeout(function(){
+					el.animate({
+						opacity:0					
+					},500,'ease-in',function(){
+						el.hide();
+						showing = false;
+						if(msg = list.shift()){
+							show(msg);
+						}
+					});
+				},3000)
+			});
+	}
+	return show;
+}();
 T.Masker = function(){
     var container = {};
     return {
@@ -374,7 +419,246 @@ $.extend(T.DateField.View.prototype,{
         delete this.options.views[this.date];
     }
 });
-
+T.Uploader = function(config){
+	var sf = this;
+	sf.errors={};
+	sf.success=[];
+	cmpCache[config.id] = sf;
+	$.extend(sf,config);
+	sf.wrap = $(_ + sf.id);
+	sf.initComponent();
+	sf.processListener();
+}
+$.extend(T.Uploader.prototype,{
+	html : ['<li id="{id}" class="upload-item" style="width:{size}px;height:{size}px" title="{title}">',
+		'<div class="upload-item-content" style="line-height:{size}px;font-size:{fontsize}px">',
+			'<span class="upload-item-progress"></span>',
+			'<div class="upload-item-mask">',
+				'<div class="upload-item-mask-content" style="height:{size}px;">',
+					'<span class="upload-item-progress"></span>',
+				'</div>',
+			'</div>',
+			'<a class="upload-item-btn"></a>',
+		'</div>',
+		'<div class="text-overflow">{title}</div>',
+	'</li>'],
+	initComponent:function(){
+		var sf = this,
+			wrap = sf.wrap,
+			list = sf.list = wrap.children('.upload-list');
+		sf.el = wrap.children('input[type=file]');
+		sf.submitBtn = list.find('button.btn');
+		sf.content = list.children('ul');
+	},
+	processListener : function(){
+		var sf = this;
+		sf.wrap.on('change',sf.getFiles.bind(sf));
+		sf.submitBtn.on('click',sf.upload.bind(sf));
+	},
+	getFiles : function(e){
+		var sf = this;
+		sf.files = sf.filterFiles($.map(sf.totalFiles = (e.target.files || e.dataTransfer.files),function(file){
+			return file;
+		}));
+		if(sf.files.length){
+			sf.showList();
+		}
+	},
+	filterFiles : function(files){
+		var filter = this.filter;
+		if(filter){
+			files = filter(files);
+		}
+		return files;
+	},
+	showList : function(){
+		var sf = this,
+			size = 100;
+		sf.list.show().animate({opacity:1},300,'ease-in',function(){
+			$.each(sf.files,function(index,file){
+				var name = file.name,
+					id = sf.id + '_item' + index;
+				file.index = index;
+				sf.content.append($.applyTemplate(sf.html,{
+					id : id,
+					title : name,
+					size : size,
+					fontsize : size/5
+				}));
+				
+				$('#'+id).find('a.upload-item-btn').on('click',sf.close.bind(sf));
+				var reader = new FileReader();
+	            reader.onloadend = function () {
+	            	var imgSrc = new Image(),
+	            		src;
+	            	if(file.type.match(/image/)){
+	            		src = reader.result;
+	            	}else{
+	            		src = $('#'+id).find('.upload-item-content').css('background-image').match(/url\(([^\)]*)\)/)[1];
+	            	}
+	            	imgSrc.src = src;
+	            	imgSrc.onload = function(){
+		            	var canvas=document.createElement('canvas'),
+			            	w = imgSrc.width,
+							h = imgSrc.height,
+							context = canvas.getContext('2d'),
+							wsize = w,hsize = h;
+						if(w>size || h >size){
+							//缩小尺寸
+							if(w>h){
+								wsize = size;
+								hsize = size * h / w;
+							}else{
+								hsize = size;
+								wsize = size * w / h;
+							}
+						}
+						canvas.width=wsize;
+						canvas.height=hsize;
+						context.drawImage(imgSrc,0,0,w,h,0,0,wsize,hsize);
+						$('#'+id+' .upload-item-content').css({
+		            		'background-image':'url('+canvas.toDataURL()+')'
+		            	}).animate({opacity:1},300,'ease-in');
+						var imgd = context.getImageData(0,0,wsize,hsize),
+							pix = imgd.data;
+						//反色处理
+						for(var i=0,n=pix.length;i<n;i+=4){
+							pix[i] = 255 - pix[i];//红
+							pix[i+1] = 255 - pix[i+1];//绿
+							pix[i+2] = 255 - pix[i+2];//蓝
+							//pix[i+3] = pix[i+3];//alpha
+						}
+						context.putImageData(imgd,0,0);
+						$('#'+id+' .upload-item-mask-content').css({
+		            		'background-image':'url('+canvas.toDataURL()+')'
+		            	});
+	            	}
+	       	 	}
+        		reader.readAsDataURL(file, "UTF-8");
+			});
+		});
+	},
+	close : function(e){
+		var btn = $(e.target);
+		if(!btn.hasClass('success')){
+			var	sf = this,
+				li = btn.parents('li'),
+				index = li.attr('id').match(/item(\d+)/)[1],
+				file = sf.totalFiles[index],
+				files = sf.files;
+			files.splice(files.indexOf(file),1);
+			li.remove();
+			if(!files.length){
+				sf.totalFiles=[];
+				sf.list.animate({opacity:0},300,'ease-out',function(){
+					sf.list.hide();
+					sf.el.val('');
+				});
+			}
+		}
+	},
+	uploadComplete : function(file,e){
+		var sf = this,
+			xhr = e.target,
+			files = sf.files;
+		if(xhr.status == 200) {
+			if (xhr.readyState == 4) {
+				var response = eval("(" + xhr.responseText+ ')');
+				if (xhr.status == 200) {
+					sf.onSuccess(file, response);
+					files.splice(files.indexOf(file),1);
+					if (!files.length) {
+						//全部完毕
+						sf.onComplete();	
+					}
+				} else {
+					sf.onFailure(file, response);		
+				}
+			}
+		}
+	},
+	uploadError : function(file,e){
+		alert('error')
+	},
+	uploadAbort : function(file,e){
+		alert('abort')
+	},
+	upload : function(){
+		var sf = this,files = sf.files;
+		if(sf.uploading)return;
+		sf.uploading = true;
+		$.each(files,function(index,file){
+			var xhr = new XMLHttpRequest();
+			if (xhr.upload) {
+				// 上传中
+					xhr.timeout = -1;
+					xhr.open("POST", sf.uploadurl, true);
+					xhr.setRequestHeader("X_FILENAME", encodeURIComponent(file.name));
+					xhr.upload.addEventListener("progress", function(e) {
+						sf.onProgress(file, e.loaded, e.total);
+					}, false);
+					// 文件上传成功或是失败
+					xhr.addEventListener('load',sf.uploadComplete.bind(sf,file));
+					xhr.addEventListener('error',sf.uploadError.bind(sf,file));
+					xhr.addEventListener('abort',sf.uploadAbort.bind(sf,file));
+					// 开始上传
+					var fd = new FormData(); 
+		            fd.append('fileToUpload', file); 
+		            fd.append("pkvalue", sf.pkvalue); 
+		            fd.append("source_type", sf.sourcetype); 
+					xhr.send(fd);
+			}
+		});
+	},
+	onProgress : function(file,loaded, total){
+		var sf = this,
+			percent = Math.floor((loaded-1)/total*100)+'%',
+			wrap = $('#'+sf.id+'_item' + file.index);
+		wrap.find('.upload-item-progress').text(percent);
+		wrap.find('.upload-item-mask').show().css({bottom:percent});
+	},
+	onSuccess : function(file,response){
+		var sf = this,
+			wrap = $('#'+sf.id+'_item' + file.index);
+		wrap.find('.upload-item-mask').hide().css({bottom:0});
+		if(response.success == false){
+			wrap.find('.upload-item-progress').text('');
+			sf.errors[file.name]=[file,response.error];
+		}else{
+			wrap.find('.upload-item-progress').text('100%');
+			wrap.find('.upload-item-btn').addClass('success');
+			sf.success.push({file:file,id:response});
+		}
+	},
+	onFailure : function(file,response){
+		var sf = this,
+			wrap = $('#'+sf.id+'_item' + file.index);
+		wrap.find('.upload-item-progress').text('');
+		wrap.find('.upload-item-mask').hide().css({bottom:0});
+		sf.errors[file.name]=[file,response.error];
+	},
+	onComplete : function(){
+		var sf = this,
+			message =[];
+		sf.uploading = false;
+		for(var name in sf.errors){
+			message.push('<p>File:',name,' [',sf.errors[name][1].message,']</p>');
+			sf.files.push(sf.errors[name][0]);
+		}
+		if(message.length){
+			T.showMessage(message.join(''));
+			sf.errors={};
+		}else{
+			sf.el.val('');
+			T.showMessage('上传成功');
+			sf.list.animate({opacity:0},300,'ease-out',function(){
+				sf.list.hide();
+			});
+			sf.content.html('');
+			sf.wrap.trigger('uploadsuccess',sf.success);
+		}
+	}
+});
 T.SwitchButton = function(config){
     cmpCache[config.id] = this;
     this.options = {
@@ -404,6 +688,8 @@ $.extend(T.SwitchButton.prototype,{
                 touch.startX = this.x;
                 $(document).on(MOVE_EV,_move);
                 $(document).on(END_EV,_end);
+                e.preventDefault();
+                e.stopPropagation();
             }.bind(this),
             _move = function(e){
                 touch.moved = true;
@@ -618,5 +904,11 @@ Date.prototype.format = function(format)
     format = format.replace(RegExp.$1,RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length));
     return format;
 }
-
+T.ScrollPanel = function(config){
+	var id = config.id;
+	cmpCache[id] = this;
+	new iScroll(id,{
+		onBeforeScrollStart : function(){}
+	});
+}
 })(Touch)
