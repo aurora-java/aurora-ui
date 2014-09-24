@@ -1,2 +1,2 @@
-<input type="text" ${id} class="${cls}" ${disabled} ${style} ${placeholder} ${required} value="${value}"/>
+<input type="text" ${id} class="${cls}" ${disabled} ${style} ${placeholder} ${required} value="${value}" autocapitalize="off"/>
 ${events}

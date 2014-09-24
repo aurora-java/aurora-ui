@@ -8,4 +8,9 @@
     <feature-attach elementName="switchButton" nameSpace="http://www.aurora-framework.org/touch" featureClass="aurora.presentation.component.touch.SwitchButton" />
     <feature-attach elementName="list" nameSpace="http://www.aurora-framework.org/touch" featureClass="aurora.presentation.component.touch.List" />
     <feature-attach elementName="searchField" nameSpace="http://www.aurora-framework.org/touch" featureClass="aurora.presentation.component.touch.SearchField" />
+    <feature-attach elementName="screenBody" nameSpace="http://www.aurora-framework.org/touch" featureClass="aurora.presentation.component.touch.ScreenBody" />
+    <feature-attach elementName="toolBar" nameSpace="http://www.aurora-framework.org/touch" featureClass="aurora.presentation.component.touch.ToolBar" />
+    <feature-attach elementName="scrollPanel" nameSpace="http://www.aurora-framework.org/touch" featureClass="aurora.presentation.component.touch.ScrollPanel" />
+    <feature-attach elementName="fieldSet" nameSpace="http://www.aurora-framework.org/touch" featureClass="aurora.presentation.component.touch.FieldSet" />
+    <!--<feature-attach elementName="uploader" nameSpace="http://www.aurora-framework.org/touch" featureClass="aurora.presentation.component.touch.Uploader" />-->
 </class-registry>

@@ -1,0 +1,8 @@
+<div ${id} class="${cls}">
+    <div class="touch-scroll-container" ${style}>
+    	${content}
+    </div>
+</div>
+<script>
+new Touch.ScrollPanel(${config});
+</script>
