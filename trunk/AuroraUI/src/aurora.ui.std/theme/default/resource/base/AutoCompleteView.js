@@ -4,7 +4,7 @@ var TR = 'TR',
 	EVT_CLICK = 'click',
 	EVT_MOUSE_MOVE = 'mousemove',
 	EVT_MOUSE_DOWN = 'mousedown',
-	TEMPLATE = ['<div id="{id}" host_id="{id}" tabIndex="-2" class="item-popup item-shadow" style="visibility:hidden;background-color:#fff;width:{width}px">{shadow}','<div class="item-popup-content"></div>','</div>'],
+	TEMPLATE = ['<div id="{id}" tabIndex="-2" class="item-popup item-shadow" style="visibility:hidden;background-color:#fff;width:{width}px">{shadow}','<div class="item-popup-content"></div>','</div>'],
     SHADOW_TEMPLATE = ['<div id="{id}" class="item-ie-shadow">','</div>'],
     AUTO_COMPLATE_TABLE_START = '<table class="autocomplete" cellspacing="0" cellpadding="2">';
 A.AutoCompleteView = Ext.extend($A.Component,{	
