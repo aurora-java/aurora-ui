@@ -111,7 +111,8 @@ $A.CmpManager = function(){
                 return;
             }
             if(cmp.hostid){
-	        	var host = Ext.getBody().child('[host_id='+cmp.hostid+']');
+                var host = Ext.get(cmp.hostid);
+	        	//var host = Ext.getBody().child('[host_id='+cmp.hostid+']');
 	        	(host.cmps = host.cmps||{})[id] = cmp;
 	        	cmp['__host'] = host;
 	    	}else if(window['__host']){
