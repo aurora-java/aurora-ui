@@ -111,7 +111,8 @@ $A.CmpManager = function(){
                 return;
             }
             if(cmp.hostid){
-	        	var host = Ext.getBody().child('[host_id='+cmp.hostid+']');
+                var host = Ext.get(cmp.hostid);
+	        	//var host = Ext.getBody().child('[host_id='+cmp.hostid+']');
 	        	(host.cmps = host.cmps||{})[id] = cmp;
 	        	cmp['__host'] = host;
 	    	}else if(window['__host']){
@@ -4990,7 +4991,7 @@ var TR = 'TR',
 	EVT_CLICK = 'click',
 	EVT_MOUSE_MOVE = 'mousemove',
 	EVT_MOUSE_DOWN = 'mousedown',
-	TEMPLATE = ['<div id="{id}" host_id="{id}" tabIndex="-2" class="item-popup item-shadow" style="visibility:hidden;background-color:#fff;width:{width}px">{shadow}','<div class="item-popup-content"></div>','</div>'],
+	TEMPLATE = ['<div id="{id}" tabIndex="-2" class="item-popup item-shadow" style="visibility:hidden;background-color:#fff;width:{width}px">{shadow}','<div class="item-popup-content"></div>','</div>'],
     SHADOW_TEMPLATE = ['<div id="{id}" class="item-ie-shadow">','</div>'],
     AUTO_COMPLATE_TABLE_START = '<table class="autocomplete" cellspacing="0" cellpadding="2">';
 A.AutoCompleteView = Ext.extend($A.Component,{	
@@ -7023,7 +7024,6 @@ $A.DatePicker = Ext.extend($A.TriggerField,{
     },
 	initComponent : function(config){
 		$A.DatePicker.superclass.initComponent.call(this,config);
-		this.wrap.set({host_id:this.id},true);
 		Ext.isIE6 && this.popup.setHeight(184);
 		this.initFormat();
 		this.initDatePicker();
