@@ -55,7 +55,7 @@
 	text-align: center;
 	font-size:13px;
 }
-.active{   
+.item-tab .active{   
 	background:url(../tab/strip-active-center.png) repeat-x left top;
     line-height:25px;
 }
