@@ -3,6 +3,12 @@ html, body {
     padding:0;
     height:100%;
     overflow:hidden;
+    font-family:"Helvetica Neue",HelveticaNeue,"Helvetica-Neue",Helvetica,"BBAlpha Sans",sans-serif;
+}
+input, textarea, select {
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
 }
 body{
     font-size:114%;/*18px*/
@@ -195,7 +201,7 @@ div.field {
     height:30px;
     float:left;
 }
-input.input {
+input.input,.lov input{
     width:100%;
     padding:5px 0px 5px 0px;
     font-size: 14px;
@@ -226,6 +232,36 @@ textarea.textarea {
     border-radius: 5px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
+}
+.lov:before{
+	content: "";
+	position: absolute;
+	width: 4em;
+	height: auto;
+	top: 0;
+	left: auto;
+	right: 0;
+	bottom: 0;
+	-webkit-border-top-right-radius: .4em;
+	border-top-right-radius: .4em;
+	-webkit-border-bottom-right-radius: .4em;
+	border-bottom-right-radius: .4em;
+	background: -webkit-gradient(linear,0% 0,100% 0,from(rgba(255,255,255,0)),color-stop(0.5,white));
+	z-index: 1;
+}
+.lov:after{
+	content: "";
+	position: absolute;
+	width: 1em;
+	height: 1em;
+	top: 50%;
+	left: auto;
+	right: .7em;
+	margin-top: -0.5em;
+	border-radius:0.5em;
+	-webkit-mask-size: 1em;
+	background:#ccc;
+	z-index:2;
 }
 .datefield{
 	overflow: hidden;
@@ -541,7 +577,7 @@ textarea.textarea {
 	position: relative;
 	min-width: 3.7em;
 }
-.touch-fieldset-field-input input.input {
+.touch-fieldset-field-input input.input,.touch-fieldset-field-input textarea.textarea ,.touch-fieldset-field-input .lov input{
     width:100%;
     font-size: 1em;
     height: auto;
@@ -560,7 +596,11 @@ textarea.textarea {
 	background: transparent;
 	-webkit-appearance: none;
 }
-
+.touch-fieldset-field-input textarea.textarea {
+	min-height: 6em;
+	padding-top: .5em;
+	font-family:arial;
+}
 .touch-fieldset-field-input .switch-button {
 	min-height: 2.5em;
 	width:4.5em;
@@ -575,4 +615,39 @@ textarea.textarea {
 	border-radius: 1.1em;
 	-webkit-border-radius: 1.1em;
 	-moz-border-radius: 1.1em;
+}
+
+.lov-list{
+	position:absolute;
+	top:0;
+	bottom:0;
+	left:0;
+	right:0;
+	background:#03111a;
+	background:rgba(0,0,0,0.3);
+	z-index:8;
+	display:none;
+	padding:100px;
+}
+.lov-list .touch-screen-body{
+	padding:6px;
+}
+.lov-list .touch-scroll-panel{
+	background:#fff;
+}
+.lov-list table{
+	width:100%;
+}
+.lov-list .lov-list-item{
+	min-height: 2.5em;
+	position: relative;
+	color: black;
+}
+.lov-list .lov-list-item:nth-of-type(even){
+	background:#f7f7f7;
+}
+.lov-list .lov-list-item-field{
+	border-bottom: 1px solid #ddd;
+	padding: .6em;
+	text-align:center;
 }

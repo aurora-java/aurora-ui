@@ -1,0 +1,7 @@
+<div ${id} class="${cls}" ${style} >
+	<input type="text" ${disabled} ${placeholder} ${required} value="${value}" autocapitalize="off"/>
+</div>
+<script>
+	new Touch.Lov(${config});
+</script>
+${events}

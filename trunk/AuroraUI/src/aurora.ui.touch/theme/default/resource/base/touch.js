@@ -32,7 +32,7 @@ $.isEmpty = function(v, allowBlank){
     return v === null || v === undefined || (($.isArray(v) && !v.length)) || (!allowBlank ? v === '' : false);
 }
 T.get = function(id){
-    return cmpCache[id];
+    return cmpCache[id]||$(_+id);
 }
 T.showMessage = function(){
 	var el,body,list=[],showing=false;
@@ -733,7 +733,140 @@ $.extend(T.SwitchButton.prototype,{
     	}
     }
 });
-
+(function(){
+	var layout,
+		container,
+		scroller;
+/** Touch.Lov **/
+T.Lov = function(config){
+	if(!layout){
+		layout= $(['<div class="lov-list">',
+			'<div class="touch-screen-body">',
+				'<div id="lov-scroll-wraper" class="touch-scroll-panel">',
+	    			'<div class="touch-scroll-container">',
+	    			'</div>',
+				'</div>',
+			'</div>',
+		'</div>'].join('')).insertBefore($(document.body).children()[0]).click(function(e){
+			if(e.target == this){
+				$(this).hide();
+			}
+		});
+		container = layout.find('.touch-scroll-container');
+		scroller = new T.ScrollPanel({id:'lov-scroll-wraper'});
+	}
+    cmpCache[config.id] = this;
+    this.currentPage = 1;
+    this.total = 0;
+    this.pageSize = config.size||10;
+    var opt = this.options= {
+    };
+    var ax = this.ajax = T.get(config.bind),
+    	url = ax.options.url,
+    	prefix = url.indexOf('?') == -1 ? '?' : '&' 
+    ax.options.url = url + prefix + '_fetchall=false&_autocount=true&pagenum=' + this.currentPage + '&pagesize='+this.pageSize;
+    
+    $.extend(opt , config);
+    this.wrap = $(_ + config.id);
+    this.initComponent();
+    this.val(config.value || '');
+    this.processListener();
+}
+$.extend(T.Lov.prototype,{
+    initComponent : function(){
+        //this.btn = this.wrap.children('.lov-btn');
+    	this.el = this.wrap.find('input');
+    },
+    processListener : function(){
+        this.wrap.on('click',this.showList.bind(this));
+    },
+    processSelectEvent : function(){
+		var sf = this,
+			moved = false,
+            _start = function(e){
+                $(document).on(MOVE_EV,_move);
+                $(document).on(END_EV,_end);
+            },
+            _move = function(e){
+                moved = true;
+            },
+            _end = function(e){
+                $(document).off(MOVE_EV,_move);
+                $(document).off(END_EV,_end);
+                if(!moved){
+                	sf.onClick(e)
+                }
+                moved = false;
+            };
+        sf.listWrap.on(START_EV,_start)
+	},
+    showList : function(){
+    	container.html('正在查询...');
+    	layout.show();
+    	var sf = this;
+    	sf.data = [];
+    	sf.ajax.request(function(data, status,xhr){
+            if(data && data.success){
+                sf.total = data.result.totalCount || 0;
+                sf.totalPage = Math.ceil(sf.total/sf.pageSize) || 0;
+                if(data.result.totalCount > 0 ){
+                    var ls = ['<table cellspacing="0" cellpadding="0" border="0">'],
+                    	mapping = sf.options.mapping;
+                    	records = sf.data = [].concat(data.result.record),
+                    	rc = window[sf.renderer];
+                    for(var i=0,len=records.length;i<len;i++){
+                        var record = records[i];
+                        ls.push('<tr class="lov-list-item" dataindex="'+i+'">');
+                        if(rc){
+                            ls[ls.length] = rc(record); 
+                        }else{
+                       		for(var j=0,len2=mapping.length;j<len2;j++){
+					    		var map = mapping[j];
+	                            ls.push('<td class="lov-list-item-field">'+record[map.from]+'</td>');
+					    	}
+                        }
+                        ls[ls.length] = '</tr>'
+                    }
+                    ls[ls.length] = '</table>'
+                    
+                    container.html(ls.join(''));
+                    scroller.refresh();
+                    sf.listWrap = container.find('table')
+//                    $('#'+id+'_pre').on("click",function(){Touch.get(id).pre()});
+//                    $('#'+id+'_next').on("click",function(){Touch.get(id).next()});
+                    sf.processSelectEvent();
+                }else {
+                    sf.wrap.html('未找到任何数据!');
+                }
+                if(sf.options.callback) window[sf.options.callback]();
+        	}
+    	});
+    },
+    val :function(v){
+    	if(v === undefined)return this.wrap.val();
+    	var wrap = this.wrap,
+    		ov = wrap.val();
+    	if(ov != v){
+        	wrap.val(v).trigger('change',[v,ov]);
+        	this.el.val(v);
+    	}
+    },
+    onClick : function(e){
+    	var li =$(e.target);
+		if(li.is('tr[dataindex]')||(li = li.parent('tr[dataindex]'))&&li.length){
+			this.commit(this.data[li.attr('dataindex')]);
+		}
+    },
+    commit : function(record){
+    	var mapping = this.options.mapping;
+    	for(var i=0,len=mapping.length;i<len;i++){
+    		var map = mapping[i];
+    		T.get(map.to).val(record[map.from]);
+    	}
+    	layout.hide();
+    }
+});
+})();
 /** Touch.List **/
 T.List = function(config){
     var bid  = config.bind,
@@ -907,7 +1040,7 @@ Date.prototype.format = function(format)
 T.ScrollPanel = function(config){
 	var id = config.id;
 	cmpCache[id] = this;
-	new iScroll(id,{
+	return new iScroll(id,{
 		onBeforeScrollStart : function(){}
 	});
 }
