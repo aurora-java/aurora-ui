@@ -178,6 +178,9 @@ $.extend(T.Ajax.prototype,{
             	case 'java.lang.Long':data[key] = Number(data[key]);break;
             	case 'boolean':data[key] =  data[key]=="true";
             }
+            if($.isEmpty(data[key])){
+            	delete data[key];
+            }
         }
         data = this.data?$.extend({'parameter':this.data},data):{
             'parameter': data
@@ -733,18 +736,83 @@ $.extend(T.SwitchButton.prototype,{
     	}
     }
 });
-(function(){
-	var layout,
-		container,
-		scroller;
 /** Touch.Lov **/
 T.Lov = function(config){
-	if(!layout){
-		layout= $(['<div class="lov-list">',
+	var	id = config.id,
+		sf = cmpCache[id] = this,
+		opt = sf.options= {
+    	},
+    	ax = sf.ajax = T.get(config.bind),
+    	url = ax.options.url,
+    	prefix = url.indexOf('?') == -1 ? '?' : '&',
+    	mapping = config.mapping,
+    	lovFields = config.lovFields,
+    	parameters = ax.options.parameters;
+	sf.currentPage = 1;
+    sf.total = 0;
+    sf.pageSize = config.size||10;
+    
+    ax.options.url = url + prefix + '_fetchall=false&_autocount=true&pagenum=1&pagesize='+sf.pageSize;
+    $.extend(opt , config);
+    if(!lovFields && mapping){
+    	config.lovFields = lovFields = [];
+	    $.each(mapping,function(map){
+	    	lovFields.push({
+	    		name:map.from,
+	    		forquery:true,
+	    		fordisplay:true
+    		});
+	    });
+    }
+    var	layout = sf.layout = $(['<div class="lov-list">',
 			'<div class="touch-screen-body">',
-				'<div id="lov-scroll-wraper" class="touch-scroll-panel">',
-	    			'<div class="touch-scroll-container">',
-	    			'</div>',
+				'<div class="touch-tabpanel" id="lov-tabpanel-',id,'">',
+					'<div class="touch-box-vertical">',
+						'<div class="touch-tabpanel-body">',
+							'<div class="touch-tabpanel-card-container">',
+								'<div class="touch-tabpanel-card-item">',
+									'<div id="lov-search-scroll-wraper-',id,'" class="touch-scroll-panel">',
+										'<div class="touch-scroll-container" style="padding:1em">',
+											'<div class="touch-fieldset">',
+												'<div class="touch-box-vertical">',
+													'<div class="touch-fieldset-title">查询条件</div>',
+													'<div class="touch-fieldset-body">',
+														'<div class="touch-fieldset-body-inner">',
+															$.map(lovFields,function(field){
+																var name = field.name,
+																	_id = id + '-lovfield-' +name;
+																parameters[name] = {bind:_id}
+																return ['<div class="touch-fieldset-field">',
+																	'<div class="touch-fieldset-field-label" style="width:40%"><span>',field.prompt,'</span></div>',
+																	'<div class="touch-fieldset-field-input-outer">',
+																		'<div class="touch-fieldset-field-input">',
+																			'<input type="text" id="',_id,'" class="input"  autocapitalize="off">',
+																		'</div>',
+																	'</div>',
+																'</div>'].join('');
+															}).join(''),
+										    			'</div>',
+									    			'</div>',
+								    			'</div>',
+							    			'</div>',
+						    			'</div>',
+									'</div>',
+								'</div>',
+								'<div class="touch-tabpanel-card-item touch-tabpanel-card-item-hide">',
+									'<div id="lov-scroll-wraper-',id,'" class="touch-scroll-panel">',
+						    			'<div class="touch-scroll-container">',
+						    			'</div>',
+									'</div>',
+								'</div>',
+							'</div>',
+						'</div>',
+						'<div class="touch-tabpanel-tabbar touch-tabpanel-tabbar-bottom">',
+							'<div class="touch-box-horizontal touch-tabpanel-strip-container">',
+								'<div class="touch-tabpanel-strip touch-tabpanel-strip-active" unselectable="on" onselectstart="return false;">查询</div>',
+								'<div class="touch-tabpanel-strip" unselectable="on" onselectstart="return false;">结果</div>',
+							'</div>',
+						'</div>',
+					'</div>',
 				'</div>',
 			'</div>',
 		'</div>'].join('')).insertBefore($(document.body).children()[0]).click(function(e){
@@ -752,29 +820,26 @@ T.Lov = function(config){
 				$(this).hide();
 			}
 		});
-		container = layout.find('.touch-scroll-container');
-		scroller = new T.ScrollPanel({id:'lov-scroll-wraper'});
-	}
-    cmpCache[config.id] = this;
-    this.currentPage = 1;
-    this.total = 0;
-    this.pageSize = config.size||10;
-    var opt = this.options= {
-    };
-    var ax = this.ajax = T.get(config.bind),
-    	url = ax.options.url,
-    	prefix = url.indexOf('?') == -1 ? '?' : '&' 
-    ax.options.url = url + prefix + '_fetchall=false&_autocount=true&pagenum=' + this.currentPage + '&pagesize='+this.pageSize;
-    
-    $.extend(opt , config);
-    this.wrap = $(_ + config.id);
-    this.initComponent();
-    this.val(config.value || '');
-    this.processListener();
+	sf.container = layout.find('#lov-scroll-wraper-'+id+' .touch-scroll-container');
+	sf.search_container = layout.find('#lov-search-scroll-wraper-'+id+' .touch-scroll-container');
+	sf.scroller = new T.ScrollPanel({id:'lov-scroll-wraper-'+id});
+	sf.search_scroller = new T.ScrollPanel({id:'lov-search-scroll-wraper-'+id});
+	tabpanel = sf.tabpanel = new T.Tab({id:'lov-tabpanel-'+id,
+		listeners:{
+			select : function(e,index){
+				if(index == 1){
+					sf.query();
+				}
+			}
+		}
+	});
+    sf.wrap = $(_ + config.id);
+    sf.initComponent();
+    sf.val(config.value || '');
+    sf.processListener();
 }
 $.extend(T.Lov.prototype,{
     initComponent : function(){
-        //this.btn = this.wrap.children('.lov-btn');
     	this.el = this.wrap.find('input');
     },
     processListener : function(){
@@ -800,10 +865,9 @@ $.extend(T.Lov.prototype,{
             };
         sf.listWrap.on(START_EV,_start)
 	},
-    showList : function(){
-    	container.html('正在查询...');
-    	layout.show();
-    	var sf = this;
+	query : function(){
+		var sf = this;
+    	sf.container.html('正在查询...');
     	sf.data = [];
     	sf.ajax.request(function(data, status,xhr){
             if(data && data.success){
@@ -811,7 +875,7 @@ $.extend(T.Lov.prototype,{
                 sf.totalPage = Math.ceil(sf.total/sf.pageSize) || 0;
                 if(data.result.totalCount > 0 ){
                     var ls = ['<table cellspacing="0" cellpadding="0" border="0">'],
-                    	mapping = sf.options.mapping;
+                    	lovFields = sf.options.lovFields;
                     	records = sf.data = [].concat(data.result.record),
                     	rc = window[sf.renderer];
                     for(var i=0,len=records.length;i<len;i++){
@@ -820,27 +884,34 @@ $.extend(T.Lov.prototype,{
                         if(rc){
                             ls[ls.length] = rc(record); 
                         }else{
-                       		for(var j=0,len2=mapping.length;j<len2;j++){
-					    		var map = mapping[j];
-	                            ls.push('<td class="lov-list-item-field">'+record[map.from]+'</td>');
+                       		for(var j=0,len2=lovFields.length;j<len2;j++){
+					    		var field = lovFields[j];
+					    		if(field.fordisplay){
+	                            	ls.push('<td class="lov-list-item-field">'+record[field.name]+'</td>');
+					    		}
 					    	}
                         }
-                        ls[ls.length] = '</tr>'
+                        ls.push('</tr>');
                     }
-                    ls[ls.length] = '</table>'
+                    ls.push('</table>');
                     
-                    container.html(ls.join(''));
-                    scroller.refresh();
-                    sf.listWrap = container.find('table')
-//                    $('#'+id+'_pre').on("click",function(){Touch.get(id).pre()});
-//                    $('#'+id+'_next').on("click",function(){Touch.get(id).next()});
+                    sf.container.html(ls.join(''));
+                    sf.scroller.refresh();
+                    sf.listWrap = sf.container.find('table');
                     sf.processSelectEvent();
                 }else {
-                    sf.wrap.html('未找到任何数据!');
+                    sf.container.html('未找到任何数据!');
                 }
                 if(sf.options.callback) window[sf.options.callback]();
         	}
     	});
+	},
+    showList : function(){
+    	var sf = this;
+    	sf.layout.show();
+    	if(sf.options.autoquery){
+    		sf.tabpanel.selectTab(1);
+    	}
     },
     val :function(v){
     	if(v === undefined)return this.wrap.val();
@@ -863,24 +934,71 @@ $.extend(T.Lov.prototype,{
     		var map = mapping[i];
     		T.get(map.to).val(record[map.from]);
     	}
-    	layout.hide();
+    	this.layout.hide();
     }
 });
-})();
+/** Touch.Tab**/
+T.Tab = function(config){
+	var id = this.id = config.id,
+    	sf = cmpCache[id] = this,
+		opt = sf.options= {
+		};
+	sf.wrap = $(_+id);
+	$.extend(opt , config);
+	sf.initComponent();
+    sf.processListener();
+}
+$.extend(T.Tab.prototype,{
+	initComponent:function(){
+		var sf = this,
+			wrap = sf.wrap;
+			tabbar = sf.tabbar = wrap.find('.touch-tabpanel-tabbar');
+		sf.bodys = wrap.find('.touch-tabpanel-card-item');
+		sf.strips = tabbar.find('.touch-tabpanel-strip');
+	},
+	processListener:function(){
+		var sf = this;
+		sf.tabbar.on('click',sf.onStripClick.bind(sf));
+		if(sf.options.listeners){
+			sf.wrap.on(sf.options.listeners);
+		}
+	},
+	onStripClick:function(e){
+		var t = $(e.target);
+		if(t.is('.touch-tabpanel-strip')&&!t.hasClass('touch-tabpanel-strip-active')){
+			this.selectTab(this.strips.indexOf(e.target));
+		}
+	},
+	selectTab:function(i){
+		this.bodys.each(function(index,body){
+			(body = $(body)).addClass('touch-tabpanel-card-item-hide');
+			if(index == i){
+				body.removeClass('touch-tabpanel-card-item-hide');
+			}
+		});
+		this.strips.each(function(index,strip){
+			(strip = $(strip)).removeClass('touch-tabpanel-strip-active');
+			if(index == i){
+				strip.addClass('touch-tabpanel-strip-active');
+			}
+		});
+		this.wrap.trigger('select',[i]);
+	}
+});
 /** Touch.List **/
 T.List = function(config){
     var bid  = config.bind,
     	id = this.id = config.id,
     	sf = cmpCache[id] = this;
-    this.wrap = $('#'+id)
-    this.renderer = config.renderer;
-    this.total = 0;
-    this.pageSize = config.size||10;
-    this.currentPage = 1;
-    this.selected = [];
-    this.selectable = config.selectable || false;
+    sf.wrap = $(_+id);
+    sf.renderer = config.renderer;
+    sf.total = 0;
+    sf.pageSize = config.size||10;
+    sf.currentPage = 1;
+    sf.selected = [];
+    sf.selectable = config.selectable || false;
     var ax = T.get(bid);
-    this.ajax = ax;
+    sf.ajax = ax;
     $(document).on('ajaxSuccess', function(e, xhr, options){
         if(xhr == ax.xhr){
             var data = JSON.parse(xhr.responseText);
@@ -930,11 +1048,11 @@ T.List = function(config){
         }
     })
     
-    this.url = this.ajax.options.url;
-    this.prefix = this.url.indexOf('?') == -1 ? '?' : '&' 
-    this.ajax.options.url = this.url + this.prefix + 'pagenum=' + this.currentPage + '&pagesize='+this.pageSize;
+    sf.url = sf.ajax.options.url;
+    sf.prefix = sf.url.indexOf('?') == -1 ? '?' : '&' 
+    sf.ajax.options.url = sf.url + sf.prefix + 'pagenum=' + sf.currentPage + '&pagesize='+sf.pageSize;
     if(config.autoquery == true){
-        this.ajax.request(); 
+        sf.ajax.request(); 
     }
 }
 $.extend(T.List.prototype,{
@@ -959,26 +1077,29 @@ $.extend(T.List.prototype,{
         sf.wrap.on(START_EV,_start)
 	},
 	onClick: function(e,t){
-        if(!this.selectable)return;
+		var sf = this;
+        if(!sf.selectable)return;
 		var li =$(e.target).parents('li[dataindex]');
 		if(li){
-			var data = this.data[li.attr('dataindex')];
-			if(this.selected.indexOf(data) != -1){
-				this.unselect(data,li);
+			var data = sf.data[li.attr('dataindex')];
+			if(sf.selected.indexOf(data) != -1){
+				sf.unselect(data,li);
 			}else{
-				this.select(data,li);
+				sf.select(data,li);
 			}
 		}
 	},
 	selectAll : function(){
-		if(!this.selectable)return;
-		this.selected = [].concat(this.data);
-		this.wrap.find('li').addClass('selected');
+		var sf = this;
+		if(!sf.selectable)return;
+		sf.selected = [].concat(sf.data);
+		sf.wrap.find('li').addClass('selected');
 	},
 	unSelectAll : function(){
-		if(!this.selectable)return;
-		this.selected = [];
-		this.wrap.find('li').removeClass('selected');
+		var sf = this;
+		if(!sf.selectable)return;
+		sf.selected = [];
+		sf.wrap.find('li').removeClass('selected');
 	},
 	select : function(data,li){
 		if(!this.selectable)return;
@@ -986,8 +1107,9 @@ $.extend(T.List.prototype,{
 		li.addClass('selected')
 	},
 	unselect : function(data,li){
-		if(!this.selectable)return;
-		this.selected.splice(this.selected.indexOf(data),1);
+		var sf = this;
+		if(!sf.selectable)return;
+		sf.selected.splice(sf.selected.indexOf(data),1);
 		li.removeClass('selected')
 	},
 	getSelected : function(){
@@ -996,25 +1118,23 @@ $.extend(T.List.prototype,{
     loading: function(){
         $('#'+this.id).html('正在查询...');
     },
-    query:function(){
-        this.loading();
-        this.currentPage = 1;
-        this.ajax.options.url = this.url + this.prefix + 'pagenum=' + this.currentPage + '&pagesize='+this.pageSize;
-        this.ajax.request();    
+    query:function(page){
+    	var sf = this,
+    		ax = sf.ajax;
+        sf.loading();
+        page = sf.currentPage = page||1;
+        ax.options.url = sf.url + sf.prefix + 'pagenum=' + page + '&pagesize='+sf.pageSize;
+        ax.request();    
     },
     pre:function(){
-        this.loading();
-        if(this.currentPage -1 <=0)return;
-        this.currentPage--;
-        this.ajax.options.url = this.url + this.prefix + 'pagenum=' + this.currentPage + '&pagesize='+this.pageSize;
-        this.ajax.request();    
+    	var sf = this;
+        if(sf.currentPage -1 <=0)return;
+        sf.query(sf.currentPage-1);
     },
     next:function(){
-        this.loading();
-        if(this.currentPage+1> this.totalPage)return;
-        this.currentPage++;
-        this.ajax.options.url = this.url + this.prefix + 'pagenum=' + this.currentPage + '&pagesize='+this.pageSize;
-        this.ajax.request(); 
+    	var sf = this;
+        if(sf.currentPage+1> sf.totalPage)return;
+        sf.query(sf.currentPage+1);
     }
 })
 
@@ -1037,6 +1157,7 @@ Date.prototype.format = function(format)
     format = format.replace(RegExp.$1,RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length));
     return format;
 }
+/**Touch.ScrollPanel**/
 T.ScrollPanel = function(config){
 	var id = config.id;
 	cmpCache[id] = this;
@@ -1044,4 +1165,4 @@ T.ScrollPanel = function(config){
 		onBeforeScrollStart : function(){}
 	});
 }
-})(Touch)
+})(Touch);
