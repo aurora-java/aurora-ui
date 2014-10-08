@@ -635,7 +635,7 @@ textarea.textarea {
 	background:rgba(0,0,0,0.3);
 	z-index:8;
 	display:none;
-	padding:100px;
+	padding: 3em 1.5em;
 }
 .lov-list .touch-screen-body{
 	padding:6px;
