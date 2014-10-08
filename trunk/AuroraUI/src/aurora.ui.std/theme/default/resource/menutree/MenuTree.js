@@ -110,9 +110,9 @@ A.MenuTree=Ext.extend(A.Component,{
 								'<tr height="25">',
 									children.map(function(child,index){
 										switch(index){
-											case 0:return '<td width="45" class="menu-tree-line-right">&#160;</td><td width="45" class="menu-tree-line-top">&#160;</td>';
-											case len:return '<td width="45" class="menu-tree-line-top-right">&#160;</td><td width="45"></td>';
-											default:return'<td width="45" class="menu-tree-line-top-right">&#160;</td><td width="45" class="menu-tree-line-top">&#160;</td>';
+											case 0:return '<td width="180" class="menu-tree-line-right">&#160;</td><td width="180"'+(len?' class="menu-tree-line-top"':'')+'>&#160;</td>';
+											case len:return '<td width="180" class="menu-tree-line-top-right">&#160;</td><td width="180"></td>';
+											default:return'<td width="180" class="menu-tree-line-top-right">&#160;</td><td width="180" class="menu-tree-line-top">&#160;</td>';
 										}
 									}).join(''),
 								'</tr>',
