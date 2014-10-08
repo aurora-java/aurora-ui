@@ -765,7 +765,7 @@ T.Lov = function(config){
 	    });
     }
     var	layout = sf.layout = $(['<div class="lov-list">',
-			'<div class="touch-screen-body">',
+			'<div class="touch-screen-body touch-shadow">',
 				'<div class="touch-tabpanel" id="lov-tabpanel-',id,'">',
 					'<div class="touch-box-vertical">',
 						'<div class="touch-tabpanel-body">',
