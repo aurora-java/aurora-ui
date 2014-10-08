@@ -377,6 +377,28 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .item-focus .item-readOnly{
 	background: #DBDBDB;
 }
+
+@font-face {font-family: "iconfont";
+  src: url('../iconfont/iconfont.eot'); /* IE9*/
+  src: url('../iconfont/iconfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('../iconfont/iconfont.woff') format('woff'), /* chrome、firefox */
+  url('../iconfont/iconfont.ttf') format('truetype'), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/
+  url('../iconfont/iconfont.svg#iconfont') format('svg'); /* iOS 4.1- */
+}
+
+.iconfont {
+  font-family:"iconfont" !important;
+  font-size:16px;
+  font-style:normal;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-stroke-width: 0.2px;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-plus:before { content: "\e6e3"; }
+
+.icon-minus:before { content: "\e6c4"; }
+
 .item-ckb,.grid-ckb,.table-ckb{
 	width:13px;
 	height:13px;
@@ -855,6 +877,11 @@ button div {
 .item-btn-disabled div {
 	cursor:default !important;
     color:#ccc;
+}
+.item-tgl-btn {
+    width:16px;
+    height:16px;
+    cursor:pointer;
 }
 .item-textField {
     border:0;  

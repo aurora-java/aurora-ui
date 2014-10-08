@@ -1,0 +1,5 @@
+<DIV class="${wrapClass}" style="${style}" id="${id}">${toogleText}</DIV>
+<script>
+    new Aurora.ToogleButton(${config});
+    ${binding}
+</script>
