@@ -4017,12 +4017,13 @@ $A.Component = Ext.extend(Ext.util.Observable,{
 //        Ext.getBody().setStyle('overflow','hidden')
         if(!Ext.isEmpty(this.marginheight)){
             ht = Aurora.getViewportHeight();
-            this.setHeight(ht-this.marginheight);           
+            var h = ht-this.marginheight;
+            this.setHeight((this.minheight && h < this.minheight) ? this.minheight : h);           
         }
         if(!Ext.isEmpty(this.marginwidth)){
             wd = Aurora.getViewportWidth();
             var v = wd-this.marginwidth;
-            this.setWidth(v);
+            this.setWidth((this.minwidth && v < this.minwidth) ? this.minwidth : v);
             //非标准做法,中集特殊要求！
             //this.setWidth(v < this.initConfig.width ? v : this.initConfig.width);
         }
