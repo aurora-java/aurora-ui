@@ -12,6 +12,7 @@
 	<feature-attach elementName="checkBox" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.CheckBox" />
 	<feature-attach elementName="radio" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Radio" />
 	<feature-attach elementName="button" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.Button" />
+    <feature-attach elementName="toogleButton" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ToogleButton" />
     <feature-attach elementName="toolbarButton" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ToolBarButton" />
     <feature-attach elementName="roundButton" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.RoundButton" />
     <feature-attach elementName="nextButton" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.NextButton" />

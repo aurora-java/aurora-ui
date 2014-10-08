@@ -15,6 +15,7 @@
         <view-component elementName="currencyLabel" category="View" description="币种显示组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="imageCode" category="View" description="验证码组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="button" category="Button" description="按钮组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
+        <view-component elementName="toogleButton" category="Button" description="按钮组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="toolbarButton" category="Button" description="按钮组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" />
         <view-component elementName="gridButton" category="Button" description="按钮组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView" defaultTemplate="toolbarButton.tplt"/>
         <view-component elementName="roundButton" category="Button" description="按钮组件" nameSpace="http://www.aurora-framework.org/application" builder="aurora.presentation.TemplateBasedView"/>

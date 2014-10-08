@@ -5579,6 +5579,81 @@ $A.Button.getTemplate = function(id,text,width){
     return '<TABLE class="item-btn " id="'+id+'" style="WIDTH: '+(width||60)+'px" cellSpacing="0"><TBODY><TR><TD class="item-btn-tl"><I></I></TD><TD class="item-btn-tc"></TD><TD class="item-btn-tr"><I></I></TD></TR><TR><TD class="item-btn-ml"><I></I></TD><TD class="item-btn-mc"><BUTTON hideFocus style="HEIGHT: 17px" atype="btn"><div>'+text+'</div></BUTTON></TD><TD class="item-btn-mr"><I></I></TD></TR><TR><TD class="item-btn-bl"><I></I></TD><TD class="item-btn-bc"></TD><TD class="item-btn-br"><I></I></TD></TR></TBODY></TABLE><script>new Aurora.Button({"id":"'+id+'"});</script>';
 }
 /**
+ * @class Aurora.ToogleButton
+ * @extends Aurora.Component
+ * <p>ToogleButton.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
+$A.ToogleButton = Ext.extend($A.Component,{
+	disableCss:'item-btn-disabled',
+	disabled:false,
+    toogled:false,
+    plusText:'&#xe6e3;',
+    minusText:'&#xe6c4',
+	initComponent : function(config){
+    	$A.ToogleButton.superclass.initComponent.call(this, config);
+    	if(this.disabled == true)this.disable();
+        var sf = this;
+        $A.onReady(function(){
+            sf.initToogleEl();
+        });
+        
+    },
+    processListener: function(ou){
+    	$A.ToogleButton.superclass.processListener.call(this,ou);
+    	this.wrap[ou]("click", this.onClick,  this);
+    },
+    initEvents : function(){
+    	$A.ToogleButton.superclass.initEvents.call(this);
+    	this.addEvents(
+    	/**
+         * @event click
+         * 鼠标点击事件.
+         * @param {Aurora.Button} button 按钮对象.
+         * @param {EventObject} e 键盘事件对象.
+         */
+    	'click');
+    },
+    destroy : function(){
+		$A.ToogleButton.superclass.destroy.call(this);
+    	delete this.wrap;
+    },
+	blur : function(){
+    	if(this.disabled) return;
+    	this.el.dom.blur();
+    },
+    disable: function(){
+    	this.disabled = true;
+    	this.wrap.addClass(this.disableCss);
+    },
+    enable: function(){
+    	this.disabled = false;
+    	this.wrap.removeClass(this.disableCss);
+    },
+    initToogleEl: function(){
+        if(this.toogleid){
+            var el = Ext.get(this.toogleid);
+            if(el){
+                el.setStyle('display',this.toogled ? 'block' : 'none')
+            }
+        }
+    },
+    onClick: function(e){
+    	if(!this.disabled){
+        	e.stopEvent();
+            this.toogled = !this.toogled;
+            this.setText(this.toogled ? this.minusText : this.plusText);
+            this.initToogleEl();
+        	this.fireEvent("click", this,this.toogled, e);
+    	}
+    },
+    setText : function(text){
+    	this.wrap.update(text);
+    }
+});
+/**
  * @class Aurora.CheckBox
  * @extends Aurora.Component
  * <p>可选组件.
