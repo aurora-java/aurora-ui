@@ -34,6 +34,9 @@ div.error {
     font-weight:700;
     text-align:left;
 }
+.touch-shadow{
+	-webkit-box-shadow: rgba(0,0,0,0.8) 0 .2em .6em;
+}
 .touch-screen-body{
 	height:100%;
 	display:-webkit-box;
