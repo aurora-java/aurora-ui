@@ -41,6 +41,7 @@ public class PatchAll {
 		list.add("base/AutoCompleteView.js");
 		list.add("base/DynamicElement.js");
 		list.add("button/Button.js");
+		list.add("tooglebutton/toogleButton.js");
 		list.add("checkbox/CheckBox.js");
 		list.add("radio/Radio.js");
 		list.add("textfield/TextField.js");
@@ -65,9 +66,11 @@ public class PatchAll {
 			
 		List csslist = new ArrayList();
 		csslist.add("base/Aurora.css");
+		csslist.add("iconfont/iconfont.css");
 		csslist.add("checkbox/CheckBox.css");
 		csslist.add("radio/Radio.css");
 		csslist.add("button/Button.css");
+		csslist.add("tooglebutton/toogleButton.css");
 		csslist.add("textfield/TextField.css");
 		csslist.add("numberfield/NumberField.css");
 		csslist.add("spinner/Spinner.css");
