@@ -96,4 +96,6 @@
     
     <feature-attach elementName="rightBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.RightBar" />
     <feature-attach elementName="leftBar" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.LeftBar" />
+
+    <feature-attach elementName="screenEditor" nameSpace="http://www.aurora-framework.org/application" featureClass="aurora.presentation.component.std.ScreenEditor" />
 </class-registry>

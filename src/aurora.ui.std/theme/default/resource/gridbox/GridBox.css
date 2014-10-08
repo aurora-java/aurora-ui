@@ -12,3 +12,9 @@
 	white-space: nowrap;
 	cursor:text;
 }
+.gridbox-row-end>th,.gridbox-row-end>td{
+	border-bottom:1px solid #ccc;
+}
+.gridbox-row-end:last-child>th,.gridbox-row-end:last-child>td{
+	border-bottom:none;
+}

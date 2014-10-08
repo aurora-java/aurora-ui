@@ -1,6 +1,7 @@
 .item-btn {
     cursor:pointer;
     white-space: nowrap;
+    color:#ffffff;
 }
 .ext-ie .item-btn button {
     width:1px;
@@ -27,7 +28,6 @@
     width:1px;
     white-space: nowrap;
     text-align:center;
-    color:#ffffff;
 	font-weight:bold;
 }
 .ext-ie6 button{

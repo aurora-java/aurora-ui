@@ -34,14 +34,18 @@ A.GridBox = Ext.extend(A.Component,{
 		var sf = this;
 		A.GridBox.superclass.initComponent.call(sf,config);
 		var wrap = sf.wrap,
-			tbody = sf.tbody =wrap.parent('tbody'),
-			tr = sf.tr = wrap.parent('tr'),
-			btn = sf.btn=wrap.child('.gridbox-button');
+			isfield = sf.isfield,
+			tbody = sf.tbody = isfield?wrap.parent('tbody'):wrap.child('tbody'),
+			tr = sf.tr = isfield?wrap.parent('tr').addClass('gridbox-row-end'):tbody.first(),
+			btn = sf.btn = wrap.child('.gridbox-button'),
+			count=0,column = sf.column,rows;
+		EACH(sf.columns,function(col){
+			count+=Number(col.colspan)||1;
+		});
+		sf.rows = Math.ceil(count/column);
 		btn.dom.tabIndex = sf.tabindex;
 		btn.setStyle({outline:'none'});
 		sf.rowposition = tbody.query('tr').indexOf(tr.dom);
-		sf.cellposition = tr.query('td').indexOf(wrap.dom)+1;
-		sf.underbox && sf.wrap.set({colspan:''});
 		sf.initTemplate();
 	},
 	processDataSetLiestener: function(ou){
@@ -160,18 +164,11 @@ A.GridBox = Ext.extend(A.Component,{
         }
     },
     onAdd : function(ds,record,index){
-    	var sf = this,ds = sf.dataset;
-//    	sf.removeEmptyRow();
-        sf.createRow(record,index*(sf.rows||1));
-//        sf.selectRow(ds.indexOf(record));
-//        sf.setSelectStatus(record);
+    	var sf = this;
+    	sf.createRow(record,index*(sf.rows||1));
     },
 	onRemove : function(ds,record,index){
-        var sf = this,row = Ext.get(sf.id+'-'+record.id);
-        row && row.remove();
-//        sf.selectTr=NULL;
-//        A.Masker.unmask(sf.wrap);
-//        sf.drawFootBar();
+		this.tr.parent().select('[_row='+record.id+']').remove();
     },
 	onUpdate : function(ds,record, name, value){
 //        this.setSelectStatus(record);
@@ -213,19 +210,16 @@ A.GridBox = Ext.extend(A.Component,{
 			sf.render();
 	},
 	clear : function(){
+		this.tr.parent().select('[_id='+this.id+']').remove();
 	},
 	initTemplate : function(){
         this.cellTpl = new Ext.Template(['<div class="gridbox-cell {cellcls}" id="',this.id,'_{name}_{recordid}" style="width:{width}px">{text}</div>']);        
     	this.cbTpl = new Ext.Template(['<center><div class="{cellcls}" id="',this.id,'_{name}_{recordid}"></div></center>']);
     },
 	render : function(){
-		var sf = this,count=0,column = sf.column,rows;
-		EACH(sf.columns,function(col){
-			count+=Number(col.colspan)||1;
-		});
-		rows = sf.rows = Math.ceil(count/column);
+		var sf = this;
 		EACH(sf.dataset.getAll(),function(r,i){
-			sf.createRow(r,i*rows);
+			sf.createRow(r,i*sf.rows);
 		});
 	},
 	renderPrompt : function(record,col,value){
@@ -260,28 +254,29 @@ A.GridBox = Ext.extend(A.Component,{
     },
 	createRow : function(record,index){
 		var sf = this,
-			tr,column = sf.column,
-			count=0;
-		if(index == 0){
-			tr = sf.tr.dom;
-		}else{
-			tr = sf.tbody.dom.insertRow(index+sf.rowposition);
-			for(var i=0,p = sf.cellposition;i<p;i++){
-				sf.createCell(tr)
-			}
-		}
-		tr.id=sf.id+'-'+record.id;
+			column = sf.column,
+			pos = sf.rowposition,
+			count=0,
+			tr = sf.tbody.dom.insertRow(index+pos+1),
+			nr = 1;
+		Ext.fly(tr).set({
+			'_row':record.id,
+			'_id':sf.id
+		},true);
 		EACH(sf.columns,function(col){
-			count+=col.colspan||1;
+			count+=Number(col.colspan)||1;
 			if(count>column){
-				tr = sf.tbody.dom.insertRow(index+1+sf.rowposition);
-				for(var i=0,p = sf.cellposition;i<p;i++){
-					sf.createCell(tr)
-				}
-				count=0;
+				tr = sf.tbody.dom.insertRow(index+nr+pos+1);
+				Ext.fly(tr).set({
+					'_row':record.id,
+					'_id':sf.id
+				},true);
+				count=Number(col.colspan)||1;
+				nr++;
 			}
 			sf.createCell(tr,col,record);
 		});
+		tr.className = 'gridbox-row-end';
 	},
 	createCell:function(tr,col,record){
 		var sf = this,
@@ -377,11 +372,14 @@ A.GridBox = Ext.extend(A.Component,{
         	target = t = Ext.fly(t);
         if(target.is('td[recordid]')||(target = target.parent('td[recordid]'))){
             var atype = target.getAttributeNS(_N,'atype'),
-            	rid = target.getAttributeNS(_N,'recordid'),
-            	ds = sf.dataset;
+            	ds = sf.dataset,record;
             if(atype=='gridbox-cell'){
-                var record = ds.findById(rid),
-                	row = ds.indexOf(record),
+	        	if(!ds.getAll().length){
+	        		record = ds.create();
+	        	}else{
+                	record = ds.findById(target.getAttributeNS(_N,'recordid'));
+	        	}
+                var	row = ds.indexOf(record),
                 	name = target.getAttributeNS(_N,'dataindex');
                 sf.fireEvent(EVT_CELL_CLICK, sf, row, name, record,!t.hasClass('gridbox-ckb'));
 //                sf.showEditor(row,name);

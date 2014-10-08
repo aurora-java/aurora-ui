@@ -755,12 +755,13 @@ A.Grid = Ext.extend(A.Component,{
     onLoad : function(){
         var sf = this,
         	ds = sf.dataset,
-        	cr = ds.getCurrentRecord();
+        	cr = ds.getCurrentRecord(),
+        	len = ds.getAll().length;
         sf.isSelectAll = FALSE;
         sf.clearDomRef();
         sf.preLoad();
         sf.processGroups();
-        if(ds.getSelected().length != ds.getAll().length){
+        if(!len || ds.getSelected().length != len){
         	sf.wrap.removeClass(GRID_SELECT_ALL);
         	sf.initHeadCheckStatus(FALSE);
         }else 
