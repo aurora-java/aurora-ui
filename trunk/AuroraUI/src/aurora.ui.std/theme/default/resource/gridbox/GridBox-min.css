@@ -1,1 +1,1 @@
-.gridbox-button{height:16px;width:16px;margin:3px;float:right;background-image:url(../toolbar/toolbar_btn.gif);cursor:pointer;}.gridbox-cell{text-indent:2px;line-height:23px;white-space:nowrap;cursor:text;}
+.gridbox-button{height:16px;width:16px;margin:3px;float:right;background-image:url(../toolbar/toolbar_btn.gif);cursor:pointer;}.gridbox-cell{text-indent:2px;line-height:23px;white-space:nowrap;cursor:text;}.gridbox-row-end>th,.gridbox-row-end>td{border-bottom:1px solid #ccc;}.gridbox-row-end:last-child>th,.gridbox-row-end:last-child>td{border-bottom:none;}

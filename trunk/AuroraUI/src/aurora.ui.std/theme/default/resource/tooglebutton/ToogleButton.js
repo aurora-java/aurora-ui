@@ -11,7 +11,7 @@ $A.ToogleButton = Ext.extend($A.Component,{
 	disabled:false,
     toogled:false,
     plusText:'&#xe6e3;',
-    minusText:'&#xe6c4',
+    minusText:'&#xe6c4;',
 	initComponent : function(config){
     	$A.ToogleButton.superclass.initComponent.call(this, config);
     	if(this.disabled == true)this.disable();

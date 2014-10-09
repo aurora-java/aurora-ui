@@ -5,7 +5,7 @@
  * http://www.hand-china.com
  * 
  * author:牛佳庆
- * revision:$Rev: 8479 $
+ * revision:$Rev: 8535 $
  */
 .refresh {
     overflow:hidden;
@@ -14,13 +14,16 @@ html, body {
 	margin:0; 
 	padding:0;
 	background-color:#ffffff;
-}
-html, body,input, button , textarea {
-	font-family: 微软雅黑,宋体,sans-serif !important;/**/
-    font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;/**/
+    font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;
     /*font-size:11px !important;*/
     font-size:12px;
     outline:none;
+}
+input, button , textarea,select{
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	color:inherit;
 }
 HTML {
     border: none;
@@ -486,6 +489,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .item-btn {
     cursor:pointer;
     white-space: nowrap;
+    color:#ffffff;
 }
 .ext-ie .item-btn button {
     width:1px;
@@ -512,7 +516,6 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     width:1px;
     white-space: nowrap;
     text-align:center;
-    color:#ffffff;
 	font-weight:bold;
 }
 .ext-ie6 button{
