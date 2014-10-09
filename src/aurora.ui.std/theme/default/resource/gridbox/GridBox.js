@@ -258,7 +258,9 @@ A.GridBox = Ext.extend(A.Component,{
 			pos = sf.rowposition,
 			count=0,
 			tr = sf.tbody.dom.insertRow(index+pos+1),
-			nr = 1;
+			td,
+			nr = 1,
+			createCloseBtn = false;
 		Ext.fly(tr).set({
 			'_row':record.id,
 			'_id':sf.id
@@ -266,6 +268,8 @@ A.GridBox = Ext.extend(A.Component,{
 		EACH(sf.columns,function(col){
 			count+=Number(col.colspan)||1;
 			if(count>column){
+				sf.createCloseBtn(td,record);
+				createCloseBtn = true;
 				tr = sf.tbody.dom.insertRow(index+nr+pos+1);
 				Ext.fly(tr).set({
 					'_row':record.id,
@@ -274,9 +278,18 @@ A.GridBox = Ext.extend(A.Component,{
 				count=Number(col.colspan)||1;
 				nr++;
 			}
-			sf.createCell(tr,col,record);
+			td = sf.createCell(tr,col,record);
 		});
 		tr.className = 'gridbox-row-end';
+		if(!createCloseBtn){
+			sf.createCloseBtn(td,record);
+		}
+	},
+	createCloseBtn : function(td,record){
+		new Ext.Template('<div class="gridbox-close-button" recordid="{recordid}"></div>').append(td,{
+			recordid:record.id
+		});
+		td.addClass('gridbox-close-botton-wrap');
 	},
 	createCell:function(tr,col,record){
 		var sf = this,
@@ -286,6 +299,7 @@ A.GridBox = Ext.extend(A.Component,{
 			var prompt = sf.renderPrompt(record,col,col.prompt);
 			th.innerHTML = '<div>'+prompt+(IS_EMPTY(prompt)?_N:sf.labelseparator)+'</div>';
 		}
+		th.width = col.labelwidth||75;
 		tr.appendChild(th);
 		if(tr.tagName.toLowerCase()=='tr')td=Ext.fly(tr.insertCell(-1));
 		else td=Ext.fly(tr).parent('td');
@@ -342,6 +356,7 @@ A.GridBox = Ext.extend(A.Component,{
 				}
 	//		}
 		}
+		return td;
 	},
 	getCheckBoxStatus: function(record, name ,readonly) {
         var field = this.dataset.getField(name),
@@ -369,16 +384,18 @@ A.GridBox = Ext.extend(A.Component,{
 	},*/
 	onClick : function(e,t) {
         var sf = this,
-        	target = t = Ext.fly(t);
-        if(target.is('td[recordid]')||(target = target.parent('td[recordid]'))){
-            var atype = target.getAttributeNS(_N,'atype'),
-            	ds = sf.dataset,record;
+        	target = t = Ext.fly(t),
+        	ds = sf.dataset,
+        	record;
+        if(target.is('div.gridbox-close-button')){
+    		record = ds.findById(target.getAttributeNS(_N,'recordid'));
+    		A.showConfirm('提示','确认删除？',function(){
+    			ds.remove(record);
+    		});
+        }else if(target.is('td[recordid]')||(target = target.parent('td[recordid]'))){
+            var atype = target.getAttributeNS(_N,'atype');
             if(atype=='gridbox-cell'){
-	        	if(!ds.getAll().length){
-	        		record = ds.create();
-	        	}else{
-                	record = ds.findById(target.getAttributeNS(_N,'recordid'));
-	        	}
+            	record = ds.findById(target.getAttributeNS(_N,'recordid'));
                 var	row = ds.indexOf(record),
                 	name = target.getAttributeNS(_N,'dataindex');
                 sf.fireEvent(EVT_CELL_CLICK, sf, row, name, record,!t.hasClass('gridbox-ckb'));
