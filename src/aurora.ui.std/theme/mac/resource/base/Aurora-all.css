@@ -14,14 +14,16 @@ html, body {
 	margin:0; 
 	padding:0;
     background: #ffffff url(mac_background.png) 0px 0px repeat;
-
-}
-html, body,input, button , textarea {
-	font-family: 微软雅黑,宋体,sans-serif !important;/**/
-    font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;/**/
+    font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;
     /*font-size:11px !important;*/
     font-size:12px;
     outline:none;
+}
+input, button , textarea,select{
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	color:inherit;
 }
 HTML {
     border: none;
@@ -471,6 +473,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .item-btn {
     cursor:pointer;
     white-space: nowrap;
+    color:#333;
 }
 .ext-ie .item-btn button {
     /*width:1px;
@@ -498,7 +501,6 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     outline:0 none;
     width:auto !important;
     width:1px;
-    color:#333;
     white-space: nowrap;
     text-align:center;
 }
