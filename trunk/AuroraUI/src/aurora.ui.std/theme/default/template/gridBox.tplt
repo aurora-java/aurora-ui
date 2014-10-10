@@ -5,8 +5,8 @@
 		</TR>
 	</TBODY>
 </TABLE>
+${editors}
 <SCRIPT LANGUAGE="JavaScript">
 	new Aurora.GridBox(${config});
 	$('${id}').bind('${bindtarget}');
 </SCRIPT>
-${editors}
