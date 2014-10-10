@@ -27,3 +27,9 @@
 .gridbox-row-end:last-child>th,.gridbox-row-end:last-child>td{
 	border-bottom:none;
 }
+.gridbox-ckb{
+	width:13px;
+	height:13px;
+	font-size:0pt;
+    background-image: url(../checkbox/checkbox.gif);
+}
