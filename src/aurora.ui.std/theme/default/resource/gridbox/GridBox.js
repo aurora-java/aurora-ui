@@ -286,7 +286,7 @@ A.GridBox = Ext.extend(A.Component,{
 		}
 	},
 	createCloseBtn : function(td,record){
-		new Ext.Template('<div class="gridbox-close-button" recordid="{recordid}"></div>').append(td,{
+		new Ext.Template('<div class="gridbox-close-button" recordid="{recordid}"></div>').insertFirst(td,{
 			recordid:record.id
 		});
 		td.addClass('gridbox-close-botton-wrap');
