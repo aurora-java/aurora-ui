@@ -6,6 +6,9 @@
 	background-image:url(../toolbar/toolbar_btn.gif);
 	cursor:pointer;
 }
+.form_head .gridbox-button{
+	margin:0 3px;
+}
 .gridbox-close-botton-wrap>*{
 	float:left;
 }
