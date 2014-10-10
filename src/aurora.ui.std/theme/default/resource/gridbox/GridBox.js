@@ -216,7 +216,7 @@ A.GridBox = Ext.extend(A.Component,{
 	},
 	initTemplate : function(){
         this.cellTpl = new Ext.Template(['<div class="gridbox-cell {cellcls}" id="',this.id,'_{name}_{recordid}" style="width:{width}px">{text}</div>']);        
-    	this.cbTpl = new Ext.Template(['<center><div class="{cellcls}" id="',this.id,'_{name}_{recordid}"></div></center>']);
+    	this.cbTpl = new Ext.Template(['<div class="gridbox-ckb-wrap" style="width:{width}px"><div class="{cellcls}" id="',this.id,'_{name}_{recordid}"></div></div>']);
     },
 	render : function(){
 		var sf = this;
@@ -341,7 +341,8 @@ A.GridBox = Ext.extend(A.Component,{
 					td.update(sf.cbTpl.applyTemplate({
 						cellcls:'gridbox-ckb ' + sf.getCheckBoxStatus(record, xname ,readonly),
 						name:xname,
-						recordid:record.id
+						recordid:record.id,
+						width:col.width||-1
 					}));
 				}else{
 					var field = record.getMeta().getField(xname);
@@ -394,7 +395,7 @@ A.GridBox = Ext.extend(A.Component,{
     		A.showConfirm('提示','确认删除？',function(){
     			ds.remove(record);
     		});
-        }else if(target.is('div.gridbox-cell')||target.is('div.gridbox-ckb')){
+        }else if(target.is('div.gridbox-cell')||target.is('div.gridbox-ckb-wrap')||target.parent('div.gridbox-ckb-wrap')){
 //            var atype = target.getAttributeNS(_N,'atype');
 //            if(atype=='gridbox-cell'){
         		target = target.parent('td');
