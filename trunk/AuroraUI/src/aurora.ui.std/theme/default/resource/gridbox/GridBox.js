@@ -270,8 +270,10 @@ A.GridBox = Ext.extend(A.Component,{
 		EACH(sf.columns,function(col){
 			count+=Number(col.colspan)||1;
 			if(count>column){
-				sf.createCloseBtn(td,record);
-				createCloseBtn = true;
+				if(!createCloseBtn){
+					sf.createCloseBtn(td,record);
+					createCloseBtn = true;
+				}
 				tr = sf.tbody.dom.insertRow(index+nr+pos+1);
 				Ext.fly(tr).set({
 					'_row':record.id,
