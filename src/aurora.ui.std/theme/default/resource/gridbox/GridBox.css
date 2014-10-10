@@ -1,3 +1,9 @@
+.item-gridbox-wrap{
+	border-bottom:none;
+}
+.gridbox-close-botton-wrap>*{
+	float:left;
+}
 .gridbox-button,.gridbox-close-button{
 	height:16px;
 	width:16px;
@@ -9,13 +15,9 @@
 .form_head .gridbox-button{
 	margin:0 3px;
 }
-.gridbox-close-botton-wrap>*{
-	float:left;
-}
 .gridbox-close-button{
 	background-position:0 -36px;
 	margin-left:15px;
-	float:right;
 }
 
 .gridbox-cell{
@@ -26,9 +28,6 @@
 }
 .gridbox-row-end>th,.gridbox-row-end>td{
 	border-bottom:1px solid #ccc;
-}
-.gridbox-row-end:last-child>th,.gridbox-row-end:last-child>td{
-	border-bottom:none;
 }
 .gridbox-ckb{
 	width:13px;

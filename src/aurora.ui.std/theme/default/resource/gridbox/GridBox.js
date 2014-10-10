@@ -267,7 +267,7 @@ A.GridBox = Ext.extend(A.Component,{
 			'_row':record.id,
 			'_id':sf.id
 		},true);
-		EACH(sf.columns,function(col){
+		EACH(sf.columns,function(col,_index){
 			count+=Number(col.colspan)||1;
 			if(count>column){
 				if(!createCloseBtn){
@@ -283,21 +283,35 @@ A.GridBox = Ext.extend(A.Component,{
 				nr++;
 			}
 			td = sf.createCell(tr,col,record);
+			if(_index == sf.columns.length-1){
+				for(var i=0,len = column - count;i<len;i++){
+					sf.createEmptyCell(tr);
+				}
+			}
 		});
 		tr.className = 'gridbox-row-end';
 		if(!createCloseBtn){
 			sf.createCloseBtn(td,record);
 		}
 	},
+	createEmptyCell : function(tr){
+		var th = document.createElement('th'),
+			td = document.createElement('td');
+		tr.appendChild(th);
+		tr.appendChild(td);
+		th.innerHTML = '&#160;';
+		td.innerHTML = '&#160;';
+	},
 	createCloseBtn : function(td,record){
-		new Ext.Template('<div class="gridbox-close-button" recordid="{recordid}"></div>').insertFirst(td,{
+		new Ext.Template('<div class="gridbox-close-button" recordid="{recordid}"></div>').append(td,{
 			recordid:record.id
 		});
 		td.addClass('gridbox-close-botton-wrap');
 	},
 	createCell:function(tr,col,record){
 		var sf = this,
-			th = document.createElement('th');
+			th = document.createElement('th'),
+			td;
 		th.className = 'layout-th';
 		if(col){
 			var prompt = sf.renderPrompt(record,col,col.prompt);
@@ -305,16 +319,21 @@ A.GridBox = Ext.extend(A.Component,{
 		}
 		th.width = col.labelwidth||75;
 		tr.appendChild(th);
-		if(tr.tagName.toLowerCase()=='tr')td=Ext.fly(tr.insertCell(-1));
-		else td=Ext.fly(tr).parent('td');
+		if(tr.tagName.toLowerCase()=='tr'){
+			td = document.createElement('td');
+			tr.appendChild(td);
+			td=Ext.fly(td);
+		}else td=Ext.fly(tr).parent('td');
 		td.addClass('layout-td-cell')
 				.setStyle({padding: this.padding + 'px'});
 		if(col){
-			col.colspan && td.set({colspan:col.colspan*2-1});
+			if(col.colspan){
+				td.dom.colSpan = col.colspan*2-1;
+			}
 			var editor = sf.getEditor(col,record),
 				xtype = col.type,
 				xname = col.name,
-				readonly,cls=_N,td;
+				readonly,cls=_N;
 			if(editor!=_N){
 	        	var edi = A.CmpManager.get(editor);
 	            if(edi && (edi instanceof A.CheckBox)){
