@@ -8,6 +8,8 @@ var DOC_EL = document.documentElement,
     _N = '',
     _ = '_',
     _S = ' ',
+    C = '-c',
+    U = '-u',
 	CHECKED_VALUE = 'checkedvalue',
 	CELL_CHECK = 'cellcheck',
     READONLY = '-readonly',
@@ -392,9 +394,10 @@ A.GridBox = Ext.extend(A.Component,{
     		A.showConfirm('提示','确认删除？',function(){
     			ds.remove(record);
     		});
-        }else if(target.is('td[recordid]')||(target = target.parent('td[recordid]'))){
-            var atype = target.getAttributeNS(_N,'atype');
-            if(atype=='gridbox-cell'){
+        }else if(target.is('div.gridbox-cell')||target.is('div.gridbox-ckb')){
+//            var atype = target.getAttributeNS(_N,'atype');
+//            if(atype=='gridbox-cell'){
+        		target = target.parent('td');
             	record = ds.findById(target.getAttributeNS(_N,'recordid'));
                 var	row = ds.indexOf(record),
                 	name = target.getAttributeNS(_N,'dataindex');
@@ -414,7 +417,7 @@ A.GridBox = Ext.extend(A.Component,{
 //            	var cb = Ext.get(sf.id+__+rid);
 //                if(cb.hasClass(ITEM_RADIO_IMG_READONLY_U)||cb.hasClass(ITEM_RADIO_IMG_READONLY_C))return;
 //                ds.select(rid);
-            }
+//            }
         }
     },
     onCellClick : function(grid,row,name,record,callback){
