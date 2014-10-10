@@ -1,7 +1,7 @@
 <TABLE class="${wrapClass}" tabIndex="${tabindex}" id="${id}" hidefocus style="outline:none;${style}" cellSpacing="0" cellPadding="0" border="0">
 	<TBODY>
 		<TR>
-			<TD width="${width}" ${title_cls} ${padding} ${colspan}>${title}<div class="gridbox-button" onclick="$('${bindtarget}').create()"></div></TD>
+			<TD width="${width}" ${title_cls} ${padding} ${colspan}><div class="gridbox-button" onclick="$('${bindtarget}').create()"></div>${title}</TD>
 		</TR>
 	</TBODY>
 </TABLE>
