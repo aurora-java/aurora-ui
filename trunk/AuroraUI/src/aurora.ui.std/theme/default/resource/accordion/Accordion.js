@@ -71,13 +71,21 @@ A.Accordion = Ext.extend(A.Component,{
 				sf.singlemode && Ext.each(sf.selectedItems,function(accordion){
 					sf.close(accordion,sf.accordions.elements.indexOf(accordion.dom));
 				},sf);
-				var body = sf.bodys.item(index),hasChild =!!body.dom.style.height,
-					children = body.select('*');
+				var body = Ext.get(sf.bodys.elements[index]),
+					hasChild =!!body.dom.style.height,
+					children = body.select('*'),
+					url=sf.items[index].ref,
+					accHeight = 0;
+				if(!hasChild && url && !body.isLoaded){
+					accHeight= 100;
+					body.needResize = true;
+				}
 				if(children.elements.length == 0 && body.dom.innerHTML)hasChild=true;
 				children.each(function(c){
 					if(c.getHeight())hasChild=true;
-				})
-				sf.selectedItems.push(accordion.addClass(SELECTED).setHeight(sf.stripheight+(hasChild?body.show().getHeight():0),{
+				});
+				body.show();
+				sf.selectedItems.push(accordion.addClass(SELECTED).setHeight(sf.stripheight+(hasChild?body.getHeight():accHeight),{
 				    duration : .2, 
 				    callback: function(){
 				    	hasChild && accordion.setStyle({height:''});
@@ -125,7 +133,8 @@ A.Accordion = Ext.extend(A.Component,{
     		.setStyle({'text-align':'','line-height':''});
     },
 	load : function(index){
-		var sf = this,url=sf.items[index].ref, dom=Ext.get(sf.bodys.elements[index]);
+		var sf = this,url=sf.items[index].ref, dom=Ext.get(sf.bodys.elements[index]),
+			accordion = Ext.get(sf.accordions.elements[index]);
 		if(!url||dom.isLoaded){
 			sf.fireEvent(EVT_SELECT, sf, index);
 			return;
@@ -138,6 +147,12 @@ A.Accordion = Ext.extend(A.Component,{
 		   	success: function(response, options){
 		    	sf.clearLoading(dom);
 		    	dom.update(response.responseText,true,function(){
+			    	dom.needResize && accordion.setHeight(dom.getHeight(),{
+			    		duration : .2, 
+					    callback: function(){
+					    	accordion.setStyle({height:''});
+				    	}
+			    	});
                     sf.fireEvent(EVT_SELECT, sf, index);
 		    	},dom);
 		    }
