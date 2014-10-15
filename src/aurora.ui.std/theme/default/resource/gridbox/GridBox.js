@@ -216,7 +216,7 @@ A.GridBox = Ext.extend(A.Component,{
 	},
 	initTemplate : function(){
         this.cellTpl = new Ext.Template(['<div class="gridbox-cell {cellcls}" id="',this.id,'_{name}_{recordid}" style="width:{width}px">{text}</div>']);        
-    	this.cbTpl = new Ext.Template(['<div class="gridbox-ckb-wrap" style="width:{width}px"><div class="{cellcls}" id="',this.id,'_{name}_{recordid}"></div></div>']);
+    	this.cbTpl = new Ext.Template(['<div class="gridbox-ckb-wrap" style="height:20px;width:{width}px"><div style="margin-top:3px" class="{cellcls}" id="',this.id,'_{name}_{recordid}"></div></div>']);
     },
 	render : function(){
 		var sf = this;
@@ -311,7 +311,8 @@ A.GridBox = Ext.extend(A.Component,{
 	createCell:function(tr,col,record){
 		var sf = this,
 			th = document.createElement('th'),
-			td;
+			td,
+			hasCloseBtn = FALSE;
 		th.className = 'layout-th';
 		if(col){
 			var prompt = sf.renderPrompt(record,col,col.prompt);
@@ -323,7 +324,12 @@ A.GridBox = Ext.extend(A.Component,{
 			td = document.createElement('td');
 			tr.appendChild(td);
 			td=Ext.fly(td);
-		}else td=Ext.fly(tr).parent('td');
+		}else {
+			td=Ext.fly(tr).parent('td');
+			if(td.hasClass('gridbox-close-botton-wrap')){
+				hasCloseBtn = TRUE;
+			}
+		}
 		td.addClass('layout-td-cell')
 				.setStyle({padding: this.padding + 'px'});
 		if(col){
@@ -377,6 +383,9 @@ A.GridBox = Ext.extend(A.Component,{
 						recordid:record.id,
 						width:col.width||150
 					}));
+				}
+				if(hasCloseBtn){
+					sf.createCloseBtn(td,record);
 				}
 	//		}
 		}
