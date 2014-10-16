@@ -1764,7 +1764,8 @@ $A.Record.prototype = {
             }
         }
         if(valid==true)delete this.valid[name];
-        if((oldValid||this.valid[name])&& oldValid != this.valid[name])this.ds.onRecordValid(this,name,valid);
+        if(oldValid != this.valid[name] || !Ext.isDefined(oldValid))
+        	this.ds.onRecordValid(this,name,valid);
         return valid;
     },
     setDataSet : function(ds){
