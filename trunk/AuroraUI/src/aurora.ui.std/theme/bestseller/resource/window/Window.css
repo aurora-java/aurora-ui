@@ -1,0 +1,93 @@
+.win-wrap {
+	border:1px solid #808080; 
+	TABLE-LAYOUT: fixed; 
+	/**z-index: 40;#c2d5dc;**/ 
+	POSITION: absolute; 
+}
+.win-fs {
+	FONT-SIZE: 1px;	
+	WIDTH: 1px;	
+	LINE-HEIGHT: 1px;	
+	LEFT: 0px;	
+	HEIGHT: 1px;	
+	moz-user-select: text;	
+	khtml-user-select: text;	
+	webkit-user-select: ignore;	
+	moz-outline: 0 none;	
+	outline: 0 none
+}
+.win-caption {
+	height: 21px;
+	border-bottom:1px solid #808080;
+	background-color:#f1f1f1;
+}
+.win-caption-label div {
+	width:100%;
+	FONT-WEIGHT: bold; 
+	padding-left:5px;
+	/**FONT-SIZE: 12px;**/ 
+	FLOAT: left; 
+	COLOR: #333;
+	overflow:hidden; 
+	height: 23px;
+	line-height:23px;
+	
+}
+.win-caption-button {
+    vertical-align:top;
+}
+.win-close{
+	background-image: url(../window/win_close.gif);
+	/*background-position:0px 0px;*/
+	margin-top:5px;
+	WIDTH: 45px; 
+	CURSOR: pointer; 
+	BACKGROUND-REPEAT: no-repeat; 
+	HEIGHT: 17px; 
+	BACKGROUND-COLOR: transparent;
+}
+.win-btn-over {
+    background-position:0px -17px;
+}
+.win-btn-down{
+    background-position:0px -34px;
+}
+.win-body {
+	BACKGROUND-COLOR: #ffffff;
+}
+.win-content{
+	width:100%;
+	height:100%;
+	overflow:auto;
+	/*overflow-x:hidden;*/ 
+	position:relative;
+	/*overflow:hidden;*/ 
+}
+.win-alert {
+	padding:10px;
+	padding-left:140px;
+}
+.win-type {
+	margin-left:40px;
+	overflow:auto;
+}
+.win-icon {
+    margin:10px;
+    background-repeat: no-repeat;
+}
+.win-warning {
+	background-image: url(../window/icon-warning.gif); 
+}
+.win-error { 
+	background-image: url(../window/icon-error.gif); 
+}
+.win-info {
+	background-image: url(../window/icon-info.gif); 
+}
+.win-question {
+    background-image: url(../window/icon-question.gif); 
+}
+.win-toolbar {
+    background: url(../grid/grid_bg.gif) repeat-x;
+    border-top:1px solid #ccc;
+}
