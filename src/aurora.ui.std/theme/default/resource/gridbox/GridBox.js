@@ -87,6 +87,15 @@ A.GridBox = Ext.extend(A.Component,{
             [ou]("blur",sf.onBlur,sf)
 		sf[ou](EVT_CELL_CLICK,sf.onCellClick,sf);
 	},
+	processMouseOverOut : function(ou){
+		var sf = this;
+        if(sf.isfield){
+            sf.wrap.parent('table')[ou]("mouseover", sf.onMouseOver, sf)
+            	[ou]("mouseout", sf.onMouseOut, sf);
+        }else{
+        	A.GridBox.superclass.processMouseOverOut.call(sf,ou);
+        }
+    },
 	bind : function(ds){
 		if(Ext.isString(ds)){
 			ds = $(ds);
