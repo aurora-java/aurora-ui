@@ -7,7 +7,7 @@
 .gridbox-button,.gridbox-close-button{
 	height:16px;
 	width:16px;
-	margin:3px;
+	margin:2px 3px;
 	float:right;
 	background-image:url(../toolbar/toolbar_btn.gif);
 	cursor:pointer;
