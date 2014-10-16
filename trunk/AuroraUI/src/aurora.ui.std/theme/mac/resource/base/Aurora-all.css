@@ -857,7 +857,7 @@ button div {
 }
 .item-btn-disabled *{
     -webkit-filter:grayscale();
-    filter:gray;
+    /*filter:gray;*/
     -moz-opacity:0.9;
     opacity:0.9;
 }

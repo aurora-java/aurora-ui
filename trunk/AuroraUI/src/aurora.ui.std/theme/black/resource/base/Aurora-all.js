@@ -128,13 +128,13 @@ $A.CmpManager = function(){
         },
         onCmpOver: function(cmp, e){
             if($A.validInfoType != 'tip') return;
-            if(($A.Grid && cmp instanceof $A.Grid)||($A.Table && cmp instanceof $A.Table)){
+            if(($A.Grid && cmp instanceof $A.Grid)||($A.Table && cmp instanceof $A.Table)||($A.GridBox && cmp instanceof $A.GridBox)){
                 var ds = cmp.dataset;
                 if(!ds ||!e.target)return;
                 var target = Ext.fly(e.target).findParent('td');
                 if(target){
                     var atype = Ext.fly(target).getAttributeNS("","atype");
-                    if(atype == 'grid-cell'||atype == 'table-cell'){
+                    if(atype == 'grid-cell'||atype == 'table-cell'||atype == 'gridbox-cell'){
                         var rid = Ext.fly(target).getAttributeNS("","recordid");
                         var record = ds.findById(rid);
                         if(record){
@@ -3570,7 +3570,8 @@ $A.Record.prototype = {
             }
         }
         if(valid==true)delete this.valid[name];
-        if((oldValid||this.valid[name])&& oldValid != this.valid[name])this.ds.onRecordValid(this,name,valid);
+        if(oldValid != this.valid[name] || !Ext.isDefined(oldValid))
+        	this.ds.onRecordValid(this,name,valid);
         return valid;
     },
     setDataSet : function(ds){
