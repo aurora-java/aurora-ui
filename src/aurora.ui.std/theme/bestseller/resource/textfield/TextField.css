@@ -1,0 +1,32 @@
+.item-textField {
+    border:0;  
+    line-height:16px;
+    padding:0;
+    /*padding-top:2px; */
+    background: url(../base/s.gif); 
+    width:100%;
+    float:left;
+}
+.item-input-wrap{
+	height:100%;
+	overflow:hidden;
+}
+.ext-ie6 .item-textField{
+    font-size:12px;
+}
+/*
+.item-notBlank, .item-notBlank .item-textField{
+	background:#fff9c2;
+}
+*/
+.item-emptyText .item-textField{
+	color:#bbb !important;
+}
+.item-readOnly, .item-readOnly .item-textField {
+	background:#DBDBDB;
+}
+/*
+.item-invalid, .item-invalid .item-textField{
+	background:#FFB9AC;
+}
+*/
