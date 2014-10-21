@@ -506,7 +506,7 @@ A.Grid = Ext.extend(A.Component,{
         sf.dataset = ds;
         sf.processDataSetLiestener(ON);
         if(ds.autopagesize===TRUE && ds.fetchall!==TRUE){
-            ds.pagesize=Math.floor((sf.ub.getHeight()||parseFloat(sf.ub.dom.style.height))/25);
+            ds.pagesize=Math.max(0,Math.floor((sf.ub.getHeight()||parseFloat(sf.ub.dom.style.height))/25) -1);
             if(isNaN(ds.pagesize)||ds.pagesize == 0)ds.pagesize=1;
             if(ds.getAll().length || ds.qtId){
             	ds.query();

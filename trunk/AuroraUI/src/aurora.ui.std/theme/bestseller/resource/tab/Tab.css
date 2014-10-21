@@ -53,11 +53,13 @@
 
 .strip-center {
 	text-align: center;
-	font-size:13px;
+	line-height:26px;
+	color:#002d50;
+	font-size:14px;
 }
 .item-tab .active{   
 	background:url(../tab/strip-active-center.png) repeat-x left top;
-    line-height:25px;
+    line-height:26px;
 }
 .item-tab .active .strip-right {
 }

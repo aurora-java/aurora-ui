@@ -71,8 +71,8 @@
     height:0px;
 }
 .row-alt {
-    /*background-color:#fafafa;*/
-    background-color:#ededed;
+    /*background-color:#fafafa;
+    background-color:#ededed;*/
 }
 .grid-la {
     float:left;
@@ -89,7 +89,7 @@
     background: url(../grid/sort_desc.gif) no-repeat right;
 }
 .grid-hc {
-    border-left:1px solid #ffffff;
+    border-left:1px solid #002c4f;
     border-top:1px solid #002c4f;
     border-right:1px solid #002c4f;/*a4bed4*/
     border-bottom:1px solid #002c4f;/*a4bed4*/
@@ -118,7 +118,7 @@
     text-overflow:ellipsis;
 }
 .cell-editor {
-    border:1px solid #bababa;
+    border:1px solid transparent;
     padding-left:0;
     padding-top:0;
     margin:1px;
@@ -198,7 +198,7 @@
     z-index:100000;
 }
 .row-selected {
-    background-color:#dfeaf5;
+    background-color:#ededed;;
 }
 .export-hc {
 	border-right:1px solid #cccccc;
