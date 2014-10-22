@@ -17,13 +17,15 @@ html, body {
     font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;
     /*font-size:11px !important;*/
     font-size:12px;
-    outline:none;
 }
 input, button , textarea,select{
 	font-family: inherit;
 	font-size: inherit;
 	font-weight: inherit;
 	color:inherit;
+}
+*{
+	outline:none;
 }
 HTML {
     border: none;
