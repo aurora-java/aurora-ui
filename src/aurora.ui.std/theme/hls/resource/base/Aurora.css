@@ -17,13 +17,15 @@ html, body {
     font-family: 微软雅黑,宋体,tahoma, arial, sans-serif,helvetica;
     /*font-size:11px !important;*/
     font-size:12px;
-    outline:none;
 }
 input, button , textarea,select{
 	font-family: inherit;
 	font-size: inherit;
 	font-weight: inherit;
 	color:inherit;
+}
+*{
+	outline:none;
 }
 HTML {
     border: none;
@@ -62,7 +64,6 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     height:100%;
     left:0;
     top:0;
-    outline:none;
 }
 /**Item**/
 .item-clear{
@@ -364,13 +365,17 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     z-index:21;
 }
 
-.fieldbox_head {
+.fieldbox_head,.fieldbox_column_head {
     border-left:1px solid #ffffff;
     border-bottom:1px solid #bbbbbb;
     height:23px;
     COLOR: #20A8F7; 
     padding-left:5px;
-    font-size:16px;
+    font-size:13px;
+}
+.fieldbox_column_head {
+    height:21px;
+    font-size:11px;
 }
 .grid-editor {
     -webkit-border-radius:0px;
