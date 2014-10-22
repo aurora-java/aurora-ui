@@ -3,6 +3,9 @@
 	TABLE-LAYOUT: fixed; 
 	/**z-index: 40;#c2d5dc;**/ 
 	POSITION: absolute; 
+	box-shadow:0px 3px 10px 0px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow:0px 3px 10px 0px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow:0px 3px 10px 0px rgba(0, 0, 0, 0.5);
 }
 .win-fs {
 	FONT-SIZE: 1px;	

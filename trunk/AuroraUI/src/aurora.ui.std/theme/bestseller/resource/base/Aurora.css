@@ -54,10 +54,10 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .aurora-cover{
     position: fixed;
     overflow: hidden;
-    filter: alpha(opacity=30);
-    background-color: #000000; 
-    opacity: 0.3; 
-    mozopacity: 0.3;
+    filter: alpha(opacity=74);
+    background-color: #fff; 
+    opacity: 0.75; 
+    mozopacity: 0.75;
     width:100%;
     height:100%;
     left:0;
