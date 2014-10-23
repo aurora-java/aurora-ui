@@ -7958,11 +7958,17 @@ A.Window = Ext.extend(A.Component,{
         sf.screenHeight = A.getViewportHeight();
         if(!this.proxy) this.initProxy();
         this.proxy.show();
+        Ext.get(document.documentElement).on("click", sf.stopClick, sf);
         Ext.get(document.documentElement).on("mousemove", sf.onMouseMove, sf);
         Ext.get(document.documentElement).on("mouseup", sf.onMouseUp, sf);
 //        sf.focus();
     },
+    stopClick :function(e){
+        e.stopEvent();
+        Ext.get(document.documentElement).un("click", this.stopClick, this);
+    },
     onMouseUp : function(e){
+        e.stopEvent();
         var sf = this; 
         Ext.get(document.documentElement).un("mousemove", sf.onMouseMove, sf);
         Ext.get(document.documentElement).un("mouseup", sf.onMouseUp, sf);
