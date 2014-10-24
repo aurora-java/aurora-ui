@@ -366,13 +366,15 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     z-index:21;
 }
 
-.fieldbox_head,.fieldbox_column_head {
+.fieldbox_head,.fieldbox_column_head div {
     border-left:1px solid #ffffff;
     border-bottom:1px solid #bbbbbb;
     height:25px;
-    COLOR: #055a78; 
     background:url(../toolbar/toolbar_bg.gif) repeat-x;
     padding-left:5px;
+}
+.fieldbox_column_head div {
+    margin-right:15px;
 }
 
 .fieldbox_layout-title {
