@@ -365,17 +365,17 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     z-index:21;
 }
 
-.fieldbox_head,.fieldbox_column_head {
+.fieldbox_head,.fieldbox_column_head div{
     border-left:1px solid #ffffff;
     border-bottom:1px solid #bbbbbb;
     height:23px;
-    COLOR: #20A8F7; 
     padding-left:5px;
     font-size:13px;
 }
-.fieldbox_column_head {
+.fieldbox_column_head div{
     height:21px;
     font-size:11px;
+    margin-right:15px;
 }
 .grid-editor {
     -webkit-border-radius:0px;
