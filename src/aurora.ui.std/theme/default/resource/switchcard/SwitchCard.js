@@ -89,27 +89,28 @@ A.SwitchCard = Ext.extend(A.Component,{
 	},
 	showByValue : function(value){
 		var sf = this,wrap = sf.wrap;
-		wrap.select(SELECTOR+'[case='+value+']')
-			.each(sf.load,sf);
 		wrap.select(SELECTOR+'[case!='+value+']').each(function(body){
 			if(!body.isStyle('display','none')){
 				body.setStyle({display:'none'});
 				sf.fireEvent('cardhide',sf,Ext.get(body.dom).cmps);
 			}
 		},sf);
+		wrap.select(SELECTOR+'[case='+value+']')
+			.each(sf.load,sf);
 	},
 	bind : function(ds,name){
 		if(Ext.isString(ds)){
 			ds = $(ds);
 			if(!ds)return;
 		}
-		var sf = this;
+		var sf = this,
+			r = ds.getCurrentRecord();
 		sf.binder = {
 			ds : ds,
 			name:name
 		}
 		sf.processDatasetListener('on');
-		sf.showByValue(ds.getCurrentRecord().get(name));
+		r && sf.showByValue(r.get(name));
 	},
 	showLoading : function(dom){
     	dom.update(_lang['switchcard.loading'])
