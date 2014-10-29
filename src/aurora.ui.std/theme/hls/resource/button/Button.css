@@ -211,6 +211,9 @@ button div {
 .item-rbtn-gray .tl,.item-rbtn-gray .tm , .item-rbtn-gray .tr{
     background-image:url(../button/rgytn.png);
 }
+.item-rbtn-gray div{
+    color:#4f5459;
+}
 .item-rbtn .tl {
     background-position: 0px 0px;
     background-repeat:no-repeate;
@@ -237,7 +240,7 @@ button div {
     background-position: 0px -50px;
 }
 .item-btn-pressed .tm {
-    background-position: 0px -123px;
+    background-position: 0px -125px;
 }
 .item-btn-pressed .tr {
     background-position: -11px -50px;
