@@ -25,6 +25,8 @@
 	line-height:23px;
 	white-space: nowrap;
 	cursor:text;
+	text-overflow: ellipsis;
+	overflow:hidden;
 }
 .gridbox-row-end>th,.gridbox-row-end>td{
 	border-bottom:1px solid #ccc;
