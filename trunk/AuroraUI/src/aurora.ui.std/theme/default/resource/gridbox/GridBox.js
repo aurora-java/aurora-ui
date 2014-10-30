@@ -40,11 +40,19 @@ A.GridBox = Ext.extend(A.Component,{
 			tbody = sf.tbody = isfield?wrap.parent('tbody'):wrap.child('tbody'),
 			tr = sf.tr = isfield?wrap.parent('tr').addClass('gridbox-row-end'):tbody.first(),
 			btn = sf.btn = wrap.child('.gridbox-button'),
-			count=0,column = sf.column,rows;
+			count=0,column = sf.column,rows=1;
 		EACH(sf.columns,function(col){
-			count+=Number(col.colspan)||1;
+			var colspan = Number(col.colspan)||1;
+			if(colspan > 1 && count < column && count+colspan > column){
+				col.colspan = colspan = column - count;
+			}
+			count+=colspan;
+			if(count>column){
+				rows++;
+				count = Number(col.colspan)||1;
+			}
 		});
-		sf.rows = Math.ceil(count/column);
+		sf.rows = rows;
 		btn.dom.tabIndex = sf.tabindex;
 		btn.setStyle({outline:'none'});
 		sf.rowposition = tbody.query('tr').indexOf(tr.dom);
@@ -70,7 +78,7 @@ A.GridBox = Ext.extend(A.Component,{
             ds[ou]('clear', sf.onLoad, sf);
             ds[ou]('refresh',sf.onLoad,sf);
 //            ds[ou]('fieldchange', sf.onFieldChange, sf);
-//            ds[ou]('indexchange', sf.onIndexChange, sf);
+            ds[ou]('indexchange', sf.onIndexChange, sf);
 //            ds[ou]('select', sf.onSelect, sf);
 //            ds[ou]('unselect', sf.onUnSelect, sf);
 //            ds[ou]('selectall', sf.onSelectAll, sf);
@@ -173,6 +181,19 @@ A.GridBox = Ext.extend(A.Component,{
                 }
             }
         }
+    },
+    getDataIndex : function(rid){
+        for(var i=0,data = this.dataset.data,l=data.length;i<l;i++){
+            if(data[i].id == rid){
+                return i;
+            }
+        }
+        return -1;
+    },
+    onIndexChange:function(ds, r){
+        var index = this.getDataIndex(r.id);
+        if(index == -1)return;
+        this.selectRow(index, FALSE);
     },
     onAdd : function(ds,record,index){
     	var sf = this;
