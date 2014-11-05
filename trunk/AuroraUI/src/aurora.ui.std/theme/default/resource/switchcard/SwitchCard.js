@@ -1,5 +1,11 @@
 (function(A){
-var SELECTOR = '.switchcard-body';
+var SELECTOR = '.switchcard-body',
+	_N = '',
+	NONE = 'none',
+	URL = 'url',
+	DISPLAY = 'display',
+	EVT_CARDHIDE = 'cardhide',
+	EVT_CARDSHOW = 'cardshow';
 A.SwitchCard = Ext.extend(A.Component,{
 	initComponent:function(config){
 		var sf = this;
@@ -24,14 +30,14 @@ A.SwitchCard = Ext.extend(A.Component,{
          * @param {SwitchCard} this 当前组件.
          * @param {Array} cmps 组件集合对象.
          */
-    	'cardhide',
+    	EVT_CARDHIDE,
     	/**
          * @event cardshow
          * 卡片显示事件.
          * @param {SwitchCard} this 当前组件.
          * @param {Array} cmps 组件集合对象.
          */
-    	'cardshow');
+    	EVT_CARDSHOW);
     	this.processListener('on');
     },
 	onUpdate : function(ds,record,name,v){
@@ -50,9 +56,10 @@ A.SwitchCard = Ext.extend(A.Component,{
 		sf.wrap.select(SELECTOR).each(function(body,all,index){
 			var ishide = indexs.indexOf(index)==-1;
 			if(ishide){
-				if(!body.isStyle('display','none')){
-					body.setStyle({display:'none'});
-					sf.fireEvent('cardhide',sf,Ext.get(body.dom).cmps);
+				if(!body.isStyle(DISPLAY,NONE)){
+					body.setStyle({display:NONE});
+					var card = Ext.get(body.dom);
+					sf.fireEvent(EVT_CARDHIDE,sf,card.cmps,card);
 				}
 			}else{
 				sf.load(body);
@@ -62,23 +69,23 @@ A.SwitchCard = Ext.extend(A.Component,{
 	load : function(body){
 		body = Ext.get(body.dom);
 		var sf = this,
-			url = body.getAttributeNS('','url');
+			url = body.getAttributeNS(_N,URL);
 		if(Ext.isEmpty(url)){
-			if(body.isStyle('display','none')){
-				body.setStyle({display:''});
-				sf.fireEvent('cardshow',sf,body.cmps);
+			if(body.isStyle(DISPLAY,NONE)){
+				body.setStyle({display:_N});
+				sf.fireEvent(EVT_CARDSHOW,sf,body.cmps,body);
 			}
 		}else{
-			body.setStyle({display:''});
+			body.setStyle({display:_N});
 			body.cmps={};
 			sf.showLoading(body);
 			Ext.Ajax.request({
-				url: Ext.urlAppend(body.getAttributeNS('','url'),'_vw='+A.getViewportWidth()+'&_vh='+A.getViewportHeight()),
+				url: Ext.urlAppend(body.getAttributeNS(_N,URL),'_vw='+A.getViewportWidth()+'&_vh='+A.getViewportHeight()),
 			   	success: function(response, options){
 			    	sf.clearLoading(body);
-		    		body.set({'url':''});
+		    		body.set({url:_N});
 			    	body.update(response.responseText,true,function(){
-			    		sf.fireEvent('cardshow',sf,body.cmps);
+			    		sf.fireEvent(EVT_CARDSHOW,sf,body.cmps,body);
 			    	},body);
 			    },
 			    failure : function(response){
@@ -90,9 +97,10 @@ A.SwitchCard = Ext.extend(A.Component,{
 	showByValue : function(value){
 		var sf = this,wrap = sf.wrap;
 		wrap.select(SELECTOR+'[case!='+value+']').each(function(body){
-			if(!body.isStyle('display','none')){
-				body.setStyle({display:'none'});
-				sf.fireEvent('cardhide',sf,Ext.get(body.dom).cmps);
+			if(!body.isStyle(DISPLAY,NONE)){
+				body.setStyle({display:NONE});
+				var card = Ext.get(body.dom);
+				sf.fireEvent(EVT_CARDHIDE,sf,card.cmps,card);
 			}
 		},sf);
 		wrap.select(SELECTOR+'[case='+value+']')
@@ -110,19 +118,19 @@ A.SwitchCard = Ext.extend(A.Component,{
 			name:name
 		}
 		sf.processDatasetListener('on');
-		r && sf.showByValue(r.get(name));
+		sf.showByValue(r ? r.get(name):null);
 	},
 	showLoading : function(dom){
     	dom.update(_lang['switchcard.loading'])
 			.setStyle({'text-align':'center','line-height':5});
     },
     clearLoading : function(dom){
-    	dom.update('')
-    		.setStyle({'text-align':'','line-height':''});
+    	dom.update(_N)
+    		.setStyle({'text-align':_N,'line-height':_N});
     },
 	destroy : function(){
 		var sf = this,wrap = sf.wrap;
-		Ext.each(wrap.query('.switchcard-body'),function(body){
+		Ext.each(wrap.query(SELECTOR),function(body){
 			Ext.iterate(Ext.get(body).cmps,function(key,cmp){
 				try{
     				cmp.destroy && cmp.destroy();

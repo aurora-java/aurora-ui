@@ -236,10 +236,7 @@ A.GridBox = Ext.extend(A.Component,{
 		var sf = this,
 			ds = sf.dataset;
 		sf.clear();
-		if(!ds.getAll().length)
-			ds.create();
-		else
-			sf.render();
+		sf.render();
 	},
 	clear : function(){
 		this.tr.parent().select('[_id='+this.id+']').remove();
