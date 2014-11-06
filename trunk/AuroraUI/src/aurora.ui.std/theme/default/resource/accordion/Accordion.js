@@ -14,9 +14,9 @@ var PERCENT100 = '100%',
  * @param {Object} config 配置对象. 
  */
 A.Accordion = Ext.extend(A.Component,{
-	constructor: function(config){
-		A.Accordion.superclass.constructor.call(this,config);
-	},
+//	constructor: function(config){
+//		A.Accordion.superclass.constructor.call(this,config);
+//	},
 	initComponent:function(config){
 		A.Accordion.superclass.initComponent.call(this, config);
 		var sf = this,wrap = sf.wrap;
@@ -172,8 +172,8 @@ A.Accordion = Ext.extend(A.Component,{
     	});
     },
     destroy : function(){
-    	Ext.each(this.bodys,function(body){
-    		Ext.iterate(Ext.get(body).cmps,function(key,cmp){
+    	this.bodys.each(function(body){
+    		Ext.iterate(Ext.get(body.dom).cmps,function(key,cmp){
     			try{
     				cmp.destroy && cmp.destroy();
     			}catch(e){
