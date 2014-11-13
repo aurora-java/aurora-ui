@@ -377,6 +377,8 @@ A.GridBox = Ext.extend(A.Component,{
 	        }else if(xname && Ext.isDefined(record.getField(xname).get(CHECKED_VALUE))){
 	    		xtype = CELL_CHECK;
 	    		readonly=TRUE;
+	        }else{
+	        	cls = 'item-tf item-wrap item-readOnly'
 	        }
 	//		if(xtype == ROW_CHECK||xtype == 'rowradio'){
 	//			readonly = sf.dataset.execSelectFunction(record)?_N:READONLY;
@@ -485,14 +487,14 @@ A.GridBox = Ext.extend(A.Component,{
         var sf = this,col = sf.findColByName(name),
         	div = Ext.get([sf.id,name,sf.selectedId].join(_));
         col.editor = editor;
-        if(div){
+        /*if(div){
         	//sf.focusdiv = div;
         	if(editor == _N){
             	div.addClass('item-readOnly')
             }else if(!$(editor) instanceof A.CheckBox){
             	div.removeClass('item-readOnly')
             }
-        }
+        }*/
     },
     getEditor : function(col,record){
         var ed = col.editor||_N;
