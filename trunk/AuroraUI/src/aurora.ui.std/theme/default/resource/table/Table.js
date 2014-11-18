@@ -15,6 +15,7 @@ var	DOC_EL = document.documentElement,
 	C = '-c',
 	U = '-u',
 	TD = 'td',
+	TR = 'tr',
     NONE = 'none',
 	LEFT = 'left',
 	DISPLAY = 'display',
@@ -69,8 +70,147 @@ var	DOC_EL = document.documentElement,
     EVT_RESIZE = 'resize',
     NOT_FOUND = '未找到',
     METHOD = '方法!',
+    SELECT_TR_CLASS='tr[class!=grid-hl]',
     SELECT_DIV_ATYPE = 'div[atype=table.headcheck]',
-    SELECT_TD_DATAINDEX = 'td[dataindex=';
+    SELECT_TD_DATAINDEX = 'td[dataindex=',
+    sortByGroup = function(datas,colnames,value,_colname){
+    	if(colnames.length){
+	    	var ret = [],
+	    		groups = [],
+	    		colname = colnames.shift();
+	    	if(Ext.isDefined(value)){
+	    		ret.value = value;
+	    		ret.colname = _colname;
+	    	}
+	    	EACH(datas,function(r){
+				var v = r.get(colname);
+//				if(IS_EMPTY(v)){
+//					groups.push(r);
+//				}else{
+					var	g = findGroup(groups,v);
+					if(!g){
+						groups.push(g=[]);
+						if(IS_EMPTY(v)){
+							g.value = namedEmptyGroup(r,colname);
+						}else{
+							g.value = v;
+						}
+						g.colname = colname;
+					}
+					g.push(r);
+//				}
+			});
+			EACH(groups,function(group,index){
+				ret.push(sortByGroup(group,[].concat(colnames),group.value,group.colname));
+			});
+			return ret;
+    	}else{
+    		return datas;
+    	}
+    },
+    concatGroups = function(groups){
+    	var ret = [];
+    	EACH(groups,function(group){
+    		if(Ext.isArray(group)){
+    			ret = ret.concat(concatGroups(group));
+    		}else{
+    			ret.push(group);
+    		}
+    	});
+    	return ret;
+    },
+    findGroup = function(groups,value){
+    	var group = null;
+    	EACH(groups,function(g){
+    		if(g.value == value){
+    			group = g;
+    			return FALSE;
+    		}
+    	});
+    	return group;
+    },
+    searchGroup = function(groups,value){
+    	var group = null;
+    	EACH(groups,function(g){
+    		if(g.value == value||g.value && (g = searchGroup(g,value))){
+    			group = g;
+    			return FALSE;
+    		}
+    	});
+    	return group;
+    },
+    searchRootGroupByRecord = function(groups,record){
+		var group = null;
+    	EACH(groups,function(g){
+    		if(g.value?searchRootGroupByRecord(g,record):g === record){
+    			group = g;
+    			return FALSE;
+    		}
+    	});
+    	return group;
+    },
+    removeFromGroup = function(groups,record,owner){
+    	EACH(groups,function(g){
+    		if(Ext.isArray(g)){
+    			removeFromGroup(g,record,groups)
+    		}else{
+    			groups.remove(record);
+    			return FALSE;
+    		}
+    	});
+    	if(groups && !groups.length && owner){
+			owner.remove(groups);
+		}
+    },
+    addIntoGroup = function(){
+    	function _find(groups,record,_colnames){
+    		var find = FALSE,
+    		name = _colnames.shift(),
+    		value;
+    		if(!name){
+	    		return record;
+	    	}
+    		value = record.get(name);
+    		if(IS_EMPTY(value)){
+    			value = namedEmptyGroup(record,name);
+    		}else{
+	    		EACH(groups,function(g){
+		    		if(Ext.isArray(g)){
+		    			if(value == g.value){
+			    			find = g;
+			    			return FALSE;
+			    		}
+		    		}
+		    	});
+    		}
+	    	if(!find && name){
+	    		find = [];
+	    		find.colname = name;
+	    		find.value = value;
+	    	}
+			find.add(_find(find,record,_colnames));	    	
+	    	return find;
+    	}
+	    return function(groups,record,cols){
+	    	var _colnames=[];
+	    	Ext.each(cols,function(c){
+	    		if(c.group){
+	    			_colnames.push(c.name);
+	    		}
+	    	});
+	    	groups.add(_find(groups,record,_colnames));
+	    	EACH(concatGroups(searchRootGroupByRecord(groups,record)),function(r){
+	    		if(r!==record){
+	    			var ds = r.ds;
+	    			ds[r.isSelected?'select':'unSelect'](record);
+	    			return FALSE;
+	    		}
+	    	});
+	    }
+    }(),
+    namedEmptyGroup = function(r,colname){
+    	return '____empty__group__'+r.id+'__'+colname+'___';
+    };
 	
 /**
  * @class Aurora.Table
@@ -194,25 +334,47 @@ A.Table = Ext.extend(A.Component,{
         this.cellTpl = new Ext.Template(['<div style="width:{width}" class="',TABLE_CELL,' {cellcls}" id="',this.id,'_{name}_{',RECORD_ID,'}">{text}</div>']);        
     	this.cbTpl = new Ext.Template(['<center><div class="{cellcls}" id="',this.id,'_{name}_{',RECORD_ID,'}"></div></center>']);
     },
-	createRow:function(record,index,isInsert){
-		var sf = this,
-			tr=sf.tbody.dom.insertRow(index),
-			css=sf.parseCss(sf.renderRow(record,index));
-		tr.id=sf.id+___+record.id;
-		tr.style.cssText=css.style;
-		tr.className=(index%2==1?ROW_ALT+_S:_N)+css.cls;
-		EACH(sf.columns,function(c){
-			sf.createCell(tr,c,record);
-		});
-		if(isInsert){
-			var trs = sf.wrap.query('tbody tr');
-	        	for(var i=index+1,l = trs.length;i<l;i++){
-					Ext.fly(trs[i]).toggleClass(ROW_ALT)
-						.select($TABLE_ROWBOX).each(function(td){
-							sf.setSelectStatus(sf.dataset.findById(td.getAttributeNS(_N,RECORD_ID)));
-						});
-	        	}
-		}
+	createRow:function(record,index,isInsert,rowspans,first){
+		var sf = this;
+		if(Ext.isArray(record)){
+    		EACH(record,function(d,i,colname){
+    			if(colname = d.colname){
+    				rowspans = rowspans||{};
+    				rowspans[colname] = concatGroups(d).length;
+					rowspans[colname+'_count'] = TRUE;
+    			}
+    			return sf.createRow(d,index,isInsert,rowspans,!i);
+    		});
+    	}else{
+			var	tr=sf.tbody.dom.insertRow(-1),rowSpan = NULL,found = FALSE,
+				css=sf.parseCss(sf.renderRow(record,index));
+			tr.id=sf.id+___+record.id;
+			tr.style.cssText=css.style;
+			Ext.fly(tr).addClass((index%2==1?ROW_ALT+_S:_N)+css.cls)
+				.set({_row:record.id});
+			EACH(sf.columns,function(col){
+				if(col.hidden && col.visiable == FALSE) return;
+				var colname,xtype = col.type;
+				if(xtype == ROW_CHECK||xtype == 'rowradio'){
+					colname = '__rowbox__';
+				}else
+					colname = col.name;
+				rowSpan = rowspans && rowspans[colname];
+	            
+	            if(!rowSpan||rowspans[colname+'_count'])
+					sf.createCell(tr,col,record,rowSpan);
+        		if(rowspans && rowspans[colname+'_count'])rowspans[colname+'_count']=FALSE;
+			});
+			if(isInsert){
+				var trs = sf.wrap.query('tbody tr');
+		        	for(var i=index+1,l = trs.length;i<l;i++){
+						Ext.fly(trs[i]).toggleClass(ROW_ALT)
+							.select($TABLE_ROWBOX).each(function(td){
+								sf.setSelectStatus(sf.dataset.findById(td.getAttributeNS(_N,RECORD_ID)));
+							});
+		        	}
+			}
+    	}
 	},
 	createEmptyRow:function(){
 		var sf = this;
@@ -237,7 +399,7 @@ A.Table = Ext.extend(A.Component,{
         	value = record.data[name];
         return ITEM_CKB+(readonly?READONLY:_N)+((value && value == cv) ? C : U);
     },
-	createCell:function(tr,col,record){
+	createCell:function(tr,col,record,rowspan){
 		var sf = this,
 			editor = sf.getEditor(col,record),
 			xtype = col.type,
@@ -274,13 +436,14 @@ A.Table = Ext.extend(A.Component,{
 				td.innerHTML=sf.cellTpl.applyTemplate({text:sf.renderText(record,col,record.data[xname]),cellcls:cls,name:xname,recordid:record.id,width:col.width+'px'});
 			}
 		}
+		if(rowspan)td.rowSpan = rowspan;
 	},
     onSelect : function(ds,record,isSelectAll){
         if(!record||isSelectAll)return;
         var sf = this,
         	cb = Ext.get(sf.id+__+record.id);
-        cb.parent($TABLE_ROWBOX).addClass(ITEM_CKB_SELF);
         if(cb){
+	        cb.parent($TABLE_ROWBOX).addClass(ITEM_CKB_SELF);
 	        if(sf.selectionmodel==MULTIPLE) {
 	            sf.setCheckBoxStatus(cb, TRUE);
 	        }else{
@@ -289,13 +452,18 @@ A.Table = Ext.extend(A.Component,{
 	        }
             sf.setSelectStatus(record);
         }
+        EACH(!isSelectAll && concatGroups(searchRootGroupByRecord(sf.groups,record)),function(r){
+        	if(r!==record){
+    			ds.select(r);
+    		}
+        });
     },
     onUnSelect : function(ds,record,isSelectAll){
         if(!record||isSelectAll)return;
         var sf = this,
         	cb = Ext.get(sf.id+__+record.id);
-        cb.parent($TABLE_ROWBOX).addClass(ITEM_CKB_SELF);
         if(cb){
+	        cb.parent($TABLE_ROWBOX).addClass(ITEM_CKB_SELF);
 	        if(sf.selectionmodel==MULTIPLE) {
 	            sf.setCheckBoxStatus(cb, FALSE);
 	        }else{
@@ -303,6 +471,12 @@ A.Table = Ext.extend(A.Component,{
 	        }
             sf.setSelectStatus(record);
         }
+        
+        EACH(!isSelectAll && concatGroups(searchRootGroupByRecord(sf.groups,record)),function(r){
+        	if(r!==record){
+    			ds.unSelect(r);
+    		}
+        });
     },
     onSelectAll : function(){
     	var sf = this;
@@ -690,10 +864,11 @@ A.Table = Ext.extend(A.Component,{
     selectRow : function(row, locate){
         var sf = this,
         	ds = sf.dataset,record = ds.getAt(row),
-        	r = (ds.currentPage-1)*ds.pagesize + row+1;
+        	r = (ds.currentPage-1)*ds.pagesize + row+1,
+            records = concatGroups(searchRootGroupByRecord(sf.groups,record));
         sf.selectedId = record.id;
         if(sf.selectTr)sf.selectTr.removeClass(ROW_SELECT);
-        sf.selectTr = Ext.get(sf.id+___+record.id);
+        sf.selectTr = sf.tbody.select(records.map(function(r){return '#'+sf.id+___+r.id}).join(','))//Ext.get(sf.id+___+record.id);
         if(sf.selectTr)sf.selectTr.addClass(ROW_SELECT);
         //sf.focusRow(row);
         if(locate!==FALSE && r != NULL) {
@@ -786,9 +961,8 @@ A.Table = Ext.extend(A.Component,{
                 return value;
             }
             value = rder.call(window,value,record, col.name);
-            return value == NULL ? _N : value;
         }
-        return value == NULL ? _N : value;
+        return IS_EMPTY(value)? '&#160;' : value;
     },
     renderRow : function(record,rowIndex){
     	var renderer = this.rowrenderer,css=NULL;
@@ -841,34 +1015,39 @@ A.Table = Ext.extend(A.Component,{
     onCellClick : function(grid,row,name,record,callback){
     	this.showEditor(row,name,callback);
     },
-    onUpdate : function(ds,record, name, value){
-        this.setSelectStatus(record);
+    onUpdate : function(ds,record, name, value , oldvalue){
     	var sf = this,
-    		div=Ext.get([sf.id,name,record.id].join(_));
-        if(div){
-            var c = sf.findColByName(name),
-            	editor = sf.getEditor(c,record);            
-            if(editor!=_N && ($(editor) instanceof A.CheckBox)){
-            	sf.renderEditor(div,record,c,editor);
-            }else{
-            	//考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
-                div.update(sf.renderText(record,c, value));
-            }
+    		c = sf.findColByName(name),
+        	div,ediv;
+    	if(c && c.group){
+        	record.data[name] = oldvalue;
+        	var index = sf.tbody.query(SELECT_TR_CLASS).indexOf(sf.tbody.child('tr[_row='+record.id+']').dom);
+        	sf.onRemove(ds,record);
+        	record.data[name] = value;
+        	sf.onAdd(ds,record,index,FALSE);
+        	!IS_EMPTY(oldvalue) && EACH(concatGroups(searchGroup(sf.groups,oldvalue)),function(r){
+        		if(r!==record){
+        			r.set(name,value);
+        		}
+        	});
+        	sf.selectRow(sf.dataset.indexOf(record));
         }
-        EACH(sf.columns,function(c){
-        	if(c.name != name) {
-            	var ediv = Ext.get([sf.id,c.name,record.id].join(_));
-            	if(ediv) {
-            		if(c.editorfunction){
-                        sf.renderEditor(ediv,record, c, sf.getEditor(c,record));
-            		}
-                    if(c.renderer){
-                        ediv.update(sf.renderText(record,c, record.get(c.name)));
-                    }
-                }
-                
-            }
+        function _update(c,name,div,v){
+        	if(div){
+	        	var editor = sf.getEditor(c,record);            
+	            if(editor!=_N ? ($(editor) instanceof A.CheckBox):(name && !IS_EMPTY(record.getField(name).get(CHECKED_VALUE)))){
+	                sf.renderEditor(div,record,c,editor);
+	            }else{
+	                //考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
+	            	div.update(sf.renderText(record,c, v));
+	            }
+        	}
+        }
+        _update(c,name,Ext.get([sf.id,name,record.id].join(_)),value);
+        EACH(sf.columns,function(c,_name){
+        	(_name = c.name) != name && _update(c,_name,Ext.get([sf.id,_name,record.id].join(_)),record.get(_name));
         });
+        sf.setSelectStatus(record);
         sf.drawFootBar(name);
     },
     onLoad:function(){
@@ -877,16 +1056,43 @@ A.Table = Ext.extend(A.Component,{
     		data = sf.dataset.data,
         	cb = wrap.removeClass(TABLE_SELECT_ALL).child(SELECT_DIV_ATYPE);
     	sf.clearBody();
+        sf.processGroups();
         if(cb && sf.selectable && sf.selectionmodel==MULTIPLE)sf.setCheckBoxStatus(cb,FALSE);
     	var l=data.length;
     	if(l==0)sf.createEmptyRow();
-		else for(var i=0;i<l;i++){
-            sf.createRow(data[i],i);
-        }
+		else sf.renderArea();
         sf.drawFootBar();
         A.Masker.unmask(wrap);
         sf.fireEvent(EVT_RENDER,sf)
 	},
+    processGroups : function(){
+    	var sf = this,
+    		ds = sf.dataset,
+    		colnames=[];
+		sf.groups = [].concat(ds.getAll());
+    	Ext.each(sf.columns,function(col){
+			col.group && colnames.push(col.name);
+		});
+		if(colnames.length){
+			//ds.data = 
+				concatGroups(sf.groups = sortByGroup(sf.groups,colnames));
+		}
+    },
+    renderArea : function(){
+    	var sf = this;
+    	EACH(sf.groups,function(d,i){
+        	var rowspans;
+        	if(d.colname){
+				rowspans = {};
+				rowspans['__rowbox__'] = rowspans[d.colname] = concatGroups(d).length;
+				rowspans['__rowbox___count'] = rowspans[d.colname+'_count'] = TRUE;
+			}
+            sf.createRow(d, i, false,rowspans,!i);
+        },sf);
+//		for(var i=0;i<l;i++){
+//            sf.createRow(data[i],i);
+//        }
+    },
 	onValid : function(ds, record, name, valid){
         var c = this.findColByName(name);
         if(c){
@@ -900,16 +1106,98 @@ A.Table = Ext.extend(A.Component,{
             }
         }
     },
-    onAdd : function(ds,record,index){
-    	var sf = this,ds = sf.dataset;
+    onAdd : function(ds,record,row){
+    	var sf = this,
+    		__row = row,
+        	columns = sf.columns,
+            css = sf.parseCss(sf.renderRow(record,row)),
+            cls = (row % 2==0 ? _N : ROW_ALT+_S)+css.cls;
+    	addIntoGroup(sf.groups,record,columns);
     	sf.removeEmptyRow();
-        sf.createRow(record,index,index !== ds.data.length-1);
+    	var utr = Ext.get(document.createElement(TR)),
+    		tbody = sf.tbody;
+        utr.set({
+        	id:sf.id+___+record.id,
+        	style:css.style,
+        	_row:record.id
+    	});
+        EACH(columns,function(col){
+            if(col.hidden && col.visiable == FALSE) return TRUE;
+            var colname = col.name,
+            	find = FALSE;
+            if(col.group){
+            	var allRow = 0;
+            	tbody.select(SELECT_TD_DATAINDEX+colname+_K).each(function(td,tds){
+            		var _r = sf.dataset.findById(td.parent(TR).getAttributeNS(_N,'_row')),
+            			value = record.get(colname);
+        			if(_r && !IS_EMPTY(value) && _r.get(colname) == value){
+        				var groups = searchGroup(sf.groups,value),
+        					rowspan = concatGroups(groups).length;
+        				allRow+=rowspan;
+        				td.dom.rowSpan = rowspan;//Fixed for IE7
+        				find = TRUE;
+        				row = allRow-1;
+        				cls = td.parent(TR).hasClass(ROW_ALT)?ROW_ALT:_N;
+        				if(sf.groups.indexOf(groups)!=-1 && columns[0].type){
+        					tbody.query('td[recordid='+_r.id+']:first')[0].rowSpan = rowspan;
+        					if(record!==_r){
+        						utr.select('td[recordid='+record.id+']:first').remove();
+        					}
+        				}
+        				return FALSE;
+        			}else{
+        				allRow+=td.dom.rowSpan;
+        			}
+            	});
+            	if(!find){
+            		row = __row;
+            	}
+            }
+            if(find) return;
+            sf.createCell(utr.dom,col,record);
+        })
+        utr.addClass(cls);
+        if(row === ds.data.length-1){
+            tbody.appendChild(utr);
+        }else{
+        	var filter = function(el,i){
+	            	if(i<row)return FALSE;
+	            },
+                trs = tbody.select(SELECT_TR_CLASS).filter(filter),
+            	tr = trs.item(0),
+            	needToggleClass = (tr && cls == (tr.hasClass(ROW_ALT)?ROW_ALT:_N)),
+            	root = searchRootGroupByRecord(record);
+        	utr.insertBefore(tr);
+            needToggleClass && setTimeout(function(){
+            	filter = function(tr){
+                	if(searchRootGroupByRecord(ds.findById(tr.getAttributeNS(_N,'_row'))) === root)
+                		return FALSE;
+                };
+            	trs.filter(filter).toggleClass(ROW_ALT);
+            },1);//Fixed for IE9
+        }
+        //sf.createRow(record,index,index !== ds.data.length-1);
         sf.selectRow(ds.indexOf(record));
         sf.setSelectStatus(record);
     },
     onRemove : function(ds,record,index){
         var sf = this,row = Ext.get(sf.id+___+record.id);
         if(row)row.remove();
+        removeFromGroup(sf.groups,record);
+        EACH(sf.columns,function(col){
+        	var colname = col.name;
+            if(col.group){
+            	sf.tbody.select(SELECT_TD_DATAINDEX+colname+_K).each(function(td){
+            		var _r = sf.dataset.findById(td.parent(TR).getAttributeNS(_N,'_row')),
+            			rowspan;
+        			if(_r && _r.get(colname) == record.get(colname)){
+        				if((rowspan = td.getAttribute('rowspan')) && (rowspan-= 1)>1)
+        					td.dom.rowSpan = rowspan;
+        				return FALSE;
+        			}
+            	});
+            }
+        });
         sf.selectTr=NULL;
         A.Masker.unmask(sf.wrap);
         sf.drawFootBar();
