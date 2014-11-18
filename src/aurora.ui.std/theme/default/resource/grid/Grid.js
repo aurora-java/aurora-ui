@@ -639,7 +639,7 @@ A.Grid = Ext.extend(A.Component,{
 	            css=sf.parseCss(sf.renderRow(item,row));
             sf.fireEvent(EVT_CREATE_ROW, sf, row, item, obj, cols);
 	        if(obj.height) css.style = (css.style||'') + ';height:'+obj.height + 'px;';
-	        var sb = ['<tr id="',sf.id,type,item.id,'"  _row="'+item.id+'" class="',(row % 2==0 ? _N : ROW_ALT),css.cls,'"','style="',css.style,'" height="25">'];
+	        var sb = ['<tr id="',sf.id,type,item.id,'"  _row="'+item.id+'" class="',(row % 2==0 ? _N : ROW_ALT),_S,css.cls,'"','style="',css.style,'" height="25">'];
 			EACH(cols,function(col){
 				if(col.hidden && col.visiable == FALSE) return;
 				var colname;
@@ -693,7 +693,6 @@ A.Grid = Ext.extend(A.Component,{
                 return value;
             }
             value = rder(value,record, col.name);
-            return value == NULL ? _N : value;
         }
         return value == NULL ? _N : value;
     },
@@ -947,9 +946,12 @@ A.Grid = Ext.extend(A.Component,{
 //        var v = 0;
         var __row = row,
         	sf = this,columns = sf.columns,
+        	groups = sf.groups,
+        	glength = groups.length,
+        	dlength = ds.data.length,
             css = sf.parseCss(sf.renderRow(record,row)),
-            cls = (row % 2==0 ? _N : ROW_ALT+_S)+css.cls;
-    	addIntoGroup(sf.groups,record,columns);
+            cls = ((glength == dlength?row:glength) % 2==0 ? _N : ROW_ALT);
+    	addIntoGroup(groups,record,columns);
         if(sf.lbt){
             var ltr = Ext.get(DOC.createElement(TR)),
                 ltb = sf.lbt.child('tbody:first');
@@ -979,14 +981,14 @@ A.Grid = Ext.extend(A.Component,{
             		var _r = sf.dataset.findById(td.parent(TR).getAttributeNS(_N,'_row')),
             			value = record.get(colname);
         			if(_r && !IS_EMPTY(value) && _r.get(colname) == value){
-        				var groups = searchGroup(sf.groups,value),
-        					rowspan = concatGroups(groups).length;
+        				var _groups = searchGroup(groups,value),
+        					rowspan = concatGroups(_groups).length;
         				allRow+=rowspan;
         				td.dom.rowSpan = rowspan;//Fixed for IE7
         				find = TRUE;
         				row = allRow-1;
         				cls = td.parent(TR).hasClass(ROW_ALT)?ROW_ALT:_N;
-        				if(sf.groups.indexOf(groups)!=-1 && columns[0].type){
+        				if(groups.indexOf(_groups)!=-1 && columns[0].type){
         					sf.lbt.query('td[recordid='+_r.id+']:first')[0].rowSpan = rowspan;
         					if(record!==_r){
         						ltr.select('td[recordid='+record.id+']:first').remove();
@@ -1028,9 +1030,9 @@ A.Grid = Ext.extend(A.Component,{
                 utr.appendChild(td);
             }
         })
-        ltr && ltr.addClass(cls);
-        utr.addClass(cls);
-        if(row === ds.data.length-1){
+        ltr && ltr.addClass(cls+_S+css.cls);
+        utr.addClass(cls+_S+css.cls);
+        if(row === dlength-1){
         	ltb && ltb.appendChild(ltr);
             utb.appendChild(utr);
         }else{
