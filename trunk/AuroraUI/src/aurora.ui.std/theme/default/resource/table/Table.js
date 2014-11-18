@@ -1110,9 +1110,12 @@ A.Table = Ext.extend(A.Component,{
     	var sf = this,
     		__row = row,
         	columns = sf.columns,
+            groups = sf.groups,
+        	glength = groups.length,
+        	dlength = ds.data.length,
             css = sf.parseCss(sf.renderRow(record,row)),
-            cls = (row % 2==0 ? _N : ROW_ALT+_S)+css.cls;
-    	addIntoGroup(sf.groups,record,columns);
+            cls = ((glength == dlength?row:glength) % 2==0 ? _N : ROW_ALT);
+    	addIntoGroup(groups,record,columns);
     	sf.removeEmptyRow();
     	var utr = Ext.get(document.createElement(TR)),
     		tbody = sf.tbody;
@@ -1131,14 +1134,14 @@ A.Table = Ext.extend(A.Component,{
             		var _r = sf.dataset.findById(td.parent(TR).getAttributeNS(_N,'_row')),
             			value = record.get(colname);
         			if(_r && !IS_EMPTY(value) && _r.get(colname) == value){
-        				var groups = searchGroup(sf.groups,value),
-        					rowspan = concatGroups(groups).length;
+        				var _groups = searchGroup(groups,value),
+        					rowspan = concatGroups(_groups).length;
         				allRow+=rowspan;
         				td.dom.rowSpan = rowspan;//Fixed for IE7
         				find = TRUE;
         				row = allRow-1;
         				cls = td.parent(TR).hasClass(ROW_ALT)?ROW_ALT:_N;
-        				if(sf.groups.indexOf(groups)!=-1 && columns[0].type){
+        				if(groups.indexOf(_groups)!=-1 && columns[0].type){
         					tbody.query('td[recordid='+_r.id+']:first')[0].rowSpan = rowspan;
         					if(record!==_r){
         						utr.select('td[recordid='+record.id+']:first').remove();
@@ -1156,8 +1159,8 @@ A.Table = Ext.extend(A.Component,{
             if(find) return;
             sf.createCell(utr.dom,col,record);
         })
-        utr.addClass(cls);
-        if(row === ds.data.length-1){
+        utr.addClass(cls+_S+css.cls);
+        if(row === dlength-1){
             tbody.appendChild(utr);
         }else{
         	var filter = function(el,i){
