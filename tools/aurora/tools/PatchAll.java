@@ -25,6 +25,7 @@ public class PatchAll {
 	private static final String THEME_BLACK_DIR = "src/aurora.ui.std/theme/black/resource/";
 	private static final String THEME_MAC_DIR = "src/aurora.ui.std/theme/mac/resource/";
 	private static final String THEME_HLS_DIR = "src/aurora.ui.std/theme/hls/resource/";
+	private static final String THEME_BESTSELLER_DIR = "src/aurora.ui.std/theme/bestseller/resource/";
 	private int lineNum = 0;
 	
 	public static void main(String[] args) throws Exception{
@@ -144,6 +145,9 @@ public class PatchAll {
 		pa.patchAllFile(csslist,THEME_MAC_DIR,CSS_ALL);		
 		pa.patchAllFile(list,THEME_HLS_DIR,AURORA_ALL);
 		pa.patchAllFile(csslist,THEME_HLS_DIR,CSS_ALL);
+		
+		pa.patchAllFile(list,THEME_BESTSELLER_DIR,AURORA_ALL);
+		pa.patchAllFile(csslist,THEME_BESTSELLER_DIR,CSS_ALL);
 
 		pa.compressAllFiles(compressJs,THEME_DEFAULT_DIR,"js");
 		pa.compressAllFiles(compressCss,THEME_DEFAULT_DIR,"css");
@@ -155,7 +159,8 @@ public class PatchAll {
 		pa.compressAllFiles(compressCss,THEME_MAC_DIR,"css");
 		pa.compressAllFiles(compressJs,THEME_HLS_DIR,"js");
 		pa.compressAllFiles(compressCss,THEME_HLS_DIR,"css");
-				
+		pa.compressAllFiles(compressJs,THEME_BESTSELLER_DIR,"js");
+		pa.compressAllFiles(compressCss,THEME_BESTSELLER_DIR,"css");
 		pa.compressAllFiles(compressTouchJs,TOUCH_DIR,"js");
 		pa.compressAllFiles(compressTouchCss,TOUCH_DIR,"css");
 	}
