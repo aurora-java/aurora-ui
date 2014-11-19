@@ -405,13 +405,13 @@ A.GridBox = Ext.extend(A.Component,{
 			        if(field && IS_EMPTY(record.data[xname]) && field.get(REQUIRED) == TRUE){
 			            cls = cls + _S + ITEM_NOT_BLANK
 			        }
-					td.update(sf.cellTpl.applyTemplate({
+					td.update(xname?sf.cellTpl.applyTemplate({
 						text:sf.renderText(record,col,record.data[xname]),
 						cellcls:cls,
 						name:xname,
 						recordid:record.id,
 						width:col.width||150
-					}));
+					}):'&#160;');
 				}
 				if(hasCloseBtn){
 					sf.createCloseBtn(td,record);
