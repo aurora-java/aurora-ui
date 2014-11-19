@@ -69,8 +69,8 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		Ext.fly(el.parentNode).removeClass("item-dateField-input-focus");
 		if(!el.value.match(/^[0-9]*$/))el.value=el.oldValue||"";
 	},
-	predraw : function(date,noSelect){
-		$A.DateTimePicker.superclass.predraw.call(this,date,noSelect);
+	draw : function(date){
+		$A.DateTimePicker.superclass.draw.call(this,date);
 		this.hourSpan.dom.oldValue = this.hourSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].hours);
 		this.minuteSpan.dom.oldValue = this.minuteSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].minutes);
 		this.secondSpan.dom.oldValue = this.secondSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].seconds);
