@@ -90,10 +90,13 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 }
 
 .item-notBlank{
-    background:#ffe64b;
+    background:#44b5df;
 }
 .item-emptyText{
     color:#bbb !important;
+}
+.item-emptyText .item-notBlank{
+    color:#fff !important;
 }
 .item-readOnly{
     background:#DBDBDB;
