@@ -18,10 +18,10 @@
 .item-notBlank, .item-notBlank .item-textField{
 	background:#fff9c2;
 }
-*/
 .item-emptyText .item-textField{
-	color:#bbb !important;
+    color:#bbb !important;
 }
+*/
 .item-readOnly, .item-readOnly .item-textField {
 	background:#DBDBDB;
 }
