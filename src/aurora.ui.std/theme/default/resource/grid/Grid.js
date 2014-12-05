@@ -877,8 +877,12 @@ A.Grid = Ext.extend(A.Component,{
 			var rowspans,colname;
         	if(colname = d.colname){
 				rowspans = {};
-				rowspans['__rowbox__'] = rowspans[colname] = concatGroups(d).length;
-				rowspans['__rowbox___count'] = rowspans[colname+'_count'] = TRUE;
+				rowspans[colname] = concatGroups(d).length;
+				rowspans[colname+'_count'] = TRUE;
+				if(sf.groupselect){
+					rowspans['__rowbox__'] = rowspans[colname];
+					rowspans['__rowbox___count'] = rowspans[colname+'_count'];
+				}
 			}
             sb.push(sf.createRow($L, i, cols, d,rowspans,!i));
         },sf);
@@ -1211,7 +1215,7 @@ A.Grid = Ext.extend(A.Component,{
             sf.setSelectStatus(record);
         }
         
-        EACH(!isSelectAll && concatGroups(searchRootGroupByRecord(sf.groups,record)),function(r){
+        sf.groupselect && EACH(!isSelectAll && concatGroups(searchRootGroupByRecord(sf.groups,record)),function(r){
         	if(r!==record){
     			ds.select(r);
     		}
@@ -1231,7 +1235,7 @@ A.Grid = Ext.extend(A.Component,{
             }
             sf.setSelectStatus(record);
         }
-        EACH(!isSelectAll && concatGroups(searchRootGroupByRecord(sf.groups,record)),function(r){
+        sf.groupselect && EACH(!isSelectAll && concatGroups(searchRootGroupByRecord(sf.groups,record)),function(r){
         	if(r!==record){
     			ds.unSelect(r);
     		}
