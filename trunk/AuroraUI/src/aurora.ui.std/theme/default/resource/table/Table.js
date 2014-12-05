@@ -452,7 +452,7 @@ A.Table = Ext.extend(A.Component,{
 	        }
             sf.setSelectStatus(record);
         }
-        EACH(!isSelectAll && concatGroups(searchRootGroupByRecord(sf.groups,record)),function(r){
+        sf.groupselect && EACH(!isSelectAll && concatGroups(searchRootGroupByRecord(sf.groups,record)),function(r){
         	if(r!==record){
     			ds.select(r);
     		}
@@ -472,7 +472,7 @@ A.Table = Ext.extend(A.Component,{
             sf.setSelectStatus(record);
         }
         
-        EACH(!isSelectAll && concatGroups(searchRootGroupByRecord(sf.groups,record)),function(r){
+        sf.groupselect && EACH(!isSelectAll && concatGroups(searchRootGroupByRecord(sf.groups,record)),function(r){
         	if(r!==record){
     			ds.unSelect(r);
     		}
@@ -1084,8 +1084,12 @@ A.Table = Ext.extend(A.Component,{
         	var rowspans;
         	if(d.colname){
 				rowspans = {};
-				rowspans['__rowbox__'] = rowspans[d.colname] = concatGroups(d).length;
-				rowspans['__rowbox___count'] = rowspans[d.colname+'_count'] = TRUE;
+				rowspans[d.colname] = concatGroups(d).length;
+				rowspans[d.colname+'_count'] = TRUE;
+				if(sf.groupselect){
+					rowspans['__rowbox__'] = rowspans[d.colname];
+					rowspans['__rowbox___count'] = rowspans[d.colname+'_count'];
+				}
 			}
             sf.createRow(d, i, false,rowspans,!i);
         },sf);
