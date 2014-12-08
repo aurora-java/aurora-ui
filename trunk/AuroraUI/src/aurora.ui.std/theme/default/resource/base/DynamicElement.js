@@ -10,11 +10,11 @@ $A.DynamicElement = Ext.extend($A.Component,{
     constructor: function(id) {
         this.cmps = {};
         $A.DynamicElement.superclass.constructor.call(this,{id:id});
-        this.wrap.cmps = this.cmps;
     },
     initComponent : function(config){
         $A.DynamicElement.superclass.initComponent.call(this, config);
         var sf = this;
+        sf.wrap.cmps = sf.cmps;
         if(sf.url){
             sf.load(sf.url,config.params)
         }
@@ -92,9 +92,15 @@ $A.DynamicElement = Ext.extend($A.Component,{
             }
             return;
         }
-        var sf = this
-        this.wrap.update(html,true,function(){
+        var sf = this;
+        sf.wrap.update(html,true,function(){
             sf.fireEvent('load',sf)
-        },this.wrap);
+        },sf.wrap);
+    },
+    destroy : function(){
+    	var wrap = this.wrap;
+        $A.DynamicElement.superclass.destroy.call(this);
+    	this.clearBody();
+    	wrap.remove();
     }
 });
