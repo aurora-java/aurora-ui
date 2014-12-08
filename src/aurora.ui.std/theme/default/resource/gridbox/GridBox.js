@@ -345,7 +345,7 @@ A.GridBox = Ext.extend(A.Component,{
 			var prompt = sf.renderPrompt(record,col,col.prompt);
 			th.innerHTML = '<div>'+prompt+(IS_EMPTY(prompt)?_N:sf.labelseparator)+'</div>';
 		}
-		th.width = col.labelwidth||75;
+		th.width = col.labelwidth;
 		tr.appendChild(th);
 		if(tr.tagName.toLowerCase()=='tr'){
 			td = document.createElement('td');
