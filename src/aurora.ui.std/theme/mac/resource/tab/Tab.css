@@ -43,7 +43,7 @@
     -webkit-box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
     box-shadow: 0px 1px 3px rgba(0,0,0,0.3);
 }
-.active{
+.item-tab .active{
 	/*background-color:#fff;*/
 	position:relative;
 	top:1px;
@@ -73,13 +73,13 @@
 	background:url(../tab/strip-over-center.gif) repeat-x left top;
 	text-align: center;
 }
-.active .strip-left {
+.item-tab .active .strip-left {
 	background:url(../tab/strip-active-both.gif) left top;
 }
-.active .strip-right {
+.item-tab .active .strip-right {
 	background:url(../tab/strip-active-both.gif) right top;
 }
-.active .strip-center {
+.item-tab .active .strip-center {
 	background:url(../tab/strip-active-center.gif) repeat-x left top;
 	line-height:25px;
 }
@@ -96,20 +96,20 @@
 	cursor: pointer;
 	visibility: hidden;
 }
-.active .tab-close {
+.item-tab .active .tab-close {
 	background-position:-11px -33px;
 	top:7px;
 }
 .tab-btn-over{
     background-position:0 -11px;
 }
-.active .tab-btn-over{
+.item-tab .active .tab-btn-over{
     background-position:-11px -11px;
 }
 .tab-btn-down{
     background-position:0 -22px;
 }
-.active .tab-btn-down{
+.item-tab .active .tab-btn-down{
     background-position:-11px -22px;
 }
 .tab-scroll{
