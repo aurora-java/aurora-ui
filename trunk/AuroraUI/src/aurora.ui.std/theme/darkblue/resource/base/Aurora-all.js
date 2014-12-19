@@ -2130,6 +2130,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */
             'afterremove',
             /**
+             * @event beforeupdate
+             * 数据更新前.如果为true则更新记录,false直接返回
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Array} records 将要删除的数据集合
+             */
+            'beforeupdate',
+            /**
              * @event update
              * 数据更新事件.
              * "update", this, record, name, value
@@ -5336,11 +5343,11 @@ $A.DynamicElement = Ext.extend($A.Component,{
     constructor: function(id) {
         this.cmps = {};
         $A.DynamicElement.superclass.constructor.call(this,{id:id});
-        this.wrap.cmps = this.cmps;
     },
     initComponent : function(config){
         $A.DynamicElement.superclass.initComponent.call(this, config);
         var sf = this;
+        sf.wrap.cmps = sf.cmps;
         if(sf.url){
             sf.load(sf.url,config.params)
         }
@@ -5418,10 +5425,16 @@ $A.DynamicElement = Ext.extend($A.Component,{
             }
             return;
         }
-        var sf = this
-        this.wrap.update(html,true,function(){
+        var sf = this;
+        sf.wrap.update(html,true,function(){
             sf.fireEvent('load',sf)
-        },this.wrap);
+        },sf.wrap);
+    },
+    destroy : function(){
+    	var wrap = this.wrap;
+        $A.DynamicElement.superclass.destroy.call(this);
+    	this.clearBody();
+    	wrap.remove();
     }
 });
 /**
@@ -7475,8 +7488,8 @@ $A.DateTimePicker = Ext.extend($A.DatePicker,{
 		Ext.fly(el.parentNode).removeClass("item-dateField-input-focus");
 		if(!el.value.match(/^[0-9]*$/))el.value=el.oldValue||"";
 	},
-	predraw : function(date,noSelect){
-		$A.DateTimePicker.superclass.predraw.call(this,date,noSelect);
+	draw : function(date){
+		$A.DateTimePicker.superclass.draw.call(this,date);
 		this.hourSpan.dom.oldValue = this.hourSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].hours);
 		this.minuteSpan.dom.oldValue = this.minuteSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].minutes);
 		this.secondSpan.dom.oldValue = this.secondSpan.dom.value = $A.dateFormat.pad(this.dateFields[0].seconds);

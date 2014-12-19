@@ -1744,7 +1744,7 @@ A.Grid = Ext.extend(A.Component,{
             var index = target.getAttributeNS(_N,DATA_INDEX),
                 col = sf.findColByName(index);
             if(col && col.sortable === TRUE){
-                if(ds.isModified()){
+                if(ds.isModified() && ds.sorttype=='remote'){
                     A.showInfoMessage('提示', '有未保存数据!');
                     return;
                 }
