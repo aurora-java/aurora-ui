@@ -324,6 +324,13 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              */
             'afterremove',
             /**
+             * @event beforeupdate
+             * 数据更新前.如果为true则更新记录,false直接返回
+             * @param {Aurora.DataSet} dataSet 当前DataSet.
+             * @param {Array} records 将要删除的数据集合
+             */
+            'beforeupdate',
+            /**
              * @event update
              * 数据更新事件.
              * "update", this, record, name, value
