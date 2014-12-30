@@ -1,10 +1,10 @@
 package aurora.tools;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,153 +16,149 @@ import com.yahoo.platform.yui.compressor.YUICompressor;
 @SuppressWarnings("unchecked")
 public class PatchAll {
 	
+	private static final String AURORA_DIR = "src/aurora.ui.std/theme/";
 	private static final String TOUCH_DIR = "src/aurora.ui.touch/theme/default/resource/";
-	private static final String AURORA_ALL= "base/Aurora-all.js";
-	private static final String CSS_ALL= "base/Aurora-all.css";
+	private static final String WEB_DIR = "src/aurora.ui.web/theme/";
 	
-	private static final String THEME_DEFAULT_DIR = "src/aurora.ui.std/theme/default/resource/";
-	private static final String THEME_DARBLUE_DIR = "src/aurora.ui.std/theme/darkblue/resource/";
-	private static final String THEME_BLACK_DIR = "src/aurora.ui.std/theme/black/resource/";
-	private static final String THEME_MAC_DIR = "src/aurora.ui.std/theme/mac/resource/";
-	private static final String THEME_HLS_DIR = "src/aurora.ui.std/theme/hls/resource/";
-	private static final String THEME_BESTSELLER_DIR = "src/aurora.ui.std/theme/bestseller/resource/";
+	private static final String AURORA_JS_ALL= "base/Aurora-all.js";
+	private static final String AURORA_CSS_ALL= "base/Aurora-all.css";
+	
+	private static final String WEB_JS_ALL= "base/core.js";
+	private static final String WEB_CSS_ALL= "base/core.css";
+	
+	private static final List<String> THEMES = Arrays.asList("default","darkblue","black","mac","hls","bestseller");
+	
 	private int lineNum = 0;
 	
+	
+	private void patchAuroraStuff() throws Exception{
+		List jsList =  Arrays.asList("base/Aurora.js",
+			"base/DataSet.js", 
+			"base/Component.js",
+			"base/Field.js",
+			"base/Box.js",
+			"base/ImageCode.js",
+			"base/Label.js",
+			"base/Link.js",
+			"base/HotKey.js",
+			"base/AutoCompleteView.js",
+			"base/DynamicElement.js",
+			"button/Button.js",
+			"tooglebutton/toogleButton.js",
+			"checkbox/CheckBox.js",
+			"radio/Radio.js",
+			"textfield/TextField.js",
+			"numberfield/NumberField.js",
+			"spinner/Spinner.js",
+			"base/TriggerField.js",
+			"combo/ComboBox.js",
+			"datefield/DateField.js",
+			"datefield/DatePicker.js",
+			"datefield/DateTimePicker.js",
+			"toolbar/ToolBar.js",
+			"window/Window.js",
+			"lov/Lov.js",
+			"lov/MultiLov.js",
+			"textarea/TextArea.js",
+			"base/Customization.js",
+			"queryform/QueryForm.js",
+			"multitextfield/MultiTextField.js",
+			"multicombobox/MultiComboBox.js",
+			"percentfield/PercentField.js",
+			"sidebar/SideBarPanel.js");		
+		
+		List cssList = Arrays.asList("base/Aurora.css",
+			"iconfont/iconfont.css",
+			"checkbox/CheckBox.css",
+			"radio/Radio.css",
+			"button/Button.css",
+			"tooglebutton/toogleButton.css",
+			"textfield/TextField.css",
+			"numberfield/NumberField.css",
+			"spinner/Spinner.css",
+			"combo/ComboBox.css",
+			"datefield/DateField.css",
+			"toolbar/ToolBar.css",
+			"window/Window.css",
+			"lov/Lov.css",
+			"textarea/TextArea.css",
+			"multitextfield/MultiTextField.css",
+			"multicombobox/MultiComboBox.css",
+			"percentfield/PercentField.css",
+			"sidebar/SideBarPanel.css");
+		
+		for(String theme:THEMES){
+			patchAllFile(jsList,AURORA_DIR,theme,AURORA_JS_ALL);
+			patchAllFile(cssList,AURORA_DIR,theme,AURORA_CSS_ALL);
+		}		
+	}	
+	
+	private void compressTouchStuff() throws Exception{
+		List compressTouchJs = Arrays.asList("base/touch.js","base/iscroll.js");		
+		List compressTouchCss = Arrays.asList("base/touch-all.css");
+		compressAllFiles(compressTouchJs,TOUCH_DIR,"js");
+		compressAllFiles(compressTouchCss,TOUCH_DIR,"css");
+	}
+	
+	private void patchWebStuff() throws Exception{
+		List web_js =  Arrays.asList("base/base.js","button/button.js");
+		List web_css =  Arrays.asList("button/button.css");		
+		patchAllFile(web_js,WEB_DIR,"default",WEB_JS_ALL);
+		patchAllFile(web_css,WEB_DIR,"default",WEB_CSS_ALL);
+	}
+	
+	
+	private void compressAuroraStuff() throws Exception{
+		List compressJs = Arrays.asList(AURORA_JS_ALL,
+			"grid/Grid.js",
+			"dashboard/Dashboard.js",
+			"graphic/Graphics.js",
+			"treegrid/TreeGrid.js",
+			"treegrid/DynamicTreeGrid.js",
+			"table/Table.js",
+			"tree/Tree.js",
+			"tree/DynamicTree.js",
+			"tab/Tab.js",
+	//		"upload/upload.js",
+			"chart/Animate.js",
+			"chart/Adapter.js",
+			"chart/Chart.js",
+			"chart/Canvas-tools.js",
+			"chart/Chart-more.js",
+			"chart/Exporting.js",
+			"accordion/Accordion.js",
+			"accordionmenu/AccordionMenu.js",
+			"portal/Portal.js",
+			"switchcard/SwitchCard.js",
+			"menu/Menu.js",
+			"menutree/MenuTree.js",
+			"gridbox/GridBox.js");
+		List compressCss = Arrays.asList(AURORA_CSS_ALL,
+			"grid/Grid.css",
+			"treegrid/TreeGrid.css",
+			"table/Table.css",
+			"tree/Tree.css",
+			"tab/Tab.css",
+			"accordion/Accordion.css",
+			"accordionmenu/AccordionMenu.css",
+			"portal/Portal.css",
+			"menu/Menu.css",
+			"menutree/MenuTree.css",
+			"gridbox/GridBox.css");
+		
+		for(String theme:THEMES){
+			String path = AURORA_DIR + theme + "/resource/";
+			compressAllFiles(compressJs,path,"js");
+			compressAllFiles(compressCss,path,"css");
+		}		
+	}
+	
 	public static void main(String[] args) throws Exception{
-		List list = new ArrayList();
-		list.add("base/Aurora.js");
-		list.add("base/DataSet.js"); 
-		list.add("base/Component.js");
-		list.add("base/Field.js");
-		list.add("base/Box.js");
-		list.add("base/ImageCode.js");
-		list.add("base/Label.js");
-		list.add("base/Link.js");
-		list.add("base/HotKey.js");
-		list.add("base/AutoCompleteView.js");
-		list.add("base/DynamicElement.js");
-		list.add("button/Button.js");
-		list.add("tooglebutton/toogleButton.js");
-		list.add("checkbox/CheckBox.js");
-		list.add("radio/Radio.js");
-		list.add("textfield/TextField.js");
-		list.add("numberfield/NumberField.js");
-		list.add("spinner/Spinner.js");
-		list.add("base/TriggerField.js");
-		list.add("combo/ComboBox.js");
-		list.add("datefield/DateField.js");
-		list.add("datefield/DatePicker.js");
-		list.add("datefield/DateTimePicker.js");
-		list.add("toolbar/ToolBar.js");
-		list.add("window/Window.js");
-		list.add("lov/Lov.js");
-		list.add("lov/MultiLov.js");
-		list.add("textarea/TextArea.js");
-		list.add("base/Customization.js");
-		list.add("queryform/QueryForm.js");
-		list.add("multitextfield/MultiTextField.js");
-		list.add("multicombobox/MultiComboBox.js");
-		list.add("percentfield/PercentField.js");
-		list.add("sidebar/SideBarPanel.js");
-			
-		List csslist = new ArrayList();
-		csslist.add("base/Aurora.css");
-		csslist.add("iconfont/iconfont.css");
-		csslist.add("checkbox/CheckBox.css");
-		csslist.add("radio/Radio.css");
-		csslist.add("button/Button.css");
-		csslist.add("tooglebutton/toogleButton.css");
-		csslist.add("textfield/TextField.css");
-		csslist.add("numberfield/NumberField.css");
-		csslist.add("spinner/Spinner.css");
-		csslist.add("combo/ComboBox.css");
-		csslist.add("datefield/DateField.css");
-		csslist.add("toolbar/ToolBar.css");
-		csslist.add("window/Window.css");
-		csslist.add("lov/Lov.css");
-		csslist.add("textarea/TextArea.css");
-		csslist.add("multitextfield/MultiTextField.css");
-		csslist.add("multicombobox/MultiComboBox.css");
-		csslist.add("percentfield/PercentField.css");
-		csslist.add("sidebar/SideBarPanel.css");
-		
-		
-		List compressJs = new ArrayList();
-		compressJs.add(AURORA_ALL);
-		compressJs.add("grid/Grid.js");
-		compressJs.add("dashboard/Dashboard.js");
-		compressJs.add("graphic/Graphics.js");
-		compressJs.add("treegrid/TreeGrid.js");
-		compressJs.add("treegrid/DynamicTreeGrid.js");
-		compressJs.add("table/Table.js");
-		compressJs.add("tree/Tree.js");
-		compressJs.add("tree/DynamicTree.js");
-		compressJs.add("tab/Tab.js");
-//		compressJs.add("upload/upload.js");
-		compressJs.add("chart/Animate.js");
-		compressJs.add("chart/Adapter.js");
-		compressJs.add("chart/Chart.js");
-		compressJs.add("chart/Canvas-tools.js");
-		compressJs.add("chart/Chart-more.js");
-		compressJs.add("chart/Exporting.js");
-		compressJs.add("accordion/Accordion.js");
-		compressJs.add("accordionmenu/AccordionMenu.js");
-		compressJs.add("portal/Portal.js");
-		compressJs.add("switchcard/SwitchCard.js");
-		compressJs.add("menu/Menu.js");
-		compressJs.add("menutree/MenuTree.js");
-		compressJs.add("gridbox/GridBox.js");
-		List compressCss = new ArrayList();
-		compressCss.add(CSS_ALL);
-		compressCss.add("grid/Grid.css");
-		compressCss.add("treegrid/TreeGrid.css");
-		compressCss.add("table/Table.css");
-		compressCss.add("tree/Tree.css");
-		compressCss.add("tab/Tab.css");
-		compressCss.add("accordion/Accordion.css");
-		compressCss.add("accordionmenu/AccordionMenu.css");
-		compressCss.add("portal/Portal.css");
-		compressCss.add("menu/Menu.css");
-		compressCss.add("menutree/MenuTree.css");
-		compressCss.add("gridbox/GridBox.css");
-//		compressCss.add("upload/upload.css");
-		
-		List compressTouchJs = new ArrayList();
-		compressTouchJs.add("base/touch.js");
-		compressTouchJs.add("base/iscroll.js");
-		
-		List compressTouchCss = new ArrayList();
-		compressTouchCss.add("base/touch-all.css");
-		
 		PatchAll pa = new PatchAll();
-		pa.patchAllFile(list,THEME_DEFAULT_DIR,AURORA_ALL);
-		pa.patchAllFile(csslist,THEME_DEFAULT_DIR,CSS_ALL);
-		pa.patchAllFile(list,THEME_DARBLUE_DIR,AURORA_ALL);
-		pa.patchAllFile(csslist,THEME_DARBLUE_DIR,CSS_ALL);
-		pa.patchAllFile(list,THEME_BLACK_DIR,AURORA_ALL);
-		pa.patchAllFile(csslist,THEME_BLACK_DIR,CSS_ALL);
-		pa.patchAllFile(list,THEME_MAC_DIR,AURORA_ALL);
-		pa.patchAllFile(csslist,THEME_MAC_DIR,CSS_ALL);		
-		pa.patchAllFile(list,THEME_HLS_DIR,AURORA_ALL);
-		pa.patchAllFile(csslist,THEME_HLS_DIR,CSS_ALL);
-		
-		pa.patchAllFile(list,THEME_BESTSELLER_DIR,AURORA_ALL);
-		pa.patchAllFile(csslist,THEME_BESTSELLER_DIR,CSS_ALL);
-
-		pa.compressAllFiles(compressJs,THEME_DEFAULT_DIR,"js");
-		pa.compressAllFiles(compressCss,THEME_DEFAULT_DIR,"css");
-		pa.compressAllFiles(compressJs,THEME_DARBLUE_DIR,"js");
-		pa.compressAllFiles(compressCss,THEME_DARBLUE_DIR,"css");
-		pa.compressAllFiles(compressJs,THEME_BLACK_DIR,"js");
-		pa.compressAllFiles(compressCss,THEME_BLACK_DIR,"css");
-		pa.compressAllFiles(compressJs,THEME_MAC_DIR,"js");
-		pa.compressAllFiles(compressCss,THEME_MAC_DIR,"css");
-		pa.compressAllFiles(compressJs,THEME_HLS_DIR,"js");
-		pa.compressAllFiles(compressCss,THEME_HLS_DIR,"css");
-		pa.compressAllFiles(compressJs,THEME_BESTSELLER_DIR,"js");
-		pa.compressAllFiles(compressCss,THEME_BESTSELLER_DIR,"css");
-		pa.compressAllFiles(compressTouchJs,TOUCH_DIR,"js");
-		pa.compressAllFiles(compressTouchCss,TOUCH_DIR,"css");
+		pa.patchAuroraStuff();
+		pa.compressAuroraStuff();
+		pa.compressTouchStuff();
+		pa.patchWebStuff();		
 	}
 	
 	
@@ -189,10 +185,7 @@ public class PatchAll {
 					size+=begin;
 				}
 				is.close();
-				//if("js".equals(type))
-					System.out.println(minFile.getName()+" : "+size+" bytes");
-        	}else{
-//        		System.out.println("File "+dir+dest+" is not exists!!");
+				System.out.println(minFile.getName()+" : "+size+" bytes");
         	}
         }	
 	}
@@ -201,16 +194,17 @@ public class PatchAll {
 
 	
 	@SuppressWarnings("unchecked")
-	public void patchAllFile(List list,String dir, String dest) throws Exception {
+	public void patchAllFile(List list,String baseDir,String theme, String dest) throws Exception {
 		List lines = new ArrayList();
 		Iterator it = list.iterator();
-//		boolean isJS = AURORA_ALL.equals(dest);
 		File current = new File(".");
+		String defaultTheme = baseDir + "default/resource/";
+		String path = baseDir + theme + "/resource/";
 		while(it.hasNext()){
 			String name = (String)it.next();
-			File file = new File(current, dir+name);//file.exists();
-			if((null == file || !file.exists()) && !THEME_DEFAULT_DIR.equals(dir)){
-				file = new File(current, THEME_DEFAULT_DIR+name);
+			File file = new File(current, path+name);//file.exists();
+			if((null == file || !file.exists()) && !defaultTheme.equals(path)){
+				file = new File(current, defaultTheme+name);
 			}
 			if(file != null && file.exists()){
 				List ls = FileUtils.readLines(file, "UTF-8");
@@ -219,9 +213,8 @@ public class PatchAll {
 		        	lineNum ++;
 		        	lines.add(line);
 				}
-//				if(isJS)lines.add(";");
 			}			
 		}
-		FileUtils.writeLines(new File(current, dir+dest), "UTF-8", lines);
+		FileUtils.writeLines(new File(current, path+dest), "UTF-8", lines);
 	}
 }
