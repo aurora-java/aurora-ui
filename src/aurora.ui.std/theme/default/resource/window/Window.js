@@ -100,7 +100,7 @@ A.Window = Ext.extend(A.Component,{
            	[ou]("mouseover", sf.onCloseOver,  sf)
            	[ou]("mouseout", sf.onCloseOut,  sf)
 			[ou]("mousedown", sf.onCloseDown,  sf);
-        sf.wrap[ou]("click", sf.onClick, sf,{stopPropagation:true})
+        sf.wrap[ou]("click", sf.onClick, sf,{stopPropagation:false})
         	[ou]("keydown", sf.onKeyDown,  sf);
     	sf.draggable && sf.head[ou]('mousedown', sf.onMouseDown,sf);
     },

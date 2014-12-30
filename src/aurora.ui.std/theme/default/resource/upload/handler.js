@@ -127,7 +127,7 @@ function atmRenderer(value, record, name, canDelete, deleteControl,reorder) {
 	}
     if(deleteControl) canDelete = record.get('is_delete') === 1;    
     
-	var html = '<div class="' + c + '">' + a + '<div style="float:left">' + (percent == -1 ? value :'<a target="_self" href="'+window[upid+'_download_path']+'?attachment_id='+record.get('attachment_id')+'&table_name='+record.get('table_name')+'&table_pk_value='+record.get('table_pk_value')+'\">'
+	var html = '<div class="' + c + '">' + a + '<div style="float:left">' + (percent == -1 ? value :'<a target="_self" '+(atmTypeRef(record.get("file_name")) ? 'ref="img"' : '') +' href="'+window[upid+'_download_path']+'?attachment_id='+record.get('attachment_id')+'&table_name='+record.get('table_name')+'&table_pk_value='+record.get('table_pk_value')+'\">'
             + value + '</a>') + '</div>' + processPercent(record,canDelete,reorder) + '</div>';
 	return html;
 }
@@ -148,7 +148,9 @@ function atmNotDeleteRenderer(value, record, name) {
 function atmDeleteControlRenderer(value, record, name){
     return atmRenderer(value,record,name,true,true)
 }
-
+function atmTypeRef(name){
+    return /\.(jpg|png|gif|bmp|jpeg)$/i.test(name)
+}
 $A.UploadList = Ext.extend($A.Component,{
     initComponent : function(config){
         $A.UploadList.superclass.initComponent.call(this, config);
@@ -178,7 +180,7 @@ $A.UploadList = Ext.extend($A.Component,{
                     html.push('<a title="下移" href="javascript:downFileRecord(\''+this.bindtarget +'\','+record.id+')"><div class="down_btn"></div></a>')
                 }
                 this.wrap.child("#atm_"+record.id).child('.l').update(html.join(''));
-                this.wrap.child("#atm_"+record.id).child('.j').update('<a target="_self" href="'+this.downloadurl+'?attachment_id='+record.get('attachment_id')+'&table_name='+record.get('table_name')+'&table_pk_value='+record.get('table_pk_value')+'\" title="'+record.get("file_name")+'">'+record.get('file_name')+'</a>');
+                this.wrap.child("#atm_"+record.id).child('.j').update('<a target="_self" '+(atmTypeRef(record.get("file_name")) ? 'ref="img"' : '') +' href="'+this.downloadurl+'?attachment_id='+record.get('attachment_id')+'&table_name='+record.get('table_name')+'&table_pk_value='+record.get('table_pk_value')+'\" title="'+record.get("file_name")+'">'+record.get('file_name')+'</a>');
                 this.wrap.child("#atm_"+record.id).child('.k').update(formatFileSize(record.get('file_size'))+'<span class="d">'+Aurora.formatDateTime(record.get('creation_time'))+'</span>');
             } else if (percent == -1) {
                 this.wrap.child("#atm_"+record.id).child('.l').update('');
@@ -204,6 +206,7 @@ $A.UploadList = Ext.extend($A.Component,{
         this.wrap.last().remove();
         Ext.DomHelper.insertHtml("beforeEnd", this.wrap.dom, html.join(''));
     },
+
     drawList: function(){
         var ds = $(this.bindtarget);
         var html = [];
@@ -212,7 +215,7 @@ $A.UploadList = Ext.extend($A.Component,{
             var type = tys[tys.length-1];
             html.push('<div class="up_card" id="atm_'+record.id+'">');
             html.push('<div class="icon icon-'+type+'"> </div>');
-            html.push('<div class="j"><a target="_self" href="'+this.downloadurl+'?attachment_id='+record.get('attachment_id')+'&table_name='+record.get('table_name')+'&table_pk_value='+record.get('table_pk_value')+'\" title="'+record.get("file_name")+'">'+record.get('file_name')+'</a></div>');
+            html.push('<div class="j"><a target="_self" '+(atmTypeRef(record.get("file_name")) ? 'ref="img"' : '') +' href="'+this.downloadurl+'?attachment_id='+record.get('attachment_id')+'&table_name='+record.get('table_name')+'&table_pk_value='+record.get('table_pk_value')+'\" title="'+record.get("file_name")+'">'+record.get('file_name')+'</a></div>');
 
             html.push('<div class="l">');
             if(!this.showdelete||(this.deletecontrol&&record.get('is_delete') === 0)) {

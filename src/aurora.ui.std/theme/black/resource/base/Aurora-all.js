@@ -2133,7 +2133,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
              * @event beforeupdate
              * 数据更新前.如果为true则更新记录,false直接返回
              * @param {Aurora.DataSet} dataSet 当前DataSet.
-             * @param {Array} records 将要删除的数据集合
+             * @param {Aurora.Record} record 更新的record.
+             * @param {String} name 更新的field.
+             * @param {Object} value 更新的值.
+             * @param {Object} oldvalue 更新前的值.
              */
             'beforeupdate',
             /**
@@ -3255,6 +3258,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             }
         }
     },
+    beforeEdit : function(record, name, value,oldvalue) {
+        return this.fireEvent("beforeupdate", this, record, name, value,oldvalue);
+    },
     afterEdit : function(record, name, value,oldvalue) {
         this.fireEvent("update", this, record, name, value,oldvalue);
     },
@@ -3614,22 +3620,24 @@ $A.Record.prototype = {
      */
     set : function(name, value, notDirty){
         var old = this.data[name];
-        if(!(old === value||(Ext.isEmpty(old)&&Ext.isEmpty(value))||(Ext.isDate(old)&&Ext.isDate(value)&&old.getTime()==value.getTime()))){
-            if(!notDirty){
-                this.dirty = true;
-                if(!this.modified){
-                    this.modified = {};
+        if(this.ds.beforeEdit(this, name, value, old)) {
+            if(!(old === value||(Ext.isEmpty(old)&&Ext.isEmpty(value))||(Ext.isDate(old)&&Ext.isDate(value)&&old.getTime()==value.getTime()))){
+                if(!notDirty){
+                    this.dirty = true;
+                    if(!this.modified){
+                        this.modified = {};
+                    }
+                    if(typeof this.modified[name] == 'undefined'){
+                        this.modified[name] = old;
+                    }
                 }
-                if(typeof this.modified[name] == 'undefined'){
-                    this.modified[name] = old;
+                this.data[name] = value;
+                if(!this.editing && this.ds) {
+                    this.ds.afterEdit(this, name, value, old);
                 }
             }
-            this.data[name] = value;
-            if(!this.editing && this.ds) {
-                this.ds.afterEdit(this, name, value, old);
-            }
+            this.validate(name)
         }
-        this.validate(name)
     },
     /**
      * 设置值.
@@ -7796,7 +7804,7 @@ A.Window = Ext.extend(A.Component,{
            	[ou]("mouseover", sf.onCloseOver,  sf)
            	[ou]("mouseout", sf.onCloseOut,  sf)
 			[ou]("mousedown", sf.onCloseDown,  sf);
-        sf.wrap[ou]("click", sf.onClick, sf,{stopPropagation:true})
+        sf.wrap[ou]("click", sf.onClick, sf,{stopPropagation:false})
         	[ou]("keydown", sf.onKeyDown,  sf);
     	sf.draggable && sf.head[ou]('mousedown', sf.onMouseDown,sf);
     },
