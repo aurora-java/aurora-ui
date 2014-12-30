@@ -1032,20 +1032,25 @@ A.Table = Ext.extend(A.Component,{
         	});
         	sf.selectRow(sf.dataset.indexOf(record));
         }
-        function _update(c,name,div,v){
-        	if(div){
-	        	var editor = sf.getEditor(c,record);            
-	            if(editor!=_N ? ($(editor) instanceof A.CheckBox):(name && !IS_EMPTY(record.getField(name).get(CHECKED_VALUE)))){
-	                sf.renderEditor(div,record,c,editor);
-	            }else{
-	                //考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
-	            	div.update(sf.renderText(record,c, v));
-	            }
-        	}
+        if(div=Ext.get([sf.id,name,record.id].join(_))){
+            var c = sf.findColByName(name),
+            	editor = sf.getEditor(c,record);            
+            if(editor!=_N && ($(editor) instanceof A.CheckBox)){
+            	sf.renderEditor(div,record,c,editor);
+            }else{
+            	//考虑当其他field的值发生变化的时候,动态执行其他带有renderer的
+                div.update(sf.renderText(record,c, value));
+            }
         }
-        _update(c,name,Ext.get([sf.id,name,record.id].join(_)),value);
-        EACH(sf.columns,function(c,_name){
-        	(_name = c.name) != name && _update(c,_name,Ext.get([sf.id,_name,record.id].join(_)),record.get(_name));
+        EACH(sf.columns,function(c){
+        	if(c.name != name && (ediv= Ext.get([sf.id,c.name,record.id].join(_)))) {
+        		if(c.editorfunction){
+                    sf.renderEditor(ediv,record, c, sf.getEditor(c,record));
+        		}
+                if(c.renderer){
+                    ediv.update(sf.renderText(record,c, record.get(c.name)));
+                }
+            }
         });
         sf.setSelectStatus(record);
         sf.drawFootBar(name);
