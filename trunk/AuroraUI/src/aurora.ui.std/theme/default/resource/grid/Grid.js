@@ -1985,6 +1985,16 @@ A.Grid = Ext.extend(A.Component,{
         sf.uht.setStyle(WIDTH,uw+PX);
         if(sf.ubt)sf.ubt.setStyle(WIDTH,uw+PX);
         sf.syncSize();
+        if(Ext.isChrome){//修正Chrome39.0.2171.95 拖动渲染错位
+	        sf.wrap.setStyle({
+				position:'relative'        
+	        });
+	        (function(){
+	        	sf.wrap.setStyle({
+					position:''        
+	        	})
+	        }).defer(1);
+        }
     },
     drawFootBar : function(objs){
         var sf = this;
