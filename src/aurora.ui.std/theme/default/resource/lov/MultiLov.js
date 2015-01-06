@@ -125,23 +125,27 @@ $A.MultiLov = Ext.extend($A.Lov,{
 		}
     	return rv;
     },
-    showLovWindow : function(){        
-        if(this.fetching||this.isWinOpen||this.readonly) return;
+    showLovWindow : function(){  
+    	var sf = this;
+        if(sf.fetching||sf.isWinOpen||sf.readonly) return;
         
-        var v = this.getRawValue();
-        this.blur();
+        var v = sf.getRawValue(),
+        	lovurl = sf.lovurl,
+    		svc = sf.service,ctx = sf.context,
+    		w = sf.lovwidth||400,
+			url;
+        sf.blur();
         var url;
-        if(!Ext.isEmpty(this.lovurl)){
-            url = this.lovurl+'?' + Ext.urlEncode(this.getLovPara()) + '&';
-        }else if(!Ext.isEmpty(this.lovservice)){
-            url = this.context + 'sys_multiLov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';           
-        }else if(!Ext.isEmpty(this.lovmodel)){
-            url = this.context + 'sys_multiLov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovmodel+'&';
-        }
+        if(!Ext.isEmpty(lovurl)){
+            url = Ext.urlAppend(lovurl,Ext.urlEncode(sf.getFieldPara()));
+        }else if(!Ext.isEmpty(svc)){
+//              url = sf.context + 'sys_lov.screen?url='+encodeURIComponent(sf.context + 'sys_lov.svc?svc='+sf.lovservice + '&'+ Ext.urlEncode(sf.getLovPara()))+'&service='+sf.lovservice+'&';
+            url = ctx + 'sys_multiLov.screen?url='+encodeURIComponent(Ext.urlAppend(ctx + 'autocrud/'+svc+'/query',Ext.urlEncode(sf.getLovPara())))+'&service='+svc;
+    	}
         if(url) {
-	        this.isWinOpen = true;
-            this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30)+"&innergridwidth="+Math.round(((this.lovwidth||400)-90)/2)+"&lovautoquery="+this.lovautoquery+"&lovlabelwidth="+this.lovlabelwidth, height:this.lovheight||400,width:this.lovwidth||400});
-            this.win.on('close',this.onWinClose,this);
+	        sf.isWinOpen = true;
+            sf.win = new $A.Window({title:sf.title||'Lov', url:Ext.urlAppend(url,"lovid="+sf.id+"&key="+encodeURIComponent(v)+"&gridheight="+(sf.lovgridheight||350)+"&innerwidth="+((sf.lovwidth||400)-30)+"&innergridwidth="+Math.round(((sf.lovwidth||400)-90)/2)+"&lovautoquery="+(Ext.isEmpty(sf.lovautoquery) ? 'true' : sf.lovautoquery)+"&lovlabelwidth="+(sf.lovlabelwidth||75)+"&lovpagesize="+(sf.lovpagesize||'')), height:sf.lovheight||400,width:w});
+            sf.win.on('close',sf.onWinClose,sf);
         }
     },
     destroy : function(){
