@@ -19,6 +19,7 @@ A.SwitchCard = Ext.extend(A.Component,{
 			var ds = binder.ds;
 			ds[ou]('update',sf.onUpdate,sf);
 			ds[ou]('indexchange',sf.onIndexChange,sf);
+			ds[ou]('load',sf.onLoad,sf);
 		}
 	},
 	initEvents : function(){
@@ -50,6 +51,12 @@ A.SwitchCard = Ext.extend(A.Component,{
 			this.showByValue(record.get(name));
 		}
 	},
+	onLoad : function(ds,name){
+		var record = ds.getCurrentRecord();
+		if(this.binder && (name = this.binder.name)){
+			this.showByValue(record?record.get(name):null);
+		}
+	},
 	showByIndexs : function(){
 		var sf = this,
 			indexs = Ext.isArray(arguments[0])?arguments[0]:Ext.toArray(arguments);
@@ -71,10 +78,10 @@ A.SwitchCard = Ext.extend(A.Component,{
 		var sf = this,
 			url = body.getAttributeNS(_N,URL);
 		if(Ext.isEmpty(url)){
-			if(body.isStyle(DISPLAY,NONE)){
+//			if(body.isStyle(DISPLAY,NONE)){
 				body.setStyle({display:_N});
 				sf.fireEvent(EVT_CARDSHOW,sf,body.cmps,body);
-			}
+//			}
 		}else{
 			body.setStyle({display:_N});
 			body.cmps={};
@@ -97,11 +104,11 @@ A.SwitchCard = Ext.extend(A.Component,{
 	showByValue : function(value){
 		var sf = this,wrap = sf.wrap;
 		wrap.select(SELECTOR+'[case!='+value+']').each(function(body){
-			if(!body.isStyle(DISPLAY,NONE)){
+//			if(!body.isStyle(DISPLAY,NONE)){
 				body.setStyle({display:NONE});
 				var card = Ext.get(body.dom);
 				sf.fireEvent(EVT_CARDHIDE,sf,card.cmps,card);
-			}
+//			}
 		},sf);
 		wrap.select(SELECTOR+'[case='+value+']')
 			.each(sf.load,sf);

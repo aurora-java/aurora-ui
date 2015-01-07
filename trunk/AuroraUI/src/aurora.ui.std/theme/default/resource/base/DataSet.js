@@ -1750,35 +1750,47 @@ $A.Record.prototype = {
         return this.isValid;
     },
     validate : function(name){
-        var valid = true;
-        var oldValid = this.valid[name];
-        var v = this.get(name);
-        var field = this.getMeta().getField(name)
-        var validator = field.get('validator');
-        var vv = v;
-        if(v&&v.trim) vv = v.trim();
-        if(Ext.isEmpty(vv) && field.get('required') == true){
-            this.valid[name] = field.get('requiredmessage') || _lang['dataset.validate.required'];
-            valid =  false;
-        }
+        var sf = this,
+        	valid = true,
+        	oldValid = sf.valid[name],
+        	v = sf.get(name),
+        	field = sf.getMeta().getField(name),
+        	validator = field.get('validator'),
+        	requiredFunc = field.get('requiredfunction'),
+        	vv = v&&v.trim?v.trim():v;
+    	if(Ext.isEmpty(vv)){
+        	var required = field.get('required') == true;
+	    	if(requiredFunc){
+	           	var rf = window[requiredFunc];
+	            if(rf){
+	                required = rf(sf, name, v);
+	            }else {
+	                alert('未找到函数' + requiredFunc);
+	            }
+	        }
+	        if(required){
+	            sf.valid[name] = field.get('requiredmessage') || _lang['dataset.validate.required'];
+	            valid =  false;
+	        }
+    	}
         if(valid == true){
             var isvalid = true;
             if(validator){
                 var vc = window[validator];
                 if(vc){
-                    isvalid = vc.call(window,this, name, v);
+                    isvalid = vc(sf, name, v);
                     if(isvalid !== true){
                         valid = false;  
-                        this.valid[name] = isvalid;
+                        sf.valid[name] = isvalid;
                     }
                 }else {
                     alert('未找到函数' + validator)
                 }
             }
         }
-        if(valid==true)delete this.valid[name];
-        if(oldValid != this.valid[name] || !Ext.isDefined(oldValid))
-        	this.ds.onRecordValid(this,name,valid);
+        if(valid==true)delete sf.valid[name];
+        if(oldValid != sf.valid[name] || !Ext.isDefined(oldValid))
+        	sf.ds.onRecordValid(sf,name,valid);
         return valid;
     },
     setDataSet : function(ds){

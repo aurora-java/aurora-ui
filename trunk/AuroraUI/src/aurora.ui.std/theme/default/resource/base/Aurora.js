@@ -1773,8 +1773,8 @@ $A.merge = function(){
 	}
 	function mergeOne(source, key, current){
 		if(Ext.isObject(current)){
-			if (Ext.isObject(source[key])) _merge(source[key], current);
-			else source[key] = clone(current);
+			if (!Ext.isObject(source[key])) source[key] = clone(current)
+			_merge(source[key], current);
 		}else if(Ext.isArray(current)){
 			source[key] = [].concat(current);
 		}else{
@@ -1792,15 +1792,6 @@ $A.merge = function(){
 	}
 	
 	return function(){
-		var args = [{}],
-			i = arguments.length,
-			ret;
-		while (i--) {
-			if (!Ext.isBoolean(arguments[i])) {
-				args[i + 1] = arguments[i];
-			}
-		}
-		ret = _merge.apply(null, args);
-		return ret;
+		return _merge.apply(null, Ext.toArray(arguments));
 	}
 }();
