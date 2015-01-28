@@ -3,6 +3,7 @@
 <head>
 <title>${page:title}</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 ${page:html.head.css} 
 ${page:html.head.script}
 </head>
