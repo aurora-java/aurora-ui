@@ -12481,12 +12481,12 @@ Chart.prototype = {
     		groupby = chart.groupBy,
     		seriesList = opt.seriesList;
 			if(isIE){
-	    		var series = opt.plotOptions.series,
+	    		var plotOptionsSeries = opt.plotOptions.series
 				el = Ext.getDom(chart.renderTo).parentNode;
 				while (el && el != (doc.body || doc.documentElement)) {
 					if(Ext.fly(el).isStyle("position", "absolute")){
-						series = opt.plotOptions.series = series||{};
-						series.animation=false;
+						plotOptionsSeries = opt.plotOptions.series = plotOptionsSeries||{};
+						plotOptionsSeries.animation=false;
 						break;
 					}
 					el = el.parentNode;
