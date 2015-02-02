@@ -12481,16 +12481,19 @@ Chart.prototype = {
     		groupby = chart.groupBy,
     		seriesList = opt.seriesList;
 			if(isIE){
-	    		var plotOptionsSeries = opt.plotOptions.series
-				el = Ext.getDom(chart.renderTo).parentNode;
-				while (el && el != (doc.body || doc.documentElement)) {
-					if(Ext.fly(el).isStyle("position", "absolute")){
-						plotOptionsSeries = opt.plotOptions.series = plotOptionsSeries||{};
-						plotOptionsSeries.animation=false;
-						break;
-					}
+	    		var plotOptionsSeries = opt.plotOptions.series,
+	    			el = Ext.get(chart.renderTo);
+    			if(el && (el = el.dom)){
 					el = el.parentNode;
-	            }
+					while (el && el != (doc.body || doc.documentElement)) {
+						if(Ext.fly(el).isStyle("position", "absolute")){
+							plotOptionsSeries = opt.plotOptions.series = plotOptionsSeries||{};
+							plotOptionsSeries.animation=false;
+							break;
+						}
+						el = el.parentNode;
+		            }
+    			}
 			}
 //    	if(type == 'pie'){
 //    		var datas = [],options = {},vf = chart.valuefield,nf = chart.namefield,flag;
