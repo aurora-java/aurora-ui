@@ -261,6 +261,7 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
     background-color:#ffffff;
 }
 .layout-th div { 
+	color:#888;
     text-align:right;
     padding-left:5px; 
     padding-right:5px;
