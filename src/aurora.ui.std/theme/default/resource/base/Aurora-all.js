@@ -1773,8 +1773,8 @@ $A.merge = function(){
 	}
 	function mergeOne(source, key, current){
 		if(Ext.isObject(current)){
-			if (Ext.isObject(source[key])) _merge(source[key], current);
-			else source[key] = clone(current);
+			if (!Ext.isObject(source[key])) source[key] = clone(current)
+			_merge(source[key], current);
 		}else if(Ext.isArray(current)){
 			source[key] = [].concat(current);
 		}else{
@@ -1792,16 +1792,7 @@ $A.merge = function(){
 	}
 	
 	return function(){
-		var args = [{}],
-			i = arguments.length,
-			ret;
-		while (i--) {
-			if (!Ext.isBoolean(arguments[i])) {
-				args[i + 1] = arguments[i];
-			}
-		}
-		ret = _merge.apply(null, args);
-		return ret;
+		return _merge.apply(null, Ext.toArray(arguments));
 	}
 }();
 /**
@@ -3556,35 +3547,47 @@ $A.Record.prototype = {
         return this.isValid;
     },
     validate : function(name){
-        var valid = true;
-        var oldValid = this.valid[name];
-        var v = this.get(name);
-        var field = this.getMeta().getField(name)
-        var validator = field.get('validator');
-        var vv = v;
-        if(v&&v.trim) vv = v.trim();
-        if(Ext.isEmpty(vv) && field.get('required') == true){
-            this.valid[name] = field.get('requiredmessage') || _lang['dataset.validate.required'];
-            valid =  false;
-        }
+        var sf = this,
+        	valid = true,
+        	oldValid = sf.valid[name],
+        	v = sf.get(name),
+        	field = sf.getMeta().getField(name),
+        	validator = field.get('validator'),
+        	requiredFunc = field.get('requiredfunction'),
+        	vv = v&&v.trim?v.trim():v;
+    	if(Ext.isEmpty(vv)){
+        	var required = field.get('required') == true;
+	    	if(requiredFunc){
+	           	var rf = window[requiredFunc];
+	            if(rf){
+	                required = rf(sf, name, v);
+	            }else {
+	                alert('未找到函数' + requiredFunc);
+	            }
+	        }
+	        if(required){
+	            sf.valid[name] = field.get('requiredmessage') || _lang['dataset.validate.required'];
+	            valid =  false;
+	        }
+    	}
         if(valid == true){
             var isvalid = true;
             if(validator){
                 var vc = window[validator];
                 if(vc){
-                    isvalid = vc.call(window,this, name, v);
+                    isvalid = vc(sf, name, v);
                     if(isvalid !== true){
                         valid = false;  
-                        this.valid[name] = isvalid;
+                        sf.valid[name] = isvalid;
                     }
                 }else {
                     alert('未找到函数' + validator)
                 }
             }
         }
-        if(valid==true)delete this.valid[name];
-        if(oldValid != this.valid[name] || !Ext.isDefined(oldValid))
-        	this.ds.onRecordValid(this,name,valid);
+        if(valid==true)delete sf.valid[name];
+        if(oldValid != sf.valid[name] || !Ext.isDefined(oldValid))
+        	sf.ds.onRecordValid(sf,name,valid);
         return valid;
     },
     setDataSet : function(ds){
@@ -9085,23 +9088,27 @@ $A.MultiLov = Ext.extend($A.Lov,{
 		}
     	return rv;
     },
-    showLovWindow : function(){        
-        if(this.fetching||this.isWinOpen||this.readonly) return;
+    showLovWindow : function(){  
+    	var sf = this;
+        if(sf.fetching||sf.isWinOpen||sf.readonly) return;
         
-        var v = this.getRawValue();
-        this.blur();
+        var v = sf.getRawValue(),
+        	lovurl = sf.lovurl,
+    		svc = sf.service,ctx = sf.context,
+    		w = sf.lovwidth||400,
+			url;
+        sf.blur();
         var url;
-        if(!Ext.isEmpty(this.lovurl)){
-            url = this.lovurl+'?' + Ext.urlEncode(this.getLovPara()) + '&';
-        }else if(!Ext.isEmpty(this.lovservice)){
-            url = this.context + 'sys_multiLov.screen?url='+encodeURIComponent(this.context + 'sys_lov.svc?svc='+this.lovservice + '&'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovservice+'&';           
-        }else if(!Ext.isEmpty(this.lovmodel)){
-            url = this.context + 'sys_multiLov.screen?url='+encodeURIComponent(this.context + 'autocrud/'+this.lovmodel+'/query?'+ Ext.urlEncode(this.getLovPara()))+'&service='+this.lovmodel+'&';
-        }
+        if(!Ext.isEmpty(lovurl)){
+            url = Ext.urlAppend(lovurl,Ext.urlEncode(sf.getFieldPara()));
+        }else if(!Ext.isEmpty(svc)){
+//              url = sf.context + 'sys_lov.screen?url='+encodeURIComponent(sf.context + 'sys_lov.svc?svc='+sf.lovservice + '&'+ Ext.urlEncode(sf.getLovPara()))+'&service='+sf.lovservice+'&';
+            url = ctx + 'sys_multiLov.screen?url='+encodeURIComponent(Ext.urlAppend(ctx + 'autocrud/'+svc+'/query',Ext.urlEncode(sf.getLovPara())))+'&service='+svc;
+    	}
         if(url) {
-	        this.isWinOpen = true;
-            this.win = new $A.Window({title:this.title||'Lov', url:url+"lovid="+this.id+"&key="+encodeURIComponent(v)+"&gridheight="+(this.lovgridheight||350)+"&innerwidth="+((this.lovwidth||400)-30)+"&innergridwidth="+Math.round(((this.lovwidth||400)-90)/2)+"&lovautoquery="+this.lovautoquery+"&lovlabelwidth="+this.lovlabelwidth, height:this.lovheight||400,width:this.lovwidth||400});
-            this.win.on('close',this.onWinClose,this);
+	        sf.isWinOpen = true;
+            sf.win = new $A.Window({title:sf.title||'Lov', url:Ext.urlAppend(url,"lovid="+sf.id+"&key="+encodeURIComponent(v)+"&gridheight="+(sf.lovgridheight||350)+"&innerwidth="+((sf.lovwidth||400)-30)+"&innergridwidth="+Math.round(((sf.lovwidth||400)-90)/2)+"&lovautoquery="+(Ext.isEmpty(sf.lovautoquery) ? 'true' : sf.lovautoquery)+"&lovlabelwidth="+(sf.lovlabelwidth||75)+"&lovpagesize="+(sf.lovpagesize||'')), height:sf.lovheight||400,width:w});
+            sf.win.on('close',sf.onWinClose,sf);
         }
     },
     destroy : function(){
