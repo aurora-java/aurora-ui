@@ -1,7 +1,7 @@
-<DIV class="${wrapClass} item-tf" style="width:${width}px;height:${height}px;${style}" id="${id}">
-	<DIV class="item-input-wrap item-trigger-wrap">
+<DIV class="${wrapClass} item-tf" style="cursor:text;width:${width}px;height:auto;min-height:${height}px;overflow:hidden;${style}" id="${id}" >
+	<DIV  class="item-input-wrap item-trigger-wrap" style="min-height:${height}px">
 		<DIV style="height:100%">
-			<INPUT tabindex="${tabindex}" style="text-indent:2px;height:${height}px;line-height:${height}px;${fontstyle}" class="item-textField" atype="field.input" autocomplete="off"/>
+			<INPUT tabindex="${tabindex}" style="text-indent:2px;line-height:${height}px;min-height:${height}px;${fontstyle}" class="item-textField item-multiTextField" atype="field.input" ${readonly} autocomplete="off" value="${value}" />
 		</DIV>
 		<DIV class="item-trigger item-lovButton" atype="triggerfield.trigger" hideFocus></DIV>
 	</DIV>
