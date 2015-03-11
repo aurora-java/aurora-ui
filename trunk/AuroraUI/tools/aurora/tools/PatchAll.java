@@ -57,12 +57,12 @@ public class PatchAll {
 			"datefield/DateTimePicker.js",
 			"toolbar/ToolBar.js",
 			"window/Window.js",
+			"multitextfield/MultiTextField.js",
 			"lov/Lov.js",
 			"lov/MultiLov.js",
 			"textarea/TextArea.js",
 			"base/Customization.js",
 			"queryform/QueryForm.js",
-			"multitextfield/MultiTextField.js",
 			"multicombobox/MultiComboBox.js",
 			"percentfield/PercentField.js",
 			"sidebar/SideBarPanel.js");		
@@ -158,7 +158,7 @@ public class PatchAll {
 		pa.patchAuroraStuff();
 		pa.compressAuroraStuff();
 		pa.compressTouchStuff();
-		pa.patchWebStuff();		
+		//pa.patchWebStuff();		
 	}
 	
 	

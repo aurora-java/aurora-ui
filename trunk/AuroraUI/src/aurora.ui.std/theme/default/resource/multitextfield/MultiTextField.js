@@ -24,7 +24,7 @@ A.MultiTextField = Ext.extend(A.TextField,{
     		[ou]('mouseup',sf.onWrapClick,sf);
     },
     initEvents : function(){
-        A.Lov.superclass.initEvents.call(this);
+        A.MultiTextField.superclass.initEvents.call(this);
         this.addEvents(
 	        /**
 	         * @event commit
@@ -194,8 +194,8 @@ A.MultiTextField = Ext.extend(A.TextField,{
     		v = sf.getRawValue(),
     		record = sf.record,
         	name = binder.name;
-    	sf.fetching = true;
     	if(sf.fetchremote){
+	    	sf.fetching = true;
     		var url,
 	        	svc = sf.service,
 	        	mapping = sf.getMapping(),
