@@ -5,6 +5,7 @@
     padding:0;
     padding-top:1px;
     background-color:transparent; 
+    width:auto;
 }
 .ext-ie6 .item-multiTextField{
     font-size:12px;
