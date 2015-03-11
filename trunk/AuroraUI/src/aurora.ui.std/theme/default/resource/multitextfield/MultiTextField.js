@@ -161,7 +161,7 @@ A.MultiTextField = Ext.extend(A.TextField,{
         sf.fireEvent(EVT_COMMIT, sf, record, r)
     },
     setSize : function(size){
-    	this.el.set({size:size||1});
+    	this.el.set({size:size+2||1});
     },
     addItem : function(text,noCloseBtn){
     	if(text){
