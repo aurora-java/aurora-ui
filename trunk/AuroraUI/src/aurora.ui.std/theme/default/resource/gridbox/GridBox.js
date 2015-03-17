@@ -623,6 +623,19 @@ A.GridBox = Ext.extend(A.Component,{
             }).defer(10);
         }           
     },
+    onFetching : function(ed){
+    	var sf = this;
+    	sf.isFetching = TRUE;
+    	A.Masker.mask(sf.wrap,_lang['grid.mask.fetching']);
+		ed.on('fetched',sf.onFetched,sf);
+    },
+    onFetched : function(ed){
+    	var sf = this;
+    	sf.isFetching = FALSE;
+    	A.Masker.unmask(sf.wrap);
+    	ed.un('fetched',sf.onFetched,sf);
+    	ed.un('fetching',sf.onFetching,sf);
+    },
     showEditorByRecord : function(record){
         var sf = this,
             ds = sf.dataset,
