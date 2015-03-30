@@ -48,6 +48,17 @@ A:link { COLOR: #005a78; TEXT-DECORATION: none}
 A:visited {COLOR: #005a78; TEXT-DECORATION: none}
 A:active {COLOR: #005a78;TEXT-DECORATION: none}
 A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
+.clearfix:after {
+	content: " ";
+	display: block;
+	clear: both;
+	height: 0;
+}
+.clearfix {
+	zoom: 1;
+	display: table;
+	width: 100%;
+}
 .screenTitle{
     float:left;
     font-size:20px;

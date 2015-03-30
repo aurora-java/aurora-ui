@@ -22,12 +22,12 @@ var _N = '',
     STRIP = 'strip',
     $STRIP = '.'+STRIP,
     ERROR = '销毁Tab出错: ',
-    STRIP_TPL=['<div class="strip unactive"  unselectable="on" onselectstart="return false;"><div style="height:26px;width:{stripwidth2}px">'
+    STRIP_TPL=['<div class="strip unactive"  unselectable="on" onselectstart="return false;"><div class="clearfix">'
 				,'<div class="strip-left"></div>',
 				'<div style="width:{stripwidth}px;" class="strip-center"><div class="tab-close"></div>{prompt}</div>',
 				'<div class="strip-right"></div>',
 			'</div></div>'],
-	BODY_TPL='<div style="width:{bodywidth}px;height:{bodyheight}px;left:-10000px;top:-10000px;" class="tab"></div>';
+	BODY_TPL='<div hideFocus style="height:{bodyheight}px" class="tab"></div>';
 /**
  * @class Aurora.Tab
  * @extends Aurora.Component
@@ -46,8 +46,8 @@ A.Tab = Ext.extend(A.Component,{
 		var sf = this,
 			w = sf.wrap,
 			h = sf.head = w.child('div[atype=tab.strips]'), 
-			s = sf.script = h.parent();
-		sf.scriptwidth = config.scriptwidth||60;
+			s = sf.stripwrap = h.parent();
+		sf.stripwidth = config.stripwidth||60;
 		sf.body = w.child('div.item-tab-body');
 		sf.scrollLeft = w.child('div[atype=scroll-left]');
 		sf.scrollRight = w.child('div[atype=scroll-right]');
@@ -59,7 +59,7 @@ A.Tab = Ext.extend(A.Component,{
     	A.Tab.superclass.processListener.call(sf,ou);
     	sf.sp[ou]('mousedown',sf.onMouseDown, sf)
     		[ou]('mouseup',sf.onMouseUp, sf);
-    	sf.script[ou]('click',sf.onClick, sf)
+    	sf.stripwrap[ou]('click',sf.onClick, sf)
     		[ou]('mousewheel',sf.onMouseWheel, sf);
     },
 	initEvents:function(){
@@ -128,26 +128,26 @@ A.Tab = Ext.extend(A.Component,{
 			if(sf.activeTab)sf.activeTab.replaceClass(ACTIVE,UNACTIVE);
 			sf.activeTab = activeStrip;
 			activeStrip.replaceClass(UNACTIVE,ACTIVE);
-			var script = sf.script,
+			var stripwrap = sf.stripwrap,
 				scrollLeft = sf.scrollLeft,
 				scrollRight = sf.scrollRight,
 				l=activeStrip.dom.offsetLeft,w=activeStrip.getWidth(),
-				sl=script.getScroll().left,sw=script.getWidth(),hw=sf.head.getWidth();
+				sl=stripwrap.getScroll().left,sw=stripwrap.getWidth(),hw=sf.head.getWidth();
 				tr=l+w-sl-sw,tl=sl-l;
 			if(tr>0){
 				scrollRight.removeClass(sd);
 				scrollLeft.removeClass(sd);
-				script.scrollTo(LEFT,sl+tr);
+				stripwrap.scrollTo(LEFT,sl+tr);
 			}else if(tl>0){
 				scrollLeft.removeClass(sd);
-				script.scrollTo(LEFT,sl-tl);
+				stripwrap.scrollTo(LEFT,sl-tl);
 				scrollRight.removeClass(sd);
 			}
-			if(sw+script.getScroll().left>=hw){
-				script.scrollTo(LEFT,hw-sw);
+			if(sw+stripwrap.getScroll().left>=hw){
+				stripwrap.scrollTo(LEFT,hw-sw);
 				scrollRight.addClass(sd);
 			}else if(index==0){
-				script.scrollTo(LEFT,0);
+				stripwrap.scrollTo(LEFT,0);
 				scrollLeft.addClass(sd);
 			}
 			if(activeBody){
@@ -180,19 +180,19 @@ A.Tab = Ext.extend(A.Component,{
 		}
 		if(sf.fireEvent(EVT_BEFORE_OPEN,sf,l)!==false){
 			items.push({'ref':ref,prompt:prompt});
-			var stripwidth=Math.max(A.TextMetrics.measure(document.body,prompt).width+20,sf.scriptwidth),
+			var stripwidth=Math.max(A.TextMetrics.measure(document.body,prompt).width+20,sf.stripwidth),
 				head = sf.head,
 				body = sf.body,
-				script = sf.script,
+				stripwrap = sf.stripwrap,
 				width = head.getWidth()+stripwidth+6;
 			head.setWidth(width);
-			if(width>script.getWidth()){
+			if(width>stripwrap.getWidth()){
 				sf.scrollLeft.setStyle({display:BLOCK});
 				sf.scrollRight.setStyle({display:BLOCK});
-				script.setStyle(PADDING_LEFT,'1px');
+				stripwrap.setStyle(PADDING_LEFT,'1px');
 			}
-			new Ext.Template(STRIP_TPL).append(head.dom,{'prompt':prompt,'stripwidth':stripwidth,'stripwidth2':stripwidth+6});
-			new Ext.Template(BODY_TPL).append(body.dom,{'bodywidth':body.getWidth(),'bodyheight':body.getHeight()});
+			new Ext.Template(STRIP_TPL).append(head.dom,{'prompt':prompt,'stripwidth':stripwidth});
+			new Ext.Template(BODY_TPL).append(body.dom,{'bodyheight':body.getHeight()});
 			sf.selectTab(l);
 		}
 	},
@@ -214,13 +214,13 @@ A.Tab = Ext.extend(A.Component,{
         }
 		sf.items.splice(index,1);
 		var head = sf.head,
-			script = sf.script,
+			stripwrap = sf.stripwrap,
 			width= head.getWidth()-strip.getWidth();
 //		head.setWidth(width);//IE8慢
-		if(width <= script.getWidth()){
+		if(width <= stripwrap.getWidth()){
 			sf.scrollLeft.setStyle({display:NONE});
 			sf.scrollRight.setStyle({display:NONE});
-			script.setStyle(PADDING_LEFT,'0');
+			stripwrap.setStyle(PADDING_LEFT,'0');
 		}
 		strip.remove();
 		body.remove();
@@ -311,22 +311,22 @@ A.Tab = Ext.extend(A.Component,{
 	},
 	scrollTo : function(lr){
 		var sf = this,
-			script = sf.script,
+			stripwrap = sf.stripwrap,
 			scrollRight = sf.scrollRight,
 			scrollLeft = sf.scrollLeft,
-			sl = script.getScroll().left,
-			sw = sf.scriptwidth;
+			sl = stripwrap.getScroll().left,
+			sw = sf.stripwidth;
 		if(lr==LEFT){
-			script.scrollTo(LEFT,sl-sw);
+			stripwrap.scrollTo(LEFT,sl-sw);
 			scrollRight.removeClass(sd);
-			if(script.getScroll().left<=0){
+			if(stripwrap.getScroll().left<=0){
 				scrollLeft.addClass(sd).replaceClass(tslo,tsl);
 				sf.stopScroll();
 			}
 		}else if(lr==RIGHT){
-			script.scrollTo(LEFT,sl+sw);
+			stripwrap.scrollTo(LEFT,sl+sw);
 			scrollLeft.removeClass(sd);
-			if(script.getScroll().left+script.getWidth()>=sf.head.getWidth()){
+			if(stripwrap.getScroll().left+stripwrap.getWidth()>=sf.head.getWidth()){
 				scrollRight.addClass(sd).replaceClass(tsro,tsr);
 				sf.stopScroll();
 			}
@@ -509,30 +509,30 @@ A.Tab = Ext.extend(A.Component,{
     	var sf = this;
     	if(sf.width==w)return;
     	A.Tab.superclass.setWidth.call(sf, w);
-    	var body = sf.body,head = sf.head,script = sf.script,
+    	var body = sf.body,head = sf.head,stripwrap = sf.stripwrap,
     		scrollLeft = sf.scrollLeft,scrollRight= sf.scrollRight;
-    	body.setWidth(w-2);
-    	script.setWidth(w-38);
+//    	body.setWidth(w-2);
+    	stripwrap.setWidth(w-38);
     	if(w-38<head.getWidth()){
 			scrollLeft.setStyle({display:BLOCK});
 			scrollRight.setStyle({display:BLOCK});
-			script.setStyle(PADDING_LEFT,'1px');
-			var sl=script.getScroll().left,sw=script.getWidth(),hw=head.getWidth();
+			stripwrap.setStyle(PADDING_LEFT,'1px');
+			var sl=stripwrap.getScroll().left,sw=stripwrap.getWidth(),hw=head.getWidth();
 			if(sl<=0)scrollLeft.addClass(sd);
 			else scrollLeft.removeClass(sd);
 			if(sl+sw>=hw){
 				if(!scrollRight.hasClass(sd))scrollRight.addClass(sd);
-				else script.scrollTo(LEFT,hw-sw);
+				else stripwrap.scrollTo(LEFT,hw-sw);
 			}else scrollRight.removeClass(sd);
     	}else{
 			scrollLeft.setStyle({display:NONE});
 			scrollRight.setStyle({display:NONE});
-			script.setStyle(PADDING_LEFT,'0').scrollTo(LEFT,0);
+			stripwrap.setStyle(PADDING_LEFT,'0').scrollTo(LEFT,0);
     	}
 //    	var bodys = Ext.DomQuery.select('div.tab',sf.body.dom);
-    	Ext.each(body.dom.children,function(b){
-    		Ext.fly(b).setWidth(w-4);
-    	});
+//    	Ext.each(body.dom.children,function(b){
+//    		Ext.fly(b).setWidth(w-4);
+//    	});
     },
     setHeight : function(h){
     	h = Math.max(h,25);
@@ -541,9 +541,9 @@ A.Tab = Ext.extend(A.Component,{
     	var body = this.body;
     	body.setHeight(h-26);
 //    	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
-    	Ext.each(body.dom.children,function(b){
-    		Ext.fly(b).setHeight(h-28);
-    	});
+//    	Ext.each(body.dom.children,function(b){
+//    		Ext.fly(b).setHeight(h-28);
+//    	});
     }
 });
 })($A);
