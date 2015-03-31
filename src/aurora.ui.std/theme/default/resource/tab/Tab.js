@@ -22,11 +22,11 @@ var _N = '',
     STRIP = 'strip',
     $STRIP = '.'+STRIP,
     ERROR = '销毁Tab出错: ',
-    STRIP_TPL=['<div class="strip unactive"  unselectable="on" onselectstart="return false;"><div class="clearfix">'
-				,'<div class="strip-left"></div>',
+    STRIP_TPL=['<div class="strip unactive"  unselectable="on" onselectstart="return false;">',
+				'<div class="strip-left"></div>',
 				'<div style="width:{stripwidth}px;" class="strip-center"><div class="tab-close"></div>{prompt}</div>',
 				'<div class="strip-right"></div>',
-			'</div></div>'],
+			'</div>'],
 	BODY_TPL='<div hideFocus style="height:{bodyheight}px" class="tab"></div>';
 /**
  * @class Aurora.Tab
@@ -511,11 +511,10 @@ A.Tab = Ext.extend(A.Component,{
     	A.Tab.superclass.setWidth.call(sf, w);
     	var body = sf.body,head = sf.head,stripwrap = sf.stripwrap,
     		scrollLeft = sf.scrollLeft,scrollRight= sf.scrollRight;
-//    	body.setWidth(w-2);
     	stripwrap.setWidth(w-38);
     	if(w-38<head.getWidth()){
-			scrollLeft.setStyle({display:BLOCK});
-			scrollRight.setStyle({display:BLOCK});
+			scrollLeft.setStyle({display:_N});
+			scrollRight.setStyle({display:_N});
 			stripwrap.setStyle(PADDING_LEFT,'1px');
 			var sl=stripwrap.getScroll().left,sw=stripwrap.getWidth(),hw=head.getWidth();
 			if(sl<=0)scrollLeft.addClass(sd);
@@ -529,21 +528,12 @@ A.Tab = Ext.extend(A.Component,{
 			scrollRight.setStyle({display:NONE});
 			stripwrap.setStyle(PADDING_LEFT,'0').scrollTo(LEFT,0);
     	}
-//    	var bodys = Ext.DomQuery.select('div.tab',sf.body.dom);
-//    	Ext.each(body.dom.children,function(b){
-//    		Ext.fly(b).setWidth(w-4);
-//    	});
     },
     setHeight : function(h){
     	h = Math.max(h,25);
     	if(this.height==h)return;
     	A.Tab.superclass.setHeight.call(this, h);
-    	var body = this.body;
-    	body.setHeight(h-26);
-//    	var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
-//    	Ext.each(body.dom.children,function(b){
-//    		Ext.fly(b).setHeight(h-28);
-//    	});
+    	this.body.setHeight(h-26);
     }
 });
 })($A);

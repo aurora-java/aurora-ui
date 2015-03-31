@@ -42,7 +42,7 @@
 }
 .strip .strip-left, .strip .strip-right{
 	float:left;
-	height:26px;
+	height:100%;
 	width:3px;
 	
 }
