@@ -10,7 +10,7 @@
 			</TD>
 		</TR>
 		<TR>
-			<TD>
+			<TD style="padding-right:2px">
 				<div class="item-tab-body" style="height:${bodyheight}px;">
 					${bodys}
 				</div>
