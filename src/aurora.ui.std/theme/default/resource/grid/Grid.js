@@ -484,7 +484,7 @@ A.Grid = Ext.extend(A.Component,{
             ds[ou]('loadfailed', sf.onAjaxFailed, sf);
             ds[ou]('valid', sf.onValid, sf);
             ds[ou]('beforeremove', sf.onBeforeRemove, sf); 
-            ds[ou]('remove', sf.onRemove, sf);
+            ds[ou]('remove', sf.onLoad, sf);
             ds[ou]('clear', sf.onLoad, sf);
             ds[ou]('refresh',sf.onRefresh,sf);
             ds[ou]('fieldchange', sf.onFieldChange, sf);
