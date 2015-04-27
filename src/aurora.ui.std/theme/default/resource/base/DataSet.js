@@ -626,12 +626,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     //      if(valid !== false) if(!this.validCurrent())return;
             var dd = {};
             for(var k in this.fields){
-                var field = this.fields[k];
-                var dv = field.getPropertity('defaultvalue');
-                if(dv && !data[field.name]){
-                    dd[field.name] = dv;
+                var field = this.fields[k],
+                	dv = field.getPropertity('defaultvalue'),
+                	name = field.name;
+                if(dv && !data[name]){
+                    dd[name] = dv;
+                    dd[name] = this.processData(dd,name,field);
                 }else {
-                    dd[field.name] = this.processData(data,field.name,field);
+                    dd[name] = this.processData(data,name,field);
 //                    dd[field.name] = this.processValueListField(dd,data[field.name],field);
                 }
             }
@@ -1365,8 +1367,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var sf = this;
     	Ext.each(items,function(data){
     		Ext.iterate(data,function(key,d,f){
-                if((f = sf.fields[key]) && f.type == 'dataset'){
-            		sf.checkEmptyData(d);
+                if(Ext.isArray(d)){
+                	sf.checkEmptyData(d);
                 }else if(d ===''){
                 	data[key]=null;
                 }
