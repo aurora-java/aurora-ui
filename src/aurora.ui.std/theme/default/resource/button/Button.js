@@ -149,6 +149,25 @@ $A.Button = Ext.extend($A.Component,{
      */
     setText : function(text){
     	this.textEl.update(text);
+    },
+    /**
+     * 设置按钮的图标.
+     * @param {String} url  图片路径.
+     * @param {String} align  图片定位，可选值：left|top.
+     */
+    setIcon : function(url,align){
+    	this.wrap.addClass(this.textEl.setStyle({'background-image':'url('+url+')'}).dom.innerHTML.replace(/\s+|&nbsp;/g,'') == ''?
+    		'item-btn-icon':((this.iconalign = align) =='top'?
+    			'item-btn-icon-text-top':'item-btn-icon-text'));
+    },
+    setHeight: function(h){
+    	var sf = this;
+    	if(sf.height == h) return;
+    	sf.height = h;
+    	sf.el.setHeight(h);
+    	sf.textEl.setStyle({
+    		height:sf.iconalign == 'top'?'':(h+'px')
+		});
     }
 });
 $A.Button.getTemplate = function(id,text,width){
