@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="tools"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/commons-fileupload.jar"/>
+	<classpathentry kind="lib" path="lib/jargs-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/rhino-1.6R7.jar"/>
+	<classpathentry kind="lib" path="lib/saxon-jdom.jar"/>
+	<classpathentry kind="lib" path="lib/saxon-xml-apis.jar"/>
+	<classpathentry kind="lib" path="lib/saxon.jar"/>
+	<classpathentry kind="lib" path="lib/xslthl-2.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/yuicompressor-2.4.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
