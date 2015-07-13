@@ -327,6 +327,8 @@ $A.post = function(action,data,target){
 $A.request = function(opt){
     var url = opt.url,
         para = opt.para,
+        xmlData = opt.xmlData,
+//        jsonData = opt.jsonData,
         successCall = opt.success,
         errorCall = opt.error,
         scope = opt.scope,
@@ -342,13 +344,37 @@ $A.request = function(opt){
         $A['_startTime'] = new Date();
         $('HTTPWATCH_DATASET').create({'url':url,'request':Ext.util.JSON.encode({parameter:para})})
     }
-    var data = Ext.apply({parameter:para},opt.ext);
+    var dtoName = opt.dtoName,
+    	hybrisKey = opt.hybrisKey,
+		params = {};
+	if(hybrisKey){
+		var arr = params[dtoName] = [],records={};
+		Ext.each(para,function(p){
+			var _p = {};
+			Ext.iterate(p,function(key,value){
+				if(/^@/.test(key)){
+					_p[key] = value;
+				}
+			});
+			Ext.applyIf(_p,p);
+			delete _p._id;
+			delete _p._status;
+			arr.push(_p);
+			records[p[hybrisKey]]=p;
+		});
+		params=Ext.util.JSON.encode(params);
+	}else{
+		params['_request_data'] = Ext.util.JSON.encode(Ext.apply({parameter:para},opt.ext))
+	}
     return Ext.Ajax.request({
         url: url,
-        method: 'POST',
-        params:{_request_data:Ext.util.JSON.encode(data)},
+        method: opt.method||'POST',
+        xmlData : xmlData,
+//        jsonData : jsonData,
+        params:params,
         opts:opts,
         sync:opt.sync,
+        headers:opt.headers,
         success: function(response,options){
             if(!Ext.isEmpty(lockMessage)){
                 $A.Masker.unmask(body);
@@ -371,34 +397,52 @@ $A.request = function(opt){
                     $A.showErrorMessage(_lang['ajax.error'], _lang['ajax.error.format']);
                     return;
                 }
-                
-                if(res && !res.success){
-                    $A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
-                    if(res.error){
-                        if(res.error.code  && (res.error.code == 'session_expired' || res.error.code == 'login_required')){
-                            if($A.manager.fireEvent('timeout', $A.manager))
-                            $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
-                        }else{
-                            var st = res.error.stackTrace;
-                            st = (st) ? st.replaceAll('\r\n','</br>') : '';
-                            if(res.error.message) {
-                                var h = (st=='') ? 150 : 250;
-                                $A.showErrorMessage(_lang['ajax.error'], res.error.message+'</br>'+st,null,400,h);
-                            }else{
-                                $A.showErrorMessage(_lang['ajax.error'], st,null,400,250);
-                            }
-                        }
-                        if(errorCall)
-                        errorCall.call(scope, res, options);
-                    }                                                               
-                } else {                    
-                    if(successCall) {
-                        successCall.call(scope,res, options);
-                        opt.showSuccessTip = opt.showSuccessTip || false;
-                    }
-                    if(opt.showSuccessTip){
-                        $A.manager.fireEvent('ajaxsuccess', opt.successTip);
-                    }
+                if(res){
+	                if(dtoName){
+	                	if(res['@uri']){
+	            			res={
+		            			result:{
+									record:!res['@pk']?res[dtoName]:[res]
+								},
+								success:true
+	            			}
+	                	}else if(res.result){
+							var record_arr = [];
+							Ext.each(res.result.record,function(r){
+								record_arr.push(records[r.code]);
+							});
+							res.result.record = record_arr;
+		                	res.success = true;
+	                	}
+	            	}
+	                if(!res.success){
+	                    $A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
+	                    if(res.error){
+	                        if(res.error.code  && (res.error.code == 'session_expired' || res.error.code == 'login_required')){
+	                            if($A.manager.fireEvent('timeout', $A.manager))
+	                            $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
+	                        }else{
+	                            var st = res.error.stackTrace;
+	                            st = (st) ? st.replaceAll('\r\n','</br>') : '';
+	                            if(res.error.message) {
+	                                var h = (st=='') ? 150 : 250;
+	                                $A.showErrorMessage(_lang['ajax.error'], res.error.message+'</br>'+st,null,400,h);
+	                            }else{
+	                                $A.showErrorMessage(_lang['ajax.error'], st,null,400,250);
+	                            }
+	                        }
+	                        if(errorCall)
+	                        errorCall.call(scope, res, options);
+	                    }                                                               
+	                } else {                    
+	                    if(successCall) {
+	                        successCall.call(scope,res, options);
+	                        opt.showSuccessTip = opt.showSuccessTip || false;
+	                    }
+	                    if(opt.showSuccessTip){
+	                        $A.manager.fireEvent('ajaxsuccess', opt.successTip);
+	                    }
+	                }
                 }
             }
         },
@@ -410,6 +454,35 @@ $A.request = function(opt){
         },
         scope: scope
     });
+}
+$A.parseXML = function(strxml){
+	var xmldom =  null;
+    if (typeof DOMParser != "undefined"){
+    	try{
+        	xmldom = new DOMParser().parseFromString(strxml, "text/xml");
+    	}catch(e){
+    		 throw new Error("XML parsing error:" + e.message);
+    	}
+        var errors = xmldom.getElementsByTagName("parsererror");
+        if(errors.length) {
+            throw new Error("XML parsing error:" + errors[0].textContent);
+        }
+    }else if(document.implementation.hasFeature("LS", "3.0")){
+        var implementation =  document.implementation,
+        	parser = implementaion.createLSParser(implementation.MODE_SYNCHRONOUS, null),
+        	input = implementation.createLSInput();
+        input.stringData = strxml;
+        xmldom = parser.parse(input);
+    }else if(typeof ActiveXObject != "undefined"){
+        xmldom = new ActiveXObject("Microsoft.XMLDOM");
+        xmldom.loadXML(strxml);
+        if (xmldom.parseError != 0) {
+            throw new Error("XML parsing error:" + xmldom.parseError.reason);
+        }
+    }else{
+        throw new Error("No XML parser available.");
+    }
+    return xmldom;
 }
 Aurora.dateFormat = function () { 
     var masks = {  
@@ -1684,8 +1757,30 @@ if(Ext.isIE){//for fix IE event's order bug
         return sf;
     }
 })();
-};
-
+}/*else if(!Ext.isIE9 && !Ext.isIE10) {
+(function(){
+	var _proto = Number.prototype,
+		_toFixed = _proto.toFixed;
+	_proto.toFixed = function(deci) {
+		var s = String(this);
+		if(s.indexOf('e') != -1){
+			var arr = s.split('e');
+			if(arr[1]<0){
+				if(arr[0].indexOf('.') == -1){
+					arr[1] -=1;
+				}
+				return _toFixed.call(Number(arr[0]+1+'e'+arr[1]),deci);
+			}else{
+				return _toFixed.call(this,deci);
+			}
+		}else if(s.indexOf('.') == -1){
+			return _toFixed.call(this,deci);
+		}else{
+			return _toFixed.call(Number(s+1),deci);
+		}
+	}
+})();
+}*/
 $A.FixMath = (function(){
 var POW = Math.pow,
     mul = function(a,b) { 

@@ -28,6 +28,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.submiturl = config.submiturl || '';
         this.queryurl = config.queryurl || '';
         this.fetchall = config.fetchall||false;
+        //Hybris
+        this.isHybris = !!(this.dtoname = config.dtoname||'');
+        this.hybriskey = config.hybriskey;
+        
         this.totalcountfield = config.totalcountfield || 'totalCount';
         this.selectable = config.selectable||false;
         this.selectionmodel = config.selectionmodel||'multiple';
@@ -728,31 +732,52 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             this.removeRemote(rrs);
         }
     },
-    removeRemote: function(rs){     
+    removeRemote: function(rs){
         if(this.submiturl == '') return;
-        var p = [];
-        for(var k=0;k<rs.length;k++){
-            var r = rs[k]
-            for(var key in this.fields){
-                var f = this.fields[key];
-                if(f && f.type == 'dataset') delete r.data[key];
-            }
-            var d = Ext.apply({}, r.data);
-            d['_id'] = r.id;
-            d['_status'] = 'delete';
-            p[k] = d
-        }
+    	var sf = this,
+    		p = [],
+    		isHybris = sf.isHybris,
+    		hybrisKey = sf.hybriskey,
+    		dtoName = sf.dtoname;
+        Ext.each(rs,function(r){
+        	var data = {
+            	_id:r.id,
+            	_status:'delete'
+            };
+        	if(isHybris){
+        		data[hybrisKey]=r.data[hybrisKey];
+        	}else{
+	        	Ext.iterate(sf.fields,function(key,f){
+	        		if(f && f.type == 'dataset') delete r.data[key];
+	        	});
+	        	data = Ext.apply(data, r.data);
+        	}
+            p.push(data);
+        });
 //      var p = [d];
 //      for(var i=0;i<p.length;i++){
-//          p[i] = Ext.apply(p[i],this.spara)
+//          p[i] = Ext.apply(p[i],sf.spara)
 //      }
-        if(p.length > 0) {
-            var opts;
-            if(this.bindtarget){
-                var bd = $A.CmpManager.get(this.bindtarget);
-                opts = {record:bd.getCurrentRecord(),dataSet:this};
-            }
-            $A.request({url:this.submiturl, para:p, ext:this.spara,success:this.onRemoveSuccess, error:this.onSubmitError, scope:this, failure:this.onAjaxFailed,opts:opts});
+        if(p.length) {
+        	$A.request(Ext.apply({
+            	url:sf.submiturl, 
+        		para:p,
+            	ext:sf.spara,
+            	success:sf.onRemoveSuccess, 
+            	error:sf.onSubmitError, 
+            	scope:sf,
+            	failure:sf.onAjaxFailed,
+            	opts:sf.bindtarget?{record:$A.CmpManager.get(sf.bindtarget).getCurrentRecord(),dataSet:sf}:null
+        	},isHybris?{
+        		dtoName:sf.dtoname,
+        		hybrisKey:sf.hybriskey,
+        		method:'Delete',
+        		headers:{
+        			'Content-Type':'application/json',
+        			'Accept':'application/json'
+        		}
+        	}:{
+    		}));
         }
     
     },
@@ -1261,28 +1286,79 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
     },
     doQuery:function(page,opts){
-        var r;
-        if(this.qds)r = this.qds.getCurrentRecord();
-        if(!page) this.currentIndex = 1;
-        this.currentPage = page || 1;
-        var q = {};
+    	function format_xmlattribute(key){
+    		if(/^@/.test(key)){
+				return key.substring(1);    			
+    		}
+    		return key;
+    	}
+        var sf = this,
+        	r,q = {},
+        	qurl = sf.queryurl,
+        	dtoName = sf.dtoname,
+        	isHybris = sf.isHybris,
+        	pagesize = sf.pagesize,
+        	qds = sf.qds;
+        if(qds)r = qds.getCurrentRecord();
+        if(!page) sf.currentIndex = 1;
+        page = sf.currentPage = page || 1;
         if(r != null) Ext.apply(q, r.data);
-        Ext.apply(q, this.qpara);
+        Ext.apply(q, sf.qpara);
         for(var k in q){
            var v = q[k];
            if(Ext.isEmpty(v,false)||v.xtype == 'dataset') delete q[k];
         }
-        var para = 'pagesize='+this.pagesize + 
-                      '&pagenum='+this.currentPage+
-                      '&_fetchall='+this.fetchall+
-                      '&_autocount='+this.autocount
-//                    + '&_rootpath=list'
-        var url = this.queryurl +(this.queryurl.indexOf('?') == -1?'?':'&') + para;
-        this.loading = true;
-        this.fireEvent("query", this,q,opts);
-//      this.fireBindDataSetEvent("beforeload", this);//主dataset无数据,子dataset一直loading
-        if(this.qtId) Ext.Ajax.abort(this.qtId);
-        this.qtId = $A.request({url:url, para:q, success:this.onLoadSuccess, error:this.onLoadError, scope:this,failure:this.onAjaxFailed,opts:opts,ext:opts?opts.ext:null});
+        if(isHybris){
+        	var path = qurl.match(/\/([^\/]*)$/)[1],
+        		para = path+'_size='+pagesize + 
+	                      '&'+path+'_page='+(page - 1),
+	            attributes=[],
+	            query=[];
+	        Ext.iterate(sf.fields,function(key){
+        		attributes.push(format_xmlattribute(key));
+	        });
+	        if(attributes.length)
+	        	para+='&'+dtoName+'_attributes='+attributes.join(',');
+	        Ext.iterate(q,function(key,value){
+	        	var qfield = qds.fields[key];
+	        	if(!qfield || qfield.getPropertity('forquery') != 'false'){
+		        	if(value != 'true' && value !='false'){
+		        		value = "'"+value+"'";
+		        	}
+		        	query.push('{'+format_xmlattribute(key)+'}'+(String(value).indexOf('%')==-1?' = ':' like ')+value);
+	        	}
+	        })
+	        if(query.length)
+	        	para+='&'+path+'_query='+encodeURIComponent(query.join(' and '))
+        }else{
+	        var para = 'pagesize='+pagesize + 
+	                      '&pagenum='+page+
+	                      '&_fetchall='+sf.fetchall+
+	                      '&_autocount='+sf.autocount
+	//                    + '&_rootpath=list'
+        }
+       	var url = Ext.urlAppend(qurl,para);
+        sf.loading = true;
+        sf.fireEvent("query", sf,q,opts);
+//      sf.fireBindDataSetEvent("beforeload", sf);//主dataset无数据,子dataset一直loading
+        if(sf.qtId) Ext.Ajax.abort(sf.qtId);
+        sf.qtId = $A.request(Ext.apply({
+        	url:url, 
+        	success:sf.onLoadSuccess, 
+        	error:sf.onLoadError, 
+        	scope:sf,
+        	failure:sf.onAjaxFailed,
+        	opts:opts,
+        	ext:opts?opts.ext:null
+        },isHybris?{
+        	dtoName:dtoName,
+        	method:'GET',
+        	headers:{
+        		'Accept':'application/json'
+        	}
+        }:{
+        	para:q
+        }));
     },
     /**
      * 判断当前数据集是否发生改变.
@@ -1328,22 +1404,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @return {Object} json 返回的json对象.
      */
     getJsonData : function(selected,fields){
-        var datas = [];
-        var items = this.data;
-        if(selected) items = this.getSelected();
-        for(var i=0,l=items.length;i<l;i++){
-            var r = items[i];
-//            var isAdd = r.dirty; //MAS云新增特性
-            var isAdd = r.dirty || r.isNew;
-            
-            var d = Ext.apply({}, r.data);
-            d['_id'] = r.id;
-            d['_status'] = r.isNew ? 'insert' : 'update';
-            for(var k in r.data){
+        var sf = this,
+        	datas = [],
+        	items = selected?sf.getSelected():sf.data,
+        	dsfields = sf.fields,
+        	isHybris = sf.isHybris;
+        Ext.each(items,function(r){
+//          var isAdd = r.dirty; //MAS云新增特性
+        	var isAdd = r.dirty || r.isNew,
+            	d = Ext.apply({}, r.data);
+            Ext.iterate(d,function(k,item){
             	if(fields && fields.indexOf(k)==-1){
             		delete d[k];
             	}else{
-	                var item = d[k];
 	                if(item && item.xtype == 'dataset'){
 	                	//if(item.data.length > 0){
 		                    var ds = new $A.DataSet({});//$(item.id);
@@ -1353,13 +1426,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		                    d[k] = ds.getJsonData();
 	                	//}
 	                }
-            	}
-            }
-            
+            	} 
+            });
+            d['_id'] = r.id;
+            d['_status'] = r.isNew ? 'insert' : 'update';
             if(isAdd||selected){
                 datas.push(d);              
             }
-        }
+        });
         
         return datas;
     },
@@ -1376,7 +1450,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	});
     },
     doSubmit : function(url, items){
-    	var sf = this;
+    	var sf = this,
+    		isHybris = sf.isHybris;
         sf.fireBindDataSetEvent("submit",url,items);
         if((sf.submiturl = url||sf.submiturl) == '') return;
 //        var p = items;//sf.getJsonData();
@@ -1392,7 +1467,24 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         
         //if(p.length > 0) {
 //            sf.fireEvent("submit", sf);
-            $A.request({showSuccessTip:true,url:sf.submiturl, para:items, ext:sf.spara,success:sf.onSubmitSuccess, error:sf.onSubmitError, scope:sf,failure:sf.onAjaxFailed});
+            $A.request(Ext.apply({
+            	showSuccessTip:true,
+            	url:sf.submiturl, 
+            	ext:sf.spara,
+            	success:sf.onSubmitSuccess, 
+            	error:sf.onSubmitError, 
+            	scope:sf,
+            	failure:sf.onAjaxFailed,
+        		para:items
+        	},isHybris?{
+        		dtoName:sf.dtoname,
+        		hybrisKey:sf.hybriskey,
+        		headers:{
+        			'Content-Type':'application/json',
+        			'Accept':'application/json'
+        		}
+        	}:{
+    		}));
         //}
     },
     /**
