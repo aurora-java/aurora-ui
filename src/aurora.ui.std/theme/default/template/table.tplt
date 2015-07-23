@@ -1,6 +1,7 @@
 <TABLE tabIndex="${tabindex}" class="${wrapClass}" id="${id}" hidefocus style="outline:none;width:${percentwidth};${style}" cellSpacing="0" cellPadding="0" border="0">
 <THEAD>
 	${title}
+	${toolBar}
 	${heads}
 </THEAD>
 <TBODY>

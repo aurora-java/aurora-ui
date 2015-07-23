@@ -58,6 +58,7 @@ var	DOC_EL = document.documentElement,
     TABLE_CELL_EDITOR=TABLE_CELL+'-editor',//'table-cell-editor'
     CELL_CHECK = 'cellcheck',
     ROW_CHECK = 'rowcheck',
+    ROW_RADIO = 'rowradio',
     EVT_CLICK = 'click',
     EVT_CELL_CLICK = 'cellclick',
     EVT_RENDER = 'render',
@@ -73,6 +74,7 @@ var	DOC_EL = document.documentElement,
     SELECT_TR_CLASS='tr[class!=grid-hl]',
     SELECT_DIV_ATYPE = 'div[atype=table.headcheck]',
     SELECT_TD_DATAINDEX = 'td[dataindex=',
+    GRID_CKB = 'grid-ckb ',
     sortByGroup = function(datas,colnames,value,_colname){
     	if(colnames.length){
 	    	var ret = [],
@@ -225,7 +227,7 @@ A.Table = Ext.extend(A.Component,{
 		A.Table.superclass.initComponent.call(this,config);
 		var sf = this,wrap=sf.wrap;
 		sf.th = wrap.child('thead tr.table-head');
-		sf.tbody=wrap.child('tbody');
+		sf.tbody=wrap.child('>tbody');
 		sf.fb=wrap.child('tfoot');
 		sf.initTemplate();
 	},
@@ -260,7 +262,7 @@ A.Table = Ext.extend(A.Component,{
 			ds[ou]('loadfailed', sf.onAjaxFailed, sf);
             ds[ou]('valid', sf.onValid, sf);
             ds[ou]('beforeremove', sf.onBeforeRemove, sf); 
-            ds[ou]('remove', sf.onRemove, sf);
+            ds[ou]('remove', sf.onLoad, sf);
             ds[ou]('clear', sf.onLoad, sf);
             ds[ou]('refresh',sf.onLoad,sf);
             ds[ou]('fieldchange', sf.onFieldChange, sf);
@@ -301,7 +303,7 @@ A.Table = Ext.extend(A.Component,{
          * @event editorShow
          * 编辑器显示后触发的事件.
          * @param {Aurora.Table} table 当前Table组件.
-         * @param {Editor} grid 当前Editor组件.
+         * @param {Editor} editor 当前Editor组件.
          * @param {Number} row 行号.
          * @param {String} 当前name.
          * @param {Aurora.Record} record 鼠标点击所在行的Record对象.
@@ -355,7 +357,7 @@ A.Table = Ext.extend(A.Component,{
 			EACH(sf.columns,function(col){
 				if(col.hidden && col.visiable == FALSE) return;
 				var colname,xtype = col.type;
-				if(xtype == ROW_CHECK||xtype == 'rowradio'){
+				if(sf.isFunctionCol(xtype)){
 					colname = '__rowbox__';
 				}else
 					colname = col.name;
@@ -418,7 +420,7 @@ A.Table = Ext.extend(A.Component,{
     		xtype = CELL_CHECK;
     		readonly=TRUE;
         }
-		if(xtype == ROW_CHECK||xtype == 'rowradio'){
+		if(sf.isFunctionCol(xtype)){
 			readonly = sf.dataset.execSelectFunction(record)?_N:READONLY;
 	    	Ext.fly(td).set({atype:xtype == ROW_CHECK?TABLE$ROWCHECK:TABLE$ROWRADIO,recordid:record.id})
 	    		.addClass(TABLE_ROWBOX);
@@ -1115,6 +1117,9 @@ A.Table = Ext.extend(A.Component,{
             }
         }
     },
+    isFunctionCol: function(t){
+        return t == ROW_CHECK || t == ROW_RADIO;
+    },
     onAdd : function(ds,record,row){
     	var sf = this,
     		__row = row,
@@ -1315,6 +1320,118 @@ A.Table = Ext.extend(A.Component,{
     },
     onAjaxFailed : function(res,opt){
         A.Masker.unmask(this.wrap);
+    },
+    deleteSelectRows: function(win){
+        var ds = this.dataset,selected = [].concat(ds.getSelected());
+        if(selected.length >0){
+            ds.remove(selected);
+        }
+    },
+    remove: function(){
+        var selected = this.dataset.getSelected();
+        if(selected.length >0) A.showConfirm(_lang['grid.remove.confirm'],_lang['grid.remove.confirmMsg'],this.deleteSelectRows.createDelegate(this));     
+    },
+    clear: function(){
+        var ds = this.dataset,selected = ds.getSelected();
+        while(selected[0]){
+            ds.removeLocal(selected[0]);
+        }
+    },
+    _export : function(type,filename,separator,exportParam){
+    	this.exportOptions = Ext.apply ({
+    		type:'xls',
+    		filename:'excel'
+    	},arguments.length==1?type:{
+			type:type||'xls',
+            filename:filename||'excel',
+            separator:separator,
+            param:exportParam
+    	});
+        this.showExportConfirm();
+    },
+    showExportConfirm :function(){
+        var sf = this,n=0,id = sf.id + '_export',
+            msg = ['<div class="item-export-wrap" style="margin:15px;width:270px" id="',id,'">',
+                    '<div class="grid-uh" atype="grid.uh" style="width: 270px; -moz-user-select: none; text-align: left; height: 25px; cursor: default;" onselectstart="return false;" unselectable="on">',
+                    '<table cellSpacing="0" cellPadding="0" border="0"><tbody><tr height="25px">',
+                    '<td class="export-hc" style="width:22px;" atype="export.rowcheck"><center><div title="',_lang['grid.export.selectinfo'],'" atype="export.headcheck" class="',GRID_CKB,ITEM_CKB_U,'"></div></center></td>',
+                    '<td class="export-hc" style="width:222px;" atype="grid-type">',_lang['grid.export.column'],'</td>',
+                    '</tr></tbody></table></div>',
+                    '<div style="overflow:auto;height:200px;"><table cellSpacing="0" cellPadding="0" border="0"><tbody>'],
+                    exportall = TRUE,height=370,
+                    exportOptions = sf.exportOptions||(sf.exportOptions={}),
+                    type = exportOptions && exportOptions.type;
+            EACH(sf.columns,function(c,i){
+                if(!sf.isFunctionCol(c.type)){
+                    if(exportall)exportall = c.forexport !==FALSE;
+                    msg.push('<tr',(n+i)%2==0?_N:' class="',ROW_ALT,'"',
+                    '><td class="','grid-rowbox','" style="width:22px;" ',
+                    RECORD_ID,'="',i,'" atype="export.rowcheck"><center><div id="',
+                    sf.id,__,i,'" class="',GRID_CKB,c.forexport === FALSE?ITEM_CKB_U:ITEM_CKB_C,
+                    '"></div></center></td><td style="width:222px"><div class="','grid-cell','">',
+                    c.prompt,c.hidden?['<div style="float:right;color:red">&lt;',_lang['grid.export.hidecolumn'],'&gt;</div>'].join(''):_N,'</div></td></tr>');    
+                }else n++;
+            });
+            if(exportall)msg[9]=ITEM_CKB_C;
+            msg.push('</tbody></table></div></div>');
+            if(type == 'xls' || type== 'xlsx'){
+            	height+=30;
+            	msg.push('<div class="item-radio" class="item-radio" style="margin:15px;width:270px;height:30px">',
+            				'<div class="item-radio-option" style="width:128px;float:left" itemvalue="xls">',
+            					'<div class="item-radio-img  item-radio-img-',type=='xls'?'c':'u','"></div>',
+            					'<label class="item-radio-lb">excel2003</label>',
+            				'</div>',
+            				'<div class="item-radio-option" style="width:128px;float:left" itemvalue="xlsx">',
+            					'<div class="item-radio-img  item-radio-img-',type=='xlsx'?'c':'u','"></div>',
+            					'<label class="item-radio-lb">excel2007</label>',
+            				'</div>',
+        				'</div>')
+            }
+            msg.push('<div style="margin:15px;width:270px;color:red">',_lang['grid.export.confirmMsg'],'</div>');
+        sf.exportwindow = A.showOkCancelWindow(_lang['grid.export.config'],msg.join(_N),function(win2){
+                sf.doExport();
+                win2.body.un(EVT_CLICK,sf.onExportClick,sf);
+        },NULL,380,height);
+        sf.exportwindow.body.on(EVT_CLICK,sf.onExportClick,sf);
+    },
+    onExportClick : function(e,t){
+    	t = Ext.fly(t);
+        var sf = this,rowbox =t.parent('td.grid-rowbox')||t.parent('td.export-hc'),
+        	radio = t.hasClass('item-radio-option')?t:t.parent('div.item-radio-option');
+        if(rowbox){
+            var atype = rowbox.getAttributeNS(_N,ATYPE);
+            if(atype=='export.rowcheck'){               
+                var rid =rowbox.getAttributeNS(_N,RECORD_ID),
+                    cb = rowbox.child(DIV),
+                    checked = cb.hasClass(ITEM_CKB_C),
+                    _atype = cb.getAttributeNS(_N,ATYPE),
+                    cols = sf.columns;
+                sf.setCheckBoxStatus(cb, !checked);
+                if(_atype=='export.headcheck'){
+                    var che = (sf.isFunctionCol(cols[0].type) ? 1 : 0)
+                        + (sf.isFunctionCol(cols[1].type) ? 1 : 0),
+                        ctrl = e.ctrlKey;
+                    sf.exportwindow.body.select('td[atype=export.rowcheck] div[atype!=export.headcheck]')
+                        .each(function(cbs,o,i){
+                        	o = cols[i+che];
+                        	if(!ctrl ||!o.hidden){
+	                            sf.setCheckBoxStatus(cbs, !checked);
+	                            o.forexport = !checked;
+                        	}
+                        });
+                }else
+                    cols[rid].forexport = !checked;
+            }
+        }else if(radio){
+        	sf.setRadioStatus(radio.child('div'),TRUE);
+        	sf.setRadioStatus((radio.prev()||radio.next()).child('div'),FALSE);
+        	sf.exportOptions.type = radio.getAttributeNS(_N,'itemvalue')
+        }
+    },
+    doExport : function(){
+        var sf = this,opt = sf.exportOptions||{};
+        A.doExport(sf.dataset,sf.columns,NULL,opt.type,opt.separator,opt.filename,opt.param);
+        delete sf.exportOptions;
     },
     destroy: function(){
         A.Table.superclass.destroy.call(this);

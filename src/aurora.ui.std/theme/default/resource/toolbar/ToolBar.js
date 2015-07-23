@@ -83,10 +83,13 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     		currentPage = ds.currentPage,
     		totalPage = ds.totalPage,
     		totalCount = ds.totalCount,
-    		pagesize = ds.pagesize;
+    		pagesize = ds.pagesize,
+    		type = sf.type,
+    		html=[];
     	if(ds.fetchall) pagesize = totalCount;
-    	if(sf.type == "simple"){
-    		var html=[];
+    	//Hybris
+    	if(ds.dtoname && ds.autocount == false)type='nocount';
+    	if(type == "simple"){
     		if(totalPage){
     			html.push('<span>共'+totalPage+'页</span>');
     			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : sf.createAnchor(_lang['toolbar.firstPage'],1));
@@ -115,25 +118,28 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 	    		html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.nextPage']+'</span>' : this.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
     			html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.lastPage']+'</span>' : this.createAnchor(_lang['toolbar.lastPage'],totalPage));
     		}
-    		return html.join('');
-    	}else if(sf.type == 'tiny'){
-    		var html=[];
+    	}else if(type == 'tiny'){
     		html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : this.createAnchor(_lang['toolbar.firstPage'],1));
 			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : this.createAnchor(_lang['toolbar.prePage'],currentPage-1));
     		html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.nextPage']+'</span>' :sf.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
     		html.push('<span>第'+currentPage+'页</span>');
-    		return html.join('');
+    	}else if(type == 'nocount'){
+    		//Hybris
+    		html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : this.createAnchor(_lang['toolbar.firstPage'],1));
+			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : this.createAnchor(_lang['toolbar.prePage'],currentPage-1));
+    		html.push(sf.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
+    		html.push('<span>第'+currentPage+'页</span>');
     	}else{
 	    	var from = ((currentPage-1)*pagesize+1),
 	    		to = currentPage*pagesize,
 	    		theme = $A.getTheme();
 	    	if(to>totalCount && totalCount > from) to = totalCount;
 	    	if(to==0) from =0;
-            if(theme == 'mac')
-                return _lang['toolbar.visible'] + ' ' + from + ' - ' + to ;                
-            else 
-                return _lang['toolbar.visible'] + ' ' +  from + ' - ' + to + ' '+ _lang['toolbar.total'] + totalCount + _lang['toolbar.item'];
+	    	html.push(_lang['toolbar.visible'] , ' ' , from , ' - ' , to);
+            if(theme != 'mac')
+            	html.push(' ', _lang['toolbar.total'] , totalCount , _lang['toolbar.item']);
     	}
+    	return html.join('');
     },
     createAnchor : function(text,page){
     	return '<a href="javascript:$(\''+this.dataSet.id+'\').goPage('+page+')">'+text+'</a>';

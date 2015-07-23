@@ -14,7 +14,7 @@
 	/*background-color: #FAFAFA;*/
 	background-color:#ededed;
 }
-.item-table tbody td{
+.item-table>tbody td{
 	border-bottom:1px solid #cccccc;
 	border-right:1px solid #cccccc;
 	padding:1px;
@@ -67,6 +67,11 @@
 .table-rowbox {
     border-right:1px solid #cccccc;
     background: url(../grid/row-box.gif) repeat-y;
+}
+.table-toolbar {
+    border:none;
+    border-bottom:1px solid #cccccc;
+    border-right: 1px solid #ccc;
 }
 .table-navbar{
 	border-top: none;
