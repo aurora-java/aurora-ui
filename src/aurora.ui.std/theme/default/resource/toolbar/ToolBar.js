@@ -10,48 +10,46 @@ $A.ToolBar = Ext.extend($A.Component,{
     }
 });
 $A.NavBar = Ext.extend($A.ToolBar,{
-	constructor: function(config) {
-        $A.NavBar.superclass.constructor.call(this, config);        
-    },
     initComponent : function(config){
     	$A.NavBar.superclass.initComponent.call(this, config);
-    	this.dataSet = $(this.dataSet);
-    	this.navInfo = this.wrap.child('div[atype=displayInfo]');//Ext.get(this.infoId);
-    	if(this.type != "simple" && this.type != "tiny"){
-	    	this.pageInput = $(this.inputId);
-	    	this.currentPage = this.wrap.child('div[atype=currentPage]');
-	    	this.pageInfo = this.wrap.child('div[atype=pageInfo]');//Ext.get(this.pageId);
+    	var sf = this,
+    		type = sf.type,
+    		wrap = sf.wrap;
+    	sf.dataSet = $(sf.dataSet);
+    	sf.navInfo = wrap.child('div[atype=displayInfo]');//Ext.get(sf.infoId);
+    	if(sf.type != "simple" && sf.type != "tiny" &&  sf.type != "nocount"){
+	    	sf.pageInput = $(sf.inputId);
+	    	sf.currentPage = wrap.child('div[atype=currentPage]');
+	    	sf.pageInfo = wrap.child('div[atype=pageInfo]');//Ext.get(sf.pageId);
 	
-	    	if(this.comboBoxId){
-	    		this.pageSizeInput = $(this.comboBoxId);
-	    		this.pageSizeInfo = this.wrap.child('div[atype=pageSizeInfo]');
-	    		this.pageSizeInfo2 = this.wrap.child('div[atype=pageSizeInfo2]');
-	    		this.pageSizeInfo.update(_lang['toolbar.pageSize']);
-	    		this.pageSizeInfo2.update(_lang['toolbar.pageSize2']);
+	    	if(sf.comboBoxId){
+	    		sf.pageSizeInput = $(sf.comboBoxId);
+	    		sf.pageSizeInfo = wrap.child('div[atype=pageSizeInfo]');
+	    		sf.pageSizeInfo2 = wrap.child('div[atype=pageSizeInfo2]');
+	    		sf.pageSizeInfo.update(_lang['toolbar.pageSize']);
+	    		sf.pageSizeInfo2.update(_lang['toolbar.pageSize2']);
 	    	}
-	    	this.pageInfo.update(_lang['toolbar.total'] + '&#160;&#160;' + _lang['toolbar.page']);
-	    	this.currentPage.update(_lang['toolbar.ctPage']);
+	    	sf.pageInfo.update(_lang['toolbar.total'] + '&#160;&#160;' + _lang['toolbar.page']);
+	    	sf.currentPage.update(_lang['toolbar.ctPage']);
     	}
     },
     processListener: function(ou){
-    	$A.NavBar.superclass.processListener.call(this,ou);
-    	this.dataSet[ou]('load', this.onLoad,this);
-    	if(this.type != "simple" && this.type != "tiny"){
-    		this.pageInput[ou]('change', this.onPageChange, this);
-    		if(this.pageSizeInput){
-    			this.pageSizeInput[ou]('change', this.onPageSizeChange, this);
+    	var sf = this;
+    	$A.NavBar.superclass.processListener.call(sf,ou);
+    	sf.dataSet[ou]('load', sf.onLoad,sf);
+    	if(sf.type != "simple" && sf.type != "tiny" &&  sf.type != "nocount"){
+    		sf.pageInput[ou]('change', sf.onPageChange, sf);
+    		if(sf.pageSizeInput){
+    			sf.pageSizeInput[ou]('change', sf.onPageSizeChange, sf);
     		}
     	}
-    },
-    initEvents : function(){
-    	$A.NavBar.superclass.initEvents.call(this);    	
     },
     onLoad : function(){
     	var sf = this,ds = sf.dataSet,
     		pagesize = ds.pagesize,
     		input = sf.pageSizeInput;
     	sf.navInfo.update(sf.creatNavInfo());
-    	if(sf.type != "simple" && sf.type != "tiny"){
+    	if(sf.type != "simple" && sf.type != "tiny" &&  sf.type != "nocount"){
 	    	sf.pageInput.setValue(ds.currentPage,true);
 	    	sf.pageInfo.update(_lang['toolbar.total'] + ds.totalPage + _lang['toolbar.page']);
 	    	if(input&&!input.optionDataSet){
