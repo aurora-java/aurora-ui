@@ -29,8 +29,8 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.queryurl = config.queryurl || '';
         this.fetchall = config.fetchall||false;
         //Hybris
-        this.isHybris = !!(this.dtoname = config.dtoname||'');
-        this.hybriskey = config.hybriskey;
+        this.dtoname = config.dtoname||'';
+        this.restDataFormat = config.restdataformat;
         
         this.totalcountfield = config.totalcountfield || 'totalCount';
         this.selectable = config.selectable||false;
@@ -733,25 +733,21 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
     },
     removeRemote: function(rs){
-        if(this.submiturl == '') return;
     	var sf = this,
+    		submiturl = sf.submiturl,
     		p = [],
-    		isHybris = sf.isHybris,
-    		hybrisKey = sf.hybriskey,
+    		isRest = /\/rest\//.test(submiturl),
     		dtoName = sf.dtoname;
+        if(Ext.isEmpty(submiturl)) return;
         Ext.each(rs,function(r){
         	var data = {
             	_id:r.id,
             	_status:'delete'
             };
-        	if(isHybris){
-        		data[hybrisKey]=r.data[hybrisKey];
-        	}else{
-	        	Ext.iterate(sf.fields,function(key,f){
-	        		if(f && f.type == 'dataset') delete r.data[key];
-	        	});
-	        	data = Ext.apply(data, r.data);
-        	}
+        	Ext.iterate(sf.fields,function(key,f){
+        		if(f && f.type == 'dataset') delete r.data[key];
+        	});
+        	data = Ext.apply(data, r.data);
             p.push(data);
         });
 //      var p = [d];
@@ -760,7 +756,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //      }
         if(p.length) {
         	$A.request(Ext.apply({
-            	url:sf.submiturl, 
+            	url:submiturl, 
         		para:p,
             	ext:sf.spara,
             	success:sf.onRemoveSuccess, 
@@ -768,9 +764,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             	scope:sf,
             	failure:sf.onAjaxFailed,
             	opts:sf.bindtarget?{record:$A.CmpManager.get(sf.bindtarget).getCurrentRecord(),dataSet:sf}:null
-        	},isHybris?{
-        		dtoName:sf.dtoname,
-        		hybrisKey:sf.hybriskey,
+        	},isRest?{
+        		dtoName:dtoName,
+        		restDataFormat:sf.restDataFormat,
         		method:'Delete',
         		headers:{
         			'Content-Type':'application/json',
@@ -848,16 +844,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 查找数据.  
      * @param {String} property 查找的属性.
      * @param {Object} value 查找的属性的值.
+     * @param {Aurora.Record} exceptRecord 当符合查找条件的第一个record为exceptRecord，将跳过该record继续查找.
      * @return {Aurora.Record} 符合查找条件的第一个record
      */
-    find : function(property, value){
+    find : function(property, value,exceptRecord){
         var r = null;
         this.each(function(record){
-            var v = record.get(property);
-            if(v ==value){
-                r = record;
-                return false;               
-            }
+        	if(!exceptRecord||record!=exceptRecord){
+	            var v = record.get(property);
+	            if(v ==value){
+	                r = record;
+	                return false;               
+	            }
+	        }
         }, this)
         return r;
     },
@@ -1286,18 +1285,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
     },
     doQuery:function(page,opts){
-    	function format_xmlattribute(key){
-    		if(/^@/.test(key)){
-				return key.substring(1);    			
-    		}
-    		return key;
-    	}
         var sf = this,
         	r,q = {},
         	qurl = sf.queryurl,
-        	dtoName = sf.dtoname,
-        	isHybris = sf.isHybris,
+        	isRest = /\/rest\//.test(qurl),
         	pagesize = sf.pagesize,
+        	autocount = sf.autocount,
         	qds = sf.qds;
         if(qds)r = qds.getCurrentRecord();
         if(!page) sf.currentIndex = 1;
@@ -1308,20 +1301,27 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
            var v = q[k];
            if(Ext.isEmpty(v,false)||v.xtype == 'dataset') delete q[k];
         }
-        if(isHybris){
-        	var path = qurl.match(/\/([^\/]*)$/)[1],
-        		para = path+'_size='+pagesize + 
+        if(isRest){
+        	var format_xmlattribute=function(key){
+		    		if(/^@/.test(key)){
+						return key.substring(1);    			
+		    		}
+		    		return key;
+		    	},
+		    	path = qurl.split(/[?#]/g)[0].match(/\/([^\/]*)$/)[1],
+        		para = path+'_autocount='+autocount+
+        				'&'+path+'_size='+pagesize + 
 	                      '&'+path+'_page='+(page - 1),
-	            attributes=[],
+	            //attributes=[],
 	            query=[];
-	        Ext.iterate(sf.fields,function(key){
+	        /*Ext.iterate(sf.fields,function(key){
         		attributes.push(format_xmlattribute(key));
 	        });
 	        if(attributes.length)
-	        	para+='&'+dtoName+'_attributes='+attributes.join(',');
+	        	para+='&'+dtoName+'_attributes='+attributes.join(',');*/
 	        Ext.iterate(q,function(key,value){
-	        	var qfield = qds.fields[key];
-	        	if(!qfield || qfield.getPropertity('forquery') != 'false'){
+	        	var qfield = qds.fields[key],returnfield;
+	        	if(!qfield || !(returnfield = qfield.getPropertity('returnfield'))||returnfield==key){
 		        	if(value != 'true' && value !='false'){
 		        		value = "'"+value+"'";
 		        	}
@@ -1334,7 +1334,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	        var para = 'pagesize='+pagesize + 
 	                      '&pagenum='+page+
 	                      '&_fetchall='+sf.fetchall+
-	                      '&_autocount='+sf.autocount
+	                      '&_autocount='+autocount
 	//                    + '&_rootpath=list'
         }
        	var url = Ext.urlAppend(qurl,para);
@@ -1349,9 +1349,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         	scope:sf,
         	failure:sf.onAjaxFailed,
         	opts:opts,
-        	ext:opts?opts.ext:null
-        },isHybris?{
-        	dtoName:dtoName,
+        	ext:opts?opts.ext:null,
+        	queryDataFormat : sf.queryDataFormat
+        },isRest?{
         	method:'GET',
         	headers:{
         		'Accept':'application/json'
@@ -1407,8 +1407,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         var sf = this,
         	datas = [],
         	items = selected?sf.getSelected():sf.data,
-        	dsfields = sf.fields,
-        	isHybris = sf.isHybris;
+        	dsfields = sf.fields;
         Ext.each(items,function(r){
 //          var isAdd = r.dirty; //MAS云新增特性
         	var isAdd = r.dirty || r.isNew,
@@ -1451,9 +1450,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     },
     doSubmit : function(url, items){
     	var sf = this,
-    		isHybris = sf.isHybris;
+    		url = url || sf.submiturl;
+        if(Ext.isEmpty(url)) return;
+        var isRest = /\/rest\//.test(url);
         sf.fireBindDataSetEvent("submit",url,items);
-        if((sf.submiturl = url||sf.submiturl) == '') return;
 //        var p = items;//sf.getJsonData();
         sf.checkEmptyData(items);
 //        for(var i=0;i<p.length;i++){
@@ -1469,16 +1469,16 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 //            sf.fireEvent("submit", sf);
             $A.request(Ext.apply({
             	showSuccessTip:true,
-            	url:sf.submiturl, 
+            	url:url, 
             	ext:sf.spara,
             	success:sf.onSubmitSuccess, 
             	error:sf.onSubmitError, 
             	scope:sf,
             	failure:sf.onAjaxFailed,
         		para:items
-        	},isHybris?{
+        	},isRest?{
         		dtoName:sf.dtoname,
-        		hybrisKey:sf.hybriskey,
+        		restDataFormat:sf.restDataFormat,
         		headers:{
         			'Content-Type':'application/json',
         			'Accept':'application/json'

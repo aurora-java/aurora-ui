@@ -60,28 +60,30 @@
 .nav-prepage div, .nav-prepage div, .nav-firstpage div, .nav-lastpage div, .nav-nextpage div, .nav-refresh div{
 	background-image:url(../toolbar/navigation.gif);
 }
-.grid-add div,.grid-delete div,.grid-save div,.grid-clear div,.grid-excel div,.grid-cust div{
+.grid-add div,.grid-delete div,.grid-save div,.grid-clear div,.grid-excel div,.grid-cust div,
+.table-add div,.table-delete div,.table-save div,.table-clear div,.table-excel div,.table-cust div{
 	background-image:url(../toolbar/toolbar_btn.gif);
 }
-.grid-add2 div,.grid-delete2 div,.grid-save2 div,.grid-clear2 div,.grid-excel2 div,.grid-cust2 div{
+.grid-add2 div,.grid-delete2 div,.grid-save2 div,.grid-clear2 div,.grid-excel2 div,.grid-cust2 div,
+.table-add2 div,.table-delete2 div,.table-save2 div,.table-clear2 div,.table-excel2 div,.table-cust2 div{
     background-image:url(../toolbar/toolbar_btn.png);
     background-repeat:no-repeat;
 }
-.grid-add2 div {
+.grid-add2 div,.table-add2 div {
     background-position:0px -25px;
 }
-.grid-delete2 div {
+.grid-delete2 div,.table-delete2 div {
     background-position:0px -321px;
 }
-.grid-save2 div {
+.grid-save2 div,.table-save2 div {
     background-position:0px 2px;
 }
-.grid-clear2 div {
+.grid-clear2 div,.table-clear2 div {
     background-position:0px -349px;
 }
-.grid-excel2 div {
+.grid-excel2 div,.table-excel2 div {
     background-position:0px -1224px;
 }
-.grid-cust2 div {
+.grid-cust2 div,.table-cust2 div {
     background-position:0px -1196px;
 }

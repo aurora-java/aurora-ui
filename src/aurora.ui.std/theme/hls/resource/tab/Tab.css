@@ -27,7 +27,7 @@
 	z-index:1;
 }
 .item-tab-body {
-	border:1px solid #cccccc;
+	border-top:1px solid #cccccc;
 	position:relative;
 	overflow:hidden;
 	background-color:#fff;

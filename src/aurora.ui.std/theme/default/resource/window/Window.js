@@ -638,6 +638,7 @@ A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
                     if(cancelfun && cancelfun.call(this,cmp) === false)return;
                     cmp.close();
                 });
+                okbtn.focus.defer(10,okbtn);
             });
         }
     //}
@@ -676,6 +677,7 @@ A.showYesNoCancelWindow = function(title, msg, yesfun,nofun,width, height){
                 cancelbtn.on('click',function(){
                     cmp.close();
                 });
+                yesbtn.focus.defer(10,yesbtn);
             });
         }
     //}

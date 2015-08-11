@@ -326,6 +326,7 @@ $A.post = function(action,data,target){
  */
 $A.request = function(opt){
     var url = opt.url,
+    	isRest = /\/rest\//.test(url),
         para = opt.para,
         xmlData = opt.xmlData,
 //        jsonData = opt.jsonData,
@@ -335,7 +336,9 @@ $A.request = function(opt){
         failureCall = opt.failure,
         lockMessage = opt.lockMessage,
         body = Ext.getBody(),
-        opts = Ext.apply({},opt.opts);
+        opts = Ext.apply({},opt.opts),
+        method =opt.method,
+        params = {};
     if(!Ext.isEmpty(lockMessage)){
         $A.Masker.mask(body,lockMessage);
     }
@@ -344,31 +347,41 @@ $A.request = function(opt){
         $A['_startTime'] = new Date();
         $('HTTPWATCH_DATASET').create({'url':url,'request':Ext.util.JSON.encode({parameter:para})})
     }
-    var dtoName = opt.dtoName,
-    	hybrisKey = opt.hybrisKey,
-		params = {};
-	if(hybrisKey){
-		var arr = params[dtoName] = [],records={};
-		Ext.each(para,function(p){
-			var _p = {};
-			Ext.iterate(p,function(key,value){
-				if(/^@/.test(key)){
-					_p[key] = value;
-				}
-			});
-			Ext.applyIf(_p,p);
-			delete _p._id;
-			delete _p._status;
-			arr.push(_p);
-			records[p[hybrisKey]]=p;
-		});
-		params=Ext.util.JSON.encode(params);
+	if(isRest){
+		if(method !='GET'){
+			var dtoName = opt.dtoName,
+		    	restDataFormat = opt.restDataFormat,
+				arr = params[dtoName] = [],records={};
+			if(restDataFormat){
+	            var format = $A.getRenderer(restDataFormat);
+	            if(format == null){
+	                alert("未找到"+restDataFormat+"方法");
+	            }
+	        }
+	        if(format){
+	        	params = format(para);
+	        }else{
+				Ext.each(para,function(p){
+					var _p = {};
+					Ext.iterate(p,function(key,value){
+						if(/^@/.test(key)){
+							_p[key] = value;
+						}
+					});
+					Ext.applyIf(_p,p);
+					delete _p._id;
+					delete _p._status;
+					arr.push(_p);
+				});
+	        }
+			params=Ext.util.JSON.encode(params);
+		}
 	}else{
 		params['_request_data'] = Ext.util.JSON.encode(Ext.apply({parameter:para},opt.ext))
 	}
     return Ext.Ajax.request({
         url: url,
-        method: opt.method||'POST',
+        method: method||'POST',
         xmlData : xmlData,
 //        jsonData : jsonData,
         params:params,
@@ -398,20 +411,18 @@ $A.request = function(opt){
                     return;
                 }
                 if(res){
-	                if(dtoName){
-	                	if(res['@uri']){
-	            			res={
-		            			result:{
-									record:!res['@pk']?res[dtoName]:[res]
-								},
-								success:true
-	            			}
-	                	}else if(res.result){
+	                if(isRest){
+	                	if(res.status == 'query'){
+	                		res.result=res.result||{};
+	            			res.result.totalCount = Number(res.totalCount);
+	            			res.success = true;
+	                	}else if(res.modifiedResult){
 							var record_arr = [];
-							Ext.each(res.result.record,function(r){
-								record_arr.push(records[r.code]);
-							});
-							res.result.record = record_arr;
+							res.result={}
+//							Ext.each(res.modifiedResult.record,function(r){
+//								record_arr.push(records[r.code]);
+//							});
+							res.result.record = para;
 		                	res.success = true;
 	                	}
 	            	}
@@ -1215,7 +1226,7 @@ $A.parseDate = function(str){
         var results = str.match(/^ *(\d{4})-(\d{1,2})-(\d{1,2}) *$/);      
         if(results && results.length>3)      
             return new Date(parseInt(results[1]),parseInt(results[2],10) -1,parseInt(results[3],10));       
-        results = str.match(/^ *(\d{4})-(\d{1,2})-(\d{1,2}) +(\d{1,2}):(\d{1,2}):(\d{1,2}) *$/);  
+        results = str.match(/^ *(\d{4})-(\d{1,2})-(\d{1,2}) +(\d{1,2}):(\d{1,2}):(\d{1,2}).?(\d{0,3}) *$/);  
         if(results && results.length>6)      
         return new Date(parseInt(results[1]),parseInt(results[2],10) -1,parseInt(results[3],10),parseInt(results[4],10),parseInt(results[5],10),parseInt(results[6],10));       
     }      

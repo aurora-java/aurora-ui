@@ -267,7 +267,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		}else{
 			var sb = [],n=0;
 			if(this.blankoption){
-				sb.push('<li tabIndex="0"></li>');
+				sb.push('<li tabIndex="0">&nbsp;</li>');
 				n=1;
 			}
 			Ext.each(ds.getAll(),function(d,i){

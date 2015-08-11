@@ -17,7 +17,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     		wrap = sf.wrap;
     	sf.dataSet = $(sf.dataSet);
     	sf.navInfo = wrap.child('div[atype=displayInfo]');//Ext.get(sf.infoId);
-    	if(sf.type != "simple" && sf.type != "tiny" &&  sf.type != "nocount"){
+    	if(sf.type != "simple" && sf.type != "tiny"){
 	    	sf.pageInput = $(sf.inputId);
 	    	sf.currentPage = wrap.child('div[atype=currentPage]');
 	    	sf.pageInfo = wrap.child('div[atype=pageInfo]');//Ext.get(sf.pageId);
@@ -37,7 +37,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     	var sf = this;
     	$A.NavBar.superclass.processListener.call(sf,ou);
     	sf.dataSet[ou]('load', sf.onLoad,sf);
-    	if(sf.type != "simple" && sf.type != "tiny" &&  sf.type != "nocount"){
+    	if(sf.type != "simple" && sf.type != "tiny"){
     		sf.pageInput[ou]('change', sf.onPageChange, sf);
     		if(sf.pageSizeInput){
     			sf.pageSizeInput[ou]('change', sf.onPageSizeChange, sf);
@@ -49,7 +49,7 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     		pagesize = ds.pagesize,
     		input = sf.pageSizeInput;
     	sf.navInfo.update(sf.creatNavInfo());
-    	if(sf.type != "simple" && sf.type != "tiny" &&  sf.type != "nocount"){
+    	if(sf.type != "simple" && sf.type != "tiny"){
 	    	sf.pageInput.setValue(ds.currentPage,true);
 	    	sf.pageInfo.update(_lang['toolbar.total'] + ds.totalPage + _lang['toolbar.page']);
 	    	if(input&&!input.optionDataSet){
@@ -85,8 +85,6 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     		type = sf.type,
     		html=[];
     	if(ds.fetchall) pagesize = totalCount;
-    	//Hybris
-    	if(ds.dtoname && ds.autocount == false)type='nocount';
     	if(type == "simple"){
     		if(totalPage){
     			html.push('<span>共'+totalPage+'页</span>');
@@ -117,12 +115,6 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     			html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.lastPage']+'</span>' : this.createAnchor(_lang['toolbar.lastPage'],totalPage));
     		}
     	}else if(type == 'tiny'){
-    		html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : this.createAnchor(_lang['toolbar.firstPage'],1));
-			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : this.createAnchor(_lang['toolbar.prePage'],currentPage-1));
-    		html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.nextPage']+'</span>' :sf.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
-    		html.push('<span>第'+currentPage+'页</span>');
-    	}else if(type == 'nocount'){
-    		//Hybris
     		html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : this.createAnchor(_lang['toolbar.firstPage'],1));
 			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : this.createAnchor(_lang['toolbar.prePage'],currentPage-1));
     		html.push(sf.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
