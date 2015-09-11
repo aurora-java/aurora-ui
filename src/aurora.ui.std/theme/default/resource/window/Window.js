@@ -38,7 +38,13 @@ var cache = [],
  */
 A.Window = Ext.extend(A.Component,{
     constructor: function(config) { 
-        if(WINDOW_MANAGER.get(config.id))return;
+    	var win = WINDOW_MANAGER.get(config.id);
+        if(win){
+        	if(win.usecache){
+        		win.show();
+        	}
+        	return;
+        }
         var sf = this;
         sf.draggable = true;
         sf.closeable = true;
@@ -70,7 +76,7 @@ A.Window = Ext.extend(A.Component,{
         	id:sf.id,
         	title:sf.title,
         	width:sf.width,
-        	bodywidth:sf.width-2,
+        	bodywidth:sf.width,
         	height:sf.height,
         	url:url?'url="'+url+'"':'',
         	clz:(sf.fullScreen ? 'full-window ' : '')+(sf.className||''),
@@ -246,19 +252,20 @@ A.Window = Ext.extend(A.Component,{
             this.wrap.setStyle('z-index', zindex+5);
             if(this.modal) A.Cover.cover(this.wrap);
         }
-        
-        //去除下面window遮盖的透明度
-        var alls = WINDOW_MANAGER.getAll()
-        for(var i=0;i<alls.length;i++){
-            var pw = alls[i];
-            if(pw != this){
-                var cover = A.Cover.container[pw.wrap.id];
-                if(cover)cover.setStyle({
-                    filter: 'alpha(opacity=0)',
-                    opacity: '0',
-                    mozopacity: '0'
-                })
-            }
+        if(this.modal){
+	        //去除下面window遮盖的透明度
+	        var alls = WINDOW_MANAGER.getAll()
+	        for(var i=0;i<alls.length;i++){
+	            var pw = alls[i];
+	            if(pw != this){
+	                var cover = A.Cover.container[pw.wrap.id];
+	                if(cover)cover.setStyle({
+	                    filter: 'alpha(opacity=0)',
+	                    opacity: '0',
+	                    mozopacity: '0'
+	                })
+	            }
+	        }
         }
         
         
@@ -358,44 +365,63 @@ A.Window = Ext.extend(A.Component,{
         this.closeBtn.removeClass("win-btn-down");
         Ext.get(document.documentElement).un("mouseup", this.onCloseUp, this);
     },
+    hide : function(){
+    	if(this.modal)A.Cover.uncover(this.wrap);
+    	this.wrap.setStyle({
+    		display:'none'
+    	});
+    },
+    show : function(){
+    	if(this.modal)A.Cover.cover(this.wrap);
+    	this.wrap.setStyle({
+    		display:''
+    	});
+    },
     close : function(nocheck){
-        if(!nocheck && !this.checkDataSetNotification()) return;
-        if(this.fireEvent('beforeclose',this)){
-            if(this.wrap)this.wrap.destroying = true;
-            WINDOW_MANAGER.remove(this);
-            if(this.fullScreen){
-                Ext.fly(document.documentElement).setStyle({'overflow':this.overFlow})
+    	var sf = this;
+        if(!nocheck && !sf.checkDataSetNotification()) return;
+        if(sf.fireEvent('beforeclose',sf)){
+        	if(sf.usecache){
+        		sf.hide();
+        		return;
+        	}
+            if(sf.wrap)sf.wrap.destroying = true;
+            WINDOW_MANAGER.remove(sf);
+            if(sf.fullScreen){
+                Ext.fly(document.documentElement).setStyle({'overflow':sf.overFlow})
             }
-            this.destroy();
-            this.fireEvent('close', this);
+            sf.destroy();
+            sf.fireEvent('close', sf);
         }
         
-        //去除下面window遮盖的透明度
-        var alls = WINDOW_MANAGER.getAll()
-        for(var i=0;i<alls.length-1;i++){
-            var pw = alls[i];
-            if(pw != this){
-                var cover = A.Cover.container[pw.wrap.id];
-                if(cover)cover.setStyle({
-                    filter: 'alpha(opacity=0)',
-                    opacity: '0',
-                    mozopacity: '0'
-                })
-            }
-        }
-        
-        
-        var cw = alls[alls.length-1];
-        if(cw){
-            var cover = A.Cover.container[cw.wrap.id];
-            if(cover){
-	            cover.setStyle({
-	                opacity: '',
-	                mozopacity: ''
-	            })
-            	cover.dom.style.cssText = cover.dom.style.cssText.replace(/filter[^;]*/i,'');
-            }
-        }
+        if(this.modal){
+	        //去除下面window遮盖的透明度
+	        var alls = WINDOW_MANAGER.getAll()
+	        for(var i=0;i<alls.length-1;i++){
+	            var pw = alls[i];
+	            if(pw != sf){
+	                var cover = A.Cover.container[pw.wrap.id];
+	                if(cover)cover.setStyle({
+	                    filter: 'alpha(opacity=0)',
+	                    opacity: '0',
+	                    mozopacity: '0'
+	                })
+	            }
+	        }
+	        
+	        
+	        var cw = alls[alls.length-1];
+	        if(cw){
+	            var cover = A.Cover.container[cw.wrap.id];
+	            if(cover){
+		            cover.setStyle({
+		                opacity: '',
+		                mozopacity: ''
+		            })
+	            	cover.dom.style.cssText = cover.dom.style.cssText.replace(/filter[^;]*/i,'');
+	            }
+	        }
+	    }
     },
     clearBody : function(){
         for(var key in this.cmps){

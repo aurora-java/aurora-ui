@@ -824,10 +824,11 @@ A.Grid = Ext.extend(A.Component,{
         A.Masker.unmask(this.wb);
     },
     onMouseWheel : function(e){
+        var sf = this,
+        	delta = e.getWheelDelta(),
+            ds = sf.dataset;
+        if(sf.editing == TRUE||!sf.hasFocus||!ds.getAll().length) return;
         e.stopEvent();
-        if(this.editing == TRUE) return;
-        var delta = e.getWheelDelta(),
-            ds = this.dataset;
         if(delta > 0){
             ds.pre();
         } else if(delta < 0){
@@ -1375,7 +1376,7 @@ A.Grid = Ext.extend(A.Component,{
     getEditor : function(col,record,onCreate){
         var ed = col.editor||_N;
         if(col.editorfunction) {
-            var ef = window[col.editorfunction];
+            var ef = eval(col.editorfunction);
             if(ef==NULL) {
                 alert(NOT_FOUND+col.editorfunction+METHOD) ;
                 return NULL;

@@ -745,7 +745,7 @@ A.Tree.TreeNode.prototype={
 			renderer = ownerTree.renderer,
 			key = ownerTree.filterKey,
 			text = r.get(df);
-		if(!Ext.isEmpty(renderer) && (renderer = window[renderer])){
+		if(!Ext.isEmpty(renderer) && (renderer = eval(renderer))){
 			text = renderer.call(sf, text, r, sf);
 		}
 		els[df+_TEXT].innerHTML=key?text.replace(_getRegExp(key),function(v){

@@ -329,7 +329,7 @@ $A.request = function(opt){
     	isRest = /\/rest\//.test(url),
         para = opt.para,
         xmlData = opt.xmlData,
-//        jsonData = opt.jsonData,
+        jsonData = opt.jsonData,
         successCall = opt.success,
         errorCall = opt.error,
         scope = opt.scope,
@@ -383,7 +383,7 @@ $A.request = function(opt){
         url: url,
         method: method||'POST',
         xmlData : xmlData,
-//        jsonData : jsonData,
+        jsonData : jsonData,
         params:params,
         opts:opts,
         sync:opt.sync,
@@ -1234,13 +1234,13 @@ $A.parseDate = function(str){
 }
 $A.getRenderer = function(renderer){
     if(!renderer) return null;
-    var rder;
+    /*var rder;
     if(renderer.indexOf('Aurora.') != -1){
         rder = $A[renderer.substr(7,renderer.length)]
     }else{
         rder = window[renderer];
-    }
-    return rder;
+    }*/
+    return eval(renderer);
 }
 $A.RowNumberRenderer = function(value,record,name){
     if(record && record.ds){

@@ -607,7 +607,7 @@ A.Table = Ext.extend(A.Component,{
 	getEditor : function(col,record){
         var ed = col.editor||_N;
         if(col.editorfunction) {
-            var ef = window[col.editorfunction];
+            var ef = eval(col.editorfunction);
             if(ef==NULL) {
                 alert(NOT_FOUND+col.editorfunction+METHOD) ;
                 return NULL;

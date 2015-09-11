@@ -1292,10 +1292,12 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         	pagesize = sf.pagesize,
         	autocount = sf.autocount,
         	qds = sf.qds;
+        sf.loading = true;
         if(qds)r = qds.getCurrentRecord();
         if(!page) sf.currentIndex = 1;
         page = sf.currentPage = page || 1;
         if(r != null) Ext.apply(q, r.data);
+        sf.fireEvent("query", sf,sf.qpara,opts);
         Ext.apply(q, sf.qpara);
         for(var k in q){
            var v = q[k];
@@ -1338,8 +1340,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 	//                    + '&_rootpath=list'
         }
        	var url = Ext.urlAppend(qurl,para);
-        sf.loading = true;
-        sf.fireEvent("query", sf,q,opts);
+        
 //      sf.fireBindDataSetEvent("beforeload", sf);//主dataset无数据,子dataset一直loading
         if(sf.qtId) Ext.Ajax.abort(sf.qtId);
         sf.qtId = $A.request(Ext.apply({
@@ -1855,7 +1856,7 @@ $A.Record.prototype = {
     	if(Ext.isEmpty(vv)){
         	var required = field.get('required') == true;
 	    	if(requiredFunc){
-	           	var rf = window[requiredFunc];
+	           	var rf = eval(requiredFunc);
 	            if(rf){
 	                required = rf(sf, name, v);
 	            }else {
@@ -1870,7 +1871,7 @@ $A.Record.prototype = {
         if(valid == true){
             var isvalid = true;
             if(validator){
-                var vc = window[validator];
+                var vc = eval(validator);
                 if(vc){
                     isvalid = vc(sf, name, v);
                     if(isvalid !== true){
