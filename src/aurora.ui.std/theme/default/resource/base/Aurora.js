@@ -392,68 +392,72 @@ $A.request = function(opt){
             if(!Ext.isEmpty(lockMessage)){
                 $A.Masker.unmask(body);
             }
-            if($A.logWindow){
-                var st = $A['_startTime'];
-                var ed = new Date();                    
-                var record = $('HTTPWATCH_DATASET').getCurrentRecord();
-                record.set('spend',ed-st);
-                record.set('result',response.statusText);
-                record.set('status',response.status);
-                record.set('response',response.responseText);
-            }
-            $A.manager.fireEvent('ajaxcomplete', url, para,response);
             if(response){
+	            if($A.logWindow){
+	                var st = $A['_startTime'];
+	                var ed = new Date();                    
+	                var record = $('HTTPWATCH_DATASET').getCurrentRecord();
+	                record.set('spend',ed-st);
+	                record.set('result',response.statusText);
+	                record.set('status',response.status);
+	                record.set('response',response.responseText);
+	            }
+	            $A.manager.fireEvent('ajaxcomplete', url, para,response);
                 var res = null;
-                try {
-                    res = Ext.decode(response.responseText);
-                }catch(e){
-                    $A.showErrorMessage(_lang['ajax.error'], _lang['ajax.error.format']);
-                    return;
-                }
-                if(res){
-	                if(isRest){
-	                	if(res.status == 'query'){
-	                		res.result=res.result||{};
-	            			res.result.totalCount = Number(res.totalCount);
-	            			res.success = true;
-	                	}else if(res.modifiedResult){
-							var record_arr = [];
-							res.result={}
-//							Ext.each(res.modifiedResult.record,function(r){
-//								record_arr.push(records[r.code]);
-//							});
-							res.result.record = para;
-		                	res.success = true;
-	                	}
-	            	}
-	                if(!res.success){
-	                    $A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
-	                    if(res.error){
-	                        if(res.error.code  && (res.error.code == 'session_expired' || res.error.code == 'login_required')){
-	                            if($A.manager.fireEvent('timeout', $A.manager))
-	                            $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
-	                        }else{
-	                            var st = res.error.stackTrace;
-	                            st = (st) ? st.replaceAll('\r\n','</br>') : '';
-	                            if(res.error.message) {
-	                                var h = (st=='') ? 150 : 250;
-	                                $A.showErrorMessage(_lang['ajax.error'], res.error.message+'</br>'+st,null,400,h);
-	                            }else{
-	                                $A.showErrorMessage(_lang['ajax.error'], st,null,400,250);
-	                            }
-	                        }
-	                        if(errorCall)
-	                        errorCall.call(scope, res, options);
-	                    }                                                               
-	                } else {                    
-	                    if(successCall) {
-	                        successCall.call(scope,res, options);
-	                        opt.showSuccessTip = opt.showSuccessTip || false;
-	                    }
-	                    if(opt.showSuccessTip){
-	                        $A.manager.fireEvent('ajaxsuccess', opt.successTip);
-	                    }
+                if(Ext.isEmpty(response.responseText)){
+                	successCall.call(scope,{result:{}}, options);
+                }else{
+	                try {
+	                    res = Ext.decode(response.responseText);
+	                }catch(e){
+	                    $A.showErrorMessage(_lang['ajax.error'], _lang['ajax.error.format']);
+	                    return;
 	                }
+	                if(res){
+		                if(isRest){
+		                	if(res.status == 'query'){
+		                		res.result=res.result||{};
+		            			res.result.totalCount = Number(res.totalCount);
+		            			res.success = true;
+		                	}else if(res.modifiedResult){
+								var record_arr = [];
+								res.result={}
+	//							Ext.each(res.modifiedResult.record,function(r){
+	//								record_arr.push(records[r.code]);
+	//							});
+								res.result.record = para;
+			                	res.success = true;
+		                	}
+		            	}
+		                if(!res.success){
+		                    $A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
+		                    if(res.error){
+		                        if(res.error.code  && (res.error.code == 'session_expired' || res.error.code == 'login_required')){
+		                            if($A.manager.fireEvent('timeout', $A.manager))
+		                            $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
+		                        }else{
+		                            var st = res.error.stackTrace;
+		                            st = (st) ? st.replaceAll('\r\n','</br>') : '';
+		                            if(res.error.message) {
+		                                var h = (st=='') ? 150 : 250;
+		                                $A.showErrorMessage(_lang['ajax.error'], res.error.message+'</br>'+st,null,400,h);
+		                            }else{
+		                                $A.showErrorMessage(_lang['ajax.error'], st,null,400,250);
+		                            }
+		                        }
+		                        if(errorCall)
+		                        errorCall.call(scope, res, options);
+		                    }                                                               
+		                } else {                    
+		                    if(successCall) {
+		                        successCall.call(scope,res, options);
+		                        opt.showSuccessTip = opt.showSuccessTip || false;
+		                    }
+		                    if(opt.showSuccessTip){
+		                        $A.manager.fireEvent('ajaxsuccess', opt.successTip);
+		                    }
+		                }
+                	}
                 }
             }
         },
@@ -1240,7 +1244,11 @@ $A.getRenderer = function(renderer){
     }else{
         rder = window[renderer];
     }*/
-    return eval(renderer);
+    try{
+	    return eval(renderer);
+    }catch(e){
+    	return window[renderer];
+    }
 }
 $A.RowNumberRenderer = function(value,record,name){
     if(record && record.ds){

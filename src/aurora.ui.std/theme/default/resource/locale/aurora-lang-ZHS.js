@@ -29,6 +29,7 @@ _lang['grid.mask.waiting'] = '请稍后...';
 _lang['grid.mask.fetching'] = '正在获取记录...'
 _lang['grid.remove.confirm'] = '确认';
 _lang['grid.remove.confirmMsg'] = '确认删除选中的记录？';
+_lang['grid.remove.select'] = '请选择至少一条记录！';
 _lang['grid.export.confirm'] = '导出确认';
 _lang['grid.export.confirmMsg'] = '导出过程可能需要花费很长时间，是否继续？';
 _lang['grid.export.config'] = '选择要导出的列';

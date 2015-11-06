@@ -1344,6 +1344,7 @@ A.Grid = Ext.extend(A.Component,{
      */
     setColumnPrompt: function(name,prompt){
         this.wrap.select('td.grid-hc'+SELECT_DATAINDEX+name+'] div').update(prompt);
+        this.findColByName(name).prompt=prompt;
 //        var tds = Ext.DomQuery.select('td.grid-hc',this.wrap.dom);
 //        for(var i=0,l=tds.length;i<l;i++){
 //            var td = tds[i];
@@ -1376,7 +1377,7 @@ A.Grid = Ext.extend(A.Component,{
     getEditor : function(col,record,onCreate){
         var ed = col.editor||_N;
         if(col.editorfunction) {
-            var ef = eval(col.editorfunction);
+            var ef = A.getRenderer(col.editorfunction);
             if(ef==NULL) {
                 alert(NOT_FOUND+col.editorfunction+METHOD) ;
                 return NULL;
@@ -1410,7 +1411,7 @@ A.Grid = Ext.extend(A.Component,{
         var ds = sf.dataset,record = ds.getAt(row);
         if(!record)return;
         if(record.id != sf.selectedId) sf.selectRow(row);
-        else sf.focusRow(row);
+        else sf.focusRecord(record);
         sf.focusColumn(name);
         var editor = sf.getEditor(col,record);
         sf.setEditor(name, editor);
@@ -1623,6 +1624,9 @@ A.Grid = Ext.extend(A.Component,{
 	            sf.fireEvent(EVT_ROW_CLICK, sf, row, record);
         	})
         }
+    },
+    focusRecord : function(record){
+    	this.focusRow(concatGroups(this.groups).indexOf(record));
     },
     /**
      * 指定行获取焦点.
@@ -1901,7 +1905,7 @@ A.Grid = Ext.extend(A.Component,{
         
         sf.selectlockTr = sf.lbt && sf.lbt.select(records.map(function(r){return '#'+sf.id+$L+r.id}).join(','));
         if(sf.selectlockTr)sf.selectlockTr.addClass(ROW_SELECT);
-        sf.focusRow(row);
+        sf.focusRecord(record);
         if(locate!==FALSE && r != NULL) {
 //          sf.dataset.locate(r);
             ds.locate.defer(5, ds,[r,FALSE]);
@@ -2294,7 +2298,10 @@ A.Grid = Ext.extend(A.Component,{
     },
     remove: function(){
         var selected = this.dataset.getSelected();
-        if(selected.length >0) A.showConfirm(_lang['grid.remove.confirm'],_lang['grid.remove.confirmMsg'],this.deleteSelectRows.createDelegate(this));     
+        if(selected.length >0)
+			A.showConfirm(_lang['grid.remove.confirm'],_lang['grid.remove.confirmMsg'],this.deleteSelectRows.createDelegate(this)); 
+		else
+			A.showInfoMessage(_lang['grid.info'],_lang['grid.remove.select']);
     },
     clear: function(){
         var ds = this.dataset,selected = ds.getSelected();

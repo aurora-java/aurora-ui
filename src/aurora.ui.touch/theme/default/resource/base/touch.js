@@ -94,7 +94,7 @@ T.Masker = function(){
                     wrap = isBody?el:el.parent(),
                     offset = el.offset(),
                     opt = {'z-index': el.css('z-index') == 'auto' ? 0 : el.css('z-index') + 1},
-                    p = ['<div class="touch-mask"  style="position: absolute;opacity:0;-webkit-transform:translate3d(0,0,0)"><div unselectable="on" style="-webkit-transform:translate3d(0,0,0)"></div>'];
+                    p = ['<div class="touch-mask"  style="position: absolute;-webkit-transform:translate3d(0,0,0)"><div unselectable="on" style="-webkit-transform:translate3d(0,0,0)"></div>'];
                 if(msg)p.push(spanHtml);
                 p.push('</div>');
                 $.extend(opt,isBody?{
@@ -111,17 +111,14 @@ T.Masker = function(){
                 container[el.selector] = masker;
             }
             sp.css({'left':(w - sp.width())/2 + PX,'top':masker.height()*2/3 - 11 + PX});
-            masker.animate({opacity:1},500,'ease-out');
         },
         unmask : function(el){
             var el = $(el),
                 masker = container[el.selector];
             if(masker) {
-            	masker.animate({opacity:0},500,'ease-in',function(){
-	                masker.remove();
-	                container[el.selector] = null;
-	                delete container[el.selector];
-            	});
+                masker.remove();
+                container[el.selector] = null;
+                delete container[el.selector];
             }
         }
     }

@@ -182,6 +182,9 @@ $A.TreeGrid = Ext.extend($A.Grid, {
         });
         sf.lockWidth = v;
     },
+    focusRecord : function(record){
+    	this.focusRow(this.dataset.indexOf(record));
+    },
     focusRow : function(row){
         var sf = this,record = sf.dataset.getAt(row),
             node = sf.unlockTree.getNodeById(record.id),

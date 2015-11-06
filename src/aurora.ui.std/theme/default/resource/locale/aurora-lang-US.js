@@ -29,6 +29,7 @@ _lang['grid.mask.waiting'] = 'Waiting...';
 _lang['grid.mask.fetching'] = 'Fetching...'
 _lang['grid.remove.confirm'] = 'Confirm';
 _lang['grid.remove.confirmMsg'] = 'Are you sure to delete the selected records?';
+_lang['grid.remove.select'] = 'Please select at least one record!';
 _lang['grid.export.confirm'] = 'Export confirm';
 _lang['grid.export.confirmMsg'] = 'The export process may take a long time, continue?';
 _lang['grid.export.config'] = 'Select the columns you want to export';
