@@ -467,6 +467,17 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .item-ckb-readonly-c {
 	background-position:-39px -13px;
 }
+.item-ckbtn {
+	border:1px solid #ccc;
+	padding:0px 5px;
+	cursor:pointer;
+	color:#ccc;
+	text-align:center;
+}
+.item-ckb-c {
+	border:1px solid #000;
+	color:#000;
+}
 .item-radio:focus{
 	/*outline:1px dotted black;*/
 }
@@ -902,6 +913,34 @@ button div {
 .item-btn-disabled div {
 	cursor:default !important;
     color:#ccc;
+}
+.s-switch-button {
+    display:block;
+    float:left;
+    border:1px solid #cfcfcf;
+}
+
+.s-switch-button li {
+    float:left;
+    width:72px;
+    border-right:1px solid #cfcfcf;
+    text-align:center;
+    font-size:14px;
+    line-height:28px;
+    color:#555;
+    cursor:pointer;
+    background-color:#fff;
+}
+.s-switch-button  li.cur {
+    background-color:#eaeaea;
+    font-weight:bold;
+    box-shadow:inset 0 0 3px rgba(0,0,0,0.15);
+}
+.s-switch-button li:hover { 
+    background-color: #f4f4f4; 
+}
+.s-switch-button li.last{
+    border-right:none;
 }
 .item-tgl-btn {
     width:16px;

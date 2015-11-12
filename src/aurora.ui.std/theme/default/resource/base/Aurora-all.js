@@ -326,14 +326,19 @@ $A.post = function(action,data,target){
  */
 $A.request = function(opt){
     var url = opt.url,
+    	isRest = /\/rest\//.test(url),
         para = opt.para,
+        xmlData = opt.xmlData,
+        jsonData = opt.jsonData,
         successCall = opt.success,
         errorCall = opt.error,
         scope = opt.scope,
         failureCall = opt.failure,
         lockMessage = opt.lockMessage,
         body = Ext.getBody(),
-        opts = Ext.apply({},opt.opts);
+        opts = Ext.apply({},opt.opts),
+        method =opt.method,
+        params = {};
     if(!Ext.isEmpty(lockMessage)){
         $A.Masker.mask(body,lockMessage);
     }
@@ -342,63 +347,117 @@ $A.request = function(opt){
         $A['_startTime'] = new Date();
         $('HTTPWATCH_DATASET').create({'url':url,'request':Ext.util.JSON.encode({parameter:para})})
     }
-    var data = Ext.apply({parameter:para},opt.ext);
+	if(isRest){
+		if(method !='GET'){
+			var dtoName = opt.dtoName,
+		    	restDataFormat = opt.restDataFormat,
+				arr = params[dtoName] = [],records={};
+			if(restDataFormat){
+	            var format = $A.getRenderer(restDataFormat);
+	            if(format == null){
+	                alert("未找到"+restDataFormat+"方法");
+	            }
+	        }
+	        if(format){
+	        	params = format(para);
+	        }else{
+				Ext.each(para,function(p){
+					var _p = {};
+					Ext.iterate(p,function(key,value){
+						if(/^@/.test(key)){
+							_p[key] = value;
+						}
+					});
+					Ext.applyIf(_p,p);
+					delete _p._id;
+					delete _p._status;
+					arr.push(_p);
+				});
+	        }
+			params=Ext.util.JSON.encode(params);
+		}
+	}else{
+		params['_request_data'] = Ext.util.JSON.encode(Ext.apply({parameter:para},opt.ext))
+	}
     return Ext.Ajax.request({
         url: url,
-        method: 'POST',
-        params:{_request_data:Ext.util.JSON.encode(data)},
+        method: method||'POST',
+        xmlData : xmlData,
+        jsonData : jsonData,
+        params:params,
         opts:opts,
         sync:opt.sync,
+        headers:opt.headers,
         success: function(response,options){
             if(!Ext.isEmpty(lockMessage)){
                 $A.Masker.unmask(body);
             }
-            if($A.logWindow){
-                var st = $A['_startTime'];
-                var ed = new Date();                    
-                var record = $('HTTPWATCH_DATASET').getCurrentRecord();
-                record.set('spend',ed-st);
-                record.set('result',response.statusText);
-                record.set('status',response.status);
-                record.set('response',response.responseText);
-            }
-            $A.manager.fireEvent('ajaxcomplete', url, para,response);
             if(response){
+	            if($A.logWindow){
+	                var st = $A['_startTime'];
+	                var ed = new Date();                    
+	                var record = $('HTTPWATCH_DATASET').getCurrentRecord();
+	                record.set('spend',ed-st);
+	                record.set('result',response.statusText);
+	                record.set('status',response.status);
+	                record.set('response',response.responseText);
+	            }
+	            $A.manager.fireEvent('ajaxcomplete', url, para,response);
                 var res = null;
-                try {
-                    res = Ext.decode(response.responseText);
-                }catch(e){
-                    $A.showErrorMessage(_lang['ajax.error'], _lang['ajax.error.format']);
-                    return;
-                }
-                
-                if(res && !res.success){
-                    $A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
-                    if(res.error){
-                        if(res.error.code  && (res.error.code == 'session_expired' || res.error.code == 'login_required')){
-                            if($A.manager.fireEvent('timeout', $A.manager))
-                            $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
-                        }else{
-                            var st = res.error.stackTrace;
-                            st = (st) ? st.replaceAll('\r\n','</br>') : '';
-                            if(res.error.message) {
-                                var h = (st=='') ? 150 : 250;
-                                $A.showErrorMessage(_lang['ajax.error'], res.error.message+'</br>'+st,null,400,h);
-                            }else{
-                                $A.showErrorMessage(_lang['ajax.error'], st,null,400,250);
-                            }
-                        }
-                        if(errorCall)
-                        errorCall.call(scope, res, options);
-                    }                                                               
-                } else {                    
-                    if(successCall) {
-                        successCall.call(scope,res, options);
-                        opt.showSuccessTip = opt.showSuccessTip || false;
-                    }
-                    if(opt.showSuccessTip){
-                        $A.manager.fireEvent('ajaxsuccess', opt.successTip);
-                    }
+                if(Ext.isEmpty(response.responseText)){
+                	successCall.call(scope,{result:{}}, options);
+                }else{
+	                try {
+	                    res = Ext.decode(response.responseText);
+	                }catch(e){
+	                    $A.showErrorMessage(_lang['ajax.error'], _lang['ajax.error.format']);
+	                    return;
+	                }
+	                if(res){
+		                if(isRest){
+		                	if(res.status == 'query'){
+		                		res.result=res.result||{};
+		            			res.result.totalCount = Number(res.totalCount);
+		            			res.success = true;
+		                	}else if(res.modifiedResult){
+								var record_arr = [];
+								res.result={}
+	//							Ext.each(res.modifiedResult.record,function(r){
+	//								record_arr.push(records[r.code]);
+	//							});
+								res.result.record = para;
+			                	res.success = true;
+		                	}
+		            	}
+		                if(!res.success){
+		                    $A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
+		                    if(res.error){
+		                        if(res.error.code  && (res.error.code == 'session_expired' || res.error.code == 'login_required')){
+		                            if($A.manager.fireEvent('timeout', $A.manager))
+		                            $A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
+		                        }else{
+		                            var st = res.error.stackTrace;
+		                            st = (st) ? st.replaceAll('\r\n','</br>') : '';
+		                            if(res.error.message) {
+		                                var h = (st=='') ? 150 : 250;
+		                                $A.showErrorMessage(_lang['ajax.error'], res.error.message+'</br>'+st,null,400,h);
+		                            }else{
+		                                $A.showErrorMessage(_lang['ajax.error'], st,null,400,250);
+		                            }
+		                        }
+		                        if(errorCall)
+		                        errorCall.call(scope, res, options);
+		                    }                                                               
+		                } else {                    
+		                    if(successCall) {
+		                        successCall.call(scope,res, options);
+		                        opt.showSuccessTip = opt.showSuccessTip || false;
+		                    }
+		                    if(opt.showSuccessTip){
+		                        $A.manager.fireEvent('ajaxsuccess', opt.successTip);
+		                    }
+		                }
+                	}
                 }
             }
         },
@@ -410,6 +469,35 @@ $A.request = function(opt){
         },
         scope: scope
     });
+}
+$A.parseXML = function(strxml){
+	var xmldom =  null;
+    if (typeof DOMParser != "undefined"){
+    	try{
+        	xmldom = new DOMParser().parseFromString(strxml, "text/xml");
+    	}catch(e){
+    		 throw new Error("XML parsing error:" + e.message);
+    	}
+        var errors = xmldom.getElementsByTagName("parsererror");
+        if(errors.length) {
+            throw new Error("XML parsing error:" + errors[0].textContent);
+        }
+    }else if(document.implementation.hasFeature("LS", "3.0")){
+        var implementation =  document.implementation,
+        	parser = implementaion.createLSParser(implementation.MODE_SYNCHRONOUS, null),
+        	input = implementation.createLSInput();
+        input.stringData = strxml;
+        xmldom = parser.parse(input);
+    }else if(typeof ActiveXObject != "undefined"){
+        xmldom = new ActiveXObject("Microsoft.XMLDOM");
+        xmldom.loadXML(strxml);
+        if (xmldom.parseError != 0) {
+            throw new Error("XML parsing error:" + xmldom.parseError.reason);
+        }
+    }else{
+        throw new Error("No XML parser available.");
+    }
+    return xmldom;
 }
 Aurora.dateFormat = function () { 
     var masks = {  
@@ -1142,7 +1230,7 @@ $A.parseDate = function(str){
         var results = str.match(/^ *(\d{4})-(\d{1,2})-(\d{1,2}) *$/);      
         if(results && results.length>3)      
             return new Date(parseInt(results[1]),parseInt(results[2],10) -1,parseInt(results[3],10));       
-        results = str.match(/^ *(\d{4})-(\d{1,2})-(\d{1,2}) +(\d{1,2}):(\d{1,2}):(\d{1,2}) *$/);  
+        results = str.match(/^ *(\d{4})-(\d{1,2})-(\d{1,2}) +(\d{1,2}):(\d{1,2}):(\d{1,2}).?(\d{0,3}) *$/);  
         if(results && results.length>6)      
         return new Date(parseInt(results[1]),parseInt(results[2],10) -1,parseInt(results[3],10),parseInt(results[4],10),parseInt(results[5],10),parseInt(results[6],10));       
     }      
@@ -1150,13 +1238,17 @@ $A.parseDate = function(str){
 }
 $A.getRenderer = function(renderer){
     if(!renderer) return null;
-    var rder;
+    /*var rder;
     if(renderer.indexOf('Aurora.') != -1){
         rder = $A[renderer.substr(7,renderer.length)]
     }else{
         rder = window[renderer];
+    }*/
+    try{
+	    return eval(renderer);
+    }catch(e){
+    	return window[renderer];
     }
-    return rder;
 }
 $A.RowNumberRenderer = function(value,record,name){
     if(record && record.ds){
@@ -1684,8 +1776,30 @@ if(Ext.isIE){//for fix IE event's order bug
         return sf;
     }
 })();
-};
-
+}/*else if(!Ext.isIE9 && !Ext.isIE10) {
+(function(){
+	var _proto = Number.prototype,
+		_toFixed = _proto.toFixed;
+	_proto.toFixed = function(deci) {
+		var s = String(this);
+		if(s.indexOf('e') != -1){
+			var arr = s.split('e');
+			if(arr[1]<0){
+				if(arr[0].indexOf('.') == -1){
+					arr[1] -=1;
+				}
+				return _toFixed.call(Number(arr[0]+1+'e'+arr[1]),deci);
+			}else{
+				return _toFixed.call(this,deci);
+			}
+		}else if(s.indexOf('.') == -1){
+			return _toFixed.call(this,deci);
+		}else{
+			return _toFixed.call(Number(s+1),deci);
+		}
+	}
+})();
+}*/
 $A.FixMath = (function(){
 var POW = Math.pow,
     mul = function(a,b) { 
@@ -1825,6 +1939,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.submiturl = config.submiturl || '';
         this.queryurl = config.queryurl || '';
         this.fetchall = config.fetchall||false;
+        //Hybris
+        this.dtoname = config.dtoname||'';
+        this.restDataFormat = config.restdataformat;
+        
         this.totalcountfield = config.totalcountfield || 'totalCount';
         this.selectable = config.selectable||false;
         this.selectionmodel = config.selectionmodel||'multiple';
@@ -2525,31 +2643,48 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             this.removeRemote(rrs);
         }
     },
-    removeRemote: function(rs){     
-        if(this.submiturl == '') return;
-        var p = [];
-        for(var k=0;k<rs.length;k++){
-            var r = rs[k]
-            for(var key in this.fields){
-                var f = this.fields[key];
-                if(f && f.type == 'dataset') delete r.data[key];
-            }
-            var d = Ext.apply({}, r.data);
-            d['_id'] = r.id;
-            d['_status'] = 'delete';
-            p[k] = d
-        }
+    removeRemote: function(rs){
+    	var sf = this,
+    		submiturl = sf.submiturl,
+    		p = [],
+    		isRest = /\/rest\//.test(submiturl),
+    		dtoName = sf.dtoname;
+        if(Ext.isEmpty(submiturl)) return;
+        Ext.each(rs,function(r){
+        	var data = {
+            	_id:r.id,
+            	_status:'delete'
+            };
+        	Ext.iterate(sf.fields,function(key,f){
+        		if(f && f.type == 'dataset') delete r.data[key];
+        	});
+        	data = Ext.apply(data, r.data);
+            p.push(data);
+        });
 //      var p = [d];
 //      for(var i=0;i<p.length;i++){
-//          p[i] = Ext.apply(p[i],this.spara)
+//          p[i] = Ext.apply(p[i],sf.spara)
 //      }
-        if(p.length > 0) {
-            var opts;
-            if(this.bindtarget){
-                var bd = $A.CmpManager.get(this.bindtarget);
-                opts = {record:bd.getCurrentRecord(),dataSet:this};
-            }
-            $A.request({url:this.submiturl, para:p, ext:this.spara,success:this.onRemoveSuccess, error:this.onSubmitError, scope:this, failure:this.onAjaxFailed,opts:opts});
+        if(p.length) {
+        	$A.request(Ext.apply({
+            	url:submiturl, 
+        		para:p,
+            	ext:sf.spara,
+            	success:sf.onRemoveSuccess, 
+            	error:sf.onSubmitError, 
+            	scope:sf,
+            	failure:sf.onAjaxFailed,
+            	opts:sf.bindtarget?{record:$A.CmpManager.get(sf.bindtarget).getCurrentRecord(),dataSet:sf}:null
+        	},isRest?{
+        		dtoName:dtoName,
+        		restDataFormat:sf.restDataFormat,
+        		method:'Delete',
+        		headers:{
+        			'Content-Type':'application/json',
+        			'Accept':'application/json'
+        		}
+        	}:{
+    		}));
         }
     
     },
@@ -2620,16 +2755,19 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * 查找数据.  
      * @param {String} property 查找的属性.
      * @param {Object} value 查找的属性的值.
+     * @param {Aurora.Record} exceptRecord 当符合查找条件的第一个record为exceptRecord，将跳过该record继续查找.
      * @return {Aurora.Record} 符合查找条件的第一个record
      */
-    find : function(property, value){
+    find : function(property, value,exceptRecord){
         var r = null;
         this.each(function(record){
-            var v = record.get(property);
-            if(v ==value){
-                r = record;
-                return false;               
-            }
+        	if(!exceptRecord||record!=exceptRecord){
+	            var v = record.get(property);
+	            if(v ==value){
+	                r = record;
+	                return false;               
+	            }
+	        }
         }, this)
         return r;
     },
@@ -3058,28 +3196,81 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         }
     },
     doQuery:function(page,opts){
-        var r;
-        if(this.qds)r = this.qds.getCurrentRecord();
-        if(!page) this.currentIndex = 1;
-        this.currentPage = page || 1;
-        var q = {};
+        var sf = this,
+        	r,q = {},
+        	qurl = sf.queryurl,
+        	isRest = /\/rest\//.test(qurl),
+        	pagesize = sf.pagesize,
+        	autocount = sf.autocount,
+        	qds = sf.qds;
+        sf.loading = true;
+        if(qds)r = qds.getCurrentRecord();
+        if(!page) sf.currentIndex = 1;
+        page = sf.currentPage = page || 1;
         if(r != null) Ext.apply(q, r.data);
-        Ext.apply(q, this.qpara);
+        sf.fireEvent("query", sf,sf.qpara,opts);
+        Ext.apply(q, sf.qpara);
         for(var k in q){
            var v = q[k];
            if(Ext.isEmpty(v,false)||v.xtype == 'dataset') delete q[k];
         }
-        var para = 'pagesize='+this.pagesize + 
-                      '&pagenum='+this.currentPage+
-                      '&_fetchall='+this.fetchall+
-                      '&_autocount='+this.autocount
-//                    + '&_rootpath=list'
-        var url = this.queryurl +(this.queryurl.indexOf('?') == -1?'?':'&') + para;
-        this.loading = true;
-        this.fireEvent("query", this,q,opts);
-//      this.fireBindDataSetEvent("beforeload", this);//主dataset无数据,子dataset一直loading
-        if(this.qtId) Ext.Ajax.abort(this.qtId);
-        this.qtId = $A.request({url:url, para:q, success:this.onLoadSuccess, error:this.onLoadError, scope:this,failure:this.onAjaxFailed,opts:opts,ext:opts?opts.ext:null});
+        if(isRest){
+        	var format_xmlattribute=function(key){
+		    		if(/^@/.test(key)){
+						return key.substring(1);    			
+		    		}
+		    		return key;
+		    	},
+		    	path = qurl.split(/[?#]/g)[0].match(/\/([^\/]*)$/)[1],
+        		para = path+'_autocount='+autocount+
+        				'&'+path+'_size='+pagesize + 
+	                      '&'+path+'_page='+(page - 1),
+	            //attributes=[],
+	            query=[];
+	        /*Ext.iterate(sf.fields,function(key){
+        		attributes.push(format_xmlattribute(key));
+	        });
+	        if(attributes.length)
+	        	para+='&'+dtoName+'_attributes='+attributes.join(',');*/
+	        Ext.iterate(q,function(key,value){
+	        	var qfield = qds.fields[key],returnfield;
+	        	if(!qfield || !(returnfield = qfield.getPropertity('returnfield'))||returnfield==key){
+		        	if(value != 'true' && value !='false'){
+		        		value = "'"+value+"'";
+		        	}
+		        	query.push('{'+format_xmlattribute(key)+'}'+(String(value).indexOf('%')==-1?' = ':' like ')+value);
+	        	}
+	        })
+	        if(query.length)
+	        	para+='&'+path+'_query='+encodeURIComponent(query.join(' and '))
+        }else{
+	        var para = 'pagesize='+pagesize + 
+	                      '&pagenum='+page+
+	                      '&_fetchall='+sf.fetchall+
+	                      '&_autocount='+autocount
+	//                    + '&_rootpath=list'
+        }
+       	var url = Ext.urlAppend(qurl,para);
+        
+//      sf.fireBindDataSetEvent("beforeload", sf);//主dataset无数据,子dataset一直loading
+        if(sf.qtId) Ext.Ajax.abort(sf.qtId);
+        sf.qtId = $A.request(Ext.apply({
+        	url:url, 
+        	success:sf.onLoadSuccess, 
+        	error:sf.onLoadError, 
+        	scope:sf,
+        	failure:sf.onAjaxFailed,
+        	opts:opts,
+        	ext:opts?opts.ext:null,
+        	queryDataFormat : sf.queryDataFormat
+        },isRest?{
+        	method:'GET',
+        	headers:{
+        		'Accept':'application/json'
+        	}
+        }:{
+        	para:q
+        }));
     },
     /**
      * 判断当前数据集是否发生改变.
@@ -3125,22 +3316,18 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
      * @return {Object} json 返回的json对象.
      */
     getJsonData : function(selected,fields){
-        var datas = [];
-        var items = this.data;
-        if(selected) items = this.getSelected();
-        for(var i=0,l=items.length;i<l;i++){
-            var r = items[i];
-//            var isAdd = r.dirty; //MAS云新增特性
-            var isAdd = r.dirty || r.isNew;
-            
-            var d = Ext.apply({}, r.data);
-            d['_id'] = r.id;
-            d['_status'] = r.isNew ? 'insert' : 'update';
-            for(var k in r.data){
+        var sf = this,
+        	datas = [],
+        	items = selected?sf.getSelected():sf.data,
+        	dsfields = sf.fields;
+        Ext.each(items,function(r){
+//          var isAdd = r.dirty; //MAS云新增特性
+        	var isAdd = r.dirty || r.isNew,
+            	d = Ext.apply({}, r.data);
+            Ext.iterate(d,function(k,item){
             	if(fields && fields.indexOf(k)==-1){
             		delete d[k];
             	}else{
-	                var item = d[k];
 	                if(item && item.xtype == 'dataset'){
 	                	//if(item.data.length > 0){
 		                    var ds = new $A.DataSet({});//$(item.id);
@@ -3150,13 +3337,14 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
 		                    d[k] = ds.getJsonData();
 	                	//}
 	                }
-            	}
-            }
-            
+            	} 
+            });
+            d['_id'] = r.id;
+            d['_status'] = r.isNew ? 'insert' : 'update';
             if(isAdd||selected){
                 datas.push(d);              
             }
-        }
+        });
         
         return datas;
     },
@@ -3173,9 +3361,11 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	});
     },
     doSubmit : function(url, items){
-    	var sf = this;
+    	var sf = this,
+    		url = url || sf.submiturl;
+        if(Ext.isEmpty(url)) return;
+        var isRest = /\/rest\//.test(url);
         sf.fireBindDataSetEvent("submit",url,items);
-        if((sf.submiturl = url||sf.submiturl) == '') return;
 //        var p = items;//sf.getJsonData();
         sf.checkEmptyData(items);
 //        for(var i=0;i<p.length;i++){
@@ -3189,7 +3379,24 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         
         //if(p.length > 0) {
 //            sf.fireEvent("submit", sf);
-            $A.request({showSuccessTip:true,url:sf.submiturl, para:items, ext:sf.spara,success:sf.onSubmitSuccess, error:sf.onSubmitError, scope:sf,failure:sf.onAjaxFailed});
+            $A.request(Ext.apply({
+            	showSuccessTip:true,
+            	url:url, 
+            	ext:sf.spara,
+            	success:sf.onSubmitSuccess, 
+            	error:sf.onSubmitError, 
+            	scope:sf,
+            	failure:sf.onAjaxFailed,
+        		para:items
+        	},isRest?{
+        		dtoName:sf.dtoname,
+        		restDataFormat:sf.restDataFormat,
+        		headers:{
+        			'Content-Type':'application/json',
+        			'Accept':'application/json'
+        		}
+        	}:{
+    		}));
         //}
     },
     /**
@@ -3560,7 +3767,7 @@ $A.Record.prototype = {
     	if(Ext.isEmpty(vv)){
         	var required = field.get('required') == true;
 	    	if(requiredFunc){
-	           	var rf = window[requiredFunc];
+	           	var rf = eval(requiredFunc);
 	            if(rf){
 	                required = rf(sf, name, v);
 	            }else {
@@ -3575,7 +3782,7 @@ $A.Record.prototype = {
         if(valid == true){
             var isvalid = true;
             if(validator){
-                var vc = window[validator];
+                var vc = eval(validator);
                 if(vc){
                     isvalid = vc(sf, name, v);
                     if(isvalid !== true){
@@ -5625,6 +5832,47 @@ $A.Button = Ext.extend($A.Component,{
 $A.Button.getTemplate = function(id,text,width){
     return '<TABLE class="item-btn " id="'+id+'" style="WIDTH: '+(width||60)+'px" cellSpacing="0"><TBODY><TR><TD class="item-btn-tl"><I></I></TD><TD class="item-btn-tc"></TD><TD class="item-btn-tr"><I></I></TD></TR><TR><TD class="item-btn-ml"><I></I></TD><TD class="item-btn-mc"><BUTTON hideFocus style="HEIGHT: 17px" atype="btn"><div>'+text+'</div></BUTTON></TD><TD class="item-btn-mr"><I></I></TD></TR><TR><TD class="item-btn-bl"><I></I></TD><TD class="item-btn-bc"></TD><TD class="item-btn-br"><I></I></TD></TR></TBODY></TABLE><script>new Aurora.Button({"id":"'+id+'"});</script>';
 }
+$A.SwitchButton = Ext.extend($A.Component,{
+    curCls:'cur',
+    initComponent : function(config){
+        $A.SwitchButton.superclass.initComponent.call(this, config);
+    },
+    processListener: function(ou){
+        $A.SwitchButton.superclass.processListener.call(this,ou);
+        this.wrap[ou]('click',this.onClick, this);
+    },
+    initEvents:function(){
+        $A.SwitchButton.superclass.initEvents.call(this);   
+        this.addEvents(
+        /**
+         * @event select
+         * 选择事件.
+         * @param {Aurora.Tab} tab Tab对象.
+         * @param {String} newValue value1.
+         * @param {String} oldValue value2.
+         */
+        'select'
+        );
+    },
+    onClick : function(e){
+        var li = Ext.fly(e.target).findParent('li');
+        if(li)
+        this.selectButton(Ext.fly(li).getAttributeNS("","code"));
+    },
+    selectButton:function(value){
+        if(this.activeValue == value) return;
+        var oli = this.wrap.child('li[code='+this.activeValue+']'),li = this.wrap.child('li[code='+value+']'),ov;
+        if(li) {
+            if(oli) {
+                oli.removeClass(this.curCls);
+                ov = Ext.fly(oli).getAttributeNS("","code");
+            }
+            li.addClass(this.curCls);
+            this.activeValue = value;
+            this.fireEvent('select', this, value,ov)
+        }
+    }
+})
 /**
  * @class Aurora.ToogleButton
  * @extends Aurora.Component
@@ -5821,6 +6069,99 @@ $A.CheckBox = Ext.extend($A.Component,{
 			this.el.addClass(this.checked ? this.readonyCheckedCss : this.readonlyUncheckedCss);			
 		}else{
 			this.el.addClass(this.checked ? this.checkedCss : this.uncheckedCss);
+		}		
+	},
+	clearValue:function(){
+		this.setValue(this.uncheckedvalue,true);
+	}
+});
+/**
+ * @class Aurora.CheckButton
+ * @extends Aurora.Component
+ * <p>可选组件.
+ * @author njq.niu@hand-china.com
+ * @constructor
+ * @param {Object} config 配置对象. 
+ */
+$A.CheckButton = Ext.extend($A.Component,{
+	checkedCss:'item-ckb-c',
+	uncheckedCss:'item-ckb-u',
+	readonyCheckedCss:'item-ckb-readonly-c',
+	readonlyUncheckedCss:'item-ckb-readonly-u',
+	constructor: function(config){
+		config.checked = config.checked || false;
+		config.readonly = config.readonly || false;
+		$A.CheckButton.superclass.constructor.call(this,config);
+	},
+	initComponent:function(config){
+		this.checkedvalue = 'Y';
+		this.uncheckedvalue = 'N';
+		$A.CheckButton.superclass.initComponent.call(this, config);
+		this.wrap=Ext.get(this.id);
+	},
+	processListener: function(ou){
+    	this.wrap[ou]('click',this.onClick,this);
+    },
+	initEvents:function(){
+		$A.CheckButton.superclass.initEvents.call(this);  	
+		this.addEvents(
+		/**
+         * @event click
+         * 鼠标点击事件.
+         * @param {Aurora.CheckButton} checkBox 可选组件.
+         * @param {Boolean} checked 选择状态.
+         */
+		'click');    
+	},
+    onKeyDown : function(e){
+    	var keyCode = e.keyCode;
+    	if(keyCode == 32){
+    		this.onClick.call(this,e);
+    		e.stopEvent();
+    	}
+    },
+    onMouseDown : function(e){
+    	var sf = this;
+    	sf.hasFocus && e.stopEvent();
+    	sf.focus.defer(Ext.isIE?1:0,sf);
+    },
+	onClick: function(event){
+		if(!this.readonly){
+			this.checked = this.checked ? false : true;	
+			this.setValue(this.checked);
+			this.fireEvent('click', this, this.checked);
+		}
+	},
+	setValue:function(v, silent){
+		if(typeof(v)==='boolean'){
+			this.checked=v?true:false;			
+		}else{
+			this.checked = (''+v == ''+this.checkedvalue)
+		}
+		this.initStatus();
+		var value = this.checked==true ? this.checkedvalue : this.uncheckedvalue;		
+		$A.CheckButton.superclass.setValue.call(this,value, silent);
+	},
+	getValue : function(){
+    	var v= this.value;
+		v=(v === null || v === undefined ? '' : v);
+		return v;
+    },
+//	setReadOnly:function(b){
+//		if(typeof(b)==='boolean'){
+//			this.readonly=b?true:false;	
+//			this.initStatus();		
+//		}		
+//	},
+	initStatus:function(){
+		this.wrap.removeClass(this.checkedCss);
+		this.wrap.removeClass(this.uncheckedCss);
+		this.wrap.removeClass(this.readonyCheckedCss);
+		this.wrap.removeClass(this.readonlyUncheckedCss);
+		if (this.readonly) {				
+			this.wrap.addClass(this.checked ? this.readonyCheckedCss : this.readonlyUncheckedCss);			
+		}else{
+			this.wrap.addClass(this.checked ? this.checkedCss : this.uncheckedCss);
 		}		
 	},
 	clearValue:function(){
@@ -6704,7 +7045,7 @@ $A.ComboBox = Ext.extend($A.TriggerField, {
 		}else{
 			var sb = [],n=0;
 			if(this.blankoption){
-				sb.push('<li tabIndex="0"></li>');
+				sb.push('<li tabIndex="0">&nbsp;</li>');
 				n=1;
 			}
 			Ext.each(ds.getAll(),function(d,i){
@@ -7564,41 +7905,39 @@ $A.ToolBar = Ext.extend($A.Component,{
     }
 });
 $A.NavBar = Ext.extend($A.ToolBar,{
-	constructor: function(config) {
-        $A.NavBar.superclass.constructor.call(this, config);        
-    },
     initComponent : function(config){
     	$A.NavBar.superclass.initComponent.call(this, config);
-    	this.dataSet = $(this.dataSet);
-    	this.navInfo = this.wrap.child('div[atype=displayInfo]');//Ext.get(this.infoId);
-    	if(this.type != "simple" && this.type != "tiny"){
-	    	this.pageInput = $(this.inputId);
-	    	this.currentPage = this.wrap.child('div[atype=currentPage]');
-	    	this.pageInfo = this.wrap.child('div[atype=pageInfo]');//Ext.get(this.pageId);
+    	var sf = this,
+    		type = sf.type,
+    		wrap = sf.wrap;
+    	sf.dataSet = $(sf.dataSet);
+    	sf.navInfo = wrap.child('div[atype=displayInfo]');//Ext.get(sf.infoId);
+    	if(sf.type != "simple" && sf.type != "tiny"){
+	    	sf.pageInput = $(sf.inputId);
+	    	sf.currentPage = wrap.child('div[atype=currentPage]');
+	    	sf.pageInfo = wrap.child('div[atype=pageInfo]');//Ext.get(sf.pageId);
 	
-	    	if(this.comboBoxId){
-	    		this.pageSizeInput = $(this.comboBoxId);
-	    		this.pageSizeInfo = this.wrap.child('div[atype=pageSizeInfo]');
-	    		this.pageSizeInfo2 = this.wrap.child('div[atype=pageSizeInfo2]');
-	    		this.pageSizeInfo.update(_lang['toolbar.pageSize']);
-	    		this.pageSizeInfo2.update(_lang['toolbar.pageSize2']);
+	    	if(sf.comboBoxId){
+	    		sf.pageSizeInput = $(sf.comboBoxId);
+	    		sf.pageSizeInfo = wrap.child('div[atype=pageSizeInfo]');
+	    		sf.pageSizeInfo2 = wrap.child('div[atype=pageSizeInfo2]');
+	    		sf.pageSizeInfo.update(_lang['toolbar.pageSize']);
+	    		sf.pageSizeInfo2.update(_lang['toolbar.pageSize2']);
 	    	}
-	    	this.pageInfo.update(_lang['toolbar.total'] + '&#160;&#160;' + _lang['toolbar.page']);
-	    	this.currentPage.update(_lang['toolbar.ctPage']);
+	    	sf.pageInfo.update(_lang['toolbar.total'] + '&#160;&#160;' + _lang['toolbar.page']);
+	    	sf.currentPage.update(_lang['toolbar.ctPage']);
     	}
     },
     processListener: function(ou){
-    	$A.NavBar.superclass.processListener.call(this,ou);
-    	this.dataSet[ou]('load', this.onLoad,this);
-    	if(this.type != "simple" && this.type != "tiny"){
-    		this.pageInput[ou]('change', this.onPageChange, this);
-    		if(this.pageSizeInput){
-    			this.pageSizeInput[ou]('change', this.onPageSizeChange, this);
+    	var sf = this;
+    	$A.NavBar.superclass.processListener.call(sf,ou);
+    	sf.dataSet[ou]('load', sf.onLoad,sf);
+    	if(sf.type != "simple" && sf.type != "tiny"){
+    		sf.pageInput[ou]('change', sf.onPageChange, sf);
+    		if(sf.pageSizeInput){
+    			sf.pageSizeInput[ou]('change', sf.onPageSizeChange, sf);
     		}
     	}
-    },
-    initEvents : function(){
-    	$A.NavBar.superclass.initEvents.call(this);    	
     },
     onLoad : function(){
     	var sf = this,ds = sf.dataSet,
@@ -7637,10 +7976,11 @@ $A.NavBar = Ext.extend($A.ToolBar,{
     		currentPage = ds.currentPage,
     		totalPage = ds.totalPage,
     		totalCount = ds.totalCount,
-    		pagesize = ds.pagesize;
+    		pagesize = ds.pagesize,
+    		type = sf.type,
+    		html=[];
     	if(ds.fetchall) pagesize = totalCount;
-    	if(sf.type == "simple"){
-    		var html=[];
+    	if(type == "simple"){
     		if(totalPage){
     			html.push('<span>共'+totalPage+'页</span>');
     			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : sf.createAnchor(_lang['toolbar.firstPage'],1));
@@ -7669,25 +8009,22 @@ $A.NavBar = Ext.extend($A.ToolBar,{
 	    		html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.nextPage']+'</span>' : this.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
     			html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.lastPage']+'</span>' : this.createAnchor(_lang['toolbar.lastPage'],totalPage));
     		}
-    		return html.join('');
-    	}else if(sf.type == 'tiny'){
-    		var html=[];
+    	}else if(type == 'tiny'){
     		html.push(currentPage == 1 ? '<span>'+_lang['toolbar.firstPage']+'</span>' : this.createAnchor(_lang['toolbar.firstPage'],1));
 			html.push(currentPage == 1 ? '<span>'+_lang['toolbar.prePage']+'</span>' : this.createAnchor(_lang['toolbar.prePage'],currentPage-1));
-    		html.push(currentPage == totalPage ? '<span>'+_lang['toolbar.nextPage']+'</span>' :sf.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
+    		html.push(sf.createAnchor(_lang['toolbar.nextPage'],currentPage+1));
     		html.push('<span>第'+currentPage+'页</span>');
-    		return html.join('');
     	}else{
 	    	var from = ((currentPage-1)*pagesize+1),
 	    		to = currentPage*pagesize,
 	    		theme = $A.getTheme();
 	    	if(to>totalCount && totalCount > from) to = totalCount;
 	    	if(to==0) from =0;
-            if(theme == 'mac')
-                return _lang['toolbar.visible'] + ' ' + from + ' - ' + to ;                
-            else 
-                return _lang['toolbar.visible'] + ' ' +  from + ' - ' + to + ' '+ _lang['toolbar.total'] + totalCount + _lang['toolbar.item'];
+	    	html.push(_lang['toolbar.visible'] , ' ' , from , ' - ' , to);
+            if(theme != 'mac')
+            	html.push(' ', _lang['toolbar.total'] , totalCount , _lang['toolbar.item']);
     	}
+    	return html.join('');
     },
     createAnchor : function(text,page){
     	return '<a href="javascript:$(\''+this.dataSet.id+'\').goPage('+page+')">'+text+'</a>';
@@ -7766,7 +8103,13 @@ var cache = [],
  */
 A.Window = Ext.extend(A.Component,{
     constructor: function(config) { 
-        if(WINDOW_MANAGER.get(config.id))return;
+    	var win = WINDOW_MANAGER.get(config.id);
+        if(win){
+        	if(win.usecache){
+        		win.show();
+        	}
+        	return;
+        }
         var sf = this;
         sf.draggable = true;
         sf.closeable = true;
@@ -7798,7 +8141,7 @@ A.Window = Ext.extend(A.Component,{
         	id:sf.id,
         	title:sf.title,
         	width:sf.width,
-        	bodywidth:sf.width-2,
+        	bodywidth:sf.width,
         	height:sf.height,
         	url:url?'url="'+url+'"':'',
         	clz:(sf.fullScreen ? 'full-window ' : '')+(sf.className||''),
@@ -7974,19 +8317,20 @@ A.Window = Ext.extend(A.Component,{
             this.wrap.setStyle('z-index', zindex+5);
             if(this.modal) A.Cover.cover(this.wrap);
         }
-        
-        //去除下面window遮盖的透明度
-        var alls = WINDOW_MANAGER.getAll()
-        for(var i=0;i<alls.length;i++){
-            var pw = alls[i];
-            if(pw != this){
-                var cover = A.Cover.container[pw.wrap.id];
-                if(cover)cover.setStyle({
-                    filter: 'alpha(opacity=0)',
-                    opacity: '0',
-                    mozopacity: '0'
-                })
-            }
+        if(this.modal){
+	        //去除下面window遮盖的透明度
+	        var alls = WINDOW_MANAGER.getAll()
+	        for(var i=0;i<alls.length;i++){
+	            var pw = alls[i];
+	            if(pw != this){
+	                var cover = A.Cover.container[pw.wrap.id];
+	                if(cover)cover.setStyle({
+	                    filter: 'alpha(opacity=0)',
+	                    opacity: '0',
+	                    mozopacity: '0'
+	                })
+	            }
+	        }
         }
         
         
@@ -8086,44 +8430,63 @@ A.Window = Ext.extend(A.Component,{
         this.closeBtn.removeClass("win-btn-down");
         Ext.get(document.documentElement).un("mouseup", this.onCloseUp, this);
     },
+    hide : function(){
+    	if(this.modal)A.Cover.uncover(this.wrap);
+    	this.wrap.setStyle({
+    		display:'none'
+    	});
+    },
+    show : function(){
+    	if(this.modal)A.Cover.cover(this.wrap);
+    	this.wrap.setStyle({
+    		display:''
+    	});
+    },
     close : function(nocheck){
-        if(!nocheck && !this.checkDataSetNotification()) return;
-        if(this.fireEvent('beforeclose',this)){
-            if(this.wrap)this.wrap.destroying = true;
-            WINDOW_MANAGER.remove(this);
-            if(this.fullScreen){
-                Ext.fly(document.documentElement).setStyle({'overflow':this.overFlow})
+    	var sf = this;
+        if(!nocheck && !sf.checkDataSetNotification()) return;
+        if(sf.fireEvent('beforeclose',sf)){
+        	if(sf.usecache){
+        		sf.hide();
+        		return;
+        	}
+            if(sf.wrap)sf.wrap.destroying = true;
+            WINDOW_MANAGER.remove(sf);
+            if(sf.fullScreen){
+                Ext.fly(document.documentElement).setStyle({'overflow':sf.overFlow})
             }
-            this.destroy();
-            this.fireEvent('close', this);
+            sf.destroy();
+            sf.fireEvent('close', sf);
         }
         
-        //去除下面window遮盖的透明度
-        var alls = WINDOW_MANAGER.getAll()
-        for(var i=0;i<alls.length-1;i++){
-            var pw = alls[i];
-            if(pw != this){
-                var cover = A.Cover.container[pw.wrap.id];
-                if(cover)cover.setStyle({
-                    filter: 'alpha(opacity=0)',
-                    opacity: '0',
-                    mozopacity: '0'
-                })
-            }
-        }
-        
-        
-        var cw = alls[alls.length-1];
-        if(cw){
-            var cover = A.Cover.container[cw.wrap.id];
-            if(cover){
-	            cover.setStyle({
-	                opacity: '',
-	                mozopacity: ''
-	            })
-            	cover.dom.style.cssText = cover.dom.style.cssText.replace(/filter[^;]*/i,'');
-            }
-        }
+        if(this.modal){
+	        //去除下面window遮盖的透明度
+	        var alls = WINDOW_MANAGER.getAll()
+	        for(var i=0;i<alls.length-1;i++){
+	            var pw = alls[i];
+	            if(pw != sf){
+	                var cover = A.Cover.container[pw.wrap.id];
+	                if(cover)cover.setStyle({
+	                    filter: 'alpha(opacity=0)',
+	                    opacity: '0',
+	                    mozopacity: '0'
+	                })
+	            }
+	        }
+	        
+	        
+	        var cw = alls[alls.length-1];
+	        if(cw){
+	            var cover = A.Cover.container[cw.wrap.id];
+	            if(cover){
+		            cover.setStyle({
+		                opacity: '',
+		                mozopacity: ''
+		            })
+	            	cover.dom.style.cssText = cover.dom.style.cssText.replace(/filter[^;]*/i,'');
+	            }
+	        }
+	    }
     },
     clearBody : function(){
         for(var key in this.cmps){
@@ -8366,6 +8729,7 @@ A.showOkCancelWindow = function(title, msg, okfun,cancelfun,width, height){
                     if(cancelfun && cancelfun.call(this,cmp) === false)return;
                     cmp.close();
                 });
+                okbtn.focus.defer(10,okbtn);
             });
         }
     //}
@@ -8404,6 +8768,7 @@ A.showYesNoCancelWindow = function(title, msg, yesfun,nofun,width, height){
                 cancelbtn.on('click',function(){
                     cmp.close();
                 });
+                yesbtn.focus.defer(10,yesbtn);
             });
         }
     //}

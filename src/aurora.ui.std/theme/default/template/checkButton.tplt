@@ -1,0 +1,5 @@
+<div class="item-ckbtn" style="line-height:${height}px;height:${height}px;width:${width}px;${style}" id="${id}">${label}</div>
+<script>
+    	new Aurora.CheckButton(${config});
+		${binding}
+</script>

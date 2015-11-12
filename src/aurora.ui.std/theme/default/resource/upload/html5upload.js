@@ -1,5 +1,11 @@
 $A.uploadcmps = [];
-
+$A.HybridUploader = function(config){
+    if(config.type == 'resumable'){
+        new $A.ResumableUploader(config)        
+    }else{
+        new $A.HTML5Uploader(config)
+    }
+}
 $A.HTML5Uploader = Ext.extend($A.Component,{
     types:[],
     map:{},
@@ -205,6 +211,7 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
     },
     onFileSelect: function(e){
         this.uploadFiles(this.btn.dom.files);
+        e.target.value = ''
     },
     onDocDragEnter: function(e){
         this.showDragTip();
@@ -249,4 +256,99 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
         $A.uploadcmps.remove(this);
     }
     
+})
+
+
+
+$A.ResumableUploader = Ext.extend($A.HTML5Uploader,{
+    
+    initComponent : function(config){
+        $A.ResumableUploader.superclass.initComponent.call(this, config);
+        $A.uploadcmps.add(this);
+        this.le = this.wrap.child('#'+this.id+'_list');
+        this.text = this.wrap.child('#'+this.id+'_text');
+        this.cv = this.wrap.child('#'+this.id+"_cv");
+        this.cv.update(_lang['upload.error.drag_upload']);
+        this.btn = this.wrap.child('#'+this.id+"_btn");
+        this.btn.setWidth(this.text.getWidth());
+        
+        var tps = this.filetype.trim().split(';');
+        for (var k = 0; k < tps.length; k++) {  
+            var vt = tps[k];
+            this.types.add(vt.split('.')[1])
+        }
+        var r = this.resumable = new Resumable({
+            target:this.uploadurl,
+            chunkSize:1*1024*1024,
+            simultaneousUploads:4,
+            testChunks: true,
+            throttleProgressCallbacks:1,
+            headers:{'x-upload':'resumable'},
+            query: {'user_id':this.user_id,"pkvalue":this.pkvalue,"source_type":this.sourcetype},
+            method: "octet"
+        }); 
+        
+        var self = this;
+        r.on('fileAdded', function(file){
+            if(file.fileName){
+                Ext.each($(self.id+'_ds').data,function(item){
+                    var s = item.get('sequence');
+                    if(s>self.sequence) self.sequence = s;
+                },self);
+                var _s = ++self.sequence;
+                var fid = 'f_'+Ext.id();
+                file.fid = fid;
+                var record = new Aurora.Record({
+                    file_id : fid,//file.uniqueIdentifier,
+                    file_name : file.fileName,
+                    file_size : file.size,
+                    table_name: self.sourcetype,
+                    table_pk_value : self.pkvalue,
+                    percent: 0,
+                    sequence:_s
+                });
+                $(self.id+'_ds').add(record,0);
+            }
+            
+            r.upload();            
+        })
+        r.on('fileSuccess', function(file,message){
+            if(file instanceof ResumableChunk){
+                var record = $(self.id+'_ds').find('file_id', file.fileObj.fid);
+                if (message && message.substr(0,8) == 'Finished' && record) {
+                    var id = message.split('-')[1];
+                    record.set('attachment_id',id);
+                    record.set('status', 1);
+                    record.set('creation_time',new Date())
+                    record.commit();
+                    self.fireEvent("upload", self, self.pkvalue,self.sourcetype, id);
+                }
+                
+                
+            }
+        });
+        r.on('fileProgress', function(file){
+            if(file instanceof ResumableChunk){
+                var record = $(self.id+'_ds').find('file_id', file.fileObj.fid);
+                if (record) {
+                    record.set('percent', Math.min(100,r.progress()*100));
+                }
+            }
+        });
+    },
+    uploadFiles : function(files){
+        if(!this.showupload) {
+            $A.showInfoMessage(_lang['upload.error'], _lang['upload.disabled']);
+            this.clearDragTip();
+            return;
+        }
+        if(!this.checkFile(files)) {
+            this.clearDragTip();
+            return;
+        }
+        this.clearDragTip();
+        
+        
+        this.resumable.appendFilesFromFileList(files);
+    } 
 })

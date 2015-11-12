@@ -475,6 +475,17 @@ A:hover {COLOR: #ff9900;TEXT-DECORATION: none}
 .item-ckb-readonly-c {
 	background-position:-39px -13px;
 }
+.item-ckbtn {
+	border:1px solid #ccc;
+	padding:0px 5px;
+	cursor:pointer;
+	color:#ccc;
+	text-align:center;
+}
+.item-ckb-c {
+	border:1px solid #000;
+	color:#000;
+}
 .item-radio:focus{
 	/*outline:1px dotted black;*/
 }
@@ -911,6 +922,34 @@ button div {
 	cursor:default !important;
     color:#ccc;
 }
+.s-switch-button {
+    display:block;
+    float:left;
+    border:1px solid #cfcfcf;
+}
+
+.s-switch-button li {
+    float:left;
+    width:72px;
+    border-right:1px solid #cfcfcf;
+    text-align:center;
+    font-size:14px;
+    line-height:28px;
+    color:#555;
+    cursor:pointer;
+    background-color:#fff;
+}
+.s-switch-button  li.cur {
+    background-color:#eaeaea;
+    font-weight:bold;
+    box-shadow:inset 0 0 3px rgba(0,0,0,0.15);
+}
+.s-switch-button li:hover { 
+    background-color: #f4f4f4; 
+}
+.s-switch-button li.last{
+    border-right:none;
+}
 .item-tgl-btn {
     width:16px;
     height:16px;
@@ -1188,29 +1227,31 @@ button div {
 .nav-prepage div, .nav-prepage div, .nav-firstpage div, .nav-lastpage div, .nav-nextpage div, .nav-refresh div{
 	background-image:url(../toolbar/navigation.gif);
 }
-.grid-add div,.grid-delete div,.grid-save div,.grid-clear div,.grid-excel div,.grid-cust div{
+.grid-add div,.grid-delete div,.grid-save div,.grid-clear div,.grid-excel div,.grid-cust div,
+.table-add div,.table-delete div,.table-save div,.table-clear div,.table-excel div,.table-cust div{
 	background-image:url(../toolbar/toolbar_btn.gif);
 }
-.grid-add2 div,.grid-delete2 div,.grid-save2 div,.grid-clear2 div,.grid-excel2 div,.grid-cust2 div{
+.grid-add2 div,.grid-delete2 div,.grid-save2 div,.grid-clear2 div,.grid-excel2 div,.grid-cust2 div,
+.table-add2 div,.table-delete2 div,.table-save2 div,.table-clear2 div,.table-excel2 div,.table-cust2 div{
     background-image:url(../toolbar/toolbar_btn.png);
     background-repeat:no-repeat;
 }
-.grid-add2 div {
+.grid-add2 div,.table-add2 div {
     background-position:0px -25px;
 }
-.grid-delete2 div {
+.grid-delete2 div,.table-delete2 div {
     background-position:0px -321px;
 }
-.grid-save2 div {
+.grid-save2 div,.table-save2 div {
     background-position:0px 2px;
 }
-.grid-clear2 div {
+.grid-clear2 div,.table-clear2 div {
     background-position:0px -349px;
 }
-.grid-excel2 div {
+.grid-excel2 div,.table-excel2 div {
     background-position:0px -1224px;
 }
-.grid-cust2 div {
+.grid-cust2 div,.table-cust2 div {
     background-position:0px -1196px;
 }
 .win-wrap {

@@ -1,0 +1,7 @@
+<ul class="${wrapClass}" style="${style};" id="${id}">
+    ${items}
+</ul>
+<script>
+	new Aurora.SwitchButton(${config});
+	${binding}
+</script>

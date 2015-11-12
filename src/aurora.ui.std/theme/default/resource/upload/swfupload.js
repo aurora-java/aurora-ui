@@ -229,14 +229,15 @@ SWFUpload.prototype.loadFlash = function () {
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
 	// Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
-	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=11,7,700,202" class="swfupload">',
+    return ['<embed id="', this.movieName, '"',' flashvars="'+this.getFlashVars()+'" src="'+this.settings.flash_url+'" type="application/x-shockwave-flash" bgcolor="#ffffff" quality="high" scale="noscale" salign="tl" wmode="'+this.settings.button_window_mode+'" allowscriptaccess="always" width="', this.settings.button_width, '" height="', this.settings.button_height,'">'].join("")
+	/*return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=11,7,700,202" class="swfupload">',
 				'<param name="wmode" value="', this.settings.button_window_mode, '" />',
 				'<param name="movie" value="', this.settings.flash_url, '" />',
 				'<param name="quality" value="high" />',
 				'<param name="menu" value="false" />',
 				'<param name="allowScriptAccess" value="always" />',
 				'<param name="flashvars" value="' + this.getFlashVars() + '" />',
-				'</object>'].join("");
+				'</object>'].join("");*/
 };
 
 // Private: getFlashVars builds the parameter string that will be passed

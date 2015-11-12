@@ -1,0 +1,11 @@
+.item-ckbtn {
+	border:1px solid #ccc;
+	padding:0px 5px;
+	cursor:pointer;
+	color:#ccc;
+	text-align:center;
+}
+.item-ckb-c {
+	border:1px solid #000;
+	color:#000;
+}

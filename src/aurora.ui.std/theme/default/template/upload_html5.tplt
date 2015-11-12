@@ -11,6 +11,6 @@
 <SCRIPT LANGUAGE="JavaScript">
     window.${id}_download_path = '${downloadurl}';
     window._context_path = '${context_path}';
-    new Aurora.HTML5Uploader(${config});
+    Aurora.HybridUploader(${config});
     ${upload_list}
 </SCRIPT>
