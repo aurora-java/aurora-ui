@@ -43,7 +43,9 @@ public class BuildAll {
 		std_exceptFiles.add("base/Link.js");
 		std_exceptFiles.add("base/HotKey.js");
 		std_exceptFiles.add("button/Button.js");
+		std_exceptFiles.add("button/SwitchButton.js");
 		std_exceptFiles.add("checkbox/CheckBox.js");
+		std_exceptFiles.add("checkbutton/CheckButton.js");
 		std_exceptFiles.add("radio/Radio.js");
 		std_exceptFiles.add("textfield/TextField.js");
 		std_exceptFiles.add("numberfield/NumberField.js");
@@ -67,8 +69,10 @@ public class BuildAll {
 		std_exceptFiles.add("base/Aurora.css");
 		std_exceptFiles.add("base/Aurora-all.css");
 		std_exceptFiles.add("checkbox/CheckBox.css");
+		std_exceptFiles.add("checkbutton/CheckButton.css");
 		std_exceptFiles.add("radio/Radio.css");
 		std_exceptFiles.add("button/Button.css");
+		std_exceptFiles.add("button/SwitchButton.css");
 		std_exceptFiles.add("textfield/TextField.css");
 		std_exceptFiles.add("numberfield/NumberField.css");
 		std_exceptFiles.add("combo/ComboBox.css");
