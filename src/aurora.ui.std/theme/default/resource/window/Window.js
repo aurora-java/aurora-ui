@@ -1,5 +1,6 @@
 (function(A){
 var cache = [],
+	documentOverFlow,
 	WINDOW_MANAGER =  A.WindowManager = {
 	    put : function(win){
 	        cache.add(win)
@@ -26,6 +27,15 @@ var cache = [],
 	        	zindex = Math.max(Number(win.wrap.getStyle('z-index'))||0,zindex);
 	        });
 	        return zindex;
+	    },
+	    hasFullWindow : function(){
+	    	var has = false;
+	    	Ext.each(cache,function(win){
+	    		if(win.fullScreen&&!win.usecache||win.isShow){
+	    			has = true;
+	    		}
+	    	});
+	    	return has;
 	    }
 	}
 /**
@@ -61,15 +71,13 @@ A.Window = Ext.extend(A.Component,{
         sf.width = 1*(sf.width||350);
         sf.height= 1*(sf.height||400);
         if(sf.fullScreen){
-            var style = document.documentElement.style;
-            sf.overFlow = style.overflow;
-            style.overflow = "hidden";
             sf.width=A.getViewportWidth();
             sf.height=A.getViewportHeight()-26;
             sf.draggable = false;
             sf.marginheight=1;
             sf.marginwidth=1;
         }
+        sf.rememberDocumentOverflow();
         var url = sf.url,
         	isIE = Ext.isIE,
         	wrap = sf.wrap = new Ext.Template(sf.getTemplate()).insertFirst(document.body, {
@@ -366,16 +374,36 @@ A.Window = Ext.extend(A.Component,{
         Ext.get(document.documentElement).un("mouseup", this.onCloseUp, this);
     },
     hide : function(){
-    	if(this.modal)A.Cover.uncover(this.wrap);
-    	this.wrap.setStyle({
+    	var sf = this;
+    	sf.isShow = false;
+    	if(sf.modal)A.Cover.uncover(sf.wrap);
+    	sf.wrap.setStyle({
     		display:'none'
     	});
+    	sf.restoreDocumentOverflow();
     },
     show : function(){
-    	if(this.modal)A.Cover.cover(this.wrap);
-    	this.wrap.setStyle({
+    	var sf = this;
+    	if(sf.modal)A.Cover.cover(sf.wrap);
+    	sf.wrap.setStyle({
     		display:''
     	});
+    	sf.rememberDocumentOverflow();
+    	sf.isShow = true;
+    },
+    rememberDocumentOverflow : function(){
+    	var sf = this;
+    	if(sf.fullScreen && !WINDOW_MANAGER.hasFullWindow()){
+            var style = document.documentElement.style;
+            documentOverFlow = style.overflow;
+            style.overflow = "hidden";
+    	}
+    },
+    restoreDocumentOverflow : function(){
+    	var sf = this;
+		if(sf.fullScreen && !WINDOW_MANAGER.hasFullWindow()){
+            Ext.fly(document.documentElement).setStyle({'overflow':documentOverFlow});
+        }
     },
     close : function(nocheck){
     	var sf = this;
@@ -387,9 +415,7 @@ A.Window = Ext.extend(A.Component,{
         	}
             if(sf.wrap)sf.wrap.destroying = true;
             WINDOW_MANAGER.remove(sf);
-            if(sf.fullScreen){
-                Ext.fly(document.documentElement).setStyle({'overflow':sf.overFlow})
-            }
+            sf.restoreDocumentOverflow();
             sf.destroy();
             sf.fireEvent('close', sf);
         }
