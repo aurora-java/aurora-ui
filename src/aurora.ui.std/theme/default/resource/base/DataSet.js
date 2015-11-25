@@ -30,6 +30,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         this.fetchall = config.fetchall||false;
         //Hybris
         this.dtoname = config.dtoname||'';
+        this.hybrisws = config.hybrisws;
         this.restDataFormat = config.restdataformat;
         
         this.totalcountfield = config.totalcountfield || 'totalCount';
@@ -736,7 +737,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var sf = this,
     		submiturl = sf.submiturl,
     		p = [],
-    		isRest = /\/rest\//.test(submiturl),
+    		isRest = /\/rest\//.test(submiturl)||sf.hybrisws,
     		dtoName = sf.dtoname;
         if(Ext.isEmpty(submiturl)) return;
         Ext.each(rs,function(r){
@@ -765,9 +766,10 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             	failure:sf.onAjaxFailed,
             	opts:sf.bindtarget?{record:$A.CmpManager.get(sf.bindtarget).getCurrentRecord(),dataSet:sf}:null
         	},isRest?{
+                isRest : true,
         		dtoName:dtoName,
         		restDataFormat:sf.restDataFormat,
-        		method:'Delete',
+        		//method:'Delete',
         		headers:{
         			'Content-Type':'application/json',
         			'Accept':'application/json'
@@ -1288,7 +1290,9 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         var sf = this,
         	r,q = {},
         	qurl = sf.queryurl,
-        	isRest = /\/rest\//.test(qurl),
+        	isRest = /\/rest\//.test(qurl)||sf.hybrisws,
+            isModel = /\/autocrud\//.test(qurl),
+            isRest = isRest && !isModel,
         	pagesize = sf.pagesize,
         	autocount = sf.autocount,
         	qds = sf.qds;
@@ -1353,6 +1357,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
         	ext:opts?opts.ext:null,
         	queryDataFormat : sf.queryDataFormat
         },isRest?{
+            isRest : true,
         	method:'GET',
         	headers:{
         		'Accept':'application/json'
@@ -1453,7 +1458,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
     	var sf = this,
     		url = url || sf.submiturl;
         if(Ext.isEmpty(url)) return;
-        var isRest = /\/rest\//.test(url);
+        var isRest = /\/rest\//.test(url)||sf.hybrisws;
         sf.fireBindDataSetEvent("submit",url,items);
 //        var p = items;//sf.getJsonData();
         sf.checkEmptyData(items);
@@ -1478,6 +1483,7 @@ $A.DataSet = Ext.extend(Ext.util.Observable,{
             	failure:sf.onAjaxFailed,
         		para:items
         	},isRest?{
+                isRest : true,
         		dtoName:sf.dtoname,
         		restDataFormat:sf.restDataFormat,
         		headers:{
