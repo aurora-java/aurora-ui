@@ -326,7 +326,7 @@ $A.post = function(action,data,target){
  */
 $A.request = function(opt){
     var url = opt.url,
-    	isRest = /\/rest\//.test(url),
+    	isRest = /\/rest\//.test(url)||opt.isRest,
         para = opt.para,
         xmlData = opt.xmlData,
         jsonData = opt.jsonData,
@@ -419,7 +419,7 @@ $A.request = function(opt){
 		                		res.result=res.result||{};
 		            			res.result.totalCount = Number(res.totalCount);
 		            			res.success = true;
-		                	}else if(res.modifiedResult){
+		                	}else if(res.modifiedResult||res.returnCode == 'S'){
 								var record_arr = [];
 								res.result={}
 	//							Ext.each(res.modifiedResult.record,function(r){
@@ -427,7 +427,10 @@ $A.request = function(opt){
 	//							});
 								res.result.record = para;
 			                	res.success = true;
-		                	}
+		                	}else if(res.returnCode == 'E') {
+                                res.success = false;
+                                res.error = {message:res.returnMessage};
+                            }
 		            	}
 		                if(!res.success){
 		                    $A.manager.fireEvent('ajaxfailed', $A.manager, url,para,res);
