@@ -1,6 +1,6 @@
 (function(A){
 var _N = '',
-	sd='scroll-disabled',
+    sd='scroll-disabled',
     tslo='tab-scroll-left-over',
     tsro='tab-scroll-right-over',
     tsl='tab-scroll-left',
@@ -23,11 +23,13 @@ var _N = '',
     $STRIP = '.'+STRIP,
     ERROR = '销毁Tab出错: ',
     STRIP_TPL=['<div class="strip unactive"  unselectable="on" onselectstart="return false;">',
-				'<div class="strip-left"></div>',
-				'<div style="width:{stripwidth}px;" class="strip-center"><div class="tab-close"></div>{prompt}</div>',
-				'<div class="strip-right"></div>',
-			'</div>'],
-	BODY_TPL='<div hideFocus style="height:{bodyheight}px" class="tab"></div>';
+                '<div class="strip-left"></div>',
+                '<div style="width:{stripwidth}px;" class="strip-center"><div class="tab-close"></div>{prompt}</div>',
+                '<div class="strip-right"></div>',
+            '</div>'],
+    BODY_TPL='<div  hideFocus style="height:{bodyheight}px" class="tab"></div>';
+    IFRAME_TPL='<iframe frameborder="0" style="border:none;width:{bodywidth}px;height:{bodyheight}px;left:-10000px;top:-10000px;" class="tab"></iframe>';
+
 /**
  * @class Aurora.Tab
  * @extends Aurora.Component
@@ -37,50 +39,50 @@ var _N = '',
  * @param {Object} config 配置对象. 
  */
 A.Tab = Ext.extend(A.Component,{
-	constructor: function(config){
-//		this.intervalIds=[];
-		A.Tab.superclass.constructor.call(this,config);
-	},
-	initComponent:function(config){
-		A.Tab.superclass.initComponent.call(this, config);
-		var sf = this,
-			w = sf.wrap,
-			h = sf.head = w.child('div[atype=tab.strips]'), 
-			s = sf.stripwrap = h.parent();
-		sf.stripwidth = config.stripwidth||60;
-		sf.body = w.child('div.item-tab-body');
-		sf.scrollLeft = w.child('div[atype=scroll-left]');
-		sf.scrollRight = w.child('div[atype=scroll-right]');
-		sf.sp = s.parent();
-		sf.selectTab(config.selected||0);
-	},
-	processListener: function(ou){
-		var sf = this;
-    	A.Tab.superclass.processListener.call(sf,ou);
-    	sf.sp[ou]('mousedown',sf.onMouseDown, sf)
-    		[ou]('mouseup',sf.onMouseUp, sf);
-    	sf.stripwrap[ou]('click',sf.onClick, sf)
-    		[ou]('mousewheel',sf.onMouseWheel, sf);
+    constructor: function(config){
+//      this.intervalIds=[];
+        A.Tab.superclass.constructor.call(this,config);
     },
-	initEvents:function(){
-		A.Tab.superclass.initEvents.call(this);   
-		this.addEvents(
-		/**
+    initComponent:function(config){
+        A.Tab.superclass.initComponent.call(this, config);
+        var sf = this,
+            w = sf.wrap,
+            h = sf.head = w.child('div[atype=tab.strips]'), 
+            s = sf.stripwrap = h.parent();
+        sf.stripwidth = config.stripwidth||60;
+        sf.body = w.child('div.item-tab-body');
+        sf.scrollLeft = w.child('div[atype=scroll-left]');
+        sf.scrollRight = w.child('div[atype=scroll-right]');
+        sf.sp = s.parent();
+        sf.selectTab(config.selected||0);
+    },
+    processListener: function(ou){
+        var sf = this;
+        A.Tab.superclass.processListener.call(sf,ou);
+        sf.sp[ou]('mousedown',sf.onMouseDown, sf)
+            [ou]('mouseup',sf.onMouseUp, sf);
+        sf.stripwrap[ou]('click',sf.onClick, sf)
+            [ou]('mousewheel',sf.onMouseWheel, sf);
+    },
+    initEvents:function(){
+        A.Tab.superclass.initEvents.call(this);   
+        this.addEvents(
+        /**
          * @event select
          * 选择事件.
          * @param {Aurora.TabPanel} tabPanel TabPanel对象.
          * @param {Number} index 序号.
          * @param {Aurora.Tab} tab Tab对象.
          */
-		EVT_SELECT,
-		/**
+        EVT_SELECT,
+        /**
          * @event beforeopen
          * 选择事件.
          * @param {Aurora.TabPanel} tabPanel TabPanel对象.
          * @param {Number} index 序号. 
          */
         EVT_BEFORE_OPEN,
-		/**
+        /**
          * @event beforeselect
          * 选择之前事件.
          * @param {Aurora.TabPanel} tabPanel TabPanel对象.
@@ -88,262 +90,264 @@ A.Tab = Ext.extend(A.Component,{
          * @param {Aurora.Tab} tab Tab对象.
          */
         EVT_BEFORE_SELECT
-		);
-		
-	},
-	/**
-	 * 改变某个Tab页的url。当是当前tab页时，会立即重新加载，否则会在选中之后加载。
-	 * @param {Number} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
-	 * @param {String} url 地址。
-	 */
-	setURL:function(index,url){
-		var sf = this,
-			tab = sf.getTab(index);
-		if(tab){
-			index = tab.index;
-			if(index == sf.selectedIndex){
-				sf.reloadTab(index,url);
-			}else{
-				tab.body.loaded = false;
-				sf.items[index].ref = url;
-			}
-		}
-	},
-	/**
-	 * 选中某个Tab页
-	 * @param {Number} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
-	 */
-	selectTab:function(index,needRefresh){		
-		var sf = this,tab=sf.getTab(index);
-		if(!tab)return;
-		var index=tab.index,
-			activeStrip = tab.strip,
-			activeBody = tab.body;		
-		if(activeStrip.hasClass(sd)){
-			sf.selectTab(index+1);
-			return;
-		}
-		if(sf.fireEvent(EVT_BEFORE_SELECT,sf,index,tab)){
-			sf.selectedIndex=index;			
-			if(sf.activeTab)sf.activeTab.replaceClass(ACTIVE,UNACTIVE);
-			sf.activeTab = activeStrip;
-			activeStrip.replaceClass(UNACTIVE,ACTIVE);
-			var stripwrap = sf.stripwrap,
-				scrollLeft = sf.scrollLeft,
-				scrollRight = sf.scrollRight,
-				l=activeStrip.dom.offsetLeft,w=activeStrip.getWidth(),
-				sl=stripwrap.getScroll().left,sw=stripwrap.getWidth(),hw=sf.head.getWidth();
-				tr=l+w-sl-sw,tl=sl-l;
-			if(tr>0){
-				scrollRight.removeClass(sd);
-				scrollLeft.removeClass(sd);
-				stripwrap.scrollTo(LEFT,sl+tr);
-			}else if(tl>0){
-				scrollLeft.removeClass(sd);
-				stripwrap.scrollTo(LEFT,sl-tl);
-				scrollRight.removeClass(sd);
-			}
-			if(sw+stripwrap.getScroll().left>=hw){
-				stripwrap.scrollTo(LEFT,hw-sw);
-				scrollRight.addClass(sd);
-			}else if(index==0){
-				stripwrap.scrollTo(LEFT,0);
-				scrollLeft.addClass(sd);
-			}
-			if(activeBody){
-				if(sf.activeBody){
-					sf.activeBody.setStyle({left:'-10000px',top:'-10000px'});
-				}
-				sf.activeBody = activeBody.setStyle({left:0,top:0});
-			}
-			if(sf.items[index].ref && !activeBody.loading && (activeBody.loaded!= true||needRefresh)){
-				activeBody.loading = true;
-				sf.load(sf.items[index].ref,activeBody,index);
-			}else{
-	            sf.fireEvent(EVT_SELECT, sf, index,tab);
-			}
-		}
-	},	
-	/**
-	 * 打开一个指定引用地址的Tab页，如果该指定的引用地址的页面已经被打开，则选中该Tab页
-	 * @param {String} ref Tab页面的引用地址
-	 * @param {String} prompt Tab的标题
-	 */
-	openTab : function(ref,prompt){
-		var sf = this,i=0,
-			items = sf.items,l = items.length;
-		for(;i<l;i++){
-			var item = items[i];
-			if(item.ref&&item.ref==ref){
-				sf.selectTab(i);return;
-			}
-		}
-		if(sf.fireEvent(EVT_BEFORE_OPEN,sf,l)!==false){
-			items.push({'ref':ref,prompt:prompt});
-			var stripwidth=Math.max(A.TextMetrics.measure(document.body,prompt).width+20,sf.stripwidth),
-				head = sf.head,
-				body = sf.body,
-				stripwrap = sf.stripwrap,
-				width = head.getWidth()+stripwidth+6;
-			head.setWidth(width);
-			if(width>stripwrap.getWidth()){
-				sf.scrollLeft.setStyle({display:BLOCK});
-				sf.scrollRight.setStyle({display:BLOCK});
-				stripwrap.setStyle(PADDING_LEFT,'1px');
-			}
-			new Ext.Template(STRIP_TPL).append(head.dom,{'prompt':prompt,'stripwidth':stripwidth});
-			new Ext.Template(BODY_TPL).append(body.dom,{'bodyheight':body.getHeight()});
-			sf.selectTab(l);
-		}
-	},
-	/**
-	 * 关闭某个Tab页
-	 * @param {Integer} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
-	 */
-	closeTab : function(o){
-		var sf = this,tab=sf.getTab(o);
-		if(!tab)return;
-		var strip=tab.strip,body=tab.body,index=tab.index;
-		if(!strip.child('div.'+tc)){
-			A.showWarningMessage('警告','该Tab页无法被关闭!')
-			return;
-		}
+        );
+        
+    },
+    /**
+     * 改变某个Tab页的url。当是当前tab页时，会立即重新加载，否则会在选中之后加载。
+     * @param {Number} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
+     * @param {String} url 地址。
+     */
+    setURL:function(index,url){
+        var sf = this,
+            tab = sf.getTab(index);
+        if(tab){
+            index = tab.index;
+            if(index == sf.selectedIndex){
+                sf.reloadTab(index,url);
+            }else{
+                tab.body.loaded = false;
+                sf.items[index].ref = url;
+            }
+        }
+    },
+    /**
+     * 选中某个Tab页
+     * @param {Number} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
+     */
+    selectTab:function(index,needRefresh){      
+        var sf = this,tab=sf.getTab(index);
+        if(!tab)return;
+        var index=tab.index,
+            activeStrip = tab.strip,
+            activeBody = tab.body;      
+        if(activeStrip.hasClass(sd)){
+            sf.selectTab(index+1);
+            return;
+        }
+        if(sf.fireEvent(EVT_BEFORE_SELECT,sf,index,tab)){
+            sf.selectedIndex=index;         
+            if(sf.activeTab)sf.activeTab.replaceClass(ACTIVE,UNACTIVE);
+            sf.activeTab = activeStrip;
+            activeStrip.replaceClass(UNACTIVE,ACTIVE);
+            var stripwrap = sf.stripwrap,
+                scrollLeft = sf.scrollLeft,
+                scrollRight = sf.scrollRight,
+                l=activeStrip.dom.offsetLeft,w=activeStrip.getWidth(),
+                sl=stripwrap.getScroll().left,sw=stripwrap.getWidth(),hw=sf.head.getWidth();
+                tr=l+w-sl-sw,tl=sl-l;
+            if(tr>0){
+                scrollRight.removeClass(sd);
+                scrollLeft.removeClass(sd);
+                stripwrap.scrollTo(LEFT,sl+tr);
+            }else if(tl>0){
+                scrollLeft.removeClass(sd);
+                stripwrap.scrollTo(LEFT,sl-tl);
+                scrollRight.removeClass(sd);
+            }
+            if(sw+stripwrap.getScroll().left>=hw){
+                stripwrap.scrollTo(LEFT,hw-sw);
+                scrollRight.addClass(sd);
+            }else if(index==0){
+                stripwrap.scrollTo(LEFT,0);
+                scrollLeft.addClass(sd);
+            }
+            if(activeBody){
+                if(sf.activeBody){
+                    sf.activeBody.setStyle({left:'-10000px',top:'-10000px'});
+                }
+                sf.activeBody = activeBody.setStyle({left:0,top:0});
+            }
+            if(sf.items[index].ref && !activeBody.loading && (activeBody.loaded!= true||needRefresh)){
+                activeBody.loading = true;
+                sf.load(sf.items[index].ref,activeBody,index);
+            }else{
+                sf.fireEvent(EVT_SELECT, sf, index,tab);
+            }
+        }
+    },  
+    /**
+     * 打开一个指定引用地址的Tab页，如果该指定的引用地址的页面已经被打开，则选中该Tab页
+     * @param {String} ref Tab页面的引用地址
+     * @param {String} prompt Tab的标题
+     */
+    openTab : function(ref,prompt){
+        var sf = this,i=0,
+            items = sf.items,l = items.length;
+        for(;i<l;i++){
+            var item = items[i];
+            if(item.ref&&item.ref==ref){
+                sf.selectTab(i);return;
+            }
+        }
+        if(sf.fireEvent(EVT_BEFORE_OPEN,sf,l)!==false){
+            items.push({'ref':ref,prompt:prompt});
+            var stripwidth=Math.max(A.TextMetrics.measure(document.body,prompt).width+20,sf.stripwidth),
+                head = sf.head,
+                body = sf.body,
+                stripwrap = sf.stripwrap,
+                width = head.getWidth()+stripwidth+6;
+            head.setWidth(width);
+            if(width>stripwrap.getWidth()){
+                sf.scrollLeft.setStyle({display:BLOCK});
+                sf.scrollRight.setStyle({display:BLOCK});
+                stripwrap.setStyle(PADDING_LEFT,'1px');
+            }
+            new Ext.Template(STRIP_TPL).append(head.dom,{'prompt':prompt,'stripwidth':stripwidth});
+//          new Ext.Template(BODY_TPL).append(body.dom,{'bodyheight':body.getHeight()});
+            new Ext.Template(sf.loadtype == 'iframe' ? IFRAME_TPL : BODY_TPL).append(body.dom,{id:sf.id,'bodywidth':body.getWidth()-body.getBorderWidth('lr'),'bodyheight':body.getHeight()-body.getBorderWidth('tb')});
+
+            sf.selectTab(l);
+        }
+    },
+    /**
+     * 关闭某个Tab页
+     * @param {Integer} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
+     */
+    closeTab : function(o){
+        var sf = this,tab=sf.getTab(o);
+        if(!tab)return;
+        var strip=tab.strip,body=tab.body,index=tab.index;
+        if(!strip.child('div.'+tc)){
+            A.showWarningMessage('警告','该Tab页无法被关闭!')
+            return;
+        }
         if(sf.activeBody == tab.body){
             sf.activeBody=null;
             sf.activeTab=null;
         }
-		sf.items.splice(index,1);
-		var head = sf.head,
-			stripwrap = sf.stripwrap,
-			width= head.getWidth()-strip.getWidth();
-//		head.setWidth(width);//IE8慢
-		if(width <= stripwrap.getWidth()){
-			sf.scrollLeft.setStyle({display:NONE});
-			sf.scrollRight.setStyle({display:NONE});
-			stripwrap.setStyle(PADDING_LEFT,'0');
-		}
-		strip.remove();
-		body.remove();
+        sf.items.splice(index,1);
+        var head = sf.head,
+            stripwrap = sf.stripwrap,
+            width= head.getWidth()-strip.getWidth();
+//      head.setWidth(width);//IE8慢
+        if(width <= stripwrap.getWidth()){
+            sf.scrollLeft.setStyle({display:NONE});
+            sf.scrollRight.setStyle({display:NONE});
+            stripwrap.setStyle(PADDING_LEFT,'0');
+        }
+        strip.remove();
+        body.remove();
         
-		delete body.loaded;
-		(function(){
-			Ext.iterate(body.cmps,function(key,cmp){
-				if(cmp.destroy){
-        			try{
-        				cmp.destroy();
-        			}catch(e){
-        				alert(ERROR + e)
-        			}
-        		}
-			});
+        delete body.loaded;
+        (function(){
+            Ext.iterate(body.cmps,function(key,cmp){
+                if(cmp.destroy){
+                    try{
+                        cmp.destroy();
+                    }catch(e){
+                        alert(ERROR + e)
+                    }
+                }
+            });
             head.setWidth(width);
         }).defer(10);
-		if(index==sf.selectedIndex)sf.selectTab(index-1);
-		else if(index<sf.selectedIndex)sf.selectedIndex--;
-	},
-	destroy : function(){
-//		var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
+        if(index==sf.selectedIndex)sf.selectTab(index-1);
+        else if(index<sf.selectedIndex)sf.selectedIndex--;
+    },
+    destroy : function(){
+//      var bodys = Ext.DomQuery.select('div.tab',this.body.dom);
         Ext.each(this.body.dom.children,function(body){
-        	Ext.iterate(Ext.get(body).cmps,function(key,cmp){
-        		if(cmp.destroy){
-        			try{
-        				cmp.destroy();
-        			}catch(e){
-        				alert(ERROR + e)
-        			}
-        		}
-        	});
+            Ext.iterate(Ext.get(body).cmps,function(key,cmp){
+                if(cmp.destroy){
+                    try{
+                        cmp.destroy();
+                    }catch(e){
+                        alert(ERROR + e)
+                    }
+                }
+            });
         });
-		A.Tab.superclass.destroy.call(this); 
-	},
-	/**
-	 * 将某个Tab页设为不可用。当TabItem有且仅有1个时，该方法无效果。
-	 * @param {Integer} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
-	 */
-	setDisabled : function(index){
-		var sf = this,tab = sf.getTab(index);
-		if(!tab)return;
-		if(sf.items.length > 1){
-			var strip = tab.strip,index = tab.index;
-			if(sf.activeTab==strip){
-				sf.selectTab(index+(sf.getTab(index+1)?1:-1))
-			}
-			strip.addClass(sd);
-		}
-	},
-	/**
-	 * 将某个Tab页设为可用
-	 * @param {Integer} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
-	 */
-	setEnabled : function(index){
-		var tab = this.getTab(index);
-		if(!tab)return;
-		tab.strip.removeClass(sd);
-	},
-	getTab : function(o){
-		var sf = this,
-			bodys = sf.body.query('>div.tab'),//Ext.DomQuery.select('div.tab',this.body.dom),
-        	strips = sf.head.query('div.strip'),//Ext.DomQuery.select('div.strip',this.head.dom),
-        	strip,body;
-		if(Ext.isNumber(o)){
-			if(o<0)o+=strips.length;
-			o=Math.round(o);
-			if(strips[o]){
-				strip=Ext.get(strips[o]);
-				body=Ext.get(bodys[o]);
-			}
-		}else {
-			o=Ext.get(o);
-			o=Ext.each(strips,function(s,i){
-				if(s == o.dom){
-					strip=o;
-					body=Ext.get(bodys[i]);
-					return false;
-				}
-			});
-		}
-		if(strip){
-			body.loaded = !(sf.items[o].ref && body.loaded!=true);
-			return {'strip':strip,'body':body,'index':o};
-		}else{
-			return null;
-		}
-	},
-	scrollTo : function(lr){
-		var sf = this,
-			stripwrap = sf.stripwrap,
-			scrollRight = sf.scrollRight,
-			scrollLeft = sf.scrollLeft,
-			sl = stripwrap.getScroll().left,
-			sw = sf.stripwidth;
-		if(lr==LEFT){
-			stripwrap.scrollTo(LEFT,sl-sw);
-			scrollRight.removeClass(sd);
-			if(stripwrap.getScroll().left<=0){
-				scrollLeft.addClass(sd).replaceClass(tslo,tsl);
-				sf.stopScroll();
-			}
-		}else if(lr==RIGHT){
-			stripwrap.scrollTo(LEFT,sl+sw);
-			scrollLeft.removeClass(sd);
-			if(stripwrap.getScroll().left+stripwrap.getWidth()>=sf.head.getWidth()){
-				scrollRight.addClass(sd).replaceClass(tsro,tsr);
-				sf.stopScroll();
-			}
-		}
-	},
-	stopScroll : function(){
-		if(this.scrollInterval){
-			clearInterval(this.scrollInterval);
-			delete this.scrollInterval;
-		}
-	},
-	onClick : function(e,t){
-		var el=Ext.fly(t);
-		if(el.hasClass(tc))this.closeTab(el.parent($STRIP));
-	},
-	onMouseWheel : function(e){
-		var delta = e.getWheelDelta();
+        A.Tab.superclass.destroy.call(this); 
+    },
+    /**
+     * 将某个Tab页设为不可用。当TabItem有且仅有1个时，该方法无效果。
+     * @param {Integer} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
+     */
+    setDisabled : function(index){
+        var sf = this,tab = sf.getTab(index);
+        if(!tab)return;
+        if(sf.items.length > 1){
+            var strip = tab.strip,index = tab.index;
+            if(sf.activeTab==strip){
+                sf.selectTab(index+(sf.getTab(index+1)?1:-1))
+            }
+            strip.addClass(sd);
+        }
+    },
+    /**
+     * 将某个Tab页设为可用
+     * @param {Integer} index TabItem序号。当index<0时，TabItem序号等于TabItem的个数加上index。
+     */
+    setEnabled : function(index){
+        var tab = this.getTab(index);
+        if(!tab)return;
+        tab.strip.removeClass(sd);
+    },
+    getTab : function(o){
+        var sf = this,
+            bodys = sf.body.query('>.tab'),//Ext.DomQuery.select('div.tab',this.body.dom),
+            strips = sf.head.query('div.strip'),//Ext.DomQuery.select('div.strip',this.head.dom),
+            strip,body;
+        if(Ext.isNumber(o)){
+            if(o<0)o+=strips.length;
+            o=Math.round(o);
+            if(strips[o]){
+                strip=Ext.get(strips[o]);
+                body=Ext.get(bodys[o]);
+            }
+        }else {
+            o=Ext.get(o);
+            o=Ext.each(strips,function(s,i){
+                if(s == o.dom){
+                    strip=o;
+                    body=Ext.get(bodys[i]);
+                    return false;
+                }
+            });
+        }
+        if(strip){
+            body.loaded = !(sf.items[o].ref && body.loaded!=true);
+            return {'strip':strip,'body':body,'index':o};
+        }else{
+            return null;
+        }
+    },
+    scrollTo : function(lr){
+        var sf = this,
+            stripwrap = sf.stripwrap,
+            scrollRight = sf.scrollRight,
+            scrollLeft = sf.scrollLeft,
+            sl = stripwrap.getScroll().left,
+            sw = sf.stripwidth;
+        if(lr==LEFT){
+            stripwrap.scrollTo(LEFT,sl-sw);
+            scrollRight.removeClass(sd);
+            if(stripwrap.getScroll().left<=0){
+                scrollLeft.addClass(sd).replaceClass(tslo,tsl);
+                sf.stopScroll();
+            }
+        }else if(lr==RIGHT){
+            stripwrap.scrollTo(LEFT,sl+sw);
+            scrollLeft.removeClass(sd);
+            if(stripwrap.getScroll().left+stripwrap.getWidth()>=sf.head.getWidth()){
+                scrollRight.addClass(sd).replaceClass(tsro,tsr);
+                sf.stopScroll();
+            }
+        }
+    },
+    stopScroll : function(){
+        if(this.scrollInterval){
+            clearInterval(this.scrollInterval);
+            delete this.scrollInterval;
+        }
+    },
+    onClick : function(e,t){
+        var el=Ext.fly(t);
+        if(el.hasClass(tc))this.closeTab(el.parent($STRIP));
+    },
+    onMouseWheel : function(e){
+        var delta = e.getWheelDelta();
         if(delta > 0){
             this.scrollTo(LEFT);
             e.stopEvent();
@@ -351,30 +355,30 @@ A.Tab = Ext.extend(A.Component,{
             this.scrollTo(RIGHT);
             e.stopEvent();
         }
-	},
-	onMouseDown : function(e,t){
-		var el=Ext.fly(t),strip = el.parent($STRIP),sf=this;
-		if(el.hasClass(tc)){
-			el.removeClass(tbo).addClass(tbd);
-		}else if(el.hasClass(ts) && !el.hasClass(sd)){
-			if(el.hasClass(tslo))sf.scrollTo(LEFT);
-			else sf.scrollTo(RIGHT);
-			sf.scrollInterval=setInterval(function(){
-				if(el.hasClass(ts)&&!el.hasClass(sd)){
-					if(el.hasClass(tslo))sf.scrollTo(LEFT);
-					else sf.scrollTo(RIGHT);
-					if(el.hasClass(sd))clearInterval(sf.scrollInterval);
-				}
-			},100);
-		}else if(strip && strip.hasClass(STRIP) && !strip.hasClass(ACTIVE) && !strip.hasClass(sd)){
-			sf.selectTab(strip);
-		}
-	},
-	onMouseUp : function(e){
-		this.stopScroll();
-	},
-	onMouseOver : function(e,t){
-		var el=Ext.fly(t),strip = el.parent($STRIP);
+    },
+    onMouseDown : function(e,t){
+        var el=Ext.fly(t),strip = el.parent($STRIP),sf=this;
+        if(el.hasClass(tc)){
+            el.removeClass(tbo).addClass(tbd);
+        }else if(el.hasClass(ts) && !el.hasClass(sd)){
+            if(el.hasClass(tslo))sf.scrollTo(LEFT);
+            else sf.scrollTo(RIGHT);
+            sf.scrollInterval=setInterval(function(){
+                if(el.hasClass(ts)&&!el.hasClass(sd)){
+                    if(el.hasClass(tslo))sf.scrollTo(LEFT);
+                    else sf.scrollTo(RIGHT);
+                    if(el.hasClass(sd))clearInterval(sf.scrollInterval);
+                }
+            },100);
+        }else if(strip && strip.hasClass(STRIP) && !strip.hasClass(ACTIVE) && !strip.hasClass(sd)){
+            sf.selectTab(strip);
+        }
+    },
+    onMouseUp : function(e){
+        this.stopScroll();
+    },
+    onMouseOver : function(e,t){
+        var el=Ext.fly(t),strip = el.parent($STRIP);
         if(el.hasClass(ts)&&!el.hasClass(sd)){
             if(el.hasClass(tsl))el.replaceClass(tsl,tslo);
             else if(el.hasClass(tsr))el.replaceClass(tsr,tsro);
@@ -382,18 +386,18 @@ A.Tab = Ext.extend(A.Component,{
             el.addClass(tbo);
         }
         if(strip){
-        	el = strip.child('div.'+tc);
+            el = strip.child('div.'+tc);
             if(el){
-            	var b = this.currentBtn;
+                var b = this.currentBtn;
                 if(b)b.hide();
                 this.currentBtn=el;
                 el.show();
             }            
         }
         A.Tab.superclass.onMouseOver.call(this,e);
-	},
-	onMouseOut : function(e,t){
-		var el=Ext.fly(t),strip = el.parent($STRIP);
+    },
+    onMouseOut : function(e,t){
+        var el=Ext.fly(t),strip = el.parent($STRIP);
         if(el.hasClass(ts)&&!el.hasClass(sd)){
             this.stopScroll();
             if(el.hasClass(tslo))el.replaceClass(tslo,tsl);
@@ -408,132 +412,137 @@ A.Tab = Ext.extend(A.Component,{
             }            
         }
          A.Tab.superclass.onMouseOut.call(this,e);
-	},
-	showLoading : function(dom){
-		A.Masker.mask(dom,_lang['tab.loading']);
-//    	dom.setStyle({'text-align':'center','line-height':5}).update(_lang['tab.loading']);
+    },
+    showLoading : function(dom){
+        A.Masker.mask(dom,_lang['tab.loading']);
+//      dom.setStyle({'text-align':'center','line-height':5}).update(_lang['tab.loading']);
     },
     clearLoading : function(dom){
-    	A.Masker.unmask(dom);
-//    	dom.setStyle({'text-align':_N,'line-height':_N}).update(_N);
+        A.Masker.unmask(dom);
+//      dom.setStyle({'text-align':_N,'line-height':_N}).update(_N);
     },
     reloadTab : function(index,url){
-    	index = Ext.isEmpty(index) ? this.selectedIndex:index;
-    	var sf = this,tab=sf.getTab(index);
-    	if(!tab)return;
-    	if(url) sf.items[index].ref = url;
-    	sf.selectTab(index,true);
+        index = Ext.isEmpty(index) ? this.selectedIndex:index;
+        var sf = this,tab=sf.getTab(index);
+        if(!tab)return;
+        if(url) sf.items[index].ref = url;
+        sf.selectTab(index,true);
     },
-	load : function(url,dom,index){
+    load : function(url,dom,index){
         var sf = this,body = Ext.get(dom);
         Ext.iterate(body.cmps,function(key,cmp){
-    		if(cmp.destroy){
-    			try{
-    				cmp.destroy();
-    			}catch(e){
-    				alert(ERROR + e)
-    			}
-    		}
-    	});
-    	body.update(_N);
-		body.cmps={};
-		sf.showLoading(body);
-		//TODO:错误信息
-    	Ext.Ajax.request({
-//			url: Ext.urlAppend(url,'_vw='+sf.width+'&_vh='+(sf.height-sf.head.getHeight())),
-			url: url,
-			failure: function(response, opts){
-				sf.clearLoading(body);
-				var msg=['<div style="text-align:center;line-height:30px">'];
-				switch(response.status){
-			        case 404:
-			            msg.push('<H2>',response.status , _lang['ajax.error'],'</H2>', _lang['ajax.error.404']+'"'+ response.statusText+'"');
-			            break;
-			        case 500:
-			            msg.push('<H2>',response.status , _lang['ajax.error'],'</H2>',_lang['tab.internet.error'],'<a href="javascript:$(\''+sf.id+'\').selectTab('+index+')">',_lang['tab.internet.refresh'],'</a>');
-			            break;
-			        case 0:
-			            break;
-			        default:
-			            msg.push(_lang['ajax.error'], response.statusText);
-			            break;
-			    } 
-			    msg.push('</div>');
-				body.update(msg.join(''));
-				body.loading = false;
-			},
-		   	success: function(response, options){
-                var res;
-                try {
-                    res = Ext.decode(response.responseText);
-                }catch(e){}            
-                if(res && res.success == false){
-                    if(res.error){
-                        if(res.error.code  && res.error.code == 'session_expired'){
-                            A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
-                        }else{
-                            A.manager.fireEvent('ajaxfailed', A.manager, options.url,options.para,res);
-                            var st = res.error.stackTrace,
-                            	em = res.error.message;
-                            st = st ? st.replaceAll('\r\n','</br>') : _N;
-                            A.showErrorMessage(_lang['window.error'], em?em+'</br>'+st:st,null,400,em && st==_N ? 150 : 250);
-                        }
-                    }
-                    body.loading = false;
-                    return;
+            if(cmp.destroy){
+                try{
+                    cmp.destroy();
+                }catch(e){
+                    alert(ERROR + e)
                 }
-		    	var html = response.responseText;
-//	    		sf.intervalIds[index]=setInterval(function(){
-//	    			if(!A.focusTab){
-//				    	clearInterval(sf.intervalIds[index]);
-//						A.focusTab=body;
-//						try{
-                            body.set({url:url});
-					    	body.update(html,true,function(){
-						    	sf.clearLoading(body);
-//					    		A.focusTab=null;
-					    		body.loaded = true;
-					    		body.loading = false;
-			                    sf.fireEvent(EVT_SELECT, sf, index)
-					    	},body);
-//						}catch(e){
-//							A.focusTab=null;
-//						}
-//	    			}
-//		    	},10)
-		    }
-		});		
+            }
+        });
+        body.update(_N);
+        body.cmps={};
+        if(body.dom.tagName.toLowerCase() == 'iframe'){
+            var url = Ext.urlAppend(url,Ext.urlEncode(Ext.apply({},{_sph:body.getHeight(),_spw:body.getWidth()})));
+            body.dom.src = url;
+        }else {
+            sf.showLoading(body);
+            //TODO:错误信息
+            Ext.Ajax.request({
+    //          url: Ext.urlAppend(url,'_vw='+sf.width+'&_vh='+(sf.height-sf.head.getHeight())),
+                url: url,
+                failure: function(response, opts){
+                    sf.clearLoading(body);
+                    var msg=['<div style="text-align:center;line-height:30px">'];
+                    switch(response.status){
+                        case 404:
+                            msg.push('<H2>',response.status , _lang['ajax.error'],'</H2>', _lang['ajax.error.404']+'"'+ response.statusText+'"');
+                            break;
+                        case 500:
+                            msg.push('<H2>',response.status , _lang['ajax.error'],'</H2>',_lang['tab.internet.error'],'<a href="javascript:$(\''+sf.id+'\').selectTab('+index+')">',_lang['tab.internet.refresh'],'</a>');
+                            break;
+                        case 0:
+                            break;
+                        default:
+                            msg.push(_lang['ajax.error'], response.statusText);
+                            break;
+                    } 
+                    msg.push('</div>');
+                    body.update(msg.join(''));
+                    body.loading = false;
+                },
+                success: function(response, options){
+                    var res;
+                    try {
+                        res = Ext.decode(response.responseText);
+                    }catch(e){}            
+                    if(res && res.success == false){
+                        if(res.error){
+                            if(res.error.code  && res.error.code == 'session_expired'){
+                                A.showErrorMessage(_lang['ajax.error'],  _lang['session.expired']);
+                            }else{
+                                A.manager.fireEvent('ajaxfailed', A.manager, options.url,options.para,res);
+                                var st = res.error.stackTrace,
+                                    em = res.error.message;
+                                st = st ? st.replaceAll('\r\n','</br>') : _N;
+                                A.showErrorMessage(_lang['window.error'], em?em+'</br>'+st:st,null,400,em && st==_N ? 150 : 250);
+                            }
+                        }
+                        body.loading = false;
+                        return;
+                    }
+                    var html = response.responseText;
+    //              sf.intervalIds[index]=setInterval(function(){
+    //                  if(!A.focusTab){
+    //                      clearInterval(sf.intervalIds[index]);
+    //                      A.focusTab=body;
+    //                      try{
+                                body.set({url:url});
+                                body.update(html,true,function(){
+                                    sf.clearLoading(body);
+    //                              A.focusTab=null;
+                                    body.loaded = true;
+                                    body.loading = false;
+                                    sf.fireEvent(EVT_SELECT, sf, index)
+                                },body);
+    //                      }catch(e){
+    //                          A.focusTab=null;
+    //                      }
+    //                  }
+    //              },10)
+                }
+            }); 
+        }
     },
     setWidth : function(w){
-    	w = Math.max(w,2);
-    	var sf = this;
-    	if(sf.width==w)return;
-    	A.Tab.superclass.setWidth.call(sf, w);
-    	var body = sf.body,head = sf.head,stripwrap = sf.stripwrap,
-    		scrollLeft = sf.scrollLeft,scrollRight= sf.scrollRight;
-    	stripwrap.setWidth(w-38);
-    	if(w-38<head.getWidth()){
-			scrollLeft.setStyle({display:_N});
-			scrollRight.setStyle({display:_N});
-			stripwrap.setStyle(PADDING_LEFT,'1px');
-			var sl=stripwrap.getScroll().left,sw=stripwrap.getWidth(),hw=head.getWidth();
-			if(sl<=0)scrollLeft.addClass(sd);
-			else scrollLeft.removeClass(sd);
-			if(sl+sw>=hw){
-				if(!scrollRight.hasClass(sd))scrollRight.addClass(sd);
-				else stripwrap.scrollTo(LEFT,hw-sw);
-			}else scrollRight.removeClass(sd);
-    	}else{
-			scrollLeft.setStyle({display:NONE});
-			scrollRight.setStyle({display:NONE});
-			stripwrap.setStyle(PADDING_LEFT,'0').scrollTo(LEFT,0);
-    	}
+        w = Math.max(w,2);
+        var sf = this;
+        if(sf.width==w)return;
+        A.Tab.superclass.setWidth.call(sf, w);
+        var body = sf.body,head = sf.head,stripwrap = sf.stripwrap,
+            scrollLeft = sf.scrollLeft,scrollRight= sf.scrollRight;
+        stripwrap.setWidth(w-38);
+        if(w-38<head.getWidth()){
+            scrollLeft.setStyle({display:_N});
+            scrollRight.setStyle({display:_N});
+            stripwrap.setStyle(PADDING_LEFT,'1px');
+            var sl=stripwrap.getScroll().left,sw=stripwrap.getWidth(),hw=head.getWidth();
+            if(sl<=0)scrollLeft.addClass(sd);
+            else scrollLeft.removeClass(sd);
+            if(sl+sw>=hw){
+                if(!scrollRight.hasClass(sd))scrollRight.addClass(sd);
+                else stripwrap.scrollTo(LEFT,hw-sw);
+            }else scrollRight.removeClass(sd);
+        }else{
+            scrollLeft.setStyle({display:NONE});
+            scrollRight.setStyle({display:NONE});
+            stripwrap.setStyle(PADDING_LEFT,'0').scrollTo(LEFT,0);
+        }
     },
     setHeight : function(h){
-    	h = Math.max(h,25);
-    	if(this.height==h)return;
-    	A.Tab.superclass.setHeight.call(this, h);
-    	this.body.setHeight(h-26);
+        h = Math.max(h,25);
+        if(this.height==h)return;
+        A.Tab.superclass.setHeight.call(this, h);
+        this.body.setHeight(h-26);
     }
 });
 })($A);
