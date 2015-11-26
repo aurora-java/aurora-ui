@@ -67,6 +67,7 @@ A.Window = Ext.extend(A.Component,{
     initComponent : function(config){
         var sf = this;
         A.Window.superclass.initComponent.call(sf, config);
+        sf.rememberDocumentOverflow();
         WINDOW_MANAGER.put(sf);
         sf.width = 1*(sf.width||350);
         sf.height= 1*(sf.height||400);
@@ -77,7 +78,6 @@ A.Window = Ext.extend(A.Component,{
             sf.marginheight=1;
             sf.marginwidth=1;
         }
-        sf.rememberDocumentOverflow();
         var url = sf.url,
         	isIE = Ext.isIE,
         	wrap = sf.wrap = new Ext.Template(sf.getTemplate()).insertFirst(document.body, {
