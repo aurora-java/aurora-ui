@@ -84,9 +84,10 @@ function ${id}(){
         upload_success_handler : function(file, serverData, responseReceived) {
             var res = Ext.decode(serverData);
             var record = $('${id}_ds').find('file_id', file.id);
-            if(!isNaN(res)){
+            if(!isNaN(res.attachment_id)){
                 if (record) {
-                    if(serverData != '') record.set('attachment_id',serverData);
+                    record.set('attachment_id',res.attachment_id);
+                    record.set('access_id',res.access_id);
                     record.set('status', 1);
                     record.set('creation_time',new Date())
                     record.commit();

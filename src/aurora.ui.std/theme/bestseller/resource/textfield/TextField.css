@@ -2,6 +2,7 @@
     border:0;  
     line-height:16px;
     padding:0;
+    outline: none;
     /*padding-top:2px; */
     background: url(../base/s.gif); 
     width:100%;

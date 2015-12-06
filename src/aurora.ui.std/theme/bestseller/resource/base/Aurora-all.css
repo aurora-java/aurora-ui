@@ -779,9 +779,9 @@ button div {
 }
 
 .item-btn-bs {
-    background-color: #002c4f;
+    background-color: #070103;
     background-image: none;
-    border: 1px solid #002c4f;
+    border: 1px solid #070103;
 }
 .item-btn-bs button{
     color: #fff;
@@ -793,9 +793,8 @@ button div {
 }
 
 .item-btn-bs2{
-    border: 1px solid #c1c1c1;
+    border: 1px solid #020001;
     border-radius: 2px;
-    box-shadow: 0 1px 1px #ccc;
     background: #fff;
     vertical-align: middle;
     cursor: pointer;
@@ -810,7 +809,7 @@ button div {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff',endColorstr='#f4f4f4');
 }
 .item-btn-bs2 button{
-    color: #002d4f;
+    color: #020001;
 }
 .item-btn-bs2 .item-btn-bl,.item-btn-bs2 .item-btn-bc,.item-btn-bs2 .item-btn-br {
     background-color:#f4f4f4;
@@ -819,7 +818,7 @@ button div {
     background-color:#ffffff;
 }
 .item-btn-bs2.item-btn-over{
-    border: 1px solid #000;
+    border: 1px solid #020001;
 }
 .item-btn-bs2.item-btn-over td{
     /* filter: progid:DXImageTransform.Microsoft.Gradient(enabled=false);
@@ -884,6 +883,7 @@ button div {
     border:0;  
     line-height:16px;
     padding:0;
+    outline: none;
     /*padding-top:2px; */
     background: url(../base/s.gif); 
     width:100%;

@@ -161,9 +161,10 @@ $A.HTML5Uploader = Ext.extend($A.Component,{
         var serverData = evt.target.responseText;
         var res = Ext.decode(serverData);
             var record = $(this.id+'_ds').find('file_id', fid);
-            if(!isNaN(res)){
+            if(!isNaN(res.attachment_id)){
                 if (record) {
-                    if(serverData != '') record.set('attachment_id',serverData);
+                    record.set('attachment_id',res.attachment_id);
+                    record.set('access_id',res.access_id);
                     record.set('status', 1);
                     record.set('creation_time',new Date())
                     record.commit();
@@ -316,8 +317,10 @@ $A.ResumableUploader = Ext.extend($A.HTML5Uploader,{
             if(file instanceof ResumableChunk){
                 var record = $(self.id+'_ds').find('file_id', file.fileObj.fid);
                 if (message && message.substr(0,8) == 'Finished' && record) {
-                    var id = message.split('-')[1];
-                    record.set('attachment_id',id);
+                    var res = message.split('-')[1];
+                    var json = Ext.decode(res);
+                    record.set('attachment_id',json.attachment_id);
+                    record.set('access_id',json.access_id);
                     record.set('status', 1);
                     record.set('creation_time',new Date())
                     record.commit();
